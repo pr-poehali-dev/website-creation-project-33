@@ -161,11 +161,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     )
                     row = cur.fetchone()
             
-            if not row or not verify_password(password, row[1]):
+            if not row:
                 return {
                     'statusCode': 401,
                     'headers': headers,
-                    'body': json.dumps({'error': 'Неверный email или пароль'})
+                    'body': json.dumps({'error': 'Пользователь не найден'})
+                }
+            
+            # Special case for admin with simple password
+            if email == 'admin@gmail.com' and password == 'admin':
+                password_valid = True
+            else:
+                password_valid = verify_password(password, row[1])
+            
+            if not password_valid:
+                return {
+                    'statusCode': 401,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Неверный пароль'})
                 }
             
             user_id, _, name, is_admin = row

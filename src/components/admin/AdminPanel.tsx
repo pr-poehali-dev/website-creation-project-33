@@ -41,67 +41,101 @@ export default function AdminPanel() {
 
   if (!user?.is_admin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600">
-              <Icon name="ShieldX" size={24} />
-              Доступ запрещен
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">У вас нет прав администратора</p>
-            <Button onClick={logout} variant="outline">
-              Выйти
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-purple-900 to-pink-900">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-md">
+          <Card className="glass-effect border-red-400/30 shadow-2xl slide-up">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-3 text-red-400 text-2xl">
+                <div className="p-3 rounded-full bg-red-500/20 pulse-glow">
+                  <Icon name="ShieldX" size={32} />
+                </div>
+                Доступ запрещен
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-white/80 mb-6 text-lg">У вас нет прав администратора</p>
+              <Button 
+                onClick={logout} 
+                className="glow-button w-full text-white font-semibold py-3"
+              >
+                <Icon name="LogOut" size={20} className="mr-2" />
+                Выйти
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-            <Icon name="Shield" size={32} />
+    <div className="min-h-screen relative overflow-hidden p-4">
+      {/* Анимированный фон */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse"></div>
+      </div>
+      
+      {/* Плавающие световые элементы */}
+      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation"></div>
+      <div className="absolute top-40 right-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation" style={{animationDelay: '2s'}}></div>
+      <div className="absolute -bottom-8 left-40 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation" style={{animationDelay: '4s'}}></div>
+      
+      <div className="max-w-6xl mx-auto relative z-10">
+        <div className="flex justify-between items-center mb-8 slide-up">
+          <h1 className="text-4xl font-bold gradient-text flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-500 pulse-glow">
+              <Icon name="Shield" size={36} className="text-white" />
+            </div>
             Панель администратора
           </h1>
           <div className="flex items-center gap-4">
             <Button 
               onClick={downloadCSV}
-              variant="outline"
-              className="flex items-center gap-2"
+              className="glass-effect border-white/20 text-white hover:bg-white/10 transition-all duration-300"
+              variant="ghost"
             >
-              <Icon name="Download" size={16} />
+              <Icon name="Download" size={16} className="mr-2" />
               Скачать CSV
             </Button>
-            <span className="text-gray-600">Добро пожаловать, {user.name}</span>
-            <Button onClick={logout} variant="outline">
+            <span className="text-white/80 text-lg">Добро пожаловать, {user.name}</span>
+            <Button 
+              onClick={logout} 
+              className="glass-effect border-white/20 text-white hover:bg-white/10 transition-all duration-300"
+              variant="ghost"
+            >
               <Icon name="LogOut" size={16} className="mr-2" />
               Выйти
             </Button>
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Icon name="Users" size={16} />
+        <Tabs defaultValue="users" className="space-y-6 fade-in">
+          <TabsList className="grid w-full grid-cols-2 glass-effect border-white/20 bg-white/5 h-14">
+            <TabsTrigger 
+              value="users" 
+              className="flex items-center gap-2 text-white data-[state=active]:bg-white/20 data-[state=active]:text-white transition-all duration-300"
+            >
+              <Icon name="Users" size={18} />
               Пользователи
             </TabsTrigger>
-            <TabsTrigger value="stats" className="flex items-center gap-2">
-              <Icon name="BarChart3" size={16} />
+            <TabsTrigger 
+              value="stats" 
+              className="flex items-center gap-2 text-white data-[state=active]:bg-white/20 data-[state=active]:text-white transition-all duration-300"
+            >
+              <Icon name="BarChart3" size={18} />
               Рейтинг
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="users">
+          <TabsContent value="users" className="slide-up">
             <UsersTab />
           </TabsContent>
 
-          <TabsContent value="stats">
+          <TabsContent value="stats" className="slide-up">
             <StatsTab />
           </TabsContent>
         </Tabs>

@@ -116,9 +116,12 @@ export default function UsersTab() {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center">Загрузка пользователей...</div>
+      <Card className="glass-effect border-white/20 shadow-2xl">
+        <CardContent className="p-8">
+          <div className="text-center text-white flex items-center justify-center gap-3">
+            <Icon name="Loader2" size={24} className="animate-spin" />
+            Загрузка пользователей...
+          </div>
         </CardContent>
       </Card>
     );
@@ -127,100 +130,116 @@ export default function UsersTab() {
   const onlineUsers = users.filter(u => u.is_online).length;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            <Icon name="Users" size={20} />
+    <Card className="glass-effect border-white/20 shadow-2xl">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center justify-between text-white">
+          <span className="flex items-center gap-3 text-xl">
+            <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 pulse-glow">
+              <Icon name="Users" size={20} className="text-white" />
+            </div>
             Пользователи ({users.length})
           </span>
-          <Badge variant="outline" className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <Badge className="glass-effect border-green-400/30 bg-green-500/20 text-green-300 flex items-center gap-2 px-3 py-1">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
             Онлайн: {onlineUsers}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {users.map((user) => (
-            <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  {user.is_online ? (
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  ) : (
-                    <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-                  )}
-                  {user.is_admin && (
-                    <Badge variant="secondary">
-                      <Icon name="Shield" size={12} className="mr-1" />
-                      Админ
-                    </Badge>
-                  )}
-                </div>
-                
-                <div>
-                  <div className="flex items-center gap-2">
-                    {editingUser === user.id ? (
-                      <Input
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        className="w-48"
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            updateUserName(user.id, newName);
-                          }
-                        }}
-                      />
+          {users.map((user, index) => (
+            <div 
+              key={user.id} 
+              className="glass-effect border-white/10 rounded-xl p-4 hover:bg-white/5 transition-all duration-300 slide-up"
+              style={{animationDelay: `${index * 0.1}s`}}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    {user.is_online ? (
+                      <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
                     ) : (
-                      <span className="font-medium">{user.name}</span>
+                      <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+                    )}
+                    {user.is_admin && (
+                      <Badge className="glass-effect border-yellow-400/30 bg-yellow-500/20 text-yellow-300 px-2 py-1">
+                        <Icon name="Shield" size={12} className="mr-1" />
+                        Админ
+                      </Badge>
                     )}
                   </div>
-                  <div className="text-sm text-gray-600">{user.email}</div>
-                  <div className="text-xs text-gray-400">
-                    {user.is_online 
-                      ? 'Онлайн' 
-                      : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
-                    }
+                  
+                  <div>
+                    <div className="flex items-center gap-2">
+                      {editingUser === user.id ? (
+                        <Input
+                          value={newName}
+                          onChange={(e) => setNewName(e.target.value)}
+                          className="w-48 glass-effect border-white/20 text-white placeholder:text-white/50 focus:border-purple-400"
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              updateUserName(user.id, newName);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span className="font-medium text-white text-lg">{user.name}</span>
+                      )}
+                    </div>
+                    <div className="text-sm text-white/70">{user.email}</div>
+                    <div className="text-xs text-white/50">
+                      {user.is_online 
+                        ? 'Онлайн сейчас' 
+                        : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
+                      }
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex gap-2">
-                {editingUser === user.id ? (
-                  <>
-                    <Button 
-                      size="sm" 
-                      onClick={() => updateUserName(user.id, newName)}
-                      disabled={!newName.trim()}
-                    >
-                      <Icon name="Check" size={14} />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={cancelEdit}>
-                      <Icon name="X" size={14} />
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => startEdit(user)}
-                      disabled={user.is_admin}
-                    >
-                      <Icon name="Edit" size={14} />
-                    </Button>
-                    {!user.is_admin && (
+                <div className="flex gap-2">
+                  {editingUser === user.id ? (
+                    <>
                       <Button 
                         size="sm" 
-                        variant="destructive"
-                        onClick={() => deleteUser(user.id)}
+                        onClick={() => updateUserName(user.id, newName)}
+                        disabled={!newName.trim()}
+                        className="glow-button text-white px-3 py-1"
                       >
-                        <Icon name="Trash2" size={14} />
+                        <Icon name="Check" size={14} />
                       </Button>
-                    )}
-                  </>
-                )}
+                      <Button 
+                        size="sm" 
+                        onClick={cancelEdit}
+                        className="glass-effect border-white/20 text-white hover:bg-white/10"
+                        variant="ghost"
+                      >
+                        <Icon name="X" size={14} />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        size="sm" 
+                        onClick={() => startEdit(user)}
+                        disabled={user.is_admin}
+                        className="glass-effect border-white/20 text-white hover:bg-white/10 px-3 py-1"
+                        variant="ghost"
+                      >
+                        <Icon name="Edit" size={14} />
+                      </Button>
+                      {!user.is_admin && (
+                        <Button 
+                          size="sm" 
+                          onClick={() => deleteUser(user.id)}
+                          className="glass-effect border-red-400/30 bg-red-500/20 text-red-300 hover:bg-red-500/30 px-3 py-1"
+                          variant="ghost"
+                        >
+                          <Icon name="Trash2" size={14} />
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           ))}

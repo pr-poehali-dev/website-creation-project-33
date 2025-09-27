@@ -124,27 +124,43 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-2xl mx-auto pt-8">
-        <div className="flex justify-between items-center mb-8">
+    <div className="min-h-screen relative overflow-hidden p-4">
+      {/* Анимированный фон */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse"></div>
+      </div>
+      
+      {/* Плавающие световые элементы */}
+      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation"></div>
+      <div className="absolute top-40 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation" style={{animationDelay: '2s'}}></div>
+      <div className="absolute -bottom-8 left-40 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation" style={{animationDelay: '4s'}}></div>
+      
+      <div className="max-w-2xl mx-auto pt-8 relative z-10">
+        <div className="flex justify-between items-center mb-8 slide-up">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl font-bold gradient-text mb-2">
               IMPERIA PROMO
             </h1>
-            <p className="text-gray-600">Добро пожаловать, {user?.name}</p>
+            <p className="text-white/80 text-lg">Добро пожаловать, {user?.name}</p>
           </div>
-          <Button onClick={logout} variant="outline">
+          <Button 
+            onClick={logout} 
+            className="glass-effect border-white/20 text-white hover:bg-white/10 transition-all duration-300"
+            variant="ghost"
+          >
             <Icon name="LogOut" size={16} className="mr-2" />
             Выйти
           </Button>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid gap-6 fade-in">
           {/* Блокнот */}
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <Card className="glass-effect border-white/20 shadow-2xl slide-up">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Icon name="NotebookPen" size={20} className="text-primary" />
+              <CardTitle className="flex items-center gap-2 text-xl text-white">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 pulse-glow">
+                  <Icon name="NotebookPen" size={20} className="text-white" />
+                </div>
                 Блокнот
               </CardTitle>
             </CardHeader>
@@ -153,11 +169,11 @@ export default function Index() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Введите ваши заметки здесь..."
-                className="min-h-[150px] border-0 bg-gray-50/50 resize-none focus:bg-white transition-colors"
+                className="min-h-[150px] glass-effect border-white/20 bg-white/5 text-white placeholder:text-white/50 resize-none focus:border-purple-400 focus:ring-purple-400/30 transition-all duration-300"
                 maxLength={4096}
               />
               <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-white/60">
                   {notes.length}/4096 символов
                 </span>
               </div>
@@ -165,47 +181,48 @@ export default function Index() {
           </Card>
 
           {/* Аудиозапись */}
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <Card className="glass-effect border-white/20 shadow-2xl slide-up" style={{animationDelay: '0.2s'}}>
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Icon name="Mic" size={20} className="text-primary" />
+              <CardTitle className="flex items-center gap-2 text-xl text-white">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 pulse-glow">
+                  <Icon name="Mic" size={20} className="text-white" />
+                </div>
                 Контроль качества
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-6">
                 <div className="flex items-center gap-4">
                   {!isRecording ? (
                     <Button
                       onClick={startRecording}
                       size="lg"
-                      className="bg-primary hover:bg-primary/90 text-white rounded-full p-4"
+                      className="glow-button text-white rounded-full w-20 h-20 p-0 transition-all duration-300 hover:scale-110"
                     >
-                      <Icon name="Mic" size={24} />
+                      <Icon name="Mic" size={32} />
                     </Button>
                   ) : (
                     <Button
                       onClick={stopRecording}
                       size="lg"
-                      variant="destructive"
-                      className="rounded-full p-4 animate-pulse"
+                      className="bg-red-500 hover:bg-red-600 text-white rounded-full w-20 h-20 p-0 animate-pulse transition-all duration-300"
                     >
-                      <Icon name="Square" size={24} />
+                      <Icon name="Square" size={32} />
                     </Button>
                   )}
                 </div>
                 
                 {isRecording && (
-                  <div className="flex items-center gap-2 text-red-600">
-                    <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                  <div className="flex items-center gap-3 text-red-400 glass-effect px-4 py-2 rounded-full">
+                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-medium">Идет запись...</span>
                   </div>
                 )}
 
                 {audioBlob && !isRecording && (
-                  <div className="flex items-center gap-2 text-green-600">
+                  <div className="flex items-center gap-3 text-green-400 glass-effect px-4 py-2 rounded-full">
                     <Icon name="CheckCircle" size={16} />
-                    <span className="text-sm">Аудио записано</span>
+                    <span className="text-sm font-medium">Аудио записано</span>
                   </div>
                 )}
               </div>
@@ -217,16 +234,17 @@ export default function Index() {
             onClick={sendToTelegram}
             disabled={isLoading || (!notes.trim() && !audioBlob)}
             size="lg"
-            className="bg-primary hover:bg-primary/90 text-white h-14 text-lg font-medium shadow-lg"
+            className="glow-button text-white h-16 text-xl font-semibold shadow-2xl transition-all duration-300 hover:scale-105 slide-up"
+            style={{animationDelay: '0.4s'}}
           >
             {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+              <div className="flex items-center gap-3">
+                <Icon name="Loader2" size={24} className="animate-spin" />
                 Отправка...
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <Icon name="Send" size={20} />
+              <div className="flex items-center gap-3">
+                <Icon name="Send" size={24} />
                 Отправить в Telegram
               </div>
             )}

@@ -122,6 +122,19 @@ def update_user_name(user_id: int, new_name: str) -> bool:
             conn.commit()
             return cur.rowcount > 0
 
+def delete_user(user_id: int) -> bool:
+    """Удалить пользователя и все связанные данные"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Сначала удаляем сессии пользователя
+            cur.execute("DELETE FROM user_sessions WHERE user_id = %s", (user_id,))
+            # Потом удаляем лиды пользователя
+            cur.execute("DELETE FROM leads WHERE user_id = %s", (user_id,))
+            # И наконец удаляем самого пользователя (только не админов)
+            cur.execute("DELETE FROM users WHERE id = %s AND is_admin = FALSE", (user_id,))
+            conn.commit()
+            return cur.rowcount > 0
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
@@ -206,6 +219,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 404,
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
+                }
+    
+    elif method == 'DELETE':
+        body_data = json.loads(event.get('body', '{}'))
+        action = body_data.get('action')
+        
+        if action == 'delete_user':
+            user_id = body_data.get('user_id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID пользователя обязателен'})
+                }
+            
+            success = delete_user(user_id)
+            if success:
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'success': True})
+                }
+            else:
+                return {
+                    'statusCode': 404,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Пользователь не найден или является администратором'})
                 }
 
     return {

@@ -78,6 +78,35 @@ export default function UsersTab() {
     setNewName('');
   };
 
+  const deleteUser = async (userId: number) => {
+    if (!confirm('Вы уверены, что хотите удалить этого пользователя? Это действие нельзя отменить.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(ADMIN_API, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || '',
+        },
+        body: JSON.stringify({
+          action: 'delete_user',
+          user_id: userId,
+        }),
+      });
+
+      if (response.ok) {
+        await fetchUsers();
+      } else {
+        alert('Ошибка при удалении пользователя');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Ошибка при удалении пользователя');
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
     // Обновляем список каждые 30 секунд для актуального онлайн статуса
@@ -172,14 +201,25 @@ export default function UsersTab() {
                     </Button>
                   </>
                 ) : (
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => startEdit(user)}
-                    disabled={user.is_admin}
-                  >
-                    <Icon name="Edit" size={14} />
-                  </Button>
+                  <>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => startEdit(user)}
+                      disabled={user.is_admin}
+                    >
+                      <Icon name="Edit" size={14} />
+                    </Button>
+                    {!user.is_admin && (
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        onClick={() => deleteUser(user.id)}
+                      >
+                        <Icon name="Trash2" size={14} />
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             </div>

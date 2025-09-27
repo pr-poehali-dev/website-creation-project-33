@@ -241,18 +241,18 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #8b5cf6;
+    background: #2563eb;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
   }
 
   .slider::-moz-range-thumb {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #8b5cf6;
+    background: #2563eb;
     cursor: pointer;
     border: none;
-    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
   }
 }

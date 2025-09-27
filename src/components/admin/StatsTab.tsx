@@ -51,9 +51,9 @@ export default function StatsTab() {
 
   if (loading) {
     return (
-      <Card className="glass-effect border-white/20 shadow-2xl">
+      <Card className="border-blue-200 shadow-lg bg-white">
         <CardContent className="p-8">
-          <div className="text-center text-white flex items-center justify-center gap-3">
+          <div className="text-center text-blue-600 flex items-center justify-center gap-3">
             <Icon name="Loader2" size={24} className="animate-spin" />
             Загрузка статистики...
           </div>
@@ -64,9 +64,9 @@ export default function StatsTab() {
 
   if (!stats) {
     return (
-      <Card className="glass-effect border-white/20 shadow-2xl">
+      <Card className="border-blue-200 shadow-lg bg-white">
         <CardContent className="p-8">
-          <div className="text-center text-white/70 flex items-center justify-center gap-3">
+          <div className="text-center text-blue-600 flex items-center justify-center gap-3">
             <Icon name="AlertCircle" size={24} />
             Статистика недоступна
           </div>
@@ -78,31 +78,31 @@ export default function StatsTab() {
   return (
     <div className="space-y-6">
       {/* Общая статистика */}
-      <Card className="glass-effect border-white/20 shadow-2xl slide-up">
+      <Card className="border-blue-200 shadow-lg bg-white">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-white text-xl">
-            <div className="p-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 pulse-glow">
-              <Icon name="TrendingUp" size={20} className="text-white" />
+          <CardTitle className="flex items-center gap-3 text-blue-900 text-xl">
+            <div className="p-2 rounded-lg bg-green-100">
+              <Icon name="TrendingUp" size={20} className="text-green-600" />
             </div>
             Общая статистика
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center">
-            <div className="text-6xl font-bold gradient-text mb-4 pulse-glow">
+            <div className="text-6xl font-bold text-blue-600 mb-4">
               {stats.total_leads}
             </div>
-            <div className="text-white/80 text-lg">Всего лидов отправлено</div>
+            <div className="text-blue-700 text-lg">Всего лидов отправлено</div>
           </div>
         </CardContent>
       </Card>
 
       {/* Рейтинг пользователей */}
-      <Card className="glass-effect border-white/20 shadow-2xl slide-up" style={{animationDelay: '0.2s'}}>
+      <Card className="border-blue-200 shadow-lg bg-white">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-white text-xl">
-            <div className="p-2 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 pulse-glow">
-              <Icon name="Trophy" size={20} className="text-white" />
+          <CardTitle className="flex items-center gap-3 text-blue-900 text-xl">
+            <div className="p-2 rounded-lg bg-yellow-100">
+              <Icon name="Trophy" size={20} className="text-yellow-600" />
             </div>
             Рейтинг пользователей
           </CardTitle>
@@ -116,26 +116,25 @@ export default function StatsTab() {
               return (
                 <div 
                   key={user.email} 
-                  className="glass-effect border-white/10 rounded-xl p-4 hover:bg-white/5 transition-all duration-300 slide-up"
-                  style={{animationDelay: `${index * 0.1}s`}}
+                  className="border border-blue-100 rounded-xl p-4 hover:bg-blue-50 transition-all duration-300 bg-white shadow-sm"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
                         isTop3 
-                          ? `bg-gradient-to-br ${medalColors[index]} text-white shadow-lg glow-button`
-                          : 'glass-effect border-white/20 text-white'
+                          ? `bg-gradient-to-br ${medalColors[index]} text-white shadow-lg`
+                          : 'bg-blue-100 border border-blue-200 text-blue-700'
                       } font-bold text-lg`}>
                         {isTop3 ? ['🥇', '🥈', '🥉'][index] : index + 1}
                       </div>
                       <div>
-                        <div className="font-medium text-white text-lg">{user.name}</div>
-                        <div className="text-sm text-white/70">{user.email}</div>
+                        <div className="font-medium text-blue-900 text-lg">{user.name}</div>
+                        <div className="text-sm text-blue-600">{user.email}</div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-3xl font-bold text-green-400 pulse-glow">{user.lead_count}</div>
-                      <div className="text-sm text-white/60">лидов</div>
+                      <div className="text-3xl font-bold text-blue-600">{user.lead_count}</div>
+                      <div className="text-sm text-blue-500">лидов</div>
                     </div>
                   </div>
                 </div>
@@ -147,11 +146,11 @@ export default function StatsTab() {
 
       {/* Статистика по дням */}
       {stats.daily_stats.length > 0 && (
-        <Card className="glass-effect border-white/20 shadow-2xl slide-up" style={{animationDelay: '0.4s'}}>
+        <Card className="border-blue-200 shadow-lg bg-white">
           <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-white text-xl">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 pulse-glow">
-                <Icon name="Calendar" size={20} className="text-white" />
+            <CardTitle className="flex items-center gap-3 text-blue-900 text-xl">
+              <div className="p-2 rounded-lg bg-purple-100">
+                <Icon name="Calendar" size={20} className="text-purple-600" />
               </div>
               Статистика за последние дни
             </CardTitle>
@@ -161,18 +160,17 @@ export default function StatsTab() {
               {stats.daily_stats.slice(0, 7).map((day, index) => (
                 <div 
                   key={day.date} 
-                  className="flex justify-between items-center p-3 glass-effect border-white/10 rounded-lg transition-all duration-300 hover:bg-white/5 slide-up"
-                  style={{animationDelay: `${index * 0.05}s`}}
+                  className="flex justify-between items-center p-3 border border-blue-100 rounded-lg transition-all duration-300 hover:bg-blue-50 bg-white shadow-sm"
                 >
-                  <span className="text-white/90 font-medium">
+                  <span className="text-blue-800 font-medium">
                     {new Date(day.date).toLocaleDateString('ru-RU', {
                       day: 'numeric',
                       month: 'short',
                     })}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-cyan-400 font-bold text-lg">{day.count}</span>
-                    <span className="text-white/60 text-sm">лидов</span>
+                    <span className="text-blue-600 font-bold text-lg">{day.count}</span>
+                    <span className="text-blue-500 text-sm">лидов</span>
                   </div>
                 </div>
               ))}

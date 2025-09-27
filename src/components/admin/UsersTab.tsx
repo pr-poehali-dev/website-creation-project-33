@@ -156,9 +156,9 @@ export default function UsersTab() {
 
   if (loading) {
     return (
-      <Card className="glass-effect border-white/20 shadow-2xl">
+      <Card className="border-blue-200 shadow-lg bg-white">
         <CardContent className="p-8">
-          <div className="text-center text-white flex items-center justify-center gap-3">
+          <div className="text-center text-blue-600 flex items-center justify-center gap-3">
             <Icon name="Loader2" size={24} className="animate-spin" />
             Загрузка пользователей...
           </div>
@@ -170,17 +170,17 @@ export default function UsersTab() {
   const onlineUsers = users.filter(u => u.is_online).length;
 
   return (
-    <Card className="glass-effect border-white/20 shadow-2xl">
+    <Card className="border-blue-200 shadow-lg bg-white">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center justify-between text-white">
+        <CardTitle className="flex items-center justify-between text-blue-900">
           <span className="flex items-center gap-3 text-xl">
-            <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 pulse-glow">
-              <Icon name="Users" size={20} className="text-white" />
+            <div className="p-2 rounded-lg bg-blue-100">
+              <Icon name="Users" size={20} className="text-blue-600" />
             </div>
             Пользователи ({users.length})
           </span>
-          <Badge className="glass-effect border-green-400/30 bg-green-500/20 text-green-300 flex items-center gap-2 px-3 py-1">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <Badge className="bg-green-100 text-green-700 border border-green-200 flex items-center gap-2 px-3 py-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             Онлайн: {onlineUsers}
           </Badge>
         </CardTitle>
@@ -190,20 +190,19 @@ export default function UsersTab() {
           {users.map((user, index) => (
             <div key={user.id}>
               <div 
-                className="glass-effect border-white/10 rounded-xl p-4 hover:bg-white/5 transition-all duration-300 slide-up cursor-pointer"
-                style={{animationDelay: `${index * 0.1}s`}}
+                className="border border-blue-100 rounded-xl p-4 hover:bg-blue-50 transition-all duration-300 cursor-pointer bg-white shadow-sm"
                 onClick={() => handleUserClick(user)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-3">
                       {user.is_online ? (
-                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
+                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                       ) : (
-                        <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+                        <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
                       )}
                       {user.is_admin && (
-                        <Badge className="glass-effect border-yellow-400/30 bg-yellow-500/20 text-yellow-300 px-2 py-1">
+                        <Badge className="bg-yellow-100 text-yellow-700 border border-yellow-200 px-2 py-1">
                           <Icon name="Shield" size={12} className="mr-1" />
                           Админ
                         </Badge>
@@ -216,7 +215,7 @@ export default function UsersTab() {
                           <Input
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
-                            className="w-48 glass-effect border-white/20 text-white placeholder:text-white/50 focus:border-purple-400 bg-black/20"
+                            className="w-48 border border-blue-200 bg-white text-blue-900 placeholder:text-blue-400 focus:border-blue-400"
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
                                 updateUserName(user.id, newName);
@@ -225,11 +224,11 @@ export default function UsersTab() {
                             onClick={(e) => e.stopPropagation()}
                           />
                         ) : (
-                          <span className="font-medium text-white text-lg">{user.name}</span>
+                          <span className="font-medium text-blue-900 text-lg">{user.name}</span>
                         )}
                       </div>
-                      <div className="text-sm text-white/70">{user.email}</div>
-                      <div className="text-xs text-white/50">
+                      <div className="text-sm text-blue-600">{user.email}</div>
+                      <div className="text-xs text-blue-400">
                         {user.is_online 
                           ? 'Онлайн сейчас' 
                           : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
@@ -240,7 +239,7 @@ export default function UsersTab() {
 
                   <div className="flex items-center gap-2">
                     {selectedUser?.id === user.id && (
-                      <Icon name="ChevronDown" size={16} className="text-purple-400" />
+                      <Icon name="ChevronDown" size={16} className="text-blue-500" />
                     )}
                     
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
@@ -250,14 +249,14 @@ export default function UsersTab() {
                             size="sm" 
                             onClick={() => updateUserName(user.id, newName)}
                             disabled={!newName.trim()}
-                            className="glow-button text-white px-3 py-1"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1"
                           >
                             <Icon name="Check" size={14} />
                           </Button>
                           <Button 
                             size="sm" 
                             onClick={cancelEdit}
-                            className="glass-effect border-white/20 text-white hover:bg-white/10"
+                            className="border border-blue-200 text-blue-600 hover:bg-blue-50"
                             variant="ghost"
                           >
                             <Icon name="X" size={14} />
@@ -269,7 +268,7 @@ export default function UsersTab() {
                             size="sm" 
                             onClick={() => startEdit(user)}
                             disabled={user.is_admin}
-                            className="glass-effect border-white/20 text-white hover:bg-white/10 px-3 py-1"
+                            className="border border-blue-200 text-blue-600 hover:bg-blue-50 px-3 py-1"
                             variant="ghost"
                           >
                             <Icon name="Edit" size={14} />
@@ -278,7 +277,7 @@ export default function UsersTab() {
                             <Button 
                               size="sm" 
                               onClick={() => deleteUser(user.id)}
-                              className="glass-effect border-red-400/30 bg-red-500/20 text-red-300 hover:bg-red-500/30 px-3 py-1"
+                              className="border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1"
                               variant="ghost"
                             >
                               <Icon name="Trash2" size={14} />
@@ -293,10 +292,10 @@ export default function UsersTab() {
 
               {/* Лиды пользователя */}
               {selectedUser?.id === user.id && (
-                <div className="mt-4 ml-8 space-y-3 slide-up">
+                <div className="mt-4 ml-8 space-y-3">
                   {leadsLoading ? (
-                    <div className="glass-effect border-white/10 rounded-lg p-4">
-                      <div className="flex items-center justify-center gap-2 text-white/70">
+                    <div className="border border-blue-100 rounded-lg p-4 bg-blue-50">
+                      <div className="flex items-center justify-center gap-2 text-blue-600">
                         <Icon name="Loader2" size={16} className="animate-spin" />
                         Загрузка лидов...
                       </div>
@@ -305,22 +304,21 @@ export default function UsersTab() {
                     userLeads.map((lead, leadIndex) => (
                       <div 
                         key={lead.id} 
-                        className="glass-effect border-white/10 rounded-lg p-4 slide-up bg-black/20"
-                        style={{animationDelay: `${leadIndex * 0.1}s`}}
+                        className="border border-blue-100 rounded-lg p-4 bg-blue-50"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex-shrink-0">
-                            <Icon name="MessageSquare" size={16} className="text-white" />
+                          <div className="p-2 rounded-lg bg-blue-200 flex-shrink-0">
+                            <Icon name="MessageSquare" size={16} className="text-blue-700" />
                           </div>
                           
                           <div className="flex-1">
-                            <div className="text-white/90 text-sm mb-2">
+                            <div className="text-blue-700 text-sm mb-2 font-medium">
                               {new Date(lead.created_at).toLocaleString('ru-RU')}
                             </div>
                             
                             {lead.notes && (
-                              <div className="glass-effect border-white/10 bg-black/20 rounded-lg p-3 mb-3">
-                                <div className="text-white/80 whitespace-pre-wrap">
+                              <div className="border border-blue-200 bg-white rounded-lg p-3 mb-3">
+                                <div className="text-blue-800 whitespace-pre-wrap">
                                   {lead.notes}
                                 </div>
                               </div>
@@ -337,9 +335,9 @@ export default function UsersTab() {
                       </div>
                     ))
                   ) : (
-                    <div className="glass-effect border-white/10 rounded-lg p-4 bg-black/20">
-                      <div className="text-center text-white/70">
-                        <Icon name="MessageSquare" size={24} className="mx-auto mb-2 opacity-50" />
+                    <div className="border border-blue-100 rounded-lg p-4 bg-blue-50">
+                      <div className="text-center text-blue-600">
+                        <Icon name="MessageSquare" size={24} className="mx-auto mb-2 opacity-60" />
                         У этого пользователя пока нет лидов
                       </div>
                     </div>

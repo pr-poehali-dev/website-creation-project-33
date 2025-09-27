@@ -62,14 +62,14 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
   const audioUrl = `data:audio/webm;base64,${audioData}`;
 
   return (
-    <div className={`glass-effect border-white/10 rounded-lg p-3 ${className}`}>
+    <div className={`border border-blue-200 bg-blue-50 rounded-lg p-3 ${className}`}>
       <audio ref={audioRef} src={audioUrl} preload="metadata" />
       
       <div className="flex items-center gap-3">
         <Button
           onClick={togglePlay}
           size="sm"
-          className="glow-button text-white rounded-full w-10 h-10 p-0"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-10 h-10 p-0 shadow-sm"
         >
           {isPlaying ? (
             <Icon name="Pause" size={16} />
@@ -79,7 +79,7 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
         </Button>
 
         <div className="flex-1 flex items-center gap-2">
-          <span className="text-white/80 text-xs min-w-[35px]">
+          <span className="text-blue-700 text-xs min-w-[35px] font-medium">
             {formatTime(currentTime)}
           </span>
           
@@ -89,19 +89,19 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
             max={duration || 0}
             value={currentTime}
             onChange={handleSeek}
-            className="flex-1 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+            className="flex-1 h-1 bg-blue-200 rounded-lg appearance-none cursor-pointer slider"
             style={{
-              background: `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${(currentTime / duration) * 100}%, rgba(255,255,255,0.2) ${(currentTime / duration) * 100}%, rgba(255,255,255,0.2) 100%)`
+              background: `linear-gradient(to right, #2563eb 0%, #2563eb ${(currentTime / duration) * 100}%, #bfdbfe ${(currentTime / duration) * 100}%, #bfdbfe 100%)`
             }}
           />
           
-          <span className="text-white/80 text-xs min-w-[35px]">
+          <span className="text-blue-700 text-xs min-w-[35px] font-medium">
             {formatTime(duration)}
           </span>
         </div>
 
         <div className="flex items-center gap-1">
-          <Icon name="Volume2" size={14} className="text-white/60" />
+          <Icon name="Volume2" size={14} className="text-blue-600" />
         </div>
       </div>
     </div>

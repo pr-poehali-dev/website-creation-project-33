@@ -41,30 +41,22 @@ export default function AdminPanel() {
 
   if (!user?.is_admin) {
     return (
-      <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-purple-900 to-pink-900">
-          <div className="absolute inset-0 opacity-20">
-            <div className="w-1 h-1 bg-white rounded-full absolute top-10 left-10 animate-pulse"></div>
-            <div className="w-2 h-2 bg-white rounded-full absolute top-32 left-40 animate-pulse" style={{animationDelay: '1s'}}></div>
-            <div className="w-1 h-1 bg-white rounded-full absolute top-52 left-20 animate-pulse" style={{animationDelay: '2s'}}></div>
-          </div>
-        </div>
-        
-        <div className="relative z-10 max-w-md">
-          <Card className="glass-effect border-red-400/30 shadow-2xl slide-up">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <Card className="border-blue-200 shadow-lg">
             <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-3 text-red-400 text-2xl">
-                <div className="p-3 rounded-full bg-red-500/20 pulse-glow">
-                  <Icon name="ShieldX" size={32} />
+              <CardTitle className="flex items-center justify-center gap-3 text-blue-900 text-2xl">
+                <div className="p-3 rounded-full bg-blue-100">
+                  <Icon name="ShieldX" size={32} className="text-blue-600" />
                 </div>
                 Доступ запрещен
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-white/80 mb-6 text-lg">У вас нет прав администратора</p>
+              <p className="text-blue-600 mb-6 text-lg">У вас нет прав администратора</p>
               <Button 
                 onClick={logout} 
-                className="glow-button w-full text-white font-semibold py-3"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <Icon name="LogOut" size={20} className="mr-2" />
                 Выйти
@@ -77,43 +69,28 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden p-4">
-      {/* Анимированный фон */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="absolute inset-0 opacity-20">
-          <div className="w-1 h-1 bg-white rounded-full absolute top-16 left-24 animate-pulse"></div>
-          <div className="w-2 h-2 bg-white rounded-full absolute top-36 left-48 animate-pulse" style={{animationDelay: '1s'}}></div>
-          <div className="w-1 h-1 bg-white rounded-full absolute top-56 left-32 animate-pulse" style={{animationDelay: '2s'}}></div>
-          <div className="w-2 h-2 bg-white rounded-full absolute top-76 left-64 animate-pulse" style={{animationDelay: '3s'}}></div>
-        </div>
-      </div>
-      
-      {/* Плавающие световые элементы */}
-      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation"></div>
-      <div className="absolute top-40 right-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation" style={{animationDelay: '2s'}}></div>
-      <div className="absolute -bottom-8 left-40 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation" style={{animationDelay: '4s'}}></div>
-      
-      <div className="max-w-6xl mx-auto relative z-10">
-        <div className="flex justify-between items-center mb-8 slide-up">
-          <h1 className="text-4xl font-bold gradient-text flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-500 pulse-glow">
-              <Icon name="Shield" size={36} className="text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-blue-900 flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-blue-100">
+              <Icon name="Shield" size={32} className="text-blue-600" />
             </div>
             Панель администратора
           </h1>
           <div className="flex items-center gap-4">
             <Button 
               onClick={downloadCSV}
-              className="glass-effect border-white/20 text-white hover:bg-white/10 transition-all duration-300"
+              className="bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-200"
               variant="ghost"
             >
               <Icon name="Download" size={16} className="mr-2" />
               Скачать CSV
             </Button>
-            <span className="text-white/80 text-lg">Добро пожаловать, {user.name}</span>
+            <span className="text-blue-600 text-lg">Добро пожаловать, {user.name}</span>
             <Button 
               onClick={logout} 
-              className="glass-effect border-white/20 text-white hover:bg-white/10 transition-all duration-300"
+              className="bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-200"
               variant="ghost"
             >
               <Icon name="LogOut" size={16} className="mr-2" />
@@ -122,29 +99,29 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="space-y-6 fade-in">
-          <TabsList className="grid w-full grid-cols-2 glass-effect border-white/20 bg-white/5 h-14">
+        <Tabs defaultValue="users" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 bg-blue-50 border border-blue-200 h-14">
             <TabsTrigger 
               value="users" 
-              className="flex items-center gap-2 text-white data-[state=active]:bg-white/20 data-[state=active]:text-white transition-all duration-300"
+              className="flex items-center gap-2 text-blue-600 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm transition-all duration-300"
             >
               <Icon name="Users" size={18} />
               Пользователи
             </TabsTrigger>
             <TabsTrigger 
               value="stats" 
-              className="flex items-center gap-2 text-white data-[state=active]:bg-white/20 data-[state=active]:text-white transition-all duration-300"
+              className="flex items-center gap-2 text-blue-600 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm transition-all duration-300"
             >
               <Icon name="BarChart3" size={18} />
               Рейтинг
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="users" className="slide-up">
+          <TabsContent value="users">
             <UsersTab />
           </TabsContent>
 
-          <TabsContent value="stats" className="slide-up">
+          <TabsContent value="stats">
             <StatsTab />
           </TabsContent>
         </Tabs>

@@ -125,11 +125,8 @@ export default function Index() {
       <div className="max-w-2xl mx-auto pt-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Notes & Audio
+            IMPERIA PROMO
           </h1>
-          <p className="text-gray-600">
-            Создавайте заметки и записывайте аудио для отправки в Telegram
-          </p>
         </div>
 
         <div className="grid gap-6">

@@ -40,27 +40,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
         chat_id = '5215501225'
         
-        # Send notes if provided
-        if notes:
-            text_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-            text_payload = {
-                'chat_id': chat_id,
-                'text': f'📝 Новая заметка:\n\n{notes}',
-                'parse_mode': 'HTML'
-            }
-            
-            text_response = requests.post(text_url, json=text_payload)
-            if not text_response.ok:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Failed to send text message'})
-                }
-        
-        # Send audio if provided
-        if audio_data:
+        # Send combined message with audio and notes
+        if audio_data and notes:
+            # Send audio with notes as caption
             try:
-                # Decode base64 audio data
                 audio_bytes = base64.b64decode(audio_data)
                 
                 audio_url = f'https://api.telegram.org/bot{bot_token}/sendVoice'
@@ -70,7 +53,35 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
                 data = {
                     'chat_id': chat_id,
-                    'caption': '🎤 Аудиозапись'
+                    'caption': f'🎙️ IMPERIA PROMO\n\n📝 Заметка:\n{notes}'
+                }
+                
+                audio_response = requests.post(audio_url, files=files, data=data)
+                if not audio_response.ok:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Failed to send combined message'})
+                    }
+            except Exception as audio_error:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Audio processing error: {str(audio_error)}'})
+                }
+        elif audio_data:
+            # Send only audio
+            try:
+                audio_bytes = base64.b64decode(audio_data)
+                
+                audio_url = f'https://api.telegram.org/bot{bot_token}/sendVoice'
+                
+                files = {
+                    'voice': ('audio.webm', audio_bytes, 'audio/webm')
+                }
+                data = {
+                    'chat_id': chat_id,
+                    'caption': '🎙️ IMPERIA PROMO\n\n🎤 Аудиозапись'
                 }
                 
                 audio_response = requests.post(audio_url, files=files, data=data)
@@ -85,6 +96,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 400,
                     'headers': {'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'error': f'Audio processing error: {str(audio_error)}'})
+                }
+        elif notes:
+            # Send only notes
+            text_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+            text_payload = {
+                'chat_id': chat_id,
+                'text': f'📝 IMPERIA PROMO\n\nЗаметка:\n{notes}',
+                'parse_mode': 'HTML'
+            }
+            
+            text_response = requests.post(text_url, json=text_payload)
+            if not text_response.ok:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Failed to send text message'})
                 }
         
         return {

@@ -32,8 +32,8 @@ def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT u.id, u.email, u.name, u.is_admin 
-                FROM users u 
-                JOIN user_sessions s ON u.id = s.user_id 
+                FROM t_p24058207_website_creation_pro.users u 
+                JOIN t_p24058207_website_creation_pro.user_sessions s ON u.id = s.user_id 
                 WHERE s.session_token = %s AND s.expires_at > %s
             """, (session_token, get_moscow_time()))
             
@@ -56,7 +56,7 @@ def get_all_users() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at,
                        CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online
-                FROM users u 
+                FROM t_p24058207_website_creation_pro.users u 
                 ORDER BY u.created_at DESC
             """, (online_threshold,))
             
@@ -79,7 +79,7 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT id, notes, audio_data, created_at 
-                FROM leads 
+                FROM t_p24058207_website_creation_pro.leads 
                 WHERE user_id = %s 
                 ORDER BY created_at DESC
             """, (user_id,))
@@ -105,14 +105,14 @@ def get_leads_stats() -> Dict[str, Any]:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             # Общая статистика
-            cur.execute("SELECT COUNT(*) FROM leads")
+            cur.execute("SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads")
             total_leads = cur.fetchone()[0]
             
             # Лиды по пользователям
             cur.execute("""
                 SELECT u.name, u.email, COUNT(l.id) as lead_count
-                FROM users u 
-                LEFT JOIN leads l ON u.id = l.user_id
+                FROM t_p24058207_website_creation_pro.users u 
+                LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id
                 GROUP BY u.id, u.name, u.email
                 ORDER BY lead_count DESC
             """)
@@ -128,7 +128,7 @@ def get_leads_stats() -> Dict[str, Any]:
             # Лиды за последние дни
             cur.execute("""
                 SELECT DATE(created_at) as date, COUNT(*) as count
-                FROM leads 
+                FROM t_p24058207_website_creation_pro.leads 
                 WHERE created_at >= %s
                 GROUP BY DATE(created_at)
                 ORDER BY date DESC
@@ -152,7 +152,7 @@ def update_user_name(user_id: int, new_name: str) -> bool:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "UPDATE users SET name = %s WHERE id = %s",
+                "UPDATE t_p24058207_website_creation_pro.users SET name = %s WHERE id = %s",
                 (new_name, user_id)
             )
             conn.commit()
@@ -163,11 +163,11 @@ def delete_user(user_id: int) -> bool:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             # Сначала удаляем сессии пользователя
-            cur.execute("DELETE FROM user_sessions WHERE user_id = %s", (user_id,))
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.user_sessions WHERE user_id = %s", (user_id,))
             # Потом удаляем лиды пользователя
-            cur.execute("DELETE FROM leads WHERE user_id = %s", (user_id,))
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads WHERE user_id = %s", (user_id,))
             # И наконец удаляем самого пользователя (только не админов)
-            cur.execute("DELETE FROM users WHERE id = %s AND is_admin = FALSE", (user_id,))
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.users WHERE id = %s AND is_admin = FALSE", (user_id,))
             conn.commit()
             return cur.rowcount > 0
 

@@ -152,7 +152,7 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT id, user_id, notes, has_audio, created_at
+                SELECT id, user_id, notes, has_audio, audio_data, created_at
                 FROM t_p24058207_website_creation_pro.leads 
                 WHERE user_id = %s
                 ORDER BY created_at DESC
@@ -165,7 +165,8 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
                     'user_id': row[1],
                     'notes': row[2],
                     'has_audio': row[3],
-                    'created_at': row[4].isoformat() if row[4] else None
+                    'audio_data': row[4],
+                    'created_at': row[5].isoformat() if row[5] else None
                 }
                 leads.append(lead)
             

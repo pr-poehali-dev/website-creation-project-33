@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import AudioPlayer from './AudioPlayer';
 
 
 interface User {
@@ -20,6 +21,7 @@ interface Lead {
   id: number;
   notes: string;
   has_audio: boolean;
+  audio_data: string | null;
   created_at: string;
 }
 
@@ -324,13 +326,11 @@ export default function UsersTab() {
                               </div>
                             )}
                             
-                            {lead.has_audio && (
-                              <div className="border border-blue-200 bg-white rounded-lg p-3 mb-2">
-                                <div className="flex items-center gap-2 text-blue-600">
-                                  <Icon name="Volume2" size={16} />
-                                  <span className="text-sm">Аудиозапись доступна</span>
-                                </div>
-                              </div>
+                            {lead.audio_data && (
+                              <AudioPlayer 
+                                audioData={lead.audio_data} 
+                                className="mb-2"
+                              />
                             )}
                           </div>
                         </div>

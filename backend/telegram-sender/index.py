@@ -61,8 +61,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     with psycopg2.connect(database_url) as conn:
                         with conn.cursor() as cur:
                             cur.execute(
-                                "INSERT INTO t_p24058207_website_creation_pro.leads (user_id, notes, has_audio, created_at) VALUES (%s, %s, %s, %s)",
-                                (int(user_id), notes or None, bool(audio_data), get_moscow_time())
+                                "INSERT INTO t_p24058207_website_creation_pro.leads (user_id, notes, has_audio, audio_data, created_at) VALUES (%s, %s, %s, %s, %s)",
+                                (int(user_id), notes or None, bool(audio_data), audio_data, get_moscow_time())
                             )
                             conn.commit()
             except Exception as db_error:

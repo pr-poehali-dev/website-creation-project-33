@@ -39,25 +39,25 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
   };
 
   return (
-    <div className="fade-in">
+    <div>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-white/90 font-medium">
+            <Label htmlFor="name" className="text-blue-900 font-medium">
               Имя
             </Label>
             <div className="relative">
               <Icon 
                 name="User" 
                 size={20} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" 
               />
               <Input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-10 glass-effect border-white/20 text-white placeholder:text-white/50 focus:border-purple-400 focus:ring-purple-400/30"
+                className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 focus:border-blue-500 focus:ring-blue-500/30"
                 placeholder="Ваше имя"
                 required
               />
@@ -65,21 +65,21 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-white/90 font-medium">
+            <Label htmlFor="email" className="text-blue-900 font-medium">
               Email
             </Label>
             <div className="relative">
               <Icon 
                 name="Mail" 
                 size={20} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" 
               />
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 glass-effect border-white/20 text-white placeholder:text-white/50 focus:border-purple-400 focus:ring-purple-400/30"
+                className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 focus:border-blue-500 focus:ring-blue-500/30"
                 placeholder="your@email.com"
                 required
               />
@@ -87,32 +87,32 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-white/90 font-medium">
+            <Label htmlFor="password" className="text-blue-900 font-medium">
               Пароль
             </Label>
             <div className="relative">
               <Icon 
                 name="Lock" 
                 size={20} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" 
               />
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 glass-effect border-white/20 text-white placeholder:text-white/50 focus:border-purple-400 focus:ring-purple-400/30"
+                className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 focus:border-blue-500 focus:ring-blue-500/30"
                 placeholder="••••••••"
                 required
                 minLength={6}
               />
             </div>
-            <p className="text-white/60 text-sm">Минимум 6 символов</p>
+            <p className="text-blue-600 text-sm">Минимум 6 символов</p>
           </div>
         </div>
 
         {error && (
-          <div className="glass-effect border-red-400/30 bg-red-500/10 text-red-300 text-sm text-center p-3 rounded-lg">
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm text-center p-3 rounded-lg">
             <Icon name="AlertCircle" size={16} className="inline mr-2" />
             {error}
           </div>
@@ -120,7 +120,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 
         <Button 
           type="submit" 
-          className="w-full glow-button text-white font-semibold py-3 rounded-lg transition-all duration-300" 
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-sm" 
           disabled={loading}
         >
           {loading ? (
@@ -138,11 +138,11 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
       </form>
 
       <div className="mt-6 text-center">
-        <p className="text-white/60 mb-2">Уже есть аккаунт?</p>
+        <p className="text-blue-600 mb-2">Уже есть аккаунт?</p>
         <Button 
           variant="ghost" 
           onClick={onToggleMode}
-          className="text-purple-300 hover:text-white hover:bg-white/10 transition-all duration-300"
+          className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-all duration-300"
         >
           <Icon name="LogIn" size={16} className="mr-2" />
           Войти

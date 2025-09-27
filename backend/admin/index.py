@@ -196,6 +196,14 @@ def delete_user(user_id: int) -> bool:
             conn.commit()
             return cur.rowcount > 0
 
+def delete_lead(lead_id: int) -> bool:
+    """Удалить лид по ID"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads WHERE id = %s", (lead_id,))
+            conn.commit()
+            return cur.rowcount > 0
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
@@ -332,6 +340,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 404,
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден или является администратором'})
+                }
+    
+    elif method == 'DELETE':
+        body_data = json.loads(event.get('body', '{}'))
+        action = body_data.get('action')
+        
+        if action == 'delete_lead':
+            lead_id = body_data.get('lead_id')
+            
+            if not lead_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID лида обязателен'})
+                }
+            
+            success = delete_lead(lead_id)
+            if success:
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'success': True})
+                }
+            else:
+                return {
+                    'statusCode': 404,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Лид не найден'})
                 }
 
     return {

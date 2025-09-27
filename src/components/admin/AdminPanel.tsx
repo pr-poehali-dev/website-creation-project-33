@@ -41,22 +41,22 @@ export default function AdminPanel() {
 
   if (!user?.is_admin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <div className="max-w-md w-full">
-          <Card className="border-blue-200 shadow-lg">
+          <Card className="border-gray-200 shadow-lg">
             <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-3 text-blue-900 text-2xl">
-                <div className="p-3 rounded-full bg-blue-100">
-                  <Icon name="ShieldX" size={32} className="text-blue-600" />
+              <CardTitle className="flex items-center justify-center gap-3 text-black text-2xl">
+                <div className="p-3 rounded-full bg-gray-100">
+                  <Icon name="ShieldX" size={32} className="text-gray-600" />
                 </div>
                 Доступ запрещен
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-blue-600 mb-6 text-lg">У вас нет прав администратора</p>
+              <p className="text-gray-600 mb-6 text-lg">У вас нет прав администратора</p>
               <Button 
                 onClick={logout} 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full bg-black hover:bg-gray-800 text-white"
               >
                 <Icon name="LogOut" size={20} className="mr-2" />
                 Выйти
@@ -69,28 +69,28 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-4">
+    <div className="min-h-screen bg-white p-4">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-900 flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-blue-100">
-              <Icon name="Shield" size={32} className="text-blue-600" />
+          <h1 className="text-3xl font-bold text-black flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-gray-100">
+              <Icon name="Shield" size={32} className="text-gray-600" />
             </div>
             Панель администратора
           </h1>
           <div className="flex items-center gap-4">
             <Button 
               onClick={downloadCSV}
-              className="bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-200"
+              className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-200"
               variant="ghost"
             >
               <Icon name="Download" size={16} className="mr-2" />
               Скачать CSV
             </Button>
-            <span className="text-blue-600 text-lg">Добро пожаловать, {user.name}</span>
+            <span className="text-gray-600 text-lg">Добро пожаловать, {user.name}</span>
             <Button 
               onClick={logout} 
-              className="bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-200"
+              className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-200"
               variant="ghost"
             >
               <Icon name="LogOut" size={16} className="mr-2" />
@@ -100,17 +100,17 @@ export default function AdminPanel() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-blue-50 border border-blue-200 h-14">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-50 border border-gray-200 h-14">
             <TabsTrigger 
               value="users" 
-              className="flex items-center gap-2 text-blue-600 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm transition-all duration-300"
+              className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300"
             >
               <Icon name="Users" size={18} />
               Пользователи
             </TabsTrigger>
             <TabsTrigger 
               value="stats" 
-              className="flex items-center gap-2 text-blue-600 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm transition-all duration-300"
+              className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300"
             >
               <Icon name="BarChart3" size={18} />
               Рейтинг

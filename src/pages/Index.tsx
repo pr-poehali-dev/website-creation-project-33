@@ -124,18 +124,18 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-4">
+    <div className="min-h-screen bg-white p-4">
       <div className="max-w-2xl mx-auto pt-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-blue-900 mb-2">
+            <h1 className="text-4xl font-bold text-black mb-2">
               IMPERIA PROMO
             </h1>
-            <p className="text-blue-600 text-lg">Добро пожаловать, {user?.name}</p>
+            <p className="text-gray-600 text-lg">Добро пожаловать, {user?.name}</p>
           </div>
           <Button 
             onClick={logout} 
-            className="bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-200 transition-all duration-300"
+            className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-200 transition-all duration-300"
             variant="ghost"
           >
             <Icon name="LogOut" size={16} className="mr-2" />
@@ -145,11 +145,11 @@ export default function Index() {
 
         <div className="grid gap-6">
           {/* Блокнот */}
-          <Card className="bg-white border-blue-200 shadow-lg">
+          <Card className="bg-white border-gray-200 shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-xl text-blue-900">
-                <div className="p-2 rounded-lg bg-purple-100">
-                  <Icon name="NotebookPen" size={20} className="text-purple-600" />
+              <CardTitle className="flex items-center gap-2 text-xl text-black">
+                <div className="p-2 rounded-lg bg-gray-100">
+                  <Icon name="NotebookPen" size={20} className="text-gray-600" />
                 </div>
                 Блокнот
               </CardTitle>
@@ -159,11 +159,11 @@ export default function Index() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Введите ваши заметки здесь..."
-                className="min-h-[150px] bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 resize-none focus:border-blue-500 focus:ring-blue-500/30 transition-all duration-300"
+                className="min-h-[150px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-black focus:ring-black/30 transition-all duration-300"
                 maxLength={4096}
               />
               <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-blue-600">
+                <span className="text-xs text-gray-600">
                   {notes.length}/4096 символов
                 </span>
               </div>
@@ -171,11 +171,11 @@ export default function Index() {
           </Card>
 
           {/* Аудиозапись */}
-          <Card className="bg-white border-blue-200 shadow-lg">
+          <Card className="bg-white border-gray-200 shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-xl text-blue-900">
-                <div className="p-2 rounded-lg bg-cyan-100">
-                  <Icon name="Mic" size={20} className="text-cyan-600" />
+              <CardTitle className="flex items-center gap-2 text-xl text-black">
+                <div className="p-2 rounded-lg bg-gray-100">
+                  <Icon name="Mic" size={20} className="text-gray-600" />
                 </div>
                 Контроль качества
               </CardTitle>
@@ -187,7 +187,7 @@ export default function Index() {
                     <Button
                       onClick={startRecording}
                       size="lg"
-                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-20 h-20 p-0 transition-all duration-300 hover:scale-110 shadow-lg"
+                      className="bg-black hover:bg-gray-800 text-white rounded-full w-20 h-20 p-0 transition-all duration-300 hover:scale-110 shadow-lg"
                     >
                       <Icon name="Mic" size={32} />
                     </Button>
@@ -195,7 +195,7 @@ export default function Index() {
                     <Button
                       onClick={stopRecording}
                       size="lg"
-                      className="bg-red-500 hover:bg-red-600 text-white rounded-full w-20 h-20 p-0 animate-pulse transition-all duration-300 shadow-lg"
+                      className="bg-gray-800 hover:bg-gray-700 text-white rounded-full w-20 h-20 p-0 animate-pulse transition-all duration-300 shadow-lg"
                     >
                       <Icon name="Square" size={32} />
                     </Button>
@@ -203,14 +203,14 @@ export default function Index() {
                 </div>
                 
                 {isRecording && (
-                  <div className="flex items-center gap-3 text-red-600 bg-red-50 border border-red-200 px-4 py-2 rounded-full">
-                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                  <div className="flex items-center gap-3 text-black bg-gray-50 border border-gray-200 px-4 py-2 rounded-full">
+                    <div className="w-3 h-3 bg-black rounded-full animate-pulse"></div>
                     <span className="text-sm font-medium">Идет запись...</span>
                   </div>
                 )}
 
                 {audioBlob && !isRecording && (
-                  <div className="flex items-center gap-3 text-green-600 bg-green-50 border border-green-200 px-4 py-2 rounded-full">
+                  <div className="flex items-center gap-3 text-black bg-gray-50 border border-gray-200 px-4 py-2 rounded-full">
                     <Icon name="CheckCircle" size={16} />
                     <span className="text-sm font-medium">Аудио записано</span>
                   </div>
@@ -224,7 +224,7 @@ export default function Index() {
             onClick={sendToTelegram}
             disabled={isLoading || (!notes.trim() && !audioBlob)}
             size="lg"
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white h-16 text-xl font-semibold shadow-lg transition-all duration-300 hover:scale-105"
+            className="bg-black hover:bg-gray-800 disabled:bg-gray-300 text-white h-16 text-xl font-semibold shadow-lg transition-all duration-300 hover:scale-105"
           >
             {isLoading ? (
               <div className="flex items-center gap-3">

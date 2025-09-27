@@ -43,21 +43,21 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-blue-900 font-medium">
+            <Label htmlFor="name" className="text-black font-medium">
               Имя
             </Label>
             <div className="relative">
               <Icon 
                 name="User" 
                 size={20} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
               />
               <Input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 focus:border-blue-500 focus:ring-blue-500/30"
+                className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-black/30"
                 placeholder="Ваше имя"
                 required
               />
@@ -65,21 +65,21 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-blue-900 font-medium">
+            <Label htmlFor="email" className="text-black font-medium">
               Email
             </Label>
             <div className="relative">
               <Icon 
                 name="Mail" 
                 size={20} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
               />
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 focus:border-blue-500 focus:ring-blue-500/30"
+                className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-black/30"
                 placeholder="your@email.com"
                 required
               />
@@ -87,21 +87,21 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-blue-900 font-medium">
+            <Label htmlFor="password" className="text-black font-medium">
               Пароль
             </Label>
             <div className="relative">
               <Icon 
                 name="Lock" 
                 size={20} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
               />
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 bg-white border-blue-200 text-blue-900 placeholder:text-blue-400 focus:border-blue-500 focus:ring-blue-500/30"
+                className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-black/30"
                 placeholder="••••••••"
                 required
                 minLength={6}
@@ -112,7 +112,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm text-center p-3 rounded-lg">
+          <div className="bg-gray-50 border border-gray-200 text-black text-sm text-center p-3 rounded-lg">
             <Icon name="AlertCircle" size={16} className="inline mr-2" />
             {error}
           </div>
@@ -120,7 +120,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 
         <Button 
           type="submit" 
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-sm" 
+          className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-sm" 
           disabled={loading}
         >
           {loading ? (

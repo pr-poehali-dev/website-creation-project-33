@@ -110,6 +110,54 @@ export default function UsersTab() {
     setLeadsLoading(false);
   };
 
+  const deleteLead = async (leadId: number) => {
+    if (!confirm('Вы уверены, что хотите удалить этот лид?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(ADMIN_API, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || '',
+        },
+        body: JSON.stringify({
+          action: 'delete_lead',
+          lead_id: leadId
+        })
+      });
+
+      if (response.ok) {
+        // Обновляем список лидов после удаления
+        if (selectedUser) {
+          fetchUserLeads(selectedUser.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting lead:', error);
+    }
+  };
+
+  const downloadAudio = (audioData: string, leadId: number) => {
+    try {
+      const audioBlob = new Blob([
+        Uint8Array.from(atob(audioData), c => c.charCodeAt(0))
+      ], { type: 'audio/webm' });
+      
+      const url = URL.createObjectURL(audioBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audio_lead_${leadId}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading audio:', error);
+    }
+  };
+
   const handleUserClick = (user: User) => {
     if (selectedUser?.id === user.id) {
       setSelectedUser(null);
@@ -158,9 +206,9 @@ export default function UsersTab() {
 
   if (loading) {
     return (
-      <Card className="border-blue-200 shadow-lg bg-white">
+      <Card className="border-gray-200 shadow-lg bg-white">
         <CardContent className="p-8">
-          <div className="text-center text-blue-600 flex items-center justify-center gap-3">
+          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
             <Icon name="Loader2" size={24} className="animate-spin" />
             Загрузка пользователей...
           </div>
@@ -172,17 +220,17 @@ export default function UsersTab() {
   const onlineUsers = users.filter(u => u.is_online).length;
 
   return (
-    <Card className="border-blue-200 shadow-lg bg-white">
+    <Card className="border-gray-200 shadow-lg bg-white">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center justify-between text-blue-900">
+        <CardTitle className="flex items-center justify-between text-black">
           <span className="flex items-center gap-3 text-xl">
-            <div className="p-2 rounded-lg bg-blue-100">
-              <Icon name="Users" size={20} className="text-blue-600" />
+            <div className="p-2 rounded-lg bg-gray-100">
+              <Icon name="Users" size={20} className="text-gray-600" />
             </div>
             Пользователи ({users.length})
           </span>
-          <Badge className="bg-green-100 text-green-700 border border-green-200 flex items-center gap-2 px-3 py-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <Badge className="bg-gray-100 text-black border border-gray-200 flex items-center gap-2 px-3 py-1">
+            <div className="w-2 h-2 bg-black rounded-full animate-pulse"></div>
             Онлайн: {onlineUsers}
           </Badge>
         </CardTitle>
@@ -192,7 +240,7 @@ export default function UsersTab() {
           {users.map((user, index) => (
             <div key={user.id}>
               <div 
-                className="border border-blue-100 rounded-xl p-4 hover:bg-blue-50 transition-all duration-300 cursor-pointer bg-white shadow-sm"
+                className="border border-gray-100 rounded-xl p-4 hover:bg-gray-50 transition-all duration-300 cursor-pointer bg-white shadow-sm"
                 onClick={() => handleUserClick(user)}
               >
                 <div className="flex items-center justify-between">
@@ -296,8 +344,8 @@ export default function UsersTab() {
               {selectedUser?.id === user.id && (
                 <div className="mt-4 ml-8 space-y-3">
                   {leadsLoading ? (
-                    <div className="border border-blue-100 rounded-lg p-4 bg-blue-50">
-                      <div className="flex items-center justify-center gap-2 text-blue-600">
+                    <div className="border border-gray-100 rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-center justify-center gap-2 text-gray-600">
                         <Icon name="Loader2" size={16} className="animate-spin" />
                         Загрузка лидов...
                       </div>
@@ -306,21 +354,45 @@ export default function UsersTab() {
                     userLeads.map((lead, leadIndex) => (
                       <div 
                         key={lead.id} 
-                        className="border border-blue-100 rounded-lg p-4 bg-blue-50"
+                        className="border border-gray-100 rounded-lg p-4 bg-gray-50"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="p-2 rounded-lg bg-blue-200 flex-shrink-0">
-                            <Icon name="MessageSquare" size={16} className="text-blue-700" />
+                          <div className="p-2 rounded-lg bg-gray-200 flex-shrink-0">
+                            <Icon name="MessageSquare" size={16} className="text-gray-700" />
                           </div>
                           
                           <div className="flex-1">
-                            <div className="text-blue-700 text-sm mb-2 font-medium">
-                              {new Date(lead.created_at).toLocaleString('ru-RU')}
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="text-gray-700 text-sm font-medium">
+                                {new Date(lead.created_at).toLocaleString('ru-RU')}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {lead.audio_data && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => downloadAudio(lead.audio_data!, lead.id)}
+                                    className="h-8 w-8 p-0 hover:bg-gray-200"
+                                    title="Скачать аудио"
+                                  >
+                                    <Icon name="Download" size={14} className="text-gray-600" />
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteLead(lead.id)}
+                                  className="h-8 w-8 p-0 hover:bg-gray-200"
+                                  title="Удалить лид"
+                                >
+                                  <Icon name="Trash2" size={14} className="text-gray-600" />
+                                </Button>
+                              </div>
                             </div>
                             
                             {lead.notes && (
-                              <div className="border border-blue-200 bg-white rounded-lg p-3 mb-3">
-                                <div className="text-blue-800 whitespace-pre-wrap">
+                              <div className="border border-gray-200 bg-white rounded-lg p-3 mb-3">
+                                <div className="text-gray-800 whitespace-pre-wrap">
                                   {lead.notes}
                                 </div>
                               </div>
@@ -337,8 +409,8 @@ export default function UsersTab() {
                       </div>
                     ))
                   ) : (
-                    <div className="border border-blue-100 rounded-lg p-4 bg-blue-50">
-                      <div className="text-center text-blue-600">
+                    <div className="border border-gray-100 rounded-lg p-4 bg-gray-50">
+                      <div className="text-center text-gray-600">
                         <Icon name="MessageSquare" size={24} className="mx-auto mb-2 opacity-60" />
                         У этого пользователя пока нет лидов
                       </div>

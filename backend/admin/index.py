@@ -341,12 +341,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден или является администратором'})
                 }
-    
-    elif method == 'DELETE':
-        body_data = json.loads(event.get('body', '{}'))
-        action = body_data.get('action')
         
-        if action == 'delete_lead':
+        elif action == 'delete_lead':
             lead_id = body_data.get('lead_id')
             
             if not lead_id:

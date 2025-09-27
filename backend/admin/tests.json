@@ -5,7 +5,7 @@
       "method": "OPTIONS",
       "path": "/",
       "expectedStatus": 200,
-      "expectedBody": {},
+      "expectedBody": "",
       "bodyMatcher": "partial"
     },
     {

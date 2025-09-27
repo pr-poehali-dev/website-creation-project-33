@@ -147,6 +147,30 @@ def get_leads_stats() -> Dict[str, Any]:
         'daily_stats': daily_stats
     }
 
+def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
+    """Получить все лиды пользователя"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id, user_id, notes, has_audio, created_at
+                FROM t_p24058207_website_creation_pro.leads 
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+            """, (user_id,))
+            
+            leads = []
+            for row in cur.fetchall():
+                lead = {
+                    'id': row[0],
+                    'user_id': row[1],
+                    'notes': row[2],
+                    'has_audio': row[3],
+                    'created_at': row[4].isoformat() if row[4] else None
+                }
+                leads.append(lead)
+            
+            return leads
+
 def update_user_name(user_id: int, new_name: str) -> bool:
     """Обновить имя пользователя"""
     with get_db_connection() as conn:

@@ -1,6 +1,9 @@
 import json
 import requests
 import base64
+import os
+import psycopg2
+from datetime import datetime
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -36,9 +39,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(event.get('body', '{}'))
         notes = body_data.get('notes', '').strip()
         audio_data = body_data.get('audio_data')  # base64 encoded audio
+        user_id = event.get('headers', {}).get('X-User-Id')  # Get user ID from header
         
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
         chat_id = '5215501225'
+        
+        # Record lead in database if user_id provided
+        if user_id and (notes or audio_data):
+            try:
+                database_url = os.environ.get('DATABASE_URL')
+                if database_url:
+                    with psycopg2.connect(database_url) as conn:
+                        with conn.cursor() as cur:
+                            cur.execute(
+                                "INSERT INTO leads (user_id, notes, has_audio, created_at) VALUES (%s, %s, %s, %s)",
+                                (int(user_id), notes or None, bool(audio_data), datetime.now())
+                            )
+                            conn.commit()
+            except Exception as db_error:
+                # Log database error but continue with Telegram sending
+                print(f"Database error: {db_error}")
         
         # Send combined message with audio and notes
         if audio_data and notes:
@@ -81,7 +101,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
                 data = {
                     'chat_id': chat_id,
-                    'caption': '🎙️ IMPERIA PROMO\n\n🎤 Аудиозапись'
+                    'caption': '🎙️ IMPERIA PROMO\n\n🎤 Контроль качества'
                 }
                 
                 audio_response = requests.post(audio_url, files=files, data=data)

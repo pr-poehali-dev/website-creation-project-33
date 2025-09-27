@@ -4,8 +4,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Index() {
+  const { user, logout } = useAuth();
   const [notes, setNotes] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -83,6 +85,7 @@ export default function Index() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-User-Id': user?.id?.toString() || '',
         },
         body: JSON.stringify({
           notes: notes.trim(),
@@ -123,10 +126,17 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-2xl mx-auto pt-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            IMPERIA PROMO
-          </h1>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              IMPERIA PROMO
+            </h1>
+            <p className="text-gray-600">Добро пожаловать, {user?.name}</p>
+          </div>
+          <Button onClick={logout} variant="outline">
+            <Icon name="LogOut" size={16} className="mr-2" />
+            Выйти
+          </Button>
         </div>
 
         <div className="grid gap-6">

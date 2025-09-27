@@ -1,0 +1,215 @@
+'''
+Система авторизации и управления пользователями
+Args: event с httpMethod, body, headers; context с request_id 
+Returns: JSON с токенами авторизации или ошибками
+'''
+
+import json
+import os
+import secrets
+import bcrypt
+import psycopg2
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
+
+def get_db_connection():
+    """Получить подключение к базе данных"""
+    database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        raise Exception('DATABASE_URL not found in environment')
+    return psycopg2.connect(database_url)
+
+def hash_password(password: str) -> str:
+    """Хешировать пароль"""
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
+def verify_password(password: str, hashed: str) -> bool:
+    """Проверить пароль"""
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
+def create_session(user_id: int) -> str:
+    """Создать сессию для пользователя"""
+    session_token = secrets.token_urlsafe(32)
+    expires_at = datetime.now() + timedelta(days=7)
+    
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO user_sessions (user_id, session_token, expires_at) VALUES (%s, %s, %s)",
+                (user_id, session_token, expires_at)
+            )
+            conn.commit()
+    
+    return session_token
+
+def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
+    """Получить пользователя по токену сессии"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT u.id, u.email, u.name, u.is_admin 
+                FROM users u 
+                JOIN user_sessions s ON u.id = s.user_id 
+                WHERE s.session_token = %s AND s.expires_at > %s
+            """, (session_token, datetime.now()))
+            
+            row = cur.fetchone()
+            if row:
+                return {
+                    'id': row[0],
+                    'email': row[1], 
+                    'name': row[2],
+                    'is_admin': row[3]
+                }
+    return None
+
+def update_last_seen(user_id: int):
+    """Обновить время последнего посещения"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE users SET last_seen = %s WHERE id = %s",
+                (datetime.now(), user_id)
+            )
+            conn.commit()
+
+def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    method: str = event.get('httpMethod', 'GET')
+    
+    # Handle CORS OPTIONS request
+    if method == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token',
+                'Access-Control-Max-Age': '86400'
+            },
+            'body': ''
+        }
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    }
+
+    if method == 'POST':
+        body_data = json.loads(event.get('body', '{}'))
+        action = body_data.get('action')
+        
+        if action == 'register':
+            email = body_data.get('email', '').strip()
+            password = body_data.get('password', '')
+            name = body_data.get('name', '').strip()
+            
+            if not email or not password or not name:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Все поля обязательны'})
+                }
+            
+            try:
+                password_hash = hash_password(password)
+                
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "INSERT INTO users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
+                            (email, password_hash, name)
+                        )
+                        user_id = cur.fetchone()[0]
+                        conn.commit()
+                
+                session_token = create_session(user_id)
+                
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({
+                        'success': True,
+                        'session_token': session_token,
+                        'user': {'id': user_id, 'email': email, 'name': name, 'is_admin': False}
+                    })
+                }
+                
+            except psycopg2.IntegrityError:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Пользователь с таким email уже существует'})
+                }
+        
+        elif action == 'login':
+            email = body_data.get('email', '').strip()
+            password = body_data.get('password', '')
+            
+            if not email or not password:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Email и пароль обязательны'})
+                }
+            
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT id, password_hash, name, is_admin FROM users WHERE email = %s",
+                        (email,)
+                    )
+                    row = cur.fetchone()
+            
+            if not row or not verify_password(password, row[1]):
+                return {
+                    'statusCode': 401,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Неверный email или пароль'})
+                }
+            
+            user_id, _, name, is_admin = row
+            session_token = create_session(user_id)
+            update_last_seen(user_id)
+            
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({
+                    'success': True,
+                    'session_token': session_token,
+                    'user': {'id': user_id, 'email': email, 'name': name, 'is_admin': is_admin}
+                })
+            }
+    
+    elif method == 'GET':
+        session_token = event.get('headers', {}).get('X-Session-Token')
+        
+        if not session_token:
+            return {
+                'statusCode': 401,
+                'headers': headers,
+                'body': json.dumps({'error': 'Токен сессии не найден'})
+            }
+        
+        user = get_user_by_session(session_token)
+        if not user:
+            return {
+                'statusCode': 401,
+                'headers': headers,
+                'body': json.dumps({'error': 'Недействительный токен сессии'})
+            }
+        
+        update_last_seen(user['id'])
+        
+        return {
+            'statusCode': 200,
+            'headers': headers,
+            'body': json.dumps({'user': user})
+        }
+    
+    return {
+        'statusCode': 405,
+        'headers': headers,
+        'body': json.dumps({'error': 'Метод не поддерживается'})
+    }

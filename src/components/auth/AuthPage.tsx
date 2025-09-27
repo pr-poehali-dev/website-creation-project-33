@@ -11,7 +11,12 @@ export default function AuthPage() {
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">
       {/* Анимированный фон */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse"></div>
+        <div className="absolute inset-0 opacity-30">
+          <div className="w-2 h-2 bg-white rounded-full absolute top-12 left-16 animate-pulse"></div>
+          <div className="w-1 h-1 bg-white rounded-full absolute top-28 left-44 animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div className="w-1 h-1 bg-white rounded-full absolute top-44 left-28 animate-pulse" style={{animationDelay: '2s'}}></div>
+          <div className="w-2 h-2 bg-white rounded-full absolute top-64 left-56 animate-pulse" style={{animationDelay: '3s'}}></div>
+        </div>
       </div>
       
       {/* Плавающие световые элементы */}

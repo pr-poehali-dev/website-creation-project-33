@@ -12,7 +12,8 @@ MOSCOW_TZ = pytz.timezone('Europe/Moscow')
 
 def get_moscow_time():
     """Получить текущее московское время"""
-    return datetime.now(MOSCOW_TZ)
+    utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
+    return utc_now.astimezone(MOSCOW_TZ)
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''

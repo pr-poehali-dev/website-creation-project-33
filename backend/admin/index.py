@@ -16,7 +16,8 @@ MOSCOW_TZ = pytz.timezone('Europe/Moscow')
 
 def get_moscow_time():
     """Получить текущее московское время"""
-    return datetime.now(MOSCOW_TZ)
+    utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
+    return utc_now.astimezone(MOSCOW_TZ)
 
 def get_db_connection():
     """Получить подключение к базе данных"""

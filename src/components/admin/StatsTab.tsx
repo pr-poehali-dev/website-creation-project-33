@@ -51,9 +51,9 @@ export default function StatsTab() {
 
   if (loading) {
     return (
-      <Card className="border-blue-200 shadow-lg bg-white">
+      <Card className="border-gray-200 shadow-lg bg-white">
         <CardContent className="p-8">
-          <div className="text-center text-blue-600 flex items-center justify-center gap-3">
+          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
             <Icon name="Loader2" size={24} className="animate-spin" />
             Загрузка статистики...
           </div>
@@ -64,9 +64,9 @@ export default function StatsTab() {
 
   if (!stats) {
     return (
-      <Card className="border-blue-200 shadow-lg bg-white">
+      <Card className="border-gray-200 shadow-lg bg-white">
         <CardContent className="p-8">
-          <div className="text-center text-blue-600 flex items-center justify-center gap-3">
+          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
             <Icon name="AlertCircle" size={24} />
             Статистика недоступна
           </div>
@@ -78,31 +78,31 @@ export default function StatsTab() {
   return (
     <div className="space-y-6">
       {/* Общая статистика */}
-      <Card className="border-blue-200 shadow-lg bg-white">
+      <Card className="border-gray-200 shadow-lg bg-white">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-blue-900 text-xl">
-            <div className="p-2 rounded-lg bg-green-100">
-              <Icon name="TrendingUp" size={20} className="text-green-600" />
+          <CardTitle className="flex items-center gap-3 text-black text-xl">
+            <div className="p-2 rounded-lg bg-gray-100">
+              <Icon name="TrendingUp" size={20} className="text-gray-600" />
             </div>
             Общая статистика
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center">
-            <div className="text-6xl font-bold text-blue-600 mb-4">
+            <div className="text-6xl font-bold text-black mb-4">
               {stats.total_leads}
             </div>
-            <div className="text-blue-700 text-lg">Всего лидов отправлено</div>
+            <div className="text-gray-600 text-lg">Всего лидов отправлено</div>
           </div>
         </CardContent>
       </Card>
 
       {/* Рейтинг пользователей */}
-      <Card className="border-blue-200 shadow-lg bg-white">
+      <Card className="border-gray-200 shadow-lg bg-white">
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-blue-900 text-xl">
-            <div className="p-2 rounded-lg bg-yellow-100">
-              <Icon name="Trophy" size={20} className="text-yellow-600" />
+          <CardTitle className="flex items-center gap-3 text-black text-xl">
+            <div className="p-2 rounded-lg bg-gray-100">
+              <Icon name="Trophy" size={20} className="text-gray-600" />
             </div>
             Рейтинг пользователей
           </CardTitle>
@@ -111,30 +111,30 @@ export default function StatsTab() {
           <div className="space-y-4">
             {stats.user_stats.map((user, index) => {
               const isTop3 = index < 3;
-              const medalColors = ['from-yellow-400 to-yellow-600', 'from-gray-300 to-gray-500', 'from-amber-600 to-amber-800'];
+              const medalColors = ['from-black to-gray-800', 'from-gray-400 to-gray-600', 'from-gray-600 to-gray-800'];
               
               return (
                 <div 
                   key={user.email} 
-                  className="border border-blue-100 rounded-xl p-4 hover:bg-blue-50 transition-all duration-300 bg-white shadow-sm"
+                  className="border border-gray-100 rounded-xl p-4 hover:bg-gray-50 transition-all duration-300 bg-white shadow-sm"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
                         isTop3 
                           ? `bg-gradient-to-br ${medalColors[index]} text-white shadow-lg`
-                          : 'bg-blue-100 border border-blue-200 text-blue-700'
+                          : 'bg-gray-100 border border-gray-200 text-gray-700'
                       } font-bold text-lg`}>
                         {isTop3 ? ['🥇', '🥈', '🥉'][index] : index + 1}
                       </div>
                       <div>
-                        <div className="font-medium text-blue-900 text-lg">{user.name}</div>
-                        <div className="text-sm text-blue-600">{user.email}</div>
+                        <div className="font-medium text-black text-lg">{user.name}</div>
+                        <div className="text-sm text-gray-600">{user.email}</div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-3xl font-bold text-blue-600">{user.lead_count}</div>
-                      <div className="text-sm text-blue-500">лидов</div>
+                      <div className="text-3xl font-bold text-black">{user.lead_count}</div>
+                      <div className="text-sm text-gray-500">лидов</div>
                     </div>
                   </div>
                 </div>
@@ -146,11 +146,11 @@ export default function StatsTab() {
 
       {/* Статистика по дням */}
       {stats.daily_stats.length > 0 && (
-        <Card className="border-blue-200 shadow-lg bg-white">
+        <Card className="border-gray-200 shadow-lg bg-white">
           <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-blue-900 text-xl">
-              <div className="p-2 rounded-lg bg-purple-100">
-                <Icon name="Calendar" size={20} className="text-purple-600" />
+            <CardTitle className="flex items-center gap-3 text-black text-xl">
+              <div className="p-2 rounded-lg bg-gray-100">
+                <Icon name="Calendar" size={20} className="text-gray-600" />
               </div>
               Статистика за последние дни
             </CardTitle>
@@ -160,17 +160,17 @@ export default function StatsTab() {
               {stats.daily_stats.slice(0, 7).map((day, index) => (
                 <div 
                   key={day.date} 
-                  className="flex justify-between items-center p-3 border border-blue-100 rounded-lg transition-all duration-300 hover:bg-blue-50 bg-white shadow-sm"
+                  className="flex justify-between items-center p-3 border border-gray-100 rounded-lg transition-all duration-300 hover:bg-gray-50 bg-white shadow-sm"
                 >
-                  <span className="text-blue-800 font-medium">
+                  <span className="text-black font-medium">
                     {new Date(day.date).toLocaleDateString('ru-RU', {
                       day: 'numeric',
                       month: 'short',
                     })}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-blue-600 font-bold text-lg">{day.count}</span>
-                    <span className="text-blue-500 text-sm">лидов</span>
+                    <span className="text-black font-bold text-lg">{day.count}</span>
+                    <span className="text-gray-500 text-sm">лидов</span>
                   </div>
                 </div>
               ))}

@@ -247,12 +247,12 @@ export default function UsersTab() {
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-3">
                       {user.is_online ? (
-                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        <div className="w-3 h-3 bg-black rounded-full animate-pulse"></div>
                       ) : (
                         <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
                       )}
                       {user.is_admin && (
-                        <Badge className="bg-yellow-100 text-yellow-700 border border-yellow-200 px-2 py-1">
+                        <Badge className="bg-gray-100 text-black border border-gray-200 px-2 py-1">
                           <Icon name="Shield" size={12} className="mr-1" />
                           Админ
                         </Badge>
@@ -265,7 +265,7 @@ export default function UsersTab() {
                           <Input
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
-                            className="w-48 border border-blue-200 bg-white text-blue-900 placeholder:text-blue-400 focus:border-blue-400"
+                            className="w-48 border border-gray-200 bg-white text-black placeholder:text-gray-400 focus:border-gray-400"
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
                                 updateUserName(user.id, newName);
@@ -274,11 +274,11 @@ export default function UsersTab() {
                             onClick={(e) => e.stopPropagation()}
                           />
                         ) : (
-                          <span className="font-medium text-blue-900 text-lg">{user.name}</span>
+                          <span className="font-medium text-black text-lg">{user.name}</span>
                         )}
                       </div>
-                      <div className="text-sm text-blue-600">{user.email}</div>
-                      <div className="text-xs text-blue-400">
+                      <div className="text-sm text-gray-600">{user.email}</div>
+                      <div className="text-xs text-gray-400">
                         {user.is_online 
                           ? 'Онлайн сейчас' 
                           : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
@@ -289,7 +289,7 @@ export default function UsersTab() {
 
                   <div className="flex items-center gap-2">
                     {selectedUser?.id === user.id && (
-                      <Icon name="ChevronDown" size={16} className="text-blue-500" />
+                      <Icon name="ChevronDown" size={16} className="text-gray-500" />
                     )}
                     
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
@@ -299,14 +299,14 @@ export default function UsersTab() {
                             size="sm" 
                             onClick={() => updateUserName(user.id, newName)}
                             disabled={!newName.trim()}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1"
+                            className="bg-black hover:bg-gray-800 text-white px-3 py-1"
                           >
                             <Icon name="Check" size={14} />
                           </Button>
                           <Button 
                             size="sm" 
                             onClick={cancelEdit}
-                            className="border border-blue-200 text-blue-600 hover:bg-blue-50"
+                            className="border border-gray-200 text-gray-600 hover:bg-gray-50"
                             variant="ghost"
                           >
                             <Icon name="X" size={14} />
@@ -318,7 +318,7 @@ export default function UsersTab() {
                             size="sm" 
                             onClick={() => startEdit(user)}
                             disabled={user.is_admin}
-                            className="border border-blue-200 text-blue-600 hover:bg-blue-50 px-3 py-1"
+                            className="border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1"
                             variant="ghost"
                           >
                             <Icon name="Edit" size={14} />
@@ -327,7 +327,7 @@ export default function UsersTab() {
                             <Button 
                               size="sm" 
                               onClick={() => deleteUser(user.id)}
-                              className="border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1"
+                              className="border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 px-3 py-1"
                               variant="ghost"
                             >
                               <Icon name="Trash2" size={14} />

@@ -5,6 +5,14 @@ import os
 import psycopg2
 from datetime import datetime
 from typing import Dict, Any
+import pytz
+
+# Московская временная зона
+MOSCOW_TZ = pytz.timezone('Europe/Moscow')
+
+def get_moscow_time():
+    """Получить текущее московское время"""
+    return datetime.now(MOSCOW_TZ)
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -53,7 +61,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         with conn.cursor() as cur:
                             cur.execute(
                                 "INSERT INTO leads (user_id, notes, has_audio, created_at) VALUES (%s, %s, %s, %s)",
-                                (int(user_id), notes or None, bool(audio_data), datetime.now())
+                                (int(user_id), notes or None, bool(audio_data), get_moscow_time())
                             )
                             conn.commit()
             except Exception as db_error:

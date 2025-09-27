@@ -12,6 +12,14 @@ import base64
 import psycopg2
 from datetime import datetime
 from typing import Dict, Any, List
+import pytz
+
+# Московская временная зона
+MOSCOW_TZ = pytz.timezone('Europe/Moscow')
+
+def get_moscow_time():
+    """Получить текущее московское время"""
+    return datetime.now(MOSCOW_TZ)
 
 def get_db_connection():
     """Получить подключение к базе данных"""
@@ -29,7 +37,7 @@ def get_user_by_session(session_token: str) -> Dict[str, Any]:
                 FROM users u 
                 JOIN user_sessions s ON u.id = s.user_id 
                 WHERE s.session_token = %s AND s.expires_at > %s
-            """, (session_token, datetime.now()))
+            """, (session_token, get_moscow_time()))
             
             row = cur.fetchone()
             if row:
@@ -82,12 +90,21 @@ def create_csv_content(leads_data: List[Dict[str, Any]]) -> str:
     
     # Данные
     for lead in leads_data:
+        # Конвертируем время в московское если оно в UTC
+        created_at_moscow = lead['created_at']
+        if created_at_moscow and created_at_moscow.tzinfo is None:
+            # Если время без зоны, считаем что это UTC и конвертируем в московское
+            created_at_moscow = pytz.UTC.localize(created_at_moscow).astimezone(MOSCOW_TZ)
+        elif created_at_moscow and created_at_moscow.tzinfo:
+            # Если время уже с зоной, конвертируем в московское
+            created_at_moscow = created_at_moscow.astimezone(MOSCOW_TZ)
+            
         writer.writerow([
             lead['user_name'],
             lead['user_email'],
             lead['notes'],
             'Да' if lead['has_audio'] else 'Нет',
-            lead['created_at'].strftime('%d.%m.%Y %H:%M:%S') if lead['created_at'] else ''
+            created_at_moscow.strftime('%d.%m.%Y %H:%M:%S МСК') if created_at_moscow else ''
         ])
     
     csv_content = output.getvalue()
@@ -139,8 +156,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             leads_data = get_leads_data()
             csv_base64 = create_csv_content(leads_data)
             
-            # Генерируем имя файла с датой
-            filename = f"leads_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            # Генерируем имя файла с московской датой
+            filename = f"leads_export_{get_moscow_time().strftime('%Y%m%d_%H%M%S')}.csv"
             
             return {
                 'statusCode': 200,

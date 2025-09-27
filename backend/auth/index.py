@@ -11,6 +11,14 @@ import bcrypt
 import psycopg2
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
+import pytz
+
+# Московская временная зона
+MOSCOW_TZ = pytz.timezone('Europe/Moscow')
+
+def get_moscow_time():
+    """Получить текущее московское время"""
+    return datetime.now(MOSCOW_TZ)
 
 def get_db_connection():
     """Получить подключение к базе данных"""
@@ -31,7 +39,7 @@ def verify_password(password: str, hashed: str) -> bool:
 def create_session(user_id: int) -> str:
     """Создать сессию для пользователя"""
     session_token = secrets.token_urlsafe(32)
-    expires_at = datetime.now() + timedelta(days=7)
+    expires_at = get_moscow_time() + timedelta(days=7)
     
     with get_db_connection() as conn:
         with conn.cursor() as cur:
@@ -52,7 +60,7 @@ def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
                 FROM users u 
                 JOIN user_sessions s ON u.id = s.user_id 
                 WHERE s.session_token = %s AND s.expires_at > %s
-            """, (session_token, datetime.now()))
+            """, (session_token, get_moscow_time()))
             
             row = cur.fetchone()
             if row:
@@ -70,7 +78,7 @@ def update_last_seen(user_id: int):
         with conn.cursor() as cur:
             cur.execute(
                 "UPDATE users SET last_seen = %s WHERE id = %s",
-                (datetime.now(), user_id)
+                (get_moscow_time(), user_id)
             )
             conn.commit()
 

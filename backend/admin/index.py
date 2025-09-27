@@ -73,6 +73,33 @@ def get_all_users() -> List[Dict[str, Any]]:
                 })
     return users
 
+def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
+    """Получить лиды конкретного пользователя"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id, notes, audio_data, created_at 
+                FROM leads 
+                WHERE user_id = %s 
+                ORDER BY created_at DESC
+            """, (user_id,))
+            
+            leads = []
+            for row in cur.fetchall():
+                leads.append({
+                    'id': row[0],
+                    'notes': row[1] or '',
+                    'audio_data': row[2],
+                    'created_at': get_moscow_time_from_utc(row[3]).isoformat() if row[3] else None
+                })
+            return leads
+
+def get_moscow_time_from_utc(utc_time):
+    """Конвертировать UTC время в московское"""
+    if utc_time.tzinfo is None:
+        utc_time = utc_time.replace(tzinfo=pytz.UTC)
+    return utc_time.astimezone(MOSCOW_TZ)
+
 def get_leads_stats() -> Dict[str, Any]:
     """Получить статистику по лидам"""
     with get_db_connection() as conn:
@@ -200,6 +227,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'headers': headers,
                 'body': json.dumps(stats)
             }
+        
+        elif action == 'user_leads':
+            user_id = event.get('queryStringParameters', {}).get('user_id')
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Требуется user_id'})
+                }
+            
+            try:
+                user_id = int(user_id)
+                leads = get_user_leads(user_id)
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'leads': leads})
+                }
+            except ValueError:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Неверный user_id'})
+                }
     
     elif method == 'PUT':
         body_data = json.loads(event.get('body', '{}'))

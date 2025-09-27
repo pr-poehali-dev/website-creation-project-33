@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import AudioPlayer from './AudioPlayer';
 
 interface User {
   id: number;
@@ -15,6 +16,13 @@ interface User {
   created_at: string;
 }
 
+interface Lead {
+  id: number;
+  notes: string;
+  audio_data: string | null;
+  created_at: string;
+}
+
 const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
 
 export default function UsersTab() {
@@ -22,6 +30,9 @@ export default function UsersTab() {
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<number | null>(null);
   const [newName, setNewName] = useState('');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userLeads, setUserLeads] = useState<Lead[]>([]);
+  const [leadsLoading, setLeadsLoading] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -76,6 +87,35 @@ export default function UsersTab() {
   const cancelEdit = () => {
     setEditingUser(null);
     setNewName('');
+  };
+
+  const fetchUserLeads = async (userId: number) => {
+    setLeadsLoading(true);
+    try {
+      const response = await fetch(`${ADMIN_API}?action=user_leads&user_id=${userId}`, {
+        headers: {
+          'X-Session-Token': getSessionToken() || '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserLeads(data.leads || []);
+      }
+    } catch (error) {
+      console.error('Error fetching user leads:', error);
+    }
+    setLeadsLoading(false);
+  };
+
+  const handleUserClick = (user: User) => {
+    if (selectedUser?.id === user.id) {
+      setSelectedUser(null);
+      setUserLeads([]);
+    } else {
+      setSelectedUser(user);
+      fetchUserLeads(user.id);
+    }
   };
 
   const deleteUser = async (userId: number) => {
@@ -148,99 +188,164 @@ export default function UsersTab() {
       <CardContent>
         <div className="space-y-4">
           {users.map((user, index) => (
-            <div 
-              key={user.id} 
-              className="glass-effect border-white/10 rounded-xl p-4 hover:bg-white/5 transition-all duration-300 slide-up"
-              style={{animationDelay: `${index * 0.1}s`}}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    {user.is_online ? (
-                      <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
-                    ) : (
-                      <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
-                    )}
-                    {user.is_admin && (
-                      <Badge className="glass-effect border-yellow-400/30 bg-yellow-500/20 text-yellow-300 px-2 py-1">
-                        <Icon name="Shield" size={12} className="mr-1" />
-                        Админ
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <div className="flex items-center gap-2">
-                      {editingUser === user.id ? (
-                        <Input
-                          value={newName}
-                          onChange={(e) => setNewName(e.target.value)}
-                          className="w-48 glass-effect border-white/20 text-white placeholder:text-white/50 focus:border-purple-400"
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              updateUserName(user.id, newName);
-                            }
-                          }}
-                        />
+            <div key={user.id}>
+              <div 
+                className="glass-effect border-white/10 rounded-xl p-4 hover:bg-white/5 transition-all duration-300 slide-up cursor-pointer"
+                style={{animationDelay: `${index * 0.1}s`}}
+                onClick={() => handleUserClick(user)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
+                      {user.is_online ? (
+                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
                       ) : (
-                        <span className="font-medium text-white text-lg">{user.name}</span>
+                        <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+                      )}
+                      {user.is_admin && (
+                        <Badge className="glass-effect border-yellow-400/30 bg-yellow-500/20 text-yellow-300 px-2 py-1">
+                          <Icon name="Shield" size={12} className="mr-1" />
+                          Админ
+                        </Badge>
                       )}
                     </div>
-                    <div className="text-sm text-white/70">{user.email}</div>
-                    <div className="text-xs text-white/50">
-                      {user.is_online 
-                        ? 'Онлайн сейчас' 
-                        : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
-                      }
+                    
+                    <div>
+                      <div className="flex items-center gap-2">
+                        {editingUser === user.id ? (
+                          <Input
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            className="w-48 glass-effect border-white/20 text-white placeholder:text-white/50 focus:border-purple-400 bg-black/20"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                updateUserName(user.id, newName);
+                              }
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <span className="font-medium text-white text-lg">{user.name}</span>
+                        )}
+                      </div>
+                      <div className="text-sm text-white/70">{user.email}</div>
+                      <div className="text-xs text-white/50">
+                        {user.is_online 
+                          ? 'Онлайн сейчас' 
+                          : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
+                        }
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex gap-2">
-                  {editingUser === user.id ? (
-                    <>
-                      <Button 
-                        size="sm" 
-                        onClick={() => updateUserName(user.id, newName)}
-                        disabled={!newName.trim()}
-                        className="glow-button text-white px-3 py-1"
-                      >
-                        <Icon name="Check" size={14} />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        onClick={cancelEdit}
-                        className="glass-effect border-white/20 text-white hover:bg-white/10"
-                        variant="ghost"
-                      >
-                        <Icon name="X" size={14} />
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button 
-                        size="sm" 
-                        onClick={() => startEdit(user)}
-                        disabled={user.is_admin}
-                        className="glass-effect border-white/20 text-white hover:bg-white/10 px-3 py-1"
-                        variant="ghost"
-                      >
-                        <Icon name="Edit" size={14} />
-                      </Button>
-                      {!user.is_admin && (
-                        <Button 
-                          size="sm" 
-                          onClick={() => deleteUser(user.id)}
-                          className="glass-effect border-red-400/30 bg-red-500/20 text-red-300 hover:bg-red-500/30 px-3 py-1"
-                          variant="ghost"
-                        >
-                          <Icon name="Trash2" size={14} />
-                        </Button>
+                  <div className="flex items-center gap-2">
+                    {selectedUser?.id === user.id && (
+                      <Icon name="ChevronDown" size={16} className="text-purple-400" />
+                    )}
+                    
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                      {editingUser === user.id ? (
+                        <>
+                          <Button 
+                            size="sm" 
+                            onClick={() => updateUserName(user.id, newName)}
+                            disabled={!newName.trim()}
+                            className="glow-button text-white px-3 py-1"
+                          >
+                            <Icon name="Check" size={14} />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            onClick={cancelEdit}
+                            className="glass-effect border-white/20 text-white hover:bg-white/10"
+                            variant="ghost"
+                          >
+                            <Icon name="X" size={14} />
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button 
+                            size="sm" 
+                            onClick={() => startEdit(user)}
+                            disabled={user.is_admin}
+                            className="glass-effect border-white/20 text-white hover:bg-white/10 px-3 py-1"
+                            variant="ghost"
+                          >
+                            <Icon name="Edit" size={14} />
+                          </Button>
+                          {!user.is_admin && (
+                            <Button 
+                              size="sm" 
+                              onClick={() => deleteUser(user.id)}
+                              className="glass-effect border-red-400/30 bg-red-500/20 text-red-300 hover:bg-red-500/30 px-3 py-1"
+                              variant="ghost"
+                            >
+                              <Icon name="Trash2" size={14} />
+                            </Button>
+                          )}
+                        </>
                       )}
-                    </>
-                  )}
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              {/* Лиды пользователя */}
+              {selectedUser?.id === user.id && (
+                <div className="mt-4 ml-8 space-y-3 slide-up">
+                  {leadsLoading ? (
+                    <div className="glass-effect border-white/10 rounded-lg p-4">
+                      <div className="flex items-center justify-center gap-2 text-white/70">
+                        <Icon name="Loader2" size={16} className="animate-spin" />
+                        Загрузка лидов...
+                      </div>
+                    </div>
+                  ) : userLeads.length > 0 ? (
+                    userLeads.map((lead, leadIndex) => (
+                      <div 
+                        key={lead.id} 
+                        className="glass-effect border-white/10 rounded-lg p-4 slide-up bg-black/20"
+                        style={{animationDelay: `${leadIndex * 0.1}s`}}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex-shrink-0">
+                            <Icon name="MessageSquare" size={16} className="text-white" />
+                          </div>
+                          
+                          <div className="flex-1">
+                            <div className="text-white/90 text-sm mb-2">
+                              {new Date(lead.created_at).toLocaleString('ru-RU')}
+                            </div>
+                            
+                            {lead.notes && (
+                              <div className="glass-effect border-white/10 bg-black/20 rounded-lg p-3 mb-3">
+                                <div className="text-white/80 whitespace-pre-wrap">
+                                  {lead.notes}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {lead.audio_data && (
+                              <AudioPlayer 
+                                audioData={lead.audio_data} 
+                                className="mb-2"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="glass-effect border-white/10 rounded-lg p-4 bg-black/20">
+                      <div className="text-center text-white/70">
+                        <Icon name="MessageSquare" size={24} className="mx-auto mb-2 opacity-50" />
+                        У этого пользователя пока нет лидов
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

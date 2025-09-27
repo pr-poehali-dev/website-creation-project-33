@@ -159,7 +159,7 @@ export default function Index() {
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Icon name="Mic" size={20} className="text-primary" />
-                Аудиозапись
+                Контроль качества
               </CardTitle>
             </CardHeader>
             <CardContent>

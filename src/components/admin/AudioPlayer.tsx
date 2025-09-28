@@ -7,102 +7,191 @@ interface AudioPlayerProps {
   className?: string;
 }
 
+// Определяем iOS
+const isIOS = () => {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
+// Определяем Safari
+const isSafari = () => {
+  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+};
+
 export default function AudioPlayer({ audioData, className = '' }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [canPlay, setCanPlay] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    // Создаем blob URL для лучшей совместимости с мобильными устройствами
-    try {
-      const binaryData = atob(audioData);
-      const bytes = new Uint8Array(binaryData.length);
-      for (let i = 0; i < binaryData.length; i++) {
-        bytes[i] = binaryData.charCodeAt(i);
-      }
-      
-      // Пробуем разные MIME типы для лучшей совместимости
-      const mimeTypes = ['audio/webm', 'audio/webm;codecs=opus', 'audio/ogg', 'audio/mp4', 'audio/wav'];
-      let createdUrl: string | null = null;
-      
-      for (const mimeType of mimeTypes) {
-        const blob = new Blob([bytes], { type: mimeType });
+    let createdUrl: string | null = null;
+    
+    const createAudioUrl = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const binaryData = atob(audioData);
+        const bytes = new Uint8Array(binaryData.length);
+        for (let i = 0; i < binaryData.length; i++) {
+          bytes[i] = binaryData.charCodeAt(i);
+        }
+        
+        // Для iOS/Safari используем более совместимые форматы
+        let mimeTypes: string[];
+        if (isIOS() || isSafari()) {
+          // На iOS Safari лучше всего работает с AAC/MP4
+          mimeTypes = ['audio/mp4', 'audio/aac', 'audio/mpeg', 'audio/wav', 'audio/webm'];
+        } else {
+          mimeTypes = ['audio/webm', 'audio/webm;codecs=opus', 'audio/ogg', 'audio/mp4', 'audio/wav'];
+        }
+        
+        // Создаем blob с первым поддерживаемым типом
+        const blob = new Blob([bytes], { type: mimeTypes[0] });
         createdUrl = URL.createObjectURL(blob);
         setAudioUrl(createdUrl);
-        break;
+        
+      } catch (err) {
+        console.error('Error creating audio URL:', err);
+        setError('Ошибка загрузки аудио');
+        setIsLoading(false);
       }
-      
-      return () => {
-        if (createdUrl) {
-          URL.revokeObjectURL(createdUrl);
-        }
-      };
-    } catch (err) {
-      setError('Ошибка загрузки аудио');
-    }
+    };
+    
+    createAudioUrl();
+    
+    return () => {
+      if (createdUrl) {
+        URL.revokeObjectURL(createdUrl);
+      }
+    };
   }, [audioData]);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !audioUrl) return;
 
     const updateTime = () => setCurrentTime(audio.currentTime);
+    
     const updateDuration = () => {
+      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+        setDuration(audio.duration);
+      }
+    };
+    
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    };
+    
+    const handleLoadStart = () => {
+      setIsLoading(true);
+      setCanPlay(false);
+    };
+    
+    const handleCanPlay = () => {
+      setIsLoading(false);
+      setCanPlay(true);
+      setError(null);
+      
+      // Для iOS нужно дождаться полной загрузки
+      if (isIOS() && audio.duration && !isNaN(audio.duration)) {
+        setDuration(audio.duration);
+      }
+    };
+    
+    const handleLoadedData = () => {
+      setIsLoading(false);
+      setCanPlay(true);
       if (audio.duration && !isNaN(audio.duration)) {
         setDuration(audio.duration);
       }
     };
-    const handleEnded = () => setIsPlaying(false);
-    const handleLoadStart = () => setIsLoading(true);
-    const handleCanPlay = () => {
-      setIsLoading(false);
-      setError(null);
-    };
-    const handleError = () => {
-      setError('Не удается воспроизвести аудио');
+    
+    const handleError = (e: Event) => {
+      console.error('Audio error:', e);
+      setError('Формат аудио не поддерживается');
       setIsLoading(false);
       setIsPlaying(false);
+      setCanPlay(false);
     };
 
+    const handleProgress = () => {
+      // Помогает с загрузкой на iOS
+      if (audio.buffered.length > 0) {
+        setCanPlay(true);
+      }
+    };
+
+    // Добавляем все необходимые слушатели
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('loadeddata', handleLoadedData);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('loadstart', handleLoadStart);
     audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('canplaythrough', handleCanPlay);
     audio.addEventListener('error', handleError);
+    audio.addEventListener('progress', handleProgress);
+
+    // Принудительно загружаем аудио
+    audio.load();
 
     return () => {
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('loadeddata', handleLoadedData);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('loadstart', handleLoadStart);
       audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('canplaythrough', handleCanPlay);
       audio.removeEventListener('error', handleError);
+      audio.removeEventListener('progress', handleProgress);
     };
   }, [audioUrl]);
 
   const togglePlay = async () => {
     const audio = audioRef.current;
-    if (!audio || isLoading) return;
+    if (!audio || !canPlay) return;
 
     try {
       if (isPlaying) {
         audio.pause();
         setIsPlaying(false);
       } else {
-        // Для iOS необходимо вызывать play() в результате пользовательского действия
+        // Для iOS Safari нужна особая обработка
+        if (isIOS()) {
+          // Сначала загружаем аудио
+          if (audio.readyState < 2) {
+            audio.load();
+            // Ждем загрузки
+            await new Promise((resolve) => {
+              const onCanPlay = () => {
+                audio.removeEventListener('canplay', onCanPlay);
+                resolve(void 0);
+              };
+              audio.addEventListener('canplay', onCanPlay);
+            });
+          }
+        }
+        
+        // Воспроизводим
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           await playPromise;
           setIsPlaying(true);
+        } else {
+          setIsPlaying(true);
         }
       }
     } catch (err) {
-      setError('Ошибка воспроизведения');
+      console.error('Play error:', err);
+      setError('Не удается воспроизвести аудио');
       setIsPlaying(false);
     }
   };
@@ -115,19 +204,59 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !canPlay) return;
 
     const newTime = parseFloat(e.target.value);
-    audio.currentTime = newTime;
-    setCurrentTime(newTime);
+    try {
+      audio.currentTime = newTime;
+      setCurrentTime(newTime);
+    } catch (err) {
+      console.error('Seek error:', err);
+    }
   };
 
+  // Функция для скачивания аудио как fallback для iOS
+  const downloadAudio = () => {
+    try {
+      const binaryData = atob(audioData);
+      const bytes = new Uint8Array(binaryData.length);
+      for (let i = 0; i < binaryData.length; i++) {
+        bytes[i] = binaryData.charCodeAt(i);
+      }
+      
+      const blob = new Blob([bytes], { type: 'audio/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audio_${Date.now()}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download error:', err);
+    }
+  };
+
+  // Если ошибка и это iOS, показываем кнопку скачивания
   if (error) {
     return (
-      <div className={`border border-gray-200 bg-gray-50 rounded-lg p-3 ${className}`}>
-        <div className="flex items-center gap-2 text-gray-600">
-          <Icon name="AlertCircle" size={16} />
-          <span className="text-sm">{error}</span>
+      <div className={`border border-gray-200 bg-gray-50 rounded-lg p-2 md:p-3 ${className}`}>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-gray-600 flex-1">
+            <Icon name="AlertCircle" size={16} />
+            <span className="text-xs md:text-sm">{error}</span>
+          </div>
+          {(isIOS() || isSafari()) && (
+            <Button
+              onClick={downloadAudio}
+              size="sm"
+              className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 h-7 flex-shrink-0"
+            >
+              <Icon name="Download" size={12} className="mr-1" />
+              <span className="text-xs">Скачать</span>
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -139,9 +268,10 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
         <audio 
           ref={audioRef} 
           src={audioUrl} 
-          preload="metadata"
-          playsInline // Важно для iOS
-          controls={false} // Скрываем нативные контролы
+          preload="auto"
+          playsInline
+          controls={false}
+          crossOrigin="anonymous"
         />
       )}
       
@@ -149,7 +279,7 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
         <Button
           onClick={togglePlay}
           size="sm"
-          disabled={isLoading || !audioUrl}
+          disabled={isLoading || !canPlay}
           className="bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white rounded-full w-8 h-8 md:w-10 md:h-10 p-0 shadow-sm flex-shrink-0"
         >
           {isLoading ? (
@@ -172,7 +302,7 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
             max={duration || 0}
             value={currentTime}
             onChange={handleSeek}
-            disabled={!duration}
+            disabled={!canPlay || !duration}
             className="flex-1 h-2 md:h-1.5 bg-gray-200 rounded-lg cursor-pointer touch-manipulation"
             style={{
               background: duration > 0 
@@ -189,6 +319,16 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
         </div>
 
         <div className="flex items-center gap-1 flex-shrink-0">
+          {(isIOS() || isSafari()) && (
+            <Button
+              onClick={downloadAudio}
+              size="sm"
+              className="bg-gray-600 hover:bg-gray-700 text-white w-6 h-6 md:w-7 md:h-7 p-0 rounded"
+              title="Скачать аудио"
+            >
+              <Icon name="Download" size={10} className="md:w-3 md:h-3" />
+            </Button>
+          )}
           <Icon name="Volume2" size={12} className="text-gray-600 md:w-[14px] md:h-[14px]" />
         </div>
       </div>

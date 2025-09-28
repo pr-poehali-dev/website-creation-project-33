@@ -45,20 +45,20 @@ export default function AdminPanel() {
         <div className="max-w-md w-full">
           <Card className="border-gray-200 shadow-lg">
             <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-3 text-black text-2xl">
-                <div className="p-3 rounded-full bg-gray-100">
-                  <Icon name="ShieldX" size={32} className="text-gray-600" />
+              <CardTitle className="flex flex-col md:flex-row items-center justify-center gap-3 text-black text-xl md:text-2xl">
+                <div className="p-2 md:p-3 rounded-full bg-gray-100">
+                  <Icon name="ShieldX" size={24} className="text-gray-600 md:w-8 md:h-8" />
                 </div>
                 Доступ запрещен
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-gray-600 mb-6 text-lg">У вас нет прав администратора</p>
+              <p className="text-gray-600 mb-6 text-base md:text-lg">У вас нет прав администратора</p>
               <Button 
                 onClick={logout} 
-                className="w-full bg-black hover:bg-gray-800 text-white"
+                className="w-full bg-black hover:bg-gray-800 text-white h-12 md:h-auto"
               >
-                <Icon name="LogOut" size={20} className="mr-2" />
+                <Icon name="LogOut" size={18} className="mr-2 md:w-5 md:h-5" />
                 Выйти
               </Button>
             </CardContent>
@@ -69,9 +69,41 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-white p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        {/* Мобильная версия заголовка */}
+        <div className="md:hidden mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-xl font-bold text-black flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-gray-100">
+                <Icon name="Shield" size={20} className="text-gray-600" />
+              </div>
+              Админ-панель
+            </h1>
+            <Button 
+              onClick={logout} 
+              className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-200 px-3 py-2"
+              variant="ghost"
+              size="sm"
+            >
+              <Icon name="LogOut" size={16} />
+            </Button>
+          </div>
+          <div className="text-center mb-4">
+            <span className="text-gray-600 text-sm">Добро пожаловать, {user.name}</span>
+          </div>
+          <Button 
+            onClick={downloadCSV}
+            className="w-full bg-gray-100 hover:bg-gray-200 text-black border border-gray-200 h-12"
+            variant="ghost"
+          >
+            <Icon name="Download" size={16} className="mr-2" />
+            Скачать CSV
+          </Button>
+        </div>
+
+        {/* Десктопная версия заголовка */}
+        <div className="hidden md:flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-black flex items-center gap-3">
             <div className="p-3 rounded-xl bg-gray-100">
               <Icon name="Shield" size={32} className="text-gray-600" />
@@ -99,20 +131,21 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-50 border border-gray-200 h-14">
+        <Tabs defaultValue="users" className="space-y-4 md:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-50 border border-gray-200 h-12 md:h-14">
             <TabsTrigger 
               value="users" 
-              className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300"
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
             >
-              <Icon name="Users" size={18} />
-              Пользователи
+              <Icon name="Users" size={16} className="md:w-[18px] md:h-[18px]" />
+              <span className="hidden sm:inline">Пользователи</span>
+              <span className="sm:hidden">Польз.</span>
             </TabsTrigger>
             <TabsTrigger 
               value="stats" 
-              className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300"
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
             >
-              <Icon name="BarChart3" size={18} />
+              <Icon name="BarChart3" size={16} className="md:w-[18px] md:h-[18px]" />
               Рейтинг
             </TabsTrigger>
           </TabsList>

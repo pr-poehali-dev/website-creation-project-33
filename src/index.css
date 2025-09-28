@@ -235,24 +235,84 @@
     -webkit-text-fill-color: transparent;
   }
 
-  /* Стили для аудиоплеера */
-  .slider::-webkit-slider-thumb {
+  /* Стили для аудиоплеера - совместимость с мобильными */
+  input[type="range"] {
+    -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #2563eb;
+    background: transparent;
     cursor: pointer;
-    box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
+    outline: none;
   }
 
-  .slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #2563eb;
-    cursor: pointer;
+  /* Трек слайдера */
+  input[type="range"]::-webkit-slider-track {
+    background: transparent;
+    height: 100%;
+    border-radius: 4px;
+  }
+
+  input[type="range"]::-moz-range-track {
+    background: transparent;
+    height: 100%;
+    border-radius: 4px;
     border: none;
-    box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
+  }
+
+  /* Thumb (ползунок) для всех браузеров */
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #000000;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid #ffffff;
+    transition: all 0.2s ease;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #000000;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  /* Увеличенный размер для мобильных устройств */
+  @media (max-width: 768px) {
+    input[type="range"]::-webkit-slider-thumb {
+      height: 22px;
+      width: 22px;
+      touch-action: manipulation;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      height: 22px;
+      width: 22px;
+      touch-action: manipulation;
+    }
+
+    /* Увеличиваем область касания */
+    input[type="range"] {
+      height: 32px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
+
+  /* Активное состояние */
+  input[type="range"]:active::-webkit-slider-thumb {
+    transform: scale(1.2);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  input[type="range"]:active::-moz-range-thumb {
+    transform: scale(1.2);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
   }
 }

@@ -36,7 +36,6 @@ export default function Index() {
 
       mediaRecorder.start();
       setIsRecording(true);
-      toast({ title: 'Запись начата' });
     } catch (error) {
       toast({ 
         title: 'Ошибка доступа к микрофону',
@@ -50,7 +49,6 @@ export default function Index() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      toast({ title: 'Запись остановлена' });
     }
   };
 

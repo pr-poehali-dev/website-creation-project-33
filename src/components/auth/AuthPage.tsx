@@ -8,7 +8,7 @@ export default function AuthPage() {
   const toggleMode = () => setIsLogin(!isLogin);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#001f54] via-[#002b6b] to-[#001f54] flex items-center justify-center p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e8eef5] flex items-center justify-center p-4 md:p-8">
       {/* Основной контент */}
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-2xl border border-[#001f54]/20">

@@ -72,6 +72,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     ORDER BY cm.created_at ASC
                 """, (target_user_id,))
                 
+                messages = cursor.fetchall()
+                
                 # Отмечаем сообщения от пользователя как прочитанные
                 cursor.execute("""
                     UPDATE chat_messages 
@@ -80,20 +82,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 """, (target_user_id,))
                 conn.commit()
                 
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'messages': [dict(row) for row in messages]
+                    }, default=str)
+                }
+                
             elif is_admin:
-                # Админ получает список пользователей с непрочитанными сообщениями
+                # Админ получает список пользователей, у которых есть сообщения
                 cursor.execute("""
                     SELECT 
                         u.id,
                         u.name,
                         u.email,
-                        COUNT(CASE WHEN cm.is_read = FALSE AND cm.is_from_admin = FALSE THEN 1 END) as unread_count,
+                        COALESCE(COUNT(CASE WHEN cm.is_read = FALSE AND cm.is_from_admin = FALSE THEN 1 END), 0) as unread_count,
                         MAX(cm.created_at) as last_message_time
-                    FROM users u
-                    LEFT JOIN chat_messages cm ON u.id = cm.user_id
+                    FROM chat_messages cm
+                    JOIN users u ON cm.user_id = u.id
                     WHERE u.is_admin = FALSE
                     GROUP BY u.id, u.name, u.email
-                    HAVING COUNT(cm.id) > 0
                     ORDER BY MAX(cm.created_at) DESC
                 """)
                 

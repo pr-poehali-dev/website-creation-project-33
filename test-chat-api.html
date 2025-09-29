@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e9;
+        }
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+        .status {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chat API Test</h1>
+        
+        <div class="info">
+            <strong>Endpoint:</strong> https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c<br>
+            <strong>Method:</strong> GET<br>
+            <strong>Header:</strong> X-User-Id: 1 (admin user)
+        </div>
+        
+        <button onclick="testAPI()">Test API</button>
+        
+        <div id="status"></div>
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        async function testAPI() {
+            const statusDiv = document.getElementById('status');
+            const resultDiv = document.getElementById('result');
+            
+            statusDiv.innerHTML = '<div class="status">Making request...</div>';
+            resultDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c', {
+                    method: 'GET',
+                    headers: {
+                        'X-User-Id': '1'
+                    }
+                });
+                
+                const statusText = `<div class="status">Status: ${response.status} ${response.statusText}</div>`;
+                
+                // Get response headers
+                let headersText = '<strong>Response Headers:</strong><br>';
+                response.headers.forEach((value, key) => {
+                    headersText += `${key}: ${value}<br>`;
+                });
+                
+                // Get response body
+                const body = await response.text();
+                let bodyParsed;
+                try {
+                    bodyParsed = JSON.parse(body);
+                } catch (e) {
+                    bodyParsed = body;
+                }
+                
+                statusDiv.innerHTML = statusText + '<br>' + headersText;
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = JSON.stringify(bodyParsed, null, 2);
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = JSON.stringify(bodyParsed, null, 2);
+                }
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="status error">Error occurred</div>';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = error.message;
+            }
+        }
+        
+        // Auto-run on page load
+        window.addEventListener('load', () => {
+            testAPI();
+        });
+    </script>
+</body>
+</html>

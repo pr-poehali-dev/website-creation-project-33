@@ -213,8 +213,8 @@ export default function UsersTab() {
             </div>
             Пользователи ({users.length})
           </span>
-          <Badge className="bg-gray-100 text-black border border-gray-200 flex items-center gap-2 px-2 md:px-3 py-1 text-sm">
-            <div className="w-2 h-2 bg-black rounded-full animate-pulse"></div>
+          <Badge className="bg-green-100 text-green-800 border border-green-200 flex items-center gap-2 px-2 md:px-3 py-1 text-sm">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             Онлайн: {onlineUsers}
           </Badge>
         </CardTitle>
@@ -231,7 +231,7 @@ export default function UsersTab() {
                   <div className="flex items-start md:items-center gap-3 md:gap-4 flex-1">
                     <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
                       {user.is_online ? (
-                        <div className="w-3 h-3 bg-black rounded-full animate-pulse"></div>
+                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-sm"></div>
                       ) : (
                         <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
                       )}
@@ -270,7 +270,11 @@ export default function UsersTab() {
                             : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
                           }
                         </span>
-                        <Badge className="bg-gray-100 text-black border border-gray-200 ml-2 px-1.5 py-0.5 text-xs">
+                        <Badge className={`ml-2 px-1.5 py-0.5 text-xs ${
+                          user.is_online 
+                            ? 'bg-green-100 text-green-800 border border-green-200' 
+                            : 'bg-gray-100 text-black border border-gray-200'
+                        }`}>
                           {user.lead_count} лидов
                         </Badge>
                       </div>

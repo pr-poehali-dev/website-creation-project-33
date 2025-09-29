@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import Logo from '@/components/ui/logo';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
@@ -8,30 +10,54 @@ export default function AuthPage() {
   const toggleMode = () => setIsLogin(!isLogin);
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 md:p-8">
-      {/* Основной контент */}
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-200">
-          {/* Логотип/заголовок */}
-          <div className="text-center mb-6 md:mb-8">
-            <div className="inline-block p-3 md:p-4 rounded-full bg-gray-100 mb-3 md:mb-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full flex items-center justify-center">
-                <span className="text-xl md:text-2xl">🚀</span>
-              </div>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-black mb-2">
-              {isLogin ? 'Добро пожаловать!' : 'Присоединяйтесь!'}
+        {/* Логотип и заголовок */}
+        <div className="text-center mb-8">
+          <Logo size="lg" className="justify-center" />
+          <div className="mt-6">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              {isLogin ? 'Добро пожаловать' : 'Создание аккаунта'}
             </h1>
-            <p className="text-sm md:text-base text-gray-600">
-              {isLogin ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт'}
+            <p className="text-muted-foreground">
+              {isLogin 
+                ? 'Войдите в систему управления' 
+                : 'Зарегистрируйтесь для доступа к системе'
+              }
             </p>
           </div>
+        </div>
+
+        {/* Основная карточка */}
+        <Card className="border-border shadow-lg bg-card">
+          <CardHeader className="pb-6">
+            <div className="text-center">
+              <h2 className="text-xl font-bold text-card-foreground">
+                {isLogin ? 'Авторизация' : 'Регистрация'}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {isLogin 
+                  ? 'Введите свои учетные данные'
+                  : 'Заполните форму для создания аккаунта'
+                }
+              </p>
+            </div>
+          </CardHeader>
           
-          {isLogin ? (
-            <LoginForm onToggleMode={toggleMode} />
-          ) : (
-            <RegisterForm onToggleMode={toggleMode} />
-          )}
+          <CardContent>
+            {isLogin ? (
+              <LoginForm onToggleMode={toggleMode} />
+            ) : (
+              <RegisterForm onToggleMode={toggleMode} />
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <p className="text-xs text-muted-foreground">
+            © 2024 Admin Panel System. Все права защищены.
+          </p>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import Logo from '@/components/ui/logo';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -36,7 +37,7 @@ export default function Index() {
 
       mediaRecorder.start();
       setIsRecording(true);
-      toast({ title: 'Запись начата' });
+      toast({ title: 'Запись начата', description: 'Говорите четко в микрофон' });
     } catch (error) {
       toast({ 
         title: 'Ошибка доступа к микрофону',
@@ -50,8 +51,13 @@ export default function Index() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      toast({ title: 'Запись остановлена' });
+      toast({ title: 'Запись завершена', description: 'Аудио сохранено' });
     }
+  };
+
+  const clearAudio = () => {
+    setAudioBlob(null);
+    toast({ title: 'Аудио удалено' });
   };
 
   const sendToTelegram = async () => {
@@ -101,8 +107,8 @@ export default function Index() {
       
       if (result.success) {
         toast({ 
-          title: 'Отправлено!',
-          description: 'Ваши данные успешно отправлены в Telegram'
+          title: 'Успешно отправлено!',
+          description: 'Ваши данные переданы в систему'
         });
         
         // Очищаем форму после отправки
@@ -124,141 +130,180 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-6">
-      <div className="max-w-2xl mx-auto pt-4 md:pt-8">
-        {/* Мобильная версия заголовка */}
-        <div className="md:hidden mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-bold text-black">
-              IMPERIA PROMO
-            </h1>
-            <Button 
-              onClick={logout} 
-              className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-200 transition-all duration-300 px-3 py-2"
-              variant="ghost"
-              size="sm"
-            >
-              <Icon name="LogOut" size={16} />
-            </Button>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-card shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Logo size="md" />
+            <div className="flex items-center gap-4">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-semibold text-foreground">{user?.name}</p>
+                <p className="text-xs text-muted-foreground">Пользователь</p>
+              </div>
+              <Button 
+                onClick={logout} 
+                variant="outline"
+                className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-border"
+              >
+                <Icon name="LogOut" size={16} className="mr-2" />
+                <span className="hidden sm:inline">Выйти</span>
+              </Button>
+            </div>
           </div>
-          <p className="text-gray-600 text-base">Добро пожаловать, {user?.name}</p>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto p-4 md:p-8">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            Рабочая панель
+          </h1>
+          <p className="text-muted-foreground">
+            Создавайте заметки и записывайте аудио для отправки в систему
+          </p>
         </div>
 
-        {/* Десктопная версия заголовка */}
-        <div className="hidden md:flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-black mb-2">
-              IMPERIA PROMO
-            </h1>
-            <p className="text-gray-600 text-lg">Добро пожаловать, {user?.name}</p>
-          </div>
-          <Button 
-            onClick={logout} 
-            className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-200 transition-all duration-300"
-            variant="ghost"
-          >
-            <Icon name="LogOut" size={16} className="mr-2" />
-            Выйти
-          </Button>
-        </div>
-
-        <div className="grid gap-4 md:gap-6">
+        <div className="grid gap-6">
           {/* Блокнот */}
-          <Card className="bg-white border-gray-200 shadow-lg">
-            <CardHeader className="pb-3 md:pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
-                <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-                  <Icon name="NotebookPen" size={18} className="text-gray-600 md:w-5 md:h-5" />
+          <Card className="border-border shadow-sm bg-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-foreground">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Icon name="NotebookPen" size={20} className="text-primary" />
                 </div>
-                Блокнот
+                Текстовые заметки
               </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Введите информацию или комментарии
+              </p>
             </CardHeader>
-            <CardContent className="pt-0">
+            <CardContent>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Введите ваши заметки здесь..."
-                className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-black focus:ring-black/30 transition-all duration-300 text-sm md:text-base"
+                className="min-h-[120px] md:min-h-[150px] bg-background border-input text-foreground placeholder:text-muted-foreground resize-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                 maxLength={4096}
               />
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-gray-600">
+              <div className="flex justify-between items-center mt-3">
+                <span className="text-xs text-muted-foreground">
                   {notes.length}/4096 символов
                 </span>
+                {notes.length > 0 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setNotes('')}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Icon name="X" size={14} className="mr-1" />
+                    Очистить
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
 
           {/* Аудиозапись */}
-          <Card className="bg-white border-gray-200 shadow-lg">
-            <CardHeader className="pb-3 md:pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
-                <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-                  <Icon name="Mic" size={18} className="text-gray-600 md:w-5 md:h-5" />
+          <Card className="border-border shadow-sm bg-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-foreground">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Icon name="Mic" size={20} className="text-primary" />
                 </div>
-                Контроль качества
+                Аудио запись
               </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Записывайте голосовые заметки для дополнительной информации
+              </p>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex flex-col items-center gap-4 md:gap-6">
+            <CardContent>
+              <div className="flex flex-col items-center gap-6">
                 <div className="flex items-center gap-4">
                   {!isRecording ? (
                     <Button
                       onClick={startRecording}
                       size="lg"
-                      className="bg-black hover:bg-gray-800 text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-lg"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-200 hover:scale-105 shadow-lg"
                     >
-                      <Icon name="Mic" size={24} className="md:w-8 md:h-8" />
+                      <Icon name="Mic" size={28} />
                     </Button>
                   ) : (
                     <Button
                       onClick={stopRecording}
                       size="lg"
-                      className="bg-gray-800 hover:bg-gray-700 text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 animate-pulse transition-all duration-300 shadow-lg"
+                      className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full w-16 h-16 md:w-20 md:h-20 p-0 animate-pulse transition-all duration-200 shadow-lg"
                     >
-                      <Icon name="Square" size={24} className="md:w-8 md:h-8" />
+                      <Icon name="Square" size={28} />
                     </Button>
                   )}
                 </div>
                 
                 {isRecording && (
-                  <div className="flex items-center gap-2 md:gap-3 text-black bg-gray-50 border border-gray-200 px-3 md:px-4 py-2 rounded-full">
-                    <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-black rounded-full animate-pulse"></div>
-                    <span className="text-xs md:text-sm font-medium">Идет запись...</span>
+                  <div className="flex items-center gap-3 text-foreground bg-primary/10 border border-primary/20 px-4 py-2 rounded-full">
+                    <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium">Запись в процессе...</span>
                   </div>
                 )}
 
                 {audioBlob && !isRecording && (
-                  <div className="flex items-center gap-2 md:gap-3 text-black bg-gray-50 border border-gray-200 px-3 md:px-4 py-2 rounded-full">
-                    <Icon name="CheckCircle" size={14} className="md:w-4 md:h-4" />
-                    <span className="text-xs md:text-sm font-medium">Аудио записано</span>
+                  <div className="flex items-center gap-4 text-foreground bg-secondary px-4 py-3 rounded-lg border border-border">
+                    <div className="flex items-center gap-2">
+                      <Icon name="CheckCircle" size={16} className="text-green-600" />
+                      <span className="text-sm font-medium">Аудио записано</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearAudio}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Icon name="Trash2" size={14} className="mr-1" />
+                      Удалить
+                    </Button>
                   </div>
                 )}
+
+                <p className="text-xs text-muted-foreground text-center max-w-md">
+                  Нажмите на кнопку микрофона для начала записи. 
+                  Для остановки нажмите кнопку квадрата.
+                </p>
               </div>
             </CardContent>
           </Card>
 
           {/* Кнопка отправки */}
-          <Button
-            onClick={sendToTelegram}
-            disabled={isLoading || (!notes.trim() && !audioBlob)}
-            size="lg"
-            className="bg-black hover:bg-gray-800 disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-lg transition-all duration-300 hover:scale-105"
-          >
-            {isLoading ? (
-              <div className="flex items-center gap-2 md:gap-3">
-                <Icon name="Loader2" size={20} className="animate-spin md:w-6 md:h-6" />
-                <span className="text-base md:text-xl">Отправка...</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 md:gap-3">
-                <Icon name="Send" size={20} className="md:w-6 md:h-6" />
-                <span className="text-base md:text-xl">Отправить в Telegram</span>
-              </div>
-            )}
-          </Button>
+          <div className="flex justify-center">
+            <Button
+              onClick={sendToTelegram}
+              disabled={isLoading || (!notes.trim() && !audioBlob)}
+              size="lg"
+              className="bg-primary hover:bg-primary/90 disabled:bg-muted text-primary-foreground h-12 md:h-14 px-8 md:px-12 text-base md:text-lg font-semibold shadow-lg transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-3">
+                  <Icon name="Loader2" size={20} className="animate-spin" />
+                  <span>Отправка...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Icon name="Send" size={20} />
+                  <span>Отправить в систему</span>
+                </div>
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+
+        {/* Footer */}
+        <footer className="mt-12 pt-8 border-t border-border text-center">
+          <p className="text-xs text-muted-foreground">
+            © 2024 Admin Panel System. Все права защищены.
+          </p>
+        </footer>
+      </main>
     </div>
   );
 }

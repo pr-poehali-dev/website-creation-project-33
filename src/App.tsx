@@ -17,10 +17,11 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
-        <div className="flex items-center gap-2 md:gap-3 text-blue-600">
-          <div className="w-5 h-5 md:w-6 md:h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <div className="text-base md:text-lg font-medium">Загрузка...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-lg font-semibold text-foreground">Загрузка системы...</div>
+          <div className="text-sm text-muted-foreground">Пожалуйста, подождите</div>
         </div>
       </div>
     );

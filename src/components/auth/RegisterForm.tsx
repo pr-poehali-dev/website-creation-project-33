@@ -15,6 +15,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
   const { register } = useAuth();
 
@@ -40,113 +41,127 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-        <div className="space-y-3 md:space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-black font-medium text-sm md:text-base">
-              Имя
+            <Label htmlFor="name" className="text-sm font-semibold text-foreground">
+              Полное имя
             </Label>
             <div className="relative">
               <Icon 
                 name="User" 
                 size={18} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-5 md:h-5" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" 
               />
               <Input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-black/30 h-12 md:h-auto text-base"
-                placeholder="Ваше имя"
+                className="pl-10 h-11 bg-background border-input text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
+                placeholder="Иван Иванов"
                 required
+                disabled={loading}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-black font-medium text-sm md:text-base">
-              Email
+            <Label htmlFor="email" className="text-sm font-semibold text-foreground">
+              Email адрес
             </Label>
             <div className="relative">
               <Icon 
                 name="Mail" 
                 size={18} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-5 md:h-5" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" 
               />
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-black/30 h-12 md:h-auto text-base"
-                placeholder="your@email.com"
+                className="pl-10 h-11 bg-background border-input text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
+                placeholder="user@company.com"
                 required
+                disabled={loading}
               />
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-black font-medium text-sm md:text-base">
+            <Label htmlFor="password" className="text-sm font-semibold text-foreground">
               Пароль
             </Label>
             <div className="relative">
               <Icon 
                 name="Lock" 
                 size={18} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-5 md:h-5" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" 
               />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-black focus:ring-black/30 h-12 md:h-auto text-base"
+                className="pl-10 pr-10 h-11 bg-background border-input text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
                 placeholder="••••••••"
                 required
                 minLength={6}
+                disabled={loading}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                disabled={loading}
+              >
+                <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={18} />
+              </button>
             </div>
-            <p className="text-blue-600 text-xs md:text-sm">Минимум 6 символов</p>
+            <p className="text-xs text-muted-foreground">Минимум 6 символов</p>
           </div>
         </div>
 
         {error && (
-          <div className="bg-gray-50 border border-gray-200 text-black text-sm text-center p-3 rounded-lg">
-            <Icon name="AlertCircle" size={16} className="inline mr-2" />
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm text-center p-3 rounded-lg flex items-center justify-center gap-2">
+            <Icon name="AlertCircle" size={16} />
             {error}
           </div>
         )}
 
         <Button 
           type="submit" 
-          className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 md:py-3 rounded-lg transition-all duration-300 shadow-sm h-12 md:h-auto text-base" 
-          disabled={loading}
+          className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-200 shadow-sm" 
+          disabled={loading || !email || !password || !name}
         >
           {loading ? (
             <>
-              <Icon name="Loader2" size={18} className="mr-2 animate-spin md:w-5 md:h-5" />
-              Регистрация...
+              <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+              Создание аккаунта...
             </>
           ) : (
             <>
-              <Icon name="UserPlus" size={18} className="mr-2 md:w-5 md:h-5" />
-              Зарегистрироваться
+              <Icon name="UserPlus" size={18} className="mr-2" />
+              Создать аккаунт
             </>
           )}
         </Button>
       </form>
 
-      <div className="mt-4 md:mt-6 text-center">
-        <p className="text-blue-600 mb-2 text-sm md:text-base">Уже есть аккаунт?</p>
-        <Button 
-          variant="ghost" 
-          onClick={onToggleMode}
-          className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-all duration-300 h-10 md:h-auto text-sm md:text-base"
-        >
-          <Icon name="LogIn" size={16} className="mr-2" />
-          Войти
-        </Button>
+      <div className="mt-6 pt-6 border-t border-border">
+        <div className="text-center space-y-2">
+          <p className="text-sm text-muted-foreground">Уже есть учетная запись?</p>
+          <Button 
+            variant="outline" 
+            onClick={onToggleMode}
+            className="w-full h-10 border-input hover:bg-accent text-foreground transition-all duration-200"
+            disabled={loading}
+          >
+            <Icon name="LogIn" size={16} className="mr-2" />
+            Войти в систему
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -8,6 +8,9 @@ interface UsersRankingProps {
 }
 
 export default function UsersRanking({ userStats }: UsersRankingProps) {
+  // Сортируем пользователей по количеству контактов (по убыванию)
+  const sortedUsers = [...userStats].sort((a, b) => b.contacts - a.contacts);
+
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
@@ -15,12 +18,12 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
           <div className="p-2 rounded-lg bg-[#001f54]/10">
             <Icon name="Trophy" size={20} className="text-[#001f54]" />
           </div>
-          Рейтинг пользователей
+          Рейтинг пользователей (по контактам)
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {userStats.map((user, index) => {
+          {sortedUsers.map((user, index) => {
             const isTop3 = index < 3;
             const medalColors = ['from-[#001f54] to-[#002b6b]', 'from-gray-400 to-gray-600', 'from-gray-600 to-gray-800'];
             

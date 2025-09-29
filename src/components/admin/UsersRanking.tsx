@@ -106,8 +106,12 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                     </div>
                   </div>
                   <div className="flex-shrink-0 text-right">
-                    <div className="text-base md:text-xl font-bold text-black mb-1">{user.lead_count}</div>
-                    <div className="text-[10px] md:text-xs text-gray-500 mb-1 md:mb-2 whitespace-nowrap">всего лидов</div>
+                    <div className="text-base md:text-xl font-bold text-black mb-1">
+                      {rankingType === 'contacts' ? user.contacts : rankingType === 'approaches' ? user.approaches : user.lead_count}
+                    </div>
+                    <div className="text-[10px] md:text-xs text-gray-500 mb-1 md:mb-2 whitespace-nowrap">
+                      {rankingType === 'contacts' ? 'контактов' : rankingType === 'approaches' ? 'подходов' : 'всего лидов'}
+                    </div>
                     <div className="flex justify-end gap-2 md:gap-3 text-xs">
                       <div className="text-center">
                         <div className="text-xs md:text-sm font-bold text-green-600">{user.contacts}</div>

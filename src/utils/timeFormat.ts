@@ -2,7 +2,9 @@
  * Форматирует дату в московское время
  */
 export function formatMoscowTime(dateString: string, format: 'time' | 'datetime' | 'date' = 'time'): string {
-  const date = new Date(dateString);
+  // Убедимся что строка заканчивается на Z (UTC) или добавим её
+  const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+  const date = new Date(utcDateString);
   
   const options: Intl.DateTimeFormatOptions = {
     timeZone: 'Europe/Moscow',
@@ -29,7 +31,8 @@ export function formatMoscowTime(dateString: string, format: 'time' | 'datetime'
  * Форматирует дату для отображения в списке диалогов
  */
 export function formatChatListTime(dateString: string): string {
-  const date = new Date(dateString);
+  const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+  const date = new Date(utcDateString);
   const now = new Date();
   
   const moscowDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
@@ -64,7 +67,8 @@ export function formatChatListTime(dateString: string): string {
  * Форматирует последний визит пользователя в удобной форме
  */
 export function formatLastSeen(dateString: string): string {
-  const date = new Date(dateString);
+  const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+  const date = new Date(utcDateString);
   const now = new Date();
   
   const moscowDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));

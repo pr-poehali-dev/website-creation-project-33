@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { ChartDataPoint, UserStats } from './types';
 
 interface LeadsChartProps {
@@ -44,14 +44,39 @@ export default function LeadsChart({
     }
   };
 
+  // Подготовка данных для круговой диаграммы
+  const getPieData = () => {
+    if (filterType === 'all') {
+      return userStats.map(user => ({
+        name: user.name,
+        value: user.lead_count,
+        contacts: user.contacts,
+        approaches: user.approaches
+      }));
+    } else if (filterType === 'contacts') {
+      return userStats.map(user => ({
+        name: user.name,
+        value: user.contacts
+      }));
+    } else {
+      return userStats.map(user => ({
+        name: user.name,
+        value: user.approaches
+      }));
+    }
+  };
+
+  const pieData = getPieData();
+  const COLORS = ['#001f54', '#002b6b', '#0041a8', '#16a34a', '#ea580c', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4'];
+
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
-          <div className="p-2 rounded-lg bg-gray-100">
-            <Icon name="TrendingUp" size={20} className="text-gray-600" />
+          <div className="p-2 rounded-lg bg-[#001f54]/10">
+            <Icon name="PieChart" size={20} className="text-[#001f54]" />
           </div>
-          График лидов
+          Распределение лидов
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -63,9 +88,9 @@ export default function LeadsChart({
               onClick={() => onFilterTypeChange('all')}
               variant={filterType === 'all' ? 'default' : 'outline'}
               size="sm"
-              className={`${filterType === 'all' 
-                ? 'bg-black hover:bg-gray-800 text-white' 
-                : 'bg-white hover:bg-gray-50 text-black border-gray-200'
+              className={`transition-all duration-300 ${filterType === 'all' 
+                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg' 
+                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
               }`}
             >
               Все лиды
@@ -74,8 +99,8 @@ export default function LeadsChart({
               onClick={() => onFilterTypeChange('contacts')}
               variant={filterType === 'contacts' ? 'default' : 'outline'}
               size="sm"
-              className={`${filterType === 'contacts'
-                ? 'bg-green-600 hover:bg-green-700 text-white'
+              className={`transition-all duration-300 ${filterType === 'contacts'
+                ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
                 : 'bg-white hover:bg-green-50 text-green-600 border-green-200'
               }`}
             >
@@ -85,8 +110,8 @@ export default function LeadsChart({
               onClick={() => onFilterTypeChange('approaches')}
               variant={filterType === 'approaches' ? 'default' : 'outline'}
               size="sm"
-              className={`${filterType === 'approaches'
-                ? 'bg-orange-600 hover:bg-orange-700 text-white'
+              className={`transition-all duration-300 ${filterType === 'approaches'
+                ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
                 : 'bg-white hover:bg-orange-50 text-orange-600 border-orange-200'
               }`}
             >
@@ -101,7 +126,7 @@ export default function LeadsChart({
               onClick={toggleAllUsers}
               variant="outline"
               size="sm"
-              className="bg-white hover:bg-gray-50 text-black border-gray-300"
+              className="bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20 transition-all duration-300"
             >
               {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
             </Button>
@@ -111,9 +136,9 @@ export default function LeadsChart({
                 onClick={() => toggleUser(user.name)}
                 variant={selectedUsers.includes(user.name) ? 'default' : 'outline'}
                 size="sm"
-                className={`${selectedUsers.includes(user.name)
-                  ? 'bg-black hover:bg-gray-800 text-white'
-                  : 'bg-white hover:bg-gray-50 text-black border-gray-200'
+                className={`transition-all duration-300 ${selectedUsers.includes(user.name)
+                  ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
+                  : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
                 }`}
               >
                 {user.name}
@@ -122,125 +147,80 @@ export default function LeadsChart({
           </div>
         </div>
 
-        {/* График */}
-        <div className="h-96">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis 
-                dataKey="date" 
-                tick={{ fontSize: 12 }}
-                tickFormatter={(date) => 
-                  new Date(date).toLocaleDateString('ru-RU', { 
-                    day: 'numeric', 
-                    month: 'short' 
-                  })
-                }
-              />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip 
-                labelFormatter={(date) => 
-                  new Date(date).toLocaleDateString('ru-RU', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })
-                }
-              />
-              <Legend />
-              
-              {filterType === 'all' && (
-                <Line 
-                  type="monotone" 
-                  dataKey="total" 
-                  stroke="#000000" 
-                  strokeWidth={2}
-                  name="Все лиды"
-                  dot={{ fill: '#000000', strokeWidth: 2, r: 4 }}
+        {/* Круговая диаграмма */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Диаграмма */}
+          <div className="h-80 md:h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={window.innerWidth < 768 ? 80 : 120}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: number, name: string, props: any) => {
+                    if (filterType === 'all' && props.payload.contacts !== undefined) {
+                      return [
+                        `Всего: ${value}, Контактов: ${props.payload.contacts}, Подходов: ${props.payload.approaches}`,
+                        name
+                      ];
+                    }
+                    return [value, name];
+                  }}
                 />
-              )}
-              
-              {filterType === 'contacts' && (
-                <Line 
-                  type="monotone" 
-                  dataKey="contacts" 
-                  stroke="#16a34a" 
-                  strokeWidth={2}
-                  name="Контакты"
-                  dot={{ fill: '#16a34a', strokeWidth: 2, r: 4 }}
-                />
-              )}
-              
-              {filterType === 'approaches' && (
-                <Line 
-                  type="monotone" 
-                  dataKey="approaches" 
-                  stroke="#ea580c" 
-                  strokeWidth={2}
-                  name="Подходы"
-                  dot={{ fill: '#ea580c', strokeWidth: 2, r: 4 }}
-                />
-              )}
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
 
-              {/* Линии для каждого пользователя */}
-              {filterType === 'all' && selectedUsers.length > 0 && selectedUsers.map((userName, index) => {
-                const colors = ['#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4'];
-                const color = colors[index % colors.length];
-                
-                return (
-                  <Line
-                    key={`${userName}_total`}
-                    type="monotone"
-                    dataKey={`${userName}_total`}
-                    stroke={color}
-                    strokeWidth={2}
-                    name={userName}
-                    dot={{ fill: color, strokeWidth: 2, r: 3 }}
-                    strokeDasharray="5 5"
-                    opacity={0.7}
+          {/* Легенда с подробной статистикой */}
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-[#001f54] mb-4">
+              {filterType === 'all' ? 'Все лиды' : filterType === 'contacts' ? 'Контакты' : 'Подходы'}
+            </h3>
+            {pieData.map((item, index) => (
+              <div 
+                key={item.name}
+                className="flex items-center justify-between p-3 rounded-lg border-2 border-[#001f54]/10 bg-white hover:bg-[#001f54]/5 transition-all duration-300"
+              >
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-4 h-4 rounded-full shadow-sm" 
+                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
                   />
-                );
-              })}
-
-              {filterType === 'contacts' && selectedUsers.length > 0 && selectedUsers.map((userName, index) => {
-                const colors = ['#22c55e', '#15803d', '#84cc16', '#65a30d'];
-                const color = colors[index % colors.length];
-                
-                return (
-                  <Line
-                    key={`${userName}_contacts`}
-                    type="monotone"
-                    dataKey={`${userName}_contacts`}
-                    stroke={color}
-                    strokeWidth={2}
-                    name={`${userName} (контакты)`}
-                    dot={{ fill: color, strokeWidth: 2, r: 3 }}
-                    strokeDasharray="5 5"
-                    opacity={0.7}
-                  />
-                );
-              })}
-
-              {filterType === 'approaches' && selectedUsers.length > 0 && selectedUsers.map((userName, index) => {
-                const colors = ['#f97316', '#ea580c', '#fb923c', '#fdba74'];
-                const color = colors[index % colors.length];
-                
-                return (
-                  <Line
-                    key={`${userName}_approaches`}
-                    type="monotone"
-                    dataKey={`${userName}_approaches`}
-                    stroke={color}
-                    strokeWidth={2}
-                    name={`${userName} (подходы)`}
-                    dot={{ fill: color, strokeWidth: 2, r: 3 }}
-                    strokeDasharray="5 5"
-                    opacity={0.7}
-                  />
-                );
-              })}
-            </LineChart>
-          </ResponsiveContainer>
+                  <span className="font-medium text-[#001f54]">{item.name}</span>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-[#001f54]">{item.value}</div>
+                  {filterType === 'all' && (
+                    <div className="text-xs text-gray-600">
+                      <span className="text-green-600 font-medium">{item.contacts}</span> / 
+                      <span className="text-orange-600 font-medium ml-1">{item.approaches}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            
+            {/* Итого */}
+            <div className="pt-3 mt-3 border-t-2 border-[#001f54]/20">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-[#001f54]/10">
+                <span className="font-bold text-[#001f54]">Итого:</span>
+                <span className="text-xl font-bold text-[#001f54]">
+                  {pieData.reduce((sum, item) => sum + item.value, 0)}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -66,12 +66,12 @@ export default function AdminPanel() {
     }
   }, [user]);
 
-  // Скрываем приветствие через 1.5 секунды
+  // Скрываем приветствие через 3 секунды
   useEffect(() => {
     if (!loadingName && showWelcome) {
       const timer = setTimeout(() => {
         setShowWelcome(false);
-      }, 1500);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [loadingName, showWelcome]);

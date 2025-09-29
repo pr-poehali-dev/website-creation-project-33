@@ -8,7 +8,7 @@ export function useChatUnread() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (!user || user.is_admin) return;
+    if (!user) return;
 
     const checkUnread = async () => {
       try {
@@ -21,11 +21,23 @@ export function useChatUnread() {
 
         if (response.ok) {
           const data = await response.json();
-          const messages = data.messages || [];
-          const unread = messages.filter(
-            (msg: any) => msg.is_from_admin && !msg.is_read
-          ).length;
-          setUnreadCount(unread);
+          
+          if (user.is_admin) {
+            // Для админа - считаем все непрочитанные сообщения от всех пользователей
+            const users = data.users || [];
+            const totalUnread = users.reduce(
+              (sum: number, userChat: any) => sum + (userChat.unread_count || 0),
+              0
+            );
+            setUnreadCount(totalUnread);
+          } else {
+            // Для пользователя - считаем непрочитанные от админа
+            const messages = data.messages || [];
+            const unread = messages.filter(
+              (msg: any) => msg.is_from_admin && !msg.is_read
+            ).length;
+            setUnreadCount(unread);
+          }
         }
       } catch (error) {
         console.error('Check unread error:', error);

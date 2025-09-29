@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
+import { useChatUnread } from '@/hooks/useChatUnread';
 import UsersTab from './UsersTab';
 import StatsTab from './StatsTab';
 import PendingUsers from './PendingUsers';
@@ -11,6 +13,7 @@ import AdminChatTab from './AdminChatTab';
 
 export default function AdminPanel() {
   const { logout, user } = useAuth();
+  const unreadCount = useChatUnread();
   const [adminName, setAdminName] = useState('');
   const [loadingName, setLoadingName] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
@@ -298,11 +301,16 @@ export default function AdminPanel() {
             </TabsTrigger>
             <TabsTrigger 
               value="chat" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base relative"
             >
               <Icon name="MessageCircle" size={16} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Чат</span>
               <span className="sm:hidden">Чат</span>
+              {unreadCount > 0 && (
+                <Badge className="ml-1 h-5 min-w-[20px] flex items-center justify-center bg-red-500 hover:bg-red-500 text-white text-xs px-1">
+                  {unreadCount}
+                </Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 

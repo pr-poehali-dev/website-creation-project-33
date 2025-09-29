@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
 import UsersTab from './UsersTab';
 import StatsTab from './StatsTab';
+import PendingUsers from './PendingUsers';
 
 export default function AdminPanel() {
   const { logout, user } = useAuth();
@@ -269,8 +270,16 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="space-y-4 md:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-50 border border-gray-200 h-12 md:h-14">
+        <Tabs defaultValue="pending" className="space-y-4 md:space-y-6">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-50 border border-gray-200 h-12 md:h-14">
+            <TabsTrigger 
+              value="pending" 
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
+            >
+              <Icon name="UserCheck" size={16} className="md:w-[18px] md:h-[18px]" />
+              <span className="hidden sm:inline">Заявки</span>
+              <span className="sm:hidden">Заяв.</span>
+            </TabsTrigger>
             <TabsTrigger 
               value="users" 
               className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
@@ -287,6 +296,10 @@ export default function AdminPanel() {
               Рейтинг
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="pending">
+            <PendingUsers sessionToken={localStorage.getItem('session_token') || ''} />
+          </TabsContent>
 
           <TabsContent value="users">
             <UsersTab />

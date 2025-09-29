@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (email: string, password: string, name: string): Promise<boolean> => {
+  const register = async (email: string, password: string, name: string): Promise<boolean | 'pending'> => {
     try {
       const response = await fetch(API_BASE, {
         method: 'POST',
@@ -100,6 +100,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
+        if (data.pending_approval) {
+          return 'pending';
+        }
         setSessionToken(data.session_token);
         setUser(data.user);
         return true;

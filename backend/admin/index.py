@@ -337,6 +337,50 @@ def delete_lead(lead_id: int) -> bool:
             conn.commit()
             return cur.rowcount > 0
 
+def get_pending_users() -> List[Dict[str, Any]]:
+    """Получить список пользователей, ожидающих одобрения"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id, email, name, registration_ip, created_at
+                FROM t_p24058207_website_creation_pro.users
+                WHERE is_approved = FALSE AND is_admin = FALSE
+                ORDER BY created_at DESC
+            """)
+            
+            pending_users = []
+            for row in cur.fetchall():
+                created_at = None
+                if row[4]:
+                    try:
+                        created_at = get_moscow_time_from_utc(row[4]).isoformat()
+                    except Exception:
+                        created_at = row[4].isoformat() if hasattr(row[4], 'isoformat') else str(row[4])
+                
+                pending_users.append({
+                    'id': row[0],
+                    'email': row[1],
+                    'name': row[2],
+                    'registration_ip': row[3],
+                    'created_at': created_at
+                })
+            return pending_users
+
+def approve_user(user_id: int, admin_id: int) -> bool:
+    """Одобрить пользователя"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE t_p24058207_website_creation_pro.users SET is_approved = TRUE, approved_at = %s, approved_by = %s WHERE id = %s AND is_admin = FALSE",
+                (get_moscow_time(), admin_id, user_id)
+            )
+            conn.commit()
+            return cur.rowcount > 0
+
+def reject_user(user_id: int) -> bool:
+    """Отклонить заявку пользователя (удалить и заблокировать IP)"""
+    return delete_user(user_id)
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
@@ -425,6 +469,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': f'Ошибка получения статистики: {str(e)}'})
                 }
         
+        elif action == 'pending_users':
+            pending_users = get_pending_users()
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'pending_users': pending_users})
+            }
+        
         elif action == 'user_leads':
             user_id = event.get('queryStringParameters', {}).get('user_id')
             if not user_id:
@@ -484,7 +536,55 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(event.get('body', '{}'))
         action = body_data.get('action')
         
-        if action == 'update_user':
+        if action == 'approve_user':
+            user_id = body_data.get('user_id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID пользователя обязателен'})
+                }
+            
+            success = approve_user(user_id, admin_user['id'])
+            if success:
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'success': True})
+                }
+            else:
+                return {
+                    'statusCode': 404,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Пользователь не найден'})
+                }
+        
+        elif action == 'reject_user':
+            user_id = body_data.get('user_id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID пользователя обязателен'})
+                }
+            
+            success = reject_user(user_id)
+            if success:
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'success': True})
+                }
+            else:
+                return {
+                    'statusCode': 404,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Пользователь не найден'})
+                }
+        
+        elif action == 'update_user':
             user_id = body_data.get('user_id')
             new_name = body_data.get('name', '').strip()
             

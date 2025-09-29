@@ -165,21 +165,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
                         cur.execute(
-                            "INSERT INTO t_p24058207_website_creation_pro.users (email, password_hash, name, registration_ip) VALUES (%s, %s, %s, %s) RETURNING id",
+                            "INSERT INTO t_p24058207_website_creation_pro.users (email, password_hash, name, registration_ip, is_approved) VALUES (%s, %s, %s, %s, FALSE) RETURNING id",
                             (email, password_hash, name, client_ip)
                         )
                         user_id = cur.fetchone()[0]
                         conn.commit()
-                
-                session_token = create_session(user_id)
                 
                 return {
                     'statusCode': 200,
                     'headers': headers,
                     'body': json.dumps({
                         'success': True,
-                        'session_token': session_token,
-                        'user': {'id': user_id, 'email': email, 'name': name, 'is_admin': False}
+                        'pending_approval': True,
+                        'message': 'Заявка на регистрацию отправлена. Ожидайте одобрения администратора.'
                     })
                 }
                 
@@ -204,7 +202,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(
-                        "SELECT id, password_hash, name, is_admin FROM t_p24058207_website_creation_pro.users WHERE email = %s",
+                        "SELECT id, password_hash, name, is_admin, is_approved FROM t_p24058207_website_creation_pro.users WHERE email = %s",
                         (email,)
                     )
                     row = cur.fetchone()
@@ -216,11 +214,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
             
+            user_id, password_hash, name, is_admin, is_approved = row
+            
             # Special case for admin with simple password
             if email == 'admin@gmail.com' and password == 'admin':
                 password_valid = True
             else:
-                password_valid = verify_password(password, row[1])
+                password_valid = verify_password(password, password_hash)
             
             if not password_valid:
                 return {
@@ -229,7 +229,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Неверный пароль'})
                 }
             
-            user_id, _, name, is_admin = row
+            # Проверка одобрения (кроме админов)
+            if not is_admin and not is_approved:
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Ваша заявка ожидает одобрения администратора'})
+                }
             session_token = create_session(user_id)
             update_last_seen(user_id)
             

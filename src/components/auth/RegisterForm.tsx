@@ -15,6 +15,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [pendingApproval, setPendingApproval] = useState(false);
   
   const { register } = useAuth();
 
@@ -29,14 +30,40 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
       return;
     }
 
-    const success = await register(email, password, name);
+    const result = await register(email, password, name);
     
-    if (!success) {
+    if (result === 'pending') {
+      setPendingApproval(true);
+    } else if (!result) {
       setError('Пользователь с таким email уже существует');
     }
     
     setLoading(false);
   };
+
+  if (pendingApproval) {
+    return (
+      <div className="text-center space-y-4 py-6">
+        <div className="w-20 h-20 mx-auto bg-amber-100 rounded-full flex items-center justify-center">
+          <Icon name="Clock" size={40} className="text-amber-600" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-xl font-bold text-[#001f54]">Заявка отправлена!</h3>
+          <p className="text-gray-600 px-4">
+            Ваша заявка на регистрацию ожидает одобрения администратора. 
+            Вы получите доступ после проверки.
+          </p>
+        </div>
+        <Button
+          onClick={onToggleMode}
+          variant="outline"
+          className="border-[#001f54] text-[#001f54] hover:bg-[#001f54]/5"
+        >
+          Вернуться к входу
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div>

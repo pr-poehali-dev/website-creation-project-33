@@ -7,10 +7,17 @@ export function formatMoscowTime(dateString: string, format: 'time' | 'datetime'
   }
   
   // Убедимся что строка заканчивается на Z (UTC) или добавим её
-  const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+  // PostgreSQL возвращает формат: "2025-09-30 02:47:00" или "2025-09-30T02:47:00"
+  let utcDateString = dateString.trim();
+  if (!utcDateString.endsWith('Z') && !utcDateString.includes('+')) {
+    // Заменим пробел на T если нужно и добавим Z
+    utcDateString = utcDateString.replace(' ', 'T') + 'Z';
+  }
+  
   const date = new Date(utcDateString);
   
   if (isNaN(date.getTime())) {
+    console.error('Invalid date string:', dateString, 'converted to:', utcDateString);
     return '—';
   }
   
@@ -51,7 +58,11 @@ export function formatChatListTime(dateString: string): string {
     return '—';
   }
   
-  const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+  let utcDateString = dateString.trim();
+  if (!utcDateString.endsWith('Z') && !utcDateString.includes('+')) {
+    utcDateString = utcDateString.replace(' ', 'T') + 'Z';
+  }
+  
   const date = new Date(utcDateString);
   
   if (isNaN(date.getTime())) {
@@ -96,7 +107,11 @@ export function formatLastSeen(dateString: string): string {
     return 'Никогда';
   }
   
-  const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+  let utcDateString = dateString.trim();
+  if (!utcDateString.endsWith('Z') && !utcDateString.includes('+')) {
+    utcDateString = utcDateString.replace(' ', 'T') + 'Z';
+  }
+  
   const date = new Date(utcDateString);
   
   if (isNaN(date.getTime())) {

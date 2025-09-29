@@ -144,19 +144,34 @@ export default function UsersTab() {
 
   const normalizePhoneNumber = (text: string): string => {
     const digits = text.replace(/\D/g, '');
-    if (digits.length === 11 && digits.startsWith('7')) {
-      return digits;
+    
+    if (digits.length === 11 && (digits.startsWith('7') || digits.startsWith('8'))) {
+      return '7' + digits.slice(1);
     }
     if (digits.length === 10) {
       return '7' + digits;
     }
-    return digits;
+    if (digits.length === 11 && digits.startsWith('9')) {
+      return '7' + digits.slice(1);
+    }
+    
+    return digits.length >= 10 ? '7' + digits.slice(-10) : digits;
   };
 
   const extractPhoneNumbers = (text: string): string[] => {
-    const phoneRegex = /(?:\+?7|8)?[\s\-\(]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}/g;
-    const matches = text.match(phoneRegex) || [];
-    return matches.map(phone => normalizePhoneNumber(phone)).filter(phone => phone.length >= 10);
+    const allDigitSequences = text.match(/\d+/g) || [];
+    const phones: string[] = [];
+    
+    allDigitSequences.forEach(seq => {
+      if (seq.length >= 10 && seq.length <= 11) {
+        const normalized = normalizePhoneNumber(seq);
+        if (normalized.length === 11) {
+          phones.push(normalized);
+        }
+      }
+    });
+    
+    return [...new Set(phones)];
   };
 
   const findDuplicatePhones = (leads: Lead[]): Set<string> => {

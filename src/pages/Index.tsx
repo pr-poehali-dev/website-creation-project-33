@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import ChatDialog from '@/components/chat/ChatDialog';
 
 export default function Index() {
   const { user, logout } = useAuth();
@@ -12,6 +13,7 @@ export default function Index() {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -139,13 +141,22 @@ export default function Index() {
                 IMPERIA PROMO
               </h1>
             </div>
-            <Button 
-              onClick={logout} 
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105"
-              size="sm"
-            >
-              <Icon name="LogOut" size={16} />
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => setChatOpen(true)} 
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105"
+                size="sm"
+              >
+                <Icon name="MessageCircle" size={16} />
+              </Button>
+              <Button 
+                onClick={logout} 
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105"
+                size="sm"
+              >
+                <Icon name="LogOut" size={16} />
+              </Button>
+            </div>
           </div>
           <p className="text-[#001f54]/70 text-sm font-medium">Добро пожаловать, {user?.name}</p>
         </div>
@@ -167,13 +178,22 @@ export default function Index() {
               <p className="text-[#001f54]/70 text-lg font-medium">Добро пожаловать, {user?.name}</p>
             </div>
           </div>
-          <Button 
-            onClick={logout} 
-            className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105"
-          >
-            <Icon name="LogOut" size={16} className="mr-2" />
-            Выйти
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => setChatOpen(true)} 
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105"
+            >
+              <Icon name="MessageCircle" size={16} className="mr-2" />
+              Чат
+            </Button>
+            <Button 
+              onClick={logout} 
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105"
+            >
+              <Icon name="LogOut" size={16} className="mr-2" />
+              Выйти
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:gap-6">
@@ -295,6 +315,8 @@ export default function Index() {
           </Button>
         </div>
       </div>
+
+      <ChatDialog open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
 }

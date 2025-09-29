@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import UsersTab from './UsersTab';
 import StatsTab from './StatsTab';
 import PendingUsers from './PendingUsers';
+import AdminChatTab from './AdminChatTab';
 
 export default function AdminPanel() {
   const { logout, user } = useAuth();
@@ -271,7 +272,7 @@ export default function AdminPanel() {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-4 md:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-50 border border-gray-200 h-12 md:h-14">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-50 border border-gray-200 h-12 md:h-14">
             <TabsTrigger 
               value="pending" 
               className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
@@ -295,6 +296,14 @@ export default function AdminPanel() {
               <Icon name="BarChart3" size={16} className="md:w-[18px] md:h-[18px]" />
               Рейтинг
             </TabsTrigger>
+            <TabsTrigger 
+              value="chat" 
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
+            >
+              <Icon name="MessageCircle" size={16} className="md:w-[18px] md:h-[18px]" />
+              <span className="hidden sm:inline">Чат</span>
+              <span className="sm:hidden">Чат</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pending">
@@ -307,6 +316,10 @@ export default function AdminPanel() {
 
           <TabsContent value="stats">
             <StatsTab />
+          </TabsContent>
+
+          <TabsContent value="chat">
+            <AdminChatTab />
           </TabsContent>
         </Tabs>
       </div>

@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Send message from user",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "9"
+      },
+      "body": {
+        "message": "Тестовое сообщение"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get messages for user",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "9"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "messages": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

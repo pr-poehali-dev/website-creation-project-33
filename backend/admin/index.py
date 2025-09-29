@@ -182,7 +182,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 SELECT u.name, u.email,
                        COUNT(l.id) - COUNT(dl.lead_id) as lead_count,
                        COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) - COUNT(CASE WHEN dl.lead_id IS NOT NULL AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.notes IS NOT NULL AND l.notes != '' AND NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches,
+                       COUNT(CASE WHEN NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' OR l.notes IS NULL OR l.notes = '' THEN 1 END) as approaches,
                        COUNT(dl.lead_id) as duplicates
                 FROM t_p24058207_website_creation_pro.users u
                 LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id

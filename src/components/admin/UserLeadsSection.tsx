@@ -55,6 +55,13 @@ export default function UserLeadsSection({
     return acc;
   }, {} as Record<string, number>);
 
+  const datesWithDuplicates = Object.keys(groupedLeads).reduce((acc, date) => {
+    const leadsForDate = groupedLeads[date];
+    const duplicatePhones = findDuplicatePhones(leadsForDate);
+    acc[date] = duplicatePhones.size > 0;
+    return acc;
+  }, {} as Record<string, boolean>);
+
   const handleDateClick = (date: string) => {
     onDateSelect(selectedDate === date ? '' : date);
   };
@@ -65,6 +72,7 @@ export default function UserLeadsSection({
         dates={sortedDates}
         selectedDate={selectedDate}
         leadsCounts={leadsCounts}
+        datesWithDuplicates={datesWithDuplicates}
         onDateSelect={handleDateClick}
       />
 

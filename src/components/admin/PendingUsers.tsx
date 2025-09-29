@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { formatMoscowTime } from '@/utils/timeFormat';
 
 interface PendingUser {
   id: number;
@@ -108,14 +109,7 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
 
   const formatDate = (dateString: string) => {
     try {
-      const date = new Date(dateString);
-      return date.toLocaleString('ru-RU', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+      return formatMoscowTime(dateString, 'datetime');
     } catch {
       return dateString;
     }

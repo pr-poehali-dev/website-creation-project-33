@@ -1,7 +1,7 @@
 /**
  * Форматирует дату в московское время
  */
-export function formatMoscowTime(dateString: string, format: 'time' | 'datetime' = 'time'): string {
+export function formatMoscowTime(dateString: string, format: 'time' | 'datetime' | 'date' = 'time'): string {
   const date = new Date(dateString);
   
   const options: Intl.DateTimeFormatOptions = {
@@ -11,6 +11,12 @@ export function formatMoscowTime(dateString: string, format: 'time' | 'datetime'
   };
   
   if (format === 'datetime') {
+    options.day = '2-digit';
+    options.month = '2-digit';
+    options.year = 'numeric';
+  } else if (format === 'date') {
+    delete options.hour;
+    delete options.minute;
     options.day = '2-digit';
     options.month = '2-digit';
     options.year = 'numeric';
@@ -51,5 +57,33 @@ export function formatChatListTime(dateString: string): string {
       day: '2-digit',
       month: '2-digit',
     }).format(date);
+  }
+}
+
+/**
+ * Форматирует последний визит пользователя в удобной форме
+ */
+export function formatLastSeen(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  
+  const moscowDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+  const moscowNow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+  
+  const diffMs = moscowNow.getTime() - moscowDate.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  if (diffMinutes < 1) {
+    return 'Только что';
+  } else if (diffMinutes < 60) {
+    return `${diffMinutes} мин. назад`;
+  } else if (diffHours < 24) {
+    return `${diffHours} ч. назад`;
+  } else if (diffDays === 1) {
+    return `Вчера в ${formatMoscowTime(dateString, 'time')}`;
+  } else {
+    return formatMoscowTime(dateString, 'datetime');
   }
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { DailyStats } from './types';
+import { formatMoscowTime } from '@/utils/timeFormat';
 
 interface DailyStatsCardProps {
   dailyStats: DailyStats[];
@@ -39,10 +40,11 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
             >
               <div className="flex items-center justify-between">
                 <span className="font-medium text-[#001f54] text-sm md:text-base">
-                  {new Date(day.date).toLocaleDateString('ru-RU', {
+                  {new Intl.DateTimeFormat('ru-RU', {
+                    timeZone: 'Europe/Moscow',
                     day: 'numeric',
                     month: 'short',
-                  })}
+                  }).format(new Date(day.date))}
                 </span>
                 <div className="flex items-center gap-3">
                   <div className="text-right">

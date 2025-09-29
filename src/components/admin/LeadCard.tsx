@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import AudioPlayer from './AudioPlayer';
 import { Lead } from './types';
+import { formatMoscowTime } from '@/utils/timeFormat';
 
 interface LeadCardProps {
   lead: Lead;
@@ -27,7 +28,7 @@ export default function LeadCard({ lead, isDuplicate, onDeleteLead }: LeadCardPr
         <div className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
             <div className="text-[#001f54]/70 text-xs md:text-sm font-medium">
-              {new Date(lead.created_at).toLocaleString('ru-RU')}
+              {formatMoscowTime(lead.created_at, 'datetime')}
             </div>
             <div className="flex items-center gap-1 self-start sm:self-auto">
               <Button

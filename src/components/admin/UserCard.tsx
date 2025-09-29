@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { User } from './types';
+import { formatLastSeen } from '@/utils/timeFormat';
 
 interface UserCardProps {
   user: User;
@@ -75,7 +76,7 @@ export default function UserCard({
               <span>
                 {user.is_online 
                   ? 'Онлайн сейчас' 
-                  : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
+                  : `Был(а) онлайн: ${formatLastSeen(user.last_seen)}`
                 }
               </span>
               <Badge className={`ml-2 px-1.5 py-0.5 text-xs font-medium ${

@@ -5,6 +5,7 @@ import Icon from '@/components/ui/icon';
 import UserCard from './UserCard';
 import UserLeadsSection from './UserLeadsSection';
 import { User, Lead, ADMIN_API } from './types';
+import { formatMoscowTime } from '@/utils/timeFormat';
 
 export default function UsersTab() {
   const [users, setUsers] = useState<User[]>([]);
@@ -134,11 +135,7 @@ export default function UsersTab() {
     const grouped: Record<string, Lead[]> = {};
     
     leads.forEach(lead => {
-      const date = new Date(lead.created_at).toLocaleDateString('ru-RU', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
+      const date = formatMoscowTime(lead.created_at, 'date');
       
       if (!grouped[date]) {
         grouped[date] = [];

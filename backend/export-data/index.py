@@ -54,33 +54,35 @@ def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
     """Получить только контакты (лиды с номерами телефонов)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            if today_only:
-                # Запрос для сегодняшних лидов (московское время)
-                moscow_today = get_moscow_time().date()
-                query = """
-                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
-                    FROM leads l
-                    JOIN users u ON l.user_id = u.id
-                    WHERE l.notes IS NOT NULL AND l.notes != ''
-                    AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
-                    AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = %s
-                    ORDER BY l.created_at DESC
-                """
-                cur.execute(query, (moscow_today,))
-            else:
-                # Запрос для всех лидов
-                query = """
-                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
-                    FROM leads l
-                    JOIN users u ON l.user_id = u.id
-                    WHERE l.notes IS NOT NULL AND l.notes != ''
-                    AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
-                    ORDER BY l.created_at DESC
-                """
-                cur.execute(query)
+            # Запрос для всех лидов с телефонами
+            query = """
+                SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
+                FROM leads l
+                JOIN users u ON l.user_id = u.id
+                WHERE l.notes IS NOT NULL AND l.notes != ''
+                AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+                ORDER BY l.created_at DESC
+            """
+            cur.execute(query)
             
             leads = []
+            moscow_today = get_moscow_time().date() if today_only else None
+            
             for row in cur.fetchall():
+                created_at = row[4]
+                
+                # Фильтруем по сегодняшней дате в Python (если нужно)
+                if today_only and created_at:
+                    # Конвертируем created_at в московское время
+                    if created_at.tzinfo is None:
+                        created_at_moscow = pytz.UTC.localize(created_at).astimezone(MOSCOW_TZ)
+                    else:
+                        created_at_moscow = created_at.astimezone(MOSCOW_TZ)
+                    
+                    # Проверяем дату
+                    if created_at_moscow.date() != moscow_today:
+                        continue
+                
                 leads.append({
                     'user_name': row[0],
                     'user_email': row[1],

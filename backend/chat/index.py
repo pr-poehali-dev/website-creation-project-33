@@ -23,7 +23,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
@@ -91,29 +91,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
                 
             elif is_admin:
-                # Админ получает список пользователей, у которых есть сообщения
+                # Админ получает список ВСЕХ пользователей (не только с сообщениями)
                 cursor.execute("""
                     SELECT 
                         u.id,
                         u.name,
                         u.email,
                         COALESCE(COUNT(CASE WHEN cm.is_read = FALSE AND cm.is_from_admin = FALSE THEN 1 END), 0) as unread_count,
-                        MAX(cm.created_at) as last_message_time
-                    FROM chat_messages cm
-                    JOIN users u ON cm.user_id = u.id
+                        MAX(cm.created_at) as last_message_time,
+                        COALESCE(COUNT(cm.id), 0) as total_messages
+                    FROM users u
+                    LEFT JOIN chat_messages cm ON u.id = cm.user_id
                     WHERE u.is_admin = FALSE
                     GROUP BY u.id, u.name, u.email
-                    ORDER BY MAX(cm.created_at) DESC
+                    ORDER BY MAX(cm.created_at) DESC NULLS LAST, u.name ASC
                 """)
                 
                 users_list = cursor.fetchall()
-                messages = []
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
-                        'users': [dict(row) for row in users_list],
-                        'messages': messages
+                        'users': [dict(row) for row in users_list]
                     }, default=str)
                 }
             else:
@@ -210,6 +209,42 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'success': True})
+            }
+        
+        elif method == 'DELETE':
+            # Очистка чата (только для админа)
+            if not is_admin:
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Forbidden'})
+                }
+            
+            query_params = event.get('queryStringParameters') or {}
+            target_user_id = query_params.get('user_id')
+            
+            if not target_user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'user_id is required'})
+                }
+            
+            # Удаляем все сообщения этого пользователя
+            cursor.execute("""
+                DELETE FROM chat_messages WHERE user_id = %s
+            """, (target_user_id,))
+            
+            deleted_count = cursor.rowcount
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'deleted_count': deleted_count
+                })
             }
         
         return {

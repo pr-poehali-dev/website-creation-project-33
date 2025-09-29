@@ -23,6 +23,7 @@ interface UserChat {
   email: string;
   unread_count: number;
   last_message_time: string | null;
+  total_messages: number;
 }
 
 const CHAT_API_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
@@ -35,6 +36,7 @@ export default function AdminChatTab() {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const loadUsers = async () => {
@@ -111,6 +113,33 @@ export default function AdminChatTab() {
     }
   };
 
+  const clearChat = async () => {
+    if (!user || !selectedUser) return;
+    
+    if (!confirm(`Удалить всю историю чата с ${selectedUser.name}?`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`${CHAT_API_URL}?user_id=${selectedUser.id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-User-Id': user.id.toString(),
+        },
+      });
+
+      if (response.ok) {
+        setMessages([]);
+        await loadUsers();
+      }
+    } catch (error) {
+      console.error('Clear chat error:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   useEffect(() => {
     loadUsers();
     const interval = setInterval(loadUsers, 5000);
@@ -171,7 +200,7 @@ export default function AdminChatTab() {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{userChat.name}</p>
                         <p className="text-xs text-gray-500 truncate">{userChat.email}</p>
-                        {userChat.last_message_time && (
+                        {userChat.last_message_time ? (
                           <p className="text-xs text-gray-400 mt-1">
                             {new Date(userChat.last_message_time).toLocaleString('ru-RU', {
                               day: '2-digit',
@@ -179,6 +208,10 @@ export default function AdminChatTab() {
                               hour: '2-digit',
                               minute: '2-digit',
                             })}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-gray-400 mt-1 italic">
+                            Нет сообщений
                           </p>
                         )}
                       </div>
@@ -199,10 +232,27 @@ export default function AdminChatTab() {
       {/* Окно чата */}
       <Card className="md:col-span-2 flex flex-col">
         <CardHeader className="border-b">
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="MessageCircle" size={20} />
-            {selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="MessageCircle" size={20} />
+              {selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}
+            </CardTitle>
+            {selectedUser && messages.length > 0 && (
+              <Button
+                onClick={clearChat}
+                disabled={isDeleting}
+                variant="destructive"
+                size="sm"
+              >
+                {isDeleting ? (
+                  <Icon name="Loader2" size={16} className="animate-spin mr-2" />
+                ) : (
+                  <Icon name="Trash2" size={16} className="mr-2" />
+                )}
+                Очистить чат
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col p-0">
           {!selectedUser ? (

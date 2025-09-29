@@ -2,13 +2,16 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import ChatDialog from '@/components/chat/ChatDialog';
+import { useChatUnread } from '@/hooks/useChatUnread';
 
 export default function Index() {
   const { user, logout } = useAuth();
+  const unreadCount = useChatUnread();
   const [notes, setNotes] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -144,10 +147,15 @@ export default function Index() {
             <div className="flex gap-2">
               <Button 
                 onClick={() => setChatOpen(true)} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105"
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105 relative"
                 size="sm"
               >
                 <Icon name="MessageCircle" size={16} />
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 min-w-[20px] flex items-center justify-center bg-red-500 hover:bg-red-500 text-white text-xs px-1">
+                    {unreadCount}
+                  </Badge>
+                )}
               </Button>
               <Button 
                 onClick={logout} 
@@ -181,10 +189,15 @@ export default function Index() {
           <div className="flex gap-3">
             <Button 
               onClick={() => setChatOpen(true)} 
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105"
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 relative"
             >
               <Icon name="MessageCircle" size={16} className="mr-2" />
               Чат
+              {unreadCount > 0 && (
+                <Badge className="ml-2 bg-red-500 hover:bg-red-500 text-white">
+                  {unreadCount}
+                </Badge>
+              )}
             </Button>
             <Button 
               onClick={logout} 

@@ -14,11 +14,11 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
   }
 
   return (
-    <Card className="border-gray-200 shadow-lg bg-white">
+    <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-black text-xl">
-          <div className="p-2 rounded-lg bg-gray-100">
-            <Icon name="Calendar" size={20} className="text-gray-600" />
+        <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
+          <div className="p-2 rounded-lg bg-[#001f54]/10">
+            <Icon name="Calendar" size={20} className="text-[#001f54]" />
           </div>
           Статистика за последние дни
         </CardTitle>
@@ -30,15 +30,15 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
               key={day.date}
               onClick={() => day.count > 0 && onDayClick(day.date, day.count)}
               className={`
-                border border-gray-100 rounded-xl p-4 transition-all duration-300 bg-white shadow-sm
+                border-2 border-[#001f54]/10 rounded-xl p-4 transition-all duration-300 bg-white shadow-sm
                 ${day.count > 0 
-                  ? 'hover:bg-gray-50 hover:shadow-md cursor-pointer hover:border-gray-200' 
+                  ? 'hover:bg-[#001f54]/5 hover:shadow-lg cursor-pointer hover:border-[#001f54]/30 hover:scale-[1.02]' 
                   : 'opacity-60'
                 }
               `}
             >
               <div className="flex items-center justify-between">
-                <span className="font-medium text-black text-sm md:text-base">
+                <span className="font-medium text-[#001f54] text-sm md:text-base">
                   {new Date(day.date).toLocaleDateString('ru-RU', {
                     day: 'numeric',
                     month: 'short',
@@ -46,7 +46,7 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
                 </span>
                 <div className="flex items-center gap-3">
                   <div className="text-right">
-                    <div className={`text-lg font-bold ${day.count > 0 ? 'text-black' : 'text-gray-400'} mb-1`}>
+                    <div className={`text-lg font-bold ${day.count > 0 ? 'text-[#001f54]' : 'text-gray-400'} mb-1`}>
                       {day.count}
                     </div>
                     <div className="text-xs text-gray-500">всего</div>

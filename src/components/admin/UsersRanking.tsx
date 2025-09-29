@@ -9,11 +9,11 @@ interface UsersRankingProps {
 
 export default function UsersRanking({ userStats }: UsersRankingProps) {
   return (
-    <Card className="border-gray-200 shadow-lg bg-white">
+    <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-black text-xl">
-          <div className="p-2 rounded-lg bg-gray-100">
-            <Icon name="Trophy" size={20} className="text-gray-600" />
+        <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
+          <div className="p-2 rounded-lg bg-[#001f54]/10">
+            <Icon name="Trophy" size={20} className="text-[#001f54]" />
           </div>
           Рейтинг пользователей
         </CardTitle>
@@ -22,12 +22,12 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
         <div className="space-y-4">
           {userStats.map((user, index) => {
             const isTop3 = index < 3;
-            const medalColors = ['from-black to-gray-800', 'from-gray-400 to-gray-600', 'from-gray-600 to-gray-800'];
+            const medalColors = ['from-[#001f54] to-[#002b6b]', 'from-gray-400 to-gray-600', 'from-gray-600 to-gray-800'];
             
             return (
               <div 
                 key={user.email} 
-                className="border border-gray-100 rounded-xl p-4 hover:bg-gray-50 transition-all duration-300 bg-white shadow-sm"
+                className="border-2 border-[#001f54]/10 rounded-xl p-4 hover:bg-[#001f54]/5 transition-all duration-300 bg-white shadow-md hover:shadow-xl hover:scale-[1.02]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 md:gap-4">

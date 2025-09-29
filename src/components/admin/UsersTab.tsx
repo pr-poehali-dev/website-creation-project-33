@@ -190,9 +190,9 @@ export default function UsersTab() {
 
   if (loading) {
     return (
-      <Card className="border-gray-200 shadow-lg bg-white">
+      <Card className="border-[#001f54]/20 shadow-xl bg-white">
         <CardContent className="p-8">
-          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
+          <div className="text-center text-[#001f54] flex items-center justify-center gap-3 font-medium">
             <Icon name="Loader2" size={24} className="animate-spin" />
             Загрузка пользователей...
           </div>
@@ -204,12 +204,12 @@ export default function UsersTab() {
   const onlineUsers = users.filter(u => u.is_online).length;
 
   return (
-    <Card className="border-gray-200 shadow-lg bg-white">
+    <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-4">
-        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-black gap-3">
+        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-[#001f54] gap-3">
           <span className="flex items-center gap-2 md:gap-3 text-lg md:text-xl">
-            <div className="p-2 rounded-lg bg-gray-100">
-              <Icon name="Users" size={18} className="text-gray-600 md:w-5 md:h-5" />
+            <div className="p-2 rounded-lg bg-[#001f54]/10">
+              <Icon name="Users" size={18} className="text-[#001f54] md:w-5 md:h-5" />
             </div>
             Пользователи ({users.length})
           </span>
@@ -224,7 +224,7 @@ export default function UsersTab() {
           {users.map((user, index) => (
             <div key={user.id}>
               <div 
-                className="border border-gray-100 rounded-xl p-3 md:p-4 hover:bg-gray-50 transition-all duration-300 cursor-pointer bg-white shadow-sm"
+                className="border-2 border-[#001f54]/10 rounded-xl p-3 md:p-4 hover:bg-[#001f54]/5 transition-all duration-300 cursor-pointer bg-white shadow-md hover:shadow-xl hover:scale-[1.01]"
                 onClick={() => handleUserClick(user)}
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">

@@ -8,10 +8,10 @@
 @keyframes glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 20px rgba(0, 31, 84, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+    box-shadow: 0 0 40px rgba(0, 31, 84, 0.6);
   }
 }
 
@@ -29,15 +29,15 @@
   0%,
   100% {
     box-shadow:
-      0 0 20px rgba(139, 92, 246, 0.4),
-      0 0 40px rgba(139, 92, 246, 0.2),
-      0 0 60px rgba(139, 92, 246, 0.1);
+      0 0 20px rgba(0, 31, 84, 0.4),
+      0 0 40px rgba(0, 31, 84, 0.2),
+      0 0 60px rgba(0, 31, 84, 0.1);
   }
   50% {
     box-shadow:
-      0 0 30px rgba(139, 92, 246, 0.6),
-      0 0 60px rgba(139, 92, 246, 0.4),
-      0 0 80px rgba(139, 92, 246, 0.2);
+      0 0 30px rgba(0, 31, 84, 0.6),
+      0 0 60px rgba(0, 31, 84, 0.4),
+      0 0 80px rgba(0, 31, 84, 0.2);
   }
 }
 
@@ -73,50 +73,43 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 218 91% 17%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 218 91% 17%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 218 91% 17%;
 
-    --primary: 231 78% 68%;
+    --primary: 218 91% 17%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 218 50% 95%;
+    --secondary-foreground: 218 91% 17%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 218 30% 96%;
+    --muted-foreground: 218 20% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 218 91% 17%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 218 30% 90%;
+    --input: 218 30% 90%;
+    --ring: 218 91% 17%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 218 91% 17%;
+    --sidebar-primary: 218 91% 17%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 218 50% 95%;
+    --sidebar-accent-foreground: 218 91% 17%;
+    --sidebar-border: 218 30% 90%;
+    --sidebar-ring: 218 91% 17%;
   }
 
   .dark {
@@ -166,7 +159,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: "Inter", sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
     min-height: 100vh;
   }
 }
@@ -176,13 +169,13 @@
   .glow-button {
     @apply relative overflow-hidden;
     animation: glow 2s ease-in-out infinite;
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: linear-gradient(45deg, #001f54, #002b6b);
     transition: all 0.3s ease;
   }
 
   .glow-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 31, 84, 0.4);
   }
 
   .float-animation {
@@ -220,7 +213,7 @@
 
   .neon-border {
     border: 2px solid transparent;
-    background: linear-gradient(45deg, #667eea, #764ba2) border-box;
+    background: linear-gradient(45deg, #001f54, #002b6b) border-box;
     -webkit-mask:
       linear-gradient(#fff 0 0) padding-box,
       linear-gradient(#fff 0 0);
@@ -229,7 +222,7 @@
   }
 
   .gradient-text {
-    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
+    background: linear-gradient(45deg, #001f54, #002b6b, #0041a8);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

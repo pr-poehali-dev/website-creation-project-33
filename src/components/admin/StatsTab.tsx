@@ -7,11 +7,15 @@ interface UserStats {
   name: string;
   email: string;
   lead_count: number;
+  contacts: number;
+  approaches: number;
 }
 
 interface DailyStats {
   date: string;
   count: number;
+  contacts: number;
+  approaches: number;
 }
 
 interface DailyUserStats {
@@ -209,8 +213,18 @@ export default function StatsTab() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-3xl font-bold text-black">{user.lead_count}</div>
-                      <div className="text-sm text-gray-500">лидов</div>
+                      <div className="text-3xl font-bold text-black mb-1">{user.lead_count}</div>
+                      <div className="text-xs text-gray-500 mb-2">всего лидов</div>
+                      <div className="flex justify-end gap-4 text-xs">
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-green-600">{user.contacts}</div>
+                          <div className="text-gray-500">контакты</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-orange-600">{user.approaches}</div>
+                          <div className="text-gray-500">подходы</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -249,11 +263,21 @@ export default function StatsTab() {
                       month: 'short',
                     })}
                   </span>
-                  <div className="flex items-center gap-2">
-                    <span className={`font-bold text-lg ${day.count > 0 ? 'text-black' : 'text-gray-400'}`}>
-                      {day.count}
-                    </span>
-                    <span className="text-gray-500 text-sm">лидов</span>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className={`text-lg font-bold ${day.count > 0 ? 'text-black' : 'text-gray-400'} mb-1`}>
+                        {day.count}
+                      </div>
+                      <div className="text-xs text-gray-500">всего</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-bold text-green-600 mb-1">{day.contacts}</div>
+                      <div className="text-xs text-gray-500">контакты</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-bold text-orange-600 mb-1">{day.approaches}</div>
+                      <div className="text-xs text-gray-500">подходы</div>
+                    </div>
                     {day.count > 0 && (
                       <Icon name="ChevronRight" size={16} className="text-gray-400 ml-1" />
                     )}
@@ -318,8 +342,18 @@ export default function StatsTab() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg md:text-xl font-bold text-black">{user.lead_count}</div>
-                          <div className="text-xs text-gray-500">лидов</div>
+                          <div className="text-lg md:text-xl font-bold text-black mb-1">{user.lead_count}</div>
+                          <div className="text-xs text-gray-500 mb-2">всего лидов</div>
+                          <div className="flex justify-end gap-3 text-xs">
+                            <div className="text-center">
+                              <div className="text-sm font-bold text-green-600">{user.contacts}</div>
+                              <div className="text-gray-500">контакты</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-sm font-bold text-orange-600">{user.approaches}</div>
+                              <div className="text-gray-500">подходы</div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

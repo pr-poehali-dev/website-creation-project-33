@@ -145,12 +145,16 @@ def get_leads_stats() -> Dict[str, Any]:
             # Подходы - лиды без 11-значного номера
             approaches = total_leads - contacts
             
-            # Лиды по пользователям
+            # Лиды по пользователям с разбивкой на контакты и подходы
             cur.execute("""
-                SELECT u.name, u.email, COUNT(l.id) as lead_count
+                SELECT u.name, u.email, 
+                       COUNT(l.id) as lead_count,
+                       COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
+                       COUNT(CASE WHEN NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id
                 GROUP BY u.id, u.name, u.email
+                HAVING COUNT(l.id) > 0
                 ORDER BY lead_count DESC
             """)
             
@@ -159,12 +163,17 @@ def get_leads_stats() -> Dict[str, Any]:
                 user_stats.append({
                     'name': row[0],
                     'email': row[1], 
-                    'lead_count': row[2]
+                    'lead_count': row[2],
+                    'contacts': row[3],
+                    'approaches': row[4]
                 })
             
-            # Лиды за последние дни
+            # Лиды за последние дни с разбивкой на контакты и подходы
             cur.execute("""
-                SELECT DATE(created_at) as date, COUNT(*) as count
+                SELECT DATE(created_at) as date, 
+                       COUNT(*) as count,
+                       COUNT(CASE WHEN notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
+                       COUNT(CASE WHEN NOT notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.leads 
                 WHERE created_at >= %s
                 GROUP BY DATE(created_at)
@@ -175,7 +184,9 @@ def get_leads_stats() -> Dict[str, Any]:
             for row in cur.fetchall():
                 daily_stats.append({
                     'date': row[0].isoformat(),
-                    'count': row[1]
+                    'count': row[1],
+                    'contacts': row[2],
+                    'approaches': row[3]
                 })
     
     return {
@@ -187,11 +198,14 @@ def get_leads_stats() -> Dict[str, Any]:
     }
 
 def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
-    """Получить статистику пользователей за конкретный день"""
+    """Получить статистику пользователей за конкретный день с разбивкой на контакты и подходы"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT u.name, u.email, COUNT(l.id) as lead_count
+                SELECT u.name, u.email, 
+                       COUNT(l.id) as lead_count,
+                       COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
+                       COUNT(CASE WHEN NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id 
                 AND DATE(l.created_at) = %s
@@ -205,7 +219,9 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                 user_stats.append({
                     'name': row[0],
                     'email': row[1],
-                    'lead_count': row[2]
+                    'lead_count': row[2],
+                    'contacts': row[3],
+                    'approaches': row[4]
                 })
             return user_stats
 

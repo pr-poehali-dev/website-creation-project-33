@@ -14,11 +14,27 @@ export default function AdminPanel() {
 
   useEffect(() => {
     const getAdminName = async () => {
+      let userIp = 'unknown';
+      
       try {
-        // Получаем IP пользователя
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        const userIp = ipData.ip;
+        // Пробуем несколько API для получения IP (с fallback)
+        try {
+          const ipResponse = await fetch('https://api.ipify.org?format=json');
+          const ipData = await ipResponse.json();
+          userIp = ipData.ip;
+        } catch (e1) {
+          console.log('Первый API недоступен, пробуем второй...');
+          try {
+            const ipResponse2 = await fetch('https://api.db-ip.com/v2/free/self');
+            const ipData2 = await ipResponse2.json();
+            userIp = ipData2.ipAddress;
+          } catch (e2) {
+            console.log('Второй API недоступен, пробуем третий...');
+            const ipResponse3 = await fetch('https://ipapi.co/json/');
+            const ipData3 = await ipResponse3.json();
+            userIp = ipData3.ip;
+          }
+        }
 
         // Массив IP адресов Максима
         const maksimIPs = ['46.22.51.175'];
@@ -29,14 +45,16 @@ export default function AdminPanel() {
         console.log('Совпадение:', maksimIPs.includes(userIp));
 
         // Проверяем IP и устанавливаем имя (ВСЕГДА показываем IP для отладки)
-        if (maksimIPs.includes(userIp)) {
+        if (userIp === 'unknown') {
+          setAdminName(`Администратор (IP не определён)`);
+        } else if (maksimIPs.includes(userIp)) {
           setAdminName(`Максим Корельский (${userIp})`);
         } else {
           setAdminName(`Виктор Кобиляцкий (${userIp})`);
         }
       } catch (error) {
         console.error('Error getting IP:', error);
-        setAdminName(user?.name || 'Администратор');
+        setAdminName(`Администратор (Ошибка: ${error.message})`);
       } finally {
         setLoadingName(false);
       }

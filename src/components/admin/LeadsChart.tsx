@@ -170,6 +170,13 @@ export default function LeadsChart({
                     year: 'numeric'
                   })
                 }
+                itemSorter={(item) => {
+                  // Сортировка: сначала "Все лиды", потом пользователи
+                  if (item.name === 'Все лиды' || item.name === 'Контакты' || item.name === 'Подходы') {
+                    return -1;
+                  }
+                  return 0;
+                }}
               />
               <Legend 
                 wrapperStyle={{ paddingTop: '20px' }}

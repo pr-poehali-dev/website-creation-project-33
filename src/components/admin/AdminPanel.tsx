@@ -76,10 +76,14 @@ export default function AdminPanel() {
     }
   }, [loadingName, showWelcome]);
 
-  const downloadCSV = async () => {
+  const downloadCSV = async (todayOnly = false) => {
     try {
       const sessionToken = localStorage.getItem('session_token');
-      const response = await fetch('https://functions.poehali.dev/8e6ffbcb-a1f9-453e-9404-fde81533bff7', {
+      const url = todayOnly 
+        ? 'https://functions.poehali.dev/8e6ffbcb-a1f9-453e-9404-fde81533bff7?today=true'
+        : 'https://functions.poehali.dev/8e6ffbcb-a1f9-453e-9404-fde81533bff7';
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'X-Session-Token': sessionToken || '',
@@ -88,13 +92,16 @@ export default function AdminPanel() {
 
       if (response.ok) {
         const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+        const downloadUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `contacts_export_${new Date().toISOString().slice(0,10)}.csv`;
+        a.href = downloadUrl;
+        const fileName = todayOnly 
+          ? `contacts_today_${new Date().toISOString().slice(0,10)}.csv`
+          : `contacts_all_${new Date().toISOString().slice(0,10)}.csv`;
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
+        window.URL.revokeObjectURL(downloadUrl);
         document.body.removeChild(a);
       } else {
         alert('Ошибка при скачивании CSV файла');
@@ -216,13 +223,22 @@ export default function AdminPanel() {
               Привет, {adminName}
             </span>
           </div>
-          <Button 
-            onClick={downloadCSV}
-            className="w-full bg-white hover:bg-[#001f54]/5 text-[#001f54] border-2 border-[#001f54] h-12 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-          >
-            <Icon name="Download" size={16} className="mr-2" />
-            Скачать контакты
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => downloadCSV(false)}
+              className="flex-1 bg-white hover:bg-[#001f54]/5 text-[#001f54] border-2 border-[#001f54] h-12 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+            >
+              <Icon name="Download" size={16} className="mr-2" />
+              Общая CSV
+            </Button>
+            <Button 
+              onClick={() => downloadCSV(true)}
+              className="flex-1 bg-[#001f54] hover:bg-[#002b6b] text-white border-2 border-[#001f54] h-12 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+            >
+              <Icon name="Calendar" size={16} className="mr-2" />
+              Сегодня CSV
+            </Button>
+          </div>
         </div>
 
         {/* Десктопная версия заголовка */}
@@ -235,11 +251,18 @@ export default function AdminPanel() {
           </h1>
           <div className="flex items-center gap-4">
             <Button 
-              onClick={downloadCSV}
+              onClick={() => downloadCSV(false)}
               className="bg-white hover:bg-[#001f54]/5 text-[#001f54] border-2 border-[#001f54] shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
             >
               <Icon name="Download" size={16} className="mr-2" />
-              Скачать контакты
+              Общая CSV
+            </Button>
+            <Button 
+              onClick={() => downloadCSV(true)}
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+            >
+              <Icon name="Calendar" size={16} className="mr-2" />
+              Сегодня CSV
             </Button>
             <span className="text-[#001f54]/70 text-lg font-medium">
               Привет, {adminName}

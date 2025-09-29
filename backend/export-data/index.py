@@ -50,18 +50,27 @@ def get_user_by_session(session_token: str) -> Dict[str, Any]:
                 }
     return None
 
-def get_leads_data() -> List[Dict[str, Any]]:
+def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
     """Получить только контакты (лиды с номерами телефонов)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("""
+            # Базовый запрос
+            query = """
                 SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
                 FROM leads l
                 JOIN users u ON l.user_id = u.id
                 WHERE l.notes IS NOT NULL AND l.notes != ''
                 AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
-                ORDER BY l.created_at DESC
-            """)
+            """
+            
+            # Добавляем фильтр по сегодняшнему дню (московское время)
+            if today_only:
+                moscow_today = get_moscow_time().date()
+                query += f" AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = '{moscow_today}'"
+            
+            query += " ORDER BY l.created_at DESC"
+            
+            cur.execute(query)
             
             leads = []
             for row in cur.fetchall():
@@ -155,11 +164,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     if method == 'GET':
         try:
-            leads_data = get_leads_data()
+            # Проверяем параметр today для фильтрации по сегодняшнему дню
+            query_params = event.get('queryStringParameters') or {}
+            today_only = query_params.get('today') == 'true'
+            
+            leads_data = get_leads_data(today_only=today_only)
             csv_base64 = create_csv_content(leads_data)
             
             # Генерируем имя файла с московской датой
-            filename = f"contacts_export_{get_moscow_time().strftime('%Y%m%d_%H%M%S')}.csv"
+            file_prefix = "contacts_today" if today_only else "contacts_all"
+            filename = f"{file_prefix}_{get_moscow_time().strftime('%Y%m%d_%H%M%S')}.csv"
             
             return {
                 'statusCode': 200,

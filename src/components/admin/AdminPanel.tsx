@@ -9,6 +9,35 @@ import StatsTab from './StatsTab';
 
 export default function AdminPanel() {
   const { logout, user } = useAuth();
+  const [adminName, setAdminName] = useState('');
+  const [loadingName, setLoadingName] = useState(true);
+
+  useEffect(() => {
+    const getAdminName = async () => {
+      try {
+        // Получаем IP пользователя
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        const userIp = ipData.ip;
+
+        // Проверяем IP и устанавливаем имя
+        if (userIp === '188.163.86.214') {
+          setAdminName('Максим Корельский');
+        } else {
+          setAdminName('Виктор Кобиляцкий');
+        }
+      } catch (error) {
+        console.error('Error getting IP:', error);
+        setAdminName(user?.name || 'Администратор');
+      } finally {
+        setLoadingName(false);
+      }
+    };
+
+    if (user?.is_admin) {
+      getAdminName();
+    }
+  }, [user]);
 
   const downloadCSV = async () => {
     try {
@@ -89,7 +118,9 @@ export default function AdminPanel() {
             </Button>
           </div>
           <div className="text-center mb-4">
-            <span className="text-[#001f54]/70 text-sm font-medium">Добро пожаловать, {user.name}</span>
+            <span className="text-[#001f54]/70 text-sm font-medium">
+              {loadingName ? 'Загрузка...' : `Привет, ${adminName}`}
+            </span>
           </div>
           <Button 
             onClick={downloadCSV}
@@ -116,7 +147,9 @@ export default function AdminPanel() {
               <Icon name="Download" size={16} className="mr-2" />
               Скачать контакты
             </Button>
-            <span className="text-[#001f54]/70 text-lg font-medium">Добро пожаловать, {user.name}</span>
+            <span className="text-[#001f54]/70 text-lg font-medium">
+              {loadingName ? 'Загрузка...' : `Привет, ${adminName}`}
+            </span>
             <Button 
               onClick={logout} 
               className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"

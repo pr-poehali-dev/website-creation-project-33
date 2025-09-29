@@ -175,7 +175,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             query_params = event.get('queryStringParameters') or {}
             today_only = query_params.get('today') == 'true'
             
+            print(f'Export request: today_only={today_only}, query_params={query_params}')
+            
             leads_data = get_leads_data(today_only=today_only)
+            print(f'Found {len(leads_data)} leads')
+            
             csv_base64 = create_csv_content(leads_data)
             
             # Генерируем имя файла с московской датой
@@ -195,6 +199,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
             
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f'Error in export: {error_details}')
             return {
                 'statusCode': 500,
                 'headers': headers,

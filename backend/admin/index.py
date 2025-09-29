@@ -90,13 +90,21 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
             
             leads = []
             for row in cur.fetchall():
+                # Безопасное преобразование времени
+                created_at = None
+                if row[5]:
+                    try:
+                        created_at = get_moscow_time_from_utc(row[5]).isoformat()
+                    except Exception:
+                        created_at = row[5].isoformat() if hasattr(row[5], 'isoformat') else str(row[5])
+                
                 leads.append({
                     'id': row[0],
                     'user_id': row[1],
                     'notes': row[2] or '',
                     'has_audio': row[3],
                     'audio_data': row[4],
-                    'created_at': get_moscow_time_from_utc(row[5]).isoformat() if row[5] else None
+                    'created_at': created_at
                 })
             return leads
 

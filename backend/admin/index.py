@@ -166,22 +166,27 @@ def get_leads_stats() -> Dict[str, Any]:
                     GROUP BY user_id, normalized_phone
                     HAVING COUNT(*) > 1
                 ),
+                first_occurrences AS (
+                    SELECT pd.user_id, pd.normalized_phone, MIN(ul.lead_id) as first_lead_id
+                    FROM phone_duplicates pd
+                    JOIN user_leads ul ON pd.user_id = ul.user_id AND pd.normalized_phone = ul.normalized_phone
+                    GROUP BY pd.user_id, pd.normalized_phone
+                ),
                 duplicate_leads AS (
                     SELECT ul.lead_id
                     FROM user_leads ul
                     JOIN phone_duplicates pd ON ul.user_id = pd.user_id AND ul.normalized_phone = pd.normalized_phone
-                    WHERE ul.lead_id NOT IN (
-                        SELECT MIN(lead_id) FROM user_leads ul2
-                        WHERE ul2.normalized_phone = pd.normalized_phone AND ul2.user_id = pd.user_id
-                    )
+                    LEFT JOIN first_occurrences fo ON ul.user_id = fo.user_id AND ul.normalized_phone = fo.normalized_phone
+                    WHERE ul.lead_id != fo.first_lead_id
                 )
                 SELECT u.name, u.email,
-                       COUNT(CASE WHEN l.id NOT IN (SELECT lead_id FROM duplicate_leads) THEN 1 END) as lead_count,
-                       COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' AND l.id NOT IN (SELECT lead_id FROM duplicate_leads) THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.notes IS NOT NULL AND l.notes != '' AND NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' AND l.id NOT IN (SELECT lead_id FROM duplicate_leads) THEN 1 END) as approaches,
-                       COUNT(CASE WHEN l.id IN (SELECT lead_id FROM duplicate_leads) THEN 1 END) as duplicates
+                       COUNT(l.id) - COUNT(dl.lead_id) as lead_count,
+                       COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) - COUNT(CASE WHEN dl.lead_id IS NOT NULL AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
+                       COUNT(CASE WHEN l.notes IS NOT NULL AND l.notes != '' AND NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches,
+                       COUNT(dl.lead_id) as duplicates
                 FROM t_p24058207_website_creation_pro.users u
                 LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id
+                LEFT JOIN duplicate_leads dl ON l.id = dl.lead_id
                 GROUP BY u.id, u.name, u.email
                 HAVING COUNT(l.id) > 0
                 ORDER BY lead_count DESC

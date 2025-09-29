@@ -23,11 +23,16 @@ export default function AdminPanel() {
         // Массив IP адресов Максима
         const maksimIPs = ['46.22.51.175'];
 
-        // Проверяем IP и устанавливаем имя
+        console.log('=== IP DEBUG ===');
+        console.log('Текущий IP:', userIp);
+        console.log('IP Максима:', maksimIPs);
+        console.log('Совпадение:', maksimIPs.includes(userIp));
+
+        // Проверяем IP и устанавливаем имя (ВСЕГДА показываем IP для отладки)
         if (maksimIPs.includes(userIp)) {
-          setAdminName('Максим Корельский');
+          setAdminName(`Максим Корельский (${userIp})`);
         } else {
-          setAdminName(`Виктор Кобиляцкий [DEBUG: IP ${userIp}]`);
+          setAdminName(`Виктор Кобиляцкий (${userIp})`);
         }
       } catch (error) {
         console.error('Error getting IP:', error);

@@ -236,7 +236,7 @@ export default function UsersTab() {
                         <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
                       )}
                       {user.is_admin && (
-                        <Badge className="bg-gray-100 text-black border border-gray-200 px-1.5 py-0.5 text-xs">
+                        <Badge className="bg-[#001f54] text-white border border-[#001f54] px-1.5 py-0.5 text-xs shadow-sm">
                           <Icon name="Shield" size={10} className="mr-1" />
                           <span className="hidden sm:inline">Админ</span>
                           <span className="sm:hidden">А</span>
@@ -250,7 +250,7 @@ export default function UsersTab() {
                           <Input
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
-                            className="w-full max-w-48 border border-gray-200 bg-white text-black placeholder:text-gray-400 focus:border-gray-400 text-sm md:text-base"
+                            className="w-full max-w-48 border-2 border-[#001f54]/30 bg-white text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 text-sm md:text-base"
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
                                 updateUserName(user.id, newName);
@@ -259,7 +259,7 @@ export default function UsersTab() {
                             onClick={(e) => e.stopPropagation()}
                           />
                         ) : (
-                          <span className="font-medium text-black text-base md:text-lg truncate">{user.name}</span>
+                          <span className="font-medium text-[#001f54] text-base md:text-lg truncate">{user.name}</span>
                         )}
                       </div>
                       <div className="text-sm text-gray-600 truncate">{user.email}</div>
@@ -270,10 +270,10 @@ export default function UsersTab() {
                             : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
                           }
                         </span>
-                        <Badge className={`ml-2 px-1.5 py-0.5 text-xs ${
+                        <Badge className={`ml-2 px-1.5 py-0.5 text-xs font-medium ${
                           user.is_online 
                             ? 'bg-green-100 text-green-800 border border-green-200' 
-                            : 'bg-gray-100 text-black border border-gray-200'
+                            : 'bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20'
                         }`}>
                           {user.lead_count} лидов
                         </Badge>
@@ -293,14 +293,14 @@ export default function UsersTab() {
                             size="sm" 
                             onClick={() => updateUserName(user.id, newName)}
                             disabled={!newName.trim()}
-                            className="bg-black hover:bg-gray-800 text-white px-2 md:px-3 py-1 h-8"
+                            className="bg-[#001f54] hover:bg-[#002b6b] text-white px-2 md:px-3 py-1 h-8 shadow-md transition-all duration-300 hover:scale-105"
                           >
                             <Icon name="Check" size={12} className="md:w-[14px] md:h-[14px]" />
                           </Button>
                           <Button 
                             size="sm" 
                             onClick={cancelEdit}
-                            className="border border-gray-200 text-gray-600 hover:bg-gray-50 px-2 md:px-3 py-1 h-8"
+                            className="border-2 border-[#001f54]/20 text-[#001f54] hover:bg-[#001f54]/5 px-2 md:px-3 py-1 h-8 transition-all duration-300"
                             variant="ghost"
                           >
                             <Icon name="X" size={12} className="md:w-[14px] md:h-[14px]" />
@@ -312,7 +312,7 @@ export default function UsersTab() {
                             size="sm" 
                             onClick={() => startEdit(user)}
                             disabled={user.is_admin}
-                            className="border border-gray-200 text-gray-600 hover:bg-gray-50 px-2 md:px-3 py-1 h-8"
+                            className="border-2 border-[#001f54]/20 text-[#001f54] hover:bg-[#001f54]/5 px-2 md:px-3 py-1 h-8 transition-all duration-300"
                             variant="ghost"
                           >
                             <Icon name="Edit" size={12} className="md:w-[14px] md:h-[14px]" />
@@ -321,7 +321,7 @@ export default function UsersTab() {
                             <Button 
                               size="sm" 
                               onClick={() => deleteUser(user.id)}
-                              className="border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 px-2 md:px-3 py-1 h-8"
+                              className="border-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100 px-2 md:px-3 py-1 h-8 transition-all duration-300"
                               variant="ghost"
                             >
                               <Icon name="Trash2" size={12} className="md:w-[14px] md:h-[14px]" />
@@ -338,8 +338,8 @@ export default function UsersTab() {
               {selectedUser?.id === user.id && (
                 <div className="mt-4 ml-0 md:ml-8 space-y-3">
                   {leadsLoading ? (
-                    <div className="border border-gray-100 rounded-lg p-4 bg-gray-50">
-                      <div className="flex items-center justify-center gap-2 text-gray-600">
+                    <div className="border-2 border-[#001f54]/10 rounded-lg p-4 bg-[#001f54]/5">
+                      <div className="flex items-center justify-center gap-2 text-[#001f54] font-medium">
                         <Icon name="Loader2" size={16} className="animate-spin" />
                         Загрузка лидов...
                       </div>
@@ -348,16 +348,16 @@ export default function UsersTab() {
                     userLeads.map((lead, leadIndex) => (
                       <div 
                         key={lead.id} 
-                        className="border border-gray-100 rounded-lg p-3 md:p-4 bg-gray-50"
+                        className="border-2 border-[#001f54]/10 rounded-lg p-3 md:p-4 bg-white shadow-md hover:shadow-lg transition-all duration-300"
                       >
                         <div className="flex flex-col md:flex-row md:items-start gap-3">
-                          <div className="p-2 rounded-lg bg-gray-200 flex-shrink-0 self-start">
-                            <Icon name="MessageSquare" size={14} className="text-gray-700 md:w-4 md:h-4" />
+                          <div className="p-2 rounded-lg bg-[#001f54]/10 flex-shrink-0 self-start">
+                            <Icon name="MessageSquare" size={14} className="text-[#001f54] md:w-4 md:h-4" />
                           </div>
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
-                              <div className="text-gray-700 text-xs md:text-sm font-medium">
+                              <div className="text-[#001f54]/70 text-xs md:text-sm font-medium">
                                 {new Date(lead.created_at).toLocaleString('ru-RU')}
                               </div>
                               <div className="flex items-center gap-1 self-start sm:self-auto">
@@ -365,17 +365,17 @@ export default function UsersTab() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => deleteLead(lead.id)}
-                                  className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-gray-200"
+                                  className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-red-50 text-red-600 transition-all duration-300"
                                   title="Удалить лид"
                                 >
-                                  <Icon name="Trash2" size={12} className="text-gray-600 md:w-[14px] md:h-[14px]" />
+                                  <Icon name="Trash2" size={12} className="md:w-[14px] md:h-[14px]" />
                                 </Button>
                               </div>
                             </div>
                             
                             {lead.notes && (
-                              <div className="border border-gray-200 bg-white rounded-lg p-2 md:p-3 mb-3">
-                                <div className="text-gray-800 whitespace-pre-wrap text-sm md:text-base">
+                              <div className="border-2 border-[#001f54]/10 bg-[#001f54]/5 rounded-lg p-2 md:p-3 mb-3">
+                                <div className="text-[#001f54] whitespace-pre-wrap text-sm md:text-base">
                                   {lead.notes}
                                 </div>
                               </div>
@@ -393,10 +393,10 @@ export default function UsersTab() {
                       </div>
                     ))
                   ) : (
-                    <div className="border border-gray-100 rounded-lg p-4 bg-gray-50">
-                      <div className="text-center text-gray-600">
+                    <div className="border-2 border-[#001f54]/10 rounded-lg p-4 bg-[#001f54]/5">
+                      <div className="text-center text-[#001f54]/70">
                         <Icon name="MessageSquare" size={20} className="mx-auto mb-2 opacity-60 md:w-6 md:h-6" />
-                        <div className="text-sm md:text-base">У этого пользователя пока нет лидов</div>
+                        <div className="text-sm md:text-base font-medium">У этого пользователя пока нет лидов</div>
                       </div>
                     </div>
                   )}

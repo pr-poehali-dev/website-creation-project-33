@@ -45,9 +45,9 @@ export default function LeadsChart({
   };
 
   return (
-    <Card className="border-gray-200 shadow-lg bg-white">
+    <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-black text-xl">
+        <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
           <div className="p-2 rounded-lg bg-gray-100">
             <Icon name="TrendingUp" size={20} className="text-gray-600" />
           </div>

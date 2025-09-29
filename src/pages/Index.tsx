@@ -124,38 +124,54 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e8eef5] p-4 md:p-6">
       <div className="max-w-2xl mx-auto pt-4 md:pt-8">
         {/* Мобильная версия заголовка */}
-        <div className="md:hidden mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-bold text-black">
-              IMPERIA PROMO
-            </h1>
+        <div className="md:hidden mb-6 slide-up">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-white border-2 border-[#001f54] overflow-hidden flex items-center justify-center p-2 shadow-lg">
+                <img 
+                  src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
+                  alt="IMPERIA PROMO"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h1 className="text-xl font-bold text-[#001f54]">
+                IMPERIA PROMO
+              </h1>
+            </div>
             <Button 
               onClick={logout} 
-              className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-200 transition-all duration-300 px-3 py-2"
-              variant="ghost"
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105"
               size="sm"
             >
               <Icon name="LogOut" size={16} />
             </Button>
           </div>
-          <p className="text-gray-600 text-base">Добро пожаловать, {user?.name}</p>
+          <p className="text-[#001f54]/70 text-sm font-medium">Добро пожаловать, {user?.name}</p>
         </div>
 
         {/* Десктопная версия заголовка */}
-        <div className="hidden md:flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-black mb-2">
-              IMPERIA PROMO
-            </h1>
-            <p className="text-gray-600 text-lg">Добро пожаловать, {user?.name}</p>
+        <div className="hidden md:flex justify-between items-center mb-8 slide-up">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-white border-4 border-[#001f54] overflow-hidden flex items-center justify-center p-3 shadow-xl">
+              <img 
+                src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
+                alt="IMPERIA PROMO"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-[#001f54] mb-2">
+                IMPERIA PROMO
+              </h1>
+              <p className="text-[#001f54]/70 text-lg font-medium">Добро пожаловать, {user?.name}</p>
+            </div>
           </div>
           <Button 
             onClick={logout} 
-            className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-200 transition-all duration-300"
-            variant="ghost"
+            className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105"
           >
             <Icon name="LogOut" size={16} className="mr-2" />
             Выйти
@@ -164,11 +180,11 @@ export default function Index() {
 
         <div className="grid gap-4 md:gap-6">
           {/* Блокнот */}
-          <Card className="bg-white border-gray-200 shadow-lg">
+          <Card className="bg-white border-[#001f54]/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
             <CardHeader className="pb-3 md:pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
-                <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-                  <Icon name="NotebookPen" size={18} className="text-gray-600 md:w-5 md:h-5" />
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-[#001f54]">
+                <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
+                  <Icon name="NotebookPen" size={18} className="text-[#001f54] md:w-5 md:h-5" />
                 </div>
                 Блокнот
               </CardTitle>
@@ -178,7 +194,7 @@ export default function Index() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Введите ваши заметки здесь..."
-                className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-black focus:ring-black/30 transition-all duration-300 text-sm md:text-base"
+                className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 resize-none focus:border-[#001f54] focus:ring-[#001f54]/20 transition-all duration-300 text-sm md:text-base"
                 maxLength={4096}
               />
               <div className="flex justify-between items-center mt-2">
@@ -190,11 +206,11 @@ export default function Index() {
           </Card>
 
           {/* Аудиозапись */}
-          <Card className="bg-white border-gray-200 shadow-lg">
+          <Card className="bg-white border-[#001f54]/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
             <CardHeader className="pb-3 md:pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
-                <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-                  <Icon name="Mic" size={18} className="text-gray-600 md:w-5 md:h-5" />
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-[#001f54]">
+                <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
+                  <Icon name="Mic" size={18} className="text-[#001f54] md:w-5 md:h-5" />
                 </div>
                 Контроль качества
               </CardTitle>
@@ -206,7 +222,7 @@ export default function Index() {
                     <Button
                       onClick={startRecording}
                       size="lg"
-                      className="bg-black hover:bg-gray-800 text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-lg"
+                      className="bg-[#001f54] hover:bg-[#002b6b] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl"
                     >
                       <Icon name="Mic" size={24} className="md:w-8 md:h-8" />
                     </Button>
@@ -214,7 +230,7 @@ export default function Index() {
                     <Button
                       onClick={stopRecording}
                       size="lg"
-                      className="bg-gray-800 hover:bg-gray-700 text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 animate-pulse transition-all duration-300 shadow-lg"
+                      className="bg-[#002b6b] hover:bg-[#003d8f] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 animate-pulse transition-all duration-300 shadow-xl"
                     >
                       <Icon name="Square" size={24} className="md:w-8 md:h-8" />
                     </Button>
@@ -222,14 +238,14 @@ export default function Index() {
                 </div>
                 
                 {isRecording && (
-                  <div className="flex items-center gap-2 md:gap-3 text-black bg-gray-50 border border-gray-200 px-3 md:px-4 py-2 rounded-full">
-                    <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-black rounded-full animate-pulse"></div>
+                  <div className="flex items-center gap-2 md:gap-3 text-[#001f54] bg-[#001f54]/5 border-2 border-[#001f54]/20 px-3 md:px-4 py-2 rounded-full shadow-md">
+                    <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-red-500 rounded-full animate-pulse"></div>
                     <span className="text-xs md:text-sm font-medium">Идет запись...</span>
                   </div>
                 )}
 
                 {audioBlob && !isRecording && (
-                  <div className="flex items-center gap-2 md:gap-3 text-black bg-gray-50 border border-gray-200 px-3 md:px-4 py-2 rounded-full">
+                  <div className="flex items-center gap-2 md:gap-3 text-green-700 bg-green-50 border-2 border-green-200 px-3 md:px-4 py-2 rounded-full shadow-md">
                     <Icon name="CheckCircle" size={14} className="md:w-4 md:h-4" />
                     <span className="text-xs md:text-sm font-medium">Аудио записано</span>
                   </div>
@@ -243,7 +259,7 @@ export default function Index() {
             onClick={sendToTelegram}
             disabled={isLoading || (!notes.trim() && !audioBlob)}
             size="lg"
-            className="bg-black hover:bg-gray-800 disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-lg transition-all duration-300 hover:scale-105"
+            className="bg-[#001f54] hover:bg-[#002b6b] disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl slide-up"
           >
             {isLoading ? (
               <div className="flex items-center gap-2 md:gap-3">

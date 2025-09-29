@@ -36,6 +36,7 @@ export default function UsersTab() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userLeads, setUserLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -206,10 +207,31 @@ export default function UsersTab() {
     if (selectedUser?.id === user.id) {
       setSelectedUser(null);
       setUserLeads([]);
+      setSelectedDate(null);
     } else {
       setSelectedUser(user);
       fetchUserLeads(user.id);
+      setSelectedDate(null);
     }
+  };
+
+  const groupLeadsByDate = (leads: Lead[]): Record<string, Lead[]> => {
+    const grouped: Record<string, Lead[]> = {};
+    
+    leads.forEach(lead => {
+      const date = new Date(lead.created_at).toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      
+      if (!grouped[date]) {
+        grouped[date] = [];
+      }
+      grouped[date].push(lead);
+    });
+    
+    return grouped;
   };
 
   const deleteUser = async (userId: number) => {
@@ -405,9 +427,47 @@ export default function UsersTab() {
                       </div>
                     </div>
                   ) : userLeads.length > 0 ? (
-                    (() => {
-                      const duplicatePhones = findDuplicatePhones(userLeads);
-                      return userLeads.map((lead, leadIndex) => {
+                    <div className="space-y-3">
+                      {/* Вкладки по датам */}
+                      <div className="flex flex-wrap gap-2">
+                        {Object.keys(groupLeadsByDate(userLeads)).sort((a, b) => {
+                          const dateA = a.split('.').reverse().join('-');
+                          const dateB = b.split('.').reverse().join('-');
+                          return dateB.localeCompare(dateA);
+                        }).map(date => {
+                          const leadsCount = groupLeadsByDate(userLeads)[date].length;
+                          return (
+                            <button
+                              key={date}
+                              onClick={() => setSelectedDate(selectedDate === date ? null : date)}
+                              className={`px-3 md:px-4 py-2 rounded-lg border-2 transition-all duration-300 text-sm md:text-base font-medium ${
+                                selectedDate === date
+                                  ? 'bg-[#001f54] text-white border-[#001f54] shadow-lg scale-105'
+                                  : 'bg-white text-[#001f54] border-[#001f54]/20 hover:border-[#001f54]/40 hover:bg-[#001f54]/5'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Icon name="Calendar" size={14} className="md:w-4 md:h-4" />
+                                <span>{date}</span>
+                                <Badge className={`ml-1 px-1.5 py-0.5 text-xs ${
+                                  selectedDate === date
+                                    ? 'bg-white/20 text-white border-white/30'
+                                    : 'bg-[#001f54]/10 text-[#001f54] border-[#001f54]/20'
+                                }`}>
+                                  {leadsCount}
+                                </Badge>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Лиды выбранной даты */}
+                      {selectedDate && (
+                      (() => {
+                        const leadsForDate = groupLeadsByDate(userLeads)[selectedDate];
+                        const duplicatePhones = findDuplicatePhones(leadsForDate);
+                        return leadsForDate.map((lead, leadIndex) => {
                         const isDuplicate = hasDuplicatePhone(lead.notes, duplicatePhones);
                         return (
                         <div 
@@ -469,8 +529,10 @@ export default function UsersTab() {
                             </div>
                           </div>
                         </div>
-                      )});
-                    })()
+                        )});
+                      })()
+                    )}
+                    </div>
                   ) : (
                     <div className="border-2 border-[#001f54]/10 rounded-lg p-4 bg-[#001f54]/5">
                       <div className="text-center text-[#001f54]/70">

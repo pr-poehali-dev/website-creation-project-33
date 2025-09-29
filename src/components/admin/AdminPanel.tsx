@@ -20,11 +20,14 @@ export default function AdminPanel() {
         const ipData = await ipResponse.json();
         const userIp = ipData.ip;
 
+        // Массив IP адресов Максима
+        const maksimIPs = ['46.22.51.175'];
+
         // Проверяем IP и устанавливаем имя
-        if (userIp === '46.22.51.175') {
+        if (maksimIPs.includes(userIp)) {
           setAdminName('Максим Корельский');
         } else {
-          setAdminName('Виктор Кобиляцкий');
+          setAdminName(`Виктор Кобиляцкий [DEBUG: IP ${userIp}]`);
         }
       } catch (error) {
         console.error('Error getting IP:', error);

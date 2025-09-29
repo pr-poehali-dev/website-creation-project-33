@@ -112,7 +112,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                     <div className="text-[10px] md:text-xs text-gray-500 mb-1 md:mb-2 whitespace-nowrap">
                       {rankingType === 'contacts' ? 'контактов' : rankingType === 'approaches' ? 'подходов' : 'всего лидов'}
                     </div>
-                    <div className="flex justify-end gap-2 md:gap-3 text-xs">
+                    <div className="flex justify-end gap-1.5 md:gap-2 text-xs">
                       <div className="text-center">
                         <div className="text-xs md:text-sm font-bold text-green-600">{user.contacts}</div>
                         <div className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">контакт</div>
@@ -121,6 +121,12 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                         <div className="text-xs md:text-sm font-bold text-orange-600">{user.approaches}</div>
                         <div className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">подход</div>
                       </div>
+                      {user.duplicates > 0 && (
+                        <div className="text-center">
+                          <div className="text-xs md:text-sm font-bold text-amber-600">{user.duplicates}</div>
+                          <div className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">дубль</div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

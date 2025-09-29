@@ -145,13 +145,42 @@ def get_leads_stats() -> Dict[str, Any]:
             # Подходы - лиды без 11-значного номера
             approaches = total_leads - contacts
             
-            # Лиды по пользователям с разбивкой на контакты и подходы
+            # Лиды по пользователям с разбивкой на контакты, подходы и дубли
             cur.execute("""
-                SELECT u.name, u.email, 
+                WITH user_leads AS (
+                    SELECT u.id as user_id, u.name, u.email, l.id as lead_id, l.notes,
+                           CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 
+                               regexp_replace(
+                                   regexp_replace(l.notes, '[^0-9]', '', 'g'),
+                                   '^[78]?([0-9]{10}).*$', '7\\1'
+                               )
+                           END as normalized_phone
+                    FROM t_p24058207_website_creation_pro.users u 
+                    LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id
+                    WHERE l.id IS NOT NULL
+                ),
+                phone_duplicates AS (
+                    SELECT user_id, normalized_phone, COUNT(*) as phone_count
+                    FROM user_leads
+                    WHERE normalized_phone IS NOT NULL
+                    GROUP BY user_id, normalized_phone
+                    HAVING COUNT(*) > 1
+                ),
+                duplicate_leads AS (
+                    SELECT ul.lead_id
+                    FROM user_leads ul
+                    JOIN phone_duplicates pd ON ul.user_id = pd.user_id AND ul.normalized_phone = pd.normalized_phone
+                    WHERE ul.lead_id NOT IN (
+                        SELECT MIN(lead_id) FROM user_leads ul2
+                        WHERE ul2.normalized_phone = pd.normalized_phone AND ul2.user_id = pd.user_id
+                    )
+                )
+                SELECT u.name, u.email,
                        COUNT(l.id) as lead_count,
                        COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.notes IS NOT NULL AND l.notes != '' AND NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
-                FROM t_p24058207_website_creation_pro.users u 
+                       COUNT(CASE WHEN l.notes IS NOT NULL AND l.notes != '' AND NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches,
+                       COUNT(CASE WHEN l.id IN (SELECT lead_id FROM duplicate_leads) THEN 1 END) as duplicates
+                FROM t_p24058207_website_creation_pro.users u
                 LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id
                 GROUP BY u.id, u.name, u.email
                 HAVING COUNT(l.id) > 0
@@ -165,7 +194,8 @@ def get_leads_stats() -> Dict[str, Any]:
                     'email': row[1], 
                     'lead_count': row[2],
                     'contacts': row[3],
-                    'approaches': row[4]
+                    'approaches': row[4],
+                    'duplicates': row[5]
                 })
             
             # Лиды за последние дни с разбивкой на контакты и подходы

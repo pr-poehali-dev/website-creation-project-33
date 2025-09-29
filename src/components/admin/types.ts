@@ -23,6 +23,7 @@ export interface UserStats {
   lead_count: number;
   contacts: number;
   approaches: number;
+  duplicates: number;
 }
 
 export interface DailyStats {

@@ -34,8 +34,8 @@ def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
                 SELECT u.id, u.email, u.name, u.is_admin 
                 FROM t_p24058207_website_creation_pro.users u 
                 JOIN t_p24058207_website_creation_pro.user_sessions s ON u.id = s.user_id 
-                WHERE s.session_token = %s AND s.expires_at > %s
-            """, (session_token, get_moscow_time()))
+                WHERE s.session_token = %s AND s.expires_at > NOW()
+            """, (session_token,))
             
             row = cur.fetchone()
             if row:
@@ -48,15 +48,18 @@ def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
     return None
 
 def get_all_users() -> List[Dict[str, Any]]:
-    """Получить всех пользователей с информацией об онлайн статусе"""
+    """Получить всех пользователей с информацией об онлайн статусе и количеством лидов"""
     online_threshold = get_moscow_time() - timedelta(minutes=5)
     
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at,
-                       CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online
+                       CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online,
+                       COUNT(l.id) as lead_count
                 FROM t_p24058207_website_creation_pro.users u 
+                LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id
+                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at
                 ORDER BY u.created_at DESC
             """, (online_threshold,))
             
@@ -69,7 +72,8 @@ def get_all_users() -> List[Dict[str, Any]]:
                     'is_admin': row[3],
                     'last_seen': row[4].isoformat() if row[4] else None,
                     'created_at': row[5].isoformat() if row[5] else None,
-                    'is_online': row[6]
+                    'is_online': row[6],
+                    'lead_count': row[7]
                 })
     return users
 

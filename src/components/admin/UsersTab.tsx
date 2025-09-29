@@ -15,6 +15,7 @@ interface User {
   is_online: boolean;
   last_seen: string;
   created_at: string;
+  lead_count: number;
 }
 
 interface Lead {
@@ -279,11 +280,16 @@ export default function UsersTab() {
                         )}
                       </div>
                       <div className="text-sm text-gray-600 truncate">{user.email}</div>
-                      <div className="text-xs text-gray-400">
-                        {user.is_online 
-                          ? 'Онлайн сейчас' 
-                          : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
-                        }
+                      <div className="flex items-center justify-between text-xs text-gray-400">
+                        <span>
+                          {user.is_online 
+                            ? 'Онлайн сейчас' 
+                            : `Был(а) онлайн: ${new Date(user.last_seen).toLocaleString('ru-RU')}`
+                          }
+                        </span>
+                        <Badge className="bg-gray-100 text-black border border-gray-200 ml-2 px-1.5 py-0.5 text-xs">
+                          {user.lead_count} лидов
+                        </Badge>
                       </div>
                     </div>
                   </div>

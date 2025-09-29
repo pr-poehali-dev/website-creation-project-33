@@ -54,23 +54,30 @@ def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
     """Получить только контакты (лиды с номерами телефонов)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Базовый запрос
-            query = """
-                SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
-                FROM leads l
-                JOIN users u ON l.user_id = u.id
-                WHERE l.notes IS NOT NULL AND l.notes != ''
-                AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
-            """
-            
-            # Добавляем фильтр по сегодняшнему дню (московское время)
             if today_only:
+                # Запрос для сегодняшних лидов (московское время)
                 moscow_today = get_moscow_time().date()
-                query += f" AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = '{moscow_today}'"
-            
-            query += " ORDER BY l.created_at DESC"
-            
-            cur.execute(query)
+                query = """
+                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
+                    FROM leads l
+                    JOIN users u ON l.user_id = u.id
+                    WHERE l.notes IS NOT NULL AND l.notes != ''
+                    AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+                    AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = %s
+                    ORDER BY l.created_at DESC
+                """
+                cur.execute(query, (moscow_today,))
+            else:
+                # Запрос для всех лидов
+                query = """
+                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
+                    FROM leads l
+                    JOIN users u ON l.user_id = u.id
+                    WHERE l.notes IS NOT NULL AND l.notes != ''
+                    AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+                    ORDER BY l.created_at DESC
+                """
+                cur.execute(query)
             
             leads = []
             for row in cur.fetchall():

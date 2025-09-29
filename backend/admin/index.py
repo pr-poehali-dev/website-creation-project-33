@@ -78,7 +78,7 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT id, notes, audio_data, created_at 
+                SELECT id, user_id, notes, has_audio, audio_data, created_at 
                 FROM t_p24058207_website_creation_pro.leads 
                 WHERE user_id = %s 
                 ORDER BY created_at DESC
@@ -88,9 +88,11 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
             for row in cur.fetchall():
                 leads.append({
                     'id': row[0],
-                    'notes': row[1] or '',
-                    'audio_data': row[2],
-                    'created_at': get_moscow_time_from_utc(row[3]).isoformat() if row[3] else None
+                    'user_id': row[1],
+                    'notes': row[2] or '',
+                    'has_audio': row[3],
+                    'audio_data': row[4],
+                    'created_at': get_moscow_time_from_utc(row[5]).isoformat() if row[5] else None
                 })
             return leads
 
@@ -147,30 +149,7 @@ def get_leads_stats() -> Dict[str, Any]:
         'daily_stats': daily_stats
     }
 
-def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
-    """Получить все лиды пользователя"""
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT id, user_id, notes, has_audio, audio_data, created_at
-                FROM t_p24058207_website_creation_pro.leads 
-                WHERE user_id = %s
-                ORDER BY created_at DESC
-            """, (user_id,))
-            
-            leads = []
-            for row in cur.fetchall():
-                lead = {
-                    'id': row[0],
-                    'user_id': row[1],
-                    'notes': row[2],
-                    'has_audio': row[3],
-                    'audio_data': row[4],
-                    'created_at': row[5].isoformat() if row[5] else None
-                }
-                leads.append(lead)
-            
-            return leads
+
 
 def update_user_name(user_id: int, new_name: str) -> bool:
     """Обновить имя пользователя"""

@@ -2,9 +2,17 @@
  * Форматирует дату в московское время
  */
 export function formatMoscowTime(dateString: string, format: 'time' | 'datetime' | 'date' = 'time'): string {
+  if (!dateString) {
+    return '—';
+  }
+  
   // Убедимся что строка заканчивается на Z (UTC) или добавим её
   const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
   const date = new Date(utcDateString);
+  
+  if (isNaN(date.getTime())) {
+    return '—';
+  }
   
   let options: Intl.DateTimeFormatOptions;
   
@@ -39,8 +47,17 @@ export function formatMoscowTime(dateString: string, format: 'time' | 'datetime'
  * Форматирует дату для отображения в списке диалогов
  */
 export function formatChatListTime(dateString: string): string {
+  if (!dateString) {
+    return '—';
+  }
+  
   const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
   const date = new Date(utcDateString);
+  
+  if (isNaN(date.getTime())) {
+    return '—';
+  }
+  
   const now = new Date();
   
   const moscowDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
@@ -75,8 +92,17 @@ export function formatChatListTime(dateString: string): string {
  * Форматирует последний визит пользователя в удобной форме
  */
 export function formatLastSeen(dateString: string): string {
+  if (!dateString) {
+    return 'Никогда';
+  }
+  
   const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
   const date = new Date(utcDateString);
+  
+  if (isNaN(date.getTime())) {
+    return 'Никогда';
+  }
+  
   const now = new Date();
   
   const moscowDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));

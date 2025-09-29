@@ -174,6 +174,29 @@ def get_leads_stats() -> Dict[str, Any]:
         'daily_stats': daily_stats
     }
 
+def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
+    """Получить статистику пользователей за конкретный день"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT u.name, u.email, COUNT(l.id) as lead_count
+                FROM t_p24058207_website_creation_pro.users u 
+                LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id 
+                AND DATE(l.created_at) = %s
+                WHERE l.id IS NOT NULL
+                GROUP BY u.id, u.name, u.email
+                ORDER BY lead_count DESC
+            """, (date,))
+            
+            user_stats = []
+            for row in cur.fetchall():
+                user_stats.append({
+                    'name': row[0],
+                    'email': row[1],
+                    'lead_count': row[2]
+                })
+            return user_stats
+
 
 
 def update_user_name(user_id: int, new_name: str) -> bool:
@@ -264,6 +287,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'headers': headers,
                 'body': json.dumps(stats)
             }
+        
+        elif action == 'daily_user_stats':
+            date = event.get('queryStringParameters', {}).get('date')
+            if not date:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Требуется параметр date'})
+                }
+            
+            try:
+                user_stats = get_daily_user_stats(date)
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'user_stats': user_stats})
+                }
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': f'Ошибка получения статистики: {str(e)}'})
+                }
         
         elif action == 'user_leads':
             user_id = event.get('queryStringParameters', {}).get('user_id')

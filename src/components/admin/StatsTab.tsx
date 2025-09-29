@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface UserStats {
@@ -13,6 +14,10 @@ interface DailyStats {
   count: number;
 }
 
+interface DailyUserStats {
+  user_stats: UserStats[];
+}
+
 interface Stats {
   total_leads: number;
   user_stats: UserStats[];
@@ -24,6 +29,9 @@ const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23
 export default function StatsTab() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [dailyUserStats, setDailyUserStats] = useState<UserStats[]>([]);
+  const [dailyLoading, setDailyLoading] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -43,6 +51,37 @@ export default function StatsTab() {
       console.error('Error fetching stats:', error);
     }
     setLoading(false);
+  };
+
+  const fetchDailyUserStats = async (date: string) => {
+    setDailyLoading(true);
+    try {
+      const response = await fetch(`${ADMIN_API}?action=daily_user_stats&date=${date}`, {
+        headers: {
+          'X-Session-Token': getSessionToken() || '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDailyUserStats(data.user_stats || []);
+      }
+    } catch (error) {
+      console.error('Error fetching daily user stats:', error);
+    }
+    setDailyLoading(false);
+  };
+
+  const handleDayClick = async (date: string, count: number) => {
+    if (count === 0) return; // Не показываем пустые дни
+    
+    setSelectedDate(date);
+    await fetchDailyUserStats(date);
+  };
+
+  const closeDailyModal = () => {
+    setSelectedDate(null);
+    setDailyUserStats([]);
   };
 
   useEffect(() => {
@@ -160,7 +199,12 @@ export default function StatsTab() {
               {stats.daily_stats.slice(0, 7).map((day, index) => (
                 <div 
                   key={day.date} 
-                  className="flex justify-between items-center p-3 border border-gray-100 rounded-lg transition-all duration-300 hover:bg-gray-50 bg-white shadow-sm"
+                  onClick={() => handleDayClick(day.date, day.count)}
+                  className={`flex justify-between items-center p-3 border border-gray-100 rounded-lg transition-all duration-300 bg-white shadow-sm ${
+                    day.count > 0 
+                      ? 'hover:bg-gray-50 cursor-pointer hover:border-gray-300' 
+                      : 'opacity-60'
+                  }`}
                 >
                   <span className="text-black font-medium">
                     {new Date(day.date).toLocaleDateString('ru-RU', {
@@ -169,14 +213,91 @@ export default function StatsTab() {
                     })}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-black font-bold text-lg">{day.count}</span>
+                    <span className={`font-bold text-lg ${day.count > 0 ? 'text-black' : 'text-gray-400'}`}>
+                      {day.count}
+                    </span>
                     <span className="text-gray-500 text-sm">лидов</span>
+                    {day.count > 0 && (
+                      <Icon name="ChevronRight" size={16} className="text-gray-400 ml-1" />
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Модальное окно с детализацией по дням */}
+      {selectedDate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 md:p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl md:text-2xl font-bold text-black">
+                    Статистика по пользователям
+                  </h3>
+                  <p className="text-gray-600 text-sm md:text-base">
+                    {new Date(selectedDate).toLocaleDateString('ru-RU', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </p>
+                </div>
+                <Button
+                  onClick={closeDailyModal}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-gray-100"
+                >
+                  <Icon name="X" size={16} />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="p-4 md:p-6 overflow-y-auto">
+              {dailyLoading ? (
+                <div className="text-center text-gray-600 flex items-center justify-center gap-3 py-8">
+                  <Icon name="Loader2" size={24} className="animate-spin" />
+                  Загрузка статистики...
+                </div>
+              ) : dailyUserStats.length > 0 ? (
+                <div className="space-y-3">
+                  {dailyUserStats.map((user, index) => (
+                    <div 
+                      key={user.email} 
+                      className="border border-gray-100 rounded-xl p-3 md:p-4 bg-gray-50"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-700 font-bold text-sm">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="font-medium text-black text-sm md:text-base">{user.name}</div>
+                            <div className="text-xs md:text-sm text-gray-600">{user.email}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg md:text-xl font-bold text-black">{user.lead_count}</div>
+                          <div className="text-xs text-gray-500">лидов</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-gray-600 py-8">
+                  <Icon name="Users" size={32} className="mx-auto mb-3 opacity-60" />
+                  <div className="text-lg font-medium">Нет данных</div>
+                  <div className="text-sm">В этот день лиды не отправлялись</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

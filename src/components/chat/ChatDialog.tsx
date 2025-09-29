@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { formatMoscowTime } from '@/utils/timeFormat';
 
 interface Message {
   id: number;
@@ -32,12 +33,13 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
   const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const loadMessages = async () => {
+  const loadMessages = async (markAsRead = false) => {
     if (!user) return;
 
     setIsLoading(true);
     try {
-      const response = await fetch(CHAT_API_URL, {
+      const url = markAsRead ? `${CHAT_API_URL}?mark_read=true` : CHAT_API_URL;
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'X-User-Id': user.id.toString(),
@@ -98,8 +100,10 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
 
   useEffect(() => {
     if (open) {
-      loadMessages();
-      const interval = setInterval(loadMessages, 5000);
+      // При первой загрузке помечаем сообщения как прочитанные
+      loadMessages(true);
+      // При автообновлении НЕ помечаем как прочитанные
+      const interval = setInterval(() => loadMessages(false), 5000);
       return () => clearInterval(interval);
     }
   }, [open, user]);
@@ -170,10 +174,7 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                         msg.is_from_admin ? 'text-gray-500' : 'text-white/70'
                       }`}
                     >
-                      {new Date(msg.created_at).toLocaleTimeString('ru-RU', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {formatMoscowTime(msg.created_at)}
                     </p>
                   </div>
                 </div>

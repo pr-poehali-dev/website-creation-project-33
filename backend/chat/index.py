@@ -117,6 +117,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             else:
                 # Обычный пользователь получает свои сообщения
+                query_params = event.get('queryStringParameters') or {}
+                mark_read = query_params.get('mark_read') == 'true'
+                
                 cursor.execute("""
                     SELECT cm.*, u.name as user_name
                     FROM chat_messages cm
@@ -127,13 +130,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 messages = cursor.fetchall()
                 
-                # Отмечаем сообщения от админа как прочитанные
-                cursor.execute("""
-                    UPDATE chat_messages 
-                    SET is_read = TRUE 
-                    WHERE user_id = %s AND is_from_admin = TRUE AND is_read = FALSE
-                """, (user_id,))
-                conn.commit()
+                # Отмечаем сообщения от админа как прочитанные только если явно запросили
+                if mark_read:
+                    cursor.execute("""
+                        UPDATE chat_messages 
+                        SET is_read = TRUE 
+                        WHERE user_id = %s AND is_from_admin = TRUE AND is_read = FALSE
+                    """, (user_id,))
+                    conn.commit()
                 
                 return {
                     'statusCode': 200,

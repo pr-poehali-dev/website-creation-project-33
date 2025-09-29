@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
+import { formatMoscowTime, formatChatListTime } from '@/utils/timeFormat';
 
 interface Message {
   id: number;
@@ -202,12 +203,7 @@ export default function AdminChatTab() {
                         <p className="text-xs text-gray-500 truncate">{userChat.email}</p>
                         {userChat.last_message_time ? (
                           <p className="text-xs text-gray-400 mt-1">
-                            {new Date(userChat.last_message_time).toLocaleString('ru-RU', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
+                            {formatChatListTime(userChat.last_message_time)}
                           </p>
                         ) : (
                           <p className="text-xs text-gray-400 mt-1 italic">
@@ -298,10 +294,7 @@ export default function AdminChatTab() {
                               msg.is_from_admin ? 'text-white/70' : 'text-gray-500'
                             }`}
                           >
-                            {new Date(msg.created_at).toLocaleTimeString('ru-RU', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
+                            {formatMoscowTime(msg.created_at)}
                           </p>
                         </div>
                       </div>

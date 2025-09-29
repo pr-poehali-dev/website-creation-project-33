@@ -25,7 +25,7 @@ export default function AdminPanel() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `leads_export_${new Date().toISOString().slice(0,10)}.csv`;
+        a.download = `contacts_export_${new Date().toISOString().slice(0,10)}.csv`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -98,7 +98,7 @@ export default function AdminPanel() {
             variant="ghost"
           >
             <Icon name="Download" size={16} className="mr-2" />
-            Скачать CSV
+            Скачать контакты
           </Button>
         </div>
 
@@ -117,7 +117,7 @@ export default function AdminPanel() {
               variant="ghost"
             >
               <Icon name="Download" size={16} className="mr-2" />
-              Скачать CSV
+              Скачать контакты
             </Button>
             <span className="text-gray-600 text-lg">Добро пожаловать, {user.name}</span>
             <Button 

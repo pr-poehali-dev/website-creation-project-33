@@ -1,7 +1,7 @@
 '''
-Экспорт данных блокнота в CSV формате с русской кодировкой
+Экспорт контактов (лидов с номерами телефонов) в CSV формате с русской кодировкой
 Args: event с httpMethod, headers; context с request_id
-Returns: CSV файл с данными всех пользователей
+Returns: CSV файл только с контактами (лиды содержащие номера телефонов)
 '''
 
 import json
@@ -51,7 +51,7 @@ def get_user_by_session(session_token: str) -> Dict[str, Any]:
     return None
 
 def get_leads_data() -> List[Dict[str, Any]]:
-    """Получить все данные лидов с информацией о пользователях"""
+    """Получить только контакты (лиды с номерами телефонов)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -59,6 +59,7 @@ def get_leads_data() -> List[Dict[str, Any]]:
                 FROM leads l
                 JOIN users u ON l.user_id = u.id
                 WHERE l.notes IS NOT NULL AND l.notes != ''
+                AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
                 ORDER BY l.created_at DESC
             """)
             
@@ -84,7 +85,7 @@ def create_csv_content(leads_data: List[Dict[str, Any]]) -> str:
     writer.writerow([
         'Имя пользователя',
         'Email',
-        'Комментарий из блокнота', 
+        'Контактная информация', 
         'Есть аудио',
         'Дата создания'
     ])
@@ -158,7 +159,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             csv_base64 = create_csv_content(leads_data)
             
             # Генерируем имя файла с московской датой
-            filename = f"leads_export_{get_moscow_time().strftime('%Y%m%d_%H%M%S')}.csv"
+            filename = f"contacts_export_{get_moscow_time().strftime('%Y%m%d_%H%M%S')}.csv"
             
             return {
                 'statusCode': 200,

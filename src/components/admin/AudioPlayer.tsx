@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface AudioPlayerProps {
-  audioData: string;
+  audioData?: string | null;
+  leadId: number;
   className?: string;
 }
 
@@ -62,16 +63,47 @@ const detectAudioFormat = (base64Data: string) => {
   }
 };
 
-export default function AudioPlayer({ audioData, className = '' }: AudioPlayerProps) {
+export default function AudioPlayer({ audioData, leadId, className = '' }: AudioPlayerProps) {
   const [showNativeControls, setShowNativeControls] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [actualAudioData, setActualAudioData] = useState<string | null>(audioData || null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  // Функция для загрузки аудиоданных
+  const loadAudioData = async () => {
+    if (actualAudioData || loading) return;
+    
+    setLoading(true);
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      const response = await fetch(`https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=lead_audio&lead_id=${leadId}`, {
+        headers: {
+          'X-Session-Token': sessionToken || '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setActualAudioData(data.audio_data);
+      } else {
+        setError('Не удалось загрузить аудио');
+      }
+    } catch (err) {
+      console.error('Error loading audio:', err);
+      setError('Ошибка загрузки аудио');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    if (!actualAudioData) return;
+    
     try {
       // Определяем формат аудио по magic numbers
-      const audioFormat = detectAudioFormat(audioData);
+      const audioFormat = detectAudioFormat(actualAudioData);
       console.log('Detected audio format:', audioFormat);
       
       // Всегда показываем нативные контролы - самый совместимый способ
@@ -79,11 +111,11 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
       
       if (isIOS() || isSafari()) {
         // Для iOS/Safari используем data URL с правильным MIME типом
-        const dataUrl = `data:${audioFormat};base64,${audioData}`;
+        const dataUrl = `data:${audioFormat};base64,${actualAudioData}`;
         setAudioUrl(dataUrl);
       } else {
         // Для других браузеров используем blob URL с определенным форматом
-        const binaryData = atob(audioData);
+        const binaryData = atob(actualAudioData);
         const bytes = new Uint8Array(binaryData.length);
         for (let i = 0; i < binaryData.length; i++) {
           bytes[i] = binaryData.charCodeAt(i);
@@ -101,13 +133,18 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
       console.error('Error creating audio URL:', err);
       setError('Ошибка загрузки аудио');
     }
-  }, [audioData]);
+  }, [actualAudioData]);
 
   // Функция для скачивания аудио
-  const downloadAudio = () => {
+  const downloadAudio = async () => {
+    if (!actualAudioData) {
+      await loadAudioData();
+      if (!actualAudioData) return;
+    }
+
     try {
-      const audioFormat = detectAudioFormat(audioData);
-      const binaryData = atob(audioData);
+      const audioFormat = detectAudioFormat(actualAudioData);
+      const binaryData = atob(actualAudioData);
       const bytes = new Uint8Array(binaryData.length);
       for (let i = 0; i < binaryData.length; i++) {
         bytes[i] = binaryData.charCodeAt(i);
@@ -128,7 +165,7 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `audio_${Date.now()}${extension}`;
+      a.download = `audio_lead_${leadId}${extension}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -150,11 +187,35 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
           </div>
           <Button
             onClick={downloadAudio}
+            disabled={loading}
             size="sm"
             className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 h-7 flex-shrink-0"
           >
-            <Icon name="Download" size={12} className="mr-1" />
+            {loading ? <Icon name="Loader2" size={12} className="mr-1 animate-spin" /> : <Icon name="Download" size={12} className="mr-1" />}
             <span className="text-xs">Скачать</span>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Если аудиоданные не загружены, показываем кнопку загрузки
+  if (!actualAudioData) {
+    return (
+      <div className={`border border-gray-200 bg-gray-50 rounded-lg p-2 md:p-3 ${className}`}>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-gray-600 flex-1">
+            <Icon name="Volume2" size={16} />
+            <span className="text-xs md:text-sm">Аудиозапись доступна</span>
+          </div>
+          <Button
+            onClick={loadAudioData}
+            disabled={loading}
+            size="sm"
+            className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 h-7 flex-shrink-0"
+          >
+            {loading ? <Icon name="Loader2" size={12} className="mr-1 animate-spin" /> : <Icon name="Play" size={12} className="mr-1" />}
+            <span className="text-xs">Загрузить</span>
           </Button>
         </div>
       </div>
@@ -188,10 +249,11 @@ export default function AudioPlayer({ audioData, className = '' }: AudioPlayerPr
         <Button
           onClick={downloadAudio}
           size="sm"
+          disabled={loading}
           className="bg-gray-600 hover:bg-gray-700 text-white w-8 h-8 p-0 rounded flex-shrink-0"
           title="Скачать аудио"
         >
-          <Icon name="Download" size={12} />
+          {loading ? <Icon name="Loader2" size={12} className="animate-spin" /> : <Icon name="Download" size={12} />}
         </Button>
       </div>
     </div>

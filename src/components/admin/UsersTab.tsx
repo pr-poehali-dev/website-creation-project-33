@@ -140,24 +140,7 @@ export default function UsersTab() {
     }
   };
 
-  const downloadAudio = (audioData: string, leadId: number) => {
-    try {
-      const audioBlob = new Blob([
-        Uint8Array.from(atob(audioData), c => c.charCodeAt(0))
-      ], { type: 'audio/webm' });
-      
-      const url = URL.createObjectURL(audioBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `audio_lead_${leadId}.webm`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading audio:', error);
-    }
-  };
+
 
   const handleUserClick = (user: User) => {
     if (selectedUser?.id === user.id) {
@@ -374,17 +357,6 @@ export default function UsersTab() {
                                 {new Date(lead.created_at).toLocaleString('ru-RU')}
                               </div>
                               <div className="flex items-center gap-1 self-start sm:self-auto">
-                                {lead.audio_data && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => downloadAudio(lead.audio_data!, lead.id)}
-                                    className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-gray-200"
-                                    title="Скачать аудио"
-                                  >
-                                    <Icon name="Download" size={12} className="text-gray-600 md:w-[14px] md:h-[14px]" />
-                                  </Button>
-                                )}
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -405,9 +377,10 @@ export default function UsersTab() {
                               </div>
                             )}
                             
-                            {lead.audio_data && (
+                            {lead.has_audio && (
                               <AudioPlayer 
-                                audioData={lead.audio_data} 
+                                audioData={lead.audio_data}
+                                leadId={lead.id}
                                 className="mb-2"
                               />
                             )}

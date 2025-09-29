@@ -78,11 +78,11 @@ def get_all_users() -> List[Dict[str, Any]]:
     return users
 
 def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
-    """Получить лиды конкретного пользователя"""
+    """Получить лиды конкретного пользователя (без аудиоданных для экономии трафика)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT id, user_id, notes, has_audio, audio_data, created_at 
+                SELECT id, user_id, notes, has_audio, created_at 
                 FROM t_p24058207_website_creation_pro.leads 
                 WHERE user_id = %s 
                 ORDER BY created_at DESC
@@ -92,21 +92,34 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
             for row in cur.fetchall():
                 # Безопасное преобразование времени
                 created_at = None
-                if row[5]:
+                if row[4]:
                     try:
-                        created_at = get_moscow_time_from_utc(row[5]).isoformat()
+                        created_at = get_moscow_time_from_utc(row[4]).isoformat()
                     except Exception:
-                        created_at = row[5].isoformat() if hasattr(row[5], 'isoformat') else str(row[5])
+                        created_at = row[4].isoformat() if hasattr(row[4], 'isoformat') else str(row[4])
                 
                 leads.append({
                     'id': row[0],
                     'user_id': row[1],
                     'notes': row[2] or '',
                     'has_audio': row[3],
-                    'audio_data': row[4],
+                    'audio_data': None,  # Не загружаем сразу для экономии трафика
                     'created_at': created_at
                 })
             return leads
+
+def get_lead_audio(lead_id: int) -> Optional[str]:
+    """Получить аудиоданные конкретного лида"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT audio_data 
+                FROM t_p24058207_website_creation_pro.leads 
+                WHERE id = %s AND audio_data IS NOT NULL
+            """, (lead_id,))
+            
+            row = cur.fetchone()
+            return row[0] if row else None
 
 def get_moscow_time_from_utc(utc_time):
     """Конвертировать UTC время в московское"""
@@ -274,6 +287,37 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 400,
                     'headers': headers,
                     'body': json.dumps({'error': 'Неверный user_id'})
+                }
+        
+        elif action == 'lead_audio':
+            lead_id = event.get('queryStringParameters', {}).get('lead_id')
+            if not lead_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Требуется lead_id'})
+                }
+            
+            try:
+                lead_id = int(lead_id)
+                audio_data = get_lead_audio(lead_id)
+                if audio_data:
+                    return {
+                        'statusCode': 200,
+                        'headers': headers,
+                        'body': json.dumps({'audio_data': audio_data})
+                    }
+                else:
+                    return {
+                        'statusCode': 404,
+                        'headers': headers,
+                        'body': json.dumps({'error': 'Аудиоданные не найдены'})
+                    }
+            except ValueError:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Неверный lead_id'})
                 }
     
     elif method == 'PUT':

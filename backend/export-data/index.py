@@ -54,35 +54,41 @@ def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
     """Получить только контакты (лиды с номерами телефонов)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Запрос для всех лидов с телефонами
-            query = """
-                SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
-                FROM leads l
-                JOIN users u ON l.user_id = u.id
-                WHERE l.notes IS NOT NULL AND l.notes != ''
-                AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
-                ORDER BY l.created_at DESC
-            """
-            cur.execute(query)
+            if today_only:
+                # Получаем начало и конец сегодняшнего дня в московском времени
+                moscow_now = get_moscow_time()
+                moscow_today_start = moscow_now.replace(hour=0, minute=0, second=0, microsecond=0)
+                moscow_today_end = moscow_now.replace(hour=23, minute=59, second=59, microsecond=999999)
+                
+                # Конвертируем московское время в UTC для сравнения с данными в БД
+                utc_today_start = moscow_today_start.astimezone(pytz.UTC).replace(tzinfo=None)
+                utc_today_end = moscow_today_end.astimezone(pytz.UTC).replace(tzinfo=None)
+                
+                # Запрос с фильтрацией по сегодняшней дате (UTC границы московского дня)
+                query = """
+                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
+                    FROM leads l
+                    JOIN users u ON l.user_id = u.id
+                    WHERE l.notes IS NOT NULL AND l.notes != ''
+                    AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+                    AND l.created_at >= %s AND l.created_at <= %s
+                    ORDER BY l.created_at DESC
+                """
+                cur.execute(query, (utc_today_start, utc_today_end))
+            else:
+                # Запрос для всех лидов с телефонами
+                query = """
+                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
+                    FROM leads l
+                    JOIN users u ON l.user_id = u.id
+                    WHERE l.notes IS NOT NULL AND l.notes != ''
+                    AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+                    ORDER BY l.created_at DESC
+                """
+                cur.execute(query)
             
             leads = []
-            moscow_today = get_moscow_time().date() if today_only else None
-            
             for row in cur.fetchall():
-                created_at = row[4]
-                
-                # Фильтруем по сегодняшней дате в Python (если нужно)
-                if today_only and created_at:
-                    # Конвертируем created_at в московское время
-                    if created_at.tzinfo is None:
-                        created_at_moscow = pytz.UTC.localize(created_at).astimezone(MOSCOW_TZ)
-                    else:
-                        created_at_moscow = created_at.astimezone(MOSCOW_TZ)
-                    
-                    # Проверяем дату
-                    if created_at_moscow.date() != moscow_today:
-                        continue
-                
                 leads.append({
                     'user_name': row[0],
                     'user_email': row[1],

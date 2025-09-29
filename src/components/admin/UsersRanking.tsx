@@ -27,33 +27,33 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
             return (
               <div 
                 key={user.email} 
-                className="border-2 border-[#001f54]/10 rounded-xl p-4 hover:bg-[#001f54]/5 transition-all duration-300 bg-white shadow-md hover:shadow-xl hover:scale-[1.02]"
+                className="border-2 border-[#001f54]/10 rounded-xl p-3 md:p-4 hover:bg-[#001f54]/5 transition-all duration-300 bg-white shadow-md hover:shadow-xl hover:scale-[1.02]"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 md:gap-4">
-                    <div className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full ${
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
+                    <div className={`flex-shrink-0 flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full ${
                       isTop3 
                         ? `bg-gradient-to-br ${medalColors[index]} text-white font-bold text-sm md:text-base shadow-lg`
                         : 'bg-gray-200 text-gray-700 font-bold text-sm'
                     }`}>
                       {index + 1}
                     </div>
-                    <div>
-                      <div className="font-medium text-black text-sm md:text-base">{user.name}</div>
-                      <div className="text-xs md:text-sm text-gray-600">{user.email}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-black text-sm md:text-base truncate">{user.name}</div>
+                      <div className="text-xs md:text-sm text-gray-600 truncate">{user.email}</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg md:text-xl font-bold text-black mb-1">{user.lead_count}</div>
-                    <div className="text-xs text-gray-500 mb-2">всего лидов</div>
-                    <div className="flex justify-end gap-3 text-xs">
+                  <div className="flex-shrink-0 text-right">
+                    <div className="text-base md:text-xl font-bold text-black mb-1">{user.lead_count}</div>
+                    <div className="text-[10px] md:text-xs text-gray-500 mb-1 md:mb-2 whitespace-nowrap">всего лидов</div>
+                    <div className="flex justify-end gap-2 md:gap-3 text-xs">
                       <div className="text-center">
-                        <div className="text-sm font-bold text-green-600">{user.contacts}</div>
-                        <div className="text-gray-500">контакты</div>
+                        <div className="text-xs md:text-sm font-bold text-green-600">{user.contacts}</div>
+                        <div className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">контакт</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm font-bold text-orange-600">{user.approaches}</div>
-                        <div className="text-gray-500">подходы</div>
+                        <div className="text-xs md:text-sm font-bold text-orange-600">{user.approaches}</div>
+                        <div className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">подход</div>
                       </div>
                     </div>
                   </div>

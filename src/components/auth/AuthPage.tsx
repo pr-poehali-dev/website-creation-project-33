@@ -32,7 +32,7 @@ export default function AuthPage() {
         <Card className="border-border shadow-lg bg-card">
           <CardHeader className="pb-6">
             <div className="text-center">
-              <h2 className="text-xl font-bold text-card-foreground">
+              <h2 className="text-xl font-bold text-foreground">
                 {isLogin ? 'Авторизация' : 'Регистрация'}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">

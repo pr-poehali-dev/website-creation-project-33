@@ -49,7 +49,7 @@ export default function AdminPanel() {
           </div>
           <Card className="border-border shadow-lg bg-card">
             <CardHeader className="text-center">
-              <CardTitle className="flex flex-col items-center gap-4 text-card-foreground text-xl">
+              <CardTitle className="flex flex-col items-center gap-4 text-foreground text-xl">
                 <div className="p-3 rounded-full bg-destructive/10">
                   <Icon name="ShieldX" size={24} className="text-destructive" />
                 </div>

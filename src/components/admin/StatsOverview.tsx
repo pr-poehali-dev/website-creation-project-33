@@ -11,7 +11,7 @@ export default function StatsOverview({ stats }: StatsOverviewProps) {
   return (
     <Card className="border-border shadow-sm bg-card">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-card-foreground text-xl">
+        <CardTitle className="flex items-center gap-3 text-foreground text-xl">
           <div className="p-2 rounded-lg bg-primary/10">
             <Icon name="BarChart3" size={20} className="text-primary" />
           </div>

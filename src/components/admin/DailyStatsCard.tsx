@@ -16,7 +16,7 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
   return (
     <Card className="border-border shadow-lg bg-card">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-card-foreground text-xl">
+        <CardTitle className="flex items-center gap-3 text-foreground text-xl">
           <div className="p-2 rounded-lg bg-muted">
             <Icon name="Calendar" size={20} className="text-muted-foreground" />
           </div>
@@ -38,7 +38,7 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
               `}
             >
               <div className="flex items-center justify-between">
-                <span className="font-medium text-card-foreground text-sm md:text-base">
+                <span className="font-medium text-foreground text-sm md:text-base">
                   {new Date(day.date).toLocaleDateString('ru-RU', {
                     day: 'numeric',
                     month: 'short',
@@ -46,7 +46,7 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
                 </span>
                 <div className="flex items-center gap-3">
                   <div className="text-right">
-                    <div className={`text-lg font-bold ${day.count > 0 ? 'text-card-foreground' : 'text-muted-foreground'} mb-1`}>
+                    <div className={`text-lg font-bold ${day.count > 0 ? 'text-foreground' : 'text-muted-foreground'} mb-1`}>
                       {day.count}
                     </div>
                     <div className="text-xs text-muted-foreground">всего</div>

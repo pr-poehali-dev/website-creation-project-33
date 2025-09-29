@@ -20,11 +20,15 @@ export default function AdminPanel() {
         const ipData = await ipResponse.json();
         const userIp = ipData.ip;
 
+        // ВРЕМЕННО: показываем IP в консоли для отладки
+        console.log('🔍 Ваш IP адрес:', userIp);
+        alert(`Ваш IP: ${userIp}`);
+
         // Проверяем IP и устанавливаем имя
         if (userIp === '188.163.86.214') {
           setAdminName('Максим Корельский');
         } else {
-          setAdminName('Виктор Кобиляцкий');
+          setAdminName(`Виктор Кобиляцкий (IP: ${userIp})`);
         }
       } catch (error) {
         console.error('Error getting IP:', error);

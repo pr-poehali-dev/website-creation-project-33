@@ -11,6 +11,7 @@ export default function AdminPanel() {
   const { logout, user } = useAuth();
   const [adminName, setAdminName] = useState('');
   const [loadingName, setLoadingName] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(true);
 
   useEffect(() => {
     const getAdminName = async () => {
@@ -44,17 +45,17 @@ export default function AdminPanel() {
         console.log('IP Максима:', maksimIPs);
         console.log('Совпадение:', maksimIPs.includes(userIp));
 
-        // Проверяем IP и устанавливаем имя (ВСЕГДА показываем IP для отладки)
+        // Проверяем IP и устанавливаем имя
         if (userIp === 'unknown') {
-          setAdminName(`Администратор (IP не определён)`);
+          setAdminName('Администратор');
         } else if (maksimIPs.includes(userIp)) {
-          setAdminName(`Максим Корельский (${userIp})`);
+          setAdminName('Максим Корельский');
         } else {
-          setAdminName(`Виктор Кобиляцкий (${userIp})`);
+          setAdminName('Виктор Кобиляцкий');
         }
       } catch (error) {
         console.error('Error getting IP:', error);
-        setAdminName(`Администратор (Ошибка: ${error.message})`);
+        setAdminName('Администратор');
       } finally {
         setLoadingName(false);
       }
@@ -64,6 +65,16 @@ export default function AdminPanel() {
       getAdminName();
     }
   }, [user]);
+
+  // Скрываем приветствие через 3 секунды
+  useEffect(() => {
+    if (!loadingName && showWelcome) {
+      const timer = setTimeout(() => {
+        setShowWelcome(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [loadingName, showWelcome]);
 
   const downloadCSV = async () => {
     try {
@@ -123,6 +134,41 @@ export default function AdminPanel() {
     );
   }
 
+  // Экран приветствия
+  if (showWelcome && !loadingName) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#001f54] via-[#002b6b] to-[#001f54] flex items-center justify-center p-4 overflow-hidden">
+        <div className="text-center">
+          {/* Анимированный логотип */}
+          <div className="mb-8 animate-in fade-in zoom-in duration-1000">
+            <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full bg-white border-4 border-white overflow-hidden flex items-center justify-center p-6 shadow-2xl animate-pulse">
+              <img 
+                src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
+                alt="IMPERIA PROMO"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </div>
+
+          {/* Анимированное приветствие */}
+          <div className="space-y-4 animate-in slide-in-from-bottom duration-1000 delay-300">
+            <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight">
+              Привет,
+            </h1>
+            <h2 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent animate-in slide-in-from-right duration-1000 delay-500">
+              {adminName}
+            </h2>
+            <div className="flex items-center justify-center gap-2 text-white/80 text-lg animate-in fade-in duration-1000 delay-700">
+              <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e8eef5] p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
@@ -145,7 +191,7 @@ export default function AdminPanel() {
           </div>
           <div className="text-center mb-4">
             <span className="text-[#001f54]/70 text-sm font-medium">
-              {loadingName ? 'Загрузка...' : `Привет, ${adminName}`}
+              Привет, {adminName}
             </span>
           </div>
           <Button 
@@ -174,7 +220,7 @@ export default function AdminPanel() {
               Скачать контакты
             </Button>
             <span className="text-[#001f54]/70 text-lg font-medium">
-              {loadingName ? 'Загрузка...' : `Привет, ${adminName}`}
+              Привет, {adminName}
             </span>
             <Button 
               onClick={logout} 

@@ -227,24 +227,36 @@ export default function Index() {
                       <Icon name="Star" size={24} className="md:w-8 md:h-8" />
                     </Button>
                   ) : (
-                    <Button
-                      onClick={stopRecording}
-                      size="lg"
-                      className="bg-[#002b6b] hover:bg-[#003d8f] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 animate-pulse transition-all duration-300 shadow-xl"
-                    >
-                      <Icon name="Square" size={24} className="md:w-8 md:h-8" />
-                    </Button>
+                    <div className="relative">
+                      <style>{`
+                        @keyframes breathing {
+                          0%, 100% {
+                            opacity: 0.6;
+                            transform: scale(1);
+                          }
+                          50% {
+                            opacity: 1;
+                            transform: scale(1.05);
+                          }
+                        }
+                        .breathing-animation {
+                          animation: breathing 3s ease-in-out infinite;
+                        }
+                      `}</style>
+                      <Button
+                        onClick={stopRecording}
+                        size="lg"
+                        className="bg-[#002b6b] hover:bg-[#003d8f] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 shadow-xl breathing-animation"
+                      >
+                        <Icon name="Square" size={24} className="md:w-8 md:h-8" />
+                      </Button>
+                    </div>
                   )}
                 </div>
                 
 
 
-                {audioBlob && !isRecording && (
-                  <div className="flex items-center gap-2 md:gap-3 text-green-700 bg-green-50 border-2 border-green-200 px-3 md:px-4 py-2 rounded-full shadow-md">
-                    <Icon name="CheckCircle" size={14} className="md:w-4 md:h-4" />
-                    <span className="text-xs md:text-sm font-medium">Аудио записано</span>
-                  </div>
-                )}
+
               </div>
             </CardContent>
           </Card>

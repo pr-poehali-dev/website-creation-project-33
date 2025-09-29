@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { UserStats } from './types';
 
@@ -7,9 +8,27 @@ interface UsersRankingProps {
   userStats: UserStats[];
 }
 
+type RankingType = 'contacts' | 'approaches' | 'total';
+
 export default function UsersRanking({ userStats }: UsersRankingProps) {
-  // Сортируем пользователей по количеству контактов (по убыванию)
-  const sortedUsers = [...userStats].sort((a, b) => b.contacts - a.contacts);
+  const [rankingType, setRankingType] = useState<RankingType>('contacts');
+
+  // Сортируем пользователей в зависимости от выбранного типа
+  const sortedUsers = [...userStats].sort((a, b) => {
+    if (rankingType === 'contacts') {
+      return b.contacts - a.contacts;
+    } else if (rankingType === 'approaches') {
+      return b.approaches - a.approaches;
+    } else {
+      return b.lead_count - a.lead_count;
+    }
+  });
+
+  const getRankingTitle = () => {
+    if (rankingType === 'contacts') return 'по контактам';
+    if (rankingType === 'approaches') return 'по подходам';
+    return 'по общему количеству';
+  };
 
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
@@ -18,10 +37,50 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
           <div className="p-2 rounded-lg bg-[#001f54]/10">
             <Icon name="Trophy" size={20} className="text-[#001f54]" />
           </div>
-          Рейтинг пользователей (по контактам)
+          Рейтинг пользователей ({getRankingTitle()})
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Кнопки выбора типа рейтинга */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button
+            onClick={() => setRankingType('contacts')}
+            variant={rankingType === 'contacts' ? 'default' : 'outline'}
+            size="sm"
+            className={`transition-all duration-300 ${rankingType === 'contacts'
+              ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
+              : 'bg-white hover:bg-green-50 text-green-600 border-green-200'
+            }`}
+          >
+            <Icon name="UserCheck" size={14} className="mr-1.5" />
+            Контакты
+          </Button>
+          <Button
+            onClick={() => setRankingType('approaches')}
+            variant={rankingType === 'approaches' ? 'default' : 'outline'}
+            size="sm"
+            className={`transition-all duration-300 ${rankingType === 'approaches'
+              ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
+              : 'bg-white hover:bg-orange-50 text-orange-600 border-orange-200'
+            }`}
+          >
+            <Icon name="Users" size={14} className="mr-1.5" />
+            Подходы
+          </Button>
+          <Button
+            onClick={() => setRankingType('total')}
+            variant={rankingType === 'total' ? 'default' : 'outline'}
+            size="sm"
+            className={`transition-all duration-300 ${rankingType === 'total'
+              ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
+              : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+            }`}
+          >
+            <Icon name="TrendingUp" size={14} className="mr-1.5" />
+            Все лиды
+          </Button>
+        </div>
+
         <div className="space-y-4">
           {sortedUsers.map((user, index) => {
             const isTop3 = index < 3;

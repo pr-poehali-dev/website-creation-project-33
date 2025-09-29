@@ -149,7 +149,7 @@ export default function AdminPanel() {
           @keyframes fadeInScale {
             0% {
               opacity: 0;
-              transform: scale(0.8);
+              transform: scale(0.9);
             }
             100% {
               opacity: 1;
@@ -159,7 +159,7 @@ export default function AdminPanel() {
           @keyframes fadeInUp {
             0% {
               opacity: 0;
-              transform: translateY(20px);
+              transform: translateY(10px);
             }
             100% {
               opacity: 1;
@@ -167,10 +167,10 @@ export default function AdminPanel() {
             }
           }
           .animate-logo {
-            animation: fadeInScale 0.8s ease-out forwards;
+            animation: fadeInScale 0.3s ease-out forwards;
           }
           .animate-text {
-            animation: fadeInUp 0.8s ease-out 0.3s forwards;
+            animation: fadeInUp 0.3s ease-out 0.1s forwards;
             opacity: 0;
           }
         `}</style>

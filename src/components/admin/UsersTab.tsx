@@ -142,6 +142,51 @@ export default function UsersTab() {
 
 
 
+  const normalizePhoneNumber = (text: string): string => {
+    const digits = text.replace(/\D/g, '');
+    if (digits.length === 11 && digits.startsWith('7')) {
+      return digits;
+    }
+    if (digits.length === 10) {
+      return '7' + digits;
+    }
+    return digits;
+  };
+
+  const extractPhoneNumbers = (text: string): string[] => {
+    const phoneRegex = /(?:\+?7|8)?[\s\-\(]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}/g;
+    const matches = text.match(phoneRegex) || [];
+    return matches.map(phone => normalizePhoneNumber(phone)).filter(phone => phone.length >= 10);
+  };
+
+  const findDuplicatePhones = (leads: Lead[]): Set<string> => {
+    const phoneOccurrences = new Map<string, number>();
+    
+    leads.forEach(lead => {
+      if (lead.notes) {
+        const phones = extractPhoneNumbers(lead.notes);
+        phones.forEach(phone => {
+          phoneOccurrences.set(phone, (phoneOccurrences.get(phone) || 0) + 1);
+        });
+      }
+    });
+    
+    const duplicates = new Set<string>();
+    phoneOccurrences.forEach((count, phone) => {
+      if (count > 1) {
+        duplicates.add(phone);
+      }
+    });
+    
+    return duplicates;
+  };
+
+  const hasDuplicatePhone = (leadNotes: string, duplicatePhones: Set<string>): boolean => {
+    if (!leadNotes) return false;
+    const phones = extractPhoneNumbers(leadNotes);
+    return phones.some(phone => duplicatePhones.has(phone));
+  };
+
   const handleUserClick = (user: User) => {
     if (selectedUser?.id === user.id) {
       setSelectedUser(null);
@@ -344,11 +389,18 @@ export default function UsersTab() {
                         Загрузка лидов...
                       </div>
                     </div>
-                  ) : userLeads.length > 0 ? (
-                    userLeads.map((lead, leadIndex) => (
+                  ) : userLeads.length > 0 ? (() => {
+                    const duplicatePhones = findDuplicatePhones(userLeads);
+                    return userLeads.map((lead, leadIndex) => {
+                      const isDuplicate = hasDuplicatePhone(lead.notes, duplicatePhones);
+                      return (
                       <div 
                         key={lead.id} 
-                        className="border-2 border-[#001f54]/10 rounded-lg p-3 md:p-4 bg-white shadow-md hover:shadow-lg transition-all duration-300"
+                        className={`border-2 rounded-lg p-3 md:p-4 shadow-md hover:shadow-lg transition-all duration-300 ${
+                          isDuplicate 
+                            ? 'border-amber-400 bg-amber-50' 
+                            : 'border-[#001f54]/10 bg-white'
+                        }`}
                       >
                         <div className="flex flex-col md:flex-row md:items-start gap-3">
                           <div className="p-2 rounded-lg bg-[#001f54]/10 flex-shrink-0 self-start">
@@ -374,7 +426,17 @@ export default function UsersTab() {
                             </div>
                             
                             {lead.notes && (
-                              <div className="border-2 border-[#001f54]/10 bg-[#001f54]/5 rounded-lg p-2 md:p-3 mb-3">
+                              <div className={`border-2 rounded-lg p-2 md:p-3 mb-3 relative ${
+                                isDuplicate 
+                                  ? 'border-amber-300 bg-amber-100/50' 
+                                  : 'border-[#001f54]/10 bg-[#001f54]/5'
+                              }`}>
+                                {isDuplicate && (
+                                  <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+                                    <Icon name="AlertTriangle" size={10} />
+                                    Дубль
+                                  </div>
+                                )}
                                 <div className="text-[#001f54] whitespace-pre-wrap text-sm md:text-base">
                                   {lead.notes}
                                 </div>
@@ -391,7 +453,8 @@ export default function UsersTab() {
                           </div>
                         </div>
                       </div>
-                    ))
+                    )});
+                  })()
                   ) : (
                     <div className="border-2 border-[#001f54]/10 rounded-lg p-4 bg-[#001f54]/5">
                       <div className="text-center text-[#001f54]/70">

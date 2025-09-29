@@ -305,9 +305,21 @@ def update_user_name(user_id: int, new_name: str) -> bool:
             return cur.rowcount > 0
 
 def delete_user(user_id: int) -> bool:
-    """Удалить пользователя и все связанные данные"""
+    """Удалить пользователя и все связанные данные, заблокировать его IP"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+            # Получаем IP адрес пользователя перед удалением
+            cur.execute("SELECT registration_ip FROM t_p24058207_website_creation_pro.users WHERE id = %s", (user_id,))
+            row = cur.fetchone()
+            user_ip = row[0] if row else None
+            
+            # Блокируем IP адрес
+            if user_ip and user_ip != 'unknown':
+                cur.execute(
+                    "INSERT INTO t_p24058207_website_creation_pro.blocked_ips (ip_address, blocked_reason) VALUES (%s, %s) ON CONFLICT (ip_address) DO NOTHING",
+                    (user_ip, f'User ID {user_id} deleted by admin')
+                )
+            
             # Сначала удаляем сессии пользователя
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.user_sessions WHERE user_id = %s", (user_id,))
             # Потом удаляем лиды пользователя

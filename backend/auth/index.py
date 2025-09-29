@@ -21,6 +21,36 @@ def get_moscow_time():
     utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
     return utc_now.astimezone(MOSCOW_TZ)
 
+def get_client_ip(event: Dict[str, Any]) -> str:
+    """Извлечь IP адрес клиента из события"""
+    request_context = event.get('requestContext', {})
+    identity = request_context.get('identity', {})
+    return identity.get('sourceIp', 'unknown')
+
+def is_ip_blocked(ip_address: str) -> bool:
+    """Проверить заблокирован ли IP адрес"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT COUNT(*) FROM t_p24058207_website_creation_pro.blocked_ips WHERE ip_address = %s",
+                (ip_address,)
+            )
+            count = cur.fetchone()[0]
+            return count > 0
+
+def block_ip(ip_address: str, reason: str = 'User deleted by admin'):
+    """Заблокировать IP адрес"""
+    if not ip_address or ip_address == 'unknown':
+        return
+    
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO t_p24058207_website_creation_pro.blocked_ips (ip_address, blocked_reason) VALUES (%s, %s) ON CONFLICT (ip_address) DO NOTHING",
+                (ip_address, reason)
+            )
+            conn.commit()
+
 def get_db_connection():
     """Получить подключение к базе данных"""
     database_url = os.environ.get('DATABASE_URL')
@@ -45,7 +75,7 @@ def create_session(user_id: int) -> str:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO user_sessions (user_id, session_token, expires_at) VALUES (%s, %s, %s)",
+                "INSERT INTO t_p24058207_website_creation_pro.user_sessions (user_id, session_token, expires_at) VALUES (%s, %s, %s)",
                 (user_id, session_token, expires_at)
             )
             conn.commit()
@@ -58,8 +88,8 @@ def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT u.id, u.email, u.name, u.is_admin 
-                FROM users u 
-                JOIN user_sessions s ON u.id = s.user_id 
+                FROM t_p24058207_website_creation_pro.users u 
+                JOIN t_p24058207_website_creation_pro.user_sessions s ON u.id = s.user_id 
                 WHERE s.session_token = %s AND s.expires_at > %s
             """, (session_token, get_moscow_time()))
             
@@ -78,7 +108,7 @@ def update_last_seen(user_id: int):
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "UPDATE users SET last_seen = %s WHERE id = %s",
+                "UPDATE t_p24058207_website_creation_pro.users SET last_seen = %s WHERE id = %s",
                 (get_moscow_time(), user_id)
             )
             conn.commit()
@@ -120,14 +150,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Все поля обязательны'})
                 }
             
+            client_ip = get_client_ip(event)
+            
+            if is_ip_blocked(client_ip):
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Регистрация с этого IP адреса заблокирована'})
+                }
+            
             try:
                 password_hash = hash_password(password)
                 
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
                         cur.execute(
-                            "INSERT INTO users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
-                            (email, password_hash, name)
+                            "INSERT INTO t_p24058207_website_creation_pro.users (email, password_hash, name, registration_ip) VALUES (%s, %s, %s, %s) RETURNING id",
+                            (email, password_hash, name, client_ip)
                         )
                         user_id = cur.fetchone()[0]
                         conn.commit()
@@ -165,7 +204,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(
-                        "SELECT id, password_hash, name, is_admin FROM users WHERE email = %s",
+                        "SELECT id, password_hash, name, is_admin FROM t_p24058207_website_creation_pro.users WHERE email = %s",
                         (email,)
                     )
                     row = cur.fetchone()

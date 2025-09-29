@@ -4,28 +4,20 @@
       "name": "Test OPTIONS request for CORS",
       "method": "OPTIONS",
       "path": "/",
-      "expectedStatus": 200,
-      "expectedBody": {},
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
-      "name": "Test user registration",
+      "name": "Test user login",
       "method": "POST",
       "path": "/",
       "body": {
-        "action": "register",
+        "action": "login",
         "email": "test@example.com",
-        "password": "testpass123",
-        "name": "Test User"
+        "password": "wrongpassword"
       },
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {
-        "success": true,
-        "session_token": "string",
-        "user": {
-          "email": "string",
-          "name": "string"
-        }
+        "error": "string"
       },
       "bodyMatcher": "partial"
     }

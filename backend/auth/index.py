@@ -152,12 +152,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             client_ip = get_client_ip(event)
             
-            if is_ip_blocked(client_ip):
-                return {
-                    'statusCode': 403,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Регистрация с этого IP адреса заблокирована'})
-                }
+            # Временно отключено: проверка блокировки IP
+            # if is_ip_blocked(client_ip):
+            #     return {
+            #         'statusCode': 403,
+            #         'headers': headers,
+            #         'body': json.dumps({'error': 'Регистрация с этого IP адреса заблокирована'})
+            #     }
             
             try:
                 password_hash = hash_password(password)

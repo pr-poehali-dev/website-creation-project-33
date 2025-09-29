@@ -225,6 +225,37 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                 })
             return user_stats
 
+def get_chart_data() -> List[Dict[str, Any]]:
+    """Получить детальные данные для графика по дням и пользователям"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Получаем данные за последние 30 дней по пользователям и типам
+            cur.execute("""
+                SELECT 
+                    DATE(l.created_at) as date,
+                    u.name as user_name,
+                    COUNT(*) as total_leads,
+                    COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
+                    COUNT(CASE WHEN NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
+                FROM t_p24058207_website_creation_pro.leads l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.created_at >= %s
+                GROUP BY DATE(l.created_at), u.name
+                ORDER BY date DESC, user_name
+            """, (get_moscow_time() - timedelta(days=30),))
+            
+            chart_data = []
+            for row in cur.fetchall():
+                chart_data.append({
+                    'date': row[0].isoformat(),
+                    'user_name': row[1],
+                    'total_leads': row[2],
+                    'contacts': row[3],
+                    'approaches': row[4]
+                })
+            
+            return chart_data
+
 
 
 def update_user_name(user_id: int, new_name: str) -> bool:
@@ -314,6 +345,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps(stats)
+            }
+        
+        elif action == 'chart_data':
+            chart_data = get_chart_data()
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'chart_data': chart_data})
             }
         
         elif action == 'daily_user_stats':

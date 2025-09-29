@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface UserStats {
   name: string;
@@ -16,6 +17,11 @@ interface DailyStats {
   count: number;
   contacts: number;
   approaches: number;
+}
+
+interface ChartDataPoint {
+  date: string;
+  [key: string]: string | number;
 }
 
 interface DailyUserStats {
@@ -38,8 +44,60 @@ export default function StatsTab() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [dailyUserStats, setDailyUserStats] = useState<UserStats[]>([]);
   const [dailyLoading, setDailyLoading] = useState(false);
+  
+  // Состояния для графика
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [filterType, setFilterType] = useState<'all' | 'contacts' | 'approaches'>('all');
 
   const getSessionToken = () => localStorage.getItem('session_token');
+
+  const fetchChartData = async () => {
+    try {
+      const response = await fetch(`${ADMIN_API}?action=chart_data`, {
+        headers: {
+          'X-Session-Token': getSessionToken() || '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        prepareChartData(data.chart_data);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки данных графика:', error);
+    }
+  };
+
+  const prepareChartData = (rawData: any[]) => {
+    // Группируем данные по датам
+    const dateGroups = rawData.reduce((acc, item) => {
+      const date = item.date;
+      if (!acc[date]) {
+        acc[date] = { date, total: 0, contacts: 0, approaches: 0 };
+      }
+      
+      acc[date].total += item.total_leads;
+      acc[date].contacts += item.contacts;
+      acc[date].approaches += item.approaches;
+      acc[date][`${item.user_name}_total`] = item.total_leads;
+      acc[date][`${item.user_name}_contacts`] = item.contacts;
+      acc[date][`${item.user_name}_approaches`] = item.approaches;
+      
+      return acc;
+    }, {} as Record<string, any>);
+
+    // Преобразуем в массив и сортируем по дате
+    const chartArray = Object.values(dateGroups).sort((a: any, b: any) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    setChartData(chartArray as ChartDataPoint[]);
+    
+    // Получаем список всех пользователей
+    const allUsers = [...new Set(rawData.map(item => item.user_name))];
+    setSelectedUsers(allUsers);
+  };
 
   const fetchStats = async () => {
     try {
@@ -92,6 +150,7 @@ export default function StatsTab() {
 
   useEffect(() => {
     fetchStats();
+    fetchChartData();
   }, []);
 
   if (loading) {
@@ -284,6 +343,223 @@ export default function StatsTab() {
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* График с лидами */}
+      {chartData.length > 0 && (
+        <Card className="border-gray-200 shadow-lg bg-white">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-black text-xl">
+              <div className="p-2 rounded-lg bg-gray-100">
+                <Icon name="TrendingUp" size={20} className="text-gray-600" />
+              </div>
+              График лидов
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Фильтры */}
+            <div className="mb-6 space-y-4">
+              {/* Фильтр по типу */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => setFilterType('all')}
+                  variant={filterType === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  className={`${filterType === 'all' 
+                    ? 'bg-black hover:bg-gray-800 text-white' 
+                    : 'bg-white hover:bg-gray-50 text-black border-gray-200'
+                  }`}
+                >
+                  Все лиды
+                </Button>
+                <Button
+                  onClick={() => setFilterType('contacts')}
+                  variant={filterType === 'contacts' ? 'default' : 'outline'}
+                  size="sm"
+                  className={`${filterType === 'contacts'
+                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                    : 'bg-white hover:bg-green-50 text-green-600 border-green-200'
+                  }`}
+                >
+                  Контакты
+                </Button>
+                <Button
+                  onClick={() => setFilterType('approaches')}
+                  variant={filterType === 'approaches' ? 'default' : 'outline'}
+                  size="sm"
+                  className={`${filterType === 'approaches'
+                    ? 'bg-orange-600 hover:bg-orange-700 text-white'
+                    : 'bg-white hover:bg-orange-50 text-orange-600 border-orange-200'
+                  }`}
+                >
+                  Подходы
+                </Button>
+              </div>
+
+              {/* Фильтр по пользователям */}
+              <div className="flex flex-wrap gap-2">
+                <span className="text-sm text-gray-600 font-medium">Пользователи:</span>
+                <Button
+                  onClick={() => {
+                    const allUsers = stats?.user_stats.map(u => u.name) || [];
+                    if (selectedUsers.length === allUsers.length) {
+                      setSelectedUsers([]);
+                    } else {
+                      setSelectedUsers(allUsers);
+                    }
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="bg-white hover:bg-gray-50 text-black border-gray-300"
+                >
+                  {selectedUsers.length === stats?.user_stats.length ? 'Снять все' : 'Выбрать все'}
+                </Button>
+                {stats?.user_stats.map(user => (
+                  <Button
+                    key={user.name}
+                    onClick={() => {
+                      const isSelected = selectedUsers.includes(user.name);
+                      if (isSelected) {
+                        setSelectedUsers(selectedUsers.filter(u => u !== user.name));
+                      } else {
+                        setSelectedUsers([...selectedUsers, user.name]);
+                      }
+                    }}
+                    variant={selectedUsers.includes(user.name) ? 'default' : 'outline'}
+                    size="sm"
+                    className={`${selectedUsers.includes(user.name)
+                      ? 'bg-black hover:bg-gray-800 text-white'
+                      : 'bg-white hover:bg-gray-50 text-black border-gray-200'
+                    }`}
+                  >
+                    {user.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* График */}
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12 }}
+                    tickFormatter={(date) => 
+                      new Date(date).toLocaleDateString('ru-RU', { 
+                        day: 'numeric', 
+                        month: 'short' 
+                      })
+                    }
+                  />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip 
+                    labelFormatter={(date) => 
+                      new Date(date).toLocaleDateString('ru-RU', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })
+                    }
+                  />
+                  <Legend />
+                  
+                  {filterType === 'all' && (
+                    <Line 
+                      type="monotone" 
+                      dataKey="total" 
+                      stroke="#000000" 
+                      strokeWidth={2}
+                      name="Все лиды"
+                      dot={{ fill: '#000000', strokeWidth: 2, r: 4 }}
+                    />
+                  )}
+                  
+                  {filterType === 'contacts' && (
+                    <Line 
+                      type="monotone" 
+                      dataKey="contacts" 
+                      stroke="#16a34a" 
+                      strokeWidth={2}
+                      name="Контакты"
+                      dot={{ fill: '#16a34a', strokeWidth: 2, r: 4 }}
+                    />
+                  )}
+                  
+                  {filterType === 'approaches' && (
+                    <Line 
+                      type="monotone" 
+                      dataKey="approaches" 
+                      stroke="#ea580c" 
+                      strokeWidth={2}
+                      name="Подходы"
+                      dot={{ fill: '#ea580c', strokeWidth: 2, r: 4 }}
+                    />
+                  )}
+
+                  {/* Линии для каждого пользователя */}
+                  {filterType === 'all' && selectedUsers.length > 0 && selectedUsers.map((userName, index) => {
+                    const colors = ['#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4'];
+                    const color = colors[index % colors.length];
+                    
+                    return (
+                      <Line
+                        key={`${userName}_total`}
+                        type="monotone"
+                        dataKey={`${userName}_total`}
+                        stroke={color}
+                        strokeWidth={2}
+                        name={userName}
+                        dot={{ fill: color, strokeWidth: 2, r: 3 }}
+                        strokeDasharray="5 5"
+                        opacity={0.7}
+                      />
+                    );
+                  })}
+
+                  {filterType === 'contacts' && selectedUsers.length > 0 && selectedUsers.map((userName, index) => {
+                    const colors = ['#22c55e', '#15803d', '#84cc16', '#65a30d'];
+                    const color = colors[index % colors.length];
+                    
+                    return (
+                      <Line
+                        key={`${userName}_contacts`}
+                        type="monotone"
+                        dataKey={`${userName}_contacts`}
+                        stroke={color}
+                        strokeWidth={2}
+                        name={`${userName} (контакты)`}
+                        dot={{ fill: color, strokeWidth: 2, r: 3 }}
+                        strokeDasharray="5 5"
+                        opacity={0.7}
+                      />
+                    );
+                  })}
+
+                  {filterType === 'approaches' && selectedUsers.length > 0 && selectedUsers.map((userName, index) => {
+                    const colors = ['#f97316', '#ea580c', '#fb923c', '#fdba74'];
+                    const color = colors[index % colors.length];
+                    
+                    return (
+                      <Line
+                        key={`${userName}_approaches`}
+                        type="monotone"
+                        dataKey={`${userName}_approaches`}
+                        stroke={color}
+                        strokeWidth={2}
+                        name={`${userName} (подходы)`}
+                        dot={{ fill: color, strokeWidth: 2, r: 3 }}
+                        strokeDasharray="5 5"
+                        opacity={0.7}
+                      />
+                    );
+                  })}
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>

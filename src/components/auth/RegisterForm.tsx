@@ -34,8 +34,12 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
     
     if (result === 'pending') {
       setPendingApproval(true);
-    } else if (!result) {
-      setError('Пользователь с таким email уже существует');
+    } else if (result === true) {
+      // Успешная регистрация (если вдруг не требуется одобрение)
+    } else if (typeof result === 'object' && result.error) {
+      setError(result.error);
+    } else {
+      setError('Ошибка регистрации');
     }
     
     setLoading(false);

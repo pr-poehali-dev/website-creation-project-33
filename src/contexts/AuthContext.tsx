@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (email: string, password: string, name: string): Promise<boolean | 'pending'> => {
+  const register = async (email: string, password: string, name: string): Promise<boolean | 'pending' | { error: string }> => {
     try {
       const response = await fetch(API_BASE, {
         method: 'POST',
@@ -98,8 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
         if (data.pending_approval) {
           return 'pending';
         }
@@ -107,10 +108,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.user);
         return true;
       }
-      return false;
+      
+      return { error: data.error || 'Ошибка регистрации' };
     } catch (error) {
       console.error('Registration error:', error);
-      return false;
+      return { error: 'Ошибка подключения к серверу' };
     }
   };
 

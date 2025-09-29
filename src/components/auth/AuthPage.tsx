@@ -14,9 +14,13 @@ export default function AuthPage() {
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-200">
           {/* Логотип/заголовок */}
           <div className="text-center mb-6 md:mb-8">
-            <div className="inline-block p-3 md:p-4 rounded-full bg-gray-100 mb-3 md:mb-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full flex items-center justify-center">
-                <span className="text-xl md:text-2xl">🚀</span>
+            <div className="inline-flex items-center justify-center mb-3 md:mb-4">
+              <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white border-4 border-[#001f54] overflow-hidden flex items-center justify-center p-4 shadow-lg">
+                <img 
+                  src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
+                  alt="IMPERIA PROMO"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-black mb-2">

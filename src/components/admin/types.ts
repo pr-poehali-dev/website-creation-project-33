@@ -1,3 +1,22 @@
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  is_admin: boolean;
+  is_online: boolean;
+  last_seen: string;
+  created_at: string;
+  lead_count: number;
+}
+
+export interface Lead {
+  id: number;
+  notes: string;
+  has_audio: boolean;
+  audio_data: string | null;
+  created_at: string;
+}
+
 export interface UserStats {
   name: string;
   email: string;

@@ -61,8 +61,13 @@ def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
                 moscow_today_end = moscow_now.replace(hour=23, minute=59, second=59, microsecond=999999)
                 
                 # Конвертируем московское время в UTC для сравнения с данными в БД
+                # UTC = МСК - 3 часа
                 utc_today_start = moscow_today_start.astimezone(pytz.UTC).replace(tzinfo=None)
                 utc_today_end = moscow_today_end.astimezone(pytz.UTC).replace(tzinfo=None)
+                
+                print(f'Moscow now: {moscow_now}')
+                print(f'Moscow today: {moscow_today_start} - {moscow_today_end}')
+                print(f'UTC range: {utc_today_start} - {utc_today_end}')
                 
                 # Запрос с фильтрацией по сегодняшней дате (UTC границы московского дня)
                 query = """

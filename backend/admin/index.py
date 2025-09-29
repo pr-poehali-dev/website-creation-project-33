@@ -532,7 +532,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Неверный lead_id'})
                 }
     
-    elif method == 'PUT':
+    elif method == 'POST':
         body_data = json.loads(event.get('body', '{}'))
         action = body_data.get('action')
         
@@ -546,12 +546,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'ID пользователя обязателен'})
                 }
             
-            success = approve_user(user_id, admin_user['id'])
+            success = approve_user(user_id, user['id'])
             if success:
                 return {
                     'statusCode': 200,
                     'headers': headers,
-                    'body': json.dumps({'success': True})
+                    'body': json.dumps({'success': True, 'message': 'Пользователь одобрен'})
                 }
             else:
                 return {
@@ -575,7 +575,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 200,
                     'headers': headers,
-                    'body': json.dumps({'success': True})
+                    'body': json.dumps({'success': True, 'message': 'Пользователь отклонён и заблокирован'})
                 }
             else:
                 return {
@@ -583,8 +583,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
+    
+    elif method == 'PUT':
+        body_data = json.loads(event.get('body', '{}'))
+        action = body_data.get('action')
         
-        elif action == 'update_user':
+        if action == 'update_user':
             user_id = body_data.get('user_id')
             new_name = body_data.get('name', '').strip()
             

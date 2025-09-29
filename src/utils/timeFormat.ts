@@ -6,22 +6,30 @@ export function formatMoscowTime(dateString: string, format: 'time' | 'datetime'
   const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
   const date = new Date(utcDateString);
   
-  const options: Intl.DateTimeFormatOptions = {
-    timeZone: 'Europe/Moscow',
-    hour: '2-digit',
-    minute: '2-digit',
-  };
+  let options: Intl.DateTimeFormatOptions;
   
   if (format === 'datetime') {
-    options.day = '2-digit';
-    options.month = '2-digit';
-    options.year = 'numeric';
+    options = {
+      timeZone: 'Europe/Moscow',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    };
   } else if (format === 'date') {
-    delete options.hour;
-    delete options.minute;
-    options.day = '2-digit';
-    options.month = '2-digit';
-    options.year = 'numeric';
+    options = {
+      timeZone: 'Europe/Moscow',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    };
+  } else {
+    options = {
+      timeZone: 'Europe/Moscow',
+      hour: '2-digit',
+      minute: '2-digit',
+    };
   }
   
   return new Intl.DateTimeFormat('ru-RU', options).format(date);

@@ -128,12 +128,22 @@ def get_moscow_time_from_utc(utc_time):
     return utc_time.astimezone(MOSCOW_TZ)
 
 def get_leads_stats() -> Dict[str, Any]:
-    """Получить статистику по лидам"""
+    """Получить статистику по лидам с разделением на подходы и контакты"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             # Общая статистика
             cur.execute("SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads")
             total_leads = cur.fetchone()[0]
+            
+            # Контакты - лиды с номером телефона (различные форматы российских номеров)
+            cur.execute("""
+                SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads 
+                WHERE notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+            """)
+            contacts = cur.fetchone()[0]
+            
+            # Подходы - лиды без 11-значного номера
+            approaches = total_leads - contacts
             
             # Лиды по пользователям
             cur.execute("""
@@ -170,6 +180,8 @@ def get_leads_stats() -> Dict[str, Any]:
     
     return {
         'total_leads': total_leads,
+        'contacts': contacts,
+        'approaches': approaches,
         'user_stats': user_stats,
         'daily_stats': daily_stats
     }

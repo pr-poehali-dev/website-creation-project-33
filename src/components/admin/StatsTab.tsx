@@ -20,6 +20,8 @@ interface DailyUserStats {
 
 interface Stats {
   total_leads: number;
+  contacts: number;
+  approaches: number;
   user_stats: UserStats[];
   daily_stats: DailyStats[];
 }
@@ -127,11 +129,46 @@ export default function StatsTab() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center">
-            <div className="text-6xl font-bold text-black mb-4">
-              {stats.total_leads}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Всего лидов */}
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-black mb-2">
+                {stats.total_leads}
+              </div>
+              <div className="text-gray-600 text-sm md:text-base">Всего лидов</div>
             </div>
-            <div className="text-gray-600 text-lg">Всего лидов отправлено</div>
+            
+            {/* Контакты */}
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-green-600 mb-2">
+                {stats.contacts}
+              </div>
+              <div className="text-gray-600 text-sm md:text-base">Контакты</div>
+              <div className="text-xs text-gray-500 mt-1">с номером телефона</div>
+            </div>
+            
+            {/* Подходы */}
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-orange-600 mb-2">
+                {stats.approaches}
+              </div>
+              <div className="text-gray-600 text-sm md:text-base">Подходы</div>
+              <div className="text-xs text-gray-500 mt-1">без номера телефона</div>
+            </div>
+          </div>
+          
+          {/* Процентное соотношение */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex justify-center gap-8 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                <span>Контакты: {stats.total_leads > 0 ? Math.round((stats.contacts / stats.total_leads) * 100) : 0}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-orange-600 rounded-full"></div>
+                <span>Подходы: {stats.total_leads > 0 ? Math.round((stats.approaches / stats.total_leads) * 100) : 0}%</span>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

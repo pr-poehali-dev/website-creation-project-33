@@ -218,11 +218,6 @@ export default function AdminPanel() {
               <Icon name="LogOut" size={16} />
             </Button>
           </div>
-          <div className="text-center mb-4">
-            <span className="text-[#001f54]/70 text-sm font-medium">
-              Привет, {adminName}
-            </span>
-          </div>
           <div className="flex gap-2">
             <Button 
               onClick={() => downloadCSV(false)}
@@ -264,9 +259,6 @@ export default function AdminPanel() {
               <Icon name="Calendar" size={16} className="mr-2" />
               Сегодня CSV
             </Button>
-            <span className="text-[#001f54]/70 text-lg font-medium">
-              Привет, {adminName}
-            </span>
             <Button 
               onClick={logout} 
               className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"

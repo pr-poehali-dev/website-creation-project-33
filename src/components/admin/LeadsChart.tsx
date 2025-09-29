@@ -239,6 +239,25 @@ export default function LeadsChart({
 
         {/* Статистика под графиком */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Карточка "Все лиды" */}
+          <div className="p-4 rounded-lg border-2 border-[#001f54] bg-gradient-to-br from-[#001f54] to-[#002b6b] hover:shadow-xl transition-all duration-300 shadow-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-3 h-3 rounded-full bg-white shadow-sm" />
+              <span className="text-sm font-semibold text-white">Все лиды</span>
+            </div>
+            <div className="space-y-1">
+              <div className="text-2xl font-bold text-white">
+                {userStats.reduce((sum, user) => sum + user.lead_count, 0)}
+              </div>
+              <div className="flex items-center gap-2 text-xs text-white/90">
+                <span className="font-medium">К: {userStats.reduce((sum, user) => sum + user.contacts, 0)}</span>
+                <span className="text-white/60">•</span>
+                <span className="font-medium">П: {userStats.reduce((sum, user) => sum + user.approaches, 0)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Карточки пользователей */}
           {userStats.map((user, index) => (
             <div 
               key={user.name}

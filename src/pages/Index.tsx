@@ -210,7 +210,7 @@ export default function Index() {
             <CardHeader className="pb-3 md:pb-4">
               <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-[#001f54]">
                 <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
-                  <Icon name="Mic" size={18} className="text-[#001f54] md:w-5 md:h-5" />
+                  <Icon name="Star" size={18} className="text-[#001f54] md:w-5 md:h-5" />
                 </div>
                 Контроль качества
               </CardTitle>
@@ -224,7 +224,7 @@ export default function Index() {
                       size="lg"
                       className="bg-[#001f54] hover:bg-[#002b6b] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl"
                     >
-                      <Icon name="Mic" size={24} className="md:w-8 md:h-8" />
+                      <Icon name="Star" size={24} className="md:w-8 md:h-8" />
                     </Button>
                   ) : (
                     <Button
@@ -237,12 +237,7 @@ export default function Index() {
                   )}
                 </div>
                 
-                {isRecording && (
-                  <div className="flex items-center gap-2 md:gap-3 text-[#001f54] bg-[#001f54]/5 border-2 border-[#001f54]/20 px-3 md:px-4 py-2 rounded-full shadow-md">
-                    <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs md:text-sm font-medium">Идет запись...</span>
-                  </div>
-                )}
+
 
                 {audioBlob && !isRecording && (
                   <div className="flex items-center gap-2 md:gap-3 text-green-700 bg-green-50 border-2 border-green-200 px-3 md:px-4 py-2 rounded-full shadow-md">

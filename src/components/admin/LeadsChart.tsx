@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { ChartDataPoint, UserStats } from './types';
 
 interface LeadsChartProps {
@@ -44,39 +44,23 @@ export default function LeadsChart({
     }
   };
 
-  // Подготовка данных для круговой диаграммы
-  const getPieData = () => {
-    if (filterType === 'all') {
-      return userStats.map(user => ({
-        name: user.name,
-        value: user.lead_count,
-        contacts: user.contacts,
-        approaches: user.approaches
-      }));
-    } else if (filterType === 'contacts') {
-      return userStats.map(user => ({
-        name: user.name,
-        value: user.contacts
-      }));
-    } else {
-      return userStats.map(user => ({
-        name: user.name,
-        value: user.approaches
-      }));
-    }
-  };
-
-  const pieData = getPieData();
-  const COLORS = ['#001f54', '#002b6b', '#0041a8', '#16a34a', '#ea580c', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4'];
+  // Цвета для пользователей
+  const USER_COLORS = ['#001f54', '#002b6b', '#0041a8', '#16a34a', '#ea580c', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4'];
+  
+  // Создаем маппинг пользователей к цветам
+  const userColorMap = userStats.reduce((acc, user, index) => {
+    acc[user.name] = USER_COLORS[index % USER_COLORS.length];
+    return acc;
+  }, {} as Record<string, string>);
 
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
           <div className="p-2 rounded-lg bg-[#001f54]/10">
-            <Icon name="PieChart" size={20} className="text-[#001f54]" />
+            <Icon name="BarChart3" size={20} className="text-[#001f54]" />
           </div>
-          Распределение лидов
+          График лидов по датам
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -147,80 +131,129 @@ export default function LeadsChart({
           </div>
         </div>
 
-        {/* Круговая диаграмма */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Диаграмма */}
-          <div className="h-80 md:h-96">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={window.innerWidth < 768 ? 80 : 120}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number, name: string, props: any) => {
-                    if (filterType === 'all' && props.payload.contacts !== undefined) {
-                      return [
-                        `Всего: ${value}, Контактов: ${props.payload.contacts}, Подходов: ${props.payload.approaches}`,
-                        name
-                      ];
-                    }
-                    return [value, name];
-                  }}
+        {/* Столбчатая диаграмма */}
+        <div className="h-96">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 12, fill: '#6b7280' }}
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                tickFormatter={(date) => 
+                  new Date(date).toLocaleDateString('ru-RU', { 
+                    day: 'numeric', 
+                    month: 'short' 
+                  })
+                }
+              />
+              <YAxis 
+                tick={{ fontSize: 12, fill: '#6b7280' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip 
+                cursor={{ fill: 'rgba(0, 31, 84, 0.05)' }}
+                contentStyle={{
+                  backgroundColor: 'white',
+                  border: '2px solid #001f54',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                }}
+                labelFormatter={(date) => 
+                  new Date(date).toLocaleDateString('ru-RU', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                  })
+                }
+              />
+              <Legend 
+                wrapperStyle={{ paddingTop: '20px' }}
+                iconType="rect"
+              />
+              
+              {/* Общий столбец для всех */}
+              {filterType === 'all' && (
+                <Bar 
+                  dataKey="total" 
+                  fill="#001f54" 
+                  name="Все лиды"
+                  radius={[8, 8, 0, 0]}
+                  maxBarSize={60}
                 />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+              )}
+              
+              {filterType === 'contacts' && (
+                <Bar 
+                  dataKey="contacts" 
+                  fill="#16a34a" 
+                  name="Контакты"
+                  radius={[8, 8, 0, 0]}
+                  maxBarSize={60}
+                />
+              )}
+              
+              {filterType === 'approaches' && (
+                <Bar 
+                  dataKey="approaches" 
+                  fill="#ea580c" 
+                  name="Подходы"
+                  radius={[8, 8, 0, 0]}
+                  maxBarSize={60}
+                />
+              )}
 
-          {/* Легенда с подробной статистикой */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-[#001f54] mb-4">
-              {filterType === 'all' ? 'Все лиды' : filterType === 'contacts' ? 'Контакты' : 'Подходы'}
-            </h3>
-            {pieData.map((item, index) => (
-              <div 
-                key={item.name}
-                className="flex items-center justify-between p-3 rounded-lg border-2 border-[#001f54]/10 bg-white hover:bg-[#001f54]/5 transition-all duration-300"
-              >
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-4 h-4 rounded-full shadow-sm" 
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+              {/* Столбцы для каждого выбранного пользователя */}
+              {selectedUsers.length > 0 && selectedUsers.map((userName) => {
+                const dataKey = filterType === 'all' 
+                  ? `${userName}_total`
+                  : filterType === 'contacts'
+                  ? `${userName}_contacts`
+                  : `${userName}_approaches`;
+                
+                return (
+                  <Bar
+                    key={dataKey}
+                    dataKey={dataKey}
+                    fill={userColorMap[userName]}
+                    name={userName}
+                    radius={[8, 8, 0, 0]}
+                    maxBarSize={60}
                   />
-                  <span className="font-medium text-[#001f54]">{item.name}</span>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-[#001f54]">{item.value}</div>
-                  {filterType === 'all' && (
-                    <div className="text-xs text-gray-600">
-                      <span className="text-green-600 font-medium">{item.contacts}</span> / 
-                      <span className="text-orange-600 font-medium ml-1">{item.approaches}</span>
-                    </div>
-                  )}
-                </div>
+                );
+              })}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Статистика под графиком */}
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {userStats.map((user, index) => (
+            <div 
+              key={user.name}
+              className="p-4 rounded-lg border-2 border-[#001f54]/10 bg-gradient-to-br from-white to-gray-50 hover:shadow-lg transition-all duration-300"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div 
+                  className="w-3 h-3 rounded-full shadow-sm" 
+                  style={{ backgroundColor: USER_COLORS[index % USER_COLORS.length] }}
+                />
+                <span className="text-sm font-semibold text-[#001f54]">{user.name}</span>
               </div>
-            ))}
-            
-            {/* Итого */}
-            <div className="pt-3 mt-3 border-t-2 border-[#001f54]/20">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-[#001f54]/10">
-                <span className="font-bold text-[#001f54]">Итого:</span>
-                <span className="text-xl font-bold text-[#001f54]">
-                  {pieData.reduce((sum, item) => sum + item.value, 0)}
-                </span>
+              <div className="space-y-1">
+                <div className="text-2xl font-bold text-[#001f54]">{user.lead_count}</div>
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <span className="text-green-600 font-medium">К: {user.contacts}</span>
+                  <span className="text-gray-400">•</span>
+                  <span className="text-orange-600 font-medium">П: {user.approaches}</span>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </CardContent>
     </Card>

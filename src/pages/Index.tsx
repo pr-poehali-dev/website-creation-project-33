@@ -237,29 +237,21 @@ export default function Index() {
                             transform: scale(1.05);
                           }
                         }
-                        @keyframes squareBreak {
+                        @keyframes squareFade {
                           0%, 100% {
-                            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-                            opacity: 1;
-                          }
-                          25% {
-                            clip-path: polygon(20% 20%, 80% 20%, 80% 80%, 20% 80%);
-                            opacity: 0.7;
+                            opacity: 0.3;
+                            transform: scale(0.8);
                           }
                           50% {
-                            clip-path: polygon(30% 30%, 70% 30%, 70% 70%, 30% 70%);
-                            opacity: 0.5;
-                          }
-                          75% {
-                            clip-path: polygon(20% 20%, 80% 20%, 80% 80%, 20% 80%);
-                            opacity: 0.7;
+                            opacity: 1;
+                            transform: scale(1.1);
                           }
                         }
                         .breathing-animation {
                           animation: breathing 3s ease-in-out infinite;
                         }
-                        .square-break-animation {
-                          animation: squareBreak 2s ease-in-out infinite;
+                        .square-fade-animation {
+                          animation: squareFade 3s ease-in-out infinite;
                         }
                       `}</style>
                       <Button
@@ -267,7 +259,7 @@ export default function Index() {
                         size="lg"
                         className="bg-[#002b6b] hover:bg-[#003d8f] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 shadow-xl breathing-animation"
                       >
-                        <div className="square-break-animation">
+                        <div className="square-fade-animation">
                           <Icon name="Square" size={24} className="md:w-8 md:h-8" />
                         </div>
                       </Button>

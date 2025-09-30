@@ -138,7 +138,23 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      
+      const options: MediaRecorderOptions = {};
+      const mimeTypes = [
+        'audio/mp4',
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/ogg;codecs=opus'
+      ];
+      
+      for (const mimeType of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(mimeType)) {
+          options.mimeType = mimeType;
+          break;
+        }
+      }
+      
+      const recorder = new MediaRecorder(stream, options);
       const audioChunks: Blob[] = [];
 
       recorder.ondataavailable = (e) => {
@@ -146,8 +162,10 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
       };
 
       recorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        const file = new File([audioBlob], 'voice.webm', { type: 'audio/webm' });
+        const mimeType = recorder.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunks, { type: mimeType });
+        const extension = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('ogg') ? 'ogg' : 'webm';
+        const file = new File([audioBlob], `voice.${extension}`, { type: mimeType });
         setSelectedFile(file);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -277,8 +295,11 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                       </p>
                     )}
                     {msg.media_type === 'audio' && msg.media_url && (
-                      <audio controls className="max-w-full mb-2">
+                      <audio controls className="max-w-full mb-2" preload="metadata">
+                        <source src={msg.media_url} type="audio/mp4" />
                         <source src={msg.media_url} type="audio/webm" />
+                        <source src={msg.media_url} type="audio/ogg" />
+                        Ваш браузер не поддерживает воспроизведение аудио
                       </audio>
                     )}
                     {msg.media_type === 'image' && msg.media_url && (

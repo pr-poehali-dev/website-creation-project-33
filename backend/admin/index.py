@@ -87,21 +87,29 @@ def get_leads_stats() -> Dict[str, Any]:
     """Получить статистику по лидам из leads_analytics (AI классификация)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Общая статистика
-            cur.execute("SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics")
+            # Общая статистика (только от реальных пользователей)
+            cur.execute("""
+                SELECT COUNT(*) 
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+            """)
             total_leads = cur.fetchone()[0]
             
             # Контакты
             cur.execute("""
-                SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics 
-                WHERE lead_type = 'контакт'
+                SELECT COUNT(*) 
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.lead_type = 'контакт'
             """)
             contacts = cur.fetchone()[0]
             
             # Подходы
             cur.execute("""
-                SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics 
-                WHERE lead_type = 'подход'
+                SELECT COUNT(*) 
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.lead_type = 'подход'
             """)
             approaches = cur.fetchone()[0]
             
@@ -128,16 +136,17 @@ def get_leads_stats() -> Dict[str, Any]:
                     'approaches': row[4]
                 })
             
-            # Статистика за последние 30 дней
+            # Статистика за последние 30 дней (только от реальных пользователей)
             cur.execute("""
-                SELECT DATE(created_at) as date,
+                SELECT DATE(l.created_at) as date,
                        COUNT(*) as count,
-                       COUNT(CASE WHEN lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN lead_type = 'подход' THEN 1 END) as approaches
-                FROM t_p24058207_website_creation_pro.leads_analytics 
-                WHERE created_at >= %s
-                GROUP BY DATE(created_at)
-                ORDER BY DATE(created_at) DESC
+                       COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.created_at >= %s
+                GROUP BY DATE(l.created_at)
+                ORDER BY DATE(l.created_at) DESC
             """, (get_moscow_time() - timedelta(days=30),))
             
             daily_stats = []

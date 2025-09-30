@@ -19,15 +19,7 @@ export default function StatsOverview({ stats }: StatsOverviewProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          {/* Общее количество */}
-          <div className="text-center p-4 md:p-6 rounded-xl bg-[#001f54]/5 border-2 border-[#001f54]/20 transition-all duration-300 hover:shadow-lg hover:scale-105">
-            <div className="text-2xl md:text-3xl font-bold text-[#001f54] mb-2">
-              {stats.total_leads}
-            </div>
-            <div className="text-gray-600 text-sm md:text-base font-medium">Всего лидов</div>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {/* Контакты */}
           <div className="text-center p-4 md:p-6 rounded-xl bg-green-50 border-2 border-green-200 transition-all duration-300 hover:shadow-lg hover:scale-105">
             <div className="text-2xl md:text-3xl font-bold text-green-600 mb-2">

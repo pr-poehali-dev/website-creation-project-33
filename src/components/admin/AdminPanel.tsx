@@ -18,6 +18,11 @@ export default function AdminPanel() {
   const [loadingName, setLoadingName] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
 
+  const openGoogleSheets = () => {
+    const sheetId = 'https://docs.google.com/spreadsheets/d/1fH4lgqreRPBoHQadU8Srw7L3bPgT5xa3zyz2idfpptM/edit';
+    window.open(sheetId, '_blank');
+  };
+
   useEffect(() => {
     const getAdminName = async () => {
       let userIp = 'unknown';
@@ -200,13 +205,22 @@ export default function AdminPanel() {
             </div>
             Панель администратора
           </h1>
-          <Button 
-            onClick={logout} 
-            className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-          >
-            <Icon name="LogOut" size={16} className="mr-2" />
-            Выйти
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button 
+              onClick={openGoogleSheets}
+              className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+            >
+              <Icon name="Sheet" size={16} className="mr-2" />
+              Google Таблицы
+            </Button>
+            <Button 
+              onClick={logout} 
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+            >
+              <Icon name="LogOut" size={16} className="mr-2" />
+              Выйти
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="pending" className="space-y-4 md:space-y-6">

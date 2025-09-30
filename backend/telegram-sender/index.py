@@ -83,6 +83,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         lead_type = classify_lead_by_phone(notes)
         
+        user_name = 'Неизвестный промоутер'
+        database_url = os.environ.get('DATABASE_URL')
+        if database_url:
+            try:
+                with psycopg2.connect(database_url) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "SELECT name FROM t_p24058207_website_creation_pro.users WHERE id = %s",
+                            (int(user_id),)
+                        )
+                        result = cur.fetchone()
+                        if result:
+                            user_name = result[0]
+            except Exception as db_error:
+                print(f"Failed to get user name: {db_error}")
+        
         telegram_message_id = None
         
         type_emoji = {
@@ -94,7 +110,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         caption = f"""{emoji_type} {lead_type.upper()}
 🎙️ IMPERIA PROMO
-Промоутер ID: #{user_id}
+Промоутер: {user_name}
 
 📝 Отчёт:
 {notes}"""
@@ -148,13 +164,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Failed to send to Telegram'})
                 }
         
-        database_url = os.environ.get('DATABASE_URL')
         if database_url:
             try:
                 with psycopg2.connect(database_url) as conn:
                     with conn.cursor() as cur:
                         cur.execute(
-                            """INSERT INTO leads_analytics 
+                            """INSERT INTO t_p24058207_website_creation_pro.leads_analytics 
                             (user_id, lead_type, telegram_message_id, created_at) 
                             VALUES (%s, %s, %s, %s)""",
                             (

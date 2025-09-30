@@ -41,8 +41,11 @@ export default function ChatMessages({ messages, selectedUser, isLoading, scroll
                   </p>
                 )}
                 {msg.media_type === 'audio' && msg.media_url && (
-                  <audio controls className="max-w-full mb-2">
+                  <audio controls className="max-w-full mb-2" preload="metadata">
+                    <source src={msg.media_url} type="audio/mp4" />
                     <source src={msg.media_url} type="audio/webm" />
+                    <source src={msg.media_url} type="audio/ogg" />
+                    Ваш браузер не поддерживает воспроизведение аудио
                   </audio>
                 )}
                 {msg.media_type === 'image' && msg.media_url && (

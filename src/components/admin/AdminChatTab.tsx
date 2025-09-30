@@ -130,7 +130,23 @@ export default function AdminChatTab() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      
+      const options: MediaRecorderOptions = {};
+      const mimeTypes = [
+        'audio/mp4',
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/ogg;codecs=opus'
+      ];
+      
+      for (const mimeType of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(mimeType)) {
+          options.mimeType = mimeType;
+          break;
+        }
+      }
+      
+      const recorder = new MediaRecorder(stream, options);
       const audioChunks: Blob[] = [];
 
       recorder.ondataavailable = (e) => {
@@ -138,8 +154,10 @@ export default function AdminChatTab() {
       };
 
       recorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        const file = new File([audioBlob], 'voice.webm', { type: 'audio/webm' });
+        const mimeType = recorder.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunks, { type: mimeType });
+        const extension = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('ogg') ? 'ogg' : 'webm';
+        const file = new File([audioBlob], `voice.${extension}`, { type: mimeType });
         setSelectedFile(file);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -149,6 +167,7 @@ export default function AdminChatTab() {
       setIsRecording(true);
     } catch (error) {
       console.error('Recording error:', error);
+      alert('Ошибка записи аудио. Проверьте разрешения микрофона.');
     }
   };
 

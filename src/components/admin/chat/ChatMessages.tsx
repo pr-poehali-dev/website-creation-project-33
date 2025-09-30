@@ -12,7 +12,7 @@ interface ChatMessagesProps {
 
 export default function ChatMessages({ messages, selectedUser, isLoading, scrollRef }: ChatMessagesProps) {
   return (
-    <ScrollArea className="flex-1 p-6">
+    <ScrollArea className="flex-1 p-4 md:p-6">
       {isLoading && messages.length === 0 ? (
         <div className="flex items-center justify-center h-full">
           <Icon name="Loader2" size={24} className="animate-spin" />
@@ -22,14 +22,14 @@ export default function ChatMessages({ messages, selectedUser, isLoading, scroll
           <p className="text-sm">Нет сообщений</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
           {messages.map((msg) => (
             <div
               key={msg.id}
               className={`flex ${msg.is_from_admin ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                className={`max-w-[85%] md:max-w-[80%] rounded-lg px-3 py-2 md:px-4 md:py-2 ${
                   msg.is_from_admin
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-900'
@@ -61,9 +61,9 @@ export default function ChatMessages({ messages, selectedUser, isLoading, scroll
                     <source src={msg.media_url} type="video/mp4" />
                   </video>
                 )}
-                {msg.message && <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>}
+                {msg.message && <p className="text-sm md:text-sm whitespace-pre-wrap break-words">{msg.message}</p>}
                 <p
-                  className={`text-xs mt-1 ${
+                  className={`text-[10px] md:text-xs mt-1 ${
                     msg.is_from_admin ? 'text-white/70' : 'text-gray-500'
                   }`}
                 >

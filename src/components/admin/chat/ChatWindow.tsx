@@ -49,10 +49,10 @@ export default function ChatWindow({
   onKeyPress,
 }: ChatWindowProps) {
   return (
-    <Card className="md:col-span-2 flex flex-col">
-      <CardHeader className="border-b">
+    <Card className="md:col-span-2 flex flex-col h-full border-0 md:border rounded-none md:rounded-lg shadow-none md:shadow-sm">
+      <CardHeader className="border-b hidden md:block">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base">
             <Icon name="MessageCircle" size={20} />
             {selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}
           </CardTitle>
@@ -75,10 +75,10 @@ export default function ChatWindow({
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0">
         {!selectedUser ? (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
+          <div className="flex-1 flex items-center justify-center text-gray-500 p-6">
             <div className="text-center">
               <Icon name="MessageCircleOff" size={48} className="mx-auto mb-4 opacity-50" />
-              <p>Выберите пользователя для начала общения</p>
+              <p className="text-sm">Выберите пользователя для начала общения</p>
             </div>
           </div>
         ) : (

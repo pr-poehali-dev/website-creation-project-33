@@ -3,6 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Message, UserChat, CHAT_API_URL } from './chat/types';
 import UserList from './chat/UserList';
 import ChatWindow from './chat/ChatWindow';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 
 export default function AdminChatTab() {
   const { user } = useAuth();
@@ -264,33 +266,96 @@ export default function AdminChatTab() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
-      <UserList
-        users={users}
-        selectedUser={selectedUser}
-        onSelectUser={setSelectedUser}
-      />
-      <ChatWindow
-        selectedUser={selectedUser}
-        messages={messages}
-        isLoading={isLoading}
-        isDeleting={isDeleting}
-        newMessage={newMessage}
-        setNewMessage={setNewMessage}
-        selectedFile={selectedFile}
-        previewUrl={previewUrl}
-        isRecording={isRecording}
-        isSending={isSending}
-        fileInputRef={fileInputRef}
-        scrollRef={scrollRef}
-        onClearChat={clearChat}
-        onSendMessage={sendMessage}
-        onFileSelect={handleFileSelect}
-        onCancelFile={cancelFile}
-        onStartRecording={startRecording}
-        onStopRecording={stopRecording}
-        onKeyPress={handleKeyPress}
-      />
-    </div>
+    <>
+      {/* Mobile: show list or chat */}
+      <div className="md:hidden">
+        {!selectedUser ? (
+          <UserList
+            users={users}
+            selectedUser={selectedUser}
+            onSelectUser={setSelectedUser}
+          />
+        ) : (
+          <div className="flex flex-col h-[calc(100vh-140px)]">
+            <div className="p-4 border-b bg-white flex items-center gap-3">
+              <Button
+                onClick={() => setSelectedUser(null)}
+                variant="ghost"
+                size="icon"
+                className="shrink-0"
+              >
+                <Icon name="ArrowLeft" size={20} />
+              </Button>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm truncate">{selectedUser.name}</p>
+                <p className="text-xs text-gray-500 truncate">{selectedUser.email}</p>
+              </div>
+              {messages.length > 0 && (
+                <Button
+                  onClick={clearChat}
+                  disabled={isDeleting}
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-500 shrink-0"
+                >
+                  <Icon name="Trash2" size={18} />
+                </Button>
+              )}
+            </div>
+            <ChatWindow
+              selectedUser={selectedUser}
+              messages={messages}
+              isLoading={isLoading}
+              isDeleting={isDeleting}
+              newMessage={newMessage}
+              setNewMessage={setNewMessage}
+              selectedFile={selectedFile}
+              previewUrl={previewUrl}
+              isRecording={isRecording}
+              isSending={isSending}
+              fileInputRef={fileInputRef}
+              scrollRef={scrollRef}
+              onClearChat={clearChat}
+              onSendMessage={sendMessage}
+              onFileSelect={handleFileSelect}
+              onCancelFile={cancelFile}
+              onStartRecording={startRecording}
+              onStopRecording={stopRecording}
+              onKeyPress={handleKeyPress}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: show both */}
+      <div className="hidden md:grid md:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+        <UserList
+          users={users}
+          selectedUser={selectedUser}
+          onSelectUser={setSelectedUser}
+        />
+        <ChatWindow
+          selectedUser={selectedUser}
+          messages={messages}
+          isLoading={isLoading}
+          isDeleting={isDeleting}
+          newMessage={newMessage}
+          setNewMessage={setNewMessage}
+          selectedFile={selectedFile}
+          previewUrl={previewUrl}
+          isRecording={isRecording}
+          isSending={isSending}
+          fileInputRef={fileInputRef}
+          scrollRef={scrollRef}
+          onClearChat={clearChat}
+          onSendMessage={sendMessage}
+          onFileSelect={handleFileSelect}
+          onCancelFile={cancelFile}
+          onStartRecording={startRecording}
+          onStopRecording={stopRecording}
+          onKeyPress={handleKeyPress}
+        />
+      </div>
+    </>
   );
 }

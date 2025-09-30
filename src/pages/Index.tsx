@@ -103,31 +103,37 @@ export default function Index() {
       const result = await response.json();
       
       if (result.success) {
-        // Отправляем данные в Google Sheets
-        try {
-          const now = new Date();
-          const timestamp = now.toLocaleString('ru-RU', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-          });
+        // Проверяем наличие российского номера телефона в заметках
+        const phoneRegex = /(\+7|8|7)\s*[\(\-]?\s*\d{3}\s*[\)\-]?\s*\d{3}\s*[\-]?\s*\d{2}\s*[\-]?\s*\d{2}/;
+        const hasRussianPhone = phoneRegex.test(notes.trim());
 
-          await fetch('https://functions.poehali.dev/ce92c4be-1721-49f2-95bb-4bafa6f05fc4', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              promoter_name: user?.name || 'Неизвестный',
-              notes: notes.trim(),
-              timestamp: timestamp
-            })
-          });
-        } catch (error) {
-          console.error('Ошибка отправки в Google Sheets:', error);
+        // Отправляем данные в Google Sheets только если есть номер телефона
+        if (hasRussianPhone) {
+          try {
+            const now = new Date();
+            const timestamp = now.toLocaleString('ru-RU', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            });
+
+            await fetch('https://functions.poehali.dev/ce92c4be-1721-49f2-95bb-4bafa6f05fc4', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                promoter_name: user?.name || 'Неизвестный',
+                notes: notes.trim(),
+                timestamp: timestamp
+              })
+            });
+          } catch (error) {
+            console.error('Ошибка отправки в Google Sheets:', error);
+          }
         }
 
         toast({ 

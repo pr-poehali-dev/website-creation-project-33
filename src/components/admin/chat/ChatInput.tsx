@@ -34,32 +34,32 @@ export default function ChatInput({
   onKeyPress,
 }: ChatInputProps) {
   return (
-    <div className="p-3 md:p-4 border-t bg-gray-50">
+    <div className="p-4 border-t bg-gradient-to-b from-white to-gray-50/50">
       {(selectedFile || previewUrl) && (
-        <div className="mb-2 md:mb-3 p-2 md:p-3 bg-white rounded-lg border flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="mb-3 p-3 bg-white rounded-2xl border border-gray-200 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3">
             {previewUrl && selectedFile?.type.startsWith('image/') && (
-              <img src={previewUrl} alt="Preview" className="w-12 h-12 md:w-16 md:h-16 object-cover rounded" />
+              <img src={previewUrl} alt="Preview" className="w-14 h-14 object-cover rounded-xl" />
             )}
             {previewUrl && selectedFile?.type.startsWith('video/') && (
-              <video src={previewUrl} className="w-12 h-12 md:w-16 md:h-16 object-cover rounded" />
+              <video src={previewUrl} className="w-14 h-14 object-cover rounded-xl" />
             )}
             {selectedFile?.type.startsWith('audio/') && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg">
                 <Icon name="Mic" size={18} className="text-blue-600" />
-                <span className="text-xs md:text-sm">Голосовое</span>
+                <span className="text-sm font-medium text-blue-900">Голосовое</span>
               </div>
             )}
-            <span className="text-xs md:text-sm text-gray-600">
+            <span className="text-sm text-gray-500 font-medium">
               {selectedFile && (selectedFile.size / 1024).toFixed(0)} КБ
             </span>
           </div>
-          <Button onClick={onCancelFile} variant="ghost" size="sm">
-            <Icon name="X" size={16} />
+          <Button onClick={onCancelFile} variant="ghost" size="sm" className="rounded-full hover:bg-gray-100">
+            <Icon name="X" size={18} />
           </Button>
         </div>
       )}
-      <div className="flex gap-2 mb-2">
+      <div className="relative flex items-end gap-2">
         <input
           ref={fileInputRef}
           type="file"
@@ -67,48 +67,52 @@ export default function ChatInput({
           onChange={onFileSelect}
           className="hidden"
         />
-        <Button
-          onClick={() => fileInputRef.current?.click()}
-          variant="outline"
-          size="icon"
-          disabled={isSending || isRecording || selectedFile !== null}
-          className="shrink-0 h-10 w-10 md:h-10 md:w-10"
-        >
-          <Icon name="Paperclip" size={18} />
-        </Button>
-        <Button
-          onClick={isRecording ? onStopRecording : onStartRecording}
-          variant="outline"
-          size="icon"
-          disabled={isSending || selectedFile !== null}
-          className={`shrink-0 h-10 w-10 md:h-10 md:w-10 ${isRecording ? 'bg-red-100 border-red-300' : ''}`}
-        >
-          <Icon name="Mic" size={18} className={isRecording ? 'text-red-500' : ''} />
-        </Button>
-        <Textarea
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={onKeyPress}
-          placeholder="Напишите сообщение..."
-          className="min-h-[40px] md:min-h-[60px] max-h-[100px] md:max-h-[120px] resize-none bg-white text-sm"
-          maxLength={1000}
-        />
+        
+        <div className="flex-1 relative bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
+          <Textarea
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={onKeyPress}
+            placeholder="Введите сообщение..."
+            className="min-h-[52px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-5 py-4 pr-28 text-base placeholder:text-gray-400"
+            maxLength={1000}
+          />
+          
+          <div className="absolute right-2 bottom-2 flex items-center gap-1">
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="ghost"
+              size="icon"
+              disabled={isSending || isRecording || selectedFile !== null}
+              className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <Icon name="Paperclip" size={18} className="text-gray-600" />
+            </Button>
+            <Button
+              onClick={isRecording ? onStopRecording : onStartRecording}
+              variant="ghost"
+              size="icon"
+              disabled={isSending || selectedFile !== null}
+              className={`h-9 w-9 rounded-full transition-all ${isRecording ? 'bg-red-100 hover:bg-red-200 animate-pulse' : 'hover:bg-gray-100'}`}
+            >
+              <Icon name="Mic" size={18} className={isRecording ? 'text-red-500' : 'text-gray-600'} />
+            </Button>
+          </div>
+        </div>
+        
         <Button
           onClick={onSendMessage}
           disabled={(!newMessage.trim() && !selectedFile) || isSending}
-          className="self-end h-10 w-10 md:h-10 md:w-10"
+          className="h-[52px] w-[52px] rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           size="icon"
         >
           {isSending ? (
-            <Icon name="Loader2" size={18} className="animate-spin" />
+            <Icon name="Loader2" size={20} className="animate-spin" />
           ) : (
-            <Icon name="Send" size={18} />
+            <Icon name="Send" size={20} />
           )}
         </Button>
       </div>
-      <p className="text-[10px] md:text-xs text-gray-500">
-        {newMessage.length}/1000 {selectedFile && `• ${selectedFile.name}`}
-      </p>
     </div>
   );
 }

@@ -1,35 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
-import { formatMoscowTime, formatChatListTime } from '@/utils/timeFormat';
-
-interface Message {
-  id: number;
-  user_id: number;
-  message: string;
-  media_type?: 'audio' | 'image' | 'video' | null;
-  media_url?: string | null;
-  is_from_admin: boolean;
-  is_read: boolean;
-  created_at: string;
-  user_name?: string;
-}
-
-interface UserChat {
-  id: number;
-  name: string;
-  email: string;
-  unread_count: number;
-  last_message_time: string | null;
-  total_messages: number;
-}
-
-const CHAT_API_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
+import { Message, UserChat, CHAT_API_URL } from './chat/types';
+import UserList from './chat/UserList';
+import ChatWindow from './chat/ChatWindow';
 
 export default function AdminChatTab() {
   const { user } = useAuth();
@@ -99,7 +72,6 @@ export default function AdminChatTab() {
       let media_type = null;
 
       if (selectedFile) {
-        // Convert file to base64
         const reader = new FileReader();
         const base64Promise = new Promise<string>((resolve, reject) => {
           reader.onload = () => {
@@ -111,7 +83,6 @@ export default function AdminChatTab() {
         reader.readAsDataURL(selectedFile);
         media_data = await base64Promise;
 
-        // Determine media type
         if (selectedFile.type.startsWith('audio/')) {
           media_type = 'audio';
         } else if (selectedFile.type.startsWith('image/')) {
@@ -193,7 +164,6 @@ export default function AdminChatTab() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Ограничение 1 МБ для base64 (чтобы влезло в JSON)
     if (file.size > 1 * 1024 * 1024) {
       alert('Максимальный размер файла 1 МБ (ограничение base64)');
       if (fileInputRef.current) {
@@ -276,236 +246,32 @@ export default function AdminChatTab() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
-      {/* Список пользователей */}
-      <Card className="md:col-span-1">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="Users" size={20} />
-            Диалоги ({users.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[calc(100vh-300px)]">
-            {users.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">
-                <Icon name="MessageCircle" size={32} className="mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Нет активных диалогов</p>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {users.map((userChat) => (
-                  <button
-                    key={userChat.id}
-                    onClick={() => setSelectedUser(userChat)}
-                    className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b ${
-                      selectedUser?.id === userChat.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{userChat.name}</p>
-                        <p className="text-xs text-gray-500 truncate">{userChat.email}</p>
-                        {userChat.last_message_time ? (
-                          <p className="text-xs text-gray-400 mt-1">
-                            {formatChatListTime(userChat.last_message_time)}
-                          </p>
-                        ) : (
-                          <p className="text-xs text-gray-400 mt-1 italic">
-                            Нет сообщений
-                          </p>
-                        )}
-                      </div>
-                      {userChat.unread_count > 0 && (
-                        <Badge className="ml-2 bg-red-500 hover:bg-red-600">
-                          {userChat.unread_count}
-                        </Badge>
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-        </CardContent>
-      </Card>
-
-      {/* Окно чата */}
-      <Card className="md:col-span-2 flex flex-col">
-        <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="MessageCircle" size={20} />
-              {selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}
-            </CardTitle>
-            {selectedUser && messages.length > 0 && (
-              <Button
-                onClick={clearChat}
-                disabled={isDeleting}
-                variant="destructive"
-                size="sm"
-              >
-                {isDeleting ? (
-                  <Icon name="Loader2" size={16} className="animate-spin mr-2" />
-                ) : (
-                  <Icon name="Trash2" size={16} className="mr-2" />
-                )}
-                Очистить чат
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col p-0">
-          {!selectedUser ? (
-            <div className="flex-1 flex items-center justify-center text-gray-500">
-              <div className="text-center">
-                <Icon name="MessageCircleOff" size={48} className="mx-auto mb-4 opacity-50" />
-                <p>Выберите пользователя для начала общения</p>
-              </div>
-            </div>
-          ) : (
-            <>
-              <ScrollArea className="flex-1 p-6">
-                {isLoading && messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full">
-                    <Icon name="Loader2" size={24} className="animate-spin" />
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-gray-500">
-                    <p className="text-sm">Нет сообщений</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {messages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`flex ${msg.is_from_admin ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                            msg.is_from_admin
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-100 text-gray-900'
-                          }`}
-                        >
-                          {!msg.is_from_admin && (
-                            <p className="text-xs font-semibold mb-1 text-blue-600">
-                              {selectedUser.name}
-                            </p>
-                          )}
-                          {msg.media_type === 'audio' && msg.media_url && (
-                            <audio controls className="max-w-full mb-2">
-                              <source src={msg.media_url} type="audio/webm" />
-                            </audio>
-                          )}
-                          {msg.media_type === 'image' && msg.media_url && (
-                            <img 
-                              src={msg.media_url} 
-                              alt="Изображение" 
-                              className="max-w-full rounded mb-2 cursor-pointer"
-                              onClick={() => window.open(msg.media_url, '_blank')}
-                            />
-                          )}
-                          {msg.media_type === 'video' && msg.media_url && (
-                            <video controls className="max-w-full rounded mb-2">
-                              <source src={msg.media_url} type="video/mp4" />
-                            </video>
-                          )}
-                          {msg.message && <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>}
-                          <p
-                            className={`text-xs mt-1 ${
-                              msg.is_from_admin ? 'text-white/70' : 'text-gray-500'
-                            }`}
-                          >
-                            {formatMoscowTime(msg.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                    <div ref={scrollRef} />
-                  </div>
-                )}
-              </ScrollArea>
-
-              <div className="p-4 border-t bg-gray-50">
-                {(selectedFile || previewUrl) && (
-                  <div className="mb-3 p-3 bg-white rounded-lg border flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {previewUrl && selectedFile?.type.startsWith('image/') && (
-                        <img src={previewUrl} alt="Preview" className="w-16 h-16 object-cover rounded" />
-                      )}
-                      {previewUrl && selectedFile?.type.startsWith('video/') && (
-                        <video src={previewUrl} className="w-16 h-16 object-cover rounded" />
-                      )}
-                      {selectedFile?.type.startsWith('audio/') && (
-                        <div className="flex items-center gap-2">
-                          <Icon name="Mic" size={20} className="text-blue-600" />
-                          <span className="text-sm">Голосовое сообщение</span>
-                        </div>
-                      )}
-                      <span className="text-sm text-gray-600">
-                        {(selectedFile.size / 1024).toFixed(0)} КБ
-                      </span>
-                    </div>
-                    <Button onClick={cancelFile} variant="ghost" size="sm">
-                      <Icon name="X" size={16} />
-                    </Button>
-                  </div>
-                )}
-                <div className="flex gap-2 mb-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*,video/*"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    variant="outline"
-                    size="icon"
-                    disabled={isSending || isRecording || selectedFile !== null}
-                    className="shrink-0"
-                  >
-                    <Icon name="Paperclip" size={20} />
-                  </Button>
-                  <Button
-                    onClick={isRecording ? stopRecording : startRecording}
-                    variant="outline"
-                    size="icon"
-                    disabled={isSending || selectedFile !== null}
-                    className={`shrink-0 ${isRecording ? 'bg-red-100 border-red-300' : ''}`}
-                  >
-                    <Icon name="Mic" size={20} className={isRecording ? 'text-red-500' : ''} />
-                  </Button>
-                  <Textarea
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    placeholder="Напишите сообщение..."
-                    className="min-h-[60px] max-h-[120px] resize-none bg-white"
-                    maxLength={1000}
-                  />
-                  <Button
-                    onClick={sendMessage}
-                    disabled={(!newMessage.trim() && !selectedFile) || isSending}
-                    className="self-end"
-                    size="icon"
-                  >
-                    {isSending ? (
-                      <Icon name="Loader2" size={20} className="animate-spin" />
-                    ) : (
-                      <Icon name="Send" size={20} />
-                    )}
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500">
-                  {newMessage.length}/1000 символов {selectedFile && `• ${selectedFile.name}`}
-                </p>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+      <UserList
+        users={users}
+        selectedUser={selectedUser}
+        onSelectUser={setSelectedUser}
+      />
+      <ChatWindow
+        selectedUser={selectedUser}
+        messages={messages}
+        isLoading={isLoading}
+        isDeleting={isDeleting}
+        newMessage={newMessage}
+        setNewMessage={setNewMessage}
+        selectedFile={selectedFile}
+        previewUrl={previewUrl}
+        isRecording={isRecording}
+        isSending={isSending}
+        fileInputRef={fileInputRef}
+        scrollRef={scrollRef}
+        onClearChat={clearChat}
+        onSendMessage={sendMessage}
+        onFileSelect={handleFileSelect}
+        onCancelFile={cancelFile}
+        onStartRecording={startRecording}
+        onStopRecording={stopRecording}
+        onKeyPress={handleKeyPress}
+      />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import psycopg2
 from datetime import datetime
 from typing import Dict, Any
 import pytz
-from openai import OpenAI
+import re
 
 MOSCOW_TZ = pytz.timezone('Europe/Moscow')
 
@@ -15,64 +15,25 @@ def get_moscow_time():
     utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
     return utc_now.astimezone(MOSCOW_TZ)
 
-def classify_lead_with_ai(notes: str) -> Dict[str, str]:
+def classify_lead_by_phone(notes: str) -> Dict[str, str]:
     """
-    Классифицирует лид с помощью OpenAI GPT-4o-mini
-    Возвращает тип и результат лида
+    Классифицирует лид по наличию российского номера телефона
+    Контакт = есть 11-значный номер РФ
+    Подход = нет номера телефона
     """
-    openai_key = os.environ.get('OPENAI_API_KEY')
-    if not openai_key:
-        return {
-            'type': 'неопределен',
-            'result': 'неопределен'
-        }
+    phone_pattern = r'(?:\+7|8|7)?[\s\-\(]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}'
     
-    try:
-        client = OpenAI(api_key=openai_key)
-        
-        prompt = f"""Проанализируй отчёт промоутера и определи:
-
-Текст отчёта: "{notes}"
-
-Классифицируй лид по двум параметрам:
-
-1. TYPE (тип взаимодействия):
-- "подход" - промоутер подошел, но не было полноценного контакта (прошел мимо, отмахнулся)
-- "контакт" - состоялся диалог, взял листовку, задал вопрос, проявил внимание
-- "продажа" - купил, записался, оставил контакты, совершил целевое действие
-- "отказ" - явный отказ, негатив, грубость
-
-2. RESULT (итог взаимодействия):
-- "положительный" - заинтересован, позитивная реакция
-- "нейтральный" - взял информацию без энтузиазма, нейтральная реакция
-- "отрицательный" - отказ, негатив, не заинтересован
-
-Ответь СТРОГО в формате JSON без дополнительного текста:
-{{"type": "контакт", "result": "положительный"}}"""
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Ты эксперт по анализу работы промоутеров. Отвечай только JSON."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3,
-            max_tokens=100
-        )
-        
-        result_text = response.choices[0].message.content.strip()
-        result_json = json.loads(result_text)
-        
-        return {
-            'type': result_json.get('type', 'неопределен'),
-            'result': result_json.get('result', 'неопределен')
-        }
+    match = re.search(phone_pattern, notes)
     
-    except Exception as e:
-        print(f"AI classification error: {e}")
+    if match:
         return {
-            'type': 'неопределен',
-            'result': 'неопределен'
+            'type': 'контакт',
+            'result': 'положительный'
+        }
+    else:
+        return {
+            'type': 'подход',
+            'result': 'нейтральный'
         }
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -126,7 +87,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
         chat_id = '5215501225'
         
-        classification = classify_lead_with_ai(notes)
+        classification = classify_lead_by_phone(notes)
         
         telegram_message_id = None
         

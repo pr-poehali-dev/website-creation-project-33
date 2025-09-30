@@ -1,5 +1,6 @@
 '''
 Функции администратора для управления пользователями и статистикой
+ВАЖНО: Работает с leads_analytics (только метрики), полные лиды в Telegram!
 Args: event с httpMethod, body, headers; context с request_id
 Returns: JSON с данными пользователей, статистикой лидов
 '''
@@ -11,7 +12,6 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 import pytz
 
-# Московская временная зона
 MOSCOW_TZ = pytz.timezone('Europe/Moscow')
 
 def get_moscow_time():
@@ -58,7 +58,7 @@ def get_all_users() -> List[Dict[str, Any]]:
                        CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online,
                        COUNT(l.id) as lead_count
                 FROM t_p24058207_website_creation_pro.users u 
-                LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id
+                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id
                 GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at
                 ORDER BY u.created_at DESC
             """, (online_threshold,))
@@ -77,50 +77,6 @@ def get_all_users() -> List[Dict[str, Any]]:
                 })
     return users
 
-def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
-    """Получить лиды конкретного пользователя (без аудиоданных для экономии трафика)"""
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT id, user_id, notes, has_audio, created_at 
-                FROM t_p24058207_website_creation_pro.leads 
-                WHERE user_id = %s 
-                ORDER BY created_at DESC
-            """, (user_id,))
-            
-            leads = []
-            for row in cur.fetchall():
-                # Безопасное преобразование времени
-                created_at = None
-                if row[4]:
-                    try:
-                        created_at = get_moscow_time_from_utc(row[4]).isoformat()
-                    except Exception:
-                        created_at = row[4].isoformat() if hasattr(row[4], 'isoformat') else str(row[4])
-                
-                leads.append({
-                    'id': row[0],
-                    'user_id': row[1],
-                    'notes': row[2] or '',
-                    'has_audio': row[3],
-                    'audio_data': None,  # Не загружаем сразу для экономии трафика
-                    'created_at': created_at
-                })
-            return leads
-
-def get_lead_audio(lead_id: int) -> Optional[str]:
-    """Получить аудиоданные конкретного лида"""
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT audio_data 
-                FROM t_p24058207_website_creation_pro.leads 
-                WHERE id = %s AND audio_data IS NOT NULL
-            """, (lead_id,))
-            
-            row = cur.fetchone()
-            return row[0] if row else None
-
 def get_moscow_time_from_utc(utc_time):
     """Конвертировать UTC время в московское"""
     if utc_time.tzinfo is None:
@@ -128,65 +84,45 @@ def get_moscow_time_from_utc(utc_time):
     return utc_time.astimezone(MOSCOW_TZ)
 
 def get_leads_stats() -> Dict[str, Any]:
-    """Получить статистику по лидам с разделением на подходы и контакты"""
+    """Получить статистику по лидам из leads_analytics (AI классификация)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             # Общая статистика
-            cur.execute("SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads")
+            cur.execute("SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics")
             total_leads = cur.fetchone()[0]
             
-            # Контакты - лиды с номером телефона (различные форматы российских номеров)
+            # Контакты
             cur.execute("""
-                SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads 
-                WHERE notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+                SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics 
+                WHERE lead_type = 'контакт'
             """)
             contacts = cur.fetchone()[0]
             
-            # Подходы - лиды без 11-значного номера
-            approaches = total_leads - contacts
-            
-            # Лиды по пользователям с разбивкой на контакты, подходы и дубли
+            # Подходы
             cur.execute("""
-                WITH user_leads AS (
-                    SELECT u.id as user_id, u.name, u.email, l.id as lead_id, l.notes,
-                           CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 
-                               regexp_replace(
-                                   regexp_replace(l.notes, '[^0-9]', '', 'g'),
-                                   '^[78]?([0-9]{10}).*$', '7\\1'
-                               )
-                           END as normalized_phone
-                    FROM t_p24058207_website_creation_pro.users u 
-                    LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id
-                    WHERE l.id IS NOT NULL
-                ),
-                phone_duplicates AS (
-                    SELECT user_id, normalized_phone, COUNT(*) as phone_count
-                    FROM user_leads
-                    WHERE normalized_phone IS NOT NULL
-                    GROUP BY user_id, normalized_phone
-                    HAVING COUNT(*) > 1
-                ),
-                first_occurrences AS (
-                    SELECT pd.user_id, pd.normalized_phone, MIN(ul.lead_id) as first_lead_id
-                    FROM phone_duplicates pd
-                    JOIN user_leads ul ON pd.user_id = ul.user_id AND pd.normalized_phone = ul.normalized_phone
-                    GROUP BY pd.user_id, pd.normalized_phone
-                ),
-                duplicate_leads AS (
-                    SELECT ul.lead_id
-                    FROM user_leads ul
-                    JOIN phone_duplicates pd ON ul.user_id = pd.user_id AND ul.normalized_phone = pd.normalized_phone
-                    LEFT JOIN first_occurrences fo ON ul.user_id = fo.user_id AND ul.normalized_phone = fo.normalized_phone
-                    WHERE ul.lead_id != fo.first_lead_id
-                )
+                SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics 
+                WHERE lead_type = 'подход'
+            """)
+            approaches = cur.fetchone()[0]
+            
+            # Продажи
+            cur.execute("""
+                SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics 
+                WHERE lead_type = 'продажа'
+            """)
+            sales = cur.fetchone()[0]
+            
+            # Статистика по пользователям
+            cur.execute("""
                 SELECT u.name, u.email,
-                       COUNT(l.id) - COUNT(dl.lead_id) as lead_count,
-                       COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) - COUNT(CASE WHEN dl.lead_id IS NOT NULL AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' OR l.notes IS NULL OR l.notes = '' THEN 1 END) as approaches,
-                       COUNT(dl.lead_id) as duplicates
+                       COUNT(l.id) as lead_count,
+                       COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
+                       COUNT(CASE WHEN l.lead_type = 'продажа' THEN 1 END) as sales,
+                       COUNT(CASE WHEN l.lead_result = 'положительный' THEN 1 END) as positive,
+                       COUNT(CASE WHEN l.lead_result = 'отрицательный' THEN 1 END) as negative
                 FROM t_p24058207_website_creation_pro.users u
-                LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id
-                LEFT JOIN duplicate_leads dl ON l.id = dl.lead_id
+                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id
                 GROUP BY u.id, u.name, u.email
                 HAVING COUNT(l.id) > 0
                 ORDER BY lead_count DESC
@@ -200,108 +136,70 @@ def get_leads_stats() -> Dict[str, Any]:
                     'lead_count': row[2],
                     'contacts': row[3],
                     'approaches': row[4],
-                    'duplicates': row[5]
+                    'sales': row[5],
+                    'positive': row[6],
+                    'negative': row[7],
+                    'duplicates': 0  # Больше нет дублей, т.к. нет текста
                 })
             
-            # Лиды за последние дни с разбивкой на контакты и подходы (по московскому времени)
-            # Получаем все лиды за последние 30 дней и группируем в Python
+            # Статистика за последние 30 дней
             cur.execute("""
-                SELECT created_at, notes
-                FROM t_p24058207_website_creation_pro.leads 
+                SELECT DATE(created_at) as date,
+                       COUNT(*) as count,
+                       COUNT(CASE WHEN lead_type = 'контакт' THEN 1 END) as contacts,
+                       COUNT(CASE WHEN lead_type = 'подход' THEN 1 END) as approaches
+                FROM t_p24058207_website_creation_pro.leads_analytics 
                 WHERE created_at >= %s
-                ORDER BY created_at DESC
+                GROUP BY DATE(created_at)
+                ORDER BY DATE(created_at) DESC
             """, (get_moscow_time() - timedelta(days=30),))
             
-            # Группируем по дням в московском времени
-            from collections import defaultdict
-            daily_data = defaultdict(lambda: {'count': 0, 'contacts': 0, 'approaches': 0})
-            
-            phone_regex = r'([0-9]{11}|\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
-            import re
-            
-            for row in cur.fetchall():
-                created_at_utc = row[0]
-                notes = row[1] or ''
-                
-                # Конвертируем в московское время
-                moscow_dt = get_moscow_time_from_utc(created_at_utc)
-                date_key = moscow_dt.date().isoformat()
-                
-                # Считаем статистику
-                daily_data[date_key]['count'] += 1
-                
-                if re.search(phone_regex, notes):
-                    daily_data[date_key]['contacts'] += 1
-                elif notes and notes.strip():
-                    daily_data[date_key]['approaches'] += 1
-            
-            # Формируем результат
             daily_stats = []
-            for date_key in sorted(daily_data.keys(), reverse=True):
+            for row in cur.fetchall():
                 daily_stats.append({
-                    'date': date_key,
-                    'count': daily_data[date_key]['count'],
-                    'contacts': daily_data[date_key]['contacts'],
-                    'approaches': daily_data[date_key]['approaches']
+                    'date': row[0].isoformat() if row[0] else None,
+                    'count': row[1],
+                    'contacts': row[2],
+                    'approaches': row[3]
                 })
     
     return {
         'total_leads': total_leads,
         'contacts': contacts,
         'approaches': approaches,
+        'sales': sales,
         'user_stats': user_stats,
         'daily_stats': daily_stats
     }
 
 def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
-    """Получить статистику пользователей за конкретный день с разбивкой на контакты и подходы"""
+    """Получить статистику пользователей за конкретный день"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Получаем все лиды и фильтруем по московскому времени в Python
             cur.execute("""
-                SELECT u.name, u.email, l.created_at, l.notes
+                SELECT u.name, u.email,
+                       COUNT(l.id) as lead_count,
+                       COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
+                       COUNT(CASE WHEN l.lead_type = 'продажа' THEN 1 END) as sales
                 FROM t_p24058207_website_creation_pro.users u 
-                LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id 
-                WHERE l.id IS NOT NULL
-            """)
+                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id 
+                WHERE DATE(l.created_at) = %s
+                GROUP BY u.name, u.email
+                HAVING COUNT(l.id) > 0
+                ORDER BY lead_count DESC
+            """, (date,))
             
-            # Группируем по пользователям
-            from collections import defaultdict
-            user_data = defaultdict(lambda: {'name': '', 'email': '', 'lead_count': 0, 'contacts': 0, 'approaches': 0})
-            
-            phone_regex = r'([0-9]{11}|\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
-            import re
-            
+            user_stats = []
             for row in cur.fetchall():
-                user_name = row[0]
-                user_email = row[1]
-                created_at_utc = row[2]
-                notes = row[3] or ''
-                
-                # Конвертируем в московское время
-                moscow_dt = get_moscow_time_from_utc(created_at_utc)
-                lead_date = moscow_dt.date().isoformat()
-                
-                # Фильтруем по дате
-                if lead_date != date:
-                    continue
-                
-                key = user_email
-                user_data[key]['name'] = user_name
-                user_data[key]['email'] = user_email
-                user_data[key]['lead_count'] += 1
-                
-                if re.search(phone_regex, notes):
-                    user_data[key]['contacts'] += 1
-                elif notes and notes.strip():
-                    user_data[key]['approaches'] += 1
-            
-            # Формируем результат
-            user_stats = sorted(
-                [stats for stats in user_data.values()],
-                key=lambda x: x['lead_count'],
-                reverse=True
-            )
+                user_stats.append({
+                    'name': row[0],
+                    'email': row[1],
+                    'lead_count': row[2],
+                    'contacts': row[3],
+                    'approaches': row[4],
+                    'sales': row[5]
+                })
             
             return user_stats
 
@@ -309,57 +207,77 @@ def get_chart_data() -> List[Dict[str, Any]]:
     """Получить детальные данные для графика по дням и пользователям"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Получаем данные за последние 30 дней по пользователям и типам (группировка в Python)
             cur.execute("""
                 SELECT 
-                    l.created_at,
+                    DATE(l.created_at) as date,
                     u.name as user_name,
-                    l.notes
-                FROM t_p24058207_website_creation_pro.leads l
+                    COUNT(*) as total_leads,
+                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                    COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
+                FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.created_at >= %s
-                ORDER BY l.created_at DESC
+                GROUP BY DATE(l.created_at), u.name
+                ORDER BY DATE(l.created_at) DESC, u.name
             """, (get_moscow_time() - timedelta(days=30),))
             
-            # Группируем по дням и пользователям в московском времени
-            from collections import defaultdict
-            chart_data_dict = defaultdict(lambda: {'total_leads': 0, 'contacts': 0, 'approaches': 0})
-            
-            phone_regex = r'([0-9]{11}|\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
-            import re
-            
-            for row in cur.fetchall():
-                created_at_utc = row[0]
-                user_name = row[1]
-                notes = row[2] or ''
-                
-                # Конвертируем в московское время
-                moscow_dt = get_moscow_time_from_utc(created_at_utc)
-                date_key = moscow_dt.date().isoformat()
-                key = (date_key, user_name)
-                
-                # Считаем статистику
-                chart_data_dict[key]['total_leads'] += 1
-                
-                if re.search(phone_regex, notes):
-                    chart_data_dict[key]['contacts'] += 1
-                else:
-                    chart_data_dict[key]['approaches'] += 1
-            
-            # Формируем результат
             chart_data = []
-            for (date_key, user_name), stats in sorted(chart_data_dict.items(), key=lambda x: (x[0][0], x[0][1]), reverse=True):
+            for row in cur.fetchall():
                 chart_data.append({
-                    'date': date_key,
-                    'user_name': user_name,
-                    'total_leads': stats['total_leads'],
-                    'contacts': stats['contacts'],
-                    'approaches': stats['approaches']
+                    'date': row[0].isoformat() if row[0] else None,
+                    'user_name': row[1],
+                    'total_leads': row[2],
+                    'contacts': row[3],
+                    'approaches': row[4]
                 })
             
             return chart_data
 
-
+def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
+    """Получить метрики лидов пользователя (без текста/аудио - они в Telegram!)"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id, user_id, lead_type, lead_result, created_at, telegram_message_id 
+                FROM t_p24058207_website_creation_pro.leads_analytics 
+                WHERE user_id = %s 
+                ORDER BY created_at DESC
+            """, (user_id,))
+            
+            leads = []
+            for row in cur.fetchall():
+                created_at = None
+                if row[4]:
+                    try:
+                        created_at = get_moscow_time_from_utc(row[4]).isoformat()
+                    except Exception:
+                        created_at = row[4].isoformat() if hasattr(row[4], 'isoformat') else str(row[4])
+                
+                type_emoji = {
+                    'контакт': '📞',
+                    'подход': '👋',
+                    'продажа': '💰',
+                    'отказ': '❌'
+                }.get(row[2], '📝')
+                
+                result_emoji = {
+                    'положительный': '✅',
+                    'нейтральный': '⚪',
+                    'отрицательный': '❌'
+                }.get(row[3], '⚪')
+                
+                leads.append({
+                    'id': row[0],
+                    'user_id': row[1],
+                    'notes': f"{type_emoji} {row[2]} {result_emoji} {row[3]}",  # Для совместимости с UI
+                    'has_audio': False,  # Больше нет
+                    'audio_data': None,
+                    'lead_type': row[2],
+                    'lead_result': row[3],
+                    'telegram_message_id': row[5],
+                    'created_at': created_at
+                })
+            return leads
 
 def update_user_name(user_id: int, new_name: str) -> bool:
     """Обновить имя пользователя"""
@@ -373,46 +291,39 @@ def update_user_name(user_id: int, new_name: str) -> bool:
             return cur.rowcount > 0
 
 def delete_user(user_id: int) -> bool:
-    """Удалить пользователя и ВСЕ связанные данные навсегда (лиды, чат, сессии), заблокировать IP"""
+    """Удалить пользователя и ВСЕ связанные данные (метрики лидов, чат, сессии), заблокировать IP"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Получаем IP адрес пользователя перед удалением
             cur.execute("SELECT registration_ip FROM t_p24058207_website_creation_pro.users WHERE id = %s", (user_id,))
             row = cur.fetchone()
             user_ip = row[0] if row else None
             
-            # Блокируем IP адрес
             if user_ip and user_ip != 'unknown':
                 cur.execute(
                     "INSERT INTO t_p24058207_website_creation_pro.blocked_ips (ip_address, blocked_reason) VALUES (%s, %s) ON CONFLICT (ip_address) DO NOTHING",
                     (user_ip, f'User ID {user_id} deleted by admin')
                 )
             
-            # УДАЛЯЕМ ВСЕ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:
+            # Удаляем метрики лидов (текст/аудио не хранятся, только в Telegram!)
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = %s", (user_id,))
             
-            # 1. Удаляем сессии
+            # Удаляем сессии
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.user_sessions WHERE user_id = %s", (user_id,))
             
-            # 2. Удаляем лиды (включая audio_data base64)
-            cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads WHERE user_id = %s", (user_id,))
+            # Удаляем чат
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.chat_messages WHERE user_id = %s", (user_id,))
             
-            # 3. Удаляем ВСЕ сообщения в чате (включая media_url base64)
-            cur.execute("DELETE FROM chat_messages WHERE user_id = %s", (user_id,))
-            
-            # 4. Удаляем самого пользователя (только не админов)
+            # Удаляем пользователя (только не админов)
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.users WHERE id = %s AND is_admin = FALSE", (user_id,))
             
             conn.commit()
             return cur.rowcount > 0
 
 def delete_lead(lead_id: int) -> bool:
-    """Удалить лид НАВСЕГДА (включая все аудиоданные из БД)"""
+    """Удалить метрику лида (полный лид остаётся в Telegram!)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Удаляем лид со ВСЕМИ данными (notes + audio_data base64)
-            # После удаления данные исчезают из БД навсегда
-            # Остаются только в бэкапах на 7-30 дней (стандарт Yandex Cloud)
-            cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads WHERE id = %s", (lead_id,))
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads_analytics WHERE id = %s", (lead_id,))
             conn.commit()
             return cur.rowcount > 0
 
@@ -463,7 +374,6 @@ def reject_user(user_id: int) -> bool:
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
-    # Handle CORS OPTIONS request
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
@@ -481,7 +391,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'Access-Control-Allow-Origin': '*'
     }
 
-    # Проверка авторизации
     session_token = event.get('headers', {}).get('X-Session-Token')
     if not session_token:
         return {
@@ -578,37 +487,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 400,
                     'headers': headers,
                     'body': json.dumps({'error': 'Неверный user_id'})
-                }
-        
-        elif action == 'lead_audio':
-            lead_id = event.get('queryStringParameters', {}).get('lead_id')
-            if not lead_id:
-                return {
-                    'statusCode': 400,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Требуется lead_id'})
-                }
-            
-            try:
-                lead_id = int(lead_id)
-                audio_data = get_lead_audio(lead_id)
-                if audio_data:
-                    return {
-                        'statusCode': 200,
-                        'headers': headers,
-                        'body': json.dumps({'audio_data': audio_data})
-                    }
-                else:
-                    return {
-                        'statusCode': 404,
-                        'headers': headers,
-                        'body': json.dumps({'error': 'Аудиоданные не найдены'})
-                    }
-            except ValueError:
-                return {
-                    'statusCode': 400,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Неверный lead_id'})
                 }
     
     elif method == 'POST':

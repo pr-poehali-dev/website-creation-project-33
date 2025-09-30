@@ -9,16 +9,22 @@
       "bodyMatcher": "exact"
     },
     {
-      "name": "Test sending notes to Telegram",
+      "name": "Test sending lead with AI classification",
       "method": "POST",
       "path": "/",
+      "headers": {
+        "X-User-Id": "999"
+      },
       "body": {
-        "notes": "Test note message"
+        "notes": "Подошел к человеку, он взял листовку и спросил подробности"
       },
       "expectedStatus": 200,
       "expectedBody": {
         "success": true,
-        "message": "string"
+        "classification": {
+          "type": "string",
+          "result": "string"
+        }
       },
       "bodyMatcher": "partial"
     }

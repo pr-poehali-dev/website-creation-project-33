@@ -1,0 +1,53 @@
+{
+  "tests": [
+    {
+      "name": "Test OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedHeaders": {
+        "Access-Control-Allow-Origin": "*"
+      }
+    },
+    {
+      "name": "Test POST with valid rating data",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "user_stats": [
+          {
+            "name": "Иван Иванов",
+            "email": "ivan@test.ru",
+            "contacts": 10,
+            "approaches": 5,
+            "duplicates": 1
+          },
+          {
+            "name": "Петр Петров",
+            "email": "petr@test.ru",
+            "contacts": 8,
+            "approaches": 3,
+            "duplicates": 0
+          }
+        ]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test POST without required fields",
+      "method": "POST",
+      "path": "/",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

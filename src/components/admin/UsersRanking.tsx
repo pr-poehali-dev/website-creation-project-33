@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { toast } from '@/hooks/use-toast';
 import { UserStats } from './types';
 
 interface UsersRankingProps {
@@ -12,6 +13,46 @@ type RankingType = 'contacts' | 'approaches';
 
 export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
+  const [exporting, setExporting] = useState(false);
+
+  const exportToGoogleSheets = async () => {
+    setExporting(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/b5adaa83-68c7-43cf-a042-4b4b60dc8d82', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_stats: userStats
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка экспорта');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: 'Успешно!',
+          description: `Экспортировано ${result.rows_exported} пользователей в Google Sheets`
+        });
+      } else {
+        throw new Error(result.error || 'Неизвестная ошибка');
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: 'Ошибка экспорта',
+        description: 'Не удалось экспортировать данные в Google Sheets',
+        variant: 'destructive'
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // Сортируем пользователей в зависимости от выбранного типа
   const sortedUsers = [...userStats].sort((a, b) => {
@@ -30,12 +71,32 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
-          <div className="p-2 rounded-lg bg-[#001f54]/10">
-            <Icon name="Trophy" size={20} className="text-[#001f54]" />
-          </div>
-          Рейтинг пользователей ({getRankingTitle()})
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
+            <div className="p-2 rounded-lg bg-[#001f54]/10">
+              <Icon name="Trophy" size={20} className="text-[#001f54]" />
+            </div>
+            Рейтинг пользователей ({getRankingTitle()})
+          </CardTitle>
+          <Button
+            onClick={exportToGoogleSheets}
+            disabled={exporting}
+            className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:scale-105"
+            size="sm"
+          >
+            {exporting ? (
+              <>
+                <Icon name="Loader2" size={14} className="mr-1.5 animate-spin" />
+                Экспорт...
+              </>
+            ) : (
+              <>
+                <Icon name="Sheet" size={14} className="mr-1.5" />
+                Экспорт в Google Sheets
+              </>
+            )}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {/* Кнопки выбора типа рейтинга */}

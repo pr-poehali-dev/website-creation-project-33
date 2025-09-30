@@ -18,7 +18,7 @@ export default function StatsTab() {
   // Состояния для графика
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [filterType, setFilterType] = useState<'all' | 'contacts' | 'approaches'>('all');
+  const [filterType, setFilterType] = useState<'contacts' | 'approaches'>('contacts');
 
   const getSessionToken = () => localStorage.getItem('session_token');
 

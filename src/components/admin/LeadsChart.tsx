@@ -8,9 +8,9 @@ import { ChartDataPoint, UserStats } from './types';
 interface LeadsChartProps {
   chartData: ChartDataPoint[];
   selectedUsers: string[];
-  filterType: 'all' | 'contacts' | 'approaches';
+  filterType: 'contacts' | 'approaches';
   userStats: UserStats[];
-  onFilterTypeChange: (type: 'all' | 'contacts' | 'approaches') => void;
+  onFilterTypeChange: (type: 'contacts' | 'approaches') => void;
   onUsersChange: (users: string[]) => void;
 }
 
@@ -78,17 +78,6 @@ export default function LeadsChart({
         <div className="mb-6 space-y-4">
           {/* Фильтр по типу */}
           <div className="flex flex-wrap gap-2">
-            <Button
-              onClick={() => onFilterTypeChange('all')}
-              variant={filterType === 'all' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 ${filterType === 'all' 
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg' 
-                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
-              }`}
-            >
-              Все лиды
-            </Button>
             <Button
               onClick={() => onFilterTypeChange('contacts')}
               variant={filterType === 'contacts' ? 'default' : 'outline'}
@@ -181,8 +170,8 @@ export default function LeadsChart({
                   })
                 }
                 itemSorter={(item) => {
-                  // Сортировка: сначала "Все лиды", потом пользователи
-                  if (item.name === 'Все лиды' || item.name === 'Контакты' || item.name === 'Подходы') {
+                  // Сортировка: сначала "Контакты" или "Подходы", потом пользователи
+                  if (item.name === 'Контакты' || item.name === 'Подходы') {
                     return -1;
                   }
                   return 0;
@@ -192,17 +181,6 @@ export default function LeadsChart({
                 wrapperStyle={{ paddingTop: '20px' }}
                 iconType="rect"
               />
-              
-              {/* Общий столбец для всех */}
-              {filterType === 'all' && (
-                <Bar 
-                  dataKey="total" 
-                  fill="#001f54" 
-                  name="Все лиды"
-                  radius={[8, 8, 0, 0]}
-                  maxBarSize={60}
-                />
-              )}
               
               {filterType === 'contacts' && (
                 <Bar 
@@ -226,9 +204,7 @@ export default function LeadsChart({
 
               {/* Столбцы для каждого выбранного пользователя */}
               {selectedUsers.length > 0 && selectedUsers.map((userName) => {
-                const dataKey = filterType === 'all' 
-                  ? `${userName}_total`
-                  : filterType === 'contacts'
+                const dataKey = filterType === 'contacts'
                   ? `${userName}_contacts`
                   : `${userName}_approaches`;
                 
@@ -248,26 +224,8 @@ export default function LeadsChart({
         </div>
 
         {/* Статистика под графиком */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Карточка "Все лиды" */}
-          <div className="p-4 rounded-lg border-2 border-[#001f54] bg-gradient-to-br from-[#001f54] to-[#002b6b] hover:shadow-xl transition-all duration-300 shadow-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-3 h-3 rounded-full bg-white shadow-sm" />
-              <span className="text-sm font-semibold text-white">Все лиды</span>
-            </div>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold text-white">
-                {userStats.reduce((sum, user) => sum + user.lead_count, 0)}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-white/90">
-                <span className="font-medium">К: {userStats.reduce((sum, user) => sum + user.contacts, 0)}</span>
-                <span className="text-white/60">•</span>
-                <span className="font-medium">П: {userStats.reduce((sum, user) => sum + user.approaches, 0)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Карточки пользователей */}
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+          {/* Карточки пользователей */
           {userStats.map((user, index) => (
             <div 
               key={user.name}

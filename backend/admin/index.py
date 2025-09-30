@@ -203,15 +203,15 @@ def get_leads_stats() -> Dict[str, Any]:
                     'duplicates': row[5]
                 })
             
-            # Лиды за последние дни с разбивкой на контакты и подходы
+            # Лиды за последние дни с разбивкой на контакты и подходы (по московскому времени)
             cur.execute("""
-                SELECT DATE(created_at) as date, 
+                SELECT DATE(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as date, 
                        COUNT(*) as count,
                        COUNT(CASE WHEN notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
                        COUNT(CASE WHEN notes IS NOT NULL AND notes != '' AND NOT notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.leads 
                 WHERE created_at >= %s
-                GROUP BY DATE(created_at)
+                GROUP BY DATE(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')
                 ORDER BY date DESC
             """, (get_moscow_time() - timedelta(days=30),))
             
@@ -243,7 +243,7 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                        COUNT(CASE WHEN l.notes IS NOT NULL AND l.notes != '' AND NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id 
-                AND DATE(l.created_at) = %s
+                AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = %s
                 WHERE l.id IS NOT NULL
                 GROUP BY u.id, u.name, u.email
                 ORDER BY lead_count DESC
@@ -264,10 +264,10 @@ def get_chart_data() -> List[Dict[str, Any]]:
     """Получить детальные данные для графика по дням и пользователям"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Получаем данные за последние 30 дней по пользователям и типам
+            # Получаем данные за последние 30 дней по пользователям и типам (по московскому времени)
             cur.execute("""
                 SELECT 
-                    DATE(l.created_at) as date,
+                    DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as date,
                     u.name as user_name,
                     COUNT(*) as total_leads,
                     COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
@@ -275,7 +275,7 @@ def get_chart_data() -> List[Dict[str, Any]]:
                 FROM t_p24058207_website_creation_pro.leads l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.created_at >= %s
-                GROUP BY DATE(l.created_at), u.name
+                GROUP BY DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow'), u.name
                 ORDER BY date DESC, user_name
             """, (get_moscow_time() - timedelta(days=30),))
             

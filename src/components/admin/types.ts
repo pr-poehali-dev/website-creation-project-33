@@ -11,9 +11,9 @@ export interface User {
 
 export interface Lead {
   id: number;
-  notes: string;
-  has_audio: boolean;
-  audio_data: string | null;
+  lead_type: string;
+  lead_result: string;
+  telegram_message_id: number | null;
   created_at: string;
 }
 

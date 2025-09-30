@@ -373,7 +373,7 @@ def update_user_name(user_id: int, new_name: str) -> bool:
             return cur.rowcount > 0
 
 def delete_user(user_id: int) -> bool:
-    """Удалить пользователя и все связанные данные, заблокировать его IP"""
+    """Удалить пользователя и ВСЕ связанные данные навсегда (лиды, чат, сессии), заблокировать IP"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             # Получаем IP адрес пользователя перед удалением
@@ -388,12 +388,20 @@ def delete_user(user_id: int) -> bool:
                     (user_ip, f'User ID {user_id} deleted by admin')
                 )
             
-            # Сначала удаляем сессии пользователя
+            # УДАЛЯЕМ ВСЕ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:
+            
+            # 1. Удаляем сессии
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.user_sessions WHERE user_id = %s", (user_id,))
-            # Потом удаляем лиды пользователя
+            
+            # 2. Удаляем лиды (включая audio_data base64)
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads WHERE user_id = %s", (user_id,))
-            # И наконец удаляем самого пользователя (только не админов)
+            
+            # 3. Удаляем ВСЕ сообщения в чате (включая media_url base64)
+            cur.execute("DELETE FROM chat_messages WHERE user_id = %s", (user_id,))
+            
+            # 4. Удаляем самого пользователя (только не админов)
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.users WHERE id = %s AND is_admin = FALSE", (user_id,))
+            
             conn.commit()
             return cur.rowcount > 0
 

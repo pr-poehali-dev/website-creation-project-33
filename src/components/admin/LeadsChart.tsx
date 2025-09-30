@@ -44,20 +44,18 @@ export default function LeadsChart({
     }
   };
 
-  // Цвета для пользователей - мягкие, приглушенные тона
   const USER_COLORS = [
-    '#7C93C3', // Мягкий серо-синий
-    '#9EB384', // Приглушенный зелёный
-    '#C8A2C8', // Бледно-лиловый
-    '#D4A574', // Приглушенный золотистый
-    '#9DC5C3', // Мятный
-    '#C48B9F', // Пыльная роза
-    '#A7B8A8', // Серо-зелёный
-    '#B89D9D', // Бежево-серый
-    '#8EACCD'  // Пастельно-синий
+    '#7C93C3',
+    '#9EB384',
+    '#C8A2C8',
+    '#D4A574',
+    '#9DC5C3',
+    '#C48B9F',
+    '#A7B8A8',
+    '#B89D9D',
+    '#8EACCD'
   ];
   
-  // Создаем маппинг пользователей к цветам
   const userColorMap = userStats.reduce((acc, user, index) => {
     acc[user.name] = USER_COLORS[index % USER_COLORS.length];
     return acc;
@@ -74,9 +72,7 @@ export default function LeadsChart({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Фильтры */}
         <div className="mb-6 space-y-4">
-          {/* Фильтр по типу */}
           <div className="flex flex-wrap gap-2">
             <Button
               onClick={() => onFilterTypeChange('contacts')}
@@ -102,7 +98,6 @@ export default function LeadsChart({
             </Button>
           </div>
 
-          {/* Фильтр по пользователям */}
           <div className="flex flex-wrap gap-2">
             <span className="text-sm text-gray-600 font-medium">Пользователи:</span>
             <Button
@@ -130,7 +125,6 @@ export default function LeadsChart({
           </div>
         </div>
 
-        {/* Столбчатая диаграмма */}
         <div className="h-96">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
@@ -170,7 +164,6 @@ export default function LeadsChart({
                   })
                 }
                 itemSorter={(item) => {
-                  // Сортировка: сначала "Контакты" или "Подходы", потом пользователи
                   if (item.name === 'Контакты' || item.name === 'Подходы') {
                     return -1;
                   }
@@ -202,7 +195,6 @@ export default function LeadsChart({
                 />
               )}
 
-              {/* Столбцы для каждого выбранного пользователя */}
               {selectedUsers.length > 0 && selectedUsers.map((userName) => {
                 const dataKey = filterType === 'contacts'
                   ? `${userName}_contacts`
@@ -223,9 +215,7 @@ export default function LeadsChart({
           </ResponsiveContainer>
         </div>
 
-        {/* Статистика под графиком */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
-          {/* Карточки пользователей */
           {userStats.map((user, index) => (
             <div 
               key={user.name}

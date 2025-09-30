@@ -204,24 +204,45 @@ def get_leads_stats() -> Dict[str, Any]:
                 })
             
             # Лиды за последние дни с разбивкой на контакты и подходы (по московскому времени)
+            # Получаем все лиды за последние 30 дней и группируем в Python
             cur.execute("""
-                SELECT DATE(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as date, 
-                       COUNT(*) as count,
-                       COUNT(CASE WHEN notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN notes IS NOT NULL AND notes != '' AND NOT notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
+                SELECT created_at, notes
                 FROM t_p24058207_website_creation_pro.leads 
                 WHERE created_at >= %s
-                GROUP BY DATE(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')
-                ORDER BY date DESC
+                ORDER BY created_at DESC
             """, (get_moscow_time() - timedelta(days=30),))
             
-            daily_stats = []
+            # Группируем по дням в московском времени
+            from collections import defaultdict
+            daily_data = defaultdict(lambda: {'count': 0, 'contacts': 0, 'approaches': 0})
+            
+            phone_regex = r'([0-9]{11}|\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+            import re
+            
             for row in cur.fetchall():
+                created_at_utc = row[0]
+                notes = row[1] or ''
+                
+                # Конвертируем в московское время
+                moscow_dt = get_moscow_time_from_utc(created_at_utc)
+                date_key = moscow_dt.date().isoformat()
+                
+                # Считаем статистику
+                daily_data[date_key]['count'] += 1
+                
+                if re.search(phone_regex, notes):
+                    daily_data[date_key]['contacts'] += 1
+                elif notes and notes.strip():
+                    daily_data[date_key]['approaches'] += 1
+            
+            # Формируем результат
+            daily_stats = []
+            for date_key in sorted(daily_data.keys(), reverse=True):
                 daily_stats.append({
-                    'date': row[0].isoformat(),
-                    'count': row[1],
-                    'contacts': row[2],
-                    'approaches': row[3]
+                    'date': date_key,
+                    'count': daily_data[date_key]['count'],
+                    'contacts': daily_data[date_key]['contacts'],
+                    'approaches': daily_data[date_key]['approaches']
                 })
     
     return {
@@ -236,57 +257,104 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
     """Получить статистику пользователей за конкретный день с разбивкой на контакты и подходы"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+            # Получаем все лиды и фильтруем по московскому времени в Python
             cur.execute("""
-                SELECT u.name, u.email, 
-                       COUNT(l.id) as lead_count,
-                       COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.notes IS NOT NULL AND l.notes != '' AND NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
+                SELECT u.name, u.email, l.created_at, l.notes
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id 
-                AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = %s
                 WHERE l.id IS NOT NULL
-                GROUP BY u.id, u.name, u.email
-                ORDER BY lead_count DESC
-            """, (date,))
+            """)
             
-            user_stats = []
+            # Группируем по пользователям
+            from collections import defaultdict
+            user_data = defaultdict(lambda: {'name': '', 'email': '', 'lead_count': 0, 'contacts': 0, 'approaches': 0})
+            
+            phone_regex = r'([0-9]{11}|\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+            import re
+            
             for row in cur.fetchall():
-                user_stats.append({
-                    'name': row[0],
-                    'email': row[1],
-                    'lead_count': row[2],
-                    'contacts': row[3],
-                    'approaches': row[4]
-                })
+                user_name = row[0]
+                user_email = row[1]
+                created_at_utc = row[2]
+                notes = row[3] or ''
+                
+                # Конвертируем в московское время
+                moscow_dt = get_moscow_time_from_utc(created_at_utc)
+                lead_date = moscow_dt.date().isoformat()
+                
+                # Фильтруем по дате
+                if lead_date != date:
+                    continue
+                
+                key = user_email
+                user_data[key]['name'] = user_name
+                user_data[key]['email'] = user_email
+                user_data[key]['lead_count'] += 1
+                
+                if re.search(phone_regex, notes):
+                    user_data[key]['contacts'] += 1
+                elif notes and notes.strip():
+                    user_data[key]['approaches'] += 1
+            
+            # Формируем результат
+            user_stats = sorted(
+                [stats for stats in user_data.values()],
+                key=lambda x: x['lead_count'],
+                reverse=True
+            )
+            
             return user_stats
 
 def get_chart_data() -> List[Dict[str, Any]]:
     """Получить детальные данные для графика по дням и пользователям"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Получаем данные за последние 30 дней по пользователям и типам (по московскому времени)
+            # Получаем данные за последние 30 дней по пользователям и типам (группировка в Python)
             cur.execute("""
                 SELECT 
-                    DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as date,
+                    l.created_at,
                     u.name as user_name,
-                    COUNT(*) as total_leads,
-                    COUNT(CASE WHEN l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as contacts,
-                    COUNT(CASE WHEN NOT l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})' THEN 1 END) as approaches
+                    l.notes
                 FROM t_p24058207_website_creation_pro.leads l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.created_at >= %s
-                GROUP BY DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow'), u.name
-                ORDER BY date DESC, user_name
+                ORDER BY l.created_at DESC
             """, (get_moscow_time() - timedelta(days=30),))
             
-            chart_data = []
+            # Группируем по дням и пользователям в московском времени
+            from collections import defaultdict
+            chart_data_dict = defaultdict(lambda: {'total_leads': 0, 'contacts': 0, 'approaches': 0})
+            
+            phone_regex = r'([0-9]{11}|\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+            import re
+            
             for row in cur.fetchall():
+                created_at_utc = row[0]
+                user_name = row[1]
+                notes = row[2] or ''
+                
+                # Конвертируем в московское время
+                moscow_dt = get_moscow_time_from_utc(created_at_utc)
+                date_key = moscow_dt.date().isoformat()
+                key = (date_key, user_name)
+                
+                # Считаем статистику
+                chart_data_dict[key]['total_leads'] += 1
+                
+                if re.search(phone_regex, notes):
+                    chart_data_dict[key]['contacts'] += 1
+                else:
+                    chart_data_dict[key]['approaches'] += 1
+            
+            # Формируем результат
+            chart_data = []
+            for (date_key, user_name), stats in sorted(chart_data_dict.items(), key=lambda x: (x[0][0], x[0][1]), reverse=True):
                 chart_data.append({
-                    'date': row[0].isoformat(),
-                    'user_name': row[1],
-                    'total_leads': row[2],
-                    'contacts': row[3],
-                    'approaches': row[4]
+                    'date': date_key,
+                    'user_name': user_name,
+                    'total_leads': stats['total_leads'],
+                    'contacts': stats['contacts'],
+                    'approaches': stats['approaches']
                 })
             
             return chart_data

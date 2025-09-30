@@ -247,7 +247,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'user_id is required'})
                 }
             
-            # Удаляем все сообщения этого пользователя
+            # Удаляем ВСЕ сообщения пользователя НАВСЕГДА (включая медиа base64)
+            # Аудио/фото/видео хранятся как base64 в media_url
+            # После DELETE они исчезают из БД физически и навсегда
             cursor.execute("""
                 DELETE FROM chat_messages WHERE user_id = %s
             """, (target_user_id,))

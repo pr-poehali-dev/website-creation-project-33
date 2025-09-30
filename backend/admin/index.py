@@ -406,9 +406,12 @@ def delete_user(user_id: int) -> bool:
             return cur.rowcount > 0
 
 def delete_lead(lead_id: int) -> bool:
-    """Удалить лид по ID"""
+    """Удалить лид НАВСЕГДА (включая все аудиоданные из БД)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+            # Удаляем лид со ВСЕМИ данными (notes + audio_data base64)
+            # После удаления данные исчезают из БД навсегда
+            # Остаются только в бэкапах на 7-30 дней (стандарт Yandex Cloud)
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads WHERE id = %s", (lead_id,))
             conn.commit()
             return cur.rowcount > 0

@@ -1,22 +1,47 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Stats } from './types';
 
 interface StatsOverviewProps {
   stats: Stats;
+  onExportAll?: () => void;
+  exportingAll?: boolean;
 }
 
-export default function StatsOverview({ stats }: StatsOverviewProps) {
+export default function StatsOverview({ stats, onExportAll, exportingAll }: StatsOverviewProps) {
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
-          <div className="p-2 rounded-lg bg-[#001f54]/10">
-            <Icon name="BarChart3" size={20} className="text-[#001f54]" />
-          </div>
-          Общая статистика
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
+            <div className="p-2 rounded-lg bg-[#001f54]/10">
+              <Icon name="BarChart3" size={20} className="text-[#001f54]" />
+            </div>
+            Общая статистика
+          </CardTitle>
+          {onExportAll && (
+            <Button
+              onClick={onExportAll}
+              disabled={exportingAll}
+              className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:scale-105"
+              size="sm"
+            >
+              {exportingAll ? (
+                <>
+                  <Icon name="Loader2" size={14} className="mr-1.5 animate-spin" />
+                  Экспорт...
+                </>
+              ) : (
+                <>
+                  <Icon name="Sheet" size={14} className="mr-1.5" />
+                  Экспорт всей статистики
+                </>
+              )}
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">

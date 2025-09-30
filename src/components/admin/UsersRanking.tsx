@@ -7,13 +7,11 @@ import { UserStats } from './types';
 
 interface UsersRankingProps {
   userStats: UserStats[];
-  onExportAll?: () => void;
-  exportingAll?: boolean;
 }
 
 type RankingType = 'contacts' | 'approaches';
 
-export default function UsersRanking({ userStats, onExportAll, exportingAll }: UsersRankingProps) {
+export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
 
   // Сортируем пользователей в зависимости от выбранного типа
@@ -33,34 +31,12 @@ export default function UsersRanking({ userStats, onExportAll, exportingAll }: U
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
-            <div className="p-2 rounded-lg bg-[#001f54]/10">
-              <Icon name="Trophy" size={20} className="text-[#001f54]" />
-            </div>
-            Рейтинг пользователей ({getRankingTitle()})
-          </CardTitle>
-          {onExportAll && (
-            <Button
-              onClick={onExportAll}
-              disabled={exportingAll}
-              className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:scale-105"
-              size="sm"
-            >
-              {exportingAll ? (
-                <>
-                  <Icon name="Loader2" size={14} className="mr-1.5 animate-spin" />
-                  Экспорт всей статистики...
-                </>
-              ) : (
-                <>
-                  <Icon name="Sheet" size={14} className="mr-1.5" />
-                  Экспорт всей статистики в Google Sheets
-                </>
-              )}
-            </Button>
-          )}
-        </div>
+        <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
+          <div className="p-2 rounded-lg bg-[#001f54]/10">
+            <Icon name="Trophy" size={20} className="text-[#001f54]" />
+          </div>
+          Рейтинг пользователей ({getRankingTitle()})
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {/* Кнопки выбора типа рейтинга */}

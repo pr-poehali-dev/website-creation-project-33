@@ -199,13 +199,15 @@ export default function StatsTab() {
   return (
     <div className="space-y-6">
       {/* Общая статистика */}
-      <StatsOverview stats={stats} />
+      <StatsOverview 
+        stats={stats} 
+        onExportAll={exportAllToGoogleSheets}
+        exportingAll={exportingAll}
+      />
 
       {/* Рейтинг пользователей */}
       <UsersRanking 
-        userStats={stats.user_stats} 
-        onExportAll={exportAllToGoogleSheets}
-        exportingAll={exportingAll}
+        userStats={stats.user_stats}
       />
 
       {/* Статистика за последние дни */}

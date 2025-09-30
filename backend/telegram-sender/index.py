@@ -172,13 +172,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     with conn.cursor() as cur:
                         cur.execute(
                             """INSERT INTO leads_analytics 
-                            (user_id, lead_type, lead_result, telegram_message_id, created_at) 
-                            VALUES (%s, %s, %s, %s, %s)""",
+                            (user_id, lead_type, lead_result, telegram_message_id, notes, has_audio, created_at) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                             (
                                 int(user_id),
                                 classification['type'],
                                 classification['result'],
                                 telegram_message_id,
+                                notes,
+                                bool(audio_data),
                                 get_moscow_time()
                             )
                         )

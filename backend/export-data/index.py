@@ -51,7 +51,7 @@ def get_user_by_session(session_token: str) -> Dict[str, Any]:
     return None
 
 def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
-    """Получить только контакты (лиды с номерами телефонов)"""
+    """Получить только контакты (лиды с номерами телефонов) из leads_analytics"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             if today_only:
@@ -61,33 +61,30 @@ def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
                 moscow_today_end = moscow_now.replace(hour=23, minute=59, second=59, microsecond=999999)
                 
                 # Конвертируем московское время в UTC для сравнения с данными в БД
-                # UTC = МСК - 3 часа
-                utc_today_start = moscow_today_start.astimezone(pytz.UTC).replace(tzinfo=None)
-                utc_today_end = moscow_today_end.astimezone(pytz.UTC).replace(tzinfo=None)
+                utc_today_start = moscow_today_start.astimezone(pytz.UTC)
+                utc_today_end = moscow_today_end.astimezone(pytz.UTC)
                 
                 print(f'Moscow now: {moscow_now}')
                 print(f'Moscow today: {moscow_today_start} - {moscow_today_end}')
                 print(f'UTC range: {utc_today_start} - {utc_today_end}')
                 
-                # Запрос с фильтрацией по сегодняшней дате (UTC границы московского дня)
+                # Запрос из новой таблицы leads_analytics (только контакты)
                 query = """
-                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
-                    FROM leads l
+                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at, l.lead_type
+                    FROM leads_analytics l
                     JOIN users u ON l.user_id = u.id
-                    WHERE l.notes IS NOT NULL AND l.notes != ''
-                    AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+                    WHERE l.lead_type = 'контакт'
                     AND l.created_at >= %s AND l.created_at <= %s
                     ORDER BY l.created_at DESC
                 """
                 cur.execute(query, (utc_today_start, utc_today_end))
             else:
-                # Запрос для всех лидов с телефонами
+                # Запрос для всех контактов
                 query = """
-                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at
-                    FROM leads l
+                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at, l.lead_type
+                    FROM leads_analytics l
                     JOIN users u ON l.user_id = u.id
-                    WHERE l.notes IS NOT NULL AND l.notes != ''
-                    AND l.notes ~ '([0-9]{11}|\\+7[0-9]{10}|8[0-9]{10}|9[0-9]{9})'
+                    WHERE l.lead_type = 'контакт'
                     ORDER BY l.created_at DESC
                 """
                 cur.execute(query)
@@ -97,8 +94,8 @@ def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
                 leads.append({
                     'user_name': row[0],
                     'user_email': row[1],
-                    'notes': row[2],
-                    'has_audio': row[3],
+                    'notes': row[2] or '',
+                    'has_audio': row[3] or False,
                     'created_at': row[4]
                 })
     return leads

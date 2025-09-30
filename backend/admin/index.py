@@ -105,22 +105,12 @@ def get_leads_stats() -> Dict[str, Any]:
             """)
             approaches = cur.fetchone()[0]
             
-            # Продажи
-            cur.execute("""
-                SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics 
-                WHERE lead_type = 'продажа'
-            """)
-            sales = cur.fetchone()[0]
-            
             # Статистика по пользователям
             cur.execute("""
                 SELECT u.name, u.email,
                        COUNT(l.id) as lead_count,
                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
-                       COUNT(CASE WHEN l.lead_type = 'продажа' THEN 1 END) as sales,
-                       COUNT(CASE WHEN l.lead_result = 'положительный' THEN 1 END) as positive,
-                       COUNT(CASE WHEN l.lead_result = 'отрицательный' THEN 1 END) as negative
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.users u
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id
                 GROUP BY u.id, u.name, u.email
@@ -135,11 +125,7 @@ def get_leads_stats() -> Dict[str, Any]:
                     'email': row[1], 
                     'lead_count': row[2],
                     'contacts': row[3],
-                    'approaches': row[4],
-                    'sales': row[5],
-                    'positive': row[6],
-                    'negative': row[7],
-                    'duplicates': 0  # Больше нет дублей, т.к. нет текста
+                    'approaches': row[4]
                 })
             
             # Статистика за последние 30 дней
@@ -167,7 +153,6 @@ def get_leads_stats() -> Dict[str, Any]:
         'total_leads': total_leads,
         'contacts': contacts,
         'approaches': approaches,
-        'sales': sales,
         'user_stats': user_stats,
         'daily_stats': daily_stats
     }
@@ -180,8 +165,7 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                 SELECT u.name, u.email,
                        COUNT(l.id) as lead_count,
                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
-                       COUNT(CASE WHEN l.lead_type = 'продажа' THEN 1 END) as sales
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id 
                 WHERE DATE(l.created_at) = %s
@@ -197,8 +181,7 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                     'email': row[1],
                     'lead_count': row[2],
                     'contacts': row[3],
-                    'approaches': row[4],
-                    'sales': row[5]
+                    'approaches': row[4]
                 })
             
             return user_stats

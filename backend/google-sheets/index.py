@@ -76,7 +76,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     result = service.spreadsheets().values().append(
         spreadsheetId=sheet_id,
-        range='Sheet1!A:C',
+        range='Лист1!A:C',
         valueInputOption='RAW',
         body=body
     ).execute()

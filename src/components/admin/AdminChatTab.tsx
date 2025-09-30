@@ -143,9 +143,14 @@ export default function AdminChatTab() {
         setTimeout(() => {
           scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Send failed:', response.status, errorData);
+        alert(`Ошибка отправки: ${errorData.error || response.statusText}`);
       }
     } catch (error) {
       console.error('Send message error:', error);
+      alert(`Ошибка: ${error}`);
     } finally {
       setIsSending(false);
     }
@@ -188,8 +193,12 @@ export default function AdminChatTab() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Максимальный размер файла 10 МБ');
+    // Ограничение 1 МБ для base64 (чтобы влезло в JSON)
+    if (file.size > 1 * 1024 * 1024) {
+      alert('Максимальный размер файла 1 МБ (ограничение base64)');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       return;
     }
 

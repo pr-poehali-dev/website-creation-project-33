@@ -177,12 +177,16 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
+    // Ограничение 1 МБ для base64 (чтобы влезло в JSON)
+    if (file.size > 1 * 1024 * 1024) {
       toast({
         title: 'Файл слишком большой',
-        description: 'Максимальный размер файла 10 МБ',
+        description: 'Максимальный размер файла 1 МБ',
         variant: 'destructive',
       });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       return;
     }
 

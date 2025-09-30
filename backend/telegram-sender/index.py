@@ -170,11 +170,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     with conn.cursor() as cur:
                         cur.execute(
                             """INSERT INTO t_p24058207_website_creation_pro.leads_analytics 
-                            (user_id, lead_type, telegram_message_id, created_at) 
-                            VALUES (%s, %s, %s, %s)""",
+                            (user_id, lead_type, lead_result, telegram_message_id, created_at) 
+                            VALUES (%s, %s, %s, %s, %s)""",
                             (
                                 int(user_id),
                                 lead_type,
+                                '',
                                 telegram_message_id,
                                 get_moscow_time()
                             )

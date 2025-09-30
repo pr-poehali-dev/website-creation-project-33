@@ -81,14 +81,7 @@ export default function AdminPanel() {
     }
   }, [loadingName, showWelcome]);
 
-  const openGoogleSheets = () => {
-    const sheetId = import.meta.env.VITE_GOOGLE_SHEET_ID;
-    if (sheetId) {
-      window.open(`https://docs.google.com/spreadsheets/d/${sheetId}/edit`, '_blank');
-    } else {
-      alert('Google Sheets ID не настроен. Добавьте переменную окружения VITE_GOOGLE_SHEET_ID');
-    }
-  };
+
 
   if (!user?.is_admin) {
     return (
@@ -196,13 +189,7 @@ export default function AdminPanel() {
               <Icon name="LogOut" size={16} />
             </Button>
           </div>
-          <Button 
-            onClick={openGoogleSheets}
-            className="w-full bg-green-600 hover:bg-green-700 text-white h-12 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-          >
-            <Icon name="Sheet" size={16} className="mr-2" />
-            Google Таблицы
-          </Button>
+
         </div>
 
         {/* Десктопная версия заголовка */}
@@ -213,22 +200,13 @@ export default function AdminPanel() {
             </div>
             Панель администратора
           </h1>
-          <div className="flex items-center gap-4">
-            <Button 
-              onClick={openGoogleSheets}
-              className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-            >
-              <Icon name="Sheet" size={16} className="mr-2" />
-              Google Таблицы
-            </Button>
-            <Button 
-              onClick={logout} 
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-            >
-              <Icon name="LogOut" size={16} className="mr-2" />
-              Выйти
-            </Button>
-          </div>
+          <Button 
+            onClick={logout} 
+            className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+          >
+            <Icon name="LogOut" size={16} className="mr-2" />
+            Выйти
+          </Button>
         </div>
 
         <Tabs defaultValue="pending" className="space-y-4 md:space-y-6">

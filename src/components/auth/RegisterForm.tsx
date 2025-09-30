@@ -33,6 +33,23 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
     const result = await register(email, password, name);
     
     if (result === 'pending') {
+      // Отправляем данные в Google Sheets
+      try {
+        await fetch('https://functions.poehali.dev/ce92c4be-1721-49f2-95bb-4bafa6f05fc4', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: name,
+            phone: email,
+            source: 'Регистрация на сайте'
+          })
+        });
+      } catch (error) {
+        console.error('Ошибка отправки в Google Sheets:', error);
+      }
+      
       setPendingApproval(true);
     } else if (result === true) {
       // Успешная регистрация (если вдруг не требуется одобрение)

@@ -1,6 +1,6 @@
 '''
 Business: Записывает данные лида в Google Sheets таблицу
-Args: event с методом POST и body с данными лида (name, phone, source)
+Args: event с методом POST и body с данными (promoter_name, notes, timestamp)
 Returns: HTTP response с результатом записи
 '''
 
@@ -37,18 +37,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     body_data = json.loads(event.get('body', '{}'))
     
-    name = body_data.get('name', '')
-    phone = body_data.get('phone', '')
-    source = body_data.get('source', 'Неизвестно')
+    promoter_name = body_data.get('promoter_name', '')
+    notes = body_data.get('notes', '')
+    timestamp = body_data.get('timestamp', '')
     
-    if not name or not phone:
+    if not promoter_name or not notes:
         return {
             'statusCode': 400,
             'headers': {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': 'Name and phone are required'})
+            'body': json.dumps({'error': 'Promoter name and notes are required'})
         }
     
     credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_NEW')
@@ -71,15 +71,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     service = build('sheets', 'v4', credentials=creds)
     
-    from datetime import datetime
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    values = [[timestamp, name, phone, source]]
+    values = [[promoter_name, notes, timestamp]]
     body = {'values': values}
     
     result = service.spreadsheets().values().append(
         spreadsheetId=sheet_id,
-        range='Лиды!A:D',
+        range='Sheet1!A:C',
         valueInputOption='RAW',
         body=body
     ).execute()

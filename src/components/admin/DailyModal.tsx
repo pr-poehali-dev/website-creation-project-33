@@ -72,8 +72,6 @@ export default function DailyModal({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg md:text-xl font-bold text-black mb-1">{user.lead_count}</div>
-                      <div className="text-xs text-gray-500 mb-2">всего лидов</div>
                       <div className="flex justify-end gap-3 text-xs">
                         <div className="text-center">
                           <div className="text-sm font-bold text-green-600">{user.contacts}</div>

@@ -1,6 +1,6 @@
 '''
-Business: Создает лист "Рейтинг" в Google Sheets и экспортирует рейтинг пользователей
-Args: event с методом POST и body с данными рейтинга пользователей
+Business: Экспортирует полную статистику (общую, рейтинги, дневную статистику, график) в Google Sheets
+Args: event с методом POST и body с данными статистики
 Returns: HTTP response с результатом экспорта
 '''
 
@@ -40,7 +40,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if not body_str or body_str == '':
         body_str = '{}'
     body_data = json.loads(body_str)
+    
+    total_leads = body_data.get('total_leads', 0)
+    contacts = body_data.get('contacts', 0)
+    approaches = body_data.get('approaches', 0)
     user_stats: List[Dict[str, Any]] = body_data.get('user_stats', [])
+    daily_stats: List[Dict[str, Any]] = body_data.get('daily_stats', [])
+    chart_data: List[Dict[str, Any]] = body_data.get('chart_data', [])
     
     if not user_stats:
         return {
@@ -49,7 +55,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': 'User stats are required'})
+            'body': json.dumps({'error': 'Statistics data are required'})
         }
     
     credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_NEW')
@@ -71,46 +77,51 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     service = build('sheets', 'v4', credentials=creds)
     
     try:
-        # Проверяем, существует ли лист "Рейтинг"
         spreadsheet = service.spreadsheets().get(spreadsheetId=sheet_id).execute()
         sheets = spreadsheet.get('sheets', [])
-        rating_sheet_exists = any(sheet['properties']['title'] == 'Рейтинг' for sheet in sheets)
         
-        if not rating_sheet_exists:
-            # Создаем новый лист "Рейтинг"
-            request_body = {
-                'requests': [{
+        sheets_to_create = []
+        existing_sheet_titles = [s['properties']['title'] for s in sheets]
+        
+        for sheet_name in ['Общая статистика', 'Рейтинг по контактам', 'Рейтинг по подходам', 'Статистика по дням', 'График лидов']:
+            if sheet_name not in existing_sheet_titles:
+                sheets_to_create.append({
                     'addSheet': {
                         'properties': {
-                            'title': 'Рейтинг',
-                            'gridProperties': {
-                                'rowCount': 1000,
-                                'columnCount': 6
-                            }
+                            'title': sheet_name,
+                            'gridProperties': {'rowCount': 1000, 'columnCount': 10}
                         }
                     }
-                }]
-            }
+                })
+        
+        if sheets_to_create:
             service.spreadsheets().batchUpdate(
                 spreadsheetId=sheet_id,
-                body=request_body
+                body={'requests': sheets_to_create}
             ).execute()
         
-        # Очищаем лист "Рейтинг"
+        # 1. Общая статистика
+        overview_data = [
+            ['Метрика', 'Значение'],
+            ['Всего лидов', total_leads],
+            ['Контакты', contacts],
+            ['Подходы', approaches]
+        ]
         service.spreadsheets().values().clear(
+            spreadsheetId=sheet_id, range='Общая статистика!A:B'
+        ).execute()
+        service.spreadsheets().values().update(
             spreadsheetId=sheet_id,
-            range='Рейтинг!A:F'
+            range='Общая статистика!A1',
+            valueInputOption='RAW',
+            body={'values': overview_data}
         ).execute()
         
-        # Подготавливаем данные для экспорта
-        headers = [['Место', 'Имя', 'Email', 'Контакты', 'Подходы', 'Дубли']]
-        
-        # Сортируем по контактам (как в рейтинге)
-        sorted_stats = sorted(user_stats, key=lambda x: x.get('contacts', 0), reverse=True)
-        
-        rows = []
-        for index, user in enumerate(sorted_stats, start=1):
-            rows.append([
+        # 2. Рейтинг по контактам
+        sorted_by_contacts = sorted(user_stats, key=lambda x: x.get('contacts', 0), reverse=True)
+        contacts_data = [['Место', 'Имя', 'Email', 'Контакты', 'Подходы', 'Дубли']]
+        for index, user in enumerate(sorted_by_contacts, start=1):
+            contacts_data.append([
                 index,
                 user.get('name', ''),
                 user.get('email', ''),
@@ -118,52 +129,77 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 user.get('approaches', 0),
                 user.get('duplicates', 0)
             ])
-        
-        all_data = headers + rows
-        
-        # Записываем данные
+        service.spreadsheets().values().clear(
+            spreadsheetId=sheet_id, range='Рейтинг по контактам!A:F'
+        ).execute()
         service.spreadsheets().values().update(
             spreadsheetId=sheet_id,
-            range='Рейтинг!A1',
+            range='Рейтинг по контактам!A1',
             valueInputOption='RAW',
-            body={'values': all_data}
+            body={'values': contacts_data}
         ).execute()
         
-        # Получаем обновленный список листов после создания
-        spreadsheet_updated = service.spreadsheets().get(spreadsheetId=sheet_id).execute()
-        sheets_updated = spreadsheet_updated.get('sheets', [])
-        rating_sheet_id = None
+        # 3. Рейтинг по подходам
+        sorted_by_approaches = sorted(user_stats, key=lambda x: x.get('approaches', 0), reverse=True)
+        approaches_data = [['Место', 'Имя', 'Email', 'Контакты', 'Подходы', 'Дубли']]
+        for index, user in enumerate(sorted_by_approaches, start=1):
+            approaches_data.append([
+                index,
+                user.get('name', ''),
+                user.get('email', ''),
+                user.get('contacts', 0),
+                user.get('approaches', 0),
+                user.get('duplicates', 0)
+            ])
+        service.spreadsheets().values().clear(
+            spreadsheetId=sheet_id, range='Рейтинг по подходам!A:F'
+        ).execute()
+        service.spreadsheets().values().update(
+            spreadsheetId=sheet_id,
+            range='Рейтинг по подходам!A1',
+            valueInputOption='RAW',
+            body={'values': approaches_data}
+        ).execute()
         
-        for sheet in sheets_updated:
-            if sheet['properties']['title'] == 'Рейтинг':
-                rating_sheet_id = sheet['properties']['sheetId']
-                break
+        # 4. Статистика по дням
+        daily_data = [['Дата', 'Всего лидов', 'Контакты', 'Подходы']]
+        for day in daily_stats:
+            daily_data.append([
+                day.get('date', ''),
+                day.get('count', 0),
+                day.get('contacts', 0),
+                day.get('approaches', 0)
+            ])
+        service.spreadsheets().values().clear(
+            spreadsheetId=sheet_id, range='Статистика по дням!A:D'
+        ).execute()
+        service.spreadsheets().values().update(
+            spreadsheetId=sheet_id,
+            range='Статистика по дням!A1',
+            valueInputOption='RAW',
+            body={'values': daily_data}
+        ).execute()
         
-        # Форматируем заголовок (жирный шрифт) если нашли лист
-        if rating_sheet_id is not None:
-            format_request = {
-                'requests': [{
-                    'repeatCell': {
-                        'range': {
-                            'sheetId': rating_sheet_id,
-                            'startRowIndex': 0,
-                            'endRowIndex': 1
-                        },
-                        'cell': {
-                            'userEnteredFormat': {
-                                'textFormat': {
-                                    'bold': True
-                                }
-                            }
-                        },
-                        'fields': 'userEnteredFormat.textFormat.bold'
-                    }
-                }]
-            }
-            
-            service.spreadsheets().batchUpdate(
+        # 5. График лидов
+        if chart_data:
+            chart_headers = ['Дата', 'Всего', 'Контакты', 'Подходы']
+            chart_rows = []
+            for point in chart_data:
+                chart_rows.append([
+                    point.get('date', ''),
+                    point.get('total', 0),
+                    point.get('contacts', 0),
+                    point.get('approaches', 0)
+                ])
+            chart_export = [chart_headers] + chart_rows
+            service.spreadsheets().values().clear(
+                spreadsheetId=sheet_id, range='График лидов!A:D'
+            ).execute()
+            service.spreadsheets().values().update(
                 spreadsheetId=sheet_id,
-                body=format_request
+                range='График лидов!A1',
+                valueInputOption='RAW',
+                body={'values': chart_export}
             ).execute()
         
         return {
@@ -175,8 +211,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False,
             'body': json.dumps({
                 'success': True,
-                'message': 'Rating exported to Google Sheets',
-                'rows_exported': len(rows)
+                'message': 'Full statistics exported to Google Sheets',
+                'sheets_created': 5,
+                'users_exported': len(user_stats)
             })
         }
         

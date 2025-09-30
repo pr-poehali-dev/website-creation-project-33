@@ -7,52 +7,14 @@ import { UserStats } from './types';
 
 interface UsersRankingProps {
   userStats: UserStats[];
+  onExportAll?: () => void;
+  exportingAll?: boolean;
 }
 
 type RankingType = 'contacts' | 'approaches';
 
-export default function UsersRanking({ userStats }: UsersRankingProps) {
+export default function UsersRanking({ userStats, onExportAll, exportingAll }: UsersRankingProps) {
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
-  const [exporting, setExporting] = useState(false);
-
-  const exportToGoogleSheets = async () => {
-    setExporting(true);
-    try {
-      const response = await fetch('https://functions.poehali.dev/b5adaa83-68c7-43cf-a042-4b4b60dc8d82', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_stats: userStats
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Ошибка экспорта');
-      }
-
-      const result = await response.json();
-      
-      if (result.success) {
-        toast({
-          title: 'Успешно!',
-          description: `Экспортировано ${result.rows_exported} пользователей в Google Sheets`
-        });
-      } else {
-        throw new Error(result.error || 'Неизвестная ошибка');
-      }
-    } catch (error) {
-      console.error('Export error:', error);
-      toast({
-        title: 'Ошибка экспорта',
-        description: 'Не удалось экспортировать данные в Google Sheets',
-        variant: 'destructive'
-      });
-    } finally {
-      setExporting(false);
-    }
-  };
 
   // Сортируем пользователей в зависимости от выбранного типа
   const sortedUsers = [...userStats].sort((a, b) => {
@@ -78,24 +40,26 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
             </div>
             Рейтинг пользователей ({getRankingTitle()})
           </CardTitle>
-          <Button
-            onClick={exportToGoogleSheets}
-            disabled={exporting}
-            className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:scale-105"
-            size="sm"
-          >
-            {exporting ? (
-              <>
-                <Icon name="Loader2" size={14} className="mr-1.5 animate-spin" />
-                Экспорт...
-              </>
-            ) : (
-              <>
-                <Icon name="Sheet" size={14} className="mr-1.5" />
-                Экспорт в Google Sheets
-              </>
-            )}
-          </Button>
+          {onExportAll && (
+            <Button
+              onClick={onExportAll}
+              disabled={exportingAll}
+              className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:scale-105"
+              size="sm"
+            >
+              {exportingAll ? (
+                <>
+                  <Icon name="Loader2" size={14} className="mr-1.5 animate-spin" />
+                  Экспорт всей статистики...
+                </>
+              ) : (
+                <>
+                  <Icon name="Sheet" size={14} className="mr-1.5" />
+                  Экспорт всей статистики в Google Sheets
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>

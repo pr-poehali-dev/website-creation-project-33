@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import { toast } from '@/hooks/use-toast';
 import StatsOverview from './StatsOverview';
 import UsersRanking from './UsersRanking';
 import DailyStatsCard from './DailyStatsCard';
@@ -14,6 +15,7 @@ export default function StatsTab() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [dailyUserStats, setDailyUserStats] = useState<UserStats[]>([]);
   const [dailyLoading, setDailyLoading] = useState(false);
+  const [exportingAll, setExportingAll] = useState(false);
   
   // Состояния для графика
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
@@ -150,13 +152,61 @@ export default function StatsTab() {
     );
   }
 
+  const exportAllToGoogleSheets = async () => {
+    setExportingAll(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/b5adaa83-68c7-43cf-a042-4b4b60dc8d82', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          total_leads: stats.total_leads,
+          contacts: stats.contacts,
+          approaches: stats.approaches,
+          user_stats: stats.user_stats,
+          daily_stats: stats.daily_stats,
+          chart_data: chartData
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка экспорта');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: 'Успешно!',
+          description: `Экспортировано ${result.sheets_created} листов с данными в Google Sheets`
+        });
+      } else {
+        throw new Error(result.error || 'Неизвестная ошибка');
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: 'Ошибка экспорта',
+        description: 'Не удалось экспортировать данные в Google Sheets',
+        variant: 'destructive'
+      });
+    } finally {
+      setExportingAll(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Общая статистика */}
       <StatsOverview stats={stats} />
 
       {/* Рейтинг пользователей */}
-      <UsersRanking userStats={stats.user_stats} />
+      <UsersRanking 
+        userStats={stats.user_stats} 
+        onExportAll={exportAllToGoogleSheets}
+        exportingAll={exportingAll}
+      />
 
       {/* Статистика за последние дни */}
       <DailyStatsCard 

@@ -10,10 +10,13 @@
       }
     },
     {
-      "name": "Test POST with valid rating data",
+      "name": "Test POST with valid statistics data",
       "method": "POST",
       "path": "/",
       "body": {
+        "total_leads": 50,
+        "contacts": 30,
+        "approaches": 20,
         "user_stats": [
           {
             "name": "Иван Иванов",
@@ -21,13 +24,22 @@
             "contacts": 10,
             "approaches": 5,
             "duplicates": 1
-          },
+          }
+        ],
+        "daily_stats": [
           {
-            "name": "Петр Петров",
-            "email": "petr@test.ru",
-            "contacts": 8,
-            "approaches": 3,
-            "duplicates": 0
+            "date": "2025-10-01",
+            "count": 5,
+            "contacts": 3,
+            "approaches": 2
+          }
+        ],
+        "chart_data": [
+          {
+            "date": "2025-10-01",
+            "total": 5,
+            "contacts": 3,
+            "approaches": 2
           }
         ]
       },

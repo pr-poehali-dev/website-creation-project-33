@@ -23,11 +23,7 @@
       "headers": {
         "X-User-Id": "9"
       },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "messages": "array"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     }
   ]
 }

@@ -45,7 +45,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         # Проверяем, существует ли пользователь и является ли он администратором
-        cursor.execute("SELECT id, is_admin FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT id, is_admin FROM t_p24058207_website_creation_pro.users WHERE id = %s", (user_id,))
         user = cursor.fetchone()
         
         if not user:
@@ -66,8 +66,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 # Админ получает сообщения конкретного пользователя
                 cursor.execute("""
                     SELECT cm.*, u.name as user_name
-                    FROM chat_messages cm
-                    JOIN users u ON cm.user_id = u.id
+                    FROM t_p24058207_website_creation_pro.chat_messages cm
+                    JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
                     WHERE cm.user_id = %s
                     ORDER BY cm.created_at ASC
                 """, (target_user_id,))
@@ -76,7 +76,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 # Отмечаем сообщения от пользователя как прочитанные
                 cursor.execute("""
-                    UPDATE chat_messages 
+                    UPDATE t_p24058207_website_creation_pro.chat_messages 
                     SET is_read = TRUE 
                     WHERE user_id = %s AND is_from_admin = FALSE AND is_read = FALSE
                 """, (target_user_id,))
@@ -100,8 +100,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         COALESCE(COUNT(CASE WHEN cm.is_read = FALSE AND cm.is_from_admin = FALSE THEN 1 END), 0) as unread_count,
                         MAX(cm.created_at) as last_message_time,
                         COALESCE(COUNT(cm.id), 0) as total_messages
-                    FROM users u
-                    LEFT JOIN chat_messages cm ON u.id = cm.user_id
+                    FROM t_p24058207_website_creation_pro.users u
+                    LEFT JOIN t_p24058207_website_creation_pro.chat_messages cm ON u.id = cm.user_id
                     WHERE u.is_admin = FALSE
                     GROUP BY u.id, u.name, u.email
                     ORDER BY MAX(cm.created_at) DESC NULLS LAST, u.name ASC
@@ -122,8 +122,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cursor.execute("""
                     SELECT cm.*, u.name as user_name
-                    FROM chat_messages cm
-                    JOIN users u ON cm.user_id = u.id
+                    FROM t_p24058207_website_creation_pro.chat_messages cm
+                    JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
                     WHERE cm.user_id = %s
                     ORDER BY cm.created_at ASC
                 """, (user_id,))
@@ -133,7 +133,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 # Отмечаем сообщения от админа как прочитанные только если явно запросили
                 if mark_read:
                     cursor.execute("""
-                        UPDATE chat_messages 
+                        UPDATE t_p24058207_website_creation_pro.chat_messages 
                         SET is_read = TRUE 
                         WHERE user_id = %s AND is_from_admin = TRUE AND is_read = FALSE
                     """, (user_id,))
@@ -176,14 +176,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if is_admin and target_user_id:
                 # Админ отправляет сообщение пользователю
                 cursor.execute("""
-                    INSERT INTO chat_messages (user_id, message, is_from_admin, media_type, media_url)
+                    INSERT INTO t_p24058207_website_creation_pro.chat_messages (user_id, message, is_from_admin, media_type, media_url)
                     VALUES (%s, %s, TRUE, %s, %s)
                     RETURNING id, created_at
                 """, (target_user_id, message or '', media_type, media_url))
             else:
                 # Пользователь отправляет сообщение админу
                 cursor.execute("""
-                    INSERT INTO chat_messages (user_id, message, is_from_admin, media_type, media_url)
+                    INSERT INTO t_p24058207_website_creation_pro.chat_messages (user_id, message, is_from_admin, media_type, media_url)
                     VALUES (%s, %s, FALSE, %s, %s)
                     RETURNING id, created_at
                 """, (user_id, message or '', media_type, media_url))
@@ -209,13 +209,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if target_user_id:
                     cursor.execute("""
-                        UPDATE chat_messages 
+                        UPDATE t_p24058207_website_creation_pro.chat_messages 
                         SET is_read = TRUE 
                         WHERE user_id = %s AND is_from_admin = FALSE
                     """, (target_user_id,))
             else:
                 cursor.execute("""
-                    UPDATE chat_messages 
+                    UPDATE t_p24058207_website_creation_pro.chat_messages 
                     SET is_read = TRUE 
                     WHERE user_id = %s AND is_from_admin = TRUE
                 """, (user_id,))
@@ -251,7 +251,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Аудио/фото/видео хранятся как base64 в media_url
             # После DELETE они исчезают из БД физически и навсегда
             cursor.execute("""
-                DELETE FROM chat_messages WHERE user_id = %s
+                DELETE FROM t_p24058207_website_creation_pro.chat_messages WHERE user_id = %s
             """, (target_user_id,))
             
             deleted_count = cursor.rowcount

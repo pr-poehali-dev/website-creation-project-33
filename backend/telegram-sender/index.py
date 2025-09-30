@@ -7,6 +7,8 @@ from datetime import datetime
 from typing import Dict, Any
 import pytz
 import re
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 
 MOSCOW_TZ = pytz.timezone('Europe/Moscow')
 
@@ -14,6 +16,52 @@ def get_moscow_time():
     """Получить текущее московское время"""
     utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
     return utc_now.astimezone(MOSCOW_TZ)
+
+def send_to_google_sheets(user_name: str, lead_type: str, notes: str, has_audio: bool, moscow_time: datetime):
+    """Отправить данные лида в Google Таблицы"""
+    try:
+        credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS')
+        sheet_id = os.environ.get('GOOGLE_SHEET_ID')
+        
+        if not credentials_json or not sheet_id:
+            print('Google Sheets not configured, skipping')
+            return
+        
+        credentials_dict = json.loads(credentials_json)
+        credentials = service_account.Credentials.from_service_account_info(
+            credentials_dict,
+            scopes=['https://www.googleapis.com/auth/spreadsheets']
+        )
+        
+        service = build('sheets', 'v4', credentials=credentials)
+        
+        formatted_time = moscow_time.strftime('%d.%m.%Y %H:%M:%S')
+        audio_status = 'Да' if has_audio else 'Нет'
+        
+        values = [[
+            formatted_time,
+            user_name,
+            lead_type,
+            notes,
+            audio_status
+        ]]
+        
+        body = {
+            'values': values
+        }
+        
+        service.spreadsheets().values().append(
+            spreadsheetId=sheet_id,
+            range='A:E',
+            valueInputOption='RAW',
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
+        
+        print(f'Successfully sent to Google Sheets: {user_name}, {lead_type}')
+        
+    except Exception as e:
+        print(f'Failed to send to Google Sheets: {e}')
 
 def classify_lead_by_phone(notes: str) -> str:
     """
@@ -164,6 +212,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Failed to send to Telegram'})
                 }
         
+        moscow_time = get_moscow_time()
+        
         if database_url:
             try:
                 with psycopg2.connect(database_url) as conn:
@@ -177,12 +227,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 lead_type,
                                 '',
                                 telegram_message_id,
-                                get_moscow_time()
+                                moscow_time
                             )
                         )
                         conn.commit()
             except Exception as db_error:
                 print(f"Database error: {db_error}")
+        
+        send_to_google_sheets(user_name, lead_type, notes, bool(audio_data), moscow_time)
         
         return {
             'statusCode': 200,

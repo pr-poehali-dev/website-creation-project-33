@@ -148,32 +148,45 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
         
         elif method == 'POST':
-            # Отправка сообщения
+            # Отправка сообщения (с поддержкой медиафайлов через base64)
             body_data = json.loads(event.get('body', '{}'))
             message = body_data.get('message', '').strip()
             target_user_id = body_data.get('user_id')  # Только для админа
+            media_type = body_data.get('media_type')  # audio, image, video
+            media_data = body_data.get('media_data')  # base64 encoded
             
-            if not message:
+            # Сообщение или медиа обязательно
+            if not message and not media_data:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Message is required'})
+                    'body': json.dumps({'error': 'Message or media is required'})
                 }
+            
+            # Формируем медиа URL (data URI для встраивания)
+            media_url = None
+            if media_data and media_type:
+                if media_type == 'audio':
+                    media_url = f'data:audio/webm;base64,{media_data}'
+                elif media_type == 'image':
+                    media_url = f'data:image/jpeg;base64,{media_data}'
+                elif media_type == 'video':
+                    media_url = f'data:video/mp4;base64,{media_data}'
             
             if is_admin and target_user_id:
                 # Админ отправляет сообщение пользователю
                 cursor.execute("""
-                    INSERT INTO chat_messages (user_id, message, is_from_admin)
-                    VALUES (%s, %s, TRUE)
+                    INSERT INTO chat_messages (user_id, message, is_from_admin, media_type, media_url)
+                    VALUES (%s, %s, TRUE, %s, %s)
                     RETURNING id, created_at
-                """, (target_user_id, message))
+                """, (target_user_id, message or '', media_type, media_url))
             else:
                 # Пользователь отправляет сообщение админу
                 cursor.execute("""
-                    INSERT INTO chat_messages (user_id, message, is_from_admin)
-                    VALUES (%s, %s, FALSE)
+                    INSERT INTO chat_messages (user_id, message, is_from_admin, media_type, media_url)
+                    VALUES (%s, %s, FALSE, %s, %s)
                     RETURNING id, created_at
-                """, (user_id, message))
+                """, (user_id, message or '', media_type, media_url))
             
             result = cursor.fetchone()
             conn.commit()

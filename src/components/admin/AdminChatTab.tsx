@@ -12,6 +12,8 @@ interface Message {
   id: number;
   user_id: number;
   message: string;
+  media_type?: 'audio' | 'image' | 'video' | null;
+  media_url?: string | null;
   is_from_admin: boolean;
   is_read: boolean;
   created_at: string;
@@ -38,7 +40,12 @@ export default function AdminChatTab() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadUsers = async () => {
     if (!user) return;
@@ -84,10 +91,36 @@ export default function AdminChatTab() {
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !user || !selectedUser) return;
+    if ((!newMessage.trim() && !selectedFile) || !user || !selectedUser) return;
 
     setIsSending(true);
     try {
+      let media_data = null;
+      let media_type = null;
+
+      if (selectedFile) {
+        // Convert file to base64
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve, reject) => {
+          reader.onload = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            resolve(base64);
+          };
+          reader.onerror = reject;
+        });
+        reader.readAsDataURL(selectedFile);
+        media_data = await base64Promise;
+
+        // Determine media type
+        if (selectedFile.type.startsWith('audio/')) {
+          media_type = 'audio';
+        } else if (selectedFile.type.startsWith('image/')) {
+          media_type = 'image';
+        } else if (selectedFile.type.startsWith('video/')) {
+          media_type = 'video';
+        }
+      }
+
       const response = await fetch(CHAT_API_URL, {
         method: 'POST',
         headers: {
@@ -97,11 +130,15 @@ export default function AdminChatTab() {
         body: JSON.stringify({
           message: newMessage.trim(),
           user_id: selectedUser.id,
+          media_data,
+          media_type,
         }),
       });
 
       if (response.ok) {
         setNewMessage('');
+        setSelectedFile(null);
+        setPreviewUrl(null);
         await loadMessages(selectedUser.id);
         setTimeout(() => {
           scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -111,6 +148,64 @@ export default function AdminChatTab() {
       console.error('Send message error:', error);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const audioChunks: Blob[] = [];
+
+      recorder.ondataavailable = (e) => {
+        audioChunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const file = new File([audioBlob], 'voice.webm', { type: 'audio/webm' });
+        setSelectedFile(file);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Recording error:', error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      setMediaRecorder(null);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Максимальный размер файла 10 МБ');
+      return;
+    }
+
+    setSelectedFile(file);
+    
+    if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const cancelFile = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -288,7 +383,25 @@ export default function AdminChatTab() {
                               {selectedUser.name}
                             </p>
                           )}
-                          <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
+                          {msg.media_type === 'audio' && msg.media_url && (
+                            <audio controls className="max-w-full mb-2">
+                              <source src={msg.media_url} type="audio/webm" />
+                            </audio>
+                          )}
+                          {msg.media_type === 'image' && msg.media_url && (
+                            <img 
+                              src={msg.media_url} 
+                              alt="Изображение" 
+                              className="max-w-full rounded mb-2 cursor-pointer"
+                              onClick={() => window.open(msg.media_url, '_blank')}
+                            />
+                          )}
+                          {msg.media_type === 'video' && msg.media_url && (
+                            <video controls className="max-w-full rounded mb-2">
+                              <source src={msg.media_url} type="video/mp4" />
+                            </video>
+                          )}
+                          {msg.message && <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>}
                           <p
                             className={`text-xs mt-1 ${
                               msg.is_from_admin ? 'text-white/70' : 'text-gray-500'
@@ -305,7 +418,56 @@ export default function AdminChatTab() {
               </ScrollArea>
 
               <div className="p-4 border-t bg-gray-50">
-                <div className="flex gap-2">
+                {(selectedFile || previewUrl) && (
+                  <div className="mb-3 p-3 bg-white rounded-lg border flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {previewUrl && selectedFile?.type.startsWith('image/') && (
+                        <img src={previewUrl} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                      )}
+                      {previewUrl && selectedFile?.type.startsWith('video/') && (
+                        <video src={previewUrl} className="w-16 h-16 object-cover rounded" />
+                      )}
+                      {selectedFile?.type.startsWith('audio/') && (
+                        <div className="flex items-center gap-2">
+                          <Icon name="Mic" size={20} className="text-blue-600" />
+                          <span className="text-sm">Голосовое сообщение</span>
+                        </div>
+                      )}
+                      <span className="text-sm text-gray-600">
+                        {(selectedFile.size / 1024).toFixed(0)} КБ
+                      </span>
+                    </div>
+                    <Button onClick={cancelFile} variant="ghost" size="sm">
+                      <Icon name="X" size={16} />
+                    </Button>
+                  </div>
+                )}
+                <div className="flex gap-2 mb-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    size="icon"
+                    disabled={isSending || isRecording || selectedFile !== null}
+                    className="shrink-0"
+                  >
+                    <Icon name="Paperclip" size={20} />
+                  </Button>
+                  <Button
+                    onClick={isRecording ? stopRecording : startRecording}
+                    variant="outline"
+                    size="icon"
+                    disabled={isSending || selectedFile !== null}
+                    className={`shrink-0 ${isRecording ? 'bg-red-100 border-red-300' : ''}`}
+                  >
+                    <Icon name="Mic" size={20} className={isRecording ? 'text-red-500' : ''} />
+                  </Button>
                   <Textarea
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
@@ -316,7 +478,7 @@ export default function AdminChatTab() {
                   />
                   <Button
                     onClick={sendMessage}
-                    disabled={!newMessage.trim() || isSending}
+                    disabled={(!newMessage.trim() && !selectedFile) || isSending}
                     className="self-end"
                     size="icon"
                   >
@@ -327,8 +489,8 @@ export default function AdminChatTab() {
                     )}
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  {newMessage.length}/1000 символов
+                <p className="text-xs text-gray-500">
+                  {newMessage.length}/1000 символов {selectedFile && `• ${selectedFile.name}`}
                 </p>
               </div>
             </>

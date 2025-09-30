@@ -21,10 +21,7 @@
       "expectedStatus": 200,
       "expectedBody": {
         "success": true,
-        "classification": {
-          "type": "string",
-          "result": "string"
-        }
+        "lead_type": "string"
       },
       "bodyMatcher": "partial"
     }

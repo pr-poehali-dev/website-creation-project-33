@@ -15,7 +15,7 @@ def get_moscow_time():
     utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
     return utc_now.astimezone(MOSCOW_TZ)
 
-def classify_lead_by_phone(notes: str) -> Dict[str, str]:
+def classify_lead_by_phone(notes: str) -> str:
     """
     Классифицирует лид по наличию российского номера телефона
     Контакт = есть 11-значный номер РФ
@@ -26,15 +26,9 @@ def classify_lead_by_phone(notes: str) -> Dict[str, str]:
     match = re.search(phone_pattern, notes)
     
     if match:
-        return {
-            'type': 'контакт',
-            'result': 'положительный'
-        }
+        return 'контакт'
     else:
-        return {
-            'type': 'подход',
-            'result': 'нейтральный'
-        }
+        return 'подход'
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -87,29 +81,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
         chat_id = '5215501225'
         
-        classification = classify_lead_by_phone(notes)
+        lead_type = classify_lead_by_phone(notes)
         
         telegram_message_id = None
         
         type_emoji = {
             'подход': '👋',
-            'контакт': '📞',
-            'продажа': '💰',
-            'отказ': '❌',
-            'неопределен': '❓'
+            'контакт': '📞'
         }
         
-        result_emoji = {
-            'положительный': '✅',
-            'нейтральный': '➖',
-            'отрицательный': '❌',
-            'неопределен': '❓'
-        }
+        emoji_type = type_emoji.get(lead_type, '❓')
         
-        emoji_type = type_emoji.get(classification['type'], '❓')
-        emoji_result = result_emoji.get(classification['result'], '❓')
-        
-        caption = f"""{emoji_type} {classification['type'].upper()} {emoji_result} {classification['result']}
+        caption = f"""{emoji_type} {lead_type.upper()}
 🎙️ IMPERIA PROMO
 Промоутер ID: #{user_id}
 
@@ -172,12 +155,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     with conn.cursor() as cur:
                         cur.execute(
                             """INSERT INTO leads_analytics 
-                            (user_id, lead_type, lead_result, telegram_message_id, created_at) 
-                            VALUES (%s, %s, %s, %s, %s)""",
+                            (user_id, lead_type, telegram_message_id, created_at) 
+                            VALUES (%s, %s, %s, %s)""",
                             (
                                 int(user_id),
-                                classification['type'],
-                                classification['result'],
+                                lead_type,
                                 telegram_message_id,
                                 get_moscow_time()
                             )
@@ -196,7 +178,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({
                 'success': True,
                 'message': 'Lead analyzed and sent',
-                'classification': classification
+                'lead_type': lead_type
             })
         }
         

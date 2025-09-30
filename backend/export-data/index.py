@@ -51,7 +51,7 @@ def get_user_by_session(session_token: str) -> Dict[str, Any]:
     return None
 
 def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
-    """Получить только контакты (лиды с номерами телефонов) из leads_analytics"""
+    """Получить только контакты (метрики) из leads_analytics - БЕЗ текста заметок"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             if today_only:
@@ -64,13 +64,9 @@ def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
                 utc_today_start = moscow_today_start.astimezone(pytz.UTC)
                 utc_today_end = moscow_today_end.astimezone(pytz.UTC)
                 
-                print(f'Moscow now: {moscow_now}')
-                print(f'Moscow today: {moscow_today_start} - {moscow_today_end}')
-                print(f'UTC range: {utc_today_start} - {utc_today_end}')
-                
-                # Запрос из новой таблицы leads_analytics (только контакты)
+                # Запрос из leads_analytics (только метрики контактов)
                 query = """
-                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at, l.lead_type
+                    SELECT u.name, u.email, l.created_at, l.lead_type, l.telegram_message_id
                     FROM leads_analytics l
                     JOIN users u ON l.user_id = u.id
                     WHERE l.lead_type = 'контакт'
@@ -81,7 +77,7 @@ def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
             else:
                 # Запрос для всех контактов
                 query = """
-                    SELECT u.name, u.email, l.notes, l.has_audio, l.created_at, l.lead_type
+                    SELECT u.name, u.email, l.created_at, l.lead_type, l.telegram_message_id
                     FROM leads_analytics l
                     JOIN users u ON l.user_id = u.id
                     WHERE l.lead_type = 'контакт'
@@ -94,9 +90,9 @@ def get_leads_data(today_only: bool = False) -> List[Dict[str, Any]]:
                 leads.append({
                     'user_name': row[0],
                     'user_email': row[1],
-                    'notes': row[2] or '',
-                    'has_audio': row[3] or False,
-                    'created_at': row[4]
+                    'notes': f'Контакт (см. Telegram #{row[4]})',
+                    'has_audio': False,
+                    'created_at': row[2]
                 })
     return leads
 

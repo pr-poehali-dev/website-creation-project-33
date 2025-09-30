@@ -81,39 +81,12 @@ export default function AdminPanel() {
     }
   }, [loadingName, showWelcome]);
 
-  const downloadCSV = async (todayOnly = false) => {
-    try {
-      const sessionToken = localStorage.getItem('session_token');
-      const url = todayOnly 
-        ? 'https://functions.poehali.dev/8e6ffbcb-a1f9-453e-9404-fde81533bff7?today=true'
-        : 'https://functions.poehali.dev/8e6ffbcb-a1f9-453e-9404-fde81533bff7';
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'X-Session-Token': sessionToken || '',
-        },
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        const fileName = todayOnly 
-          ? `contacts_today_${new Date().toISOString().slice(0,10)}.csv`
-          : `contacts_all_${new Date().toISOString().slice(0,10)}.csv`;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(downloadUrl);
-        document.body.removeChild(a);
-      } else {
-        alert('Ошибка при скачивании CSV файла');
-      }
-    } catch (error) {
-      console.error('Error downloading CSV:', error);
-      alert('Ошибка при скачивании CSV файла');
+  const openGoogleSheets = () => {
+    const sheetId = import.meta.env.VITE_GOOGLE_SHEET_ID;
+    if (sheetId) {
+      window.open(`https://docs.google.com/spreadsheets/d/${sheetId}/edit`, '_blank');
+    } else {
+      alert('Google Sheets ID не настроен. Добавьте переменную окружения VITE_GOOGLE_SHEET_ID');
     }
   };
 
@@ -223,22 +196,13 @@ export default function AdminPanel() {
               <Icon name="LogOut" size={16} />
             </Button>
           </div>
-          <div className="flex gap-2">
-            <Button 
-              onClick={() => downloadCSV(false)}
-              className="flex-1 bg-white hover:bg-[#001f54]/5 text-[#001f54] border-2 border-[#001f54] h-12 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-            >
-              <Icon name="Download" size={16} className="mr-2" />
-              Общая CSV
-            </Button>
-            <Button 
-              onClick={() => downloadCSV(true)}
-              className="flex-1 bg-[#001f54] hover:bg-[#002b6b] text-white border-2 border-[#001f54] h-12 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-            >
-              <Icon name="Calendar" size={16} className="mr-2" />
-              Сегодня CSV
-            </Button>
-          </div>
+          <Button 
+            onClick={openGoogleSheets}
+            className="w-full bg-green-600 hover:bg-green-700 text-white h-12 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+          >
+            <Icon name="Sheet" size={16} className="mr-2" />
+            Google Таблицы
+          </Button>
         </div>
 
         {/* Десктопная версия заголовка */}
@@ -251,18 +215,11 @@ export default function AdminPanel() {
           </h1>
           <div className="flex items-center gap-4">
             <Button 
-              onClick={() => downloadCSV(false)}
-              className="bg-white hover:bg-[#001f54]/5 text-[#001f54] border-2 border-[#001f54] shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+              onClick={openGoogleSheets}
+              className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
             >
-              <Icon name="Download" size={16} className="mr-2" />
-              Общая CSV
-            </Button>
-            <Button 
-              onClick={() => downloadCSV(true)}
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-            >
-              <Icon name="Calendar" size={16} className="mr-2" />
-              Сегодня CSV
+              <Icon name="Sheet" size={16} className="mr-2" />
+              Google Таблицы
             </Button>
             <Button 
               onClick={logout} 

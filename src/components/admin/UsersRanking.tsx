@@ -8,7 +8,7 @@ interface UsersRankingProps {
   userStats: UserStats[];
 }
 
-type RankingType = 'contacts' | 'approaches' | 'total';
+type RankingType = 'contacts' | 'approaches';
 
 export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
@@ -17,17 +17,14 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const sortedUsers = [...userStats].sort((a, b) => {
     if (rankingType === 'contacts') {
       return b.contacts - a.contacts;
-    } else if (rankingType === 'approaches') {
-      return b.approaches - a.approaches;
     } else {
-      return b.lead_count - a.lead_count;
+      return b.approaches - a.approaches;
     }
   });
 
   const getRankingTitle = () => {
     if (rankingType === 'contacts') return 'по контактам';
-    if (rankingType === 'approaches') return 'по подходам';
-    return 'по общему количеству';
+    return 'по подходам';
   };
 
   return (
@@ -67,18 +64,6 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
             <Icon name="Users" size={14} className="mr-1.5" />
             Подходы
           </Button>
-          <Button
-            onClick={() => setRankingType('total')}
-            variant={rankingType === 'total' ? 'default' : 'outline'}
-            size="sm"
-            className={`transition-all duration-300 ${rankingType === 'total'
-              ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-              : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
-            }`}
-          >
-            <Icon name="TrendingUp" size={14} className="mr-1.5" />
-            Все лиды
-          </Button>
         </div>
 
         <div className="space-y-4">
@@ -111,10 +96,10 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                   </div>
                   <div className="flex-shrink-0 text-right">
                     <div className="text-base md:text-xl font-bold text-black mb-1">
-                      {rankingType === 'contacts' ? user.contacts : rankingType === 'approaches' ? user.approaches : user.lead_count}
+                      {rankingType === 'contacts' ? user.contacts : user.approaches}
                     </div>
                     <div className="text-[10px] md:text-xs text-gray-500 mb-1 md:mb-2 whitespace-nowrap">
-                      {rankingType === 'contacts' ? 'контактов' : rankingType === 'approaches' ? 'подходов' : 'всего лидов'}
+                      {rankingType === 'contacts' ? 'контактов' : 'подходов'}
                     </div>
                     <div className="flex justify-end gap-1.5 md:gap-2 text-xs">
                       <div className="text-center">

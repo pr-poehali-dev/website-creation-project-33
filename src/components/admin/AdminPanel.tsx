@@ -3,13 +3,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
-import StatsOverview from './StatsOverview';
-import PromotersList from './PromotersList';
+import PendingUsers from './PendingUsers';
+import PromotersRating from './PromotersRating';
 import AdminChat from './AdminChat';
+import PromotersList from './PromotersList';
 
 export default function AdminPanel() {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('stats');
+  const [activeTab, setActiveTab] = useState('pending');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e8eef5]">

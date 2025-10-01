@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import StatsOverview from './StatsOverview';
 import PromotersList from './PromotersList';
 import AdminChat from './AdminChat';
+import LeadsChart from './LeadsChart';
 
 export default function AdminPanel() {
   const { user, logout } = useAuth();
@@ -53,8 +54,9 @@ export default function AdminPanel() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="stats">
+          <TabsContent value="stats" className="space-y-6">
             <StatsOverview />
+            <LeadsChart />
           </TabsContent>
 
           <TabsContent value="promoters">

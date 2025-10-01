@@ -39,21 +39,17 @@ export default function PromotersRating() {
       );
       const data = await response.json();
       
-      console.log('Данные с сервера:', data);
-      
       if (data.user_stats) {
         setPromoters(data.user_stats);
       }
       
       if (data.daily_stats) {
-        console.log('daily_stats до обработки:', data.daily_stats);
         const chartData = data.daily_stats
           .map((day: any) => ({
-            date: new Date(day.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }),
+            date: new Date(day.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'numeric' }),
             contacts: day.contacts
           }))
           .reverse();
-        console.log('График данные:', chartData);
         setDailyStats(chartData);
       }
     } catch (error) {
@@ -137,36 +133,44 @@ export default function PromotersRating() {
       </CardHeader>
       <CardContent>
         {dailyStats.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-[#001f54] mb-4">Динамика контактов</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={dailyStats} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+          <div className="mb-6 bg-gradient-to-br from-green-50 to-white p-6 rounded-xl border border-green-100">
+            <h3 className="text-lg font-semibold text-[#001f54] mb-4 flex items-center gap-2">
+              <Icon name="TrendingUp" size={20} className="text-green-600" />
+              Динамика контактов по дням
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={dailyStats} margin={{ top: 10, right: 30, left: 0, bottom: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#d1fae5" />
                 <XAxis 
                   dataKey="date" 
-                  stroke="#666"
-                  style={{ fontSize: '12px' }}
+                  stroke="#059669"
+                  style={{ fontSize: '13px', fontWeight: 500 }}
+                  tick={{ fill: '#059669' }}
                 />
                 <YAxis 
-                  stroke="#666"
-                  style={{ fontSize: '12px' }}
+                  stroke="#059669"
+                  style={{ fontSize: '13px', fontWeight: 500 }}
+                  tick={{ fill: '#059669' }}
+                  label={{ value: 'Контакты', angle: -90, position: 'insideLeft', fill: '#059669' }}
                 />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: '#fff',
-                    border: '1px solid #ccc',
-                    borderRadius: '8px',
-                    padding: '8px'
+                    border: '2px solid #16a34a',
+                    borderRadius: '12px',
+                    padding: '12px',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                   }}
-                  labelStyle={{ color: '#001f54', fontWeight: 'bold' }}
+                  labelStyle={{ color: '#001f54', fontWeight: 'bold', marginBottom: '4px' }}
+                  itemStyle={{ color: '#16a34a', fontWeight: 600 }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="contacts" 
                   stroke="#16a34a"
-                  strokeWidth={3}
-                  dot={{ fill: '#16a34a', r: 5 }}
-                  activeDot={{ r: 7 }}
+                  strokeWidth={4}
+                  dot={{ fill: '#16a34a', r: 6, strokeWidth: 2, stroke: '#fff' }}
+                  activeDot={{ r: 8, strokeWidth: 3 }}
                   name="Контакты"
                 />
               </LineChart>

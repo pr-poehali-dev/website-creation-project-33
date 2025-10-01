@@ -38,27 +38,37 @@ export default function AdminPanel() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-white shadow-lg">
-            <TabsTrigger value="stats" className="data-[state=active]:bg-[#001f54] data-[state=active]:text-white">
-              <Icon name="BarChart3" size={16} className="mr-2" />
-              Статистика
+          <TabsList className="grid w-full grid-cols-4 bg-white shadow-lg">
+            <TabsTrigger value="pending" className="data-[state=active]:bg-[#001f54] data-[state=active]:text-white text-sm md:text-base">
+              <Icon name="UserCheck" size={16} className="mr-1 md:mr-2" />
+              <span className="hidden md:inline">Заявки</span>
+              <span className="md:hidden">Заяв.</span>
             </TabsTrigger>
-            <TabsTrigger value="promoters" className="data-[state=active]:bg-[#001f54] data-[state=active]:text-white">
-              <Icon name="Users" size={16} className="mr-2" />
-              Промоутеры
+            <TabsTrigger value="promoters" className="data-[state=active]:bg-[#001f54] data-[state=active]:text-white text-sm md:text-base">
+              <Icon name="Users" size={16} className="mr-1 md:mr-2" />
+              <span className="hidden md:inline">Пользователи</span>
+              <span className="md:hidden">Польз.</span>
             </TabsTrigger>
-            <TabsTrigger value="chat" className="data-[state=active]:bg-[#001f54] data-[state=active]:text-white">
-              <Icon name="MessageCircle" size={16} className="mr-2" />
+            <TabsTrigger value="rating" className="data-[state=active]:bg-[#001f54] data-[state=active]:text-white text-sm md:text-base">
+              <Icon name="Trophy" size={16} className="mr-1 md:mr-2" />
+              Рейтинг
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="data-[state=active]:bg-[#001f54] data-[state=active]:text-white text-sm md:text-base">
+              <Icon name="MessageCircle" size={16} className="mr-1 md:mr-2" />
               Чат
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="stats">
-            <StatsOverview />
+          <TabsContent value="pending">
+            <PendingUsers />
           </TabsContent>
 
           <TabsContent value="promoters">
             <PromotersList />
+          </TabsContent>
+
+          <TabsContent value="rating">
+            <PromotersRating />
           </TabsContent>
 
           <TabsContent value="chat">

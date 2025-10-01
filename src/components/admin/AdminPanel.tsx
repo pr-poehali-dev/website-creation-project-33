@@ -186,13 +186,22 @@ export default function AdminPanel() {
               </div>
               Админ-панель
             </h1>
-            <Button 
-              onClick={logout} 
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white px-3 py-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-              size="sm"
-            >
-              <Icon name="LogOut" size={16} />
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={openGoogleSheets}
+                className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 shadow-lg transition-all duration-300 hover:scale-105"
+                size="sm"
+              >
+                <Icon name="Sheet" size={16} />
+              </Button>
+              <Button 
+                onClick={logout} 
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white px-3 py-2 shadow-lg transition-all duration-300 hover:scale-105"
+                size="sm"
+              >
+                <Icon name="LogOut" size={16} />
+              </Button>
+            </div>
           </div>
 
         </div>

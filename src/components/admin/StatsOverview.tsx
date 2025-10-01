@@ -14,10 +14,10 @@ export default function StatsOverview({ stats, onExportAll, exportingAll }: Stat
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
-            <div className="p-2 rounded-lg bg-[#001f54]/10">
-              <Icon name="BarChart3" size={20} className="text-[#001f54]" />
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-[#001f54] text-base md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
+              <Icon name="BarChart3" size={18} className="text-[#001f54] md:w-5 md:h-5" />
             </div>
             Общая статистика
           </CardTitle>
@@ -25,17 +25,17 @@ export default function StatsOverview({ stats, onExportAll, exportingAll }: Stat
             <Button
               onClick={onExportAll}
               disabled={exportingAll}
-              className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:scale-105"
+              className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:scale-105 w-full md:w-auto text-sm md:text-base"
               size="sm"
             >
               {exportingAll ? (
                 <>
-                  <Icon name="Loader2" size={14} className="mr-1.5 animate-spin" />
+                  <Icon name="Loader2" size={14} className="mr-2 animate-spin md:w-[14px] md:h-[14px]" />
                   Экспорт...
                 </>
               ) : (
                 <>
-                  <Icon name="Sheet" size={14} className="mr-1.5" />
+                  <Icon name="Sheet" size={14} className="mr-2 md:w-[14px] md:h-[14px]" />
                   Экспорт всей статистики
                 </>
               )}
@@ -63,13 +63,13 @@ export default function StatsOverview({ stats, onExportAll, exportingAll }: Stat
         </div>
 
         {/* Проценты */}
-        <div className="mt-6 grid grid-cols-2 gap-4 md:gap-6">
-          <div className="flex items-center gap-2 text-gray-700 font-medium">
-            <div className="w-3 h-3 bg-green-600 rounded-full shadow-sm"></div>
+        <div className="mt-4 md:mt-6 grid grid-cols-2 gap-3 md:gap-6">
+          <div className="flex items-center gap-2 text-gray-700 font-medium text-xs md:text-base">
+            <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-green-600 rounded-full shadow-sm"></div>
             <span>Контакты: {stats.total_leads > 0 ? Math.round((stats.contacts / stats.total_leads) * 100) : 0}%</span>
           </div>
-          <div className="flex items-center gap-2 text-gray-700 font-medium">
-            <div className="w-3 h-3 bg-orange-600 rounded-full shadow-sm"></div>
+          <div className="flex items-center gap-2 text-gray-700 font-medium text-xs md:text-base">
+            <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-orange-600 rounded-full shadow-sm"></div>
             <span>Подходы: {stats.total_leads > 0 ? Math.round((stats.approaches / stats.total_leads) * 100) : 0}%</span>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface PromoterStats {
   name: string;
@@ -12,8 +13,14 @@ interface PromoterStats {
   approaches: number;
 }
 
+interface DailyStats {
+  date: string;
+  contacts: number;
+}
+
 export default function PromotersRating() {
   const [promoters, setPromoters] = useState<PromoterStats[]>([]);
+  const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
 
@@ -33,6 +40,15 @@ export default function PromotersRating() {
       const data = await response.json();
       if (data.user_stats) {
         setPromoters(data.user_stats);
+      }
+      if (data.daily_stats) {
+        const chartData = data.daily_stats
+          .map((day: any) => ({
+            date: new Date(day.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }),
+            contacts: day.contacts
+          }))
+          .reverse();
+        setDailyStats(chartData);
       }
     } catch (error) {
       console.error('Error fetching rating:', error);
@@ -114,6 +130,42 @@ export default function PromotersRating() {
         </div>
       </CardHeader>
       <CardContent>
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-[#001f54] mb-4">Динамика контактов</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={dailyStats} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+              <XAxis 
+                dataKey="date" 
+                stroke="#666"
+                style={{ fontSize: '12px' }}
+              />
+              <YAxis 
+                stroke="#666"
+                style={{ fontSize: '12px' }}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  padding: '8px'
+                }}
+                labelStyle={{ color: '#001f54', fontWeight: 'bold' }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="contacts" 
+                stroke="#16a34a"
+                strokeWidth={3}
+                dot={{ fill: '#16a34a', r: 5 }}
+                activeDot={{ r: 7 }}
+                name="Контакты"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <h3 className="text-lg font-semibold text-[#001f54] mb-4">Топ промоутеров</h3>
         <div className="space-y-3">
           {promoters.map((promoter, index) => {
             const medalColor =

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { ChartDataPoint, UserStats } from './types';
 
 interface LeadsChartProps {
@@ -66,7 +66,7 @@ export default function LeadsChart({
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
           <div className="p-2 rounded-lg bg-[#001f54]/10">
-            <Icon name="BarChart3" size={20} className="text-[#001f54]" />
+            <Icon name="TrendingUp" size={20} className="text-[#001f54]" />
           </div>
           График лидов по датам
         </CardTitle>
@@ -127,8 +127,8 @@ export default function LeadsChart({
 
         <div className="h-96">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis 
                 dataKey="date" 
                 tick={{ fontSize: 12, fill: '#6b7280' }}
@@ -148,7 +148,6 @@ export default function LeadsChart({
                 tickLine={false}
               />
               <Tooltip 
-                cursor={{ fill: 'rgba(0, 31, 84, 0.05)' }}
                 contentStyle={{
                   backgroundColor: 'white',
                   border: '2px solid #001f54',
@@ -172,26 +171,30 @@ export default function LeadsChart({
               />
               <Legend 
                 wrapperStyle={{ paddingTop: '20px' }}
-                iconType="rect"
+                iconType="circle"
               />
               
               {filterType === 'contacts' && (
-                <Bar 
+                <Line 
+                  type="monotone"
                   dataKey="contacts" 
-                  fill="#16a34a" 
+                  stroke="#16a34a" 
+                  strokeWidth={3}
+                  dot={{ fill: '#16a34a', r: 4 }}
+                  activeDot={{ r: 6 }}
                   name="Контакты"
-                  radius={[8, 8, 0, 0]}
-                  maxBarSize={60}
                 />
               )}
               
               {filterType === 'approaches' && (
-                <Bar 
+                <Line 
+                  type="monotone"
                   dataKey="approaches" 
-                  fill="#ea580c" 
+                  stroke="#ea580c" 
+                  strokeWidth={3}
+                  dot={{ fill: '#ea580c', r: 4 }}
+                  activeDot={{ r: 6 }}
                   name="Подходы"
-                  radius={[8, 8, 0, 0]}
-                  maxBarSize={60}
                 />
               )}
 
@@ -201,17 +204,19 @@ export default function LeadsChart({
                   : `${userName}_approaches`;
                 
                 return (
-                  <Bar
+                  <Line
                     key={dataKey}
+                    type="monotone"
                     dataKey={dataKey}
-                    fill={userColorMap[userName]}
+                    stroke={userColorMap[userName]}
+                    strokeWidth={2}
+                    dot={{ fill: userColorMap[userName], r: 3 }}
+                    activeDot={{ r: 5 }}
                     name={userName}
-                    radius={[8, 8, 0, 0]}
-                    maxBarSize={60}
                   />
                 );
               })}
-            </BarChart>
+            </LineChart>
           </ResponsiveContainer>
         </div>
 

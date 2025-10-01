@@ -72,6 +72,7 @@ export default function Index() {
     try {
       let audioData = null;
       
+      // Конвертируем аудио в base64 если есть
       if (audioBlob) {
         const reader = new FileReader();
         audioData = await new Promise<string>((resolve) => {
@@ -102,9 +103,11 @@ export default function Index() {
       const result = await response.json();
       
       if (result.success) {
+        // Проверяем наличие российского номера телефона в заметках
         const phoneRegex = /(\+7|8|7)\s*[\(\-]?\s*\d{3}\s*[\)\-]?\s*\d{3}\s*[\-]?\s*\d{2}\s*[\-]?\s*\d{2}/;
         const hasRussianPhone = phoneRegex.test(notes.trim());
 
+        // Отправляем данные в Google Sheets только если есть номер телефона
         if (hasRussianPhone) {
           try {
             const now = new Date();
@@ -138,6 +141,7 @@ export default function Index() {
           description: 'Ваши данные успешно отправлены в Telegram'
         });
         
+        // Очищаем форму после отправки
         setNotes('');
         setAudioBlob(null);
       } else {
@@ -158,6 +162,7 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e8eef5] p-4 md:p-6">
       <div className="max-w-2xl mx-auto pt-4 md:pt-8">
+        {/* Мобильная версия заголовка */}
         <div className="md:hidden mb-6 slide-up">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -197,6 +202,7 @@ export default function Index() {
           <p className="text-[#001f54]/70 text-sm font-medium">Добро пожаловать, {user?.name}</p>
         </div>
 
+        {/* Десктопная версия заголовка */}
         <div className="hidden md:flex justify-between items-center mb-8 slide-up">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-white border-4 border-[#001f54] overflow-hidden flex items-center justify-center p-3 shadow-xl">
@@ -237,6 +243,7 @@ export default function Index() {
         </div>
 
         <div className="grid gap-4 md:gap-6">
+          {/* Блокнот */}
           <Card className="bg-white border-[#001f54]/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
             <CardHeader className="pb-3 md:pb-4">
               <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-[#001f54]">
@@ -262,6 +269,7 @@ export default function Index() {
             </CardContent>
           </Card>
 
+          {/* Аудиозапись */}
           <Card className="bg-white border-[#001f54]/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
             <CardHeader className="pb-3 md:pb-4">
               <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-[#001f54]">
@@ -283,19 +291,56 @@ export default function Index() {
                       <Icon name="Star" size={24} className="md:w-8 md:h-8" />
                     </Button>
                   ) : (
-                    <Button
-                      onClick={stopRecording}
-                      size="lg"
-                      className="bg-[#002b6b] hover:bg-[#003d8f] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 shadow-xl animate-pulse"
-                    >
-                      <Icon name="Square" size={24} className="md:w-8 md:h-8" />
-                    </Button>
+                    <div className="relative">
+                      <style>{`
+                        @keyframes breathing {
+                          0%, 100% {
+                            opacity: 0.6;
+                            transform: scale(1);
+                          }
+                          50% {
+                            opacity: 1;
+                            transform: scale(1.05);
+                          }
+                        }
+                        @keyframes squareFade {
+                          0%, 100% {
+                            opacity: 0.3;
+                            transform: scale(0.8);
+                          }
+                          50% {
+                            opacity: 1;
+                            transform: scale(1.1);
+                          }
+                        }
+                        .breathing-animation {
+                          animation: breathing 3s ease-in-out infinite;
+                        }
+                        .square-fade-animation {
+                          animation: squareFade 3s ease-in-out infinite;
+                        }
+                      `}</style>
+                      <Button
+                        onClick={stopRecording}
+                        size="lg"
+                        className="bg-[#002b6b] hover:bg-[#003d8f] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 shadow-xl breathing-animation"
+                      >
+                        <div className="square-fade-animation">
+                          <Icon name="Square" size={24} className="md:w-8 md:h-8" />
+                        </div>
+                      </Button>
+                    </div>
                   )}
                 </div>
+                
+
+
+
               </div>
             </CardContent>
           </Card>
 
+          {/* Кнопка отправки */}
           <Button
             onClick={sendToTelegram}
             disabled={isLoading || (!notes.trim() && !audioBlob)}

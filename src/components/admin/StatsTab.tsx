@@ -128,9 +128,9 @@ export default function StatsTab() {
   if (loading) {
     return (
       <Card className="border-gray-200 shadow-lg bg-white">
-        <CardContent className="p-8">
-          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
-            <Icon name="Loader2" size={24} className="animate-spin" />
+        <CardContent className="p-4 md:p-8">
+          <div className="text-center text-gray-600 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
+            <Icon name="Loader2" size={20} className="animate-spin md:w-6 md:h-6" />
             Загрузка статистики...
           </div>
         </CardContent>
@@ -141,11 +141,11 @@ export default function StatsTab() {
   if (!stats) {
     return (
       <Card className="border-gray-200 shadow-lg bg-white">
-        <CardContent className="p-8">
+        <CardContent className="p-4 md:p-8">
           <div className="text-center text-gray-600">
-            <Icon name="AlertCircle" size={32} className="mx-auto mb-3 opacity-60" />
-            <div className="text-lg font-medium">Ошибка загрузки данных</div>
-            <div className="text-sm">Попробуйте обновить страницу</div>
+            <Icon name="AlertCircle" size={28} className="mx-auto mb-3 opacity-60 md:w-8 md:h-8" />
+            <div className="text-base md:text-lg font-medium">Ошибка загрузки данных</div>
+            <div className="text-xs md:text-sm">Попробуйте обновить страницу</div>
           </div>
         </CardContent>
       </Card>

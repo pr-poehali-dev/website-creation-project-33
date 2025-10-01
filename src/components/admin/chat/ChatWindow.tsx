@@ -50,11 +50,11 @@ export default function ChatWindow({
 }: ChatWindowProps) {
   return (
     <Card className="md:col-span-2 flex flex-col h-full border-0 md:border rounded-none md:rounded-lg shadow-none md:shadow-sm">
-      <CardHeader className="border-b hidden md:block">
+      <CardHeader className="border-b">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Icon name="MessageCircle" size={20} />
-            {selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}
+          <CardTitle className="flex items-center gap-2 text-sm md:text-base">
+            <Icon name="MessageCircle" size={18} className="md:w-5 md:h-5" />
+            <span className="truncate">{selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}</span>
           </CardTitle>
           {selectedUser && messages.length > 0 && (
             <Button
@@ -62,23 +62,24 @@ export default function ChatWindow({
               disabled={isDeleting}
               variant="destructive"
               size="sm"
+              className="h-8 px-2 md:px-3"
             >
               {isDeleting ? (
-                <Icon name="Loader2" size={16} className="animate-spin mr-2" />
+                <Icon name="Loader2" size={14} className="animate-spin md:mr-2 md:w-4 md:h-4" />
               ) : (
-                <Icon name="Trash2" size={16} className="mr-2" />
+                <Icon name="Trash2" size={14} className="md:mr-2 md:w-4 md:h-4" />
               )}
-              Очистить чат
+              <span className="hidden md:inline">Очистить чат</span>
             </Button>
           )}
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0">
         {!selectedUser ? (
-          <div className="flex-1 flex items-center justify-center text-gray-500 p-6">
+          <div className="flex-1 flex items-center justify-center text-gray-500 p-4 md:p-6">
             <div className="text-center">
-              <Icon name="MessageCircleOff" size={48} className="mx-auto mb-4 opacity-50" />
-              <p className="text-sm">Выберите пользователя для начала общения</p>
+              <Icon name="MessageCircleOff" size={40} className="mx-auto mb-3 md:mb-4 opacity-50 md:w-12 md:h-12" />
+              <p className="text-xs md:text-sm">Выберите пользователя для начала общения</p>
             </div>
           </div>
         ) : (

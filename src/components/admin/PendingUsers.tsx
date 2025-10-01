@@ -137,11 +137,13 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
   return (
     <Card className="border-2 border-[#001f54]/10">
       <CardHeader>
-        <CardTitle className="text-[#001f54] flex items-center gap-2">
-          <Icon name="UserCheck" size={24} />
-          Заявки на регистрацию
+        <CardTitle className="text-[#001f54] flex flex-col sm:flex-row items-start sm:items-center gap-2 text-lg md:text-xl">
+          <div className="flex items-center gap-2">
+            <Icon name="UserCheck" size={20} className="md:w-6 md:h-6" />
+            <span>Заявки на регистрацию</span>
+          </div>
           {pendingUsers.length > 0 && (
-            <span className="ml-2 px-2 py-1 bg-red-500 text-white text-sm rounded-full">
+            <span className="px-2 py-1 bg-red-500 text-white text-xs md:text-sm rounded-full">
               {pendingUsers.length}
             </span>
           )}
@@ -149,52 +151,53 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
       </CardHeader>
       <CardContent>
         {pendingUsers.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Icon name="Check" size={48} className="mx-auto mb-4 text-green-500" />
-            <p className="text-lg font-medium">Нет новых заявок</p>
-            <p className="text-sm mt-2">Все заявки обработаны</p>
+          <div className="text-center py-6 md:py-8 text-gray-500">
+            <Icon name="Check" size={40} className="mx-auto mb-3 md:mb-4 text-green-500 md:w-12 md:h-12" />
+            <p className="text-base md:text-lg font-medium">Нет новых заявок</p>
+            <p className="text-xs md:text-sm mt-2">Все заявки обработаны</p>
           </div>
         ) : (
           <div className="space-y-3">
             {pendingUsers.map((user) => (
               <div
                 key={user.id}
-                className="border-2 border-amber-500 bg-amber-50 rounded-xl p-4 hover:shadow-lg transition-all"
+                className="border-2 border-amber-500 bg-amber-50 rounded-xl p-3 md:p-4 hover:shadow-lg transition-all"
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col gap-3 md:gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Icon name="User" size={18} className="text-[#001f54]" />
-                      <span className="font-bold text-[#001f54] text-lg">{user.name}</span>
+                      <Icon name="User" size={16} className="text-[#001f54] md:w-[18px] md:h-[18px]" />
+                      <span className="font-bold text-[#001f54] text-base md:text-lg">{user.name}</span>
                     </div>
-                    <div className="space-y-1 text-sm text-gray-600">
+                    <div className="space-y-1 text-xs md:text-sm text-gray-600">
                       <div className="flex items-center gap-2">
-                        <Icon name="Mail" size={14} />
-                        <span>{user.email}</span>
+                        <Icon name="Mail" size={12} className="md:w-[14px] md:h-[14px]" />
+                        <span className="truncate">{user.email}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Icon name="MapPin" size={14} />
+                        <Icon name="MapPin" size={12} className="md:w-[14px] md:h-[14px]" />
                         <span>IP: {user.registration_ip || 'неизвестен'}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Icon name="Clock" size={14} />
+                        <Icon name="Clock" size={12} className="md:w-[14px] md:h-[14px]" />
                         <span>{formatDate(user.created_at)}</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full md:w-auto">
                     <Button
                       onClick={() => handleApprove(user.id)}
                       disabled={processingUserId === user.id}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-green-600 hover:bg-green-700 text-white flex-1 md:flex-none text-sm md:text-base h-9 md:h-10"
+                      size="sm"
                     >
                       {processingUserId === user.id ? (
-                        <Icon name="Loader2" size={16} className="animate-spin" />
+                        <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
                       ) : (
                         <>
-                          <Icon name="Check" size={16} />
-                          Одобрить
+                          <Icon name="Check" size={14} className="md:w-4 md:h-4" />
+                          <span className="ml-1 md:ml-2">Одобрить</span>
                         </>
                       )}
                     </Button>
@@ -202,13 +205,15 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
                       onClick={() => handleReject(user.id)}
                       disabled={processingUserId === user.id}
                       variant="destructive"
+                      className="flex-1 md:flex-none text-sm md:text-base h-9 md:h-10"
+                      size="sm"
                     >
                       {processingUserId === user.id ? (
-                        <Icon name="Loader2" size={16} className="animate-spin" />
+                        <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
                       ) : (
                         <>
-                          <Icon name="X" size={16} />
-                          Отклонить
+                          <Icon name="X" size={14} className="md:w-4 md:h-4" />
+                          <span className="ml-1 md:ml-2">Отклонить</span>
                         </>
                       )}
                     </Button>

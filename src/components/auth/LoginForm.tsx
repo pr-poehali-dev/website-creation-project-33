@@ -36,7 +36,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
       <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         <div className="space-y-3 md:space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[#001f54] font-medium text-sm md:text-base">
+            <Label htmlFor="email" className="text-[#455838] font-medium text-sm md:text-base">
               Email
             </Label>
             <div className="relative">
@@ -58,7 +58,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-[#001f54] font-medium text-sm md:text-base">
+            <Label htmlFor="password" className="text-[#455838] font-medium text-sm md:text-base">
               Пароль
             </Label>
             <div className="relative">
@@ -89,7 +89,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 
         <Button 
           type="submit" 
-          className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold py-3 md:py-3 rounded-lg transition-all duration-300 shadow-lg h-12 md:h-auto text-base" 
+          className="w-full bg-gradient-to-r from-[#6B7C61] to-[#455838] hover:from-[#455838] hover:to-[#6B7C61] text-white font-semibold py-3 md:py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl h-12 md:h-auto text-base" 
           disabled={loading}
         >
           {loading ? (
@@ -107,11 +107,11 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
       </form>
 
       <div className="mt-4 md:mt-6 text-center">
-        <p className="text-[#001f54] mb-2 text-sm md:text-base">Нет аккаунта?</p>
+        <p className="text-[#455838] mb-2 text-sm md:text-base">Нет аккаунта?</p>
         <Button 
           variant="ghost" 
           onClick={onToggleMode}
-          className="text-[#001f54] hover:text-[#002b6b] hover:bg-[#001f54]/5 transition-all duration-300 h-10 md:h-auto text-sm md:text-base"
+          className="text-[#6B7C61] hover:text-[#455838] hover:bg-[#6B7C61]/10 transition-all duration-300 h-10 md:h-auto text-sm md:text-base"
         >
           <Icon name="UserPlus" size={16} className="mr-2" />
           Зарегистрироваться

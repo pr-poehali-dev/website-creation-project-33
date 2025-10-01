@@ -48,11 +48,11 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
   if (pendingApproval) {
     return (
       <div className="text-center space-y-4 py-6">
-        <div className="w-20 h-20 mx-auto bg-amber-100 rounded-full flex items-center justify-center">
-          <Icon name="Clock" size={40} className="text-amber-600" />
+        <div className="w-20 h-20 mx-auto bg-[#A6B295]/20 rounded-full flex items-center justify-center">
+          <Icon name="Clock" size={40} className="text-[#6B7C61]" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-xl font-bold text-[#001f54]">Заявка отправлена!</h3>
+          <h3 className="text-xl font-bold text-[#455838]">Заявка отправлена!</h3>
           <p className="text-gray-600 px-4">
             Ваша заявка на регистрацию ожидает одобрения администратора. 
             Вы получите доступ после проверки.
@@ -61,7 +61,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
         <Button
           onClick={onToggleMode}
           variant="outline"
-          className="border-[#001f54] text-[#001f54] hover:bg-[#001f54]/5"
+          className="border-[#6B7C61] text-[#455838] hover:bg-[#6B7C61]/10"
         >
           Вернуться к входу
         </Button>
@@ -74,7 +74,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
       <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         <div className="space-y-3 md:space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-[#001f54] font-medium text-sm md:text-base">
+            <Label htmlFor="name" className="text-[#455838] font-medium text-sm md:text-base">
               Имя
             </Label>
             <div className="relative">
@@ -88,7 +88,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
+                className="pl-10 bg-white border-[#D9DFCC] text-[#455838] placeholder:text-[#6B7C61]/60 focus:border-[#6B7C61] focus:ring-[#6B7C61]/20 h-12 md:h-auto text-base"
                 placeholder="Ваше имя"
                 required
               />
@@ -96,7 +96,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[#001f54] font-medium text-sm md:text-base">
+            <Label htmlFor="email" className="text-[#455838] font-medium text-sm md:text-base">
               Email
             </Label>
             <div className="relative">
@@ -110,7 +110,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
+                className="pl-10 bg-white border-[#D9DFCC] text-[#455838] placeholder:text-[#6B7C61]/60 focus:border-[#6B7C61] focus:ring-[#6B7C61]/20 h-12 md:h-auto text-base"
                 placeholder="your@email.com"
                 required
               />
@@ -118,7 +118,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-[#001f54] font-medium text-sm md:text-base">
+            <Label htmlFor="password" className="text-[#455838] font-medium text-sm md:text-base">
               Пароль
             </Label>
             <div className="relative">
@@ -132,13 +132,13 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
+                className="pl-10 bg-white border-[#D9DFCC] text-[#455838] placeholder:text-[#6B7C61]/60 focus:border-[#6B7C61] focus:ring-[#6B7C61]/20 h-12 md:h-auto text-base"
                 placeholder="••••••••"
                 required
                 minLength={6}
               />
             </div>
-            <p className="text-[#001f54]/70 text-xs md:text-sm">Минимум 6 символов</p>
+            <p className="text-[#6B7C61] text-xs md:text-sm">Минимум 6 символов</p>
           </div>
         </div>
 
@@ -151,7 +151,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 
         <Button 
           type="submit" 
-          className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold py-3 md:py-3 rounded-lg transition-all duration-300 shadow-lg h-12 md:h-auto text-base" 
+          className="w-full bg-gradient-to-r from-[#6B7C61] to-[#455838] hover:from-[#455838] hover:to-[#6B7C61] text-white font-semibold py-3 md:py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl h-12 md:h-auto text-base" 
           disabled={loading}
         >
           {loading ? (
@@ -169,11 +169,11 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
       </form>
 
       <div className="mt-4 md:mt-6 text-center">
-        <p className="text-[#001f54] mb-2 text-sm md:text-base">Уже есть аккаунт?</p>
+        <p className="text-[#455838] mb-2 text-sm md:text-base">Уже есть аккаунт?</p>
         <Button 
           variant="ghost" 
           onClick={onToggleMode}
-          className="text-[#001f54] hover:text-[#002b6b] hover:bg-[#001f54]/5 transition-all duration-300 h-10 md:h-auto text-sm md:text-base"
+          className="text-[#6B7C61] hover:text-[#455838] hover:bg-[#6B7C61]/10 transition-all duration-300 h-10 md:h-auto text-sm md:text-base"
         >
           <Icon name="LogIn" size={16} className="mr-2" />
           Войти

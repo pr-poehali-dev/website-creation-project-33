@@ -17,9 +17,9 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#001f54] via-[#002b6b] to-[#001f54] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#6B7C61] via-[#A6B295] to-[#455838] flex items-center justify-center p-4">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white border-4 border-white overflow-hidden flex items-center justify-center p-3 shadow-2xl animate-pulse">
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white border-4 border-[#F2F4EC] overflow-hidden flex items-center justify-center p-3 shadow-2xl animate-pulse">
             <img 
               src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
               alt="IMPERIA PROMO"

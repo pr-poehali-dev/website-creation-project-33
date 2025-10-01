@@ -412,6 +412,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif action == 'stats':
             stats = get_leads_stats()
+            # Добавляем простую агрегацию для графика (только общее кол-во по датам)
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT DATE(l.created_at) as date,
+                               COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts
+                        FROM t_p24058207_website_creation_pro.leads_analytics l
+                        JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                        WHERE l.created_at >= %s
+                        GROUP BY DATE(l.created_at)
+                        ORDER BY DATE(l.created_at)
+                    """, (get_moscow_time() - timedelta(days=30),))
+                    
+                    simple_daily = []
+                    for row in cur.fetchall():
+                        simple_daily.append({
+                            'date': row[0].isoformat() if row[0] else None,
+                            'contacts': row[1]
+                        })
+                    stats['simple_daily_stats'] = simple_daily
+            
             return {
                 'statusCode': 200,
                 'headers': headers,

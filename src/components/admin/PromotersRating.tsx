@@ -43,13 +43,12 @@ export default function PromotersRating() {
         setPromoters(data.user_stats);
       }
       
-      if (data.daily_stats) {
-        const chartData = data.daily_stats
+      if (data.simple_daily_stats) {
+        const chartData = data.simple_daily_stats
           .map((day: any) => ({
             date: new Date(day.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'numeric' }),
             contacts: day.contacts
-          }))
-          .reverse();
+          }));
         setDailyStats(chartData);
       }
     } catch (error) {

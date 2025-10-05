@@ -95,6 +95,16 @@ export default function Index() {
         });
       }
 
+      // Запрещаем отправку в Telegram без аудиозаписи
+      if (!audioData) {
+        toast({
+          title: 'Ошибка',
+          description: 'Необходимо записать аудио перед отправкой',
+          variant: 'destructive'
+        });
+        return;
+      }
+
       const response = await fetch('https://functions.poehali.dev/ecd9eaa3-7399-4f8b-8219-529b81f87b6a', {
         method: 'POST',
         headers: {

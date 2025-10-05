@@ -23,24 +23,6 @@ export default function Index() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
-  // Проверка на заблокированного пользователя
-  const isBlocked = user?.email === 'dzulievgenevna@gmail.com';
-
-  if (isBlocked) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-red-600">
-        <div className="text-center px-4">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            ВОЗМОЖНО МОШЕННИЧЕСТВО
-          </h1>
-          <p className="text-2xl md:text-3xl text-white">
-            ОБРАТИТЕСЬ К КООРДИНАТОРУ
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   useEffect(() => {
     if (notes) {
       localStorage.setItem('notepad_draft', notes);

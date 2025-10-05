@@ -115,7 +115,8 @@ export default function Index() {
       
       if (result.success) {
         // Проверяем наличие российского номера телефона в заметках
-        const phoneRegex = /(\+7|8|7)\s*[\(\-]?\s*\d{3}\s*[\)\-]?\s*\d{3}\s*[\-]?\s*\d{2}\s*[\-]?\s*\d{2}/;
+        // Паттерн ловит: +7/8/7 с форматированием ИЛИ просто 10 цифр подряд
+        const phoneRegex = /(\+7|8|7)\s*[\(\-]?\s*\d{3}\s*[\)\-]?\s*\d{3,4}\s*[\-]?\s*\d{2,3}\s*[\-]?\s*\d{0,2}|\b\d{10}\b/;
         const hasRussianPhone = phoneRegex.test(notes.trim());
 
         // Отправляем данные в Google Sheets только если есть номер телефона
@@ -131,7 +132,7 @@ export default function Index() {
               second: '2-digit'
             });
 
-            await fetch('https://functions.poehali.dev/ce92c4be-1721-49f2-95bb-4bafa6f05fc4', {
+            const sheetsResponse = await fetch('https://functions.poehali.dev/ce92c4be-1721-49f2-95bb-4bafa6f05fc4', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -142,9 +143,18 @@ export default function Index() {
                 timestamp: timestamp
               })
             });
+
+            if (!sheetsResponse.ok) {
+              console.error('Ошибка отправки в Google Sheets:', await sheetsResponse.text());
+            } else {
+              const sheetsResult = await sheetsResponse.json();
+              console.log('Успешно отправлено в Google Sheets:', sheetsResult);
+            }
           } catch (error) {
             console.error('Ошибка отправки в Google Sheets:', error);
           }
+        } else {
+          console.log('Номер телефона не найден. Текст:', notes.trim());
         }
 
         toast({ 

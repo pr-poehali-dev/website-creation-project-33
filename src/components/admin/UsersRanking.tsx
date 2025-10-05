@@ -13,6 +13,8 @@ type RankingType = 'contacts' | 'approaches';
 
 export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
+  const [showAllContacts, setShowAllContacts] = useState(false);
+  const [showAllApproaches, setShowAllApproaches] = useState(false);
 
   // Сортируем пользователей в зависимости от выбранного типа
   const sortedUsers = [...userStats].sort((a, b) => {
@@ -22,6 +24,26 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       return b.approaches - a.approaches;
     }
   });
+
+  // Определяем, показывать все или только первые 4
+  const displayUsers = (() => {
+    if (rankingType === 'contacts') {
+      return showAllContacts ? sortedUsers : sortedUsers.slice(0, 4);
+    } else {
+      return showAllApproaches ? sortedUsers : sortedUsers.slice(0, 4);
+    }
+  })();
+
+  const hasMore = sortedUsers.length > 4;
+  const isExpanded = rankingType === 'contacts' ? showAllContacts : showAllApproaches;
+
+  const toggleExpand = () => {
+    if (rankingType === 'contacts') {
+      setShowAllContacts(!showAllContacts);
+    } else {
+      setShowAllApproaches(!showAllApproaches);
+    }
+  };
 
   const getRankingTitle = () => {
     if (rankingType === 'contacts') return 'по контактам';
@@ -68,7 +90,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
         </div>
 
         <div className="space-y-4">
-          {sortedUsers.map((user, index) => {
+          {displayUsers.map((user, index) => {
             const isTop3 = index < 3;
             const medalColors = ['from-[#001f54] to-[#002b6b]', 'from-gray-400 to-gray-600', 'from-gray-600 to-gray-800'];
             
@@ -118,6 +140,30 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
             );
           })}
         </div>
+
+        {/* Кнопка Показать еще / Свернуть */}
+        {hasMore && (
+          <div className="mt-4 flex justify-center">
+            <Button
+              onClick={toggleExpand}
+              variant="outline"
+              size="sm"
+              className="bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20 transition-all duration-300"
+            >
+              {isExpanded ? (
+                <>
+                  <Icon name="ChevronUp" size={16} className="mr-1.5" />
+                  Свернуть
+                </>
+              ) : (
+                <>
+                  <Icon name="ChevronDown" size={16} className="mr-1.5" />
+                  Показать еще ({sortedUsers.length - 4})
+                </>
+              )}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

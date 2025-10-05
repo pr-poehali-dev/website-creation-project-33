@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,13 +12,24 @@ import { useChatUnread } from '@/hooks/useChatUnread';
 export default function Index() {
   const { user, logout } = useAuth();
   const unreadCount = useChatUnread();
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(() => {
+    const saved = localStorage.getItem('notepad_draft');
+    return saved || '';
+  });
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+
+  useEffect(() => {
+    if (notes) {
+      localStorage.setItem('notepad_draft', notes);
+    } else {
+      localStorage.removeItem('notepad_draft');
+    }
+  }, [notes]);
 
   const startRecording = async () => {
     try {
@@ -141,9 +152,10 @@ export default function Index() {
           description: 'Ваши данные успешно отправлены в Telegram'
         });
         
-        // Очищаем форму после отправки
+        // Очищаем форму и localStorage после отправки
         setNotes('');
         setAudioBlob(null);
+        localStorage.removeItem('notepad_draft');
       } else {
         throw new Error(result.error || 'Неизвестная ошибка');
       }

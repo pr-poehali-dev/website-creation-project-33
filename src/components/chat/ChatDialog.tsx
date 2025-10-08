@@ -37,8 +37,10 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [adminTyping, setAdminTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const loadMessages = async (markAsRead = false) => {
     if (!user) return;
@@ -56,6 +58,7 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
       if (response.ok) {
         const data = await response.json();
         setMessages(data.messages || []);
+        setAdminTyping(data.is_typing || false);
       }
     } catch (error) {
       console.error('Load messages error:', error);
@@ -64,8 +67,39 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
     }
   };
 
+  const updateTypingStatus = async (isTyping: boolean) => {
+    if (!user) return;
+    try {
+      await fetch(CHAT_API_URL, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString(),
+        },
+        body: JSON.stringify({ is_typing: isTyping }),
+      });
+    } catch (error) {
+      console.error('Update typing status error:', error);
+    }
+  };
+
+  const handleTyping = () => {
+    updateTypingStatus(true);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+      updateTypingStatus(false);
+    }, 3000);
+  };
+
   const sendMessage = async () => {
     if ((!newMessage.trim() && !selectedFile) || !user) return;
+
+    updateTypingStatus(false);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
 
     setIsSending(true);
     try {
@@ -316,16 +350,39 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                       </video>
                     )}
                     {msg.message && <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>}
-                    <p
-                      className={`text-xs mt-1 ${
-                        msg.is_from_admin ? 'text-gray-500' : 'text-white/70'
-                      }`}
-                    >
-                      {formatMoscowTime(msg.created_at)}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p
+                        className={`text-xs ${
+                          msg.is_from_admin ? 'text-gray-500' : 'text-white/70'
+                        }`}
+                      >
+                        {formatMoscowTime(msg.created_at)}
+                      </p>
+                      {!msg.is_from_admin && (
+                        <span className={`text-xs ${
+                          msg.is_read ? 'text-white/70' : 'text-white/50'
+                        }`}>
+                          {msg.is_read ? '✓✓' : '✓'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
+              {adminTyping && (
+                <div className="flex justify-start">
+                  <div className="max-w-[80%] rounded-lg px-4 py-2 bg-gray-100 text-gray-900">
+                    <p className="text-xs font-semibold mb-1 text-[#001f54]">
+                      Администратор
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
+              )}
               <div ref={scrollRef} />
             </div>
           )}
@@ -368,7 +425,10 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
             <div className="flex-1 relative bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-[#001f54]/50 focus-within:ring-2 focus-within:ring-[#001f54]/10">
               <Textarea
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  handleTyping();
+                }}
                 onKeyDown={handleKeyPress}
                 placeholder="Введите сообщение..."
                 className="min-h-[52px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-5 py-4 pr-28 text-base placeholder:text-gray-400"

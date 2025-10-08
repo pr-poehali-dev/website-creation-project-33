@@ -19,8 +19,10 @@ export default function AdminChatTab() {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [userTyping, setUserTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const loadUsers = async () => {
     if (!user) return;
@@ -57,6 +59,7 @@ export default function AdminChatTab() {
       if (response.ok) {
         const data = await response.json();
         setMessages(data.messages || []);
+        setUserTyping(data.is_typing || false);
       }
     } catch (error) {
       console.error('Load messages error:', error);
@@ -65,8 +68,39 @@ export default function AdminChatTab() {
     }
   };
 
+  const updateTypingStatus = async (isTyping: boolean) => {
+    if (!user) return;
+    try {
+      await fetch(CHAT_API_URL, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString(),
+        },
+        body: JSON.stringify({ is_typing: isTyping }),
+      });
+    } catch (error) {
+      console.error('Update typing status error:', error);
+    }
+  };
+
+  const handleTyping = () => {
+    updateTypingStatus(true);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+      updateTypingStatus(false);
+    }, 3000);
+  };
+
   const sendMessage = async () => {
     if ((!newMessage.trim() && !selectedFile) || !user || !selectedUser) return;
+
+    updateTypingStatus(false);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
 
     setIsSending(true);
     try {
@@ -313,6 +347,7 @@ export default function AdminChatTab() {
               previewUrl={previewUrl}
               isRecording={isRecording}
               isSending={isSending}
+              userTyping={userTyping}
               fileInputRef={fileInputRef}
               scrollRef={scrollRef}
               onClearChat={clearChat}
@@ -322,6 +357,7 @@ export default function AdminChatTab() {
               onStartRecording={startRecording}
               onStopRecording={stopRecording}
               onKeyPress={handleKeyPress}
+              onTyping={handleTyping}
             />
           </div>
         )}
@@ -345,6 +381,7 @@ export default function AdminChatTab() {
           previewUrl={previewUrl}
           isRecording={isRecording}
           isSending={isSending}
+          userTyping={userTyping}
           fileInputRef={fileInputRef}
           scrollRef={scrollRef}
           onClearChat={clearChat}
@@ -354,6 +391,7 @@ export default function AdminChatTab() {
           onStartRecording={startRecording}
           onStopRecording={stopRecording}
           onKeyPress={handleKeyPress}
+          onTyping={handleTyping}
         />
       </div>
     </>

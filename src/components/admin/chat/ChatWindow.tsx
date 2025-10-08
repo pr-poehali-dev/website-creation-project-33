@@ -16,6 +16,7 @@ interface ChatWindowProps {
   previewUrl: string | null;
   isRecording: boolean;
   isSending: boolean;
+  userTyping: boolean;
   fileInputRef: React.RefObject<HTMLInputElement>;
   scrollRef: React.RefObject<HTMLDivElement>;
   onClearChat: () => void;
@@ -25,6 +26,7 @@ interface ChatWindowProps {
   onStartRecording: () => void;
   onStopRecording: () => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
+  onTyping: () => void;
 }
 
 export default function ChatWindow({
@@ -38,6 +40,7 @@ export default function ChatWindow({
   previewUrl,
   isRecording,
   isSending,
+  userTyping,
   fileInputRef,
   scrollRef,
   onClearChat,
@@ -47,6 +50,7 @@ export default function ChatWindow({
   onStartRecording,
   onStopRecording,
   onKeyPress,
+  onTyping,
 }: ChatWindowProps) {
   return (
     <Card className="md:col-span-2 flex flex-col h-full border-0 md:border rounded-none md:rounded-lg shadow-none md:shadow-sm">
@@ -88,6 +92,7 @@ export default function ChatWindow({
               messages={messages}
               selectedUser={selectedUser}
               isLoading={isLoading}
+              userTyping={userTyping}
               scrollRef={scrollRef}
             />
             <ChatInput
@@ -104,6 +109,7 @@ export default function ChatWindow({
               onStartRecording={onStartRecording}
               onStopRecording={onStopRecording}
               onKeyPress={onKeyPress}
+              onTyping={onTyping}
             />
           </>
         )}

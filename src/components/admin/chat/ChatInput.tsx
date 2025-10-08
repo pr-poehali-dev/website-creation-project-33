@@ -16,6 +16,7 @@ interface ChatInputProps {
   onStartRecording: () => void;
   onStopRecording: () => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
+  onTyping: () => void;
 }
 
 export default function ChatInput({
@@ -32,6 +33,7 @@ export default function ChatInput({
   onStartRecording,
   onStopRecording,
   onKeyPress,
+  onTyping,
 }: ChatInputProps) {
   return (
     <div className="p-4 border-t bg-gradient-to-b from-white to-gray-50/50">
@@ -71,7 +73,10 @@ export default function ChatInput({
         <div className="flex-1 relative bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100">
           <Textarea
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={(e) => {
+              setNewMessage(e.target.value);
+              onTyping();
+            }}
             onKeyDown={onKeyPress}
             placeholder="Введите сообщение..."
             className="min-h-[52px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-5 py-4 pr-28 text-base placeholder:text-gray-400"

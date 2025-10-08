@@ -7,10 +7,11 @@ interface ChatMessagesProps {
   messages: Message[];
   selectedUser: UserChat;
   isLoading: boolean;
+  userTyping: boolean;
   scrollRef: React.RefObject<HTMLDivElement>;
 }
 
-export default function ChatMessages({ messages, selectedUser, isLoading, scrollRef }: ChatMessagesProps) {
+export default function ChatMessages({ messages, selectedUser, isLoading, userTyping, scrollRef }: ChatMessagesProps) {
   return (
     <ScrollArea className="flex-1 p-4 md:p-6">
       {isLoading && messages.length === 0 ? (
@@ -62,16 +63,39 @@ export default function ChatMessages({ messages, selectedUser, isLoading, scroll
                   </video>
                 )}
                 {msg.message && <p className="text-sm md:text-sm whitespace-pre-wrap break-words">{msg.message}</p>}
-                <p
-                  className={`text-[10px] md:text-xs mt-1 ${
-                    msg.is_from_admin ? 'text-white/70' : 'text-gray-500'
-                  }`}
-                >
-                  {formatMoscowTime(msg.created_at)}
-                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <p
+                    className={`text-[10px] md:text-xs ${
+                      msg.is_from_admin ? 'text-white/70' : 'text-gray-500'
+                    }`}
+                  >
+                    {formatMoscowTime(msg.created_at)}
+                  </p>
+                  {msg.is_from_admin && (
+                    <span className={`text-[10px] md:text-xs ${
+                      msg.is_read ? 'text-white/70' : 'text-white/50'
+                    }`}>
+                      {msg.is_read ? '✓✓' : '✓'}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           ))}
+          {userTyping && (
+            <div className="flex justify-start">
+              <div className="max-w-[85%] md:max-w-[80%] rounded-lg px-3 py-2 md:px-4 md:py-2 bg-gray-100 text-gray-900">
+                <p className="text-xs font-semibold mb-1 text-blue-600">
+                  {selectedUser.name}
+                </p>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            </div>
+          )}
           <div ref={scrollRef} />
         </div>
       )}

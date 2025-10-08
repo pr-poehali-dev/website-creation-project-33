@@ -11,7 +11,7 @@ def get_db_connection():
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Handle chat messages between users and admin
+    Business: Handle chat messages, read status, and typing indicators
     Args: event - dict with httpMethod, body, headers (X-User-Id)
     Returns: HTTP response with messages or success status
     '''
@@ -23,7 +23,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
@@ -82,11 +82,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 """, (target_user_id,))
                 conn.commit()
                 
+                # Получаем статус печатает
+                cursor.execute("""
+                    SELECT is_typing FROM t_p24058207_website_creation_pro.typing_status 
+                    WHERE user_id = %s
+                """, (target_user_id,))
+                typing_row = cursor.fetchone()
+                is_typing = typing_row['is_typing'] if typing_row else False
+                
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
-                        'messages': [dict(row) for row in messages]
+                        'messages': [dict(row) for row in messages],
+                        'is_typing': is_typing
                     }, default=str)
                 }
                 
@@ -139,11 +148,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     """, (user_id,))
                     conn.commit()
                 
+                # Получаем статус печатает для админа (user_id = 1 - админ)
+                cursor.execute("""
+                    SELECT is_typing FROM t_p24058207_website_creation_pro.typing_status 
+                    WHERE user_id = 1
+                """)
+                typing_row = cursor.fetchone()
+                admin_typing = typing_row['is_typing'] if typing_row else False
+                
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
-                        'messages': [dict(row) for row in messages]
+                        'messages': [dict(row) for row in messages],
+                        'is_typing': admin_typing
                     }, default=str)
                 }
         
@@ -220,6 +238,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     WHERE user_id = %s AND is_from_admin = TRUE
                 """, (user_id,))
             
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True})
+            }
+        
+        elif method == 'PATCH':
+            # Обновить статус печатает
+            body_data = json.loads(event.get('body', '{}'))
+            is_typing = body_data.get('is_typing', False)
+            
+            cursor.execute("""
+                INSERT INTO t_p24058207_website_creation_pro.typing_status (user_id, is_typing, updated_at)
+                VALUES (%s, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (user_id) DO UPDATE SET is_typing = %s, updated_at = CURRENT_TIMESTAMP
+            """, (user_id, is_typing, is_typing))
             conn.commit()
             
             return {

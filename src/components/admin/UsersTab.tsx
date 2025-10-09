@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import UserCard from './UserCard';
 import UserLeadsSection from './UserLeadsSection';
@@ -17,6 +18,7 @@ export default function UsersTab() {
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -197,8 +199,13 @@ export default function UsersTab() {
 
   const onlineUsers = users.filter(u => u.is_online).length;
   const groupedLeads = groupLeadsByDate(userLeads);
-  const displayedUsers = showAll ? users : users.slice(0, 4);
-  const hasMoreUsers = users.length > 4;
+  
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  const displayedUsers = showAll ? filteredUsers : filteredUsers.slice(0, 4);
+  const hasMoreUsers = filteredUsers.length > 4;
 
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
@@ -217,53 +224,82 @@ export default function UsersTab() {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="mb-4">
+          <div className="relative">
+            <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Поиск по имени..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-gray-50 border-gray-200 focus:border-[#001f54] focus:ring-[#001f54]"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <Icon name="X" size={16} />
+              </button>
+            )}
+          </div>
+        </div>
         <div className="space-y-4">
-          {displayedUsers.map((user) => (
-            <div key={user.id}>
-              <UserCard
-                user={user}
-                isSelected={selectedUser?.id === user.id}
-                isEditing={editingUser === user.id}
-                editName={newName}
-                onUserClick={() => handleUserClick(user)}
-                onStartEdit={() => startEdit(user)}
-                onCancelEdit={cancelEdit}
-                onUpdateName={() => updateUserName(user.id, newName)}
-                onDeleteUser={() => deleteUser(user.id)}
-                onEditNameChange={setNewName}
-              />
-
-              {selectedUser?.id === user.id && (
-                <div className="mt-4 ml-0 md:ml-8">
-                  <UserLeadsSection
-                    leads={userLeads}
-                    isLoading={leadsLoading}
-                    selectedDate={selectedDate}
-                    groupedLeads={groupedLeads}
-                    onDateSelect={setSelectedDate}
-                    onDeleteLead={deleteLead}
-                  />
-                </div>
-              )}
+          {filteredUsers.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Icon name="SearchX" size={48} className="mx-auto mb-3 text-gray-300" />
+              <p>Пользователи не найдены</p>
             </div>
-          ))}
-          {hasMoreUsers && !showAll && (
-            <button
-              onClick={() => setShowAll(true)}
-              className="w-full mt-4 py-3 px-4 bg-[#001f54]/5 hover:bg-[#001f54]/10 text-[#001f54] rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
-            >
-              <Icon name="ChevronDown" size={20} />
-              Показать еще ({users.length - 4})
-            </button>
-          )}
-          {showAll && hasMoreUsers && (
-            <button
-              onClick={() => setShowAll(false)}
-              className="w-full mt-4 py-3 px-4 bg-[#001f54]/5 hover:bg-[#001f54]/10 text-[#001f54] rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
-            >
-              <Icon name="ChevronUp" size={20} />
-              Свернуть
-            </button>
+          ) : (
+            <>
+              {displayedUsers.map((user) => (
+                <div key={user.id}>
+                  <UserCard
+                    user={user}
+                    isSelected={selectedUser?.id === user.id}
+                    isEditing={editingUser === user.id}
+                    editName={newName}
+                    onUserClick={() => handleUserClick(user)}
+                    onStartEdit={() => startEdit(user)}
+                    onCancelEdit={cancelEdit}
+                    onUpdateName={() => updateUserName(user.id, newName)}
+                    onDeleteUser={() => deleteUser(user.id)}
+                    onEditNameChange={setNewName}
+                  />
+
+                  {selectedUser?.id === user.id && (
+                    <div className="mt-4 ml-0 md:ml-8">
+                      <UserLeadsSection
+                        leads={userLeads}
+                        isLoading={leadsLoading}
+                        selectedDate={selectedDate}
+                        groupedLeads={groupedLeads}
+                        onDateSelect={setSelectedDate}
+                        onDeleteLead={deleteLead}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+              {hasMoreUsers && !showAll && (
+                <button
+                  onClick={() => setShowAll(true)}
+                  className="w-full mt-4 py-3 px-4 bg-[#001f54]/5 hover:bg-[#001f54]/10 text-[#001f54] rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                >
+                  <Icon name="ChevronDown" size={20} />
+                  Показать еще ({filteredUsers.length - 4})
+                </button>
+              )}
+              {showAll && hasMoreUsers && (
+                <button
+                  onClick={() => setShowAll(false)}
+                  className="w-full mt-4 py-3 px-4 bg-[#001f54]/5 hover:bg-[#001f54]/10 text-[#001f54] rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                >
+                  <Icon name="ChevronUp" size={20} />
+                  Свернуть
+                </button>
+              )}
+            </>
           )}
         </div>
       </CardContent>

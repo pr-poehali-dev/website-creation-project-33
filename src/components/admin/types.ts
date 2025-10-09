@@ -7,6 +7,10 @@ export interface User {
   last_seen: string;
   created_at: string;
   lead_count: number;
+  latitude?: number;
+  longitude?: number;
+  location_city?: string;
+  location_country?: string;
 }
 
 export interface Lead {

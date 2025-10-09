@@ -142,6 +142,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             email = body_data.get('email', '').strip()
             password = body_data.get('password', '')
             name = body_data.get('name', '').strip()
+            latitude = body_data.get('latitude')
+            longitude = body_data.get('longitude')
             
             if not email or not password or not name:
                 return {
@@ -166,8 +168,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
                         cur.execute(
-                            "INSERT INTO t_p24058207_website_creation_pro.users (email, password_hash, name, registration_ip, is_approved) VALUES (%s, %s, %s, %s, FALSE) RETURNING id",
-                            (email, password_hash, name, client_ip)
+                            "INSERT INTO t_p24058207_website_creation_pro.users (email, password_hash, name, registration_ip, is_approved, latitude, longitude, location_updated_at) VALUES (%s, %s, %s, %s, FALSE, %s, %s, %s) RETURNING id",
+                            (email, password_hash, name, client_ip, latitude, longitude, get_moscow_time())
                         )
                         user_id = cur.fetchone()[0]
                         conn.commit()
@@ -192,6 +194,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         elif action == 'login':
             email = body_data.get('email', '').strip()
             password = body_data.get('password', '')
+            latitude = body_data.get('latitude')
+            longitude = body_data.get('longitude')
             
             if not email or not password:
                 return {
@@ -239,6 +243,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             session_token = create_session(user_id)
             update_last_seen(user_id)
+            
+            # Update location if provided
+            if latitude is not None and longitude is not None:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "UPDATE t_p24058207_website_creation_pro.users SET latitude = %s, longitude = %s, location_updated_at = %s WHERE id = %s",
+                            (latitude, longitude, get_moscow_time(), user_id)
+                        )
+                        conn.commit()
             
             return {
                 'statusCode': 200,

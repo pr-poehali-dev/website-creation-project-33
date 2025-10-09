@@ -56,8 +56,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   };
 
+  const getGeolocation = (): Promise<{ latitude: number; longitude: number } | null> => {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(null);
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        () => {
+          resolve(null);
+        },
+        { timeout: 5000, maximumAge: 60000 }
+      );
+    });
+  };
+
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      const location = await getGeolocation();
+      
       const response = await fetch(API_BASE, {
         method: 'POST',
         headers: {
@@ -67,6 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           action: 'login',
           email,
           password,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
         }),
       });
 
@@ -85,6 +111,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (email: string, password: string, name: string): Promise<boolean | 'pending' | { error: string }> => {
     try {
+      const location = await getGeolocation();
+      
       const response = await fetch(API_BASE, {
         method: 'POST',
         headers: {
@@ -95,6 +123,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email,
           password,
           name,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
         }),
       });
 

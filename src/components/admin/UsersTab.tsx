@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import UserCard from './UserCard';
 import UserLeadsSection from './UserLeadsSection';
+import UsersMap from './UsersMap';
 import { User, Lead, ADMIN_API } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
 
@@ -210,7 +211,10 @@ export default function UsersTab() {
   const hasMoreUsers = filteredUsers.length > 4;
 
   return (
-    <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
+    <div className="space-y-6">
+      <UsersMap users={users} />
+      
+      <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-4">
         <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-[#001f54] gap-3">
           <span className="flex items-center gap-2 md:gap-3 text-lg md:text-xl">
@@ -306,5 +310,6 @@ export default function UsersTab() {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }

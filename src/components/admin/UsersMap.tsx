@@ -12,8 +12,12 @@ export default function UsersMap({ users }: UsersMapProps) {
   const mapInstanceRef = useRef<any>(null);
 
   const usersWithLocation = users.filter(
-    (user) => user.latitude !== null && user.longitude !== null
+    (user) => user.latitude !== null && user.longitude !== null && user.latitude !== undefined && user.longitude !== undefined
   );
+
+  console.log('Total users:', users.length);
+  console.log('Users with location:', usersWithLocation.length);
+  console.log('Users data:', users.map(u => ({ name: u.name, lat: u.latitude, lon: u.longitude })));
 
   useEffect(() => {
     if (!mapRef.current || usersWithLocation.length === 0) return;

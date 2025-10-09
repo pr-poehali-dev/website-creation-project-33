@@ -56,10 +56,11 @@ def get_all_users() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at,
                        CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online,
-                       COUNT(l.id) as lead_count
+                       COUNT(l.id) as lead_count,
+                       u.latitude, u.longitude, u.location_city, u.location_country
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id
-                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at
+                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country
                 ORDER BY u.created_at DESC
             """, (online_threshold,))
             
@@ -73,7 +74,11 @@ def get_all_users() -> List[Dict[str, Any]]:
                     'last_seen': row[4].isoformat() if row[4] else None,
                     'created_at': row[5].isoformat() if row[5] else None,
                     'is_online': row[6],
-                    'lead_count': row[7]
+                    'lead_count': row[7],
+                    'latitude': row[8],
+                    'longitude': row[9],
+                    'location_city': row[10],
+                    'location_country': row[11]
                 })
     return users
 

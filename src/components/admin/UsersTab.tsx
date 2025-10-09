@@ -16,6 +16,7 @@ export default function UsersTab() {
   const [userLeads, setUserLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -196,6 +197,8 @@ export default function UsersTab() {
 
   const onlineUsers = users.filter(u => u.is_online).length;
   const groupedLeads = groupLeadsByDate(userLeads);
+  const displayedUsers = showAll ? users : users.slice(0, 4);
+  const hasMoreUsers = users.length > 4;
 
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
@@ -215,7 +218,7 @@ export default function UsersTab() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {users.map((user) => (
+          {displayedUsers.map((user) => (
             <div key={user.id}>
               <UserCard
                 user={user}
@@ -244,6 +247,24 @@ export default function UsersTab() {
               )}
             </div>
           ))}
+          {hasMoreUsers && !showAll && (
+            <button
+              onClick={() => setShowAll(true)}
+              className="w-full mt-4 py-3 px-4 bg-[#001f54]/5 hover:bg-[#001f54]/10 text-[#001f54] rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+            >
+              <Icon name="ChevronDown" size={20} />
+              Показать еще ({users.length - 4})
+            </button>
+          )}
+          {showAll && hasMoreUsers && (
+            <button
+              onClick={() => setShowAll(false)}
+              className="w-full mt-4 py-3 px-4 bg-[#001f54]/5 hover:bg-[#001f54]/10 text-[#001f54] rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+            >
+              <Icon name="ChevronUp" size={20} />
+              Свернуть
+            </button>
+          )}
         </div>
       </CardContent>
     </Card>

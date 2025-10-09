@@ -204,7 +204,7 @@ export default function UsersTab() {
     .filter(user => 
       user.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .sort((a, b) => b.leads_count - a.leads_count);
+    .sort((a, b) => b.lead_count - a.lead_count);
   
   const displayedUsers = showAll ? filteredUsers : filteredUsers.slice(0, 4);
   const hasMoreUsers = filteredUsers.length > 4;

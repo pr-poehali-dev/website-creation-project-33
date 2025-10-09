@@ -59,21 +59,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const getGeolocation = (): Promise<{ latitude: number; longitude: number } | null> => {
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
+        console.log('Geolocation not supported');
         resolve(null);
         return;
       }
       
+      console.log('Requesting geolocation...');
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          console.log('Geolocation success:', position.coords.latitude, position.coords.longitude);
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
         },
-        () => {
+        (error) => {
+          console.log('Geolocation error:', error.message);
           resolve(null);
         },
-        { timeout: 5000, maximumAge: 60000 }
+        { timeout: 10000, maximumAge: 0, enableHighAccuracy: false }
       );
     });
   };

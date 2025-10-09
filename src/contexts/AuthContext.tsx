@@ -56,36 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   };
 
-  const getGeolocation = (): Promise<{ latitude: number; longitude: number } | null> => {
-    return new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        console.log('Geolocation not supported');
-        resolve(null);
-        return;
-      }
-      
-      console.log('Requesting geolocation...');
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('Geolocation success:', position.coords.latitude, position.coords.longitude);
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.log('Geolocation error:', error.message);
-          resolve(null);
-        },
-        { timeout: 10000, maximumAge: 0, enableHighAccuracy: false }
-      );
-    });
-  };
+
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const location = await getGeolocation();
-      
       const response = await fetch(API_BASE, {
         method: 'POST',
         headers: {
@@ -95,8 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           action: 'login',
           email,
           password,
-          latitude: location?.latitude,
-          longitude: location?.longitude,
         }),
       });
 
@@ -115,8 +87,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (email: string, password: string, name: string): Promise<boolean | 'pending' | { error: string }> => {
     try {
-      const location = await getGeolocation();
-      
       const response = await fetch(API_BASE, {
         method: 'POST',
         headers: {
@@ -127,8 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email,
           password,
           name,
-          latitude: location?.latitude,
-          longitude: location?.longitude,
         }),
       });
 

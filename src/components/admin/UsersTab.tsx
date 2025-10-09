@@ -200,9 +200,11 @@ export default function UsersTab() {
   const onlineUsers = users.filter(u => u.is_online).length;
   const groupedLeads = groupLeadsByDate(userLeads);
   
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users
+    .filter(user => 
+      user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => b.leads_count - a.leads_count);
   
   const displayedUsers = showAll ? filteredUsers : filteredUsers.slice(0, 4);
   const hasMoreUsers = filteredUsers.length > 4;

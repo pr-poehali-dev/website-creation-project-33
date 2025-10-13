@@ -23,10 +23,32 @@ export default function LeadsChart({
   onUsersChange 
 }: LeadsChartProps) {
   const [showTotal, setShowTotal] = React.useState(true);
+  const [timeRange, setTimeRange] = React.useState<'week' | 'twoWeeks' | 'month' | 'year' | 'all'>('all');
   
   if (chartData.length === 0) {
     return null;
   }
+
+  const getFilteredChartData = () => {
+    if (timeRange === 'all') {
+      return chartData;
+    }
+
+    const now = new Date();
+    const daysToSubtract = {
+      week: 7,
+      twoWeeks: 14,
+      month: 30,
+      year: 365,
+    }[timeRange];
+
+    const cutoffDate = new Date(now);
+    cutoffDate.setDate(cutoffDate.getDate() - daysToSubtract);
+
+    return chartData.filter(item => new Date(item.date) >= cutoffDate);
+  };
+
+  const filteredChartData = getFilteredChartData();
 
   const toggleUser = (userName: string) => {
     const isSelected = selectedUsers.includes(userName);
@@ -113,6 +135,65 @@ export default function LeadsChart({
             </Button>
           </div>
 
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-sm text-gray-600 font-medium">Период:</span>
+            <Button
+              onClick={() => setTimeRange('week')}
+              variant={timeRange === 'week' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 ${timeRange === 'week'
+                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
+                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+              }`}
+            >
+              Неделя
+            </Button>
+            <Button
+              onClick={() => setTimeRange('twoWeeks')}
+              variant={timeRange === 'twoWeeks' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 ${timeRange === 'twoWeeks'
+                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
+                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+              }`}
+            >
+              2 недели
+            </Button>
+            <Button
+              onClick={() => setTimeRange('month')}
+              variant={timeRange === 'month' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 ${timeRange === 'month'
+                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
+                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+              }`}
+            >
+              Месяц
+            </Button>
+            <Button
+              onClick={() => setTimeRange('year')}
+              variant={timeRange === 'year' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 ${timeRange === 'year'
+                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
+                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+              }`}
+            >
+              Год
+            </Button>
+            <Button
+              onClick={() => setTimeRange('all')}
+              variant={timeRange === 'all' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 ${timeRange === 'all'
+                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
+                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+              }`}
+            >
+              Всё время
+            </Button>
+          </div>
+
           <div className="flex flex-wrap gap-2">
             <span className="text-sm text-gray-600 font-medium">Пользователи:</span>
             <Button
@@ -142,7 +223,7 @@ export default function LeadsChart({
 
         <div className="h-96">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+            <LineChart data={filteredChartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis 
                 dataKey="date" 

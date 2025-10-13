@@ -17,7 +17,7 @@ def get_moscow_time():
     utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
     return utc_now.astimezone(MOSCOW_TZ)
 
-def send_to_google_sheets(user_name: str, lead_type: str, notes: str, has_audio: bool, moscow_time: datetime):
+def send_to_google_sheets(user_name: str, lead_type: str, notes: str, has_audio: bool, moscow_time: datetime, organization_name: str = ''):
     """Отправить данные лида в Google Таблицы"""
     try:
         credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS')
@@ -41,6 +41,7 @@ def send_to_google_sheets(user_name: str, lead_type: str, notes: str, has_audio:
         values = [[
             formatted_time,
             user_name,
+            organization_name if organization_name else 'Не указана',
             lead_type,
             notes,
             audio_status
@@ -52,13 +53,13 @@ def send_to_google_sheets(user_name: str, lead_type: str, notes: str, has_audio:
         
         service.spreadsheets().values().append(
             spreadsheetId=sheet_id,
-            range='A:E',
+            range='A:F',
             valueInputOption='RAW',
             insertDataOption='INSERT_ROWS',
             body=body
         ).execute()
         
-        print(f'Successfully sent to Google Sheets: {user_name}, {lead_type}')
+        print(f'Successfully sent to Google Sheets: {user_name}, {organization_name}, {lead_type}')
         
     except Exception as e:
         print(f'Failed to send to Google Sheets: {e}')
@@ -239,7 +240,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             except Exception as db_error:
                 print(f"Database error: {db_error}")
         
-        send_to_google_sheets(user_name, lead_type, notes, bool(audio_data), moscow_time)
+        send_to_google_sheets(user_name, lead_type, notes, bool(audio_data), moscow_time, organization_name)
         
         return {
             'statusCode': 200,

@@ -183,6 +183,7 @@ export default function LeadsChart({
                   dot={{ fill: '#16a34a', r: 4 }}
                   activeDot={{ r: 6 }}
                   name="Контакты"
+                  connectNulls={true}
                 />
               )}
               
@@ -195,6 +196,7 @@ export default function LeadsChart({
                   dot={{ fill: '#ea580c', r: 4 }}
                   activeDot={{ r: 6 }}
                   name="Подходы"
+                  connectNulls={true}
                 />
               )}
 
@@ -213,6 +215,7 @@ export default function LeadsChart({
                     dot={{ fill: userColorMap[userName], r: 3 }}
                     activeDot={{ r: 5 }}
                     name={userName}
+                    connectNulls={true}
                   />
                 );
               })}

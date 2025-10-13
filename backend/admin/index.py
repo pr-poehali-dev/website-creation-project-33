@@ -419,7 +419,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'Access-Control-Allow-Origin': '*'
     }
 
-    session_token = event.get('headers', {}).get('X-Session-Token')
+    # Заголовки могут быть в разных регистрах
+    headers_dict = event.get('headers', {})
+    session_token = (
+        headers_dict.get('X-Session-Token') or 
+        headers_dict.get('x-session-token') or
+        headers_dict.get('X-SESSION-TOKEN')
+    )
+    
     if not session_token:
         return {
             'statusCode': 401,
@@ -428,7 +435,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
 
     user = get_user_by_session(session_token)
-    if not user or not user['is_admin']:
+    
+    if not user:
         return {
             'statusCode': 403,
             'headers': headers,
@@ -437,6 +445,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     if method == 'GET':
         action = event.get('queryStringParameters', {}).get('action', '')
+        
+        # get_organizations доступен для всех авторизованных пользователей
+        if action == 'get_organizations':
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT id, name, created_at 
+                        FROM t_p24058207_website_creation_pro.organizations 
+                        ORDER BY name
+                    """)
+                    organizations = []
+                    for row in cur.fetchall():
+                        organizations.append({
+                            'id': row[0],
+                            'name': row[1],
+                            'created_at': row[2].isoformat() if row[2] else None
+                        })
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'organizations': organizations})
+            }
+        
+        # Остальные действия требуют прав админа
+        if not user['is_admin']:
+            return {
+                'statusCode': 403,
+                'headers': headers,
+                'body': json.dumps({'error': 'Доступ запрещен'})
+            }
         
         if action == 'users':
             users = get_all_users()
@@ -538,27 +576,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': headers,
                     'body': json.dumps({'error': 'Неверный user_id'})
                 }
-        
-        elif action == 'get_organizations':
-            with get_db_connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute("""
-                        SELECT id, name, created_at 
-                        FROM t_p24058207_website_creation_pro.organizations 
-                        ORDER BY name
-                    """)
-                    organizations = []
-                    for row in cur.fetchall():
-                        organizations.append({
-                            'id': row[0],
-                            'name': row[1],
-                            'created_at': row[2].isoformat() if row[2] else None
-                        })
-            return {
-                'statusCode': 200,
-                'headers': headers,
-                'body': json.dumps({'organizations': organizations})
-            }
     
     elif method == 'POST':
         body_data = json.loads(event.get('body', '{}'))

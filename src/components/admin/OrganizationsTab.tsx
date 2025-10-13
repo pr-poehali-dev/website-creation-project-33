@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 
-const ADMIN_API = 'https://functions.poehali.dev/1f3dc7ca-fce5-4ab1-a99d-a8b6c32809ad';
+const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
 
 interface Organization {
   id: number;

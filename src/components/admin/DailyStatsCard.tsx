@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { DailyStats } from './types';
@@ -10,9 +10,14 @@ interface DailyStatsCardProps {
 }
 
 export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCardProps) {
+  const [showAll, setShowAll] = useState(false);
+  
   if (dailyStats.length === 0) {
     return null;
   }
+
+  const visibleStats = showAll ? dailyStats : dailyStats.slice(0, 4);
+  const hasMore = dailyStats.length > 4;
 
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
@@ -26,7 +31,7 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {dailyStats.map((day) => (
+          {visibleStats.map((day) => (
             <div 
               key={day.date}
               onClick={() => day.count > 0 && onDayClick(day.date, day.count)}
@@ -62,6 +67,20 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
               </div>
             </div>
           ))}
+          
+          {hasMore && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="w-full py-3 px-4 text-sm font-medium text-[#001f54] hover:bg-[#001f54]/5 border-2 border-[#001f54]/20 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:border-[#001f54]/40 hover:shadow-md"
+            >
+              <span>{showAll ? 'Скрыть' : `Показать ещё ${dailyStats.length - 4}`}</span>
+              <Icon 
+                name={showAll ? "ChevronUp" : "ChevronDown"} 
+                size={16} 
+                className="transition-transform duration-300" 
+              />
+            </button>
+          )}
         </div>
       </CardContent>
     </Card>

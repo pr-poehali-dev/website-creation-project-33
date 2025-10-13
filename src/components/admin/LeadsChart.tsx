@@ -22,6 +22,8 @@ export default function LeadsChart({
   onFilterTypeChange, 
   onUsersChange 
 }: LeadsChartProps) {
+  const [showTotal, setShowTotal] = React.useState(true);
+  
   if (chartData.length === 0) {
     return null;
   }
@@ -73,7 +75,7 @@ export default function LeadsChart({
       </CardHeader>
       <CardContent>
         <div className="mb-6 space-y-4">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             <Button
               onClick={() => onFilterTypeChange('contacts')}
               variant={filterType === 'contacts' ? 'default' : 'outline'}
@@ -95,6 +97,19 @@ export default function LeadsChart({
               }`}
             >
               Подходы
+            </Button>
+            <div className="h-6 w-px bg-gray-300 mx-1" />
+            <Button
+              onClick={() => setShowTotal(!showTotal)}
+              variant={showTotal ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 ${showTotal
+                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
+                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+              }`}
+            >
+              <Icon name={showTotal ? "Eye" : "EyeOff"} size={14} className="mr-1" />
+              Общая линия
             </Button>
           </div>
 
@@ -174,7 +189,7 @@ export default function LeadsChart({
                 iconType="circle"
               />
               
-              {filterType === 'contacts' && (
+              {showTotal && filterType === 'contacts' && (
                 <Line 
                   type="monotone"
                   dataKey="contacts" 
@@ -182,12 +197,12 @@ export default function LeadsChart({
                   strokeWidth={3}
                   dot={{ fill: '#16a34a', r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Контакты"
+                  name="Все контакты"
                   connectNulls={true}
                 />
               )}
               
-              {filterType === 'approaches' && (
+              {showTotal && filterType === 'approaches' && (
                 <Line 
                   type="monotone"
                   dataKey="approaches" 
@@ -195,7 +210,7 @@ export default function LeadsChart({
                   strokeWidth={3}
                   dot={{ fill: '#ea580c', r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Подходы"
+                  name="Все подходы"
                   connectNulls={true}
                 />
               )}

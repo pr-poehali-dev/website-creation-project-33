@@ -110,6 +110,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(event.get('body', '{}'))
         notes = body_data.get('notes', '').strip()
         audio_data = body_data.get('audio_data')
+        organization_id = body_data.get('organization_id')
+        organization_name = body_data.get('organization_name', '')
         user_id = event.get('headers', {}).get('X-User-Id')
         
         if not user_id:
@@ -156,9 +158,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         emoji_type = type_emoji.get(lead_type, '❓')
         
+        org_info = f"\n🏢 Организация: {organization_name}" if organization_name else ""
+        
         caption = f"""{emoji_type} {lead_type.upper()}
 🎙️ IMPERIA PROMO
-Промоутер: {user_name}
+Промоутер: {user_name}{org_info}
 
 📝 Отчёт:
 {notes}"""
@@ -220,13 +224,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     with conn.cursor() as cur:
                         cur.execute(
                             """INSERT INTO t_p24058207_website_creation_pro.leads_analytics 
-                            (user_id, lead_type, lead_result, telegram_message_id, created_at) 
-                            VALUES (%s, %s, %s, %s, %s)""",
+                            (user_id, lead_type, lead_result, telegram_message_id, organization_id, created_at) 
+                            VALUES (%s, %s, %s, %s, %s, %s)""",
                             (
                                 int(user_id),
                                 lead_type,
                                 '',
                                 telegram_message_id,
+                                organization_id,
                                 moscow_time
                             )
                         )

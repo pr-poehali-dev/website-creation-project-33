@@ -14,6 +14,7 @@ export default function StatsTab() {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [dailyUserStats, setDailyUserStats] = useState<UserStats[]>([]);
+  const [detailedLeads, setDetailedLeads] = useState<any[]>([]);
   const [dailyLoading, setDailyLoading] = useState(false);
   const [exportingAll, setExportingAll] = useState(false);
   
@@ -101,6 +102,7 @@ export default function StatsTab() {
       if (response.ok) {
         const data = await response.json();
         setDailyUserStats(data.user_stats || []);
+        setDetailedLeads(data.detailed_leads || []);
       }
     } catch (error) {
       console.error('Error fetching daily user stats:', error);
@@ -118,6 +120,7 @@ export default function StatsTab() {
   const closeDailyModal = () => {
     setSelectedDate(null);
     setDailyUserStats([]);
+    setDetailedLeads([]);
   };
 
   useEffect(() => {
@@ -230,6 +233,7 @@ export default function StatsTab() {
       <DailyModal
         selectedDate={selectedDate}
         dailyUserStats={dailyUserStats}
+        detailedLeads={detailedLeads}
         dailyLoading={dailyLoading}
         onClose={closeDailyModal}
       />

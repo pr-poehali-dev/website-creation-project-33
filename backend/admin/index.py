@@ -200,6 +200,37 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
             
             return user_stats
 
+def get_daily_detailed_leads(date: str) -> List[Dict[str, Any]]:
+    """Получить детальную информацию по лидам за день"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT u.name, l.lead_type, o.name as organization_name, l.created_at
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE DATE(l.created_at) = %s
+                ORDER BY l.created_at DESC
+            """, (date,))
+            
+            leads = []
+            for row in cur.fetchall():
+                created_at = None
+                if row[3]:
+                    try:
+                        created_at = get_moscow_time_from_utc(row[3]).isoformat()
+                    except Exception:
+                        created_at = row[3].isoformat() if hasattr(row[3], 'isoformat') else str(row[3])
+                
+                leads.append({
+                    'user_name': row[0],
+                    'lead_type': row[1],
+                    'organization': row[2] if row[2] else 'Не указана',
+                    'created_at': created_at
+                })
+            
+            return leads
+
 def get_chart_data() -> List[Dict[str, Any]]:
     """Получить детальные данные для графика по дням и пользователям"""
     with get_db_connection() as conn:
@@ -463,10 +494,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             try:
                 user_stats = get_daily_user_stats(date)
+                detailed_leads = get_daily_detailed_leads(date)
                 return {
                     'statusCode': 200,
                     'headers': headers,
-                    'body': json.dumps({'user_stats': user_stats})
+                    'body': json.dumps({'user_stats': user_stats, 'detailed_leads': detailed_leads})
                 }
             except Exception as e:
                 return {
@@ -506,6 +538,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': headers,
                     'body': json.dumps({'error': 'Неверный user_id'})
                 }
+        
+        elif action == 'get_organizations':
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT id, name, created_at 
+                        FROM t_p24058207_website_creation_pro.organizations 
+                        ORDER BY name
+                    """)
+                    organizations = []
+                    for row in cur.fetchall():
+                        organizations.append({
+                            'id': row[0],
+                            'name': row[1],
+                            'created_at': row[2].isoformat() if row[2] else None
+                        })
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'organizations': organizations})
+            }
     
     elif method == 'POST':
         body_data = json.loads(event.get('body', '{}'))
@@ -558,6 +611,67 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
+        
+        elif action == 'add_organization':
+            name = body_data.get('name', '').strip()
+            
+            if not name:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Название организации обязательно'})
+                }
+            
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "INSERT INTO t_p24058207_website_creation_pro.organizations (name) VALUES (%s) RETURNING id",
+                            (name,)
+                        )
+                        org_id = cur.fetchone()[0]
+                        conn.commit()
+                        return {
+                            'statusCode': 200,
+                            'headers': headers,
+                            'body': json.dumps({'success': True, 'id': org_id})
+                        }
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': f'Ошибка добавления: {str(e)}'})
+                }
+        
+        elif action == 'delete_organization':
+            org_id = body_data.get('id')
+            
+            if not org_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID организации обязателен'})
+                }
+            
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "DELETE FROM t_p24058207_website_creation_pro.organizations WHERE id = %s",
+                        (org_id,)
+                    )
+                    conn.commit()
+                    if cur.rowcount > 0:
+                        return {
+                            'statusCode': 200,
+                            'headers': headers,
+                            'body': json.dumps({'success': True})
+                        }
+                    else:
+                        return {
+                            'statusCode': 404,
+                            'headers': headers,
+                            'body': json.dumps({'error': 'Организация не найдена'})
+                        }
     
     elif method == 'PUT':
         body_data = json.loads(event.get('body', '{}'))

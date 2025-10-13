@@ -10,6 +10,7 @@ import UsersTab from './UsersTab';
 import StatsTab from './StatsTab';
 import PendingUsers from './PendingUsers';
 import AdminChatTab from './AdminChatTab';
+import OrganizationsTab from './OrganizationsTab';
 
 export default function AdminPanel() {
   const { logout, user } = useAuth();
@@ -233,35 +234,44 @@ export default function AdminPanel() {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-4 md:space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-50 border border-gray-200 h-12 md:h-14">
+          <TabsList className="grid w-full grid-cols-5 bg-gray-50 border border-gray-200 h-12 md:h-14">
             <TabsTrigger 
               value="pending" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base"
             >
-              <Icon name="UserCheck" size={16} className="md:w-[18px] md:h-[18px]" />
+              <Icon name="UserCheck" size={14} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Заявки</span>
               <span className="sm:hidden">Заяв.</span>
             </TabsTrigger>
             <TabsTrigger 
               value="users" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base"
             >
-              <Icon name="Users" size={16} className="md:w-[18px] md:h-[18px]" />
+              <Icon name="Users" size={14} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Пользователи</span>
               <span className="sm:hidden">Польз.</span>
             </TabsTrigger>
             <TabsTrigger 
               value="stats" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base"
             >
-              <Icon name="BarChart3" size={16} className="md:w-[18px] md:h-[18px]" />
-              Рейтинг
+              <Icon name="BarChart3" size={14} className="md:w-[18px] md:h-[18px]" />
+              <span className="hidden sm:inline">Рейтинг</span>
+              <span className="sm:hidden">Рейт.</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="organizations" 
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base"
+            >
+              <Icon name="Building2" size={14} className="md:w-[18px] md:h-[18px]" />
+              <span className="hidden sm:inline">Организации</span>
+              <span className="sm:hidden">Орг.</span>
             </TabsTrigger>
             <TabsTrigger 
               value="chat" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base relative"
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base relative"
             >
-              <Icon name="MessageCircle" size={16} className="md:w-[18px] md:h-[18px]" />
+              <Icon name="MessageCircle" size={14} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Чат</span>
               <span className="sm:hidden">Чат</span>
               {unreadCount > 0 && (
@@ -282,6 +292,10 @@ export default function AdminPanel() {
 
           <TabsContent value="stats">
             <StatsTab />
+          </TabsContent>
+
+          <TabsContent value="organizations">
+            <OrganizationsTab />
           </TabsContent>
 
           <TabsContent value="chat">

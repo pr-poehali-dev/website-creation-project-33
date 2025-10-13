@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import AuthPage from '@/components/auth/AuthPage';
 import AdminPanel from '@/components/admin/AdminPanel';
-import Index from "./pages/Index";
+import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,14 +43,7 @@ function AppContent() {
     return <AdminPanel />;
   }
 
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
-  );
+  return <UserDashboard />;
 }
 
 const App = () => (

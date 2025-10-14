@@ -127,15 +127,6 @@ export default function UserDashboard() {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
-          {organizationName && (
-            <div className="flex justify-center mb-3">
-              <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1">
-                <Icon name="Building2" size={14} className="mr-1.5" />
-                {organizationName}
-              </Badge>
-            </div>
-          )}
-          
           <TabsList className="grid w-full grid-cols-3 bg-gray-50 border border-gray-200 h-12 md:h-14">
             <TabsTrigger 
               value="start" 
@@ -161,6 +152,15 @@ export default function UserDashboard() {
               Обучение
             </TabsTrigger>
           </TabsList>
+
+          {organizationName && (
+            <div className="flex justify-center">
+              <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1">
+                <Icon name="Building2" size={14} className="mr-1.5" />
+                {organizationName}
+              </Badge>
+            </div>
+          )}
 
           <TabsContent value="start">
             <StartTab onOrganizationSelect={handleOrganizationSelect} />

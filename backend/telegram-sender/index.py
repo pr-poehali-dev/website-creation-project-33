@@ -20,8 +20,8 @@ def get_moscow_time():
 def send_to_google_sheets(user_name: str, lead_type: str, notes: str, has_audio: bool, moscow_time: datetime, organization_name: str = ''):
     """Отправить данные лида в Google Таблицы"""
     try:
-        credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS')
-        sheet_id = os.environ.get('GOOGLE_SHEET_ID')
+        credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_NEW')
+        sheet_id = os.environ.get('GOOGLE_SHEET_ID_NEW')
         
         if not credentials_json or not sheet_id:
             print('Google Sheets not configured, skipping')

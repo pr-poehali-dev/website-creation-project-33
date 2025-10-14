@@ -19,6 +19,7 @@ export interface Lead {
   lead_result: string;
   telegram_message_id: number | null;
   created_at: string;
+  organization_name?: string;
 }
 
 export interface UserStats {

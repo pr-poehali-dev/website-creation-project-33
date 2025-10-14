@@ -266,10 +266,12 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT id, user_id, lead_type, lead_result, created_at, telegram_message_id 
-                FROM t_p24058207_website_creation_pro.leads_analytics 
-                WHERE user_id = %s 
-                ORDER BY created_at DESC
+                SELECT l.id, l.user_id, l.lead_type, l.lead_result, l.created_at, 
+                       l.telegram_message_id, o.name as organization_name
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.user_id = %s 
+                ORDER BY l.created_at DESC
             """, (user_id,))
             
             leads = []
@@ -303,6 +305,7 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
                     'lead_type': row[2],
                     'lead_result': row[3],
                     'telegram_message_id': row[5],
+                    'organization_name': row[6],
                     'created_at': created_at
                 })
             return leads

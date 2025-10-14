@@ -48,9 +48,17 @@ export default function LeadCard({ lead, isDuplicate, onDeleteLead }: LeadCardPr
             <div className="text-[#001f54] text-sm md:text-base font-medium mb-1">
               {formatMoscowTime(lead.created_at, 'datetime')}
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-full text-xs md:text-sm font-medium text-[#001f54]">
-              <Icon name={typeIcon} size={14} />
-              {lead.lead_type}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-full text-xs md:text-sm font-medium text-[#001f54]">
+                <Icon name={typeIcon} size={14} />
+                {lead.lead_type}
+              </div>
+              {lead.organization_name && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-xs md:text-sm font-medium text-blue-700">
+                  <Icon name="Building2" size={14} />
+                  {lead.organization_name}
+                </div>
+              )}
             </div>
           </div>
         </div>

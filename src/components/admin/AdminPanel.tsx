@@ -38,11 +38,10 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a1628] via-[#1a2f4f] to-[#0f1e36] p-4 md:p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
       <AdminPanelStyles />
-      <FloatingOrbs />
       
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto">
         <AdminHeader onLogout={logout} onOpenGoogleSheets={openGoogleSheets} />
         <AdminTabs 
           unreadCount={unreadCount} 

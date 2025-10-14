@@ -10,10 +10,10 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeaderProps) {
   return (
     <>
-      <div className="md:hidden mb-6 slide-up glass-panel rounded-2xl p-4">
+      <div className="md:hidden mb-6 admin-card p-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-white/10">
+          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-blue-500">
               <Icon name="Shield" size={20} className="text-white" />
             </div>
             Админ-панель
@@ -21,40 +21,43 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
           <div className="flex gap-2">
             <Button 
               onClick={onOpenGoogleSheets}
-              className="glass-button text-white px-3 py-2 border-0"
+              className="admin-button px-3 py-2"
               size="sm"
+              variant="outline"
             >
-              <Icon name="Sheet" size={16} />
+              <Icon name="Sheet" size={16} className="text-slate-600" />
             </Button>
             <Button 
               onClick={onLogout} 
-              className="glass-button text-white px-3 py-2 border-0"
+              className="admin-button px-3 py-2"
               size="sm"
+              variant="outline"
             >
-              <Icon name="LogOut" size={16} />
+              <Icon name="LogOut" size={16} className="text-slate-600" />
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="hidden md:flex justify-between items-center mb-8 slide-up glass-panel rounded-3xl p-6">
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-white/10">
+      <div className="hidden md:flex justify-between items-center mb-8 admin-card p-6">
+        <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
+          <div className="p-3 rounded-xl bg-blue-500">
             <Icon name="Shield" size={32} className="text-white" />
           </div>
           Панель администратора
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button 
             onClick={onOpenGoogleSheets}
-            className="glass-button text-white border-0"
+            className="admin-button"
+            variant="outline"
           >
-            <Icon name="Sheet" size={16} className="mr-2" />
-            Google Таблицы
+            <Icon name="Sheet" size={16} className="mr-2 text-slate-600" />
+            <span className="text-slate-700">Google Таблицы</span>
           </Button>
           <Button 
             onClick={onLogout} 
-            className="glass-button text-white border-0"
+            className="admin-button-primary"
           >
             <Icon name="LogOut" size={16} className="mr-2" />
             Выйти

@@ -15,45 +15,45 @@ interface AdminTabsProps {
 
 export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps) {
   return (
-    <Tabs defaultValue="pending" className="space-y-4 md:space-y-6">
-      <TabsList className="grid w-full grid-cols-5 glass-panel h-12 md:h-14 rounded-2xl border-0">
+    <Tabs defaultValue="pending" className="space-y-6">
+      <TabsList className="grid w-full grid-cols-5 admin-card h-12 md:h-14 p-1">
         <TabsTrigger 
           value="pending" 
-          className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base rounded-xl"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
         >
-          <Icon name="UserCheck" size={14} className="md:w-[18px] md:h-[18px]" />
+          <Icon name="UserCheck" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Заявки</span>
           <span className="sm:hidden">Заяв.</span>
         </TabsTrigger>
         <TabsTrigger 
           value="users" 
-          className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base rounded-xl"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
         >
-          <Icon name="Users" size={14} className="md:w-[18px] md:h-[18px]" />
+          <Icon name="Users" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Пользователи</span>
           <span className="sm:hidden">Польз.</span>
         </TabsTrigger>
         <TabsTrigger 
           value="stats" 
-          className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base rounded-xl"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
         >
-          <Icon name="BarChart3" size={14} className="md:w-[18px] md:h-[18px]" />
+          <Icon name="BarChart3" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Рейтинг</span>
           <span className="sm:hidden">Рейт.</span>
         </TabsTrigger>
         <TabsTrigger 
           value="organizations" 
-          className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base rounded-xl"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
         >
-          <Icon name="Building2" size={14} className="md:w-[18px] md:h-[18px]" />
+          <Icon name="Building2" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Организации</span>
           <span className="sm:hidden">Орг.</span>
         </TabsTrigger>
         <TabsTrigger 
           value="chat" 
-          className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base relative rounded-xl"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm relative rounded-lg font-medium"
         >
-          <Icon name="MessageCircle" size={14} className="md:w-[18px] md:h-[18px]" />
+          <Icon name="MessageCircle" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Чат</span>
           <span className="sm:hidden">Чат</span>
           {unreadCount > 0 && (

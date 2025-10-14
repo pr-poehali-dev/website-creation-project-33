@@ -3,61 +3,53 @@ import React from 'react';
 export default function AdminPanelStyles() {
   return (
     <style>{`
-      @keyframes fadeIn {
+      @keyframes slideUp {
         from {
           opacity: 0;
+          transform: translateY(20px);
         }
         to {
           opacity: 1;
-        }
-      }
-      
-      @keyframes float {
-        0%, 100% { 
           transform: translateY(0);
         }
-        50% { 
-          transform: translateY(-10px);
-        }
       }
       
-      .glass-panel {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        transition: all 0.3s ease;
+      .admin-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+        animation: slideUp 0.3s ease-out;
       }
       
-      .glass-panel:hover {
-        background: rgba(255, 255, 255, 0.08);
-        transform: translateY(-2px);
-        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+      .admin-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        border-color: #3b82f6;
       }
       
-      .glass-button {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+      .admin-button {
+        background: white;
+        border: 1px solid #e5e7eb;
         transition: all 0.2s ease;
       }
       
-      .glass-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
+      .admin-button:hover {
+        background: #f9fafb;
+        border-color: #3b82f6;
+        color: #3b82f6;
       }
       
-      .glass-button:active {
-        transform: translateY(0);
+      .admin-button-primary {
+        background: #3b82f6;
+        color: white;
+        border: 1px solid #3b82f6;
+        transition: all 0.2s ease;
       }
       
-      .floating-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(60px);
-        opacity: 0.4;
-        animation: float 10s infinite ease-in-out;
+      .admin-button-primary:hover {
+        background: #2563eb;
+        border-color: #2563eb;
       }
     `}</style>
   );

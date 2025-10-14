@@ -91,22 +91,31 @@ export default function AdminPanel() {
 
   if (!user?.is_admin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#001f54] via-[#002b6b] to-[#001f54] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#0a1628] via-[#1a2f4f] to-[#0f1e36] flex items-center justify-center p-4">
+        <style>{`
+          .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+          }
+        `}</style>
         <div className="max-w-md w-full slide-up">
-          <Card className="border-[#001f54]/20 shadow-2xl">
+          <Card className="glass-card border-white/10 shadow-2xl">
             <CardHeader className="text-center">
-              <CardTitle className="flex flex-col md:flex-row items-center justify-center gap-3 text-[#001f54] text-xl md:text-2xl">
-                <div className="p-2 md:p-3 rounded-full bg-red-50 shadow-lg">
-                  <Icon name="ShieldX" size={24} className="text-red-600 md:w-8 md:h-8" />
+              <CardTitle className="flex flex-col md:flex-row items-center justify-center gap-3 text-white text-xl md:text-2xl">
+                <div className="p-2 md:p-3 rounded-full bg-red-500/20 shadow-lg">
+                  <Icon name="ShieldX" size={24} className="text-red-400 md:w-8 md:h-8" />
                 </div>
                 Доступ запрещен
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-gray-600 mb-6 text-base md:text-lg">У вас нет прав администратора</p>
+              <p className="text-white/70 mb-6 text-base md:text-lg">У вас нет прав администратора</p>
               <Button 
                 onClick={logout} 
-                className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white h-12 md:h-auto shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+                className="w-full glass-button bg-white/10 hover:bg-white/20 text-white h-12 md:h-auto border border-white/20 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
               >
                 <Icon name="LogOut" size={18} className="mr-2 md:w-5 md:h-5" />
                 Выйти
@@ -176,56 +185,115 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e8eef5] p-4 md:p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a1628] via-[#1a2f4f] to-[#0f1e36] p-4 md:p-6 relative overflow-hidden">
+      <style>{`
+        @keyframes glass-float {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          25% { transform: translate(10px, -10px) rotate(1deg); }
+          50% { transform: translate(-5px, 5px) rotate(-1deg); }
+          75% { transform: translate(-10px, -5px) rotate(0.5deg); }
+        }
+        
+        @keyframes shimmer {
+          0% { background-position: -1000px 0; }
+          100% { background-position: 1000px 0; }
+        }
+        
+        .glass-panel {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 
+            0 8px 32px 0 rgba(31, 38, 135, 0.37),
+            inset 0 0 40px rgba(255, 255, 255, 0.05);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-panel:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          transform: translateY(-2px);
+          box-shadow: 
+            0 12px 40px 0 rgba(31, 38, 135, 0.5),
+            inset 0 0 60px rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-button {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
+        }
+        
+        .glass-button:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .floating-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(60px);
+          opacity: 0.4;
+          animation: glass-float 20s infinite ease-in-out;
+        }
+      `}</style>
+      
+      {/* Floating orbs for atmosphere */}
+      <div className="floating-orb w-96 h-96 bg-blue-500 top-0 left-0" style={{ animationDelay: '0s' }} />
+      <div className="floating-orb w-80 h-80 bg-purple-500 bottom-0 right-0" style={{ animationDelay: '5s' }} />
+      <div className="floating-orb w-64 h-64 bg-cyan-500 top-1/2 left-1/2" style={{ animationDelay: '10s' }} />
+      
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Мобильная версия заголовка */}
-        <div className="md:hidden mb-6 slide-up">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-[#001f54] flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-[#001f54]/10">
-                <Icon name="Shield" size={20} className="text-[#001f54]" />
+        <div className="md:hidden mb-6 slide-up glass-panel rounded-2xl p-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-white flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-white/10">
+                <Icon name="Shield" size={20} className="text-white" />
               </div>
               Админ-панель
             </h1>
             <div className="flex gap-2">
               <Button 
                 onClick={openGoogleSheets}
-                className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 shadow-lg transition-all duration-300 hover:scale-105"
+                className="glass-button text-white px-3 py-2 border-0"
                 size="sm"
               >
                 <Icon name="Sheet" size={16} />
               </Button>
               <Button 
                 onClick={logout} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white px-3 py-2 shadow-lg transition-all duration-300 hover:scale-105"
+                className="glass-button text-white px-3 py-2 border-0"
                 size="sm"
               >
                 <Icon name="LogOut" size={16} />
               </Button>
             </div>
           </div>
-
         </div>
 
         {/* Десктопная версия заголовка */}
-        <div className="hidden md:flex justify-between items-center mb-8 slide-up">
-          <h1 className="text-3xl font-bold text-[#001f54] flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-[#001f54]/10 shadow-lg">
-              <Icon name="Shield" size={32} className="text-[#001f54]" />
+        <div className="hidden md:flex justify-between items-center mb-8 slide-up glass-panel rounded-3xl p-6">
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-white/10">
+              <Icon name="Shield" size={32} className="text-white" />
             </div>
             Панель администратора
           </h1>
           <div className="flex items-center gap-4">
             <Button 
               onClick={openGoogleSheets}
-              className="bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+              className="glass-button text-white border-0"
             >
               <Icon name="Sheet" size={16} className="mr-2" />
               Google Таблицы
             </Button>
             <Button 
               onClick={logout} 
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+              className="glass-button text-white border-0"
             >
               <Icon name="LogOut" size={16} className="mr-2" />
               Выйти
@@ -234,10 +302,10 @@ export default function AdminPanel() {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-4 md:space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-gray-50 border border-gray-200 h-12 md:h-14">
+          <TabsList className="grid w-full grid-cols-5 glass-panel h-12 md:h-14 rounded-2xl border-0">
             <TabsTrigger 
               value="pending" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base"
+              className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base rounded-xl"
             >
               <Icon name="UserCheck" size={14} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Заявки</span>
@@ -245,7 +313,7 @@ export default function AdminPanel() {
             </TabsTrigger>
             <TabsTrigger 
               value="users" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base"
+              className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base rounded-xl"
             >
               <Icon name="Users" size={14} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Пользователи</span>
@@ -253,7 +321,7 @@ export default function AdminPanel() {
             </TabsTrigger>
             <TabsTrigger 
               value="stats" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base"
+              className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base rounded-xl"
             >
               <Icon name="BarChart3" size={14} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Рейтинг</span>
@@ -261,7 +329,7 @@ export default function AdminPanel() {
             </TabsTrigger>
             <TabsTrigger 
               value="organizations" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base"
+              className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base rounded-xl"
             >
               <Icon name="Building2" size={14} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Организации</span>
@@ -269,13 +337,13 @@ export default function AdminPanel() {
             </TabsTrigger>
             <TabsTrigger 
               value="chat" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-xs md:text-base relative"
+              className="flex items-center gap-1 md:gap-2 text-white/70 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 text-xs md:text-base relative rounded-xl"
             >
               <Icon name="MessageCircle" size={14} className="md:w-[18px] md:h-[18px]" />
               <span className="hidden sm:inline">Чат</span>
               <span className="sm:hidden">Чат</span>
               {unreadCount > 0 && (
-                <Badge className="ml-1 h-5 min-w-[20px] flex items-center justify-center bg-red-500 hover:bg-red-500 text-white text-xs px-1">
+                <Badge className="ml-1 h-5 min-w-[20px] flex items-center justify-center bg-red-500 hover:bg-red-500 text-white text-xs px-1 rounded-full">
                   {unreadCount}
                 </Badge>
               )}

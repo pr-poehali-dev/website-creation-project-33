@@ -46,9 +46,9 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
 
   return (
     <div className="space-y-6 slide-up">
-      <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
-        <CardContent className="space-y-6">
-          {step === 0 && (
+      {step === 0 && (
+        <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
+          <CardContent className="space-y-6">
             <div className="text-center space-y-6">
               <div className="text-white p-8 md:p-12">
                 <h3 className="text-xl md:text-2xl font-bold mb-4 text-white">Добро пожаловать!</h3>
@@ -64,9 +64,13 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                 </Button>
               </div>
             </div>
-          )}
+          </CardContent>
+        </Card>
+      )}
 
-          {step === 1 && (
+      {step === 1 && (
+        <Card className="border-blue-600/30 shadow-xl bg-white hover:shadow-2xl transition-all duration-300 rounded-3xl">
+          <CardContent className="space-y-6 pt-6">
             <div className="space-y-6">
               {/* Инструкция */}
               <div className="bg-blue-50 border-2 border-blue-400 p-6 rounded-lg shadow-sm">
@@ -171,18 +175,16 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
               <div className="text-center">
                 <Button 
                   onClick={handleReset}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-8 py-6 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-8 py-6 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all rounded-full"
                 >
                   Пройти обучение заново
                   <Icon name="RotateCcw" size={20} className="ml-2" />
                 </Button>
               </div>
             </div>
-          )}
-
-
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

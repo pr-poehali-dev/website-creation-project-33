@@ -225,6 +225,26 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                 </div>
               </div>
 
+              <div className="bg-blue-50 border-l-4 border-[#001f54] p-6 rounded-lg mt-6">
+                <p className="text-lg font-semibold text-[#001f54] mb-4">
+                  Теперь нужно собрать данные:
+                </p>
+                <div className="space-y-2 text-gray-700">
+                  <p className="flex items-start gap-2">
+                    <span className="text-[#001f54] font-bold">•</span>
+                    <span><strong>Как вас зовут?</strong> (имя родителя)</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="text-[#001f54] font-bold">•</span>
+                    <span><strong>Номер телефона</strong> - чтобы отправить вам ссылку на школу в WhatsApp</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="text-[#001f54] font-bold">•</span>
+                    <span><strong>В каком классе учится ваш ребенок?</strong></span>
+                  </p>
+                </div>
+              </div>
+
               <div className="text-center">
                 <Button 
                   onClick={handleNext}

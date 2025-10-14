@@ -74,7 +74,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
             </div>
           )}
 
-          {step === 1 && !submitted && (
+          {step === 1 && (
             <div className="space-y-6">
               {/* Инструкция */}
               <div className="bg-[#001f54]/5 border-2 border-[#001f54]/20 p-6 rounded-lg">

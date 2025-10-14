@@ -200,10 +200,10 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                       </div>
                       <div>
                         <p className="font-semibold text-[#001f54]">
-                          2 месяца обучения в нашей школе – в подарок!
+                          2 месяца бесплатного обучения в школе "Сотка" по любому предмету
                         </p>
                         <p className="text-sm text-gray-600 mt-1">
-                          После прохождения диагностики
+                          Заходите на сайт, выбираете предмет (например русский или математика) и занимаетесь абсолютно бесплатно
                         </p>
                       </div>
                     </div>

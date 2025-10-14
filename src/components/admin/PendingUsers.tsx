@@ -117,15 +117,15 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
 
   if (isLoading) {
     return (
-      <Card className="border-2 border-[#001f54]/10">
+      <Card className="glass-panel border-white/10 rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-[#001f54] flex items-center gap-2">
+          <CardTitle className="text-white flex items-center gap-2">
             <Icon name="UserCheck" size={24} />
             Заявки на регистрацию
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center gap-2 text-[#001f54] py-8">
+          <div className="flex items-center justify-center gap-2 text-white py-8">
             <Icon name="Loader2" size={20} className="animate-spin" />
             Загрузка заявок...
           </div>
@@ -135,15 +135,15 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
   }
 
   return (
-    <Card className="border-2 border-[#001f54]/10">
+    <Card className="glass-panel border-white/10 rounded-2xl">
       <CardHeader>
-        <CardTitle className="text-[#001f54] flex flex-col sm:flex-row items-start sm:items-center gap-2 text-lg md:text-xl">
+        <CardTitle className="text-white flex flex-col sm:flex-row items-start sm:items-center gap-2 text-lg md:text-xl">
           <div className="flex items-center gap-2">
             <Icon name="UserCheck" size={20} className="md:w-6 md:h-6" />
             <span>Заявки на регистрацию</span>
           </div>
           {pendingUsers.length > 0 && (
-            <span className="px-2 py-1 bg-red-500 text-white text-xs md:text-sm rounded-full">
+            <span className="px-2 py-1 bg-red-500/80 backdrop-blur text-white text-xs md:text-sm rounded-full">
               {pendingUsers.length}
             </span>
           )}
@@ -151,9 +151,9 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
       </CardHeader>
       <CardContent>
         {pendingUsers.length === 0 ? (
-          <div className="text-center py-6 md:py-8 text-gray-500">
-            <Icon name="Check" size={40} className="mx-auto mb-3 md:mb-4 text-green-500 md:w-12 md:h-12" />
-            <p className="text-base md:text-lg font-medium">Нет новых заявок</p>
+          <div className="text-center py-6 md:py-8 text-white/70">
+            <Icon name="Check" size={40} className="mx-auto mb-3 md:mb-4 text-green-400 md:w-12 md:h-12" />
+            <p className="text-base md:text-lg font-medium text-white">Нет новых заявок</p>
             <p className="text-xs md:text-sm mt-2">Все заявки обработаны</p>
           </div>
         ) : (
@@ -161,15 +161,15 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
             {pendingUsers.map((user) => (
               <div
                 key={user.id}
-                className="border-2 border-amber-500 bg-amber-50 rounded-xl p-3 md:p-4 hover:shadow-lg transition-all"
+                className="glass-panel border-amber-400/30 bg-amber-500/10 backdrop-blur-xl rounded-xl p-3 md:p-4 hover:bg-amber-500/20 transition-all"
               >
                 <div className="flex flex-col gap-3 md:gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Icon name="User" size={16} className="text-[#001f54] md:w-[18px] md:h-[18px]" />
-                      <span className="font-bold text-[#001f54] text-base md:text-lg">{user.name}</span>
+                      <Icon name="User" size={16} className="text-white md:w-[18px] md:h-[18px]" />
+                      <span className="font-bold text-white text-base md:text-lg">{user.name}</span>
                     </div>
-                    <div className="space-y-1 text-xs md:text-sm text-gray-600">
+                    <div className="space-y-1 text-xs md:text-sm text-white/70">
                       <div className="flex items-center gap-2">
                         <Icon name="Mail" size={12} className="md:w-[14px] md:h-[14px]" />
                         <span className="truncate">{user.email}</span>
@@ -189,7 +189,7 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
                     <Button
                       onClick={() => handleApprove(user.id)}
                       disabled={processingUserId === user.id}
-                      className="bg-green-600 hover:bg-green-700 text-white flex-1 md:flex-none text-sm md:text-base h-9 md:h-10"
+                      className="glass-button bg-green-500/20 hover:bg-green-500/30 text-white border-green-400/30 flex-1 md:flex-none text-sm md:text-base h-9 md:h-10"
                       size="sm"
                     >
                       {processingUserId === user.id ? (
@@ -204,8 +204,7 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
                     <Button
                       onClick={() => handleReject(user.id)}
                       disabled={processingUserId === user.id}
-                      variant="destructive"
-                      className="flex-1 md:flex-none text-sm md:text-base h-9 md:h-10"
+                      className="glass-button bg-red-500/20 hover:bg-red-500/30 text-white border-red-400/30 flex-1 md:flex-none text-sm md:text-base h-9 md:h-10"
                       size="sm"
                     >
                       {processingUserId === user.id ? (

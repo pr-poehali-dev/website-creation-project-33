@@ -86,11 +86,11 @@ export default function LeadsChart({
   }, {} as Record<string, string>);
 
   return (
-    <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="glass-panel border-white/10 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-3 md:pb-4">
-        <CardTitle className="flex items-center gap-2 md:gap-3 text-[#001f54] text-lg md:text-xl">
-          <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
-            <Icon name="TrendingUp" size={18} className="text-[#001f54] md:w-5 md:h-5" />
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-lg md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
+            <Icon name="TrendingUp" size={18} className="text-white md:w-5 md:h-5" />
           </div>
           График лидов
         </CardTitle>
@@ -104,7 +104,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'contacts'
                 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
-                : 'bg-white hover:bg-green-50 text-green-600 border-green-200'
+                : 'bg-white/5 hover:bg-white/10 text-green-400 border-green-400/30'
               }`}
             >
               Контакты
@@ -115,7 +115,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'approaches'
                 ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
-                : 'bg-white hover:bg-orange-50 text-orange-600 border-orange-200'
+                : 'bg-white/5 hover:bg-white/10 text-orange-400 border-orange-400/30'
               }`}
             >
               Подходы
@@ -127,7 +127,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${showTotal
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
               }`}
             >
               <Icon name={showTotal ? "Eye" : "EyeOff"} size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
@@ -137,14 +137,14 @@ export default function LeadsChart({
           </div>
 
           <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-            <span className="text-xs md:text-sm text-gray-600 font-medium">Период:</span>
+            <span className="text-xs md:text-sm text-white/70 font-medium">Период:</span>
             <Button
               onClick={() => setTimeRange('week')}
               variant={timeRange === 'week' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'week'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
               }`}
             >
               7д
@@ -155,7 +155,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'twoWeeks'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
               }`}
             >
               14д
@@ -166,7 +166,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'month'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
               }`}
             >
               30д
@@ -177,7 +177,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'year'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
               }`}
             >
               Год
@@ -188,7 +188,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'all'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
               }`}
             >
               Всё
@@ -196,12 +196,12 @@ export default function LeadsChart({
           </div>
 
           <div className="flex flex-wrap gap-1.5 md:gap-2">
-            <span className="text-xs md:text-sm text-gray-600 font-medium">Пользователи:</span>
+            <span className="text-xs md:text-sm text-white/70 font-medium">Пользователи:</span>
             <Button
               onClick={toggleAllUsers}
               variant="outline"
               size="sm"
-              className="bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
+              className="glass-button bg-white/5 hover:bg-white/10 text-white border-white/10 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
             >
               {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
             </Button>
@@ -213,7 +213,7 @@ export default function LeadsChart({
                 size="sm"
                 className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${selectedUsers.includes(user.name)
                   ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                  : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
+                  : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
                 }`}
               >
                 {user.name}
@@ -257,8 +257,10 @@ export default function LeadsChart({
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: 'white',
-                  border: '2px solid #001f54',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  border: '2px solid rgba(255, 255, 255, 0.2)',
+                  backdropFilter: 'blur(10px)',
+                  color: 'white',
                   borderRadius: '12px',
                   padding: '12px',
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
@@ -335,18 +337,18 @@ export default function LeadsChart({
           {userStats.map((user, index) => (
             <div 
               key={user.name}
-              className="p-4 rounded-lg border-2 border-[#001f54]/10 bg-gradient-to-br from-white to-gray-50 hover:shadow-lg transition-all duration-300"
+              className="p-4 rounded-lg border-2 border-white/10 bg-white/5 hover:shadow-lg transition-all duration-300"
             >
               <div className="flex items-center gap-2 mb-2">
                 <div 
                   className="w-3 h-3 rounded-full shadow-sm" 
                   style={{ backgroundColor: USER_COLORS[index % USER_COLORS.length] }}
                 />
-                <span className="text-sm font-semibold text-[#001f54]">{user.name}</span>
+                <span className="text-sm font-semibold text-white">{user.name}</span>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-[#001f54]">{user.lead_count}</div>
-                <div className="flex items-center gap-2 text-xs text-gray-600">
+                <div className="text-2xl font-bold text-white">{user.lead_count}</div>
+                <div className="flex items-center gap-2 text-xs text-white/60">
                   <span className="text-green-600 font-medium">К: {user.contacts}</span>
                   <span className="text-gray-400">•</span>
                   <span className="text-orange-600 font-medium">П: {user.approaches}</span>

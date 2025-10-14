@@ -311,18 +311,18 @@ export default function AdminChatTab() {
           />
         ) : (
           <div className="flex flex-col h-[calc(100vh-140px)]">
-            <div className="p-4 border-b bg-white flex items-center gap-3">
+            <div className="p-4 border-b border-white/10 bg-white/5 flex items-center gap-3">
               <Button
                 onClick={() => setSelectedUser(null)}
                 variant="ghost"
                 size="icon"
-                className="shrink-0"
+                className="shrink-0 glass-button text-white"
               >
                 <Icon name="ArrowLeft" size={20} />
               </Button>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate">{selectedUser.name}</p>
-                <p className="text-xs text-gray-500 truncate">{selectedUser.email}</p>
+                <p className="font-semibold text-sm truncate text-white">{selectedUser.name}</p>
+                <p className="text-xs text-white/50 truncate">{selectedUser.email}</p>
               </div>
               {messages.length > 0 && (
                 <Button

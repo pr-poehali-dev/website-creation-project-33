@@ -53,10 +53,10 @@ export default function ChatWindow({
   onTyping,
 }: ChatWindowProps) {
   return (
-    <Card className="md:col-span-2 flex flex-col h-full border-0 md:border rounded-none md:rounded-lg shadow-none md:shadow-sm">
-      <CardHeader className="border-b">
+    <Card className="glass-panel border-white/10 rounded-2xl md:col-span-2 flex flex-col h-full shadow-none md:shadow-sm">
+      <CardHeader className="border-b border-white/10">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-sm md:text-base">
+          <CardTitle className="flex items-center gap-2 text-sm md:text-base text-white">
             <Icon name="MessageCircle" size={18} className="md:w-5 md:h-5" />
             <span className="truncate">{selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}</span>
           </CardTitle>
@@ -80,7 +80,7 @@ export default function ChatWindow({
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0">
         {!selectedUser ? (
-          <div className="flex-1 flex items-center justify-center text-gray-500 p-4 md:p-6">
+          <div className="flex-1 flex items-center justify-center text-white/70 p-4 md:p-6">
             <div className="text-center">
               <Icon name="MessageCircleOff" size={40} className="mx-auto mb-3 md:mb-4 opacity-50 md:w-12 md:h-12" />
               <p className="text-xs md:text-sm">Выберите пользователя для начала общения</p>

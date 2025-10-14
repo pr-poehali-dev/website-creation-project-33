@@ -135,9 +135,9 @@ export default function OrganizationsTab() {
 
   if (loading) {
     return (
-      <Card className="border-gray-200 shadow-lg bg-white">
+      <Card className="glass-panel border-white/10 rounded-2xl">
         <CardContent className="p-8">
-          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
+          <div className="text-center text-white/70 flex items-center justify-center gap-3">
             <Icon name="Loader2" size={24} className="animate-spin" />
             Загрузка организаций...
           </div>
@@ -148,11 +148,11 @@ export default function OrganizationsTab() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="glass-panel border-white/10 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-[#001f54] text-lg md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
-              <Icon name="Building2" size={18} className="text-[#001f54] md:w-5 md:h-5" />
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-lg md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
+              <Icon name="Building2" size={18} className="text-white md:w-5 md:h-5" />
             </div>
             Добавить организацию
           </CardTitle>
@@ -163,7 +163,7 @@ export default function OrganizationsTab() {
               value={newOrgName}
               onChange={(e) => setNewOrgName(e.target.value)}
               placeholder="Название организации"
-              className="flex-1 border-2 border-[#001f54]/30 bg-white text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-10 md:h-auto text-sm md:text-base"
+              className="flex-1 border-2 border-white/20 bg-white/5 text-white placeholder:text-white/50 focus:border-white/40 focus:ring-white/20 h-10 md:h-auto text-sm md:text-base"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   addOrganization();
@@ -173,7 +173,7 @@ export default function OrganizationsTab() {
             <Button
               onClick={addOrganization}
               disabled={!newOrgName.trim() || adding}
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:scale-105 h-10 md:h-auto text-sm md:text-base"
+              className="glass-button bg-white/10 hover:bg-white/20 text-white shadow-lg transition-all duration-300 hover:scale-105 h-10 md:h-auto text-sm md:text-base"
             >
               {adding ? (
                 <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
@@ -188,18 +188,18 @@ export default function OrganizationsTab() {
         </CardContent>
       </Card>
 
-      <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="glass-panel border-white/10 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-[#001f54] text-lg md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
-              <Icon name="List" size={18} className="text-[#001f54] md:w-5 md:h-5" />
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-lg md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
+              <Icon name="List" size={18} className="text-white md:w-5 md:h-5" />
             </div>
             Список организаций ({organizations.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {organizations.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-white/70">
               <Icon name="Building2" size={32} className="mx-auto mb-3 opacity-30 md:w-12 md:h-12" />
               <p className="text-sm md:text-base">Организации не добавлены</p>
             </div>
@@ -208,16 +208,16 @@ export default function OrganizationsTab() {
               {organizations.map((org) => (
                 <div
                   key={org.id}
-                  className="border-2 border-[#001f54]/10 rounded-xl p-3 md:p-4 bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:border-[#001f54]/30"
+                  className="border-2 border-white/10 rounded-xl p-3 md:p-4 bg-white/5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-white/30"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-                      <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10 flex-shrink-0">
-                        <Icon name="Building2" size={16} className="text-[#001f54] md:w-[18px] md:h-[18px]" />
+                      <div className="p-1.5 md:p-2 rounded-lg bg-white/5 flex-shrink-0">
+                        <Icon name="Building2" size={16} className="text-white md:w-[18px] md:h-[18px]" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium text-[#001f54] text-sm md:text-lg truncate">{org.name}</div>
-                        <div className="text-[10px] md:text-xs text-gray-500">
+                        <div className="font-medium text-white text-sm md:text-lg truncate">{org.name}</div>
+                        <div className="text-[10px] md:text-xs text-white/50">
                           Добавлено: {new Date(org.created_at).toLocaleDateString('ru-RU')}
                         </div>
                       </div>

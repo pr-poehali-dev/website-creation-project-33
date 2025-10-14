@@ -33,7 +33,7 @@ export default function UserCard({
 }: UserCardProps) {
   return (
     <div 
-      className="border-2 border-[#001f54]/10 rounded-xl p-3 md:p-4 hover:bg-[#001f54]/5 transition-all duration-300 cursor-pointer bg-white shadow-md hover:shadow-xl hover:scale-[1.01]"
+      className="border-2 border-white/10 rounded-xl p-3 md:p-4 hover:bg-white/5 transition-all duration-300 cursor-pointer bg-white/5 shadow-md hover:shadow-xl hover:scale-[1.01]"
       onClick={onUserClick}
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -45,7 +45,7 @@ export default function UserCard({
               <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
             )}
             {user.is_admin && (
-              <Badge className="bg-[#001f54] text-white border border-[#001f54] px-1.5 py-0.5 text-xs shadow-sm">
+              <Badge className="bg-white/10 text-white border border-white/20 px-1.5 py-0.5 text-xs shadow-sm">
                 <Icon name="Shield" size={10} className="mr-1" />
                 <span className="hidden sm:inline">Админ</span>
                 <span className="sm:hidden">А</span>
@@ -59,7 +59,7 @@ export default function UserCard({
                 <Input
                   value={editName}
                   onChange={(e) => onEditNameChange(e.target.value)}
-                  className="w-full max-w-48 border-2 border-[#001f54]/30 bg-white text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 text-sm md:text-base"
+                  className="w-full max-w-48 border-2 border-white/20 bg-white/5 text-white placeholder:text-white/50 focus:border-white/40 focus:ring-white/20 text-sm md:text-base"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       onUpdateName();
@@ -68,11 +68,11 @@ export default function UserCard({
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
-                <span className="font-medium text-[#001f54] text-base md:text-lg truncate">{user.name}</span>
+                <span className="font-medium text-white text-base md:text-lg truncate">{user.name}</span>
               )}
             </div>
-            <div className="text-sm text-gray-600 truncate">{user.email}</div>
-            <div className="flex items-center justify-between text-xs text-gray-400">
+            <div className="text-sm text-white/70 truncate">{user.email}</div>
+            <div className="flex items-center justify-between text-xs text-white/50">
               <span>
                 {user.is_online 
                   ? 'Онлайн сейчас' 
@@ -81,8 +81,8 @@ export default function UserCard({
               </span>
               <Badge className={`ml-2 px-1.5 py-0.5 text-xs font-medium ${
                 user.is_online 
-                  ? 'bg-green-100 text-green-800 border border-green-200' 
-                  : 'bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20'
+                  ? 'bg-white/10 text-green-400 border border-green-400/30' 
+                  : 'bg-white/5 text-white/70 border border-white/10'
               }`}>
                 {user.lead_count} лидов
               </Badge>
@@ -92,7 +92,7 @@ export default function UserCard({
 
         <div className="flex items-center justify-between md:justify-end gap-2 flex-shrink-0">
           {isSelected && (
-            <Icon name="ChevronDown" size={16} className="text-gray-500 md:mr-2" />
+            <Icon name="ChevronDown" size={16} className="text-white/50 md:mr-2" />
           )}
           
           <div className="flex gap-1 md:gap-2" onClick={(e) => e.stopPropagation()}>
@@ -102,7 +102,7 @@ export default function UserCard({
                   size="sm" 
                   onClick={onUpdateName}
                   disabled={!editName.trim()}
-                  className="bg-[#001f54] hover:bg-[#002b6b] text-white px-2 md:px-3 py-1 h-8 shadow-md transition-all duration-300 hover:scale-105"
+                  className="glass-button bg-white/10 hover:bg-white/20 text-white px-2 md:px-3 py-1 h-8 shadow-md transition-all duration-300 hover:scale-105"
                 >
                   <Icon name="Check" size={12} className="md:w-[14px] md:h-[14px]" />
                 </Button>

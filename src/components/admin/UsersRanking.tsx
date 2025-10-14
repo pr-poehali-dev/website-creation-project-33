@@ -92,29 +92,40 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
         <div className="space-y-4">
           {displayUsers.map((user, index) => {
             const isTop3 = index < 3;
-            const medalColors = ['from-[#001f54] to-[#002b6b]', 'from-gray-400 to-gray-600', 'from-gray-600 to-gray-800'];
+            const medalColors = [
+              'bg-gradient-to-br from-yellow-400 to-yellow-600 border-yellow-400',
+              'bg-gradient-to-br from-gray-300 to-gray-500 border-gray-400',
+              'bg-gradient-to-br from-orange-400 to-orange-600 border-orange-500'
+            ];
+            const medals = ['🥇', '🥈', '🥉'];
             
             return (
               <div 
                 key={user.email} 
                 className={`border-2 rounded-xl p-3 md:p-4 transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02] ${
-                  user.duplicates > 0 
-                    ? 'border-red-500/50 bg-red-500/10 hover:bg-red-500/20' 
-                    : 'border-white/10 bg-white/5 hover:bg-white/10'
+                  isTop3 
+                    ? `${medalColors[index]} ${user.duplicates > 0 ? 'ring-2 ring-red-500' : ''}`
+                    : user.duplicates > 0 
+                      ? 'border-red-500/50 bg-red-500/10 hover:bg-red-500/20' 
+                      : 'border-white/10 bg-white/5 hover:bg-white/10'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
-                    <div className={`flex-shrink-0 flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full ${
-                      isTop3 
-                        ? `bg-gradient-to-br ${medalColors[index]} text-white font-bold text-sm md:text-base shadow-lg`
-                        : 'bg-white/10 text-white/70 font-bold text-sm'
-                    }`}>
-                      {index + 1}
+                    <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 text-2xl md:text-3xl">
+                      {isTop3 ? medals[index] : (
+                        <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 text-white/70 font-bold text-sm">
+                          {index + 1}
+                        </div>
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-white text-sm md:text-base truncate">{user.name}</div>
-                      <div className="text-xs md:text-sm text-white/60 truncate">{user.email}</div>
+                      <div className={`font-medium text-sm md:text-base truncate ${isTop3 ? 'text-[#001f54]' : 'text-white'}`}>
+                        {user.name}
+                      </div>
+                      <div className={`text-xs md:text-sm truncate ${isTop3 ? 'text-[#001f54]/70' : 'text-white/60'}`}>
+                        {user.email}
+                      </div>
                     </div>
                   </div>
                   <div className="flex-shrink-0 text-right">

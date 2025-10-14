@@ -47,15 +47,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
   return (
     <div className="space-y-6 slide-up">
       <Card className="border-blue-600/30 shadow-xl bg-white hover:shadow-2xl transition-all duration-300">
-        <CardHeader className="text-center bg-gradient-to-br from-blue-600 to-blue-700 rounded-t-lg py-6">
-          <CardTitle className="flex flex-col items-center gap-3 text-2xl text-white">
-            <div className="p-3 rounded-full bg-white/20 shadow-lg">
-              <Icon name="GraduationCap" size={32} className="text-white" />
-            </div>
-            Обучение - Онлайн-школа "Сотка"
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 pt-6">
           {step === 0 && (
             <div className="text-center space-y-6">
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-8 md:p-12 rounded-2xl shadow-lg">

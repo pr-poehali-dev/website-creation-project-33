@@ -72,14 +72,14 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
         <CardContent className="space-y-6">
           {step === 0 && (
             <div className="text-center space-y-6">
-              <div className="bg-gradient-to-br from-[#001f54] to-[#002b6b] text-white p-8 rounded-2xl shadow-lg">
-                <h3 className="text-2xl font-bold mb-4">Добро пожаловать!</h3>
-                <p className="text-lg mb-6">
+              <div className="bg-gradient-to-br from-[#001f54] to-[#002b6b] text-white p-8 md:p-12 rounded-2xl shadow-lg">
+                <h3 className="text-xl md:text-2xl font-bold mb-4 text-white">Добро пожаловать!</h3>
+                <p className="text-base md:text-lg mb-6 text-white/90">
                   Давайте начнем обучение по скрипту продаж онлайн-школы "Сотка"
                 </p>
                 <Button 
                   onClick={handleStart}
-                  className="bg-white text-[#001f54] hover:bg-gray-100 font-bold text-lg px-8 py-6 shadow-lg"
+                  className="bg-white text-[#001f54] hover:bg-gray-100 font-bold text-base md:text-lg px-6 md:px-8 py-4 md:py-6 shadow-lg"
                 >
                   Начать обучение
                   <Icon name="ArrowRight" size={20} className="ml-2" />

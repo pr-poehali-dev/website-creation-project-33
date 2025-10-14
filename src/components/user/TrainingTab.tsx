@@ -46,7 +46,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
 
   return (
     <div className="space-y-6 slide-up">
-      <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300">
+      <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
         <CardContent className="space-y-6">
           {step === 0 && (
             <div className="text-center space-y-6">
@@ -57,7 +57,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                 </p>
                 <Button 
                   onClick={handleStart}
-                  className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-base md:text-lg px-6 md:px-8 py-4 md:py-6 shadow-lg"
+                  className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-base md:text-lg px-6 md:px-8 py-4 md:py-6 shadow-lg rounded-full"
                 >
                   Начать обучение
                   <Icon name="ArrowRight" size={20} className="ml-2" />

@@ -48,9 +48,9 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
     <div className="space-y-6 slide-up">
       <Card className="border-sky-300/30 shadow-xl bg-gradient-to-br from-sky-50 to-blue-50 hover:shadow-2xl transition-all duration-300">
         <CardHeader className="text-center">
-          <CardTitle className="flex flex-col items-center gap-3 text-sky-700 text-2xl">
-            <div className="p-3 rounded-full bg-sky-200/50 shadow-lg">
-              <Icon name="GraduationCap" size={32} className="text-sky-600" />
+          <CardTitle className="flex flex-col items-center gap-3 text-sky-900 text-2xl">
+            <div className="p-3 rounded-full bg-sky-200 shadow-lg">
+              <Icon name="GraduationCap" size={32} className="text-sky-700" />
             </div>
             Обучение - Онлайн-школа "Сотка"
           </CardTitle>

@@ -92,22 +92,15 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
         <div className="space-y-4">
           {displayUsers.map((user, index) => {
             const isTop3 = index < 3;
-            const medalColors = [
-              'bg-gradient-to-br from-yellow-400 to-yellow-600 border-yellow-400',
-              'bg-gradient-to-br from-gray-300 to-gray-500 border-gray-400',
-              'bg-gradient-to-br from-orange-400 to-orange-600 border-orange-500'
-            ];
             const medals = ['🥇', '🥈', '🥉'];
             
             return (
               <div 
                 key={user.email} 
                 className={`border-2 rounded-xl p-3 md:p-4 transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02] ${
-                  isTop3 
-                    ? `${medalColors[index]} ${user.duplicates > 0 ? 'ring-2 ring-red-500' : ''}`
-                    : user.duplicates > 0 
-                      ? 'border-red-500/50 bg-red-500/10 hover:bg-red-500/20' 
-                      : 'border-white/10 bg-white/5 hover:bg-white/10'
+                  user.duplicates > 0 
+                    ? 'border-red-500/50 bg-red-500/10 hover:bg-red-500/20' 
+                    : 'border-white/10 bg-white/5 hover:bg-white/10'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -120,10 +113,10 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className={`font-medium text-sm md:text-base truncate ${isTop3 ? 'text-[#001f54]' : 'text-white'}`}>
+                      <div className="font-medium text-white text-sm md:text-base truncate">
                         {user.name}
                       </div>
-                      <div className={`text-xs md:text-sm truncate ${isTop3 ? 'text-[#001f54]/70' : 'text-white/60'}`}>
+                      <div className="text-xs md:text-sm text-white/60 truncate">
                         {user.email}
                       </div>
                     </div>

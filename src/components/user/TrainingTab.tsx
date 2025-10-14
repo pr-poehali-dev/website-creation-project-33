@@ -46,11 +46,11 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
 
   return (
     <div className="space-y-6 slide-up">
-      <Card className="border-blue-600/30 shadow-xl bg-white hover:shadow-2xl transition-all duration-300">
-        <CardContent className="space-y-6 pt-6">
+      <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300">
+        <CardContent className="space-y-6">
           {step === 0 && (
             <div className="text-center space-y-6">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-8 md:p-12 rounded-2xl shadow-lg">
+              <div className="text-white p-8 md:p-12">
                 <h3 className="text-xl md:text-2xl font-bold mb-4 text-white">Добро пожаловать!</h3>
                 <p className="text-base md:text-lg mb-6 text-white">
                   Давайте начнем обучение по скрипту продаж онлайн-школы "Сотка"

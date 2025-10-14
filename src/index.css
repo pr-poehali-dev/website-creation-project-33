@@ -246,6 +246,17 @@
     backdrop-filter: none !important;
   }
 
+  /* All cards inside admin with borders */
+  [role="tabpanel"] > div > div,
+  [role="tabpanel"] [class*="rounded"] {
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* User cards need visible borders */
+  [role="tabpanel"] [class*="border-"] {
+    border-color: #cbd5e1 !important;
+  }
+
   /* Text visibility */
   [role="tabpanel"] .text-white,
   [role="tabpanel"] h1,
@@ -289,6 +300,11 @@
     display: inline-flex !important;
   }
 
+  [role="tabpanel"] button:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+  }
+
   [role="tabpanel"] button svg {
     color: #0f172a !important;
     stroke: #0f172a !important;
@@ -303,7 +319,7 @@
   /* Backgrounds */
   [role="tabpanel"] .bg-white\/5,
   [role="tabpanel"] .bg-white\/10 {
-    background: #eff6ff !important;
+    background: #f8fafc !important;
   }
 
   /* iOS 18 Spring Animations - Global */

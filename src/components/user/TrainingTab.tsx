@@ -91,7 +91,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
           <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
             <CardContent className="pt-6 space-y-4">
               <p className="font-bold text-white text-xl">ШАГ 1: Начните разговор</p>
-              <div>
+              <div className="border-l-4 border-white/50 pl-4">
                 <p className="text-base font-semibold text-white mb-2">
                   Скажите родителю:
                 </p>
@@ -99,7 +99,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                   "Добрый день! У вас есть дети школьного возраста?"
                 </p>
               </div>
-              <div>
+              <div className="bg-blue-700/40 p-3 rounded-xl border border-white/20">
                 <p className="text-sm text-white"><strong>Совет:</strong> Дождитесь ответа. Если "да" - переходите к шагу 2.</p>
               </div>
             </CardContent>
@@ -109,7 +109,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
           <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
             <CardContent className="pt-6 space-y-4">
               <p className="font-bold text-white text-xl">ШАГ 2: Расскажите о подарках</p>
-              <div>
+              <div className="border-l-4 border-white/50 pl-4">
                 <p className="text-base font-semibold text-white mb-2">
                   Скажите родителю:
                 </p>
@@ -118,7 +118,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                 </p>
                 
                 <div className="space-y-3">
-                  <div>
+                  <div className="bg-blue-700/40 p-4 rounded-xl border border-white/20">
                     <p className="font-bold text-lg text-white mb-2">
                       ПОДАРОК 1: 2 месяца бесплатного обучения
                     </p>
@@ -127,7 +127,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                     </p>
                   </div>
                   
-                  <div className="mt-4">
+                  <div className="bg-blue-700/40 p-4 rounded-xl border border-white/20">
                     <p className="font-bold text-lg text-white mb-2">
                       ПОДАРОК 2: Диагностика знаний ребенка
                     </p>
@@ -144,24 +144,24 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
           <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
             <CardContent className="pt-6 space-y-4">
               <p className="font-bold text-white text-xl">ШАГ 3: СОБЕРИТЕ ДАННЫЕ (ВАЖНО!)</p>
-              <div>
+              <div className="border-l-4 border-white/50 pl-4">
                 <p className="text-base font-semibold text-white mb-4">
                   Теперь спросите у родителя:
                 </p>
                 <div className="space-y-3">
-                  <div>
+                  <div className="bg-blue-700/40 p-3 rounded-xl border border-white/20">
                     <p className="font-bold text-white text-lg">
                       "Как вас зовут?"
                     </p>
                     <p className="text-sm text-white/90 mt-1">(Запишите имя родителя)</p>
                   </div>
-                  <div className="mt-4">
+                  <div className="bg-blue-700/40 p-3 rounded-xl border border-white/20">
                     <p className="font-bold text-white text-lg">
                       "Ваш номер телефона?"
                     </p>
                     <p className="text-sm text-white/90 mt-1">(Объясните: чтобы отправить ссылку на школу в WhatsApp)</p>
                   </div>
-                  <div className="mt-4">
+                  <div className="bg-blue-700/40 p-3 rounded-xl border border-white/20">
                     <p className="font-bold text-white text-lg">
                       "В каком классе учится ваш ребенок?"
                     </p>

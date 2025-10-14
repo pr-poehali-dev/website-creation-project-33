@@ -128,12 +128,6 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                       </div>
                     </div>
                   </div>
-
-                  <div className="bg-gradient-to-r from-[#001f54]/10 to-[#002b6b]/10 p-4 rounded-lg">
-                    <p className="text-sm leading-relaxed">
-                      Мы — одна из ведущих онлайн-школ по подготовке школьников. На рынке уже <strong>8 лет</strong>, за это время мы обучили более <strong>370 тысяч учеников</strong>. У нас более <strong>13 тысяч положительных отзывов</strong> в интернете, и мы имеем образовательную лицензию. Каждый третий наш выпускник сдает ЕГЭ на <strong>80+ баллов</strong>, а ОГЭ – на <strong>"5"</strong>!
-                    </p>
-                  </div>
                 </div>
               </div>
 

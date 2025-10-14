@@ -175,7 +175,7 @@ export default function UserDashboard() {
           </TabsContent>
 
           <TabsContent value="training">
-            <TrainingTab />
+            <TrainingTab organizationName={organizationName} />
           </TabsContent>
         </Tabs>
       </div>

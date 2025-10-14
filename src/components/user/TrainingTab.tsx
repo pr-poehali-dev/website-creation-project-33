@@ -184,73 +184,135 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
 
           {step === 1 && !submitted && (
             <div className="space-y-6">
-              <div className="bg-blue-50 border-l-4 border-[#001f54] p-6 rounded-lg">
-                <p className="text-lg font-semibold text-[#001f54] mb-4">
-                  Добрый день! У вас есть дети школьного возраста?
-                </p>
-                <div className="space-y-4 text-gray-700">
-                  <p className="font-medium text-lg">
-                    Онлайн-школа "Сотка" дарит подарки:
+              {/* Инструкция */}
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-400 p-6 rounded-lg">
+                <div className="flex items-start gap-3 mb-3">
+                  <Icon name="Info" size={24} className="text-amber-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-bold text-amber-900 text-lg mb-2">
+                      Инструкция для промоутера:
+                    </p>
+                    <p className="text-amber-800">
+                      Прочитайте текст ниже родителю. Это ваш скрипт продаж. Говорите четко и с улыбкой!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Скрипт - Шаг 1: Приветствие */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-6 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                    1
+                  </div>
+                  <p className="font-bold text-green-900 text-lg">ШАГ 1: Начните разговор</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                  <p className="text-lg font-semibold text-[#001f54] mb-2">
+                    💬 Скажите родителю:
+                  </p>
+                  <p className="text-xl font-bold text-green-800 italic">
+                    "Добрый день! У вас есть дети школьного возраста?"
+                  </p>
+                </div>
+                <div className="mt-3 bg-green-100 p-3 rounded text-sm text-green-800">
+                  <strong>Совет:</strong> Дождитесь ответа. Если "да" - переходите к шагу 2.
+                </div>
+              </div>
+
+              {/* Скрипт - Шаг 2: Подарки */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-6 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                    2
+                  </div>
+                  <p className="font-bold text-blue-900 text-lg">ШАГ 2: Расскажите о подарках</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border-2 border-blue-200 mb-3">
+                  <p className="text-lg font-semibold text-[#001f54] mb-2">
+                    💬 Скажите родителю:
+                  </p>
+                  <p className="text-lg text-blue-900 mb-4">
+                    "Онлайн-школа <span className="font-bold">"Сотка"</span> дарит подарки:"
                   </p>
                   
-                  <div className="bg-white p-4 rounded-lg shadow-sm space-y-3">
-                    <div className="flex gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#001f54] text-white flex items-center justify-center font-bold">
-                        1
-                      </div>
-                      <div>
-                        <p className="font-semibold text-[#001f54]">
-                          2 месяца бесплатного обучения в школе "Сотка" по любому предмету
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Заходите на наш сайт (<a href="https://sotkaonline.ru/" target="_blank" rel="noopener noreferrer" className="text-[#001f54] underline hover:text-[#002b6b]">https://sotkaonline.ru/</a>), выбираете предмет (например русский или математика) и занимаетесь абсолютно бесплатно
-                        </p>
+                  <div className="space-y-4">
+                    <div className="bg-gradient-to-r from-yellow-50 to-amber-50 p-4 rounded-lg border-2 border-yellow-400">
+                      <div className="flex gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-500 text-white flex items-center justify-center font-bold text-lg">
+                          🎁
+                        </div>
+                        <div>
+                          <p className="font-bold text-lg text-yellow-900 mb-2">
+                            ПОДАРОК 1: 2 месяца бесплатного обучения
+                          </p>
+                          <p className="text-yellow-800">
+                            Заходите на наш сайт <span className="font-bold">sotkaonline.ru</span>, выбираете любой предмет (например русский или математика) и занимаетесь абсолютно бесплатно!
+                          </p>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="flex gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#001f54] text-white flex items-center justify-center font-bold">
-                        2
-                      </div>
-                      <div>
-                        <p className="font-semibold text-[#001f54]">
-                          Второй подарок - это диагностика школьных знаний вашего ребенка
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Диагностика выявит пробелы в знаниях и подскажет родителям как исправить оценки и результаты
-                        </p>
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border-2 border-purple-400">
+                      <div className="flex gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold text-lg">
+                          🎁
+                        </div>
+                        <div>
+                          <p className="font-bold text-lg text-purple-900 mb-2">
+                            ПОДАРОК 2: Диагностика знаний ребенка
+                          </p>
+                          <p className="text-purple-800">
+                            Диагностика выявит пробелы в знаниях и подскажет родителям как исправить оценки и результаты
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-blue-50 border-l-4 border-[#001f54] p-6 rounded-lg mt-6">
-                <p className="text-lg font-semibold text-[#001f54] mb-4">
-                  Теперь нужно собрать данные:
-                </p>
-                <div className="space-y-2 text-gray-700">
-                  <p className="flex items-start gap-2">
-                    <span className="text-[#001f54] font-bold">•</span>
-                    <span><strong>Как вас зовут?</strong> (имя родителя)</span>
+              {/* Скрипт - Шаг 3: Сбор данных */}
+              <div className="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-6 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                    3
+                  </div>
+                  <p className="font-bold text-red-900 text-lg">ШАГ 3: СОБЕРИТЕ ДАННЫЕ (ВАЖНО!)</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border-2 border-red-200">
+                  <p className="text-lg font-semibold text-red-600 mb-4">
+                    ⚠️ Теперь спросите у родителя:
                   </p>
-                  <p className="flex items-start gap-2">
-                    <span className="text-[#001f54] font-bold">•</span>
-                    <span><strong>Номер телефона</strong> - чтобы отправить вам ссылку на школу в WhatsApp</span>
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <span className="text-[#001f54] font-bold">•</span>
-                    <span><strong>В каком классе учится ваш ребенок?</strong></span>
-                  </p>
+                  <div className="space-y-3">
+                    <div className="bg-red-50 p-3 rounded-lg border border-red-300">
+                      <p className="font-bold text-red-900 text-lg">
+                        ❓ "Как вас зовут?"
+                      </p>
+                      <p className="text-sm text-red-700 mt-1">(Запишите имя родителя)</p>
+                    </div>
+                    <div className="bg-red-50 p-3 rounded-lg border border-red-300">
+                      <p className="font-bold text-red-900 text-lg">
+                        ❓ "Ваш номер телефона?"
+                      </p>
+                      <p className="text-sm text-red-700 mt-1">(Объясните: чтобы отправить ссылку на школу в WhatsApp)</p>
+                    </div>
+                    <div className="bg-red-50 p-3 rounded-lg border border-red-300">
+                      <p className="font-bold text-red-900 text-lg">
+                        ❓ "В каком классе учится ваш ребенок?"
+                      </p>
+                      <p className="text-sm text-red-700 mt-1">(Запишите класс)</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div className="text-center">
                 <Button 
                   onClick={handleNext}
-                  className="bg-[#001f54] hover:bg-[#002b6b] text-white font-bold text-lg px-8 py-6 shadow-lg"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold text-lg px-8 py-6 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all"
                 >
-                  Далее
+                  Понятно! Перейти к записи данных
                   <Icon name="ArrowRight" size={20} className="ml-2" />
                 </Button>
               </div>

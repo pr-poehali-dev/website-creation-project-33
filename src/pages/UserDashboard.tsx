@@ -169,6 +169,7 @@ export default function UserDashboard() {
           <TabsContent value="work">
             <WorkTab 
               selectedOrganizationId={selectedOrganization} 
+              organizationName={organizationName}
               onChangeOrganization={handleChangeOrganization}
             />
           </TabsContent>

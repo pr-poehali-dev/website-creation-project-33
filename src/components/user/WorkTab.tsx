@@ -4,13 +4,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface WorkTabProps {
   selectedOrganizationId: number | null;
+  organizationName: string;
   onChangeOrganization: () => void;
 }
 
-export default function WorkTab({ selectedOrganizationId }: WorkTabProps) {
+export default function WorkTab({ selectedOrganizationId, organizationName }: WorkTabProps) {
+  const { user } = useAuth();
   const [notes, setNotes] = useState(() => {
     const saved = localStorage.getItem('notepad_draft');
     return saved || '';

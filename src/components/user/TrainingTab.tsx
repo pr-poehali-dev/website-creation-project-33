@@ -69,121 +69,119 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
       )}
 
       {step === 1 && (
-        <Card className="border-blue-600/30 shadow-xl bg-white hover:shadow-2xl transition-all duration-300 rounded-3xl">
-          <CardContent className="space-y-6 pt-6">
-            <div className="space-y-6">
-              {/* Инструкция */}
-              <div className="bg-blue-50 border-2 border-blue-400 p-6 rounded-lg shadow-sm">
-                <div className="flex items-start gap-3 mb-3">
-                  <Icon name="Info" size={24} className="text-blue-600 flex-shrink-0" />
-                  <div>
-                    <p className="font-bold text-blue-900 text-lg mb-2">
-                      Инструкция для промоутера:
+        <div className="space-y-6">
+          {/* Инструкция */}
+          <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <Icon name="Info" size={24} className="text-white flex-shrink-0" />
+                <div>
+                  <p className="font-bold text-white text-lg mb-2">
+                    Инструкция для промоутера:
+                  </p>
+                  <p className="text-white">
+                    Прочитайте текст ниже родителю. Это ваш скрипт продаж. Говорите четко и с улыбкой!
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Скрипт - Шаг 1: Приветствие */}
+          <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
+            <CardContent className="pt-6 space-y-4">
+              <p className="font-bold text-white text-xl">ШАГ 1: Начните разговор</p>
+              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/20">
+                <p className="text-base font-semibold text-white mb-2">
+                  Скажите родителю:
+                </p>
+                <p className="text-xl font-bold text-white">
+                  "Добрый день! У вас есть дети школьного возраста?"
+                </p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm p-3 rounded-xl border border-white/20">
+                <p className="text-sm text-white"><strong>Совет:</strong> Дождитесь ответа. Если "да" - переходите к шагу 2.</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Скрипт - Шаг 2: Подарки */}
+          <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
+            <CardContent className="pt-6 space-y-4">
+              <p className="font-bold text-white text-xl">ШАГ 2: Расскажите о подарках</p>
+              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/20">
+                <p className="text-base font-semibold text-white mb-2">
+                  Скажите родителю:
+                </p>
+                <p className="text-lg text-white mb-4">
+                  "Онлайн-школа <span className="font-bold">"Сотка"</span> дарит подарки:"
+                </p>
+                
+                <div className="space-y-3">
+                  <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl border border-white/30">
+                    <p className="font-bold text-lg text-white mb-2">
+                      ПОДАРОК 1: 2 месяца бесплатного обучения
                     </p>
-                    <p className="text-gray-800">
-                      Прочитайте текст ниже родителю. Это ваш скрипт продаж. Говорите четко и с улыбкой!
+                    <p className="text-white text-sm">
+                      Заходите на наш сайт <span className="font-bold">sotkaonline.ru</span>, выбираете любой предмет (например русский или математика) и занимаетесь абсолютно бесплатно!
                     </p>
                   </div>
-                </div>
-              </div>
-
-              {/* Скрипт - Шаг 1: Приветствие */}
-              <div className="bg-white border-l-4 border-blue-600 p-6 rounded-lg shadow-sm">
-                <div className="mb-3">
-                  <p className="font-bold text-blue-900 text-lg">ШАГ 1: Начните разговор</p>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-300">
-                  <p className="text-lg font-semibold text-gray-800 mb-2">
-                    Скажите родителю:
-                  </p>
-                  <p className="text-xl font-bold text-blue-900">
-                    "Добрый день! У вас есть дети школьного возраста?"
-                  </p>
-                </div>
-                <div className="mt-3 bg-blue-100 p-3 rounded text-sm text-gray-800">
-                  <strong>Совет:</strong> Дождитесь ответа. Если "да" - переходите к шагу 2.
-                </div>
-              </div>
-
-              {/* Скрипт - Шаг 2: Подарки */}
-              <div className="bg-white border-l-4 border-blue-600 p-6 rounded-lg shadow-sm">
-                <div className="mb-3">
-                  <p className="font-bold text-blue-900 text-lg">ШАГ 2: Расскажите о подарках</p>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-300 mb-3">
-                  <p className="text-lg font-semibold text-gray-700 mb-2">
-                    Скажите родителю:
-                  </p>
-                  <p className="text-lg text-gray-900 mb-4">
-                    "Онлайн-школа <span className="font-bold">"Сотка"</span> дарит подарки:"
-                  </p>
                   
-                  <div className="space-y-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-400">
-                      <p className="font-bold text-lg text-blue-900 mb-2">
-                        ПОДАРОК 1: 2 месяца бесплатного обучения
-                      </p>
-                      <p className="text-gray-700">
-                        Заходите на наш сайт <span className="font-bold">sotkaonline.ru</span>, выбираете любой предмет (например русский или математика) и занимаетесь абсолютно бесплатно!
-                      </p>
-                    </div>
-                    
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-400">
-                      <p className="font-bold text-lg text-blue-900 mb-2">
-                        ПОДАРОК 2: Диагностика знаний ребенка
-                      </p>
-                      <p className="text-gray-700">
-                        Диагностика выявит пробелы в знаниях и подскажет родителям как исправить оценки и результаты
-                      </p>
-                    </div>
+                  <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl border border-white/30">
+                    <p className="font-bold text-lg text-white mb-2">
+                      ПОДАРОК 2: Диагностика знаний ребенка
+                    </p>
+                    <p className="text-white text-sm">
+                      Диагностика выявит пробелы в знаниях и подскажет родителям как исправить оценки и результаты
+                    </p>
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Скрипт - Шаг 3: Сбор данных */}
-              <div className="bg-white border-l-4 border-blue-600 p-6 rounded-lg shadow-sm">
-                <div className="mb-3">
-                  <p className="font-bold text-blue-900 text-lg">ШАГ 3: СОБЕРИТЕ ДАННЫЕ (ВАЖНО!)</p>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-300">
-                  <p className="text-lg font-semibold text-blue-900 mb-4">
-                    Теперь спросите у родителя:
-                  </p>
-                  <div className="space-y-3">
-                    <div className="bg-white p-3 rounded-lg border border-blue-400">
-                      <p className="font-bold text-blue-900 text-lg">
-                        "Как вас зовут?"
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">(Запишите имя родителя)</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-lg border border-blue-400">
-                      <p className="font-bold text-blue-900 text-lg">
-                        "Ваш номер телефона?"
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">(Объясните: чтобы отправить ссылку на школу в WhatsApp)</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-lg border border-blue-400">
-                      <p className="font-bold text-blue-900 text-lg">
-                        "В каком классе учится ваш ребенок?"
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">(Запишите класс)</p>
-                    </div>
+          {/* Скрипт - Шаг 3: Сбор данных */}
+          <Card className="border-blue-600/30 shadow-xl bg-gradient-to-br from-blue-500 to-blue-600 hover:shadow-2xl transition-all duration-300 rounded-3xl">
+            <CardContent className="pt-6 space-y-4">
+              <p className="font-bold text-white text-xl">ШАГ 3: СОБЕРИТЕ ДАННЫЕ (ВАЖНО!)</p>
+              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/20">
+                <p className="text-base font-semibold text-white mb-4">
+                  Теперь спросите у родителя:
+                </p>
+                <div className="space-y-3">
+                  <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl border border-white/30">
+                    <p className="font-bold text-white text-base">
+                      "Как вас зовут?"
+                    </p>
+                    <p className="text-xs text-white/80 mt-1">(Запишите имя родителя)</p>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl border border-white/30">
+                    <p className="font-bold text-white text-base">
+                      "Ваш номер телефона?"
+                    </p>
+                    <p className="text-xs text-white/80 mt-1">(Объясните: чтобы отправить ссылку на школу в WhatsApp)</p>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl border border-white/30">
+                    <p className="font-bold text-white text-base">
+                      "В каком классе учится ваш ребенок?"
+                    </p>
+                    <p className="text-xs text-white/80 mt-1">(Запишите класс)</p>
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="text-center">
-                <Button 
-                  onClick={handleReset}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-8 py-6 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all rounded-full"
-                >
-                  Пройти обучение заново
-                  <Icon name="RotateCcw" size={20} className="ml-2" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <div className="text-center">
+            <Button 
+              onClick={handleReset}
+              className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-lg px-8 py-6 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all rounded-full"
+            >
+              Пройти обучение заново
+              <Icon name="RotateCcw" size={20} className="ml-2" />
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );

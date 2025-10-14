@@ -11,6 +11,7 @@ interface Organization {
   id: number;
   name: string;
   created_at: string;
+  lead_count: number;
 }
 
 export default function OrganizationsTab() {
@@ -18,6 +19,7 @@ export default function OrganizationsTab() {
   const [loading, setLoading] = useState(true);
   const [newOrgName, setNewOrgName] = useState('');
   const [adding, setAdding] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -205,7 +207,7 @@ export default function OrganizationsTab() {
             </div>
           ) : (
             <div className="space-y-2 md:space-y-3">
-              {organizations.map((org) => (
+              {(showAll ? organizations : organizations.slice(0, 4)).map((org) => (
                 <div
                   key={org.id}
                   className="border-2 border-white/10 rounded-xl p-3 md:p-4 bg-white/5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-white/30"
@@ -216,7 +218,12 @@ export default function OrganizationsTab() {
                         <Icon name="Building2" size={16} className="text-white md:w-[18px] md:h-[18px]" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium text-white text-sm md:text-lg truncate">{org.name}</div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="font-medium text-white text-sm md:text-lg truncate">{org.name}</div>
+                          <div className="px-2 py-0.5 rounded-full bg-white/10 text-white text-[10px] md:text-xs font-medium flex-shrink-0">
+                            {org.lead_count} {org.lead_count === 1 ? 'лид' : org.lead_count < 5 ? 'лида' : 'лидов'}
+                          </div>
+                        </div>
                         <div className="text-[10px] md:text-xs text-white/50">
                           Добавлено: {new Date(org.created_at).toLocaleDateString('ru-RU')}
                         </div>
@@ -233,6 +240,18 @@ export default function OrganizationsTab() {
                   </div>
                 </div>
               ))}
+              {organizations.length > 4 && (
+                <div className="pt-2">
+                  <Button
+                    onClick={() => setShowAll(!showAll)}
+                    className="w-full glass-button bg-white/5 hover:bg-white/10 text-white border-2 border-white/10 transition-all duration-300"
+                    variant="outline"
+                  >
+                    <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} className="mr-2" />
+                    {showAll ? `Скрыть (${organizations.length - 4})` : `Показать ещё (${organizations.length - 4})`}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </CardContent>

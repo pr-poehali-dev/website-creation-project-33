@@ -451,16 +451,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("""
-                        SELECT id, name, created_at 
-                        FROM t_p24058207_website_creation_pro.organizations 
-                        ORDER BY name
+                        SELECT o.id, o.name, o.created_at,
+                               COUNT(l.id) as lead_count
+                        FROM t_p24058207_website_creation_pro.organizations o
+                        LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON o.id = l.organization_id
+                        GROUP BY o.id, o.name, o.created_at
+                        ORDER BY lead_count DESC, o.name
                     """)
                     organizations = []
                     for row in cur.fetchall():
                         organizations.append({
                             'id': row[0],
                             'name': row[1],
-                            'created_at': row[2].isoformat() if row[2] else None
+                            'created_at': row[2].isoformat() if row[2] else None,
+                            'lead_count': row[3]
                         })
             return {
                 'statusCode': 200,

@@ -179,7 +179,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
               <div className="text-center">
                 <Button 
                   onClick={handleReset}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg px-8 py-6 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all"
+                  className="bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg px-8 py-6 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all"
                 >
                   Пройти обучение заново
                   <Icon name="RotateCcw" size={20} className="ml-2" />

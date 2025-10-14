@@ -237,46 +237,73 @@
     outline: none;
   }
 
-  /* Admin Panel Cards Override */
-  .admin-card {
+  /* Admin Panel Override ALL */
+  .admin-card,
+  .glass-panel {
     background: white !important;
     border: 1px solid #e5e7eb !important;
     color: #0f172a !important;
+    backdrop-filter: none !important;
   }
 
-  /* Force white background and dark text for all admin content */
-  [role="tabpanel"] {
-    color: #0f172a !important;
-  }
-
-  [role="tabpanel"] > div,
-  [role="tabpanel"] [class*="rounded"],
-  [role="tabpanel"] > div > div {
-    background: white !important;
-    border: 1px solid #e5e7eb !important;
-  }
-
+  /* Text visibility */
+  [role="tabpanel"] .text-white,
   [role="tabpanel"] h1,
   [role="tabpanel"] h2,
   [role="tabpanel"] h3,
-  [role="tabpanel"] h4,
   [role="tabpanel"] p,
-  [role="tabpanel"] span,
-  [role="tabpanel"] div,
-  [role="tabpanel"] td,
-  [role="tabpanel"] th,
+  [role="tabpanel"] span:not([class*="bg-"]),
   [role="tabpanel"] label {
     color: #0f172a !important;
   }
 
-  [role="tabpanel"] .text-muted-foreground,
-  [role="tabpanel"] .text-slate-600,
-  [role="tabpanel"] .text-gray-600 {
-    color: #64748b !important;
+  /* Icons visibility */
+  [role="tabpanel"] svg,
+  [role="tabpanel"] button svg,
+  [role="tab"] svg {
+    opacity: 1 !important;
   }
 
-  [role="tabpanel"] button:not([class*="bg-"]) {
+  [role="tab"] svg {
+    color: #64748b !important;
+    stroke: #64748b !important;
+  }
+
+  [role="tab"][data-state="active"] svg {
+    color: white !important;
+    stroke: white !important;
+  }
+
+  [role="tabpanel"] svg {
     color: #0f172a !important;
+    stroke: #0f172a !important;
+  }
+
+  /* Buttons */
+  [role="tabpanel"] button {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    color: #0f172a !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: inline-flex !important;
+  }
+
+  [role="tabpanel"] button svg {
+    color: #0f172a !important;
+    stroke: #0f172a !important;
+  }
+
+  [role="tabpanel"] button .text-red-500,
+  [role="tabpanel"] button:has(.text-red-500) svg {
+    color: #ef4444 !important;
+    stroke: #ef4444 !important;
+  }
+
+  /* Backgrounds */
+  [role="tabpanel"] .bg-white\/5,
+  [role="tabpanel"] .bg-white\/10 {
+    background: #eff6ff !important;
   }
 
   /* iOS 18 Spring Animations - Global */

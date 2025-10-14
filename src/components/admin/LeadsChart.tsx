@@ -87,22 +87,22 @@ export default function LeadsChart({
 
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
-          <div className="p-2 rounded-lg bg-[#001f54]/10">
-            <Icon name="TrendingUp" size={20} className="text-[#001f54]" />
+      <CardHeader className="pb-3 md:pb-4">
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-[#001f54] text-lg md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
+            <Icon name="TrendingUp" size={18} className="text-[#001f54] md:w-5 md:h-5" />
           </div>
-          График лидов по датам
+          График лидов
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-wrap gap-2 items-center">
+        <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
+          <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
             <Button
               onClick={() => onFilterTypeChange('contacts')}
               variant={filterType === 'contacts' ? 'default' : 'outline'}
               size="sm"
-              className={`transition-all duration-300 ${filterType === 'contacts'
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'contacts'
                 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
                 : 'bg-white hover:bg-green-50 text-green-600 border-green-200'
               }`}
@@ -113,68 +113,69 @@ export default function LeadsChart({
               onClick={() => onFilterTypeChange('approaches')}
               variant={filterType === 'approaches' ? 'default' : 'outline'}
               size="sm"
-              className={`transition-all duration-300 ${filterType === 'approaches'
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'approaches'
                 ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
                 : 'bg-white hover:bg-orange-50 text-orange-600 border-orange-200'
               }`}
             >
               Подходы
             </Button>
-            <div className="h-6 w-px bg-gray-300 mx-1" />
+            <div className="h-4 md:h-6 w-px bg-gray-300 mx-0.5 md:mx-1" />
             <Button
               onClick={() => setShowTotal(!showTotal)}
               variant={showTotal ? 'default' : 'outline'}
               size="sm"
-              className={`transition-all duration-300 ${showTotal
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${showTotal
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
                 : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
               }`}
             >
-              <Icon name={showTotal ? "Eye" : "EyeOff"} size={14} className="mr-1" />
-              Общая линия
+              <Icon name={showTotal ? "Eye" : "EyeOff"} size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
+              <span className="hidden sm:inline">Общая линия</span>
+              <span className="sm:hidden">Общая</span>
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-gray-600 font-medium">Период:</span>
+          <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
+            <span className="text-xs md:text-sm text-gray-600 font-medium">Период:</span>
             <Button
               onClick={() => setTimeRange('week')}
               variant={timeRange === 'week' ? 'default' : 'outline'}
               size="sm"
-              className={`transition-all duration-300 ${timeRange === 'week'
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'week'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
                 : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
               }`}
             >
-              Неделя
+              7д
             </Button>
             <Button
               onClick={() => setTimeRange('twoWeeks')}
               variant={timeRange === 'twoWeeks' ? 'default' : 'outline'}
               size="sm"
-              className={`transition-all duration-300 ${timeRange === 'twoWeeks'
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'twoWeeks'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
                 : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
               }`}
             >
-              2 недели
+              14д
             </Button>
             <Button
               onClick={() => setTimeRange('month')}
               variant={timeRange === 'month' ? 'default' : 'outline'}
               size="sm"
-              className={`transition-all duration-300 ${timeRange === 'month'
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'month'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
                 : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
               }`}
             >
-              Месяц
+              30д
             </Button>
             <Button
               onClick={() => setTimeRange('year')}
               variant={timeRange === 'year' ? 'default' : 'outline'}
               size="sm"
-              className={`transition-all duration-300 ${timeRange === 'year'
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'year'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
                 : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
               }`}
@@ -185,22 +186,22 @@ export default function LeadsChart({
               onClick={() => setTimeRange('all')}
               variant={timeRange === 'all' ? 'default' : 'outline'}
               size="sm"
-              className={`transition-all duration-300 ${timeRange === 'all'
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'all'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
                 : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
               }`}
             >
-              Всё время
+              Всё
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <span className="text-sm text-gray-600 font-medium">Пользователи:</span>
+          <div className="flex flex-wrap gap-1.5 md:gap-2">
+            <span className="text-xs md:text-sm text-gray-600 font-medium">Пользователи:</span>
             <Button
               onClick={toggleAllUsers}
               variant="outline"
               size="sm"
-              className="bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20 transition-all duration-300"
+              className="bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
             >
               {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
             </Button>
@@ -210,7 +211,7 @@ export default function LeadsChart({
                 onClick={() => toggleUser(user.name)}
                 variant={selectedUsers.includes(user.name) ? 'default' : 'outline'}
                 size="sm"
-                className={`transition-all duration-300 ${selectedUsers.includes(user.name)
+                className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${selectedUsers.includes(user.name)
                   ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
                   : 'bg-white hover:bg-[#001f54]/5 text-[#001f54] border-[#001f54]/20'
                 }`}
@@ -221,16 +222,26 @@ export default function LeadsChart({
           </div>
         </div>
 
-        <div className="h-96">
+        <div className="h-64 md:h-96">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={filteredChartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+            <LineChart 
+              data={filteredChartData} 
+              margin={{ 
+                top: 10, 
+                right: 10, 
+                left: 0, 
+                bottom: 60 
+              }}
+              className="md:!ml-5"
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 12, fill: '#6b7280' }}
+                tick={{ fontSize: 10, fill: '#6b7280' }}
                 angle={-45}
                 textAnchor="end"
-                height={80}
+                height={60}
+                className="md:text-xs"
                 tickFormatter={(date) => 
                   new Date(date).toLocaleDateString('ru-RU', { 
                     day: 'numeric', 
@@ -239,9 +250,10 @@ export default function LeadsChart({
                 }
               />
               <YAxis 
-                tick={{ fontSize: 12, fill: '#6b7280' }}
+                tick={{ fontSize: 10, fill: '#6b7280' }}
                 axisLine={false}
                 tickLine={false}
+                className="md:text-xs"
               />
               <Tooltip 
                 contentStyle={{

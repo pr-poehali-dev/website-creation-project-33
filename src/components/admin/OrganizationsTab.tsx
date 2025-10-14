@@ -147,23 +147,23 @@ export default function OrganizationsTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
-            <div className="p-2 rounded-lg bg-[#001f54]/10">
-              <Icon name="Building2" size={20} className="text-[#001f54]" />
+        <CardHeader className="pb-3 md:pb-4">
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-[#001f54] text-lg md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
+              <Icon name="Building2" size={18} className="text-[#001f54] md:w-5 md:h-5" />
             </div>
             Добавить организацию
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2">
+          <div className="flex flex-col md:flex-row gap-2">
             <Input
               value={newOrgName}
               onChange={(e) => setNewOrgName(e.target.value)}
               placeholder="Название организации"
-              className="flex-1 border-2 border-[#001f54]/30 bg-white text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20"
+              className="flex-1 border-2 border-[#001f54]/30 bg-white text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-10 md:h-auto text-sm md:text-base"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   addOrganization();
@@ -173,24 +173,26 @@ export default function OrganizationsTab() {
             <Button
               onClick={addOrganization}
               disabled={!newOrgName.trim() || adding}
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:scale-105"
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg transition-all duration-300 hover:scale-105 h-10 md:h-auto text-sm md:text-base"
             >
               {adding ? (
-                <Icon name="Loader2" size={16} className="animate-spin" />
+                <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
               ) : (
-                <Icon name="Plus" size={16} className="mr-2" />
+                <>
+                  <Icon name="Plus" size={14} className="mr-1.5 md:mr-2 md:w-4 md:h-4" />
+                  Добавить
+                </>
               )}
-              Добавить
             </Button>
           </div>
         </CardContent>
       </Card>
 
       <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
-            <div className="p-2 rounded-lg bg-[#001f54]/10">
-              <Icon name="List" size={20} className="text-[#001f54]" />
+        <CardHeader className="pb-3 md:pb-4">
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-[#001f54] text-lg md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
+              <Icon name="List" size={18} className="text-[#001f54] md:w-5 md:h-5" />
             </div>
             Список организаций ({organizations.length})
           </CardTitle>
@@ -198,35 +200,35 @@ export default function OrganizationsTab() {
         <CardContent>
           {organizations.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              <Icon name="Building2" size={48} className="mx-auto mb-3 opacity-30" />
-              <p>Организации не добавлены</p>
+              <Icon name="Building2" size={32} className="mx-auto mb-3 opacity-30 md:w-12 md:h-12" />
+              <p className="text-sm md:text-base">Организации не добавлены</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {organizations.map((org) => (
                 <div
                   key={org.id}
-                  className="border-2 border-[#001f54]/10 rounded-xl p-4 bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:border-[#001f54]/30"
+                  className="border-2 border-[#001f54]/10 rounded-xl p-3 md:p-4 bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:border-[#001f54]/30"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-[#001f54]/10">
-                        <Icon name="Building2" size={18} className="text-[#001f54]" />
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+                      <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10 flex-shrink-0">
+                        <Icon name="Building2" size={16} className="text-[#001f54] md:w-[18px] md:h-[18px]" />
                       </div>
-                      <div>
-                        <div className="font-medium text-[#001f54] text-lg">{org.name}</div>
-                        <div className="text-xs text-gray-500">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-[#001f54] text-sm md:text-lg truncate">{org.name}</div>
+                        <div className="text-[10px] md:text-xs text-gray-500">
                           Добавлено: {new Date(org.created_at).toLocaleDateString('ru-RU')}
                         </div>
                       </div>
                     </div>
                     <Button
                       onClick={() => deleteOrganization(org.id, org.name)}
-                      className="border-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-300"
+                      className="border-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
                       variant="ghost"
                       size="sm"
                     >
-                      <Icon name="Trash2" size={14} />
+                      <Icon name="Trash2" size={12} className="md:w-[14px] md:h-[14px]" />
                     </Button>
                   </div>
                 </div>

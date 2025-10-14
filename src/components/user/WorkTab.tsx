@@ -220,55 +220,59 @@ export default function WorkTab({ selectedOrganizationId, onChangeOrganization }
       {/* Заголовок с информацией */}
       <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up">
         <CardContent className="p-4 md:p-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-full bg-white border-4 border-[#001f54] overflow-hidden flex items-center justify-center p-2 shadow-xl">
-                <img 
-                  src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
-                  alt="IMPERIA PROMO"
-                  className="w-full h-full object-contain"
-                />
+          <div className="flex flex-col gap-3 md:gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white border-2 md:border-4 border-[#001f54] overflow-hidden flex items-center justify-center p-1.5 md:p-2 shadow-xl">
+                  <img 
+                    src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
+                    alt="IMPERIA PROMO"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div>
+                  <h1 className="text-lg md:text-2xl font-bold text-[#001f54]">IMPERIA PROMO</h1>
+                  <p className="text-xs md:text-sm text-gray-600">Привет, {user?.name}</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-[#001f54]">IMPERIA PROMO</h1>
-                <p className="text-sm text-gray-600">Привет, {user?.name}</p>
-                {organizationName && (
-                  <Badge className="mt-1 bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20">
-                    <Icon name="Building2" size={12} className="mr-1" />
-                    {organizationName}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            <div className="flex gap-2">
               <Button 
-                onClick={() => setChatOpen(true)} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 relative"
+                onClick={logout} 
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 h-8 w-8 p-0 md:h-9 md:w-auto md:px-3"
                 size="sm"
               >
-                <Icon name="MessageCircle" size={16} className="mr-1" />
+                <Icon name="LogOut" size={16} />
+              </Button>
+            </div>
+            
+            {organizationName && (
+              <Badge className="w-fit bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-xs md:text-sm">
+                <Icon name="Building2" size={12} className="mr-1" />
+                {organizationName}
+              </Badge>
+            )}
+
+            <div className="flex gap-2 w-full">
+              <Button 
+                onClick={() => setChatOpen(true)} 
+                className="flex-1 bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 relative text-xs md:text-sm h-9 md:h-10"
+                size="sm"
+              >
+                <Icon name="MessageCircle" size={14} className="mr-1 md:mr-2 md:w-4 md:h-4" />
                 Чат
                 {unreadCount > 0 && (
-                  <Badge className="ml-1 h-5 min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-xs px-1">
+                  <Badge className="ml-1 h-4 min-w-[16px] md:h-5 md:min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-[10px] md:text-xs px-1">
                     {unreadCount}
                   </Badge>
                 )}
               </Button>
               <Button 
                 onClick={onChangeOrganization}
-                className="border-2 border-[#001f54]/20 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300"
+                className="flex-1 border-2 border-[#001f54]/20 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300 text-xs md:text-sm h-9 md:h-10"
                 variant="ghost"
                 size="sm"
               >
-                <Icon name="RefreshCw" size={16} className="mr-1" />
+                <Icon name="RefreshCw" size={14} className="mr-1 md:mr-2 md:w-4 md:h-4" />
                 Сменить
-              </Button>
-              <Button 
-                onClick={logout} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105"
-                size="sm"
-              >
-                <Icon name="LogOut" size={16} />
               </Button>
             </div>
           </div>

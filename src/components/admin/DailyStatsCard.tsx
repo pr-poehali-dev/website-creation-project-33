@@ -21,22 +21,22 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
 
   return (
     <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up hover:shadow-2xl transition-all duration-300">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-[#001f54] text-xl">
-          <div className="p-2 rounded-lg bg-[#001f54]/10">
-            <Icon name="Calendar" size={20} className="text-[#001f54]" />
+      <CardHeader className="pb-3 md:pb-4">
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-[#001f54] text-lg md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
+            <Icon name="Calendar" size={18} className="text-[#001f54] md:w-5 md:h-5" />
           </div>
           Статистика за последние дни
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className="space-y-2 md:space-y-3">
           {visibleStats.map((day) => (
             <div 
               key={day.date}
               onClick={() => day.count > 0 && onDayClick(day.date, day.count)}
               className={`
-                border-2 border-[#001f54]/10 rounded-xl p-4 transition-all duration-300 bg-white shadow-sm
+                border-2 border-[#001f54]/10 rounded-xl p-3 md:p-4 transition-all duration-300 bg-white shadow-sm
                 ${day.count > 0 
                   ? 'hover:bg-[#001f54]/5 hover:shadow-lg cursor-pointer hover:border-[#001f54]/30 hover:scale-[1.02]' 
                   : 'opacity-60'
@@ -51,17 +51,17 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
                     month: 'short',
                   }).format(new Date(day.date))}
                 </span>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4">
                   <div className="text-right">
-                    <div className="text-lg font-bold text-green-600 mb-1">{day.contacts}</div>
-                    <div className="text-xs text-gray-500">контакты</div>
+                    <div className="text-base md:text-lg font-bold text-green-600 mb-0.5 md:mb-1">{day.contacts}</div>
+                    <div className="text-[10px] md:text-xs text-gray-500">контакты</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-orange-600 mb-1">{day.approaches}</div>
-                    <div className="text-xs text-gray-500">подходы</div>
+                    <div className="text-base md:text-lg font-bold text-orange-600 mb-0.5 md:mb-1">{day.approaches}</div>
+                    <div className="text-[10px] md:text-xs text-gray-500">подходы</div>
                   </div>
                   {day.count > 0 && (
-                    <Icon name="ChevronRight" size={16} className="text-gray-400 ml-1" />
+                    <Icon name="ChevronRight" size={14} className="text-gray-400 ml-0 md:ml-1 md:w-4 md:h-4" />
                   )}
                 </div>
               </div>

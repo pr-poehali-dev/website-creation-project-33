@@ -77,14 +77,14 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
           {step === 1 && (
             <div className="space-y-6">
               {/* Инструкция */}
-              <div className="bg-sky-100/50 border-2 border-sky-300/40 p-6 rounded-lg">
+              <div className="bg-white border-2 border-sky-300 p-6 rounded-lg shadow-sm">
                 <div className="flex items-start gap-3 mb-3">
                   <Icon name="Info" size={24} className="text-sky-600 flex-shrink-0" />
                   <div>
-                    <p className="font-bold text-sky-700 text-lg mb-2">
+                    <p className="font-bold text-sky-900 text-lg mb-2">
                       Инструкция для промоутера:
                     </p>
-                    <p className="text-gray-700">
+                    <p className="text-gray-800">
                       Прочитайте текст ниже родителю. Это ваш скрипт продаж. Говорите четко и с улыбкой!
                     </p>
                   </div>
@@ -92,29 +92,29 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
               </div>
 
               {/* Скрипт - Шаг 1: Приветствие */}
-              <div className="bg-sky-100/50 border-l-4 border-sky-500 p-6 rounded-lg">
+              <div className="bg-white border-l-4 border-sky-500 p-6 rounded-lg shadow-sm">
                 <div className="mb-3">
-                  <p className="font-bold text-sky-700 text-lg">ШАГ 1: Начните разговор</p>
+                  <p className="font-bold text-sky-900 text-lg">ШАГ 1: Начните разговор</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border-2 border-sky-300/40">
-                  <p className="text-lg font-semibold text-gray-700 mb-2">
+                <div className="bg-sky-50 p-4 rounded-lg border-2 border-sky-200">
+                  <p className="text-lg font-semibold text-gray-800 mb-2">
                     Скажите родителю:
                   </p>
-                  <p className="text-xl font-bold text-sky-700">
+                  <p className="text-xl font-bold text-sky-900">
                     "Добрый день! У вас есть дети школьного возраста?"
                   </p>
                 </div>
-                <div className="mt-3 bg-sky-200/30 p-3 rounded text-sm text-gray-700">
+                <div className="mt-3 bg-sky-100 p-3 rounded text-sm text-gray-800">
                   <strong>Совет:</strong> Дождитесь ответа. Если "да" - переходите к шагу 2.
                 </div>
               </div>
 
               {/* Скрипт - Шаг 2: Подарки */}
-              <div className="bg-sky-100/50 border-l-4 border-sky-500 p-6 rounded-lg">
+              <div className="bg-white border-l-4 border-sky-500 p-6 rounded-lg shadow-sm">
                 <div className="mb-3">
-                  <p className="font-bold text-sky-700 text-lg">ШАГ 2: Расскажите о подарках</p>
+                  <p className="font-bold text-sky-900 text-lg">ШАГ 2: Расскажите о подарках</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border-2 border-sky-300/40 mb-3">
+                <div className="bg-sky-50 p-4 rounded-lg border-2 border-sky-200 mb-3">
                   <p className="text-lg font-semibold text-gray-700 mb-2">
                     Скажите родителю:
                   </p>
@@ -123,8 +123,8 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                   </p>
                   
                   <div className="space-y-4">
-                    <div className="bg-sky-100/50 p-4 rounded-lg border-2 border-sky-300/40">
-                      <p className="font-bold text-lg text-sky-700 mb-2">
+                    <div className="bg-white p-4 rounded-lg border-2 border-sky-300">
+                      <p className="font-bold text-lg text-sky-900 mb-2">
                         ПОДАРОК 1: 2 месяца бесплатного обучения
                       </p>
                       <p className="text-gray-700">
@@ -132,8 +132,8 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                       </p>
                     </div>
                     
-                    <div className="bg-sky-100/50 p-4 rounded-lg border-2 border-sky-300/40">
-                      <p className="font-bold text-lg text-sky-700 mb-2">
+                    <div className="bg-white p-4 rounded-lg border-2 border-sky-300">
+                      <p className="font-bold text-lg text-sky-900 mb-2">
                         ПОДАРОК 2: Диагностика знаний ребенка
                       </p>
                       <p className="text-gray-700">
@@ -145,29 +145,29 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
               </div>
 
               {/* Скрипт - Шаг 3: Сбор данных */}
-              <div className="bg-sky-100/50 border-l-4 border-sky-500 p-6 rounded-lg">
+              <div className="bg-white border-l-4 border-sky-500 p-6 rounded-lg shadow-sm">
                 <div className="mb-3">
-                  <p className="font-bold text-sky-700 text-lg">ШАГ 3: СОБЕРИТЕ ДАННЫЕ (ВАЖНО!)</p>
+                  <p className="font-bold text-sky-900 text-lg">ШАГ 3: СОБЕРИТЕ ДАННЫЕ (ВАЖНО!)</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border-2 border-sky-300/40">
-                  <p className="text-lg font-semibold text-sky-700 mb-4">
+                <div className="bg-sky-50 p-4 rounded-lg border-2 border-sky-200">
+                  <p className="text-lg font-semibold text-sky-900 mb-4">
                     Теперь спросите у родителя:
                   </p>
                   <div className="space-y-3">
-                    <div className="bg-sky-100/50 p-3 rounded-lg border border-sky-300/40">
-                      <p className="font-bold text-sky-700 text-lg">
+                    <div className="bg-white p-3 rounded-lg border border-sky-300">
+                      <p className="font-bold text-sky-900 text-lg">
                         "Как вас зовут?"
                       </p>
                       <p className="text-sm text-gray-600 mt-1">(Запишите имя родителя)</p>
                     </div>
-                    <div className="bg-sky-100/50 p-3 rounded-lg border border-sky-300/40">
-                      <p className="font-bold text-sky-700 text-lg">
+                    <div className="bg-white p-3 rounded-lg border border-sky-300">
+                      <p className="font-bold text-sky-900 text-lg">
                         "Ваш номер телефона?"
                       </p>
                       <p className="text-sm text-gray-600 mt-1">(Объясните: чтобы отправить ссылку на школу в WhatsApp)</p>
                     </div>
-                    <div className="bg-sky-100/50 p-3 rounded-lg border border-sky-300/40">
-                      <p className="font-bold text-sky-700 text-lg">
+                    <div className="bg-white p-3 rounded-lg border border-sky-300">
+                      <p className="font-bold text-sky-900 text-lg">
                         "В каком классе учится ваш ребенок?"
                       </p>
                       <p className="text-sm text-gray-600 mt-1">(Запишите класс)</p>

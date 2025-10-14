@@ -26,6 +26,8 @@ export default function DailyModal({
   dailyLoading, 
   onClose 
 }: DailyModalProps) {
+  const [expandedUser, setExpandedUser] = React.useState<string | null>(null);
+
   if (!selectedDate) {
     return null;
   }
@@ -36,6 +38,14 @@ export default function DailyModal({
 
   const getTypeIcon = (type: string) => {
     return type === 'контакт' ? 'Phone' : 'Users';
+  };
+
+  const toggleUser = (userName: string) => {
+    setExpandedUser(expandedUser === userName ? null : userName);
+  };
+
+  const getUserLeads = (userName: string) => {
+    return detailedLeads.filter(lead => lead.user_name === userName);
   };
 
   return (
@@ -76,78 +86,96 @@ export default function DailyModal({
             <div className="space-y-3">
               <div className="space-y-4">
                 <div className="text-lg font-bold text-[#001f54] mb-3">Сводка по пользователям</div>
-                {dailyUserStats.map((user, index) => (
-                  <div 
-                    key={user.email} 
-                    className="border-2 border-[#001f54]/10 rounded-xl p-3 md:p-4 bg-white shadow-sm"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#001f54]/10 text-[#001f54] font-bold text-sm">
-                          {index + 1}
-                        </div>
-                        <div>
-                          <div className="font-medium text-[#001f54] text-sm md:text-base">{user.name}</div>
-                          <div className="text-xs md:text-sm text-gray-600">{user.email}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex justify-end gap-3 text-xs">
-                          <div className="text-center">
-                            <div className="text-sm font-bold text-green-600">{user.contacts}</div>
-                            <div className="text-gray-500">контакты</div>
+                {dailyUserStats.map((user, index) => {
+                  const userLeads = getUserLeads(user.name);
+                  const isExpanded = expandedUser === user.name;
+                  
+                  return (
+                    <div 
+                      key={user.email} 
+                      className="border-2 border-[#001f54]/10 rounded-xl bg-white shadow-sm overflow-hidden"
+                    >
+                      <div 
+                        onClick={() => toggleUser(user.name)}
+                        className="p-3 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#001f54]/10 text-[#001f54] font-bold text-sm">
+                              {index + 1}
+                            </div>
+                            <div>
+                              <div className="font-medium text-[#001f54] text-sm md:text-base">{user.name}</div>
+                              <div className="text-xs md:text-sm text-gray-600">{user.email}</div>
+                            </div>
                           </div>
-                          <div className="text-center">
-                            <div className="text-sm font-bold text-orange-600">{user.approaches}</div>
-                            <div className="text-gray-500">подходы</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {detailedLeads.length > 0 && (
-                  <div className="mt-6">
-                    <div className="text-lg font-bold text-[#001f54] mb-3">Детали по лидам</div>
-                    <div className="space-y-2">
-                      {detailedLeads.map((lead, idx) => (
-                        <div 
-                          key={idx}
-                          className="border border-gray-200 rounded-lg p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-start gap-3 flex-1">
-                              <Icon 
-                                name={getTypeIcon(lead.lead_type)} 
-                                size={16} 
-                                className={`mt-0.5 ${lead.lead_type === 'контакт' ? 'text-green-600' : 'text-orange-600'}`}
-                              />
-                              <div className="flex-1">
-                                <div className="font-medium text-[#001f54] text-sm">{lead.user_name}</div>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <Badge className={`text-xs ${getTypeColor(lead.lead_type)}`}>
-                                    {lead.lead_type}
-                                  </Badge>
-                                  <Badge className="text-xs bg-[#001f54]/10 text-[#001f54]">
-                                    <Icon name="Building2" size={10} className="mr-1" />
-                                    {lead.organization}
-                                  </Badge>
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <div className="flex justify-end gap-3 text-xs">
+                                <div className="text-center">
+                                  <div className="text-sm font-bold text-green-600">{user.contacts}</div>
+                                  <div className="text-gray-500">контакты</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-sm font-bold text-orange-600">{user.approaches}</div>
+                                  <div className="text-gray-500">подходы</div>
                                 </div>
                               </div>
                             </div>
-                            <div className="text-xs text-gray-500 whitespace-nowrap">
-                              {new Date(lead.created_at).toLocaleTimeString('ru-RU', {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
+                            <Icon 
+                              name={isExpanded ? "ChevronUp" : "ChevronDown"} 
+                              size={20} 
+                              className="text-[#001f54]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {isExpanded && userLeads.length > 0 && (
+                        <div className="px-3 md:px-4 pb-3 md:pb-4 pt-0">
+                          <div className="border-t border-gray-200 pt-3">
+                            <div className="text-sm font-semibold text-[#001f54] mb-2">Детали по лидам</div>
+                            <div className="space-y-2">
+                              {userLeads.map((lead, idx) => (
+                                <div 
+                                  key={idx}
+                                  className="border border-gray-200 rounded-lg p-3 bg-gray-50"
+                                >
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-start gap-3 flex-1">
+                                      <Icon 
+                                        name={getTypeIcon(lead.lead_type)} 
+                                        size={16} 
+                                        className={`mt-0.5 ${lead.lead_type === 'контакт' ? 'text-green-600' : 'text-orange-600'}`}
+                                      />
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                          <Badge className={`text-xs ${getTypeColor(lead.lead_type)}`}>
+                                            {lead.lead_type}
+                                          </Badge>
+                                          <Badge className="text-xs bg-[#001f54]/10 text-[#001f54]">
+                                            <Icon name="Building2" size={10} className="mr-1" />
+                                            {lead.organization}
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 whitespace-nowrap">
+                                      {new Date(lead.created_at).toLocaleTimeString('ru-RU', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      })}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         </div>
-                      ))}
+                      )}
                     </div>
-                  </div>
-                )}
+                  );
+                })}
               </div>
             </div>
           ) : (

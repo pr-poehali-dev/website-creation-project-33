@@ -203,7 +203,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                           2 месяца бесплатного обучения в школе "Сотка" по любому предмету
                         </p>
                         <p className="text-sm text-gray-600 mt-1">
-                          Заходите на сайт, выбираете предмет (например русский или математика) и занимаетесь абсолютно бесплатно
+                          Заходите на наш сайт (<a href="https://sotkaonline.ru/" target="_blank" rel="noopener noreferrer" className="text-[#001f54] underline hover:text-[#002b6b]">https://sotkaonline.ru/</a>), выбираете предмет (например русский или математика) и занимаетесь абсолютно бесплатно
                         </p>
                       </div>
                     </div>

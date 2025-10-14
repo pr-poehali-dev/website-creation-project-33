@@ -166,13 +166,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Введите ваши заметки здесь..."
             className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 resize-none focus:border-[#001f54] focus:ring-[#001f54]/20 transition-all duration-300 text-sm md:text-base"
-            maxLength={4096}
           />
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-xs text-gray-600">
-              {notes.length}/4096 символов
-            </span>
-          </div>
         </CardContent>
       </Card>
 

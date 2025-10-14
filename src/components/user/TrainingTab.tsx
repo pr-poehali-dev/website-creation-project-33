@@ -185,14 +185,14 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
           {step === 1 && !submitted && (
             <div className="space-y-6">
               {/* Инструкция */}
-              <div className="bg-amber-50 border-2 border-amber-500 p-6 rounded-lg">
+              <div className="bg-[#001f54]/5 border-2 border-[#001f54]/20 p-6 rounded-lg">
                 <div className="flex items-start gap-3 mb-3">
-                  <Icon name="Info" size={24} className="text-amber-700 flex-shrink-0" />
+                  <Icon name="Info" size={24} className="text-[#001f54] flex-shrink-0" />
                   <div>
-                    <p className="font-bold text-amber-900 text-lg mb-2">
+                    <p className="font-bold text-[#001f54] text-lg mb-2">
                       Инструкция для промоутера:
                     </p>
-                    <p className="text-amber-800">
+                    <p className="text-gray-700">
                       Прочитайте текст ниже родителю. Это ваш скрипт продаж. Говорите четко и с улыбкой!
                     </p>
                   </div>
@@ -200,36 +200,36 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
               </div>
 
               {/* Скрипт - Шаг 1: Приветствие */}
-              <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded-lg">
+              <div className="bg-[#001f54]/5 border-l-4 border-[#001f54] p-6 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                  <div className="bg-[#001f54] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
                     1
                   </div>
-                  <p className="font-bold text-green-900 text-lg">ШАГ 1: Начните разговор</p>
+                  <p className="font-bold text-[#001f54] text-lg">ШАГ 1: Начните разговор</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border-2 border-green-300">
-                  <p className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="bg-white p-4 rounded-lg border-2 border-[#001f54]/20">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">
                     💬 Скажите родителю:
                   </p>
-                  <p className="text-xl font-bold text-green-800 italic">
+                  <p className="text-xl font-bold text-[#001f54] italic">
                     "Добрый день! У вас есть дети школьного возраста?"
                   </p>
                 </div>
-                <div className="mt-3 bg-green-100 p-3 rounded text-sm text-green-900">
+                <div className="mt-3 bg-[#001f54]/10 p-3 rounded text-sm text-gray-700">
                   <strong>Совет:</strong> Дождитесь ответа. Если "да" - переходите к шагу 2.
                 </div>
               </div>
 
               {/* Скрипт - Шаг 2: Подарки */}
-              <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-lg">
+              <div className="bg-[#001f54]/5 border-l-4 border-[#001f54] p-6 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                  <div className="bg-[#001f54] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
                     2
                   </div>
-                  <p className="font-bold text-blue-900 text-lg">ШАГ 2: Расскажите о подарках</p>
+                  <p className="font-bold text-[#001f54] text-lg">ШАГ 2: Расскажите о подарках</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border-2 border-blue-300 mb-3">
-                  <p className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="bg-white p-4 rounded-lg border-2 border-[#001f54]/20 mb-3">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">
                     💬 Скажите родителю:
                   </p>
                   <p className="text-lg text-gray-900 mb-4">
@@ -237,32 +237,32 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                   </p>
                   
                   <div className="space-y-4">
-                    <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-500">
+                    <div className="bg-[#001f54]/5 p-4 rounded-lg border-2 border-[#001f54]/30">
                       <div className="flex gap-3">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-600 text-white flex items-center justify-center font-bold text-lg">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#002b6b] text-white flex items-center justify-center font-bold text-lg">
                           🎁
                         </div>
                         <div>
-                          <p className="font-bold text-lg text-yellow-900 mb-2">
+                          <p className="font-bold text-lg text-[#001f54] mb-2">
                             ПОДАРОК 1: 2 месяца бесплатного обучения
                           </p>
-                          <p className="text-yellow-900">
+                          <p className="text-gray-700">
                             Заходите на наш сайт <span className="font-bold">sotkaonline.ru</span>, выбираете любой предмет (например русский или математика) и занимаетесь абсолютно бесплатно!
                           </p>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-500">
+                    <div className="bg-[#001f54]/5 p-4 rounded-lg border-2 border-[#001f54]/30">
                       <div className="flex gap-3">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-lg">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#002b6b] text-white flex items-center justify-center font-bold text-lg">
                           🎁
                         </div>
                         <div>
-                          <p className="font-bold text-lg text-purple-900 mb-2">
+                          <p className="font-bold text-lg text-[#001f54] mb-2">
                             ПОДАРОК 2: Диагностика знаний ребенка
                           </p>
-                          <p className="text-purple-900">
+                          <p className="text-gray-700">
                             Диагностика выявит пробелы в знаниях и подскажет родителям как исправить оценки и результаты
                           </p>
                         </div>
@@ -273,35 +273,35 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
               </div>
 
               {/* Скрипт - Шаг 3: Сбор данных */}
-              <div className="bg-red-50 border-l-4 border-red-600 p-6 rounded-lg">
+              <div className="bg-[#001f54]/5 border-l-4 border-[#001f54] p-6 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                  <div className="bg-[#001f54] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
                     3
                   </div>
-                  <p className="font-bold text-red-900 text-lg">ШАГ 3: СОБЕРИТЕ ДАННЫЕ (ВАЖНО!)</p>
+                  <p className="font-bold text-[#001f54] text-lg">ШАГ 3: СОБЕРИТЕ ДАННЫЕ (ВАЖНО!)</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border-2 border-red-300">
-                  <p className="text-lg font-semibold text-red-700 mb-4">
+                <div className="bg-white p-4 rounded-lg border-2 border-[#001f54]/20">
+                  <p className="text-lg font-semibold text-[#001f54] mb-4">
                     ⚠️ Теперь спросите у родителя:
                   </p>
                   <div className="space-y-3">
-                    <div className="bg-red-50 p-3 rounded-lg border border-red-400">
-                      <p className="font-bold text-red-900 text-lg">
+                    <div className="bg-[#001f54]/5 p-3 rounded-lg border border-[#001f54]/30">
+                      <p className="font-bold text-[#001f54] text-lg">
                         ❓ "Как вас зовут?"
                       </p>
-                      <p className="text-sm text-red-800 mt-1">(Запишите имя родителя)</p>
+                      <p className="text-sm text-gray-600 mt-1">(Запишите имя родителя)</p>
                     </div>
-                    <div className="bg-red-50 p-3 rounded-lg border border-red-400">
-                      <p className="font-bold text-red-900 text-lg">
+                    <div className="bg-[#001f54]/5 p-3 rounded-lg border border-[#001f54]/30">
+                      <p className="font-bold text-[#001f54] text-lg">
                         ❓ "Ваш номер телефона?"
                       </p>
-                      <p className="text-sm text-red-800 mt-1">(Объясните: чтобы отправить ссылку на школу в WhatsApp)</p>
+                      <p className="text-sm text-gray-600 mt-1">(Объясните: чтобы отправить ссылку на школу в WhatsApp)</p>
                     </div>
-                    <div className="bg-red-50 p-3 rounded-lg border border-red-400">
-                      <p className="font-bold text-red-900 text-lg">
+                    <div className="bg-[#001f54]/5 p-3 rounded-lg border border-[#001f54]/30">
+                      <p className="font-bold text-[#001f54] text-lg">
                         ❓ "В каком классе учится ваш ребенок?"
                       </p>
-                      <p className="text-sm text-red-800 mt-1">(Запишите класс)</p>
+                      <p className="text-sm text-gray-600 mt-1">(Запишите класс)</p>
                     </div>
                   </div>
                 </div>

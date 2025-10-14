@@ -237,26 +237,46 @@
     outline: none;
   }
 
-  /* Эффект жидкого стекла iOS для админ панели */
-  .admin-glass-card {
-    background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(20px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    box-shadow:
-      0 8px 32px 0 rgba(31, 38, 135, 0.37),
-      inset 0 0 40px rgba(255, 255, 255, 0.05) !important;
-    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  /* Admin Panel Cards Override */
+  .admin-card {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    color: #0f172a !important;
   }
 
-  .admin-glass-card:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    transform: translateY(-4px) scale(1.01) !important;
-    box-shadow:
-      0 16px 48px 0 rgba(31, 38, 135, 0.6),
-      inset 0 0 60px rgba(255, 255, 255, 0.08),
-      0 0 40px rgba(255, 255, 255, 0.15) !important;
+  /* Force white background and dark text for all admin content */
+  [role="tabpanel"] {
+    color: #0f172a !important;
+  }
+
+  [role="tabpanel"] > div,
+  [role="tabpanel"] [class*="rounded"],
+  [role="tabpanel"] > div > div {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  [role="tabpanel"] h1,
+  [role="tabpanel"] h2,
+  [role="tabpanel"] h3,
+  [role="tabpanel"] h4,
+  [role="tabpanel"] p,
+  [role="tabpanel"] span,
+  [role="tabpanel"] div,
+  [role="tabpanel"] td,
+  [role="tabpanel"] th,
+  [role="tabpanel"] label {
+    color: #0f172a !important;
+  }
+
+  [role="tabpanel"] .text-muted-foreground,
+  [role="tabpanel"] .text-slate-600,
+  [role="tabpanel"] .text-gray-600 {
+    color: #64748b !important;
+  }
+
+  [role="tabpanel"] button:not([class*="bg-"]) {
+    color: #0f172a !important;
   }
 
   /* iOS 18 Spring Animations - Global */

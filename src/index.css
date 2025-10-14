@@ -268,6 +268,16 @@
     color: #0f172a !important;
   }
 
+  /* Exception for gradient backgrounds - keep white text */
+  [role="tabpanel"] .bg-gradient-to-br h3,
+  [role="tabpanel"] .bg-gradient-to-br p,
+  [role="tabpanel"] .bg-gradient-to-br .text-white,
+  [role="tabpanel"] [class*="bg-gradient"] h3,
+  [role="tabpanel"] [class*="bg-gradient"] p,
+  [role="tabpanel"] [class*="bg-gradient"] .text-white {
+    color: white !important;
+  }
+
   /* Secondary text - email, dates, etc */
   [role="tabpanel"] .text-white\/70,
   [role="tabpanel"] .text-white\/60,

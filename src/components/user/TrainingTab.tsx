@@ -101,7 +101,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-[#001f54]/20">
                   <p className="text-lg font-semibold text-gray-700 mb-2">
-                    💬 Скажите родителю:
+                    Скажите родителю:
                   </p>
                   <p className="text-xl font-bold text-[#001f54] italic">
                     "Добрый день! У вас есть дети школьного возраста?"
@@ -122,7 +122,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-[#001f54]/20 mb-3">
                   <p className="text-lg font-semibold text-gray-700 mb-2">
-                    💬 Скажите родителю:
+                    Скажите родителю:
                   </p>
                   <p className="text-lg text-gray-900 mb-4">
                     "Онлайн-школа <span className="font-bold">"Сотка"</span> дарит подарки:"
@@ -132,7 +132,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                     <div className="bg-[#001f54]/5 p-4 rounded-lg border-2 border-[#001f54]/30">
                       <div className="flex gap-3">
                         <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#002b6b] text-white flex items-center justify-center font-bold text-lg">
-                          🎁
+                          1
                         </div>
                         <div>
                           <p className="font-bold text-lg text-[#001f54] mb-2">
@@ -148,7 +148,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                     <div className="bg-[#001f54]/5 p-4 rounded-lg border-2 border-[#001f54]/30">
                       <div className="flex gap-3">
                         <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#002b6b] text-white flex items-center justify-center font-bold text-lg">
-                          🎁
+                          2
                         </div>
                         <div>
                           <p className="font-bold text-lg text-[#001f54] mb-2">
@@ -174,24 +174,24 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-[#001f54]/20">
                   <p className="text-lg font-semibold text-[#001f54] mb-4">
-                    ⚠️ Теперь спросите у родителя:
+                    Теперь спросите у родителя:
                   </p>
                   <div className="space-y-3">
                     <div className="bg-[#001f54]/5 p-3 rounded-lg border border-[#001f54]/30">
                       <p className="font-bold text-[#001f54] text-lg">
-                        ❓ "Как вас зовут?"
+                        "Как вас зовут?"
                       </p>
                       <p className="text-sm text-gray-600 mt-1">(Запишите имя родителя)</p>
                     </div>
                     <div className="bg-[#001f54]/5 p-3 rounded-lg border border-[#001f54]/30">
                       <p className="font-bold text-[#001f54] text-lg">
-                        ❓ "Ваш номер телефона?"
+                        "Ваш номер телефона?"
                       </p>
                       <p className="text-sm text-gray-600 mt-1">(Объясните: чтобы отправить ссылку на школу в WhatsApp)</p>
                     </div>
                     <div className="bg-[#001f54]/5 p-3 rounded-lg border border-[#001f54]/30">
                       <p className="font-bold text-[#001f54] text-lg">
-                        ❓ "В каком классе учится ваш ребенок?"
+                        "В каком классе учится ваш ребенок?"
                       </p>
                       <p className="text-sm text-gray-600 mt-1">(Запишите класс)</p>
                     </div>

@@ -100,7 +100,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                   <p className="text-lg font-semibold text-gray-700 mb-2">
                     Скажите родителю:
                   </p>
-                  <p className="text-xl font-bold text-[#001f54] italic">
+                  <p className="text-xl font-bold text-[#001f54]">
                     "Добрый день! У вас есть дети школьного возраста?"
                   </p>
                 </div>

@@ -93,10 +93,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
 
               {/* Скрипт - Шаг 1: Приветствие */}
               <div className="bg-[#001f54]/5 border-l-4 border-[#001f54] p-6 rounded-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="bg-[#001f54] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                    1
-                  </div>
+                <div className="mb-3">
                   <p className="font-bold text-[#001f54] text-lg">ШАГ 1: Начните разговор</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-[#001f54]/20">
@@ -114,10 +111,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
 
               {/* Скрипт - Шаг 2: Подарки */}
               <div className="bg-[#001f54]/5 border-l-4 border-[#001f54] p-6 rounded-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="bg-[#001f54] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                    2
-                  </div>
+                <div className="mb-3">
                   <p className="font-bold text-[#001f54] text-lg">ШАГ 2: Расскажите о подарках</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-[#001f54]/20 mb-3">
@@ -130,35 +124,21 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
                   
                   <div className="space-y-4">
                     <div className="bg-[#001f54]/5 p-4 rounded-lg border-2 border-[#001f54]/30">
-                      <div className="flex gap-3">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#002b6b] text-white flex items-center justify-center font-bold text-lg">
-                          1
-                        </div>
-                        <div>
-                          <p className="font-bold text-lg text-[#001f54] mb-2">
-                            ПОДАРОК 1: 2 месяца бесплатного обучения
-                          </p>
-                          <p className="text-gray-700">
-                            Заходите на наш сайт <span className="font-bold">sotkaonline.ru</span>, выбираете любой предмет (например русский или математика) и занимаетесь абсолютно бесплатно!
-                          </p>
-                        </div>
-                      </div>
+                      <p className="font-bold text-lg text-[#001f54] mb-2">
+                        ПОДАРОК 1: 2 месяца бесплатного обучения
+                      </p>
+                      <p className="text-gray-700">
+                        Заходите на наш сайт <span className="font-bold">sotkaonline.ru</span>, выбираете любой предмет (например русский или математика) и занимаетесь абсолютно бесплатно!
+                      </p>
                     </div>
                     
                     <div className="bg-[#001f54]/5 p-4 rounded-lg border-2 border-[#001f54]/30">
-                      <div className="flex gap-3">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#002b6b] text-white flex items-center justify-center font-bold text-lg">
-                          2
-                        </div>
-                        <div>
-                          <p className="font-bold text-lg text-[#001f54] mb-2">
-                            ПОДАРОК 2: Диагностика знаний ребенка
-                          </p>
-                          <p className="text-gray-700">
-                            Диагностика выявит пробелы в знаниях и подскажет родителям как исправить оценки и результаты
-                          </p>
-                        </div>
-                      </div>
+                      <p className="font-bold text-lg text-[#001f54] mb-2">
+                        ПОДАРОК 2: Диагностика знаний ребенка
+                      </p>
+                      <p className="text-gray-700">
+                        Диагностика выявит пробелы в знаниях и подскажет родителям как исправить оценки и результаты
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -166,10 +146,7 @@ export default function TrainingTab({ organizationName }: TrainingTabProps) {
 
               {/* Скрипт - Шаг 3: Сбор данных */}
               <div className="bg-[#001f54]/5 border-l-4 border-[#001f54] p-6 rounded-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="bg-[#001f54] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                    3
-                  </div>
+                <div className="mb-3">
                   <p className="font-bold text-[#001f54] text-lg">ШАГ 3: СОБЕРИТЕ ДАННЫЕ (ВАЖНО!)</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border-2 border-[#001f54]/20">

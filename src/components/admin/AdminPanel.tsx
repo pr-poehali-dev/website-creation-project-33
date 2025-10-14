@@ -1,40 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChatUnread } from '@/hooks/useChatUnread';
-import { useAdminName } from '@/hooks/useAdminName';
 import AdminAccessDenied from './AdminAccessDenied';
-import AdminWelcome from './AdminWelcome';
 import AdminPanelStyles from './AdminPanelStyles';
 import AdminHeader from './AdminHeader';
 import AdminTabs from './AdminTabs';
-import FloatingOrbs from './FloatingOrbs';
 
 export default function AdminPanel() {
   const { logout, user } = useAuth();
   const unreadCount = useChatUnread();
-  const { adminName, loadingName } = useAdminName();
-  const [showWelcome, setShowWelcome] = useState(true);
 
   const openGoogleSheets = () => {
     const sheetId = 'https://docs.google.com/spreadsheets/d/1fH4lgqreRPBoHQadU8Srw7L3bPgT5xa3zyz2idfpptM/edit';
     window.open(sheetId, '_blank');
   };
 
-  useEffect(() => {
-    if (!loadingName && showWelcome) {
-      const timer = setTimeout(() => {
-        setShowWelcome(false);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [loadingName, showWelcome]);
-
   if (!user?.is_admin) {
     return <AdminAccessDenied onLogout={logout} />;
-  }
-
-  if (showWelcome && !loadingName) {
-    return <AdminWelcome adminName={adminName} />;
   }
 
   return (

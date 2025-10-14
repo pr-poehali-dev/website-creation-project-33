@@ -216,37 +216,14 @@ export default function WorkTab({ selectedOrganizationId, onChangeOrganization }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Заголовок с информацией */}
+    <div className="space-y-4 md:space-y-6">
+      {/* Быстрые действия */}
       <Card className="border-[#001f54]/20 shadow-xl bg-white slide-up">
-        <CardContent className="p-4 md:p-6">
-          <div className="flex flex-col gap-3 md:gap-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 md:gap-3">
-                <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white border-2 md:border-4 border-[#001f54] overflow-hidden flex items-center justify-center p-1.5 md:p-2 shadow-xl">
-                  <img 
-                    src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
-                    alt="IMPERIA PROMO"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div>
-                  <h1 className="text-lg md:text-2xl font-bold text-[#001f54]">IMPERIA PROMO</h1>
-                  <p className="text-xs md:text-sm text-gray-600">Привет, {user?.name}</p>
-                </div>
-              </div>
-              <Button 
-                onClick={logout} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 h-8 w-8 p-0 md:h-9 md:w-auto md:px-3"
-                size="sm"
-              >
-                <Icon name="LogOut" size={16} />
-              </Button>
-            </div>
-            
+        <CardContent className="p-3 md:p-4">
+          <div className="flex flex-col gap-2 md:gap-3">
             {organizationName && (
               <Badge className="w-fit bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-xs md:text-sm">
-                <Icon name="Building2" size={12} className="mr-1" />
+                <Icon name="Building2" size={12} className="mr-1 md:mr-1.5" />
                 {organizationName}
               </Badge>
             )}

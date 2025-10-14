@@ -225,8 +225,8 @@ export default function UsersTab() {
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="mb-4">
+      <CardContent className="pt-6">
+        <div className="mb-6">
           <div className="relative">
             <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" />
             <Input

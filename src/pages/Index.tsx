@@ -20,8 +20,13 @@ export default function Index() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [isVideoRecording, setIsVideoRecording] = useState(false);
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const videoRecorderRef = useRef<MediaRecorder | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const videoChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     if (notes) {
@@ -68,6 +73,55 @@ export default function Index() {
     }
   };
 
+  const startVideoRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' },
+        audio: false
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+      
+      const videoRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      videoRecorderRef.current = videoRecorder;
+      videoChunksRef.current = [];
+
+      videoRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          videoChunksRef.current.push(event.data);
+        }
+      };
+
+      videoRecorder.onstop = () => {
+        const blob = new Blob(videoChunksRef.current, { type: 'video/webm' });
+        setVideoBlob(blob);
+        stream.getTracks().forEach(track => track.stop());
+        if (videoRef.current) {
+          videoRef.current.srcObject = null;
+        }
+      };
+
+      videoRecorder.start();
+      setIsVideoRecording(true);
+    } catch (error) {
+      toast({ 
+        title: 'Ошибка доступа к камере',
+        description: 'Разрешите доступ к камере для записи видео',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const stopVideoRecording = () => {
+    if (videoRecorderRef.current && isVideoRecording) {
+      videoRecorderRef.current.stop();
+      setIsVideoRecording(false);
+    }
+  };
+
   const sendToTelegram = async () => {
     if (!notes.trim() && !audioBlob) {
       toast({ 
@@ -82,6 +136,7 @@ export default function Index() {
     
     try {
       let audioData = null;
+      let videoData = null;
       
       // Конвертируем аудио в base64 если есть
       if (audioBlob) {
@@ -92,6 +147,18 @@ export default function Index() {
             resolve(base64);
           };
           reader.readAsDataURL(audioBlob);
+        });
+      }
+      
+      // Конвертируем видео в base64 если есть
+      if (videoBlob) {
+        const reader = new FileReader();
+        videoData = await new Promise<string>((resolve) => {
+          reader.onloadend = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            resolve(base64);
+          };
+          reader.readAsDataURL(videoBlob);
         });
       }
 
@@ -113,7 +180,8 @@ export default function Index() {
         },
         body: JSON.stringify({
           notes: notes.trim(),
-          audio_data: audioData
+          audio_data: audioData,
+          video_data: videoData
         })
       });
 
@@ -175,6 +243,7 @@ export default function Index() {
         // Очищаем форму и localStorage после отправки
         setNotes('');
         setAudioBlob(null);
+        setVideoBlob(null);
         localStorage.removeItem('notepad_draft');
       } else {
         throw new Error(result.error || 'Неизвестная ошибка');
@@ -364,10 +433,56 @@ export default function Index() {
                     </div>
                   )}
                 </div>
-                
+              </div>
+            </CardContent>
+          </Card>
 
-
-
+          {/* Видеозапись */}
+          <Card className="bg-white border-[#001f54]/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
+            <CardHeader className="pb-3 md:pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-[#001f54]">
+                <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
+                  <Icon name="Video" size={18} className="text-[#001f54] md:w-5 md:h-5" />
+                </div>
+                Видеозапись
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex flex-col items-center gap-4">
+                {isVideoRecording && (
+                  <video 
+                    ref={videoRef}
+                    autoPlay 
+                    playsInline
+                    muted
+                    className="w-full max-w-md rounded-lg border-2 border-[#001f54]/20"
+                  />
+                )}
+                {videoBlob && !isVideoRecording && (
+                  <div className="text-sm text-green-600 flex items-center gap-2">
+                    <Icon name="CheckCircle" size={16} />
+                    Видео записано
+                  </div>
+                )}
+                <div className="flex items-center gap-4">
+                  {!isVideoRecording ? (
+                    <Button
+                      onClick={startVideoRecording}
+                      size="lg"
+                      className="bg-[#001f54] hover:bg-[#002b6b] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl"
+                    >
+                      <Icon name="Video" size={24} className="md:w-8 md:h-8" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={stopVideoRecording}
+                      size="lg"
+                      className="bg-red-600 hover:bg-red-700 text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 shadow-xl"
+                    >
+                      <Icon name="Square" size={24} className="md:w-8 md:h-8" />
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

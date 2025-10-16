@@ -78,28 +78,6 @@ export default function Index() {
       return;
     }
 
-    // ОБЯЗАТЕЛЬНО проверяем наличие российского номера телефона в блокноте
-    if (!notes.trim()) {
-      toast({
-        title: 'Введите номер клиента',
-        description: 'Укажите российский номер телефона в блокноте',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    const phoneRegex = /(?:\+7|8|7)[\s\-\(\)]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}|9\d{9}/;
-    const hasRussianPhone = phoneRegex.test(notes.trim());
-
-    if (!hasRussianPhone) {
-      toast({
-        title: 'Введите номер клиента',
-        description: 'Укажите российский номер телефона в блокноте',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     setIsLoading(true);
     
     try {
@@ -124,7 +102,6 @@ export default function Index() {
           description: 'Необходимо записать аудио перед отправкой',
           variant: 'destructive'
         });
-        setIsLoading(false);
         return;
       }
 
@@ -147,8 +124,14 @@ export default function Index() {
       const result = await response.json();
       
       if (result.success) {
-        // Отправляем данные в Google Sheets
-        try {
+        // Проверяем наличие российского номера телефона в заметках
+        // Паттерн 1: +7/8/7 с 10 цифрами ИЛИ Паттерн 2: 10 цифр начинающихся с 9
+        const phoneRegex = /(?:^|[\s,;])(?:(?:\+7|8|7)[\s\-\(\)]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}|9\d{9})(?:[\s,;.]|$)/;
+        const hasRussianPhone = phoneRegex.test(notes.trim());
+
+        // Отправляем данные в Google Sheets только если есть номер телефона
+        if (hasRussianPhone) {
+          try {
             const now = new Date();
             const timestamp = now.toLocaleString('ru-RU', {
               year: 'numeric',
@@ -180,6 +163,9 @@ export default function Index() {
           } catch (error) {
             console.error('Ошибка отправки в Google Sheets:', error);
           }
+        } else {
+          console.log('Номер телефона не найден. Текст:', notes.trim());
+        }
 
         toast({ 
           title: 'Отправлено!',
@@ -332,8 +318,7 @@ export default function Index() {
                     <Button
                       onClick={startRecording}
                       size="lg"
-                      style={audioBlob ? { backgroundColor: '#fbbf24', borderColor: '#fbbf24' } : undefined}
-                      className={`${audioBlob ? 'hover:bg-yellow-500' : 'bg-[#001f54] hover:bg-[#002b6b]'} text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl`}
+                      className="bg-[#001f54] hover:bg-[#002b6b] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl"
                     >
                       <Icon name="Star" size={24} className="md:w-8 md:h-8" />
                     </Button>

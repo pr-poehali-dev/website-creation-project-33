@@ -189,29 +189,12 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
           <div className="flex flex-col items-center gap-4 md:gap-6">
             <div className="flex items-center gap-4">
               {!isRecording ? (
-                <div className="flex flex-col items-center gap-2">
-                  <style>{`
-                    .audio-record-btn-golden {
-                      background-color: #fbbf24 !important;
-                    }
-                    .audio-record-btn-blue {
-                      background-color: #001f54 !important;
-                    }
-                  `}</style>
-                  <button
-                    key={audioBlob ? 'has-audio' : 'no-audio'}
-                    onClick={startRecording}
-                    className={`inline-flex items-center justify-center hover:opacity-90 text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl ${audioBlob ? 'audio-record-btn-golden' : 'audio-record-btn-blue'}`}
-                  >
-                    <Icon name="Star" size={24} className="md:w-8 md:h-8" />
-                  </button>
-                  <div className="text-sm font-bold">
-                    audioBlob: {audioBlob ? `✅ ${audioBlob.size}` : '❌ null'}
-                  </div>
-                  <div className="text-xs">
-                    Color: {audioBlob ? '🟡 ЗОЛОТОЙ' : '🔵 СИНИЙ'}
-                  </div>
-                </div>
+                <button
+                  onClick={startRecording}
+                  className="flex items-center justify-center w-20 h-20 rounded-full bg-blue-900 hover:bg-blue-800 transition-all duration-300 shadow-xl"
+                >
+                  <Icon name="Star" size={32} className="text-white" />
+                </button>
               ) : (
                 <div className="relative">
                   <style>{`

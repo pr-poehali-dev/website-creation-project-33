@@ -191,9 +191,19 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
               {!isRecording ? (
                 <button
                   onClick={startRecording}
-                  className="flex items-center justify-center w-20 h-20 rounded-full bg-blue-900 hover:bg-blue-800 transition-all duration-300 shadow-xl"
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    backgroundColor: '#001f54',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
                 >
-                  <Icon name="Star" size={32} className="text-white" />
+                  <Icon name="Star" size={32} style={{ color: '#ffffff' }} />
                 </button>
               ) : (
                 <div className="relative">

@@ -61,6 +61,11 @@ export default function UserDashboard() {
   const handleChangeOrganization = () => {
     setSelectedOrganization(null);
     setActiveTab('start');
+    // Вернуть исходный фон
+    document.body.style.backgroundImage = '';
+    document.body.style.backgroundSize = '';
+    document.body.style.backgroundPosition = '';
+    document.body.style.backgroundAttachment = '';
   };
 
   return (

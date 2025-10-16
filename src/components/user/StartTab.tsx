@@ -61,6 +61,14 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
       return;
     }
 
+    const selectedOrg = organizations.find(org => org.id === parseInt(selectedOrgId));
+    if (selectedOrg?.name === 'Сотка') {
+      document.body.style.backgroundImage = 'url(https://cdn.poehali.dev/files/32809ad8-05dc-44bc-9182-63fa8e6cf1c1.jpg)';
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundAttachment = 'fixed';
+    }
+
     onOrganizationSelect(parseInt(selectedOrgId));
   };
 

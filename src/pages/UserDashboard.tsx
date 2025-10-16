@@ -58,7 +58,7 @@ export default function UserDashboard() {
   const handleOrganizationSelect = (orgId: number, orgName: string) => {
     setSelectedOrganization(orgId);
     if (orgName === 'Сотка') {
-      setBackgroundImage('url(https://cdn.poehali.dev/files/e7f60376-36a4-4fe8-9399-0383849f3032.jpg)');
+      setBackgroundImage('#ffffff');
     }
   };
 

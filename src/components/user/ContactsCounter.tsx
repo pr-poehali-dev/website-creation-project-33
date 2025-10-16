@@ -32,9 +32,6 @@ export default function ContactsCounter() {
     };
 
     fetchStats();
-    
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
   }, [user?.id]);
 
   if (loading) {

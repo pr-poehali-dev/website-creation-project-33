@@ -217,41 +217,26 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
               ) : (
                 <div className="relative">
                   <style>{`
-                    @keyframes breathing {
-                      0%, 100% {
-                        opacity: 0.6;
-                        transform: scale(1);
+                    @keyframes rotate {
+                      from {
+                        transform: rotate(0deg);
                       }
-                      50% {
-                        opacity: 1;
-                        transform: scale(1.05);
+                      to {
+                        transform: rotate(360deg);
                       }
                     }
-                    @keyframes squareFade {
-                      0%, 100% {
-                        opacity: 0.3;
-                        transform: scale(0.8);
-                      }
-                      50% {
-                        opacity: 1;
-                        transform: scale(1.1);
-                      }
-                    }
-                    .breathing-animation {
-                      animation: breathing 3s ease-in-out infinite;
-                    }
-                    .square-fade-animation {
-                      animation: squareFade 3s ease-in-out infinite;
+                    .rotate-animation {
+                      animation: rotate 2s linear infinite;
                     }
                   `}</style>
                   <button
                     onClick={stopRecording}
-                    className="audio-record-button breathing-animation"
+                    className="audio-record-button"
                     style={{
                       width: '53px',
                       height: '53px',
                       borderRadius: '50%',
-                      backgroundColor: '#002b6b',
+                      backgroundColor: '#001f54',
                       border: 'none',
                       cursor: 'pointer',
                       display: 'flex',
@@ -259,7 +244,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
                       justifyContent: 'center'
                     }}
                   >
-                    <div className="square-fade-animation">
+                    <div className="rotate-animation">
                       <svg 
                         width="21" 
                         height="21" 
@@ -267,7 +252,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
                         fill="white"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        <rect x="6" y="6" width="12" height="12" />
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                       </svg>
                     </div>
                   </button>

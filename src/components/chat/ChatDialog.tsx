@@ -260,11 +260,7 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
 
   useEffect(() => {
     if (open) {
-      // При первой загрузке помечаем сообщения как прочитанные
       loadMessages(true);
-      // При автообновлении НЕ помечаем как прочитанные
-      const interval = setInterval(() => loadMessages(false), 5000);
-      return () => clearInterval(interval);
     }
   }, [open, user]);
 

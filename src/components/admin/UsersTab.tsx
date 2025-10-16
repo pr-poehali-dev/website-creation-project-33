@@ -180,8 +180,6 @@ export default function UsersTab() {
 
   useEffect(() => {
     fetchUsers();
-    const interval = setInterval(fetchUsers, 30000);
-    return () => clearInterval(interval);
   }, []);
 
   if (loading) {

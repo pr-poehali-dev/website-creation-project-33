@@ -272,15 +272,11 @@ export default function AdminChatTab() {
 
   useEffect(() => {
     loadUsers();
-    const interval = setInterval(loadUsers, 5000);
-    return () => clearInterval(interval);
   }, [user]);
 
   useEffect(() => {
     if (selectedUser) {
       loadMessages(selectedUser.id);
-      const interval = setInterval(() => loadMessages(selectedUser.id), 5000);
-      return () => clearInterval(interval);
     }
   }, [selectedUser, user]);
 

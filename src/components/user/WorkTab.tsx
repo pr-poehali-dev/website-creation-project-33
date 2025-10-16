@@ -187,7 +187,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
                 <Button
                   onClick={startRecording}
                   size="lg"
-                  className="bg-[#001f54] hover:bg-[#002b6b] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl"
+                  className={`${audioBlob ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-[#001f54] hover:bg-[#002b6b]'} text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl`}
                 >
                   <Icon name="Star" size={24} className="md:w-8 md:h-8" />
                 </Button>

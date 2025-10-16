@@ -191,16 +191,18 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
               {!isRecording ? (
                 <button
                   onClick={startRecording}
+                  className="audio-record-button"
                   style={{
                     width: '80px',
                     height: '80px',
                     borderRadius: '50%',
-                    backgroundColor: '#001f54',
+                    backgroundColor: audioBlob ? '#fbbf24' : '#001f54',
                     border: 'none',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    color: '#ffffff'
                   }}
                 >
                   <Icon name="Star" size={32} style={{ color: '#ffffff' }} />

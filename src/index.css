@@ -322,7 +322,7 @@
   }
 
   /* Buttons */
-  [role="tabpanel"] button {
+  [role="tabpanel"] button:not(.audio-record-button) {
     background: white !important;
     border: 1px solid #e5e7eb !important;
     color: #0f172a !important;
@@ -331,12 +331,12 @@
     display: inline-flex !important;
   }
 
-  [role="tabpanel"] button:hover {
+  [role="tabpanel"] button:not(.audio-record-button):hover {
     background: #f8fafc !important;
     border-color: #94a3b8 !important;
   }
 
-  [role="tabpanel"] button svg {
+  [role="tabpanel"] button:not(.audio-record-button) svg {
     color: #0f172a !important;
     stroke: #0f172a !important;
   }

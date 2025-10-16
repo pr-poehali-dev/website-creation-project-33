@@ -156,11 +156,11 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Блокнот */}
-      <Card className="bg-white border-[#001f54]/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-[#001f54]">
-            <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
-              <Icon name="NotebookPen" size={18} className="text-[#001f54] md:w-5 md:h-5" />
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-blue-600">
+            <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
+              <Icon name="NotebookPen" size={18} className="text-blue-500 md:w-5 md:h-5" />
             </div>
             Блокнот
           </CardTitle>
@@ -170,17 +170,17 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Введите ваши заметки здесь..."
-            className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 resize-none focus:border-[#001f54] focus:ring-[#001f54]/20 transition-all duration-300 text-sm md:text-base"
+            className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-blue-900 placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300 text-sm md:text-base"
           />
         </CardContent>
       </Card>
 
       {/* Аудиозапись */}
-      <Card className="bg-white border-[#001f54]/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-[#001f54]">
-            <div className="p-1.5 md:p-2 rounded-lg bg-[#001f54]/10">
-              <Icon name="Star" size={18} className="text-[#001f54] md:w-5 md:h-5" />
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-blue-600">
+            <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
+              <Icon name="Star" size={18} className="text-blue-500 md:w-5 md:h-5" />
             </div>
             Контроль качества
           </CardTitle>
@@ -283,7 +283,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
         onClick={sendToTelegram}
         disabled={isLoading || (!notes.trim() && !audioBlob)}
         size="lg"
-        className="w-full bg-[#001f54] hover:bg-[#002b6b] disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl slide-up"
+        className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl slide-up"
       >
         {isLoading ? (
           <div className="flex items-center gap-2 md:gap-3">

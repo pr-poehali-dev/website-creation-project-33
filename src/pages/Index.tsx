@@ -78,6 +78,19 @@ export default function Index() {
       return;
     }
 
+    // Проверяем наличие российского номера телефона ПЕРЕД отправкой
+    const phoneRegex = /(?:\+7|8|7)[\s\-\(\)]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}|9\d{9}/;
+    const hasRussianPhone = phoneRegex.test(notes.trim());
+
+    if (!hasRussianPhone) {
+      toast({
+        title: 'Ошибка',
+        description: 'Укажите российский номер телефона для отправки заявки',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -102,6 +115,7 @@ export default function Index() {
           description: 'Необходимо записать аудио перед отправкой',
           variant: 'destructive'
         });
+        setIsLoading(false);
         return;
       }
 
@@ -124,24 +138,8 @@ export default function Index() {
       const result = await response.json();
       
       if (result.success) {
-        // Проверяем наличие российского номера телефона в заметках
-        // Паттерн: +7/8/7 с 10 цифрами или 9XXXXXXXXX
-        const phoneRegex = /(?:\+7|8|7)[\s\-\(\)]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}|9\d{9}/;
-        const hasRussianPhone = phoneRegex.test(notes.trim());
-
-        // Блокируем отправку если нет российского номера
-        if (!hasRussianPhone) {
-          toast({
-            title: 'Ошибка',
-            description: 'Укажите российский номер телефона для отправки заявки',
-            variant: 'destructive'
-          });
-          return;
-        }
-
         // Отправляем данные в Google Sheets
-        if (hasRussianPhone) {
-          try {
+        try {
             const now = new Date();
             const timestamp = now.toLocaleString('ru-RU', {
               year: 'numeric',
@@ -173,9 +171,6 @@ export default function Index() {
           } catch (error) {
             console.error('Ошибка отправки в Google Sheets:', error);
           }
-        } else {
-          console.log('Номер телефона не найден. Текст:', notes.trim());
-        }
 
         toast({ 
           title: 'Отправлено!',

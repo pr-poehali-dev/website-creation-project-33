@@ -196,7 +196,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
                     width: '53px',
                     height: '53px',
                     borderRadius: '50%',
-                    backgroundColor: audioBlob ? '#fbbf24' : '#3b82f6',
+                    backgroundColor: audioBlob ? '#fbbf24' : '#001f54',
                     border: 'none',
                     cursor: 'pointer',
                     display: 'flex',

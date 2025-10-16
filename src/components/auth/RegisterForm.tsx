@@ -89,7 +89,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
-                placeholder="Ваше имя"
+                placeholder="Ваше имя и фамилия"
                 required
               />
             </div>

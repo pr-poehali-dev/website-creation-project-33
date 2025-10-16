@@ -9,6 +9,7 @@ import ChatDialog from '@/components/chat/ChatDialog';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
 import TrainingTab from '@/components/user/TrainingTab';
+import ContactsCounter from '@/components/user/ContactsCounter';
 
 export default function UserDashboard() {
   const { user, logout } = useAuth();
@@ -154,11 +155,12 @@ export default function UserDashboard() {
           </TabsList>
 
           {organizationName && (
-            <div className="flex justify-center">
+            <div className="flex justify-center items-center gap-3">
               <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1">
                 <Icon name="Building2" size={14} className="mr-1.5" />
                 {organizationName}
               </Badge>
+              <ContactsCounter />
             </div>
           )}
 

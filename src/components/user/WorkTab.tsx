@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import ContactsCounter from './ContactsCounter';
 
 interface WorkTabProps {
   selectedOrganizationId: number | null;
@@ -151,9 +150,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Счетчик контактов */}
-      <ContactsCounter />
-      
       {/* Блокнот */}
       <Card className="bg-white border-[#001f54]/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">

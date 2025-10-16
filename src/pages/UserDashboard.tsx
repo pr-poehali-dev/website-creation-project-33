@@ -21,6 +21,7 @@ export default function UserDashboard() {
     return saved ? parseInt(saved) : null;
   });
   const [activeTab, setActiveTab] = useState<string>(selectedOrganization ? 'work' : 'start');
+  const [backgroundImage, setBackgroundImage] = useState<string>('');
 
   useEffect(() => {
     if (selectedOrganization) {
@@ -54,22 +55,29 @@ export default function UserDashboard() {
     }
   };
 
-  const handleOrganizationSelect = (orgId: number) => {
+  const handleOrganizationSelect = (orgId: number, orgName: string) => {
     setSelectedOrganization(orgId);
+    if (orgName === 'Сотка') {
+      setBackgroundImage('url(https://cdn.poehali.dev/files/32809ad8-05dc-44bc-9182-63fa8e6cf1c1.jpg)');
+    }
   };
 
   const handleChangeOrganization = () => {
     setSelectedOrganization(null);
     setActiveTab('start');
-    // Вернуть исходный фон
-    document.body.style.backgroundImage = '';
-    document.body.style.backgroundSize = '';
-    document.body.style.backgroundPosition = '';
-    document.body.style.backgroundAttachment = '';
+    setBackgroundImage('');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e8eef5] p-4 md:p-6">
+    <div 
+      className="min-h-screen p-4 md:p-6"
+      style={{
+        backgroundImage: backgroundImage || 'linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Шапка */}
         <div className="mb-4 slide-up space-y-3">

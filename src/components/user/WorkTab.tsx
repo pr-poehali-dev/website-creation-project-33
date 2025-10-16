@@ -244,15 +244,33 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
                       animation: squareFade 3s ease-in-out infinite;
                     }
                   `}</style>
-                  <Button
+                  <button
                     onClick={stopRecording}
-                    size="lg"
-                    className="bg-[#002b6b] hover:bg-[#003d8f] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 shadow-xl breathing-animation"
+                    className="audio-record-button breathing-animation"
+                    style={{
+                      width: '53px',
+                      height: '53px',
+                      borderRadius: '50%',
+                      backgroundColor: '#002b6b',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
                   >
                     <div className="square-fade-animation">
-                      <Icon name="Square" size={24} className="md:w-8 md:h-8" />
+                      <svg 
+                        width="21" 
+                        height="21" 
+                        viewBox="0 0 24 24" 
+                        fill="white"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect x="6" y="6" width="12" height="12" />
+                      </svg>
                     </div>
-                  </Button>
+                  </button>
                 </div>
               )}
             </div>

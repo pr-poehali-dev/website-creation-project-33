@@ -193,8 +193,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
                   onClick={startRecording}
                   className="audio-record-button"
                   style={{
-                    width: '80px',
-                    height: '80px',
+                    width: '53px',
+                    height: '53px',
                     borderRadius: '50%',
                     backgroundColor: audioBlob ? '#fbbf24' : '#3b82f6',
                     border: 'none',
@@ -205,8 +205,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
                   }}
                 >
                   <svg 
-                    width="32" 
-                    height="32" 
+                    width="21" 
+                    height="21" 
                     viewBox="0 0 24 24" 
                     fill="white"
                     xmlns="http://www.w3.org/2000/svg"

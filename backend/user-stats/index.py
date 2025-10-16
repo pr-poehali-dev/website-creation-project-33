@@ -74,8 +74,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         SELECT 
             COUNT(*) as total_contacts,
             SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 ELSE 0 END) as today_contacts
-        FROM t_p24058207_website_creation_pro.leads
-        WHERE user_id = {int(user_id)}
+        FROM t_p24058207_website_creation_pro.leads_analytics
+        WHERE user_id = {int(user_id)} AND lead_type = 'контакт'
     """
     
     cur.execute(query)

@@ -31,6 +31,10 @@ export default function Index() {
     }
   }, [notes]);
 
+  useEffect(() => {
+    console.log('🎯 audioBlob changed:', audioBlob ? `Blob (${audioBlob.size} bytes)` : 'null');
+  }, [audioBlob]);
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -46,6 +50,7 @@ export default function Index() {
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        console.log('🎤 Audio recorded, blob size:', blob.size);
         setAudioBlob(blob);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -313,13 +318,20 @@ export default function Index() {
             </CardHeader>
             <CardContent className="pt-0">
               <div className="flex flex-col items-center gap-4 md:gap-6">
+                {console.log('🔍 Render - audioBlob:', audioBlob, 'hasAudio:', !!audioBlob)}
+                {/* Временный индикатор для отладки */}
+                {audioBlob && (
+                  <div className="bg-yellow-400 text-black px-4 py-2 rounded font-bold">
+                    ✅ АУДИО ЗАПИСАНО! Размер: {(audioBlob.size / 1024).toFixed(2)} KB
+                  </div>
+                )}
                 <div className="flex items-center gap-4">
                   {!isRecording ? (
                     <Button
+                      key={audioBlob ? 'has-audio' : 'no-audio'}
                       onClick={startRecording}
                       size="lg"
-                      style={audioBlob ? { backgroundColor: '#fbbf24' } : undefined}
-                      className={`${audioBlob ? 'hover:bg-yellow-500' : 'bg-[#001f54] hover:bg-[#002b6b]'} text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl`}
+                      className={`${audioBlob ? 'bg-[#fbbf24] hover:bg-[#f59e0b]' : 'bg-[#001f54] hover:bg-[#002b6b]'} text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl`}
                     >
                       <Icon name="Star" size={24} className="md:w-8 md:h-8" />
                     </Button>

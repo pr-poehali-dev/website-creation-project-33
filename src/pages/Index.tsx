@@ -125,11 +125,21 @@ export default function Index() {
       
       if (result.success) {
         // Проверяем наличие российского номера телефона в заметках
-        // Паттерн 1: +7/8/7 с 10 цифрами ИЛИ Паттерн 2: 10 цифр начинающихся с 9
-        const phoneRegex = /(?:^|[\s,;])(?:(?:\+7|8|7)[\s\-\(\)]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}|9\d{9})(?:[\s,;.]|$)/;
+        // Паттерн: +7/8/7 с 10 цифрами
+        const phoneRegex = /(?:\+7|8|7)[\s\-\(\)]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}/;
         const hasRussianPhone = phoneRegex.test(notes.trim());
 
-        // Отправляем данные в Google Sheets только если есть номер телефона
+        // Блокируем отправку если нет российского номера
+        if (!hasRussianPhone) {
+          toast({
+            title: 'Ошибка',
+            description: 'Укажите российский номер телефона для отправки заявки',
+            variant: 'destructive'
+          });
+          return;
+        }
+
+        // Отправляем данные в Google Sheets
         if (hasRussianPhone) {
           try {
             const now = new Date();

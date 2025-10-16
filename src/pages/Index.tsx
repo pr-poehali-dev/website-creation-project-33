@@ -318,7 +318,8 @@ export default function Index() {
                     <Button
                       onClick={startRecording}
                       size="lg"
-                      className="bg-[#001f54] hover:bg-[#002b6b] text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl"
+                      style={audioBlob ? { backgroundColor: '#fbbf24' } : undefined}
+                      className={`${audioBlob ? 'hover:bg-yellow-500' : 'bg-[#001f54] hover:bg-[#002b6b]'} text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl`}
                     >
                       <Icon name="Star" size={24} className="md:w-8 md:h-8" />
                     </Button>

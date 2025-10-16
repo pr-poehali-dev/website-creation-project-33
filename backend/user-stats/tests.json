@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Get user statistics",
+      "method": "GET",
+      "path": "/?user_id=8",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Missing user_id parameter",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "user_id is required"
+      }
+    }
+  ]
+}

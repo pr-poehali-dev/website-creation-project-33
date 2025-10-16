@@ -78,14 +78,23 @@ export default function Index() {
       return;
     }
 
-    // Проверяем наличие российского номера телефона ПЕРЕД отправкой
+    // ОБЯЗАТЕЛЬНО проверяем наличие российского номера телефона в блокноте
+    if (!notes.trim()) {
+      toast({
+        title: 'Введите номер клиента',
+        description: 'Укажите российский номер телефона в блокноте',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     const phoneRegex = /(?:\+7|8|7)[\s\-\(\)]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}|9\d{9}/;
     const hasRussianPhone = phoneRegex.test(notes.trim());
 
     if (!hasRussianPhone) {
       toast({
-        title: 'Ошибка',
-        description: 'Укажите российский номер телефона для отправки заявки',
+        title: 'Введите номер клиента',
+        description: 'Укажите российский номер телефона в блокноте',
         variant: 'destructive'
       });
       return;

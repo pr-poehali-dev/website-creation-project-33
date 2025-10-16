@@ -125,8 +125,8 @@ export default function Index() {
       
       if (result.success) {
         // Проверяем наличие российского номера телефона в заметках
-        // Паттерн: +7/8/7 с 10 цифрами
-        const phoneRegex = /(?:\+7|8|7)[\s\-\(\)]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}/;
+        // Паттерн: +7/8/7 с 10 цифрами или 9XXXXXXXXX
+        const phoneRegex = /(?:\+7|8|7)[\s\-\(\)]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}|9\d{9}/;
         const hasRussianPhone = phoneRegex.test(notes.trim());
 
         // Блокируем отправку если нет российского номера

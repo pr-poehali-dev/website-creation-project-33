@@ -45,12 +45,6 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
 
   useEffect(() => {
     loadPendingUsers();
-    
-    const interval = setInterval(() => {
-      loadPendingUsers();
-    }, 10000);
-    
-    return () => clearInterval(interval);
   }, [sessionToken]);
 
   const handleApprove = async (userId: number) => {

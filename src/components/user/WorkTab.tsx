@@ -187,13 +187,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex flex-col items-center gap-4 md:gap-6">
-            {console.log('🔍 Render - audioBlob:', audioBlob, 'hasAudio:', !!audioBlob)}
-            {/* Временный индикатор для отладки */}
-            {audioBlob && (
-              <div className="bg-yellow-400 text-black px-4 py-2 rounded font-bold">
-                ✅ АУДИО ЗАПИСАНО! Размер: {(audioBlob.size / 1024).toFixed(2)} KB
-              </div>
-            )}
             <div className="flex items-center gap-4">
               {!isRecording ? (
                 <Button

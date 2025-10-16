@@ -189,19 +189,27 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
           <div className="flex flex-col items-center gap-4 md:gap-6">
             <div className="flex items-center gap-4">
               {!isRecording ? (
-                <button
-                  key={audioBlob ? 'has-audio' : 'no-audio'}
-                  onClick={startRecording}
-                  style={{
-                    backgroundColor: audioBlob ? '#fbbf24' : '#001f54',
-                    color: '#ffffff',
-                    border: 'none',
-                    cursor: 'pointer'
-                  }}
-                  className="inline-flex items-center justify-center hover:opacity-90 text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl"
-                >
-                  <Icon name="Star" size={24} className="md:w-8 md:h-8" />
-                </button>
+                <div className="flex flex-col items-center gap-2">
+                  <button
+                    key={audioBlob ? 'has-audio' : 'no-audio'}
+                    onClick={startRecording}
+                    style={{
+                      backgroundColor: audioBlob ? '#fbbf24' : '#001f54',
+                      color: '#ffffff',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                    className="inline-flex items-center justify-center hover:opacity-90 text-white rounded-full w-16 h-16 md:w-20 md:h-20 p-0 transition-all duration-300 hover:scale-110 shadow-xl hover:shadow-2xl"
+                  >
+                    <Icon name="Star" size={24} className="md:w-8 md:h-8" />
+                  </button>
+                  <div className="text-sm font-bold">
+                    audioBlob: {audioBlob ? `✅ ${audioBlob.size}` : '❌ null'}
+                  </div>
+                  <div className="text-xs">
+                    Color: {audioBlob ? '🟡 ЗОЛОТОЙ' : '🔵 СИНИЙ'}
+                  </div>
+                </div>
               ) : (
                 <div className="relative">
                   <style>{`

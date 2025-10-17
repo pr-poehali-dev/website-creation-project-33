@@ -103,28 +103,29 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
             </div>
           ) : (
             <>
-              <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
-                <SelectTrigger className="w-full border-2 border-[#001f54]/30 bg-white text-[#001f54] h-12 text-lg">
-                  <SelectValue placeholder="Выберите организацию" />
-                </SelectTrigger>
-                <SelectContent>
-                  {organizations.map((org) => (
-                    <SelectItem key={org.id} value={org.id.toString()}>
-                      {org.name === 'ТОП Беляево' ? (
-                        <div className="flex items-center gap-2">
-                          <img 
-                            src="https://cdn.poehali.dev/files/4333ad33-867b-4fa5-ac4a-ee84df41ad36.jpeg" 
-                            alt="ТОП IT ACADEMY"
-                            className="h-6 object-contain"
-                          />
-                        </div>
-                      ) : (
-                        org.name
-                      )}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-3">
+                {organizations.map((org) => (
+                  <button
+                    key={org.id}
+                    onClick={() => setSelectedOrgId(org.id.toString())}
+                    className={`w-full p-4 rounded-lg border-2 transition-all duration-300 flex items-center justify-center ${
+                      selectedOrgId === org.id.toString()
+                        ? 'border-[#001f54] bg-[#001f54]/5'
+                        : 'border-gray-200 bg-white hover:border-[#001f54]/30'
+                    }`}
+                  >
+                    {org.name === 'ТОП Беляево' ? (
+                      <img 
+                        src="https://cdn.poehali.dev/files/4333ad33-867b-4fa5-ac4a-ee84df41ad36.jpeg" 
+                        alt="ТОП IT ACADEMY"
+                        className="h-8 object-contain"
+                      />
+                    ) : (
+                      <span className="text-lg text-[#001f54] font-medium">{org.name}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
 
               <Button
                 onClick={handleConfirm}

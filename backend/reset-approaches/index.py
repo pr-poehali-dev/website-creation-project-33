@@ -52,12 +52,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     dsn = os.environ.get('DATABASE_URL')
     
     conn = psycopg2.connect(dsn)
+    conn.autocommit = True
     cur = conn.cursor()
     
-    # Verify admin session
+    # Verify admin session - escape session_token for SQL
+    safe_token = session_token.replace("'", "''")
     cur.execute(
-        "SELECT u.role FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = %s",
-        (session_token,)
+        f"SELECT u.role FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = '{safe_token}'"
     )
     result = cur.fetchone()
     
@@ -78,7 +79,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur.execute("DELETE FROM leads_analytics WHERE lead_type = 'подход'")
     deleted_count = cur.rowcount
     
-    conn.commit()
     cur.close()
     conn.close()
     

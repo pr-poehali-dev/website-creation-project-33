@@ -12,6 +12,7 @@ interface UserLeadsSectionProps {
   groupedLeads: Record<string, Lead[]>;
   onDateSelect: (date: string) => void;
   onDeleteLead: (leadId: number) => void;
+  onDeleteDate?: (date: string) => void;
 }
 
 export default function UserLeadsSection({
@@ -21,6 +22,7 @@ export default function UserLeadsSection({
   groupedLeads,
   onDateSelect,
   onDeleteLead,
+  onDeleteDate,
 }: UserLeadsSectionProps) {
   if (isLoading) {
     return (
@@ -74,6 +76,7 @@ export default function UserLeadsSection({
         leadsCounts={leadsCounts}
         datesWithDuplicates={datesWithDuplicates}
         onDateSelect={handleDateClick}
+        onDeleteDate={onDeleteDate}
       />
 
       {selectedDate && groupedLeads[selectedDate] && (

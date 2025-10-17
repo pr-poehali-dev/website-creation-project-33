@@ -358,6 +358,24 @@ def delete_lead(lead_id: int) -> bool:
             conn.commit()
             return cur.rowcount > 0
 
+def delete_leads_by_date(user_id: int, date_str: str) -> int:
+    """Удалить все лиды пользователя за конкретный день. Возвращает количество удалённых лидов."""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Парсим дату в формате DD.MM.YYYY
+            day, month, year = date_str.split('.')
+            start_date = f"{year}-{month}-{day} 00:00:00"
+            end_date = f"{year}-{month}-{day} 23:59:59"
+            
+            cur.execute("""
+                DELETE FROM t_p24058207_website_creation_pro.leads_analytics 
+                WHERE user_id = %s 
+                AND created_at >= %s::timestamp 
+                AND created_at <= %s::timestamp
+            """, (user_id, start_date, end_date))
+            conn.commit()
+            return cur.rowcount
+
 def get_pending_users() -> List[Dict[str, Any]]:
     """Получить список пользователей, ожидающих одобрения"""
     with get_db_connection() as conn:
@@ -777,6 +795,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': headers,
                     'body': json.dumps({'error': 'Лид не найден'})
                 }
+        
+        elif action == 'delete_leads_by_date':
+            user_id = body_data.get('user_id')
+            date_str = body_data.get('date')
+            
+            if not user_id or not date_str:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID пользователя и дата обязательны'})
+                }
+            
+            deleted_count = delete_leads_by_date(user_id, date_str)
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': True, 'deleted_count': deleted_count})
+            }
 
     return {
         'statusCode': 405,

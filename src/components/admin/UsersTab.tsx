@@ -122,6 +122,41 @@ export default function UsersTab() {
     }
   };
 
+  const deleteLeadsByDate = async (date: string) => {
+    if (!selectedUser) return;
+
+    const leadsCount = groupedLeads[date]?.length || 0;
+    if (!confirm(`Вы уверены, что хотите удалить все ${leadsCount} лид(ов) за ${date}? Это действие нельзя отменить.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(ADMIN_API, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || '',
+        },
+        body: JSON.stringify({
+          action: 'delete_leads_by_date',
+          user_id: selectedUser.id,
+          date: date
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`Удалено лидов: ${data.deleted_count}`);
+        fetchUserLeads(selectedUser.id);
+        setSelectedDate(null);
+        await fetchUsers();
+      }
+    } catch (error) {
+      console.error('Error deleting leads by date:', error);
+      alert('Ошибка при удалении лидов');
+    }
+  };
+
   const handleUserClick = (user: User) => {
     if (selectedUser?.id === user.id) {
       setSelectedUser(null);
@@ -276,6 +311,7 @@ export default function UsersTab() {
                         groupedLeads={groupedLeads}
                         onDateSelect={setSelectedDate}
                         onDeleteLead={deleteLead}
+                        onDeleteDate={deleteLeadsByDate}
                       />
                     </div>
                   )}

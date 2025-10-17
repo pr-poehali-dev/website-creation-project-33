@@ -402,22 +402,47 @@ def delete_lead(lead_id: int) -> bool:
             return cur.rowcount > 0
 
 def delete_leads_by_date(user_id: int, date_str: str) -> int:
-    """Удалить все лиды пользователя за конкретный день. Возвращает количество удалённых лидов."""
+    """Удалить все лиды пользователя за конкретный день (московская дата). Возвращает количество удалённых лидов."""
+    print(f"🗑️ delete_leads_by_date called: user_id={user_id}, date={date_str}")
+    
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Парсим дату в формате DD.MM.YYYY
-            day, month, year = date_str.split('.')
-            start_date = f"{year}-{month}-{day} 00:00:00"
-            end_date = f"{year}-{month}-{day} 23:59:59"
-            
+            # Получаем все лиды пользователя и фильтруем по московской дате
             cur.execute("""
-                DELETE FROM t_p24058207_website_creation_pro.leads_analytics 
-                WHERE user_id = %s 
-                AND created_at >= %s::timestamp 
-                AND created_at <= %s::timestamp
-            """, (user_id, start_date, end_date))
-            conn.commit()
-            return cur.rowcount
+                SELECT id, created_at 
+                FROM t_p24058207_website_creation_pro.leads_analytics 
+                WHERE user_id = %s
+            """, (user_id,))
+            
+            all_leads = cur.fetchall()
+            print(f"📊 Found {len(all_leads)} total leads for user {user_id}")
+            
+            # Находим ID лидов, которые попадают в заданную московскую дату
+            lead_ids_to_delete = []
+            for row in all_leads:
+                moscow_dt = get_moscow_time_from_utc(row[1])
+                date_key = moscow_dt.date().isoformat()
+                print(f"  Lead {row[0]}: UTC={row[1]}, Moscow={moscow_dt}, Date={date_key}, Match={date_key == date_str}")
+                
+                if date_key == date_str:
+                    lead_ids_to_delete.append(row[0])
+            
+            print(f"🎯 Found {len(lead_ids_to_delete)} leads to delete: {lead_ids_to_delete}")
+            
+            # Удаляем найденные лиды
+            if lead_ids_to_delete:
+                placeholders = ','.join(['%s'] * len(lead_ids_to_delete))
+                cur.execute(f"""
+                    DELETE FROM t_p24058207_website_creation_pro.leads_analytics 
+                    WHERE id IN ({placeholders})
+                """, lead_ids_to_delete)
+                conn.commit()
+                deleted = cur.rowcount
+                print(f"✅ Deleted {deleted} leads")
+                return deleted
+            
+            print("❌ No leads found to delete")
+            return 0
 
 def get_pending_users() -> List[Dict[str, Any]]:
     """Получить список пользователей, ожидающих одобрения"""
@@ -475,13 +500,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
 
     headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
     }
+    
+    try:
+        return _handle_request(event, context, method, headers)
+    except Exception as e:
+        print(f"❌ Error in handler: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({'error': f'Internal server error: {str(e)}'}),
+            'isBase64Encoded': False
+        }
+
+def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: Dict[str, str]) -> Dict[str, Any]:
 
     # Заголовки могут быть в разных регистрах
     headers_dict = event.get('headers', {})
@@ -788,6 +829,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
     
     elif method == 'DELETE':
+        # Проверяем права админа для DELETE операций
+        if not user['is_admin']:
+            return {
+                'statusCode': 403,
+                'headers': headers,
+                'body': json.dumps({'error': 'Доступ запрещен'})
+            }
+        
         body_data = json.loads(event.get('body', '{}'))
         action = body_data.get('action')
         

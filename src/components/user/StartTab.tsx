@@ -110,7 +110,17 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                 <SelectContent>
                   {organizations.map((org) => (
                     <SelectItem key={org.id} value={org.id.toString()}>
-                      {org.name}
+                      {org.name === 'ТОП Беляево' ? (
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src="https://cdn.poehali.dev/files/4333ad33-867b-4fa5-ac4a-ee84df41ad36.jpeg" 
+                            alt="ТОП IT ACADEMY"
+                            className="h-6 object-contain"
+                          />
+                        </div>
+                      ) : (
+                        org.name
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>

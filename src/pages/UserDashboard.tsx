@@ -168,7 +168,7 @@ export default function UserDashboard() {
           </TabsList>
 
           {organizationName && (
-            <div className="flex justify-center items-center gap-3">
+            <div className="flex justify-between items-center">
               <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1">
                 <Icon name="Building2" size={14} className="mr-1.5" />
                 {organizationName}

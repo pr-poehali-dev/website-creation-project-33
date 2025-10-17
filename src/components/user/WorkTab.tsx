@@ -290,12 +290,16 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
 
       {/* Кнопка закрытия смены */}
       <Button
-        onClick={() => setEndShiftVideoOpen(true)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setEndShiftVideoOpen(true);
+        }}
         variant="outline"
         size="lg"
-        className="w-full border-2 border-red-500 text-red-500 hover:bg-red-50 h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl slide-up"
+        className="w-full border-2 border-red-500 text-red-500 hover:bg-red-50 h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-200 slide-up"
       >
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-2 md:gap-3 pointer-events-none">
           <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
           <span className="text-base md:text-xl">Закрыть смену</span>
         </div>

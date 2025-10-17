@@ -67,19 +67,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         video_bytes = base64.b64decode(video_base64)
         
-        bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
-        chat_id = os.environ.get('TELEGRAM_CHAT_ID')
-        
-        if not bot_token or not chat_id:
-            return {
-                'statusCode': 500,
-                'headers': {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Bot token or chat ID not configured'})
-            }
+        bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
+        chat_id = '5215501225'
         
         auth_response = requests.get(
             'https://functions.poehali.dev/d4f30ed2-6b6b-4e8a-a691-2c364dd41e43',

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface VideoRecorderProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface VideoRecorderProps {
 }
 
 export default function VideoRecorder({ open, onOpenChange, onSuccess, type, organizationId }: VideoRecorderProps) {
+  const { user } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [isSending, setIsSending] = useState(false);
@@ -141,7 +143,7 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
     setIsSending(true);
 
     try {
-      const userId = localStorage.getItem('user_id');
+      const userId = user?.id?.toString();
       if (!userId) {
         throw new Error('Не найден ID пользователя');
       }

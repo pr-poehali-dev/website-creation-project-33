@@ -96,10 +96,6 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <p className="text-center text-gray-600">
-            Выберите организацию, в которой вы будете работать сегодня
-          </p>
-
           {organizations.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Icon name="AlertCircle" size={48} className="mx-auto mb-3 opacity-30" />

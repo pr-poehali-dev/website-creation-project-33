@@ -114,7 +114,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                         : 'border-gray-200 bg-white hover:border-[#001f54]/30'
                     }`}
                   >
-                    {org.name === 'ТОП Беляево' ? (
+                    {org.name === 'ТОП (Беляево)' ? (
                       <img 
                         src="https://cdn.poehali.dev/files/4333ad33-867b-4fa5-ac4a-ee84df41ad36.jpeg" 
                         alt="ТОП IT ACADEMY"

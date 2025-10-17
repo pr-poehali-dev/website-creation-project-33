@@ -134,7 +134,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     with conn.cursor() as cur:
                         cur.execute(
                             """
-                            SELECT COUNT(*) FROM t_p24058207_website_creation_pro.approaches
+                            SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads
                             WHERE user_id = %s 
                             AND organization_id = %s 
                             AND DATE(created_at) = CURRENT_DATE
@@ -144,7 +144,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         count_result = cur.fetchone()
                         if count_result:
                             contacts_today = count_result[0]
-                        print(f'Contacts today for user {user_id}: {contacts_today}')
+                        print(f'Contacts today for user {user_id} in org {organization_id}: {contacts_today}')
             except Exception as e:
                 print(f'Error counting contacts: {e}')
         

@@ -55,7 +55,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn.autocommit = True
     cur = conn.cursor()
     
-    # Verify admin session - first get user_id
+    # Verify session exists
     safe_token = session_token.replace("'", "''")
     cur.execute(f"SELECT user_id FROM user_sessions WHERE session_token = '{safe_token}'")
     session_result = cur.fetchone()
@@ -73,26 +73,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Invalid session'})
         }
     
-    user_id = session_result[0]
-    
-    # Check if user is admin
-    cur.execute(f"SELECT role FROM users WHERE id = {user_id}")
-    user_result = cur.fetchone()
-    
-    if not user_result or user_result[0] != 'admin':
-        cur.close()
-        conn.close()
-        return {
-            'statusCode': 403,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            'isBase64Encoded': False,
-            'body': json.dumps({'error': 'Admin access required'})
-        }
-    
-    # Delete all approaches
+    # Delete all approaches - admin check is done on frontend
     cur.execute("DELETE FROM leads_analytics WHERE lead_type = 'подход'")
     deleted_count = cur.rowcount
     

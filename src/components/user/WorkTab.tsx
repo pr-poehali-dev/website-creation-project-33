@@ -187,7 +187,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, toda
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Имя родителя, телефон, класс"
-            className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-blue-900 placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300 text-sm md:text-base"
+            className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300 text-sm md:text-base"
           />
         </CardContent>
       </Card>

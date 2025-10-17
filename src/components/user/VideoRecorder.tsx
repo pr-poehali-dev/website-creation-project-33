@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 interface VideoRecorderProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  onSuccess: (contactsCount?: number) => void;
   type: 'start' | 'end';
   organizationId: number;
 }
@@ -173,6 +173,8 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
             throw new Error(errorData.error || 'Не удалось отправить видео');
           }
 
+          const resultData = await response.json();
+
           toast({
             title: 'Успешно',
             description: type === 'start' ? 'Видео начала смены отправлено' : 'Видео окончания смены отправлено',
@@ -184,7 +186,13 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
             URL.revokeObjectURL(videoUrl);
             setVideoUrl(null);
           }
-          onSuccess();
+          
+          if (type === 'end' && resultData.contacts_today !== undefined) {
+            onSuccess(resultData.contacts_today);
+          } else {
+            onSuccess();
+          }
+          
           onOpenChange(false);
         } catch (err) {
           console.error('Error sending video:', err);

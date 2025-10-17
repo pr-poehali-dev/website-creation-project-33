@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import VideoRecorder from './VideoRecorder';
+import DayResultsDialog from './DayResultsDialog';
 
 interface WorkTabProps {
   selectedOrganizationId: number | null;
@@ -23,6 +24,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [endShiftVideoOpen, setEndShiftVideoOpen] = useState(false);
+  const [dayResultsOpen, setDayResultsOpen] = useState(false);
+  const [contactsToday, setContactsToday] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -302,16 +305,30 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
         <VideoRecorder
           open={endShiftVideoOpen}
           onOpenChange={setEndShiftVideoOpen}
-          onSuccess={() => {
-            toast({
-              title: 'Смена закрыта',
-              description: 'Видео окончания смены отправлено'
-            });
+          onSuccess={(contactsCount) => {
+            if (contactsCount !== undefined) {
+              setContactsToday(contactsCount);
+              setDayResultsOpen(true);
+            } else {
+              toast({
+                title: 'Смена закрыта',
+                description: 'Видео окончания смены отправлено'
+              });
+            }
           }}
           type="end"
           organizationId={selectedOrganizationId}
         />
       )}
+
+      <DayResultsDialog
+        open={dayResultsOpen}
+        contactsCount={contactsToday}
+        onClose={() => {
+          setDayResultsOpen(false);
+          onChangeOrganization();
+        }}
+      />
     </div>
   );
 }

@@ -127,6 +127,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': f'Failed to send to Telegram: {error_text}'})
             }
         
+        contacts_today = 0
+        if video_type == 'end' and database_url:
+            try:
+                with psycopg2.connect(database_url) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            """
+                            SELECT COUNT(*) FROM t_p24058207_website_creation_pro.approaches
+                            WHERE user_id = %s 
+                            AND organization_id = %s 
+                            AND DATE(created_at) = CURRENT_DATE
+                            """,
+                            (int(user_id), int(organization_id))
+                        )
+                        count_result = cur.fetchone()
+                        if count_result:
+                            contacts_today = count_result[0]
+                        print(f'Contacts today for user {user_id}: {contacts_today}')
+            except Exception as e:
+                print(f'Error counting contacts: {e}')
+        
+        response_body = {'success': True}
+        if video_type == 'end':
+            response_body['contacts_today'] = contacts_today
+        
         return {
             'statusCode': 200,
             'headers': {
@@ -134,7 +159,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Content-Type': 'application/json'
             },
             'isBase64Encoded': False,
-            'body': json.dumps({'success': True})
+            'body': json.dumps(response_body)
         }
         
     except Exception as e:

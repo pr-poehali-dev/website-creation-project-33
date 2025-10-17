@@ -250,40 +250,71 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {type === 'start' ? 'Подтверждение начала смены' : 'Подтверждение окончания смены'}
+          <DialogTitle className="text-center">
+            {type === 'start' ? 'Начало смены' : 'Окончание смены'}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Запишите короткое видео (до 6 секунд) для подтверждения
+          <p className="text-sm text-gray-600 text-center">
+            Запишите короткое видео (до 6 секунд)
           </p>
 
-          <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-            {!recordedVideo ? (
-              <>
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover"
+          <div className="relative w-72 h-72 mx-auto">
+            {/* Instagram-style progress ring */}
+            {isRecording && (
+              <svg className="absolute inset-0 w-full h-full -rotate-90" style={{ zIndex: 10 }}>
+                <circle
+                  cx="144"
+                  cy="144"
+                  r="140"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  strokeWidth="4"
                 />
-                {isRecording && (
-                  <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full flex items-center gap-2">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                    <span className="text-sm font-medium">{recordingTime}s / 6s</span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <video
-                src={videoUrl || undefined}
-                controls
-                className="w-full h-full object-cover"
-              />
+                <circle
+                  cx="144"
+                  cy="144"
+                  r="140"
+                  fill="none"
+                  stroke="#ef4444"
+                  strokeWidth="4"
+                  strokeDasharray={`${2 * Math.PI * 140}`}
+                  strokeDashoffset={`${2 * Math.PI * 140 * (1 - recordingTime / 6)}`}
+                  strokeLinecap="round"
+                  style={{ transition: 'stroke-dashoffset 1s linear' }}
+                />
+              </svg>
             )}
+            
+            {/* Video container with Instagram-style border */}
+            <div className={`absolute inset-4 rounded-full overflow-hidden bg-black shadow-2xl ${isRecording ? 'ring-4 ring-white' : ''}`}>
+              {!recordedVideo ? (
+                <>
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover scale-110"
+                  />
+                  {isRecording && (
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-red-500/90 backdrop-blur-sm text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      <span className="text-sm font-bold">{recordingTime}s</span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <video
+                  src={videoUrl || undefined}
+                  loop
+                  autoPlay
+                  muted
+                  className="w-full h-full object-cover scale-110"
+                />
+              )}
+            </div>
           </div>
 
           <div className="flex gap-2">

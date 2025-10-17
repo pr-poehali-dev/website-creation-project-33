@@ -67,9 +67,8 @@ export default function StatsTab() {
 
     setChartData(chartArray as ChartDataPoint[]);
     
-    // Получаем список всех пользователей
-    const allUsers = [...new Set(rawData.map(item => item.user_name))];
-    setSelectedUsers(allUsers);
+    // Изначально не выбираем никаких пользователей - только общая статистика
+    setSelectedUsers([]);
   };
 
   const fetchStats = async () => {

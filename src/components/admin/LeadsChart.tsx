@@ -23,7 +23,7 @@ export default function LeadsChart({
   onUsersChange 
 }: LeadsChartProps) {
   const [showTotal, setShowTotal] = React.useState(true);
-  const [timeRange, setTimeRange] = React.useState<'week' | 'twoWeeks' | 'month' | 'year' | 'all'>('all');
+  const [timeRange, setTimeRange] = React.useState<'week' | 'twoWeeks' | 'month' | 'year' | 'all'>('week');
   
   if (chartData.length === 0) {
     return null;

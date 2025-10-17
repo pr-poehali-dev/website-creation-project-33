@@ -204,7 +204,7 @@ export default function PromotersRating() {
                     <h3 className="text-lg font-semibold text-[#001f54]">{promoter.name}</h3>
                     <p className="text-sm text-gray-600">{promoter.email}</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 text-center">
+                  <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
                       <p className="text-xs text-gray-600">Лиды</p>
                       <p className="text-lg font-bold text-blue-600">{promoter.lead_count}</p>
@@ -212,6 +212,10 @@ export default function PromotersRating() {
                     <div>
                       <p className="text-xs text-gray-600">Контакты</p>
                       <p className="text-lg font-bold text-green-600">{promoter.contacts}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600">Подходы</p>
+                      <p className="text-lg font-bold text-orange-600">{promoter.approaches}</p>
                     </div>
                   </div>
                 </div>

@@ -82,12 +82,15 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
       }
     };
 
-    mediaRecorder.onstop = async () => {
-      const blob = new Blob(chunksRef.current, { type: 'video/webm' });
-      await sendVideo(blob);
+    mediaRecorder.onstop = () => {
+      setTimeout(async () => {
+        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        console.log('Video blob created, size:', blob.size);
+        await sendVideo(blob);
+      }, 100);
     };
 
-    mediaRecorder.start();
+    mediaRecorder.start(100);
     mediaRecorderRef.current = mediaRecorder;
     setIsRecording(true);
     setRecordingTime(0);
@@ -115,26 +118,32 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
   };
 
   const sendVideo = async (videoBlob: Blob) => {
+    console.log('sendVideo called with blob size:', videoBlob.size);
     setIsSending(true);
 
     try {
       const sessionToken = localStorage.getItem('session_token');
       if (!sessionToken) {
+        console.error('No session token found');
         throw new Error('No session token');
       }
 
+      console.log('Reading video blob as base64...');
       const reader = new FileReader();
-      reader.readAsDataURL(videoBlob);
       
       reader.onloadend = async () => {
         try {
+          console.log('FileReader loaded, converting to base64...');
           const base64data = reader.result as string;
           const base64Video = base64data.split(',')[1];
 
-          console.log('Sending video, size:', videoBlob.size, 'bytes');
+          console.log('Sending video to backend, size:', videoBlob.size, 'bytes, org:', organizationId, 'type:', type);
 
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 60000);
+          const timeoutId = setTimeout(() => {
+            console.error('Request timeout after 60s');
+            controller.abort();
+          }, 60000);
 
           const response = await fetch('https://functions.poehali.dev/dc2bdef3-60dd-4177-a0fd-bb7173e55897', {
             method: 'POST',
@@ -152,27 +161,38 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
 
           clearTimeout(timeoutId);
 
+          console.log('Response status:', response.status);
+
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
+            console.error('Backend error:', errorData);
             throw new Error(errorData.error || 'Failed to send video');
           }
+
+          const result = await response.json();
+          console.log('Video sent successfully:', result);
 
           toast({
             title: 'Успешно',
             description: type === 'start' ? 'Видео начала смены отправлено' : 'Видео окончания смены отправлено',
           });
 
+          setIsSending(false);
           onSuccess();
           onOpenChange(false);
         } catch (err) {
           console.error('Error in reader.onloadend:', err);
-          throw err;
-        } finally {
           setIsSending(false);
+          toast({
+            title: 'Ошибка',
+            description: err instanceof Error ? err.message : 'Не удалось отправить видео',
+            variant: 'destructive',
+          });
         }
       };
 
-      reader.onerror = () => {
+      reader.onerror = (err) => {
+        console.error('FileReader error:', err);
         setIsSending(false);
         toast({
           title: 'Ошибка',
@@ -180,15 +200,16 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
           variant: 'destructive',
         });
       };
+
+      reader.readAsDataURL(videoBlob);
     } catch (error) {
-      console.error('Error sending video:', error);
+      console.error('Error in sendVideo:', error);
+      setIsSending(false);
       toast({
         title: 'Ошибка',
-        description: 'Не удалось отправить видео',
+        description: error instanceof Error ? error.message : 'Не удалось отправить видео',
         variant: 'destructive',
       });
-    } finally {
-      setIsSending(false);
     }
   };
 

@@ -23,6 +23,7 @@ export default function PromotersRating() {
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     fetchRating();
@@ -88,6 +89,41 @@ export default function PromotersRating() {
     }
   };
 
+  const resetApproaches = async () => {
+    if (!confirm('Вы уверены, что хотите обнулить все подходы? Это действие нельзя отменить.')) {
+      return;
+    }
+
+    setResetting(true);
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      const response = await fetch('https://functions.poehali.dev/cc09c22c-37d7-4e93-8483-4c6412048b89', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': sessionToken || ''
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast({
+          title: 'Успешно!',
+          description: data.message
+        });
+        fetchRating();
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обнулить подходы',
+        variant: 'destructive'
+      });
+    } finally {
+      setResetting(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card className="bg-white shadow-xl">
@@ -110,24 +146,45 @@ export default function PromotersRating() {
             </div>
             Рейтинг промоутеров
           </CardTitle>
-          <Button
-            onClick={exportRating}
-            disabled={exporting}
-            size="sm"
-            className="bg-green-600 hover:bg-green-700 text-white"
-          >
-            {exporting ? (
-              <>
-                <Icon name="Loader2" size={14} className="mr-2 animate-spin" />
-                Экспорт...
-              </>
-            ) : (
-              <>
-                <Icon name="Sheet" size={14} className="mr-2" />
-                Экспорт
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={resetApproaches}
+              disabled={resetting}
+              size="sm"
+              variant="outline"
+              className="border-red-600 text-red-600 hover:bg-red-50"
+            >
+              {resetting ? (
+                <>
+                  <Icon name="Loader2" size={14} className="mr-2 animate-spin" />
+                  Обнуление...
+                </>
+              ) : (
+                <>
+                  <Icon name="RotateCcw" size={14} className="mr-2" />
+                  Обнулить подходы
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={exportRating}
+              disabled={exporting}
+              size="sm"
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {exporting ? (
+                <>
+                  <Icon name="Loader2" size={14} className="mr-2 animate-spin" />
+                  Экспорт...
+                </>
+              ) : (
+                <>
+                  <Icon name="Sheet" size={14} className="mr-2" />
+                  Экспорт
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

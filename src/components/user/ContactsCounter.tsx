@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface ContactsStats {
+export interface ContactsStats {
   total_contacts: number;
   today_contacts: number;
 }
 
-export default function ContactsCounter() {
+interface ContactsCounterProps {
+  onStatsChange?: (stats: ContactsStats) => void;
+}
+
+export default function ContactsCounter({ onStatsChange }: ContactsCounterProps) {
   const { user } = useAuth();
   const [stats, setStats] = useState<ContactsStats>({ total_contacts: 0, today_contacts: 0 });
   const [loading, setLoading] = useState(true);
@@ -23,6 +27,7 @@ export default function ContactsCounter() {
         if (response.ok) {
           const data = await response.json();
           setStats(data);
+          onStatsChange?.(data);
         }
       } catch (error) {
         console.error('Error fetching stats:', error);
@@ -32,7 +37,7 @@ export default function ContactsCounter() {
     };
 
     fetchStats();
-  }, [user?.id]);
+  }, [user?.id, onStatsChange]);
 
   if (loading) {
     return null;

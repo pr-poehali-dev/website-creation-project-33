@@ -9,7 +9,7 @@ import ChatDialog from '@/components/chat/ChatDialog';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
 import TrainingTab from '@/components/user/TrainingTab';
-import ContactsCounter from '@/components/user/ContactsCounter';
+import ContactsCounter, { ContactsStats } from '@/components/user/ContactsCounter';
 
 export default function UserDashboard() {
   const { user, logout } = useAuth();
@@ -22,6 +22,7 @@ export default function UserDashboard() {
   });
   const [activeTab, setActiveTab] = useState<string>(selectedOrganization ? 'work' : 'start');
   const [backgroundImage, setBackgroundImage] = useState<string>('');
+  const [todayContacts, setTodayContacts] = useState<number>(0);
 
   useEffect(() => {
     if (selectedOrganization) {
@@ -173,7 +174,7 @@ export default function UserDashboard() {
                 <Icon name="Building2" size={14} className="mr-1.5" />
                 {organizationName}
               </Badge>
-              <ContactsCounter />
+              <ContactsCounter onStatsChange={(stats: ContactsStats) => setTodayContacts(stats.today_contacts)} />
             </div>
           )}
 
@@ -186,6 +187,7 @@ export default function UserDashboard() {
               selectedOrganizationId={selectedOrganization} 
               organizationName={organizationName}
               onChangeOrganization={handleChangeOrganization}
+              todayContactsCount={todayContacts}
             />
           </TabsContent>
 

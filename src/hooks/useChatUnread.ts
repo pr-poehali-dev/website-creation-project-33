@@ -1,53 +1,22 @@
-import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-
-const CHAT_API_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
+import { useChatMessages } from './useAdminData';
 
 export function useChatUnread() {
   const { user } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const checkUnread = async () => {
-      try {
-        const response = await fetch(CHAT_API_URL, {
-          method: 'GET',
-          headers: {
-            'X-User-Id': user.id.toString(),
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          
-          if (user.is_admin) {
-            // Для админа - считаем все непрочитанные сообщения от всех пользователей
-            const users = data.users || [];
-            const totalUnread = users.reduce(
-              (sum: number, userChat: any) => sum + (userChat.unread_count || 0),
-              0
-            );
-            setUnreadCount(totalUnread);
-          } else {
-            // Для пользователя - считаем непрочитанные от админа
-            const messages = data.messages || [];
-            const unread = messages.filter(
-              (msg: any) => msg.is_from_admin && !msg.is_read
-            ).length;
-            setUnreadCount(unread);
-          }
-        }
-      } catch (error) {
-        console.error('Check unread error:', error);
-      }
-    };
-
-    checkUnread();
-    const interval = setInterval(checkUnread, 5000);
-    return () => clearInterval(interval);
-  }, [user]);
-
-  return unreadCount;
+  const { data } = useChatMessages(user?.id.toString() || null);
+  
+  if (!user || !data) return 0;
+  
+  if (user.is_admin) {
+    const users = data.users || [];
+    return users.reduce(
+      (sum: number, userChat: any) => sum + (userChat.unread_count || 0),
+      0
+    );
+  } else {
+    const messages = data.messages || [];
+    return messages.filter(
+      (msg: any) => msg.is_from_admin && !msg.is_read
+    ).length;
+  }
 }

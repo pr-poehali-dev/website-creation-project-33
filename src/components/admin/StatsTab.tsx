@@ -7,40 +7,25 @@ import UsersRanking from './UsersRanking';
 import DailyStatsCard from './DailyStatsCard';
 import LeadsChart from './LeadsChart';
 import DailyModal from './DailyModal';
-import { Stats, UserStats, ChartDataPoint, ADMIN_API } from './types';
+import { Stats, UserStats, ChartDataPoint } from './types';
+import { useStats, useChartData, useDailyUserStats } from '@/hooks/useAdminData';
 
 export default function StatsTab() {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: stats = null, isLoading: loading } = useStats();
+  const { data: rawChartData = [] } = useChartData();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [dailyUserStats, setDailyUserStats] = useState<UserStats[]>([]);
-  const [detailedLeads, setDetailedLeads] = useState<any[]>([]);
-  const [dailyLoading, setDailyLoading] = useState(false);
+  const { data: dailyData, isLoading: dailyLoading } = useDailyUserStats(selectedDate);
+  const dailyUserStats = dailyData?.user_stats || [];
+  const detailedLeads = dailyData?.detailed_leads || [];
   const [exportingAll, setExportingAll] = useState(false);
   
-  // Состояния для графика
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [filterType, setFilterType] = useState<'contacts' | 'approaches'>('contacts');
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
-  const fetchChartData = async () => {
-    try {
-      const response = await fetch(`${ADMIN_API}?action=chart_data`, {
-        headers: {
-          'X-Session-Token': getSessionToken() || '',
-        },
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        prepareChartData(data.chart_data);
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки данных графика:', error);
-    }
-  };
 
   const prepareChartData = (rawData: any[]) => {
     // Группируем данные по датам
@@ -71,61 +56,23 @@ export default function StatsTab() {
     setSelectedUsers([]);
   };
 
-  const fetchStats = async () => {
-    try {
-      const response = await fetch(`${ADMIN_API}?action=stats`, {
-        headers: {
-          'X-Session-Token': getSessionToken() || '',
-        },
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-    setLoading(false);
-  };
-
-  const fetchDailyUserStats = async (date: string) => {
-    setDailyLoading(true);
-    try {
-      const response = await fetch(`${ADMIN_API}?action=daily_user_stats&date=${date}`, {
-        headers: {
-          'X-Session-Token': getSessionToken() || '',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setDailyUserStats(data.user_stats || []);
-        setDetailedLeads(data.detailed_leads || []);
-      }
-    } catch (error) {
-      console.error('Error fetching daily user stats:', error);
-    }
-    setDailyLoading(false);
-  };
 
   const handleDayClick = async (date: string, count: number) => {
     if (count > 0) {
       setSelectedDate(date);
-      await fetchDailyUserStats(date);
     }
   };
 
   const closeDailyModal = () => {
     setSelectedDate(null);
-    setDailyUserStats([]);
-    setDetailedLeads([]);
   };
 
   useEffect(() => {
-    fetchStats();
-    fetchChartData();
-  }, []);
+    if (rawChartData.length > 0) {
+      prepareChartData(rawChartData);
+    }
+  }, [rawChartData]);
 
   if (loading) {
     return (

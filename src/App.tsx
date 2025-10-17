@@ -10,7 +10,15 @@ import AdminPanel from '@/components/admin/AdminPanel';
 import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function AppContent() {
   const { user, loading } = useAuth();

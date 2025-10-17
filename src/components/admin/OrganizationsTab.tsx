@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import { useOrganizations } from '@/hooks/useAdminData';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
 
@@ -15,37 +17,15 @@ interface Organization {
 }
 
 export default function OrganizationsTab() {
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: organizations = [], isLoading: loading } = useOrganizations();
+  const queryClient = useQueryClient();
   const [newOrgName, setNewOrgName] = useState('');
   const [adding, setAdding] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
-  const fetchOrganizations = async () => {
-    try {
-      const response = await fetch(`${ADMIN_API}?action=get_organizations`, {
-        headers: {
-          'X-Session-Token': getSessionToken() || '',
-        },
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        setOrganizations(data.organizations || []);
-      }
-    } catch (error) {
-      console.error('Error fetching organizations:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить организации',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const addOrganization = async () => {
     if (!newOrgName.trim()) return;
@@ -70,7 +50,7 @@ export default function OrganizationsTab() {
           description: 'Организация добавлена',
         });
         setNewOrgName('');
-        await fetchOrganizations();
+        queryClient.invalidateQueries({ queryKey: ['organizations'] });
       } else {
         const error = await response.json();
         toast({
@@ -112,7 +92,7 @@ export default function OrganizationsTab() {
           title: 'Успешно',
           description: 'Организация удалена',
         });
-        await fetchOrganizations();
+        queryClient.invalidateQueries({ queryKey: ['organizations'] });
       } else {
         const error = await response.json();
         toast({
@@ -131,9 +111,7 @@ export default function OrganizationsTab() {
     }
   };
 
-  useEffect(() => {
-    fetchOrganizations();
-  }, []);
+
 
   if (loading) {
     return (

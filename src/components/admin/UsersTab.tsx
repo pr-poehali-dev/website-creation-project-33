@@ -1,68 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import UserCard from './UserCard';
 import UserLeadsSection from './UserLeadsSection';
-import { User, Lead, ADMIN_API } from './types';
+import { User, Lead } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
+import { useUsers, useUpdateUserName, useDeleteUser, useUserLeads, useDeleteLead, useDeleteLeadsByDate } from '@/hooks/useAdminData';
 
 export default function UsersTab() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: users = [], isLoading: loading } = useUsers();
+  const updateUserNameMutation = useUpdateUserName();
+  const deleteUserMutation = useDeleteUser();
+  const deleteLeadMutation = useDeleteLead();
+  const deleteLeadsByDateMutation = useDeleteLeadsByDate();
+  
   const [editingUser, setEditingUser] = useState<number | null>(null);
   const [newName, setNewName] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [userLeads, setUserLeads] = useState<Lead[]>([]);
-  const [leadsLoading, setLeadsLoading] = useState(false);
+  const { data: userLeads = [], isLoading: leadsLoading } = useUserLeads(selectedUser?.id || null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const getSessionToken = () => localStorage.getItem('session_token');
 
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch(`${ADMIN_API}?action=users`, {
-        headers: {
-          'X-Session-Token': getSessionToken() || '',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.users);
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-    setLoading(false);
-  };
 
   const updateUserName = async (userId: number, name: string) => {
-    try {
-      const response = await fetch(ADMIN_API, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || '',
-        },
-        body: JSON.stringify({
-          action: 'update_user',
-          user_id: userId,
-          name: name,
-        }),
-      });
-
-      if (response.ok) {
-        await fetchUsers();
-        setEditingUser(null);
-        setNewName('');
-      }
-    } catch (error) {
-      console.error('Error updating user:', error);
-    }
+    await updateUserNameMutation.mutateAsync({ userId, name });
+    setEditingUser(null);
+    setNewName('');
   };
 
   const startEdit = (user: User) => {
@@ -75,51 +42,13 @@ export default function UsersTab() {
     setNewName('');
   };
 
-  const fetchUserLeads = async (userId: number) => {
-    setLeadsLoading(true);
-    try {
-      const response = await fetch(`${ADMIN_API}?action=user_leads&user_id=${userId}`, {
-        headers: {
-          'X-Session-Token': getSessionToken() || '',
-        },
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        setUserLeads(data.leads || []);
-      }
-    } catch (error) {
-      console.error('Error fetching user leads:', error);
-    }
-    setLeadsLoading(false);
-  };
 
   const deleteLead = async (leadId: number) => {
     if (!confirm('Вы уверены, что хотите удалить этот лид?')) {
       return;
     }
-
-    try {
-      const response = await fetch(ADMIN_API, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || '',
-        },
-        body: JSON.stringify({
-          action: 'delete_lead',
-          lead_id: leadId
-        })
-      });
-
-      if (response.ok) {
-        if (selectedUser) {
-          fetchUserLeads(selectedUser.id);
-        }
-      }
-    } catch (error) {
-      console.error('Error deleting lead:', error);
-    }
+    await deleteLeadMutation.mutateAsync(leadId);
   };
 
   const deleteLeadsByDate = async (date: string) => {
@@ -130,45 +59,20 @@ export default function UsersTab() {
       return;
     }
 
-    // Конвертируем дату из DD.MM.YYYY в YYYY-MM-DD для backend
     const [day, month, year] = date.split('.');
     const isoDate = `${year}-${month}-${day}`;
 
-    try {
-      const response = await fetch(ADMIN_API, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || '',
-        },
-        body: JSON.stringify({
-          action: 'delete_leads_by_date',
-          user_id: selectedUser.id,
-          date: isoDate
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        alert(`Удалено лидов: ${data.deleted_count}`);
-        fetchUserLeads(selectedUser.id);
-        setSelectedDate(null);
-        await fetchUsers();
-      }
-    } catch (error) {
-      console.error('Error deleting leads by date:', error);
-      alert('Ошибка при удалении лидов');
-    }
+    const result = await deleteLeadsByDateMutation.mutateAsync({ userId: selectedUser.id, date: isoDate });
+    alert(`Удалено лидов: ${result.deleted_count}`);
+    setSelectedDate(null);
   };
 
   const handleUserClick = (user: User) => {
     if (selectedUser?.id === user.id) {
       setSelectedUser(null);
-      setUserLeads([]);
       setSelectedDate(null);
     } else {
       setSelectedUser(user);
-      fetchUserLeads(user.id);
       setSelectedDate(null);
     }
   };
@@ -192,34 +96,14 @@ export default function UsersTab() {
     if (!confirm('Вы уверены, что хотите удалить этого пользователя? Это действие нельзя отменить.')) {
       return;
     }
-
     try {
-      const response = await fetch(ADMIN_API, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || '',
-        },
-        body: JSON.stringify({
-          action: 'delete_user',
-          user_id: userId,
-        }),
-      });
-
-      if (response.ok) {
-        await fetchUsers();
-      } else {
-        alert('Ошибка при удалении пользователя');
-      }
-    } catch (error) {
-      console.error('Error deleting user:', error);
+      await deleteUserMutation.mutateAsync(userId);
+    } catch {
       alert('Ошибка при удалении пользователя');
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+
 
   if (loading) {
     return (

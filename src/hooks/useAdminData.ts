@@ -3,6 +3,7 @@ import { ADMIN_API } from '@/components/admin/types';
 
 const getSessionToken = () => localStorage.getItem('session_token') || '';
 const CHAT_API_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
+const LEADS_STATS_API = 'https://functions.poehali.dev/78eb7cbb-8b7c-4a62-aaa3-74d7b1e8f257';
 
 export function useUsers() {
   return useQuery({
@@ -17,8 +18,7 @@ export function useUsers() {
       const data = await response.json();
       return data.users;
     },
-    staleTime: 30000,
-    refetchInterval: 30000,
+    staleTime: Infinity,
   });
 }
 
@@ -34,8 +34,7 @@ export function useStats() {
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
     },
-    staleTime: 30000,
-    refetchInterval: 30000,
+    staleTime: Infinity,
   });
 }
 
@@ -52,8 +51,7 @@ export function useChartData() {
       const data = await response.json();
       return data.chart_data;
     },
-    staleTime: 60000,
-    refetchInterval: 60000,
+    staleTime: Infinity,
   });
 }
 
@@ -72,8 +70,7 @@ export function useUserLeads(userId: number | null) {
       return data.leads || [];
     },
     enabled: !!userId,
-    staleTime: 20000,
-    refetchInterval: 20000,
+    staleTime: Infinity,
   });
 }
 
@@ -91,7 +88,7 @@ export function useDailyUserStats(date: string | null) {
       return response.json();
     },
     enabled: !!date,
-    staleTime: 60000,
+    staleTime: Infinity,
   });
 }
 
@@ -108,8 +105,7 @@ export function useOrganizations() {
       const data = await response.json();
       return data.organizations || [];
     },
-    staleTime: 60000,
-    refetchInterval: 60000,
+    staleTime: Infinity,
   });
 }
 
@@ -234,7 +230,21 @@ export function useChatMessages(userId: string | null) {
       return response.json();
     },
     enabled: !!userId,
-    staleTime: 5000,
-    refetchInterval: 5000,
+    staleTime: Infinity,
+  });
+}
+
+export function useLeadsStats(userId: number | null) {
+  return useQuery({
+    queryKey: ['leadsStats', userId],
+    queryFn: async () => {
+      if (!userId) return { total_contacts: 0, today_contacts: 0 };
+      const response = await fetch(`${LEADS_STATS_API}?user_id=${userId}`);
+      if (!response.ok) throw new Error('Failed to fetch leads stats');
+      return response.json();
+    },
+    enabled: !!userId,
+    staleTime: 10000,
+    refetchInterval: 10000,
   });
 }

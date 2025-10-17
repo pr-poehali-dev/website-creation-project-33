@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
 import VideoRecorder from './VideoRecorder';
 import DayResultsDialog from './DayResultsDialog';
 
@@ -18,6 +19,7 @@ interface WorkTabProps {
 
 export default function WorkTab({ selectedOrganizationId, organizationName, onChangeOrganization, todayContactsCount, onContactAdded }: WorkTabProps) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [notes, setNotes] = useState(() => {
     const saved = localStorage.getItem('notepad_draft');
     return saved || '';
@@ -328,8 +330,11 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       {/* Кнопка завершения смены */}
       <button
         type="button"
-        onClick={() => {
-          console.log('🔴 Кнопка завершения смены нажата, открываем VideoRecorder');
+        onClick={async () => {
+          console.log('🔴 Кнопка завершения смены нажата');
+          console.log('🔄 Обновляем статистику лидов перед закрытием смены...');
+          await queryClient.invalidateQueries({ queryKey: ['leadsStats', user?.id] });
+          console.log('✅ Статистика обновлена, открываем VideoRecorder');
           setEndShiftVideoOpen(true);
         }}
         style={{

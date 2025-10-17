@@ -1,5 +1,7 @@
-import { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import { useImperativeHandle, forwardRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLeadsStats } from '@/hooks/useAdminData';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface ContactsStats {
   total_contacts: number;
@@ -16,58 +18,21 @@ export interface ContactsCounterRef {
 
 const ContactsCounter = forwardRef<ContactsCounterRef, ContactsCounterProps>(({ onStatsChange }, ref) => {
   const { user } = useAuth();
-  const [stats, setStats] = useState<ContactsStats>({ total_contacts: 0, today_contacts: 0 });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (!user?.id) return;
-      
-      try {
-        const response = await fetch(
-          `https://functions.poehali.dev/78eb7cbb-8b7c-4a62-aaa3-74d7b1e8f257?user_id=${user.id}`
-        );
-        
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
-          onStatsChange?.(data);
-        }
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, [user?.id]);
+  const queryClient = useQueryClient();
+  const { data: stats, isLoading: loading } = useLeadsStats(user?.id || null);
 
   useImperativeHandle(ref, () => ({
     refresh: () => {
-      const fetchStats = async () => {
-        if (!user?.id) return;
-        
-        try {
-          const response = await fetch(
-            `https://functions.poehali.dev/78eb7cbb-8b7c-4a62-aaa3-74d7b1e8f257?user_id=${user.id}`
-          );
-          
-          if (response.ok) {
-            const data = await response.json();
-            setStats(data);
-            onStatsChange?.(data);
-          }
-        } catch (error) {
-          console.error('Error fetching stats:', error);
-        }
-      };
-      fetchStats();
+      queryClient.invalidateQueries({ queryKey: ['leadsStats', user?.id] });
     }
-  }), [user?.id, onStatsChange]);
+  }), [user?.id, queryClient]);
 
-  if (loading) {
+  if (loading || !stats) {
     return null;
+  }
+
+  if (onStatsChange && stats) {
+    onStatsChange(stats);
   }
 
   return (

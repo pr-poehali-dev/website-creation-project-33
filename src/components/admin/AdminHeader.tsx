@@ -5,9 +5,11 @@ import Icon from '@/components/ui/icon';
 interface AdminHeaderProps {
   onLogout: () => void;
   onOpenGoogleSheets: () => void;
+  onResetApproaches: () => void;
+  resetting: boolean;
 }
 
-export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeaderProps) {
+export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetApproaches, resetting }: AdminHeaderProps) {
   return (
     <>
       <div className="md:hidden mb-6 admin-card p-4">
@@ -19,6 +21,19 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
             Админ-панель
           </h1>
           <div className="flex gap-2">
+            <Button 
+              onClick={onResetApproaches}
+              disabled={resetting}
+              className="admin-button px-3 py-2"
+              size="sm"
+              variant="outline"
+            >
+              {resetting ? (
+                <Icon name="Loader2" size={16} className="text-slate-600 animate-spin" />
+              ) : (
+                <Icon name="RotateCcw" size={16} className="text-red-600" />
+              )}
+            </Button>
             <Button 
               onClick={onOpenGoogleSheets}
               className="admin-button px-3 py-2"
@@ -47,6 +62,24 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
           Панель администратора
         </h1>
         <div className="flex items-center gap-3">
+          <Button 
+            onClick={onResetApproaches}
+            disabled={resetting}
+            className="admin-button"
+            variant="outline"
+          >
+            {resetting ? (
+              <>
+                <Icon name="Loader2" size={16} className="mr-2 text-slate-600 animate-spin" />
+                <span className="text-slate-700">Обнуление...</span>
+              </>
+            ) : (
+              <>
+                <Icon name="RotateCcw" size={16} className="mr-2 text-red-600" />
+                <span className="text-slate-700">Обнулить подходы</span>
+              </>
+            )}
+          </Button>
           <Button 
             onClick={onOpenGoogleSheets}
             className="admin-button"

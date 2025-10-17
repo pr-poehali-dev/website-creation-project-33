@@ -146,11 +146,14 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                         <span className="text-lg text-[#001f54] font-medium">Сотка</span>
                       </div>
                     ) : org.name === 'WORKOUT ANT' ? (
-                      <img 
-                        src="https://cdn.poehali.dev/files/78d7d4cd-36bf-48a2-8b4d-d7a24cae0b4d.jpeg" 
-                        alt="WORKOUT ANT"
-                        className="h-12 object-contain"
-                      />
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src="https://cdn.poehali.dev/files/78d7d4cd-36bf-48a2-8b4d-d7a24cae0b4d.jpeg" 
+                          alt="WORKOUT ANT"
+                          className="h-12 object-contain"
+                        />
+                        <span className="text-lg text-[#001f54] font-medium">WORKOUT ANT</span>
+                      </div>
                     ) : (
                       <span className="text-lg text-[#001f54] font-medium">{org.name}</span>
                     )}

@@ -152,6 +152,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
           description: 'Ваши данные успешно отправлены в Telegram'
         });
         
+        setContactsToday(prev => prev + 1);
         setNotes('');
         setAudioBlob(null);
         localStorage.removeItem('notepad_draft');

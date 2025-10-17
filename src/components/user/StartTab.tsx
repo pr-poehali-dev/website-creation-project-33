@@ -114,14 +114,16 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                         : 'border-gray-200 bg-white hover:border-[#001f54]/30'
                     }`}
                   >
-                    {org.name === 'ТОП (Беляево)' ? (
+                    {org.name.startsWith('ТОП (') ? (
                       <div className="flex items-center gap-3">
                         <img 
                           src="https://cdn.poehali.dev/files/4333ad33-867b-4fa5-ac4a-ee84df41ad36.jpeg" 
                           alt="ТОП IT ACADEMY"
                           className="h-8 object-contain"
                         />
-                        <span className="text-lg text-[#001f54] font-medium">Беляево</span>
+                        <span className="text-lg text-[#001f54] font-medium">
+                          {org.name.replace('ТОП (', '').replace(')', '')}
+                        </span>
                       </div>
                     ) : (
                       <span className="text-lg text-[#001f54] font-medium">{org.name}</span>

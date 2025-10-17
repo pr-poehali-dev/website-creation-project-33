@@ -3,11 +3,12 @@ import base64
 import os
 from typing import Dict, Any
 import requests
+import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Send video confirmations (start/end shift) to Telegram
-    Args: event with httpMethod, body containing video, organization_id, type
+    Business: Send shift confirmation videos to Telegram
+    Args: event with httpMethod, body containing video_data, video_type, organization_id
           context with request_id
     Returns: HTTP response with success status
     '''
@@ -19,7 +20,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token',
+                'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
@@ -37,8 +38,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     try:
-        session_token = event.get('headers', {}).get('X-Session-Token') or event.get('headers', {}).get('x-session-token')
-        if not session_token:
+        user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+        if not user_id:
             return {
                 'statusCode': 401,
                 'headers': {
@@ -46,16 +47,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Content-Type': 'application/json'
                 },
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'No session token'})
+                'body': json.dumps({'error': 'X-User-Id header required'})
             }
         
         body_data = json.loads(event.get('body', '{}'))
-        video_base64 = body_data.get('video')
+        video_base64 = body_data.get('video_data')
+        video_type = body_data.get('video_type')
         organization_id = body_data.get('organization_id')
-        video_type = body_data.get('type')
-        mime_type = body_data.get('mime_type', 'video/mp4')
         
-        if not video_base64 or not organization_id or not video_type:
+        if not video_base64 or not video_type or not organization_id:
             return {
                 'statusCode': 400,
                 'headers': {
@@ -63,51 +63,42 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Content-Type': 'application/json'
                 },
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Missing video, organization_id or type'})
+                'body': json.dumps({'error': 'Missing video_data, video_type or organization_id'})
             }
         
-        # Remove potential whitespace and validate base64
         video_base64_clean = video_base64.strip().replace('\n', '').replace('\r', '')
-        
-        # Add padding if needed
         missing_padding = len(video_base64_clean) % 4
         if missing_padding:
             video_base64_clean += '=' * (4 - missing_padding)
         
         video_bytes = base64.b64decode(video_base64_clean)
-        print(f'Video size: {len(video_bytes)} bytes, org_id: {organization_id}, type: {video_type}, mime: {mime_type}')
+        print(f'Video size: {len(video_bytes)} bytes, org_id: {organization_id}, type: {video_type}')
         
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
         chat_id = '5215501225'
         
-        auth_response = requests.get(
-            'https://functions.poehali.dev/d4f30ed2-6b6b-4e8a-a691-2c364dd41e43',
-            headers={'X-Session-Token': session_token}
-        )
-        
-        if not auth_response.ok:
-            return {
-                'statusCode': 401,
-                'headers': {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Invalid session'})
-            }
-        
-        user_data = auth_response.json()
-        user_name = user_data.get('user', {}).get('name', 'Неизвестный')
+        user_name = 'Неизвестный промоутер'
+        database_url = os.environ.get('DATABASE_URL')
+        if database_url:
+            try:
+                with psycopg2.connect(database_url) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "SELECT name FROM t_p24058207_website_creation_pro.users WHERE id = %s",
+                            (int(user_id),)
+                        )
+                        result = cur.fetchone()
+                        if result:
+                            user_name = result[0]
+            except Exception as e:
+                print(f'DB error: {e}')
         
         video_type_text = 'начала смены' if video_type == 'start' else 'окончания смены'
         caption = f"🎥 Видео {video_type_text}\n👤 Промоутер: {user_name}\n🏢 Организация ID: {organization_id}"
         
-        file_ext = 'mp4' if 'mp4' in mime_type else 'webm'
-        file_mime = mime_type if mime_type else 'video/mp4'
-        
         url = f'https://api.telegram.org/bot{bot_token}/sendVideo'
-        files = {'video': (f'shift_video.{file_ext}', video_bytes, file_mime)}
-        data = {'chat_id': chat_id, 'caption': caption, 'supports_streaming': 'true'}
+        files = {'video': ('shift_video.mp4', video_bytes, 'video/mp4')}
+        data = {'chat_id': chat_id, 'caption': caption}
         
         print(f'Sending video to Telegram...')
         response = requests.post(url, files=files, data=data, timeout=60)
@@ -123,7 +114,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Content-Type': 'application/json'
                 },
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': f'Failed to send video to Telegram: {error_text}'})
+                'body': json.dumps({'error': f'Failed to send to Telegram: {error_text}'})
             }
         
         return {
@@ -137,6 +128,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
         
     except Exception as e:
+        print(f'Error: {str(e)}')
         return {
             'statusCode': 500,
             'headers': {

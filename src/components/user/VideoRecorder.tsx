@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
@@ -16,38 +16,28 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [isSending, setIsSending] = useState(false);
+  const [recordedVideo, setRecordedVideo] = useState<Blob | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (open) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
-
-    return () => {
-      stopCamera();
-    };
-  }, [open]);
 
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user' },
-        audio: true
+        audio: false
       });
-      
-      streamRef.current = stream;
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-    } catch (error) {
-      console.error('Camera access error:', error);
+      
+      streamRef.current = stream;
+    } catch (err) {
+      console.error('Error accessing camera:', err);
       toast({
         title: 'Ошибка',
         description: 'Не удалось получить доступ к камере',
@@ -61,72 +51,77 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
   };
 
   const startRecording = () => {
     if (!streamRef.current) return;
 
-    chunksRef.current = [];
+    const mimeTypes = [
+      'video/mp4',
+      'video/webm;codecs=vp9',
+      'video/webm;codecs=vp8',
+      'video/webm',
+    ];
     
-    const getSupportedMimeType = () => {
-      const types = [
-        'video/webm;codecs=vp9,opus',
-        'video/webm;codecs=vp8,opus',
-        'video/webm;codecs=h264,opus',
-        'video/webm',
-        'video/mp4;codecs=h264,aac',
-        'video/mp4'
-      ];
-      
-      for (const type of types) {
-        if (MediaRecorder.isTypeSupported(type)) {
-          console.log('Using mimeType:', type);
-          return type;
-        }
+    let selectedMimeType = '';
+    for (const mimeType of mimeTypes) {
+      if (MediaRecorder.isTypeSupported(mimeType)) {
+        selectedMimeType = mimeType;
+        break;
       }
-      
-      console.log('Using default mimeType');
-      return '';
-    };
+    }
 
-    const mimeType = getSupportedMimeType();
-    const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
-    
-    const mediaRecorder = new MediaRecorder(streamRef.current, options);
-
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunksRef.current.push(event.data);
-      }
-    };
-
-    mediaRecorder.onstop = () => {
-      setTimeout(async () => {
-        const mimeType = mediaRecorder.mimeType || 'video/mp4';
-        const blob = new Blob(chunksRef.current, { type: mimeType });
-        console.log('Video blob created, size:', blob.size, 'type:', blob.type);
-        await sendVideo(blob);
-      }, 100);
-    };
-
-    mediaRecorder.start(100);
-    mediaRecorderRef.current = mediaRecorder;
-    setIsRecording(true);
-    setRecordingTime(0);
-
-    timerRef.current = setInterval(() => {
-      setRecordingTime(prev => {
-        if (prev >= 6) {
-          stopRecording();
-          return prev;
-        }
-        return prev + 1;
+    if (!selectedMimeType) {
+      toast({
+        title: 'Ошибка',
+        description: 'Запись видео не поддерживается на этом устройстве',
+        variant: 'destructive',
       });
-    }, 1000);
+      return;
+    }
+
+    try {
+      const mediaRecorder = new MediaRecorder(streamRef.current, {
+        mimeType: selectedMimeType,
+      });
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          setRecordedVideo(e.data);
+          const url = URL.createObjectURL(e.data);
+          setVideoUrl(url);
+          toast({
+            title: 'Готово',
+            description: 'Видео записано. Теперь отправьте его.',
+          });
+        }
+      };
+
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 6) {
+            stopRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      console.error('Error starting recording:', err);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось начать запись',
+        variant: 'destructive',
+      });
+    }
   };
 
   const stopRecording = () => {
@@ -140,69 +135,41 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
     }
   };
 
-  const sendVideo = async (videoBlob: Blob) => {
-    console.log('sendVideo called with blob size:', videoBlob.size);
+  const sendVideo = async () => {
+    if (!recordedVideo) return;
+    
     setIsSending(true);
 
     try {
-      const sessionToken = localStorage.getItem('session_token');
-      if (!sessionToken) {
-        console.error('No session token found');
-        throw new Error('No session token');
+      const userId = localStorage.getItem('user_id');
+      if (!userId) {
+        throw new Error('Не найден ID пользователя');
       }
 
-      console.log('Reading video blob as base64...');
       const reader = new FileReader();
       
       reader.onloadend = async () => {
         try {
-          console.log('FileReader loaded, converting to base64...');
           const base64data = reader.result as string;
           const base64Video = base64data.split(',')[1];
 
-          console.log('Sending video to backend, size:', videoBlob.size, 'bytes, mime:', videoBlob.type, 'org:', organizationId, 'type:', type);
-
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => {
-            console.error('Request timeout after 60s');
-            controller.abort();
-          }, 60000);
-
-          const response = await fetch('https://functions.poehali.dev/dc2bdef3-60dd-4177-a0fd-bb7173e55897', {
+          const response = await fetch('https://functions.poehali.dev/b2eda591-8c66-4dff-95c4-c345ac48703f', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-Session-Token': sessionToken,
+              'X-User-Id': userId,
             },
             body: JSON.stringify({
-              video: base64Video,
+              video_data: base64Video,
+              video_type: type,
               organization_id: organizationId,
-              type: type,
-              mime_type: videoBlob.type
             }),
-            signal: controller.signal
           });
 
-          clearTimeout(timeoutId);
-
-          console.log('Response status:', response.status);
-          console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
           if (!response.ok) {
-            const responseText = await response.text();
-            console.error('Backend error response text:', responseText);
-            let errorData;
-            try {
-              errorData = JSON.parse(responseText);
-            } catch {
-              errorData = { error: responseText };
-            }
-            console.error('Backend error:', errorData);
-            throw new Error(errorData.error || 'Failed to send video');
+            const errorData = await response.json().catch(() => ({ error: 'Ошибка отправки' }));
+            throw new Error(errorData.error || 'Не удалось отправить видео');
           }
-
-          const result = await response.json();
-          console.log('Video sent successfully:', result);
 
           toast({
             title: 'Успешно',
@@ -210,10 +177,15 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
           });
 
           setIsSending(false);
+          setRecordedVideo(null);
+          if (videoUrl) {
+            URL.revokeObjectURL(videoUrl);
+            setVideoUrl(null);
+          }
           onSuccess();
           onOpenChange(false);
         } catch (err) {
-          console.error('Error in reader.onloadend:', err);
+          console.error('Error sending video:', err);
           setIsSending(false);
           toast({
             title: 'Ошибка',
@@ -223,8 +195,7 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
         }
       };
 
-      reader.onerror = (err) => {
-        console.error('FileReader error:', err);
+      reader.onerror = () => {
         setIsSending(false);
         toast({
           title: 'Ошибка',
@@ -233,83 +204,131 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
         });
       };
 
-      reader.readAsDataURL(videoBlob);
-    } catch (error) {
-      console.error('Error in sendVideo:', error);
+      reader.readAsDataURL(recordedVideo);
+    } catch (err) {
+      console.error('Error:', err);
       setIsSending(false);
       toast({
         title: 'Ошибка',
-        description: error instanceof Error ? error.message : 'Не удалось отправить видео',
+        description: err instanceof Error ? err.message : 'Не удалось отправить видео',
         variant: 'destructive',
       });
     }
   };
 
+  useEffect(() => {
+    if (open) {
+      startCamera();
+    } else {
+      stopCamera();
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl);
+        setVideoUrl(null);
+      }
+      setRecordedVideo(null);
+    }
+
+    return () => {
+      stopCamera();
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl);
+      }
+    };
+  }, [open]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
             {type === 'start' ? 'Подтверждение начала смены' : 'Подтверждение окончания смены'}
           </DialogTitle>
-          <DialogDescription>
-            Запишите короткое видео (до 6 секунд) для подтверждения
-          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-            />
-            
-            {isRecording && (
-              <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-500 text-white px-3 py-1.5 rounded-full animate-pulse">
-                <div className="w-3 h-3 bg-white rounded-full" />
-                <span className="font-bold">{recordingTime}s / 6s</span>
-              </div>
+          <p className="text-sm text-gray-600">
+            Запишите короткое видео (до 6 секунд) для подтверждения
+          </p>
+
+          <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+            {!recordedVideo ? (
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+                {isRecording && (
+                  <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full flex items-center gap-2">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                    <span className="text-sm font-medium">{recordingTime}s / 6s</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <video
+                src={videoUrl || undefined}
+                controls
+                className="w-full h-full object-cover"
+              />
             )}
           </div>
 
           <div className="flex gap-2">
-            {!isRecording && !isSending && (
+            {!recordedVideo ? (
+              <Button
+                onClick={isRecording ? stopRecording : startRecording}
+                disabled={isSending}
+                className="flex-1"
+                variant={isRecording ? 'destructive' : 'default'}
+              >
+                {isRecording ? (
+                  <>
+                    <Icon name="X" className="mr-2 h-4 w-4" />
+                    Остановить
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Camera" className="mr-2 h-4 w-4" />
+                    Начать запись
+                  </>
+                )}
+              </Button>
+            ) : (
               <>
                 <Button
-                  onClick={startRecording}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white"
-                >
-                  <Icon name="Video" size={18} className="mr-2" />
-                  Начать запись
-                </Button>
-                <Button
-                  onClick={() => onOpenChange(false)}
+                  onClick={() => {
+                    setRecordedVideo(null);
+                    if (videoUrl) {
+                      URL.revokeObjectURL(videoUrl);
+                      setVideoUrl(null);
+                    }
+                    startCamera();
+                  }}
                   variant="outline"
                   className="flex-1"
+                  disabled={isSending}
                 >
-                  Отмена
+                  <Icon name="Video" className="mr-2 h-4 w-4" />
+                  Записать заново
+                </Button>
+                <Button
+                  onClick={sendVideo}
+                  className="flex-1"
+                  disabled={isSending}
+                >
+                  {isSending ? (
+                    'Отправка...'
+                  ) : (
+                    <>
+                      <Icon name="Send" className="mr-2 h-4 w-4" />
+                      Отправить
+                    </>
+                  )}
                 </Button>
               </>
-            )}
-
-            {isRecording && (
-              <Button
-                onClick={stopRecording}
-                className="w-full bg-gray-700 hover:bg-gray-800 text-white"
-              >
-                <Icon name="Square" size={18} className="mr-2" />
-                Остановить запись
-              </Button>
-            )}
-
-            {isSending && (
-              <Button disabled className="w-full">
-                <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                Отправка...
-              </Button>
             )}
           </div>
         </div>

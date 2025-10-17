@@ -7,17 +7,17 @@
       "expectedStatus": 200
     },
     {
-      "name": "Test missing session token",
+      "name": "Test missing user ID",
       "method": "POST",
       "path": "/",
       "body": {
-        "video": "dGVzdA==",
-        "organization_id": 1,
-        "type": "start"
+        "video_data": "dGVzdA==",
+        "video_type": "start",
+        "organization_id": 1
       },
       "expectedStatus": 401,
       "expectedBody": {
-        "error": "No session token"
+        "error": "X-User-Id header required"
       }
     }
   ]

@@ -290,15 +290,15 @@ export default function WorkTab({ selectedOrganizationId, organizationName, toda
         className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-200 slide-up"
       >
         {isLoading ? (
-          <div className="flex items-center gap-2 md:gap-3 pointer-events-none">
+          <>
             <Icon name="Loader2" size={20} className="animate-spin md:w-6 md:h-6" />
             <span className="text-base md:text-xl">Отправка...</span>
-          </div>
+          </>
         ) : (
-          <div className="flex items-center gap-2 md:gap-3 pointer-events-none">
+          <>
             <Icon name="Send" size={20} className="md:w-6 md:h-6" />
             <span className="text-base md:text-xl">Отправить в Telegram</span>
-          </div>
+          </>
         )}
       </Button>
 

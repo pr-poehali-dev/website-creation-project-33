@@ -321,7 +321,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         )}
       </button>
 
-      {/* Кнопка закрытия смены */}
+      {/* Кнопка завершения смены */}
       <Button
         onClick={(e) => {
           e.preventDefault();
@@ -334,7 +334,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       >
         <div className="flex items-center gap-2 md:gap-3 pointer-events-none">
           <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
-          <span className="text-base md:text-xl">Закрыть смену</span>
+          <span className="text-base md:text-xl">Завершить смену</span>
         </div>
       </Button>
 

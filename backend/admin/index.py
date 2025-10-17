@@ -142,25 +142,38 @@ def get_leads_stats() -> Dict[str, Any]:
                 })
             
             # Статистика за последние 30 дней (только от реальных пользователей)
+            # Получаем все лиды и группируем по московской дате на Python стороне
             cur.execute("""
-                SELECT DATE(l.created_at) as date,
-                       COUNT(*) as count,
-                       COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
+                SELECT l.created_at, l.lead_type
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.created_at >= %s
-                GROUP BY DATE(l.created_at)
-                ORDER BY DATE(l.created_at) DESC
+                ORDER BY l.created_at DESC
             """, (get_moscow_time() - timedelta(days=30),))
             
-            daily_stats = []
+            # Группируем по московским датам
+            daily_groups = {}
             for row in cur.fetchall():
+                moscow_dt = get_moscow_time_from_utc(row[0])
+                date_key = moscow_dt.date().isoformat()
+                
+                if date_key not in daily_groups:
+                    daily_groups[date_key] = {'count': 0, 'contacts': 0, 'approaches': 0}
+                
+                daily_groups[date_key]['count'] += 1
+                if row[1] == 'контакт':
+                    daily_groups[date_key]['contacts'] += 1
+                elif row[1] == 'подход':
+                    daily_groups[date_key]['approaches'] += 1
+            
+            # Преобразуем в список и сортируем
+            daily_stats = []
+            for date_key, stats in sorted(daily_groups.items(), reverse=True):
                 daily_stats.append({
-                    'date': row[0].isoformat() if row[0] else None,
-                    'count': row[1],
-                    'contacts': row[2],
-                    'approaches': row[3]
+                    'date': date_key,
+                    'count': stats['count'],
+                    'contacts': stats['contacts'],
+                    'approaches': stats['approaches']
                 })
     
     return {
@@ -172,36 +185,48 @@ def get_leads_stats() -> Dict[str, Any]:
     }
 
 def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
-    """Получить статистику пользователей за конкретный день"""
+    """Получить статистику пользователей за конкретный день (московская дата)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+            # Получаем все лиды и фильтруем по московской дате на Python стороне
             cur.execute("""
-                SELECT u.name, u.email,
-                       COUNT(l.id) as lead_count,
-                       COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
+                SELECT u.id, u.name, u.email, l.created_at, l.lead_type
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id 
-                WHERE DATE(l.created_at) = %s
-                GROUP BY u.name, u.email
-                HAVING COUNT(l.id) > 0
-                ORDER BY lead_count DESC
-            """, (date,))
+                WHERE l.created_at IS NOT NULL
+            """)
             
-            user_stats = []
+            # Группируем по пользователям для заданной московской даты
+            user_groups = {}
             for row in cur.fetchall():
-                user_stats.append({
-                    'name': row[0],
-                    'email': row[1],
-                    'lead_count': row[2],
-                    'contacts': row[3],
-                    'approaches': row[4]
-                })
+                moscow_dt = get_moscow_time_from_utc(row[3])
+                date_key = moscow_dt.date().isoformat()
+                
+                if date_key != date:
+                    continue
+                
+                user_id = row[0]
+                if user_id not in user_groups:
+                    user_groups[user_id] = {
+                        'name': row[1],
+                        'email': row[2],
+                        'lead_count': 0,
+                        'contacts': 0,
+                        'approaches': 0
+                    }
+                
+                user_groups[user_id]['lead_count'] += 1
+                if row[4] == 'контакт':
+                    user_groups[user_id]['contacts'] += 1
+                elif row[4] == 'подход':
+                    user_groups[user_id]['approaches'] += 1
             
+            # Преобразуем в список и сортируем
+            user_stats = sorted(user_groups.values(), key=lambda x: x['lead_count'], reverse=True)
             return user_stats
 
 def get_daily_detailed_leads(date: str) -> List[Dict[str, Any]]:
-    """Получить детальную информацию по лидам за день"""
+    """Получить детальную информацию по лидам за день (московская дата)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -209,56 +234,74 @@ def get_daily_detailed_leads(date: str) -> List[Dict[str, Any]]:
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE DATE(l.created_at) = %s
                 ORDER BY l.created_at DESC
-            """, (date,))
+            """)
             
             leads = []
             for row in cur.fetchall():
-                created_at = None
                 if row[3]:
                     try:
-                        created_at = get_moscow_time_from_utc(row[3]).isoformat()
+                        moscow_dt = get_moscow_time_from_utc(row[3])
+                        date_key = moscow_dt.date().isoformat()
+                        
+                        # Фильтруем по московской дате
+                        if date_key != date:
+                            continue
+                        
+                        leads.append({
+                            'user_name': row[0],
+                            'lead_type': row[1],
+                            'organization': row[2] if row[2] else 'Не указана',
+                            'created_at': moscow_dt.isoformat()
+                        })
                     except Exception:
-                        created_at = row[3].isoformat() if hasattr(row[3], 'isoformat') else str(row[3])
-                
-                leads.append({
-                    'user_name': row[0],
-                    'lead_type': row[1],
-                    'organization': row[2] if row[2] else 'Не указана',
-                    'created_at': created_at
-                })
+                        pass
             
             return leads
 
 def get_chart_data() -> List[Dict[str, Any]]:
-    """Получить детальные данные для графика по дням и пользователям"""
+    """Получить детальные данные для графика по дням и пользователям (московские даты)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT 
-                    DATE(l.created_at) as date,
-                    u.name as user_name,
-                    COUNT(*) as total_leads,
-                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                    COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
+                SELECT l.created_at, u.name, l.lead_type
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.created_at >= %s
-                GROUP BY DATE(l.created_at), u.name
-                ORDER BY DATE(l.created_at) DESC, u.name
+                ORDER BY l.created_at DESC
             """, (get_moscow_time() - timedelta(days=30),))
             
-            chart_data = []
+            # Группируем по московской дате и пользователю
+            groups = {}
             for row in cur.fetchall():
+                moscow_dt = get_moscow_time_from_utc(row[0])
+                date_key = moscow_dt.date().isoformat()
+                user_name = row[1]
+                lead_type = row[2]
+                
+                key = (date_key, user_name)
+                if key not in groups:
+                    groups[key] = {'total_leads': 0, 'contacts': 0, 'approaches': 0}
+                
+                groups[key]['total_leads'] += 1
+                if lead_type == 'контакт':
+                    groups[key]['contacts'] += 1
+                elif lead_type == 'подход':
+                    groups[key]['approaches'] += 1
+            
+            # Преобразуем в список
+            chart_data = []
+            for (date_key, user_name), stats in groups.items():
                 chart_data.append({
-                    'date': row[0].isoformat() if row[0] else None,
-                    'user_name': row[1],
-                    'total_leads': row[2],
-                    'contacts': row[3],
-                    'approaches': row[4]
+                    'date': date_key,
+                    'user_name': user_name,
+                    'total_leads': stats['total_leads'],
+                    'contacts': stats['contacts'],
+                    'approaches': stats['approaches']
                 })
             
+            # Сортируем по дате и имени
+            chart_data.sort(key=lambda x: (x['date'], x['user_name']), reverse=True)
             return chart_data
 
 def get_user_leads(user_id: int) -> List[Dict[str, Any]]:

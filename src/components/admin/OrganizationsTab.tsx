@@ -16,8 +16,12 @@ interface Organization {
   lead_count: number;
 }
 
-export default function OrganizationsTab() {
-  const { data: organizations = [], isLoading: loading } = useOrganizations();
+interface OrganizationsTabProps {
+  enabled?: boolean;
+}
+
+export default function OrganizationsTab({ enabled = true }: OrganizationsTabProps) {
+  const { data: organizations = [], isLoading: loading } = useOrganizations(enabled);
   const queryClient = useQueryClient();
   const [newOrgName, setNewOrgName] = useState('');
   const [adding, setAdding] = useState(false);

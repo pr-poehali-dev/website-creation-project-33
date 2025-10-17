@@ -9,8 +9,12 @@ import { User, Lead } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
 import { useUsers, useUpdateUserName, useDeleteUser, useUserLeads, useDeleteLead, useDeleteLeadsByDate } from '@/hooks/useAdminData';
 
-export default function UsersTab() {
-  const { data: users = [], isLoading: loading } = useUsers();
+interface UsersTabProps {
+  enabled?: boolean;
+}
+
+export default function UsersTab({ enabled = true }: UsersTabProps) {
+  const { data: users = [], isLoading: loading } = useUsers(enabled);
   const updateUserNameMutation = useUpdateUserName();
   const deleteUserMutation = useDeleteUser();
   const deleteLeadMutation = useDeleteLead();

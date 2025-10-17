@@ -10,9 +10,13 @@ import DailyModal from './DailyModal';
 import { Stats, UserStats, ChartDataPoint } from './types';
 import { useStats, useChartData, useDailyUserStats } from '@/hooks/useAdminData';
 
-export default function StatsTab() {
-  const { data: stats = null, isLoading: loading } = useStats();
-  const { data: rawChartData = [] } = useChartData();
+interface StatsTabProps {
+  enabled?: boolean;
+}
+
+export default function StatsTab({ enabled = true }: StatsTabProps) {
+  const { data: stats = null, isLoading: loading } = useStats(enabled);
+  const { data: rawChartData = [] } = useChartData(enabled);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const { data: dailyData, isLoading: dailyLoading } = useDailyUserStats(selectedDate);
   const dailyUserStats = dailyData?.user_stats || [];

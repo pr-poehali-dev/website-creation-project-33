@@ -5,7 +5,7 @@ const getSessionToken = () => localStorage.getItem('session_token') || '';
 const CHAT_API_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
 const LEADS_STATS_API = 'https://functions.poehali.dev/78eb7cbb-8b7c-4a62-aaa3-74d7b1e8f257';
 
-export function useUsers() {
+export function useUsers(enabled = true) {
   return useQuery({
     queryKey: ['users'],
     queryFn: async () => {
@@ -18,11 +18,12 @@ export function useUsers() {
       const data = await response.json();
       return data.users;
     },
+    enabled,
     staleTime: Infinity,
   });
 }
 
-export function useStats() {
+export function useStats(enabled = true) {
   return useQuery({
     queryKey: ['stats'],
     queryFn: async () => {
@@ -34,11 +35,12 @@ export function useStats() {
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
     },
+    enabled,
     staleTime: Infinity,
   });
 }
 
-export function useChartData() {
+export function useChartData(enabled = true) {
   return useQuery({
     queryKey: ['chartData'],
     queryFn: async () => {
@@ -51,6 +53,7 @@ export function useChartData() {
       const data = await response.json();
       return data.chart_data;
     },
+    enabled,
     staleTime: Infinity,
   });
 }
@@ -92,7 +95,7 @@ export function useDailyUserStats(date: string | null) {
   });
 }
 
-export function useOrganizations() {
+export function useOrganizations(enabled = true) {
   return useQuery({
     queryKey: ['organizations'],
     queryFn: async () => {
@@ -105,6 +108,7 @@ export function useOrganizations() {
       const data = await response.json();
       return data.organizations || [];
     },
+    enabled,
     staleTime: Infinity,
   });
 }

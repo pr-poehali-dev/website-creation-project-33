@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
@@ -14,8 +14,10 @@ interface AdminTabsProps {
 }
 
 export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps) {
+  const [activeTab, setActiveTab] = useState('pending');
+
   return (
-    <Tabs defaultValue="pending" className="space-y-6">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
       <TabsList className="grid w-full grid-cols-5 admin-card h-12 md:h-14 p-1">
         <TabsTrigger 
           value="pending" 
@@ -69,15 +71,15 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
       </TabsContent>
 
       <TabsContent value="users">
-        <UsersTab />
+        <UsersTab enabled={activeTab === 'users'} />
       </TabsContent>
 
       <TabsContent value="stats">
-        <StatsTab />
+        <StatsTab enabled={activeTab === 'stats'} />
       </TabsContent>
 
       <TabsContent value="organizations">
-        <OrganizationsTab />
+        <OrganizationsTab enabled={activeTab === 'organizations'} />
       </TabsContent>
 
       <TabsContent value="chat">

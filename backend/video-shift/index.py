@@ -66,7 +66,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Missing video, organization_id or type'})
             }
         
-        video_bytes = base64.b64decode(video_base64)
+        # Remove potential whitespace and validate base64
+        video_base64_clean = video_base64.strip().replace('\n', '').replace('\r', '')
+        
+        # Add padding if needed
+        missing_padding = len(video_base64_clean) % 4
+        if missing_padding:
+            video_base64_clean += '=' * (4 - missing_padding)
+        
+        video_bytes = base64.b64decode(video_base64_clean)
         print(f'Video size: {len(video_bytes)} bytes, org_id: {organization_id}, type: {video_type}, mime: {mime_type}')
         
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'

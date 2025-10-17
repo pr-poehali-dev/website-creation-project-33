@@ -66,6 +66,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         video_bytes = base64.b64decode(video_base64)
+        print(f'Video size: {len(video_bytes)} bytes, org_id: {organization_id}, type: {video_type}')
         
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
         chat_id = '5215501225'
@@ -96,9 +97,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         files = {'video': ('shift_video.webm', video_bytes, 'video/webm')}
         data = {'chat_id': chat_id, 'caption': caption}
         
-        response = requests.post(url, files=files, data=data, timeout=30)
+        print(f'Sending video to Telegram...')
+        response = requests.post(url, files=files, data=data, timeout=60)
+        print(f'Telegram response status: {response.status_code}')
         
         if not response.ok:
+            error_text = response.text
+            print(f'Telegram error: {error_text}')
             return {
                 'statusCode': 500,
                 'headers': {
@@ -106,7 +111,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Content-Type': 'application/json'
                 },
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Failed to send video to Telegram'})
+                'body': json.dumps({'error': f'Failed to send video to Telegram: {error_text}'})
             }
         
         return {

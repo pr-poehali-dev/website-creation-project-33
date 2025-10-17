@@ -94,7 +94,7 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
 
     timerRef.current = setInterval(() => {
       setRecordingTime(prev => {
-        if (prev >= 5) {
+        if (prev >= 6) {
           stopRecording();
           return prev;
         }
@@ -127,33 +127,58 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
       reader.readAsDataURL(videoBlob);
       
       reader.onloadend = async () => {
-        const base64data = reader.result as string;
-        const base64Video = base64data.split(',')[1];
+        try {
+          const base64data = reader.result as string;
+          const base64Video = base64data.split(',')[1];
 
-        const response = await fetch('https://functions.poehali.dev/dc2bdef3-60dd-4177-a0fd-bb7173e55897', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Session-Token': sessionToken,
-          },
-          body: JSON.stringify({
-            video: base64Video,
-            organization_id: organizationId,
-            type: type
-          }),
-        });
+          console.log('Sending video, size:', videoBlob.size, 'bytes');
 
-        if (!response.ok) {
-          throw new Error('Failed to send video');
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+          const response = await fetch('https://functions.poehali.dev/dc2bdef3-60dd-4177-a0fd-bb7173e55897', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Session-Token': sessionToken,
+            },
+            body: JSON.stringify({
+              video: base64Video,
+              organization_id: organizationId,
+              type: type
+            }),
+            signal: controller.signal
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || 'Failed to send video');
+          }
+
+          toast({
+            title: 'Успешно',
+            description: type === 'start' ? 'Видео начала смены отправлено' : 'Видео окончания смены отправлено',
+          });
+
+          onSuccess();
+          onOpenChange(false);
+        } catch (err) {
+          console.error('Error in reader.onloadend:', err);
+          throw err;
+        } finally {
+          setIsSending(false);
         }
+      };
 
+      reader.onerror = () => {
+        setIsSending(false);
         toast({
-          title: 'Успешно',
-          description: type === 'start' ? 'Видео начала смены отправлено' : 'Видео окончания смены отправлено',
+          title: 'Ошибка',
+          description: 'Не удалось прочитать видео',
+          variant: 'destructive',
         });
-
-        onSuccess();
-        onOpenChange(false);
       };
     } catch (error) {
       console.error('Error sending video:', error);

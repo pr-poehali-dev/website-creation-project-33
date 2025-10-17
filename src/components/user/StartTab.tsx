@@ -122,7 +122,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                           className="h-8 object-contain"
                         />
                         <span className="text-lg text-[#001f54] font-medium">
-                          {org.name.replace('ТОП (', '').replace(')', '')}
+                          ТОП ({org.name.replace('ТОП (', '').replace(')', '')})
                         </span>
                       </div>
                     ) : org.name.startsWith('KIBERONE (') ? (
@@ -133,7 +133,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                           className="h-8 object-contain"
                         />
                         <span className="text-lg text-[#001f54] font-medium">
-                          {org.name.replace('KIBERONE (', '').replace(')', '')}
+                          KIBERONE ({org.name.replace('KIBERONE (', '').replace(')', '')})
                         </span>
                       </div>
                     ) : org.name === 'Сотка' ? (

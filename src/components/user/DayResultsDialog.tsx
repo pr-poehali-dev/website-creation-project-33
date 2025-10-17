@@ -18,14 +18,17 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
 
   useEffect(() => {
     if (open) {
+      console.log('⏱️ DayResultsDialog opened, starting 5 sec countdown');
       setCountdown(5);
       const interval = setInterval(() => {
         setCountdown(prev => {
           if (prev <= 1) {
+            console.log('✅ Countdown finished, calling onClose');
             clearInterval(interval);
             onCloseRef.current();
             return 0;
           }
+          console.log(`⏱️ Countdown: ${prev - 1} seconds`);
           return prev - 1;
         });
       }, 1000);

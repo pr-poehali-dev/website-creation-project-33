@@ -65,9 +65,11 @@ export default function UserDashboard() {
   };
 
   const handleChangeOrganization = () => {
+    console.log('🔄 handleChangeOrganization called');
     setSelectedOrganization(null);
     setActiveTab('start');
     setBackgroundImage('');
+    console.log('✅ State reset: organization=null, tab=start');
   };
 
   return (

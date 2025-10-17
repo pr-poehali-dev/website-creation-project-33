@@ -81,10 +81,10 @@ export default function WorkTab({ selectedOrganizationId, organizationName, toda
   };
 
   const sendToTelegram = async () => {
-    if (!notes.trim() && !audioBlob) {
-      toast({ 
-        title: 'Нет данных для отправки',
-        description: 'Добавьте заметку или запишите аудио',
+    if (!audioBlob) {
+      toast({
+        title: 'Ошибка',
+        description: 'Необходимо записать аудио перед отправкой',
         variant: 'destructive'
       });
       return;
@@ -94,38 +94,25 @@ export default function WorkTab({ selectedOrganizationId, organizationName, toda
     
     try {
       console.log('🎯 sendToTelegram: audioBlob =', audioBlob);
-      let audioData = null;
       
-      if (audioBlob) {
-        console.log('🎯 Reading audioBlob, size:', audioBlob.size);
-        const reader = new FileReader();
-        audioData = await new Promise<string>((resolve, reject) => {
-          reader.onloadend = () => {
-            const result = reader.result as string;
-            console.log('🎯 FileReader result length:', result?.length);
-            const base64 = result.split(',')[1];
-            console.log('🎯 Base64 length:', base64?.length);
-            resolve(base64);
-          };
-          reader.onerror = () => {
-            console.error('🎯 FileReader error');
-            reject(new Error('Failed to read audio'));
-          };
-          reader.readAsDataURL(audioBlob);
-        });
-      }
+      console.log('🎯 Reading audioBlob, size:', audioBlob.size);
+      const reader = new FileReader();
+      const audioData = await new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          console.log('🎯 FileReader result length:', result?.length);
+          const base64 = result.split(',')[1];
+          console.log('🎯 Base64 length:', base64?.length);
+          resolve(base64);
+        };
+        reader.onerror = () => {
+          console.error('🎯 FileReader error');
+          reject(new Error('Failed to read audio'));
+        };
+        reader.readAsDataURL(audioBlob);
+      });
 
       console.log('🎯 audioData result:', audioData ? `${audioData.length} chars` : 'null');
-
-      if (!audioData) {
-        toast({
-          title: 'Ошибка',
-          description: 'Необходимо записать аудио перед отправкой',
-          variant: 'destructive'
-        });
-        setIsLoading(false);
-        return;
-      }
 
       const response = await fetch('https://functions.poehali.dev/ecd9eaa3-7399-4f8b-8219-529b81f87b6a', {
         method: 'POST',
@@ -282,32 +269,57 @@ export default function WorkTab({ selectedOrganizationId, organizationName, toda
         </CardContent>
       </Card>
 
-      {/* Кнопка отправки */}
-      <Button
+      {/* Кнопка Telegram */}
+      <button
         type="button"
         onClick={sendToTelegram}
+        disabled={isLoading || !audioBlob}
+        style={{
+          width: '100%',
+          height: '60px',
+          backgroundColor: (!audioBlob || isLoading) ? '#d1d5db' : '#3b82f6',
+          color: 'white',
+          fontSize: '20px',
+          fontWeight: '600',
+          borderRadius: '8px',
+          border: 'none',
+          cursor: (!audioBlob || isLoading) ? 'not-allowed' : 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.2s',
+          WebkitTapHighlightColor: 'transparent',
+          touchAction: 'manipulation'
+        }}
+        onMouseDown={(e) => {
+          if (!audioBlob || isLoading) return;
+          e.currentTarget.style.transform = 'scale(0.98)';
+        }}
+        onMouseUp={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
         onTouchStart={(e) => {
+          if (!audioBlob || isLoading) return;
           e.currentTarget.style.transform = 'scale(0.98)';
         }}
         onTouchEnd={(e) => {
           e.currentTarget.style.transform = 'scale(1)';
         }}
-        disabled={isLoading || (!notes.trim() && !audioBlob)}
-        size="lg"
-        className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-200 slide-up touch-manipulation"
       >
         {isLoading ? (
           <>
-            <Icon name="Loader2" size={20} className="animate-spin md:w-6 md:h-6" />
-            <span className="text-base md:text-xl">Отправка...</span>
+            <Icon name="Loader2" size={24} className="animate-spin" />
+            <span>Отправка...</span>
           </>
         ) : (
           <>
-            <Icon name="Send" size={20} className="md:w-6 md:h-6" />
-            <span className="text-base md:text-xl">Отправить в Telegram</span>
+            <Icon name="Send" size={24} />
+            <span>Telegram</span>
           </>
         )}
-      </Button>
+      </button>
 
       {/* Кнопка закрытия смены */}
       <Button

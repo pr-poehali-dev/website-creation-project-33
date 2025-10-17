@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +9,7 @@ import ChatDialog from '@/components/chat/ChatDialog';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
 import TrainingTab from '@/components/user/TrainingTab';
-import ContactsCounter, { ContactsStats } from '@/components/user/ContactsCounter';
+import ContactsCounter, { ContactsStats, ContactsCounterRef } from '@/components/user/ContactsCounter';
 
 export default function UserDashboard() {
   const { user, logout } = useAuth();
@@ -23,6 +23,7 @@ export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState<string>(selectedOrganization ? 'work' : 'start');
   const [backgroundImage, setBackgroundImage] = useState<string>('');
   const [todayContacts, setTodayContacts] = useState<number>(0);
+  const contactsCounterRef = useRef<ContactsCounterRef>(null);
 
   useEffect(() => {
     if (selectedOrganization) {
@@ -174,7 +175,7 @@ export default function UserDashboard() {
                 <Icon name="Building2" size={14} className="mr-1.5" />
                 {organizationName}
               </Badge>
-              <ContactsCounter onStatsChange={(stats: ContactsStats) => setTodayContacts(stats.today_contacts)} />
+              <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => setTodayContacts(stats.today_contacts)} />
             </div>
           )}
 
@@ -188,6 +189,7 @@ export default function UserDashboard() {
               organizationName={organizationName}
               onChangeOrganization={handleChangeOrganization}
               todayContactsCount={todayContacts}
+              onContactAdded={() => contactsCounterRef.current?.refresh()}
             />
           </TabsContent>
 

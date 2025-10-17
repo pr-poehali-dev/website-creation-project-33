@@ -13,9 +13,10 @@ interface WorkTabProps {
   organizationName: string;
   onChangeOrganization: () => void;
   todayContactsCount: number;
+  onContactAdded?: () => void;
 }
 
-export default function WorkTab({ selectedOrganizationId, organizationName, todayContactsCount }: WorkTabProps) {
+export default function WorkTab({ selectedOrganizationId, organizationName, todayContactsCount, onContactAdded }: WorkTabProps) {
   const { user } = useAuth();
   const [notes, setNotes] = useState(() => {
     const saved = localStorage.getItem('notepad_draft');
@@ -152,6 +153,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, toda
           description: 'Ваши данные успешно отправлены в Telegram'
         });
         
+        onContactAdded?.();
         setNotes('');
         setAudioBlob(null);
         localStorage.removeItem('notepad_draft');

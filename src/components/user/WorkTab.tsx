@@ -42,6 +42,10 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     console.log('🎯 audioBlob changed:', audioBlob ? `Blob (${audioBlob.size} bytes)` : 'null');
   }, [audioBlob]);
 
+  useEffect(() => {
+    console.log('🔴 endShiftVideoOpen changed:', endShiftVideoOpen);
+  }, [endShiftVideoOpen]);
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -322,21 +326,40 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       </button>
 
       {/* Кнопка завершения смены */}
-      <Button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
+      <button
+        type="button"
+        onClick={() => {
+          console.log('🔴 Кнопка завершения смены нажата, открываем VideoRecorder');
           setEndShiftVideoOpen(true);
         }}
-        variant="outline"
-        size="lg"
-        className="w-full border-2 border-red-500 text-red-500 hover:bg-red-50 h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-200 slide-up"
+        style={{
+          width: '100%',
+          height: '60px',
+          backgroundColor: 'white',
+          color: '#ef4444',
+          fontSize: '20px',
+          fontWeight: '600',
+          borderRadius: '8px',
+          border: '2px solid #ef4444',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          transition: 'background-color 0.2s',
+          WebkitTapHighlightColor: 'transparent'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#fef2f2';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'white';
+        }}
       >
-        <div className="flex items-center gap-2 md:gap-3 pointer-events-none">
-          <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
-          <span className="text-base md:text-xl">Завершить смену</span>
-        </div>
-      </Button>
+        <Icon name="LogOut" size={24} />
+        <span>Завершить смену</span>
+      </button>
 
       {selectedOrganizationId && (
         <VideoRecorder

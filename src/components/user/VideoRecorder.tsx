@@ -227,9 +227,12 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
   };
 
   useEffect(() => {
+    console.log('🎥 VideoRecorder open changed:', open);
     if (open) {
+      console.log('🎥 Starting camera...');
       startCamera();
     } else {
+      console.log('🎥 Stopping camera...');
       stopCamera();
       if (videoUrl) {
         URL.revokeObjectURL(videoUrl);

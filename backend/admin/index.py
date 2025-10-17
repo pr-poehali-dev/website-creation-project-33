@@ -403,8 +403,6 @@ def delete_lead(lead_id: int) -> bool:
 
 def delete_leads_by_date(user_id: int, date_str: str) -> int:
     """Удалить все лиды пользователя за конкретный день (московская дата). Возвращает количество удалённых лидов."""
-    print(f"🗑️ delete_leads_by_date called: user_id={user_id}, date={date_str}")
-    
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             # Получаем все лиды пользователя и фильтруем по московской дате
@@ -414,20 +412,14 @@ def delete_leads_by_date(user_id: int, date_str: str) -> int:
                 WHERE user_id = %s
             """, (user_id,))
             
-            all_leads = cur.fetchall()
-            print(f"📊 Found {len(all_leads)} total leads for user {user_id}")
-            
             # Находим ID лидов, которые попадают в заданную московскую дату
             lead_ids_to_delete = []
-            for row in all_leads:
+            for row in cur.fetchall():
                 moscow_dt = get_moscow_time_from_utc(row[1])
                 date_key = moscow_dt.date().isoformat()
-                print(f"  Lead {row[0]}: UTC={row[1]}, Moscow={moscow_dt}, Date={date_key}, Match={date_key == date_str}")
                 
                 if date_key == date_str:
                     lead_ids_to_delete.append(row[0])
-            
-            print(f"🎯 Found {len(lead_ids_to_delete)} leads to delete: {lead_ids_to_delete}")
             
             # Удаляем найденные лиды
             if lead_ids_to_delete:
@@ -437,11 +429,8 @@ def delete_leads_by_date(user_id: int, date_str: str) -> int:
                     WHERE id IN ({placeholders})
                 """, lead_ids_to_delete)
                 conn.commit()
-                deleted = cur.rowcount
-                print(f"✅ Deleted {deleted} leads")
-                return deleted
+                return cur.rowcount
             
-            print("❌ No leads found to delete")
             return 0
 
 def get_pending_users() -> List[Dict[str, Any]]:

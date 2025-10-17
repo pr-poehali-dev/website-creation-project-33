@@ -130,6 +130,10 @@ export default function UsersTab() {
       return;
     }
 
+    // Конвертируем дату из DD.MM.YYYY в YYYY-MM-DD для backend
+    const [day, month, year] = date.split('.');
+    const isoDate = `${year}-${month}-${day}`;
+
     try {
       const response = await fetch(ADMIN_API, {
         method: 'DELETE',
@@ -140,7 +144,7 @@ export default function UsersTab() {
         body: JSON.stringify({
           action: 'delete_leads_by_date',
           user_id: selectedUser.id,
-          date: date
+          date: isoDate
         })
       });
 

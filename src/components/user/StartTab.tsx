@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 
@@ -22,6 +23,8 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingOrg, setPendingOrg] = useState<Organization | null>(null);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -53,20 +56,22 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
     }
   };
 
+  const handleOrgClick = (org: Organization) => {
+    setPendingOrg(org);
+    setConfirmDialogOpen(true);
+  };
+
   const handleConfirm = () => {
-    if (!selectedOrgId) {
-      toast({
-        title: 'Ошибка',
-        description: 'Выберите организацию',
-        variant: 'destructive',
-      });
-      return;
+    if (pendingOrg) {
+      console.log('🏢 Selected org:', pendingOrg.name);
+      onOrganizationSelect(pendingOrg.id, pendingOrg.name);
+      setConfirmDialogOpen(false);
     }
+  };
 
-    const selectedOrg = organizations.find(org => org.id === parseInt(selectedOrgId));
-    console.log('🏢 Selected org:', selectedOrg?.name);
-
-    onOrganizationSelect(parseInt(selectedOrgId), selectedOrg?.name || '');
+  const handleCancel = () => {
+    setPendingOrg(null);
+    setConfirmDialogOpen(false);
   };
 
   if (loading) {
@@ -123,12 +128,8 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   .map((org) => (
                   <button
                     key={org.id}
-                    onClick={() => setSelectedOrgId(org.id.toString())}
-                    className={`w-full p-4 rounded-lg border-2 transition-all duration-300 flex items-center justify-center ${
-                      selectedOrgId === org.id.toString()
-                        ? 'border-[#001f54] bg-[#001f54]/5'
-                        : 'border-gray-200 bg-white hover:border-[#001f54]/30'
-                    }`}
+                    onClick={() => handleOrgClick(org)}
+                    className="w-full p-4 rounded-lg border-2 border-gray-200 bg-white hover:border-[#001f54]/30 transition-all duration-300 flex items-center justify-center hover:shadow-md"
                   >
                     {org.name.startsWith('ТОП (') ? (
                       <div className="flex items-center gap-3">
@@ -187,19 +188,36 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   {showAll ? 'Скрыть' : `Показать ещё (${organizations.length - 4})`}
                 </Button>
               )}
-
-              <Button
-                onClick={handleConfirm}
-                disabled={!selectedOrgId}
-                className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white h-12 text-lg shadow-lg transition-all duration-300 hover:scale-105"
-              >
-                <Icon name="Check" size={20} className="mr-2" />
-                Подтвердить
-              </Button>
             </>
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Подтверждение выбора</DialogTitle>
+            <DialogDescription>
+              Вы выбрали организацию: <strong>{pendingOrg?.name}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              className="border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              Отмена
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white"
+            >
+              Подтвердить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

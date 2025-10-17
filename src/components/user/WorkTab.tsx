@@ -92,18 +92,29 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
     setIsLoading(true);
     
     try {
+      console.log('🎯 sendToTelegram: audioBlob =', audioBlob);
       let audioData = null;
       
       if (audioBlob) {
+        console.log('🎯 Reading audioBlob, size:', audioBlob.size);
         const reader = new FileReader();
-        audioData = await new Promise<string>((resolve) => {
+        audioData = await new Promise<string>((resolve, reject) => {
           reader.onloadend = () => {
-            const base64 = (reader.result as string).split(',')[1];
+            const result = reader.result as string;
+            console.log('🎯 FileReader result length:', result?.length);
+            const base64 = result.split(',')[1];
+            console.log('🎯 Base64 length:', base64?.length);
             resolve(base64);
+          };
+          reader.onerror = () => {
+            console.error('🎯 FileReader error');
+            reject(new Error('Failed to read audio'));
           };
           reader.readAsDataURL(audioBlob);
         });
       }
+
+      console.log('🎯 audioData result:', audioData ? `${audioData.length} chars` : 'null');
 
       if (!audioData) {
         toast({

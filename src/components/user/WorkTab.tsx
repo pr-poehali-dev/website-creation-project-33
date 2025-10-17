@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import VideoRecorder from './VideoRecorder';
 
 interface WorkTabProps {
   selectedOrganizationId: number | null;
@@ -21,6 +22,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [endShiftVideoOpen, setEndShiftVideoOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -282,6 +284,34 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
           </div>
         )}
       </Button>
+
+      {/* Кнопка закрытия смены */}
+      <Button
+        onClick={() => setEndShiftVideoOpen(true)}
+        variant="outline"
+        size="lg"
+        className="w-full border-2 border-red-500 text-red-500 hover:bg-red-50 h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl slide-up"
+      >
+        <div className="flex items-center gap-2 md:gap-3">
+          <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
+          <span className="text-base md:text-xl">Закрыть смену</span>
+        </div>
+      </Button>
+
+      {selectedOrganizationId && (
+        <VideoRecorder
+          open={endShiftVideoOpen}
+          onOpenChange={setEndShiftVideoOpen}
+          onSuccess={() => {
+            toast({
+              title: 'Смена закрыта',
+              description: 'Видео окончания смены отправлено'
+            });
+          }}
+          type="end"
+          organizationId={selectedOrganizationId}
+        />
+      )}
     </div>
   );
 }

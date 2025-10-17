@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Test OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Test missing session token",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "video": "dGVzdA==",
+        "organization_id": 1,
+        "type": "start"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "No session token"
+      }
+    }
+  ]
+}

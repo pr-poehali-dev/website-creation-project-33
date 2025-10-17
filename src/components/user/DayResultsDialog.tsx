@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
@@ -10,6 +10,11 @@ interface DayResultsDialogProps {
 
 export default function DayResultsDialog({ open, contactsCount, onClose }: DayResultsDialogProps) {
   const [countdown, setCountdown] = useState(5);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (open) {
@@ -18,7 +23,7 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
         setCountdown(prev => {
           if (prev <= 1) {
             clearInterval(interval);
-            onClose();
+            onCloseRef.current();
             return 0;
           }
           return prev - 1;
@@ -27,7 +32,7 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
 
       return () => clearInterval(interval);
     }
-  }, [open, onClose]);
+  }, [open]);
 
   const getMessage = () => {
     if (contactsCount < 10) {

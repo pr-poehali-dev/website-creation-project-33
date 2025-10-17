@@ -86,10 +86,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
     <div className="space-y-6 slide-up">
       <Card className="border-[#001f54]/20 shadow-xl bg-white hover:shadow-2xl transition-all duration-300">
         <CardHeader className="text-center">
-          <CardTitle className="flex flex-col items-center gap-3 text-[#001f54] text-2xl">
-            <div className="p-3 rounded-full bg-[#001f54]/10 shadow-lg">
-              <Icon name="Building2" size={32} className="text-[#001f54]" />
-            </div>
+          <CardTitle className="text-[#001f54] text-2xl">
             Выберите организацию
           </CardTitle>
         </CardHeader>

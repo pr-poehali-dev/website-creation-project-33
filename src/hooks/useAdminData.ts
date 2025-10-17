@@ -96,7 +96,7 @@ export function useOrganizations() {
   return useQuery({
     queryKey: ['organizations'],
     queryFn: async () => {
-      const response = await fetch(`${ADMIN_API}?action=organizations`, {
+      const response = await fetch(`${ADMIN_API}?action=get_organizations`, {
         headers: {
           'X-Session-Token': getSessionToken(),
         },

@@ -284,11 +284,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, toda
 
       {/* Кнопка отправки */}
       <Button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          sendToTelegram();
-        }}
+        onClick={sendToTelegram}
         disabled={isLoading || (!notes.trim() && !audioBlob)}
         size="lg"
         className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-200 slide-up"

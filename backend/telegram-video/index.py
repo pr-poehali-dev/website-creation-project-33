@@ -78,6 +78,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         chat_id = '5215501225'
         
         user_name = 'Неизвестный промоутер'
+        organization_name = f'ID: {organization_id}'
+        
         database_url = os.environ.get('DATABASE_URL')
         if database_url:
             try:
@@ -90,11 +92,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         result = cur.fetchone()
                         if result:
                             user_name = result[0]
+                        
+                        cur.execute(
+                            "SELECT name FROM t_p24058207_website_creation_pro.organizations WHERE id = %s",
+                            (int(organization_id),)
+                        )
+                        org_result = cur.fetchone()
+                        if org_result:
+                            organization_name = org_result[0]
             except Exception as e:
                 print(f'DB error: {e}')
         
         video_type_text = 'начала смены' if video_type == 'start' else 'окончания смены'
-        caption = f"🎥 Видео {video_type_text}\n👤 Промоутер: {user_name}\n🏢 Организация ID: {organization_id}"
+        caption = f"🎥 Видео {video_type_text}\n👤 Промоутер: {user_name}\n🏢 Организация: {organization_name}"
         
         url = f'https://api.telegram.org/bot{bot_token}/sendVideo'
         files = {'video': ('shift_video.mp4', video_bytes, 'video/mp4')}

@@ -186,9 +186,17 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
           clearTimeout(timeoutId);
 
           console.log('Response status:', response.status);
+          console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
           if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
+            const responseText = await response.text();
+            console.error('Backend error response text:', responseText);
+            let errorData;
+            try {
+              errorData = JSON.parse(responseText);
+            } catch {
+              errorData = { error: responseText };
+            }
             console.error('Backend error:', errorData);
             throw new Error(errorData.error || 'Failed to send video');
           }

@@ -176,7 +176,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName }: Wo
       </Card>
 
       {/* Аудиозапись */}
-      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-white/70 backdrop-blur-md border-blue-500/30 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
           <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-blue-600">
             <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">

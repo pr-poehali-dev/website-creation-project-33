@@ -284,10 +284,17 @@ export default function WorkTab({ selectedOrganizationId, organizationName, toda
 
       {/* Кнопка отправки */}
       <Button
+        type="button"
         onClick={sendToTelegram}
+        onTouchStart={(e) => {
+          e.currentTarget.style.transform = 'scale(0.98)';
+        }}
+        onTouchEnd={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
         disabled={isLoading || (!notes.trim() && !audioBlob)}
         size="lg"
-        className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-200 slide-up"
+        className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white h-14 md:h-16 text-lg md:text-xl font-semibold shadow-xl transition-all duration-200 slide-up touch-manipulation"
       >
         {isLoading ? (
           <>

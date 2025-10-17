@@ -136,6 +136,12 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                           {org.name.replace('KIBERONE (', '').replace(')', '')}
                         </span>
                       </div>
+                    ) : org.name === 'Сотка' ? (
+                      <img 
+                        src="https://cdn.poehali.dev/files/7954e315-365e-4811-a221-ea0a5db669d9.jpeg" 
+                        alt="Сотка"
+                        className="h-12 object-contain"
+                      />
                     ) : (
                       <span className="text-lg text-[#001f54] font-medium">{org.name}</span>
                     )}

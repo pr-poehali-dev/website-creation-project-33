@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 
@@ -20,6 +20,8 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [selectedOrgId, setSelectedOrgId] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -103,8 +105,25 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
             </div>
           ) : (
             <>
+              <div className="relative mb-4">
+                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Поиск организации..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20"
+                />
+              </div>
+
               <div className="space-y-3">
-                {organizations.map((org) => (
+                {organizations
+                  .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+                  .filter((org) => 
+                    org.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .slice(0, showAll ? undefined : 4)
+                  .map((org) => (
                   <button
                     key={org.id}
                     onClick={() => setSelectedOrgId(org.id.toString())}
@@ -160,6 +179,17 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   </button>
                 ))}
               </div>
+
+              {!searchQuery && organizations.length > 4 && (
+                <Button
+                  onClick={() => setShowAll(!showAll)}
+                  variant="outline"
+                  className="w-full border-[#001f54]/30 text-[#001f54] hover:bg-[#001f54]/5"
+                >
+                  <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={20} className="mr-2" />
+                  {showAll ? 'Скрыть' : `Показать ещё (${organizations.length - 4})`}
+                </Button>
+              )}
 
               <Button
                 onClick={handleConfirm}

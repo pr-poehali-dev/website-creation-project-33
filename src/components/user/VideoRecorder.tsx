@@ -72,9 +72,31 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
 
     chunksRef.current = [];
     
-    const mediaRecorder = new MediaRecorder(streamRef.current, {
-      mimeType: 'video/webm;codecs=vp8,opus'
-    });
+    const getSupportedMimeType = () => {
+      const types = [
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+        'video/webm;codecs=h264,opus',
+        'video/webm',
+        'video/mp4;codecs=h264,aac',
+        'video/mp4'
+      ];
+      
+      for (const type of types) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          console.log('Using mimeType:', type);
+          return type;
+        }
+      }
+      
+      console.log('Using default mimeType');
+      return '';
+    };
+
+    const mimeType = getSupportedMimeType();
+    const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+    
+    const mediaRecorder = new MediaRecorder(streamRef.current, options);
 
     mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
@@ -84,8 +106,9 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
 
     mediaRecorder.onstop = () => {
       setTimeout(async () => {
-        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
-        console.log('Video blob created, size:', blob.size);
+        const mimeType = mediaRecorder.mimeType || 'video/mp4';
+        const blob = new Blob(chunksRef.current, { type: mimeType });
+        console.log('Video blob created, size:', blob.size, 'type:', blob.type);
         await sendVideo(blob);
       }, 100);
     };
@@ -137,7 +160,7 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
           const base64data = reader.result as string;
           const base64Video = base64data.split(',')[1];
 
-          console.log('Sending video to backend, size:', videoBlob.size, 'bytes, org:', organizationId, 'type:', type);
+          console.log('Sending video to backend, size:', videoBlob.size, 'bytes, mime:', videoBlob.type, 'org:', organizationId, 'type:', type);
 
           const controller = new AbortController();
           const timeoutId = setTimeout(() => {
@@ -154,7 +177,8 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
             body: JSON.stringify({
               video: base64Video,
               organization_id: organizationId,
-              type: type
+              type: type,
+              mime_type: videoBlob.type
             }),
             signal: controller.signal
           });

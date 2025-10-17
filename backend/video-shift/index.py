@@ -53,6 +53,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         video_base64 = body_data.get('video')
         organization_id = body_data.get('organization_id')
         video_type = body_data.get('type')
+        mime_type = body_data.get('mime_type', 'video/mp4')
         
         if not video_base64 or not organization_id or not video_type:
             return {
@@ -66,7 +67,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         video_bytes = base64.b64decode(video_base64)
-        print(f'Video size: {len(video_bytes)} bytes, org_id: {organization_id}, type: {video_type}')
+        print(f'Video size: {len(video_bytes)} bytes, org_id: {organization_id}, type: {video_type}, mime: {mime_type}')
         
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
         chat_id = '5215501225'
@@ -93,9 +94,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         video_type_text = 'начала смены' if video_type == 'start' else 'окончания смены'
         caption = f"🎥 Видео {video_type_text}\n👤 Промоутер: {user_name}\n🏢 Организация ID: {organization_id}"
         
+        file_ext = 'mp4' if 'mp4' in mime_type else 'webm'
+        file_mime = mime_type if mime_type else 'video/mp4'
+        
         url = f'https://api.telegram.org/bot{bot_token}/sendVideo'
-        files = {'video': ('shift_video.webm', video_bytes, 'video/webm')}
-        data = {'chat_id': chat_id, 'caption': caption}
+        files = {'video': (f'shift_video.{file_ext}', video_bytes, file_mime)}
+        data = {'chat_id': chat_id, 'caption': caption, 'supports_streaming': 'true'}
         
         print(f'Sending video to Telegram...')
         response = requests.post(url, files=files, data=data, timeout=60)

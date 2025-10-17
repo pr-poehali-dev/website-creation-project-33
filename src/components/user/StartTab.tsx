@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import VideoRecorder from './VideoRecorder';
-import VideoRecorder from './VideoRecorder';
 
 const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
 

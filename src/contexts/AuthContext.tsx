@@ -34,6 +34,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const lastOrgResetDate = localStorage.getItem('last_org_reset');
+    const today = new Date().toDateString();
+    
+    if (lastOrgResetDate !== today) {
+      localStorage.removeItem('selected_organization');
+      localStorage.setItem('last_org_reset', today);
+    }
+
     try {
       const response = await fetch(API_BASE, {
         method: 'GET',
@@ -120,6 +128,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     removeSessionToken();
+    localStorage.removeItem('selected_organization');
+    localStorage.removeItem('last_org_reset');
     setUser(null);
   };
 

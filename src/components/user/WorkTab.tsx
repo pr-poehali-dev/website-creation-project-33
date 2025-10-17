@@ -16,7 +16,7 @@ interface WorkTabProps {
   onContactAdded?: () => void;
 }
 
-export default function WorkTab({ selectedOrganizationId, organizationName, todayContactsCount, onContactAdded }: WorkTabProps) {
+export default function WorkTab({ selectedOrganizationId, organizationName, onChangeOrganization, todayContactsCount, onContactAdded }: WorkTabProps) {
   const { user } = useAuth();
   const [notes, setNotes] = useState(() => {
     const saved = localStorage.getItem('notepad_draft');

@@ -2,25 +2,14 @@ import React from 'react';
 import Icon from '@/components/ui/icon';
 import DateTabs from './DateTabs';
 import LeadCard from './LeadCard';
-import WorkTimeCard from './WorkTimeCard';
 import { Lead } from './types';
 import { findDuplicatePhones, hasDuplicatePhone } from './phoneUtils';
-
-interface WorkTimeData {
-  date: string;
-  start_time: string;
-  end_time: string;
-  hours_worked: string;
-  leads_count: number;
-}
 
 interface UserLeadsSectionProps {
   leads: Lead[];
   isLoading: boolean;
   selectedDate: string | null;
   groupedLeads: Record<string, Lead[]>;
-  workTimeData: WorkTimeData[];
-  workTimeLoading: boolean;
   onDateSelect: (date: string) => void;
   onDeleteLead: (leadId: number) => void;
   onDeleteDate?: (date: string) => void;
@@ -31,8 +20,6 @@ export default function UserLeadsSection({
   isLoading,
   selectedDate,
   groupedLeads,
-  workTimeData,
-  workTimeLoading,
   onDateSelect,
   onDeleteLead,
   onDeleteDate,
@@ -81,18 +68,8 @@ export default function UserLeadsSection({
     onDateSelect(selectedDate === date ? '' : date);
   };
 
-  const formattedWorkTimeData = workTimeData.map(item => ({
-    date: item.date,
-    startTime: item.start_time,
-    endTime: item.end_time,
-    hoursWorked: item.hours_worked,
-    leadsCount: item.leads_count
-  }));
-
   return (
     <div className="space-y-3">
-      <WorkTimeCard workTimeData={formattedWorkTimeData} />
-      
       <DateTabs 
         dates={sortedDates}
         selectedDate={selectedDate}

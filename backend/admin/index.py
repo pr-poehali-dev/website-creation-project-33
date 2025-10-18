@@ -409,6 +409,68 @@ def get_user_work_time(user_id: int) -> List[Dict[str, Any]]:
             
             return work_time_data
 
+def get_all_users_work_time() -> List[Dict[str, Any]]:
+    """Получить данные о времени работы всех промоутеров"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT 
+                    sv.user_id,
+                    u.name as user_name,
+                    sv.work_date,
+                    MIN(CASE WHEN sv.video_type = 'start' THEN sv.created_at END) as shift_start,
+                    MAX(CASE WHEN sv.video_type = 'end' THEN sv.created_at END) as shift_end,
+                    sv.organization_id
+                FROM t_p24058207_website_creation_pro.shift_videos sv
+                JOIN t_p24058207_website_creation_pro.users u ON sv.user_id = u.id
+                GROUP BY sv.user_id, u.name, sv.work_date, sv.organization_id
+                ORDER BY sv.work_date DESC, u.name
+            """)
+            
+            work_time_data = []
+            for row in cur.fetchall():
+                user_id = row[0]
+                user_name = row[1]
+                work_date = row[2]
+                shift_start = row[3]
+                shift_end = row[4]
+                organization_id = row[5]
+                
+                if not shift_start:
+                    continue
+                
+                shift_start_moscow = get_moscow_time_from_utc(shift_start)
+                
+                if shift_end:
+                    shift_end_moscow = get_moscow_time_from_utc(shift_end)
+                    time_diff = shift_end_moscow - shift_start_moscow
+                    hours = int(time_diff.total_seconds() // 3600)
+                    minutes = int((time_diff.total_seconds() % 3600) // 60)
+                    hours_worked = f'{hours}ч {minutes}м'
+                    end_time_str = shift_end_moscow.strftime('%H:%M')
+                else:
+                    hours_worked = 'Смена не закрыта'
+                    end_time_str = '—'
+                
+                cur.execute(
+                    "SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = %s AND DATE(created_at) = %s AND organization_id = %s",
+                    (user_id, work_date, organization_id)
+                )
+                leads_count_result = cur.fetchone()
+                leads_count = leads_count_result[0] if leads_count_result else 0
+                
+                work_time_data.append({
+                    'user_id': user_id,
+                    'user_name': user_name,
+                    'date': work_date.strftime('%d.%m.%Y') if hasattr(work_date, 'strftime') else str(work_date),
+                    'start_time': shift_start_moscow.strftime('%H:%M'),
+                    'end_time': end_time_str,
+                    'hours_worked': hours_worked,
+                    'leads_count': leads_count
+                })
+            
+            return work_time_data
+
 def update_user_name(user_id: int, new_name: str) -> bool:
     """Обновить имя пользователя"""
     with get_db_connection() as conn:
@@ -754,6 +816,14 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'headers': headers,
                     'body': json.dumps({'error': 'Неверный user_id'})
                 }
+        
+        elif action == 'all_users_work_time':
+            work_time = get_all_users_work_time()
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'work_time': work_time})
+            }
         
         return {
             'statusCode': 400,

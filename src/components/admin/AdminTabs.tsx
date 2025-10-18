@@ -5,6 +5,7 @@ import Icon from '@/components/ui/icon';
 import UsersTab from './UsersTab';
 import StatsTab from './StatsTab';
 import PendingUsers from './PendingUsers';
+import AllUsersWorkTime from './AllUsersWorkTime';
 import AdminChatTab from './AdminChatTab';
 import OrganizationsTab from './OrganizationsTab';
 
@@ -67,7 +68,10 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
       </TabsList>
 
       <TabsContent value="pending">
-        <PendingUsers sessionToken={sessionToken} />
+        <div className="space-y-6">
+          <PendingUsers sessionToken={sessionToken} />
+          <AllUsersWorkTime sessionToken={sessionToken} />
+        </div>
       </TabsContent>
 
       <TabsContent value="users">

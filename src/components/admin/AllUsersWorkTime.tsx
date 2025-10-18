@@ -1,0 +1,154 @@
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Icon from '@/components/ui/icon';
+
+interface WorkTimeData {
+  user_id: number;
+  user_name: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  hours_worked: string;
+  leads_count: number;
+}
+
+interface AllUsersWorkTimeProps {
+  sessionToken: string;
+}
+
+export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps) {
+  const [workTimeData, setWorkTimeData] = useState<WorkTimeData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadWorkTime = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=all_users_work_time',
+        {
+          headers: {
+            'X-Session-Token': sessionToken,
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.work_time) {
+        setWorkTimeData(data.work_time);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки времени работы:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadWorkTime();
+  }, [sessionToken]);
+
+  if (isLoading) {
+    return (
+      <Card className="glass-panel border-white/10 rounded-2xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Icon name="Clock" size={24} />
+            Время работы
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center gap-2 text-white py-8">
+            <Icon name="Loader2" size={20} className="animate-spin" />
+            Загрузка данных...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const groupedByUser = workTimeData.reduce((acc, item) => {
+    if (!acc[item.user_name]) {
+      acc[item.user_name] = [];
+    }
+    acc[item.user_name].push(item);
+    return acc;
+  }, {} as Record<string, WorkTimeData[]>);
+
+  return (
+    <Card className="glass-panel border-white/10 rounded-2xl">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2 text-lg md:text-xl">
+          <div className="p-2 rounded-lg bg-white/5">
+            <Icon name="Clock" size={20} className="md:w-6 md:h-6" />
+          </div>
+          Время работы промоутеров
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {workTimeData.length === 0 ? (
+          <div className="text-center py-6 md:py-8 text-white/70">
+            <Icon name="Calendar" size={40} className="mx-auto mb-3 md:mb-4 text-white/30 md:w-12 md:h-12" />
+            <p className="text-base md:text-lg font-medium text-white">Нет данных</p>
+            <p className="text-xs md:text-sm mt-2">Промоутеры еще не открывали смены</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {Object.entries(groupedByUser).map(([userName, shifts]) => (
+              <div key={userName} className="border-2 border-white/10 rounded-xl p-4 bg-white/5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon name="User" size={18} className="text-white" />
+                  <span className="font-bold text-white text-base md:text-lg">{userName}</span>
+                </div>
+                
+                <div className="space-y-2">
+                  {shifts.map((shift, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-white/50 rounded-lg p-3 border border-[#001f54]/10"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Icon name="Calendar" size={14} className="text-[#001f54]/70" />
+                          <span className="font-medium text-[#001f54] text-sm">{shift.date}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-[#001f54]/70">
+                          <Icon name="MessageSquare" size={12} />
+                          <span>{shift.leads_count} лидов</span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-3 text-sm">
+                        <div className="flex flex-col">
+                          <span className="text-[#001f54]/60 text-xs mb-1">Начало</span>
+                          <div className="flex items-center gap-1.5 text-[#001f54] font-medium">
+                            <Icon name="LogIn" size={14} className="text-green-600" />
+                            <span>{shift.start_time}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col">
+                          <span className="text-[#001f54]/60 text-xs mb-1">Окончание</span>
+                          <div className="flex items-center gap-1.5 text-[#001f54] font-medium">
+                            <Icon name="LogOut" size={14} className="text-red-600" />
+                            <span>{shift.end_time}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col">
+                          <span className="text-[#001f54]/60 text-xs mb-1">Отработано</span>
+                          <div className="flex items-center gap-1.5 text-[#001f54] font-bold">
+                            <Icon name="Timer" size={14} className="text-blue-600" />
+                            <span className="text-xs">{shift.hours_worked}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

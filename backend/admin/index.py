@@ -439,10 +439,14 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                 if not shift_start:
                     continue
                 
-                shift_start_moscow = get_moscow_time_from_utc(shift_start)
+                if shift_start.tzinfo is None:
+                    shift_start = shift_start.replace(tzinfo=pytz.UTC)
+                shift_start_moscow = shift_start.astimezone(MOSCOW_TZ)
                 
                 if shift_end:
-                    shift_end_moscow = get_moscow_time_from_utc(shift_end)
+                    if shift_end.tzinfo is None:
+                        shift_end = shift_end.replace(tzinfo=pytz.UTC)
+                    shift_end_moscow = shift_end.astimezone(MOSCOW_TZ)
                     time_diff = shift_end_moscow - shift_start_moscow
                     hours = int(time_diff.total_seconds() // 3600)
                     minutes = int((time_diff.total_seconds() % 3600) // 60)

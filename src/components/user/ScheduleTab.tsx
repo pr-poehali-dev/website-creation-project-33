@@ -18,10 +18,33 @@ interface DaySchedule {
   slots: TimeSlot[];
 }
 
-const WEEK_START = '2025-10-20'; // Monday
+const getAllWeeksUntilEndOfYear = () => {
+  const weeks = [];
+  const startDate = new Date('2025-10-20'); // Первая неделя
+  const endOfYear = new Date('2025-12-31');
+  
+  let currentMonday = new Date(startDate);
+  
+  while (currentMonday <= endOfYear) {
+    const weekEnd = new Date(currentMonday);
+    weekEnd.setDate(currentMonday.getDate() + 6);
+    
+    weeks.push({
+      start: currentMonday.toISOString().split('T')[0],
+      label: `${currentMonday.getDate().toString().padStart(2, '0')}.${(currentMonday.getMonth() + 1).toString().padStart(2, '0')} - ${weekEnd.getDate().toString().padStart(2, '0')}.${(weekEnd.getMonth() + 1).toString().padStart(2, '0')}`
+    });
+    
+    currentMonday = new Date(currentMonday);
+    currentMonday.setDate(currentMonday.getDate() + 7);
+  }
+  
+  return weeks;
+};
 
 export default function ScheduleTab() {
   const { user } = useAuth();
+  const weeks = getAllWeeksUntilEndOfYear();
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
   const [schedule, setSchedule] = useState<DaySchedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -30,11 +53,11 @@ export default function ScheduleTab() {
   useEffect(() => {
     initializeSchedule();
     loadSchedule();
-  }, []);
+  }, [currentWeekIndex]);
 
   const initializeSchedule = () => {
     const days: DaySchedule[] = [];
-    const startDate = new Date('2025-10-20');
+    const startDate = new Date(weeks[currentWeekIndex].start);
     const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     
     for (let i = 0; i < 7; i++) {
@@ -66,7 +89,7 @@ export default function ScheduleTab() {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2?user_id=${user.id}&week_start=${WEEK_START}`,
+        `https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2?user_id=${user.id}&week_start=${weeks[currentWeekIndex].start}`,
         {
           headers: {
             'X-Session-Token': localStorage.getItem('session_token') || '',
@@ -139,7 +162,7 @@ export default function ScheduleTab() {
         },
         body: JSON.stringify({
           user_id: user.id,
-          week_start_date: WEEK_START,
+          week_start_date: weeks[currentWeekIndex].start,
           schedule: scheduleData
         })
       });
@@ -173,19 +196,50 @@ export default function ScheduleTab() {
     <div className="space-y-6">
       <Card className="bg-white border-2 border-[#001f54]/10 shadow-lg">
         <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-[#001f54] flex items-center gap-2">
-                <Icon name="Calendar" size={24} className="md:w-7 md:h-7" />
-                График работы
-              </h2>
-              <p className="text-xs md:text-sm text-gray-600 mt-1">
-                Выберите удобные промежутки времени на неделю
-              </p>
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold text-[#001f54] flex items-center gap-2">
+                  <Icon name="Calendar" size={24} className="md:w-7 md:h-7" />
+                  График работы
+                </h2>
+                <p className="text-xs md:text-sm text-gray-600 mt-1">
+                  Выберите удобные промежутки времени на неделю
+                </p>
+              </div>
+              <Badge className="bg-[#001f54] text-white text-sm md:text-lg px-3 md:px-4 py-1 md:py-2">
+                {getSelectedCount()} смен
+              </Badge>
             </div>
-            <Badge className="bg-[#001f54] text-white text-sm md:text-lg px-3 md:px-4 py-1 md:py-2">
-              {getSelectedCount()} смен
-            </Badge>
+            
+            <div className="flex items-center justify-between gap-3 bg-gray-50 p-3 rounded-lg border-2 border-gray-200">
+              <Button
+                onClick={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
+                disabled={currentWeekIndex === 0 || loading}
+                variant="outline"
+                size="sm"
+                className="border-[#001f54] text-[#001f54] hover:bg-[#001f54] hover:text-white"
+              >
+                <Icon name="ChevronLeft" size={16} className="md:mr-1" />
+                <span className="hidden md:inline">Предыдущая</span>
+              </Button>
+              
+              <div className="text-center">
+                <p className="text-sm md:text-base font-bold text-[#001f54]">{weeks[currentWeekIndex].label}</p>
+                <p className="text-[10px] md:text-xs text-gray-500">Неделя {currentWeekIndex + 1} из {weeks.length}</p>
+              </div>
+              
+              <Button
+                onClick={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
+                disabled={currentWeekIndex === weeks.length - 1 || loading}
+                variant="outline"
+                size="sm"
+                className="border-[#001f54] text-[#001f54] hover:bg-[#001f54] hover:text-white"
+              >
+                <span className="hidden md:inline">Следующая</span>
+                <Icon name="ChevronRight" size={16} className="md:ml-1" />
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-3">

@@ -40,9 +40,32 @@ interface DaySchedule {
   slots: TimeSlot[];
 }
 
-const WEEK_START = '2025-10-20';
+const getAllWeeksUntilEndOfYear = () => {
+  const weeks = [];
+  const startDate = new Date('2025-10-20');
+  const endOfYear = new Date('2025-12-31');
+  
+  let currentMonday = new Date(startDate);
+  
+  while (currentMonday <= endOfYear) {
+    const weekEnd = new Date(currentMonday);
+    weekEnd.setDate(currentMonday.getDate() + 6);
+    
+    weeks.push({
+      start: currentMonday.toISOString().split('T')[0],
+      label: `${currentMonday.getDate().toString().padStart(2, '0')}.${(currentMonday.getMonth() + 1).toString().padStart(2, '0')} - ${weekEnd.getDate().toString().padStart(2, '0')}.${(weekEnd.getMonth() + 1).toString().padStart(2, '0')}`
+    });
+    
+    currentMonday = new Date(currentMonday);
+    currentMonday.setDate(currentMonday.getDate() + 7);
+  }
+  
+  return weeks;
+};
 
 export default function ScheduleAnalyticsTab() {
+  const weeks = getAllWeeksUntilEndOfYear();
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
   const [view, setView] = useState<'team' | 'individual'>('team');
   const [schedules, setSchedules] = useState<UserSchedule[]>([]);
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
@@ -56,11 +79,11 @@ export default function ScheduleAnalyticsTab() {
     if (view === 'team') {
       loadAllSchedules();
     }
-  }, [view]);
+  }, [view, currentWeekIndex]);
 
   const initializeWeekDays = () => {
     const days: DaySchedule[] = [];
-    const startDate = new Date('2025-10-20');
+    const startDate = new Date(weeks[currentWeekIndex].start);
     const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     
     for (let i = 0; i < 7; i++) {
@@ -96,7 +119,7 @@ export default function ScheduleAnalyticsTab() {
           'X-Session-Token': localStorage.getItem('session_token') || '',
         },
         body: JSON.stringify({
-          week_start_date: WEEK_START
+          week_start_date: weeks[currentWeekIndex].start
         })
       });
 
@@ -161,7 +184,7 @@ export default function ScheduleAnalyticsTab() {
         },
         body: JSON.stringify({
           user_id: userId,
-          week_start_date: WEEK_START,
+          week_start_date: weeks[currentWeekIndex].start,
           schedule: updatedSchedule
         })
       });
@@ -190,29 +213,60 @@ export default function ScheduleAnalyticsTab() {
     <div className="space-y-6">
       <Card className="bg-white border-2 border-gray-200 shadow-sm">
         <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Icon name="Calendar" size={24} className="text-blue-600 md:w-7 md:h-7" />
-              График работы отдела
-            </h2>
-            <div className="flex gap-2">
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <Icon name="Calendar" size={24} className="text-blue-600 md:w-7 md:h-7" />
+                График работы отдела
+              </h2>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setView('team')}
+                  variant={view === 'team' ? 'default' : 'outline'}
+                  className={`text-xs md:text-sm ${view === 'team' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white hover:bg-gray-50 border border-gray-300 text-gray-700'}`}
+                  size="sm"
+                >
+                  <Icon name="Users" size={16} className="mr-1 md:mr-2" />
+                  Общий
+                </Button>
+                <Button
+                  onClick={() => setView('individual')}
+                  variant={view === 'individual' ? 'default' : 'outline'}
+                  className={`text-xs md:text-sm ${view === 'individual' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white hover:bg-gray-50 border border-gray-300 text-gray-700'}`}
+                  size="sm"
+                >
+                  <Icon name="User" size={16} className="mr-1 md:mr-2" />
+                  Индивидуально
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 bg-gray-50 p-3 rounded-lg border-2 border-gray-200">
               <Button
-                onClick={() => setView('team')}
-                variant={view === 'team' ? 'default' : 'outline'}
-                className={`text-xs md:text-sm ${view === 'team' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white hover:bg-gray-50 border border-gray-300 text-gray-700'}`}
+                onClick={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
+                disabled={currentWeekIndex === 0 || loading}
+                variant="outline"
                 size="sm"
+                className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
               >
-                <Icon name="Users" size={16} className="mr-1 md:mr-2" />
-                Общий
+                <Icon name="ChevronLeft" size={16} className="md:mr-1" />
+                <span className="hidden md:inline">Предыдущая</span>
               </Button>
+              
+              <div className="text-center">
+                <p className="text-sm md:text-base font-bold text-gray-900">{weeks[currentWeekIndex].label}</p>
+                <p className="text-[10px] md:text-xs text-gray-500">Неделя {currentWeekIndex + 1} из {weeks.length}</p>
+              </div>
+              
               <Button
-                onClick={() => setView('individual')}
-                variant={view === 'individual' ? 'default' : 'outline'}
-                className={`text-xs md:text-sm ${view === 'individual' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white hover:bg-gray-50 border border-gray-300 text-gray-700'}`}
+                onClick={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
+                disabled={currentWeekIndex === weeks.length - 1 || loading}
+                variant="outline"
                 size="sm"
+                className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
               >
-                <Icon name="User" size={16} className="mr-1 md:mr-2" />
-                Индивидуально
+                <span className="hidden md:inline">Следующая</span>
+                <Icon name="ChevronRight" size={16} className="md:ml-1" />
               </Button>
             </div>
           </div>

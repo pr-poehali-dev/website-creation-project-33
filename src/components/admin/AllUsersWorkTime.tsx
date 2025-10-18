@@ -112,13 +112,19 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
     );
   }
 
-  const groupedByUser = workTimeData.reduce((acc, item) => {
-    if (!acc[item.user_name]) {
-      acc[item.user_name] = [];
+  const groupedByDate = workTimeData.reduce((acc, item) => {
+    if (!acc[item.date]) {
+      acc[item.date] = [];
     }
-    acc[item.user_name].push(item);
+    acc[item.date].push(item);
     return acc;
   }, {} as Record<string, WorkTimeData[]>);
+
+  const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
+    const dateA = a.split('.').reverse().join('-');
+    const dateB = b.split('.').reverse().join('-');
+    return dateB.localeCompare(dateA);
+  });
 
   return (
     <Card className="glass-panel border-white/10 rounded-2xl">
@@ -148,49 +154,59 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
           </div>
         ) : (
           <div className="space-y-4">
-            {Object.entries(groupedByUser).map(([userName, shifts]) => (
-              <div key={userName} className="border-2 border-white/10 rounded-xl p-4 bg-white/5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Icon name="User" size={18} className="text-white" />
-                  <span className="font-bold text-white text-base md:text-lg">{userName}</span>
-                </div>
-                
-                <div className="space-y-2">
-                  {shifts.map((shift, index) => {
-                    const workDate = shift.date.split('.').reverse().join('-');
-                    const shiftKey = `${shift.user_id}-${workDate}`;
-                    const isDeleting = deletingShift === shiftKey;
+            {sortedDates.map((date) => {
+              const shifts = groupedByDate[date];
+              const totalLeads = shifts.reduce((sum, shift) => sum + shift.leads_count, 0);
+              
+              return (
+                <div key={date} className="border-2 border-white/10 rounded-xl p-4 bg-white/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Icon name="Calendar" size={20} className="text-white" />
+                      <span className="font-bold text-white text-base md:text-lg">{date}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm text-white/70 bg-white/10 px-3 py-1 rounded-lg">
+                      <Icon name="MessageSquare" size={14} />
+                      <span>{totalLeads} лидов всего</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {shifts.map((shift, index) => {
+                      const workDate = shift.date.split('.').reverse().join('-');
+                      const shiftKey = `${shift.user_id}-${workDate}`;
+                      const isDeleting = deletingShift === shiftKey;
 
-                    return (
-                      <div 
-                        key={index} 
-                        className="bg-white/50 rounded-lg p-3 border border-[#001f54]/10"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <Icon name="Calendar" size={14} className="text-[#001f54]/70" />
-                            <span className="font-medium text-[#001f54] text-sm">{shift.date}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1 text-xs text-[#001f54]/70">
-                              <Icon name="MessageSquare" size={12} />
-                              <span>{shift.leads_count} лидов</span>
+                      return (
+                        <div 
+                          key={index} 
+                          className="bg-white/50 rounded-lg p-3 border border-[#001f54]/10"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Icon name="User" size={14} className="text-[#001f54]/70" />
+                              <span className="font-medium text-[#001f54] text-sm">{shift.user_name}</span>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteShift(shift.user_id, workDate)}
-                              disabled={isDeleting}
-                              className="h-6 w-6 p-0 hover:bg-red-100"
-                            >
-                              {isDeleting ? (
-                                <Icon name="Loader2" size={14} className="animate-spin text-[#001f54]/70" />
-                              ) : (
-                                <Icon name="Trash2" size={14} className="text-red-600" />
-                              )}
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1 text-xs text-[#001f54]/70">
+                                <Icon name="MessageSquare" size={12} />
+                                <span>{shift.leads_count} лидов</span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteShift(shift.user_id, workDate)}
+                                disabled={isDeleting}
+                                className="h-6 w-6 p-0 hover:bg-red-100"
+                              >
+                                {isDeleting ? (
+                                  <Icon name="Loader2" size={14} className="animate-spin text-[#001f54]/70" />
+                                ) : (
+                                  <Icon name="Trash2" size={14} className="text-red-600" />
+                                )}
+                              </Button>
+                            </div>
                           </div>
-                        </div>
                       
                       <div className="grid grid-cols-3 gap-3 text-sm">
                         <div className="flex flex-col">
@@ -222,7 +238,8 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                   })}
                 </div>
               </div>
-            ))}
+            );
+          })}
           </div>
         )}
       </CardContent>

@@ -119,7 +119,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
 
   if (loading) {
     return (
-      <Card className="glass-panel border-white/10 rounded-2xl">
+      <Card className="bg-gray-800 border-gray-700 rounded-2xl">
         <CardContent className="p-8">
           <div className="text-center text-white/70 flex items-center justify-center gap-3">
             <Icon name="Loader2" size={24} className="animate-spin" />
@@ -132,7 +132,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <Card className="glass-panel border-white/10 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-gray-800 border-gray-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
           <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-lg md:text-xl">
             <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
@@ -172,7 +172,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
         </CardContent>
       </Card>
 
-      <Card className="glass-panel border-white/10 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-gray-800 border-gray-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
           <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-lg md:text-xl">
             <div className="p-1.5 md:p-2 rounded-lg bg-white/5">

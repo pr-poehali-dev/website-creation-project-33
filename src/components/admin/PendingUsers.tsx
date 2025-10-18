@@ -117,7 +117,7 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
 
   if (isLoading) {
     return (
-      <Card className="glass-panel border-white/10 rounded-2xl">
+      <Card className="bg-gray-800 border-gray-700 rounded-2xl">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Icon name="UserCheck" size={24} />
@@ -135,7 +135,7 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
   }
 
   return (
-    <Card className="glass-panel border-white/10 rounded-2xl">
+    <Card className="bg-gray-800 border-gray-700 rounded-2xl">
       <CardHeader>
         <CardTitle className="text-white flex flex-col sm:flex-row items-start sm:items-center gap-2 text-lg md:text-xl">
           <div className="flex items-center gap-2">

@@ -13,7 +13,7 @@ interface UserListProps {
 
 export default function UserList({ users, selectedUser, onSelectUser }: UserListProps) {
   return (
-    <Card className="glass-panel border-white/10 rounded-2xl md:col-span-1 h-full">
+    <Card className="bg-gray-800 border-gray-700 rounded-2xl md:col-span-1 h-full">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm md:text-base text-white">
           <Icon name="Users" size={18} className="md:w-5 md:h-5" />

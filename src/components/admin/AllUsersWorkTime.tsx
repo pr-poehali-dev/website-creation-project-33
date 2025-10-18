@@ -108,7 +108,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
 
   if (isLoading) {
     return (
-      <Card className="glass-panel border-white/10 rounded-2xl">
+      <Card className="bg-gray-800 border-gray-700 rounded-2xl">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Icon name="Clock" size={24} />
@@ -140,7 +140,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
   });
 
   return (
-    <Card className="glass-panel border-white/10 rounded-2xl">
+    <Card className="bg-gray-800 border-gray-700 rounded-2xl">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-white flex items-center gap-2 text-lg md:text-xl">

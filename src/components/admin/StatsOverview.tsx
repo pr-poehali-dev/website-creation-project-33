@@ -12,7 +12,7 @@ interface StatsOverviewProps {
 
 export default function StatsOverview({ stats, onExportAll, exportingAll }: StatsOverviewProps) {
   return (
-    <Card className="glass-panel border-white/10 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-gray-800 border-gray-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-base md:text-xl">

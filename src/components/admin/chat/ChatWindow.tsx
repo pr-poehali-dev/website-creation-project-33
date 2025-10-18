@@ -53,7 +53,7 @@ export default function ChatWindow({
   onTyping,
 }: ChatWindowProps) {
   return (
-    <Card className="glass-panel border-white/10 rounded-2xl md:col-span-2 flex flex-col h-full shadow-none md:shadow-sm">
+    <Card className="bg-gray-800 border-gray-700 rounded-2xl md:col-span-2 flex flex-col h-full shadow-none md:shadow-sm">
       <CardHeader className="border-b border-white/10">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-sm md:text-base text-white">

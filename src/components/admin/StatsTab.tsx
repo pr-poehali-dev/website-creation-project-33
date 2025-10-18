@@ -80,7 +80,7 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
 
   if (loading) {
     return (
-      <Card className="glass-panel border-white/10 rounded-2xl">
+      <Card className="bg-gray-800 border-gray-700 rounded-2xl">
         <CardContent className="p-4 md:p-8">
           <div className="text-center text-white/70 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
             <Icon name="Loader2" size={20} className="animate-spin md:w-6 md:h-6" />
@@ -93,7 +93,7 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
 
   if (!stats) {
     return (
-      <Card className="glass-panel border-white/10 rounded-2xl">
+      <Card className="bg-gray-800 border-gray-700 rounded-2xl">
         <CardContent className="p-4 md:p-8">
           <div className="text-center text-white/70">
             <Icon name="AlertCircle" size={28} className="mx-auto mb-3 opacity-60 md:w-8 md:h-8" />

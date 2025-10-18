@@ -51,7 +51,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   };
 
   return (
-    <Card className="glass-panel border-white/10 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-gray-800 border-gray-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-white text-xl">
           <div className="p-2 rounded-lg bg-white/5">

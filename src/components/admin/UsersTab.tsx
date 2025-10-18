@@ -111,7 +111,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
 
   if (loading) {
     return (
-      <Card className="glass-panel border-white/10 rounded-2xl">
+      <Card className="bg-gray-800 border-gray-700 rounded-2xl">
         <CardContent className="p-8">
           <div className="text-center text-white flex items-center justify-center gap-3 font-medium">
             <Icon name="Loader2" size={24} className="animate-spin" />
@@ -135,7 +135,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const hasMoreUsers = filteredUsers.length > 4;
 
   return (
-    <Card className="glass-panel border-white/10 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-gray-800 border-gray-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-4">
         <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-white gap-3">
           <span className="flex items-center gap-2 md:gap-3 text-lg md:text-xl">

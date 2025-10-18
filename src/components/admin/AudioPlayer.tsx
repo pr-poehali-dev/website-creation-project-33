@@ -189,7 +189,7 @@ export default function AudioPlayer({ audioData, leadId, className = '' }: Audio
             onClick={downloadAudio}
             disabled={loading}
             size="sm"
-            className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 h-7 flex-shrink-0"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 h-7 flex-shrink-0"
           >
             {loading ? <Icon name="Loader2" size={12} className="mr-1 animate-spin" /> : <Icon name="Download" size={12} className="mr-1" />}
             <span className="text-xs">Скачать</span>
@@ -212,7 +212,7 @@ export default function AudioPlayer({ audioData, leadId, className = '' }: Audio
             onClick={loadAudioData}
             disabled={loading}
             size="sm"
-            className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 h-7 flex-shrink-0"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 h-7 flex-shrink-0"
           >
             {loading ? <Icon name="Loader2" size={12} className="mr-1 animate-spin" /> : <Icon name="Play" size={12} className="mr-1" />}
             <span className="text-xs">Загрузить</span>

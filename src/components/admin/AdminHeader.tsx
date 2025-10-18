@@ -12,9 +12,9 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetApproaches, resetting }: AdminHeaderProps) {
   return (
     <>
-      <div className="md:hidden mb-6 bg-gray-900 p-4 rounded">
+      <div className="md:hidden mb-6 bg-gray-50 border border-gray-200 p-4 rounded-lg">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <div className="p-2 rounded-lg bg-blue-600">
               <Icon name="Shield" size={20} className="text-white" />
             </div>
@@ -24,23 +24,23 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
             <Button 
               onClick={onResetApproaches}
               disabled={resetting}
-              className="bg-gray-700 hover:bg-gray-600 text-white border-0 px-3 py-2"
+              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-3 py-2"
               size="sm"
               variant="outline"
             >
               {resetting ? (
-                <Icon name="Loader2" size={16} className="text-white animate-spin" />
+                <Icon name="Loader2" size={16} className="text-gray-700 animate-spin" />
               ) : (
-                <Icon name="RotateCcw" size={16} className="text-white" />
+                <Icon name="RotateCcw" size={16} className="text-gray-700" />
               )}
             </Button>
             <Button 
               onClick={onOpenGoogleSheets}
-              className="bg-gray-700 hover:bg-gray-600 text-white border-0 px-3 py-2"
+              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-3 py-2"
               size="sm"
               variant="outline"
             >
-              <Icon name="Sheet" size={16} className="text-white" />
+              <Icon name="Sheet" size={16} className="text-gray-700" />
             </Button>
             <Button 
               onClick={onLogout} 
@@ -53,8 +53,8 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
         </div>
       </div>
 
-      <div className="hidden md:flex justify-between items-center mb-8 bg-gray-900 p-6 rounded">
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+      <div className="hidden md:flex justify-between items-center mb-8 bg-gray-50 border border-gray-200 p-6 rounded-lg">
+        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
           <div className="p-3 rounded bg-blue-600">
             <Icon name="Shield" size={32} className="text-white" />
           </div>
@@ -64,28 +64,28 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
           <Button 
             onClick={onResetApproaches}
             disabled={resetting}
-            className="bg-gray-700 hover:bg-gray-600 text-white border-0"
+            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
             variant="outline"
           >
             {resetting ? (
               <>
-                <Icon name="Loader2" size={16} className="mr-2 text-white animate-spin" />
-                <span className="text-white">Обнуление...</span>
+                <Icon name="Loader2" size={16} className="mr-2 text-gray-700 animate-spin" />
+                <span className="text-gray-700">Обнуление...</span>
               </>
             ) : (
               <>
-                <Icon name="RotateCcw" size={16} className="mr-2 text-white" />
-                <span className="text-white">Обнулить подходы</span>
+                <Icon name="RotateCcw" size={16} className="mr-2 text-gray-700" />
+                <span className="text-gray-700">Обнулить подходы</span>
               </>
             )}
           </Button>
           <Button 
             onClick={onOpenGoogleSheets}
-            className="bg-gray-700 hover:bg-gray-600 text-white border-0"
+            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
             variant="outline"
           >
-            <Icon name="Sheet" size={16} className="mr-2 text-white" />
-            <span className="text-white">Google Таблицы</span>
+            <Icon name="Sheet" size={16} className="mr-2 text-gray-700" />
+            <span className="text-gray-700">Google Таблицы</span>
           </Button>
           <Button 
             onClick={onLogout} 

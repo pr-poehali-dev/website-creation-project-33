@@ -26,7 +26,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-white hover:text-blue-400 transition-colors mb-4"
+          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
           <span className="text-lg">Назад к плиткам</span>
@@ -42,7 +42,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-white hover:text-blue-400 transition-colors mb-4"
+          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
           <span className="text-lg">Назад к плиткам</span>
@@ -54,7 +54,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
             className={`px-4 py-2 rounded transition-colors ${
               statsSubView === 'users' 
                 ? 'bg-blue-600 text-white' 
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
             }`}
           >
             Пользователи
@@ -64,7 +64,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
             className={`px-4 py-2 rounded transition-colors ${
               statsSubView === 'rating' 
                 ? 'bg-blue-600 text-white' 
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
             }`}
           >
             Рейтинг
@@ -74,7 +74,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
             className={`px-4 py-2 rounded transition-colors ${
               statsSubView === 'organizations' 
                 ? 'bg-blue-600 text-white' 
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
             }`}
           >
             Организации
@@ -93,7 +93,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-white hover:text-blue-400 transition-colors mb-4"
+          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
           <span className="text-lg">Назад к плиткам</span>
@@ -108,7 +108,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-white hover:text-blue-400 transition-colors mb-4"
+          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
           <span className="text-lg">Назад к плиткам</span>

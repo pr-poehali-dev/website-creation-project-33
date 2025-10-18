@@ -56,7 +56,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-black p-4 md:p-6">
+    <div className="min-h-screen bg-white p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         <AdminHeader onLogout={logout} onOpenGoogleSheets={openGoogleSheets} onResetApproaches={resetApproaches} resetting={resetting} />
         <AdminMetroTiles 

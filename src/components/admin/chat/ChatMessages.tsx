@@ -19,7 +19,7 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
           <Icon name="Loader2" size={24} className="animate-spin" />
         </div>
       ) : messages.length === 0 ? (
-        <div className="flex items-center justify-center h-full text-white/70">
+        <div className="flex items-center justify-center h-full text-gray-500">
           <p className="text-sm">Нет сообщений</p>
         </div>
       ) : (
@@ -33,7 +33,7 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
                 className={`max-w-[85%] md:max-w-[80%] rounded-lg px-3 py-2 md:px-4 md:py-2 ${
                   msg.is_from_admin
                     ? 'bg-blue-500 text-white'
-                    : 'bg-white/10 text-white'
+                    : 'bg-gray-100 text-gray-900'
                 }`}
               >
                 {!msg.is_from_admin && (
@@ -66,7 +66,7 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
                 <div className="flex items-center gap-2 mt-1">
                   <p
                     className={`text-[10px] md:text-xs ${
-                      msg.is_from_admin ? 'text-white/70' : 'text-white/50'
+                      msg.is_from_admin ? 'text-white/70' : 'text-gray-500'
                     }`}
                   >
                     {formatMoscowTime(msg.created_at)}
@@ -84,14 +84,14 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
           ))}
           {userTyping && (
             <div className="flex justify-start">
-              <div className="max-w-[85%] md:max-w-[80%] rounded-lg px-3 py-2 md:px-4 md:py-2 bg-white/10 text-white">
-                <p className="text-xs font-semibold mb-1 text-blue-400">
+              <div className="max-w-[85%] md:max-w-[80%] rounded-lg px-3 py-2 md:px-4 md:py-2 bg-gray-100 text-gray-900">
+                <p className="text-xs font-semibold mb-1 text-blue-600">
                   {selectedUser.name}
                 </p>
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             </div>

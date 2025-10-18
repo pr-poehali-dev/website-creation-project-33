@@ -179,7 +179,7 @@ export default function ScheduleAnalyticsTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Icon name="Loader2" size={32} className="animate-spin text-white" />
+        <Icon name="Loader2" size={32} className="animate-spin text-blue-600" />
       </div>
     );
   }
@@ -188,18 +188,18 @@ export default function ScheduleAnalyticsTab() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-white border-2 border-gray-200 shadow-sm">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-            <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-              <Icon name="Calendar" size={24} className="md:w-7 md:h-7" />
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Icon name="Calendar" size={24} className="text-blue-600 md:w-7 md:h-7" />
               График работы отдела
             </h2>
             <div className="flex gap-2">
               <Button
                 onClick={() => setView('team')}
                 variant={view === 'team' ? 'default' : 'outline'}
-                className={`text-xs md:text-sm ${view === 'team' ? 'bg-blue-600 hover:bg-blue-700' : 'border-gray-600 text-gray-300'}`}
+                className={`text-xs md:text-sm ${view === 'team' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white hover:bg-gray-50 border border-gray-300 text-gray-700'}`}
                 size="sm"
               >
                 <Icon name="Users" size={16} className="mr-1 md:mr-2" />
@@ -208,7 +208,7 @@ export default function ScheduleAnalyticsTab() {
               <Button
                 onClick={() => setView('individual')}
                 variant={view === 'individual' ? 'default' : 'outline'}
-                className={`text-xs md:text-sm ${view === 'individual' ? 'bg-blue-600 hover:bg-blue-700' : 'border-gray-600 text-gray-300'}`}
+                className={`text-xs md:text-sm ${view === 'individual' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white hover:bg-gray-50 border border-gray-300 text-gray-700'}`}
                 size="sm"
               >
                 <Icon name="User" size={16} className="mr-1 md:mr-2" />
@@ -221,11 +221,11 @@ export default function ScheduleAnalyticsTab() {
             <div className="space-y-4">
               <div className="grid grid-cols-7 gap-1 md:gap-2">
                 {weekDays.map(day => (
-                  <div key={day.date} className={`p-2 md:p-3 rounded-lg text-center ${day.isWeekend ? 'bg-orange-900/30' : 'bg-blue-900/30'}`}>
-                    <div className={`text-[10px] md:text-xs font-semibold mb-1 ${day.isWeekend ? 'text-orange-400' : 'text-blue-400'}`}>
+                  <div key={day.date} className={`p-2 md:p-3 rounded-lg text-center border-2 ${day.isWeekend ? 'bg-orange-50 border-orange-200' : 'bg-blue-50 border-blue-200'}`}>
+                    <div className={`text-[10px] md:text-xs font-semibold mb-1 ${day.isWeekend ? 'text-orange-600' : 'text-blue-600'}`}>
                       {day.dayName}
                     </div>
-                    <div className="text-sm md:text-lg font-bold text-white">
+                    <div className="text-sm md:text-lg font-bold text-gray-900">
                       {new Date(day.date).getDate()}.10
                     </div>
                   </div>
@@ -233,7 +233,7 @@ export default function ScheduleAnalyticsTab() {
               </div>
 
               {weekDays.map(day => (
-                <Card key={day.date} className="bg-gray-700 border-gray-600">
+                <Card key={day.date} className="bg-white border-2 border-gray-200 shadow-sm">
                   <CardContent className="p-4">
                     <div className="mb-3">
                       <div className="flex items-center gap-2">
@@ -242,10 +242,10 @@ export default function ScheduleAnalyticsTab() {
                           <span className="text-sm">{new Date(day.date).getDate()}</span>
                         </div>
                         <div>
-                          <p className="font-semibold text-white">
+                          <p className="font-semibold text-gray-900">
                             {day.isWeekend ? 'Выходной' : 'Рабочий день'}
                           </p>
-                          <p className="text-xs text-gray-400">{day.date}</p>
+                          <p className="text-xs text-gray-500">{day.date}</p>
                         </div>
                       </div>
                     </div>
@@ -254,13 +254,13 @@ export default function ScheduleAnalyticsTab() {
                       {day.slots.map(slot => {
                         const workers = getUsersWorkingOnSlot(day.date, slot.time);
                         return (
-                          <div key={slot.time} className="bg-gray-800 p-2 md:p-3 rounded-lg">
+                          <div key={slot.time} className="bg-gray-50 border border-gray-200 p-2 md:p-3 rounded-lg">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs md:text-sm font-semibold text-gray-300">
-                                <Icon name="Clock" size={12} className="inline mr-1 md:w-[14px] md:h-[14px]" />
+                              <span className="text-xs md:text-sm font-semibold text-gray-700">
+                                <Icon name="Clock" size={12} className="text-gray-600 inline mr-1 md:w-[14px] md:h-[14px]" />
                                 {slot.label}
                               </span>
-                              <Badge className={`text-xs ${workers.length > 0 ? 'bg-green-600' : 'bg-gray-600'}`}>
+                              <Badge className={`text-xs ${workers.length > 0 ? 'bg-green-600' : 'bg-gray-400'}`}>
                                 {workers.length}
                               </Badge>
                             </div>
@@ -268,7 +268,7 @@ export default function ScheduleAnalyticsTab() {
                               <div className="space-y-1">
                                 {workers.map(worker => (
                                   <div key={worker.user_id} className="flex items-center justify-between group">
-                                    <span className="text-[10px] md:text-xs text-gray-300">
+                                    <span className="text-[10px] md:text-xs text-gray-700">
                                       • {worker.first_name} {worker.last_name}
                                     </span>
                                     <button
@@ -287,7 +287,7 @@ export default function ScheduleAnalyticsTab() {
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-[10px] md:text-xs text-gray-500 italic">Никого</p>
+                              <p className="text-[10px] md:text-xs text-gray-400 italic">Никого</p>
                             )}
                           </div>
                         );
@@ -306,7 +306,7 @@ export default function ScheduleAnalyticsTab() {
                   value={selectedUser?.toString() || ''}
                   onValueChange={(val) => setSelectedUser(parseInt(val))}
                 >
-                  <SelectTrigger className="w-full md:w-64 bg-gray-700 border-gray-600 text-white">
+                  <SelectTrigger className="w-full md:w-64 bg-white border-gray-300 text-gray-900">
                     <SelectValue placeholder="Выберите промоутера" />
                   </SelectTrigger>
                   <SelectContent>
@@ -329,7 +329,7 @@ export default function ScheduleAnalyticsTab() {
                   {weekDays.map(day => {
                     const daySchedule = getUserScheduleForDay(selectedUserData.schedule, day.date);
                     return (
-                      <Card key={day.date} className="bg-gray-700 border-gray-600">
+                      <Card key={day.date} className="bg-white border-gray-200 shadow-sm">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -338,10 +338,10 @@ export default function ScheduleAnalyticsTab() {
                                 <span className="text-lg">{new Date(day.date).getDate()}.10</span>
                               </div>
                               <div>
-                                <p className="font-semibold text-white">
+                                <p className="font-semibold text-gray-900">
                                   {day.isWeekend ? 'Выходной' : 'Рабочий день'}
                                 </p>
-                                <p className="text-xs text-gray-400">{day.date}</p>
+                                <p className="text-xs text-gray-600">{day.date}</p>
                               </div>
                             </div>
 
@@ -380,19 +380,19 @@ export default function ScheduleAnalyticsTab() {
               )}
 
               {!selectedUserData && schedules.length > 0 && (
-                <Card className="bg-gray-700 border-gray-600">
+                <Card className="bg-white border-gray-200 shadow-sm">
                   <CardContent className="p-8 text-center">
-                    <Icon name="UserSearch" size={48} className="mx-auto mb-3 text-gray-500" />
-                    <p className="text-gray-400">Выберите промоутера для просмотра графика</p>
+                    <Icon name="UserSearch" size={48} className="mx-auto mb-3 text-gray-400" />
+                    <p className="text-gray-600">Выберите промоутера для просмотра графика</p>
                   </CardContent>
                 </Card>
               )}
 
               {schedules.length === 0 && (
-                <Card className="bg-gray-700 border-gray-600">
+                <Card className="bg-white border-gray-200 shadow-sm">
                   <CardContent className="p-8 text-center">
-                    <Icon name="Calendar" size={48} className="mx-auto mb-3 text-gray-500" />
-                    <p className="text-gray-400">Графики еще не заполнены</p>
+                    <Icon name="Calendar" size={48} className="mx-auto mb-3 text-gray-400" />
+                    <p className="text-gray-600">Графики еще не заполнены</p>
                   </CardContent>
                 </Card>
               )}
@@ -402,10 +402,10 @@ export default function ScheduleAnalyticsTab() {
       </Card>
 
       <AlertDialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
-        <AlertDialogContent className="bg-gray-800 border-gray-700">
+        <AlertDialogContent className="bg-white border-2 border-gray-200">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Удалить смену?</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-300">
+            <AlertDialogTitle className="text-gray-900">Удалить смену?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-700">
               {confirmDelete && (
                 <>
                   Вы уверены, что хотите удалить смену <strong>{confirmDelete.slotLabel}</strong> для{' '}
@@ -416,7 +416,7 @@ export default function ScheduleAnalyticsTab() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600">
+            <AlertDialogCancel className="bg-white text-gray-700 hover:bg-gray-50 border-gray-300">
               Отмена
             </AlertDialogCancel>
             <AlertDialogAction

@@ -132,10 +132,10 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <Card className="bg-gray-800 border-gray-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-lg md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
               <Icon name="Building2" size={18} className="text-gray-900 md:w-5 md:h-5" />
             </div>
             Добавить организацию
@@ -147,7 +147,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
               value={newOrgName}
               onChange={(e) => setNewOrgName(e.target.value)}
               placeholder="Название организации"
-              className="flex-1 border-2 border-gray-300 bg-gray-100 text-gray-900 placeholder:text-gray-500 focus:border-gray-300 focus:ring-gray-200 h-10 md:h-auto text-sm md:text-base"
+              className="flex-1 border-2 border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-gray-300 focus:ring-gray-200 h-10 md:h-auto text-sm md:text-base"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   addOrganization();
@@ -157,7 +157,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
             <Button
               onClick={addOrganization}
               disabled={!newOrgName.trim() || adding}
-              className="glass-button bg-gray-100 hover:bg-gray-100 text-gray-900 shadow-lg transition-all duration-300 hover:scale-105 h-10 md:h-auto text-sm md:text-base"
+              className="glass-button bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-300 hover:scale-105 h-10 md:h-auto text-sm md:text-base"
             >
               {adding ? (
                 <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
@@ -172,10 +172,10 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
         </CardContent>
       </Card>
 
-      <Card className="bg-gray-800 border-gray-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-lg md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
               <Icon name="List" size={18} className="text-gray-900 md:w-5 md:h-5" />
             </div>
             Список организаций ({organizations.length})
@@ -192,17 +192,17 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
               {(showAll ? organizations : organizations.slice(0, 4)).map((org) => (
                 <div
                   key={org.id}
-                  className="border-2 border-gray-200 rounded-xl p-3 md:p-4 bg-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gray-300"
+                  className="border-2 border-gray-200 rounded-xl p-3 md:p-4 bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gray-300"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-                      <div className="p-1.5 md:p-2 rounded-lg bg-gray-100 flex-shrink-0">
-                        <Icon name="Building2" size={16} className="text-gray-900 md:w-[18px] md:h-[18px]" />
+                      <div className="p-1.5 md:p-2 rounded-lg bg-blue-50 flex-shrink-0">
+                        <Icon name="Building2" size={16} className="text-blue-600 md:w-[18px] md:h-[18px]" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <div className="font-medium text-gray-900 text-sm md:text-lg truncate">{org.name}</div>
-                          <div className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-900 text-[10px] md:text-xs font-medium flex-shrink-0">
+                          <div className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] md:text-xs font-medium flex-shrink-0">
                             {org.lead_count} {org.lead_count === 1 ? 'лид' : org.lead_count < 5 ? 'лида' : 'лидов'}
                           </div>
                         </div>

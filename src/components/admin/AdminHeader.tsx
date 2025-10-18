@@ -12,10 +12,10 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetApproaches, resetting }: AdminHeaderProps) {
   return (
     <>
-      <div className="md:hidden mb-6 admin-card p-4">
+      <div className="md:hidden mb-6 bg-gray-900 p-4 rounded">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-blue-500">
+          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-blue-600">
               <Icon name="Shield" size={20} className="text-white" />
             </div>
             Админ-панель
@@ -24,39 +24,38 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
             <Button 
               onClick={onResetApproaches}
               disabled={resetting}
-              className="admin-button px-3 py-2"
+              className="bg-gray-700 hover:bg-gray-600 text-white border-0 px-3 py-2"
               size="sm"
               variant="outline"
             >
               {resetting ? (
-                <Icon name="Loader2" size={16} className="text-slate-600 animate-spin" />
+                <Icon name="Loader2" size={16} className="text-white animate-spin" />
               ) : (
-                <Icon name="RotateCcw" size={16} className="text-red-600" />
+                <Icon name="RotateCcw" size={16} className="text-white" />
               )}
             </Button>
             <Button 
               onClick={onOpenGoogleSheets}
-              className="admin-button px-3 py-2"
+              className="bg-gray-700 hover:bg-gray-600 text-white border-0 px-3 py-2"
               size="sm"
               variant="outline"
             >
-              <Icon name="Sheet" size={16} className="text-slate-600" />
+              <Icon name="Sheet" size={16} className="text-white" />
             </Button>
             <Button 
               onClick={onLogout} 
-              className="admin-button px-3 py-2"
+              className="bg-red-600 hover:bg-red-700 text-white px-3 py-2"
               size="sm"
-              variant="outline"
             >
-              <Icon name="LogOut" size={16} className="text-slate-600" />
+              <Icon name="LogOut" size={16} className="text-white" />
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="hidden md:flex justify-between items-center mb-8 admin-card p-6">
-        <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-blue-500">
+      <div className="hidden md:flex justify-between items-center mb-8 bg-gray-900 p-6 rounded">
+        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+          <div className="p-3 rounded bg-blue-600">
             <Icon name="Shield" size={32} className="text-white" />
           </div>
           Панель администратора
@@ -65,32 +64,32 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
           <Button 
             onClick={onResetApproaches}
             disabled={resetting}
-            className="admin-button"
+            className="bg-gray-700 hover:bg-gray-600 text-white border-0"
             variant="outline"
           >
             {resetting ? (
               <>
-                <Icon name="Loader2" size={16} className="mr-2 text-slate-600 animate-spin" />
-                <span className="text-slate-700">Обнуление...</span>
+                <Icon name="Loader2" size={16} className="mr-2 text-white animate-spin" />
+                <span className="text-white">Обнуление...</span>
               </>
             ) : (
               <>
-                <Icon name="RotateCcw" size={16} className="mr-2 text-red-600" />
-                <span className="text-slate-700">Обнулить подходы</span>
+                <Icon name="RotateCcw" size={16} className="mr-2 text-white" />
+                <span className="text-white">Обнулить подходы</span>
               </>
             )}
           </Button>
           <Button 
             onClick={onOpenGoogleSheets}
-            className="admin-button"
+            className="bg-gray-700 hover:bg-gray-600 text-white border-0"
             variant="outline"
           >
-            <Icon name="Sheet" size={16} className="mr-2 text-slate-600" />
-            <span className="text-slate-700">Google Таблицы</span>
+            <Icon name="Sheet" size={16} className="mr-2 text-white" />
+            <span className="text-white">Google Таблицы</span>
           </Button>
           <Button 
             onClick={onLogout} 
-            className="admin-button-primary"
+            className="bg-red-600 hover:bg-red-700 text-white"
           >
             <Icon name="LogOut" size={16} className="mr-2" />
             Выйти

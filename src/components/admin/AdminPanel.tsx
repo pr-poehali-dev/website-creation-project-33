@@ -3,9 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useChatUnread } from '@/hooks/useChatUnread';
 import { toast } from '@/hooks/use-toast';
 import AdminAccessDenied from './AdminAccessDenied';
-import AdminPanelStyles from './AdminPanelStyles';
 import AdminHeader from './AdminHeader';
-import AdminTabs from './AdminTabs';
+import AdminMetroTiles from './AdminMetroTiles';
 
 export default function AdminPanel() {
   const { logout, user } = useAuth();
@@ -57,12 +56,10 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
-      <AdminPanelStyles />
-      
+    <div className="min-h-screen bg-black p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         <AdminHeader onLogout={logout} onOpenGoogleSheets={openGoogleSheets} onResetApproaches={resetApproaches} resetting={resetting} />
-        <AdminTabs 
+        <AdminMetroTiles 
           unreadCount={unreadCount} 
           sessionToken={localStorage.getItem('session_token') || ''} 
         />

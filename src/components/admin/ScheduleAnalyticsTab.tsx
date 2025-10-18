@@ -232,39 +232,44 @@ export default function ScheduleAnalyticsTab() {
                 ))}
               </div>
 
-              {weekDays.map(day => (
-                <Card key={day.date} className="bg-white border-2 border-gray-200 shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-10 h-10 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-blue-600'} text-white flex flex-col items-center justify-center font-bold text-xs`}>
-                          <span>{day.dayName}</span>
-                          <span className="text-sm">{new Date(day.date).getDate()}</span>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-900">
-                            {day.isWeekend ? 'Выходной' : 'Рабочий день'}
-                          </p>
-                          <p className="text-xs text-gray-500">{day.date}</p>
+              {weekDays.map(day => {
+                const hasAnyWorkers = day.slots.some(slot => getUsersWorkingOnSlot(day.date, slot.time).length > 0);
+                if (!hasAnyWorkers) return null;
+
+                return (
+                  <Card key={day.date} className="bg-white border-2 border-gray-200 shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-10 h-10 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-blue-600'} text-white flex flex-col items-center justify-center font-bold text-xs`}>
+                            <span>{day.dayName}</span>
+                            <span className="text-sm">{new Date(day.date).getDate()}</span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {day.isWeekend ? 'Выходной' : 'Рабочий день'}
+                            </p>
+                            <p className="text-xs text-gray-500">{day.date}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-                      {day.slots.map(slot => {
-                        const workers = getUsersWorkingOnSlot(day.date, slot.time);
-                        return (
-                          <div key={slot.time} className="bg-gray-50 border border-gray-200 p-2 md:p-3 rounded-lg">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs md:text-sm font-semibold text-gray-700">
-                                <Icon name="Clock" size={12} className="text-gray-600 inline mr-1 md:w-[14px] md:h-[14px]" />
-                                {slot.label}
-                              </span>
-                              <Badge className={`text-xs ${workers.length > 0 ? 'bg-green-600' : 'bg-gray-400'}`}>
-                                {workers.length}
-                              </Badge>
-                            </div>
-                            {workers.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+                        {day.slots.map(slot => {
+                          const workers = getUsersWorkingOnSlot(day.date, slot.time);
+                          if (workers.length === 0) return null;
+
+                          return (
+                            <div key={slot.time} className="bg-green-50 border-2 border-green-300 p-2 md:p-3 rounded-lg">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs md:text-sm font-semibold text-green-700">
+                                  <Icon name="Clock" size={12} className="text-green-600 inline mr-1 md:w-[14px] md:h-[14px]" />
+                                  {slot.label}
+                                </span>
+                                <Badge className="text-xs bg-green-600">
+                                  {workers.length}
+                                </Badge>
+                              </div>
                               <div className="space-y-1">
                                 {workers.map(worker => (
                                   <div key={worker.user_id} className="flex items-center justify-between group">
@@ -274,7 +279,7 @@ export default function ScheduleAnalyticsTab() {
                                     <button
                                       onClick={() => confirmRemoveSlot(worker.user_id, `${worker.first_name} ${worker.last_name}`, day.date, slot.time, slot.label)}
                                       disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
-                                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300 disabled:opacity-50"
+                                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 disabled:opacity-50"
                                       title="Удалить смену"
                                     >
                                       {deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (
@@ -286,16 +291,14 @@ export default function ScheduleAnalyticsTab() {
                                   </div>
                                 ))}
                               </div>
-                            ) : (
-                              <p className="text-[10px] md:text-xs text-gray-600 italic">Никого</p>
-                            )}
-                          </div>
-                        );
+                            </div>
+                          );
                       })}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
 
@@ -328,6 +331,9 @@ export default function ScheduleAnalyticsTab() {
                 <div className="space-y-3">
                   {weekDays.map(day => {
                     const daySchedule = getUserScheduleForDay(selectedUserData.schedule, day.date);
+                    const hasActiveSlots = day.slots.some(slot => daySchedule[slot.time]);
+                    if (!hasActiveSlots) return null;
+
                     return (
                       <Card key={day.date} className="bg-white border-2 border-gray-200 shadow-sm">
                         <CardContent className="p-4">
@@ -346,15 +352,15 @@ export default function ScheduleAnalyticsTab() {
                             </div>
 
                             <div className="flex gap-2">
-                              {day.slots.map(slot => (
-                                <div key={slot.time} className="relative group">
-                                  <Badge
-                                    className={`${daySchedule[slot.time] ? 'bg-green-600 pr-7' : 'bg-gray-400'}`}
-                                  >
-                                    <Icon name="Clock" size={14} className="mr-1" />
-                                    {slot.label}
-                                  </Badge>
-                                  {daySchedule[slot.time] && (
+                              {day.slots.map(slot => {
+                                if (!daySchedule[slot.time]) return null;
+
+                                return (
+                                  <div key={slot.time} className="relative group">
+                                    <Badge className="bg-green-600 pr-7">
+                                      <Icon name="Clock" size={14} className="mr-1" />
+                                      {slot.label}
+                                    </Badge>
                                     <button
                                       onClick={() => confirmRemoveSlot(selectedUserData.user_id, `${selectedUserData.first_name} ${selectedUserData.last_name}`, day.date, slot.time, slot.label)}
                                       disabled={deletingSlot?.userId === selectedUserData.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
@@ -367,9 +373,9 @@ export default function ScheduleAnalyticsTab() {
                                         <Icon name="X" size={12} />
                                       )}
                                     </button>
-                                  )}
-                                </div>
-                              ))}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
                         </CardContent>

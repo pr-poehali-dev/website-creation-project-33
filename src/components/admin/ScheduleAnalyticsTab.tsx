@@ -325,28 +325,25 @@ export default function ScheduleAnalyticsTab() {
                                 </Badge>
                               </div>
                               <div className="space-y-1">
-                                {workers.map(worker => {
-                                  const isMaxim = worker.first_name === 'Максим' && worker.last_name === 'Корельский';
-                                  return (
-                                    <div key={worker.user_id} className={`flex items-center justify-between group ${isMaxim ? 'bg-purple-600 text-white px-2 py-1 rounded' : ''}`}>
-                                      <span className={`text-[10px] md:text-xs ${isMaxim ? 'text-white font-semibold' : 'text-gray-700'}`}>
-                                        • {worker.first_name} {worker.last_name}
-                                      </span>
-                                      <button
-                                        onClick={() => confirmRemoveSlot(worker.user_id, `${worker.first_name} ${worker.last_name}`, day.date, slot.time, slot.label)}
-                                        disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
-                                        className={`opacity-0 group-hover:opacity-100 transition-opacity ${isMaxim ? 'text-white hover:text-red-200' : 'text-red-500 hover:text-red-600'} disabled:opacity-50`}
-                                        title="Удалить смену"
-                                      >
-                                        {deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (
-                                          <Icon name="Loader2" size={14} className="animate-spin" />
-                                        ) : (
-                                          <Icon name="X" size={14} />
-                                        )}
-                                      </button>
-                                    </div>
-                                  );
-                                })}
+                                {workers.map(worker => (
+                                  <div key={worker.user_id} className="flex items-center justify-between group">
+                                    <span className="text-[10px] md:text-xs text-gray-700">
+                                      • {worker.first_name} {worker.last_name}
+                                    </span>
+                                    <button
+                                      onClick={() => confirmRemoveSlot(worker.user_id, `${worker.first_name} ${worker.last_name}`, day.date, slot.time, slot.label)}
+                                      disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
+                                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 disabled:opacity-50"
+                                      title="Удалить смену"
+                                    >
+                                      {deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (
+                                        <Icon name="Loader2" size={14} className="animate-spin" />
+                                      ) : (
+                                        <Icon name="X" size={14} />
+                                      )}
+                                    </button>
+                                  </div>
+                                ))}
                               </div>
                             </div>
                           );
@@ -390,7 +387,6 @@ export default function ScheduleAnalyticsTab() {
                     const daySchedule = getUserScheduleForDay(selectedUserData.schedule, day.date);
                     const hasActiveSlots = day.slots.some(slot => daySchedule[slot.time]);
                     if (!hasActiveSlots) return null;
-                    const isMaxim = selectedUserData.first_name === 'Максим' && selectedUserData.last_name === 'Корельский';
 
                     return (
                       <Card key={day.date} className="bg-white border-2 border-gray-200 shadow-sm">
@@ -415,7 +411,7 @@ export default function ScheduleAnalyticsTab() {
 
                                 return (
                                   <div key={slot.time} className="relative group">
-                                    <Badge className={`${isMaxim ? 'bg-purple-600' : 'bg-green-600'} pr-7`}>
+                                    <Badge className="bg-green-600 pr-7">
                                       <Icon name="Clock" size={14} className="mr-1" />
                                       {slot.label}
                                     </Badge>

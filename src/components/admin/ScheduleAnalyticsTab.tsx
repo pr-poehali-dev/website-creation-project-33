@@ -40,7 +40,14 @@ interface DaySchedule {
   slots: TimeSlot[];
 }
 
-const WEEK_START = '2025-10-20';
+const getCurrentWeekStart = () => {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diff);
+  return monday.toISOString().split('T')[0];
+};
 
 export default function ScheduleAnalyticsTab() {
   const [view, setView] = useState<'team' | 'individual'>('team');
@@ -50,17 +57,18 @@ export default function ScheduleAnalyticsTab() {
   const [weekDays, setWeekDays] = useState<DaySchedule[]>([]);
   const [deletingSlot, setDeletingSlot] = useState<{userId: number, date: string, slot: string} | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<{userId: number, userName: string, date: string, slot: string, slotLabel: string} | null>(null);
+  const [weekStart, setWeekStart] = useState<string>(getCurrentWeekStart());
 
   useEffect(() => {
     initializeWeekDays();
     if (view === 'team') {
       loadAllSchedules();
     }
-  }, [view]);
+  }, [view, weekStart]);
 
   const initializeWeekDays = () => {
     const days: DaySchedule[] = [];
-    const startDate = new Date('2025-10-20');
+    const startDate = new Date(weekStart);
     const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     
     for (let i = 0; i < 7; i++) {
@@ -96,7 +104,7 @@ export default function ScheduleAnalyticsTab() {
           'X-Session-Token': localStorage.getItem('session_token') || '',
         },
         body: JSON.stringify({
-          week_start_date: WEEK_START
+          week_start_date: weekStart
         })
       });
 
@@ -161,7 +169,7 @@ export default function ScheduleAnalyticsTab() {
         },
         body: JSON.stringify({
           user_id: userId,
-          week_start_date: WEEK_START,
+          week_start_date: weekStart,
           schedule: updatedSchedule
         })
       });

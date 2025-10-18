@@ -61,12 +61,7 @@ export default function AdminPanel() {
       <AdminPanelStyles />
       
       <div className="max-w-7xl mx-auto">
-        <AdminHeader 
-          onLogout={logout} 
-          onOpenGoogleSheets={openGoogleSheets} 
-          onResetApproaches={resetApproaches}
-          resetting={resetting} 
-        />
+        <AdminHeader onLogout={logout} onOpenGoogleSheets={openGoogleSheets} onResetApproaches={resetApproaches} resetting={resetting} />
         <AdminTabs 
           unreadCount={unreadCount} 
           sessionToken={localStorage.getItem('session_token') || ''} 

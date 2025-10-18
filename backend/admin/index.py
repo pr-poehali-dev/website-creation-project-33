@@ -477,54 +477,6 @@ def reject_user(user_id: int) -> bool:
     """Отклонить заявку пользователя (удалить и заблокировать IP)"""
     return delete_user(user_id)
 
-def reset_all_selected_organizations() -> int:
-    """Сбросить выбранные организации у всех промоутеров (не админов)"""
-    moscow_now = get_moscow_time()
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                UPDATE t_p24058207_website_creation_pro.users 
-                SET selected_organization_id = NULL, 
-                    selected_organization_date = NULL,
-                    last_reset_date = %s
-                WHERE is_admin = FALSE
-            """, (moscow_now,))
-            conn.commit()
-            return cur.rowcount
-
-def check_organization_selection(user_id: int) -> Dict[str, Any]:
-    """Проверить, нужно ли пользователю заново выбрать организацию"""
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT selected_organization_id, selected_organization_date, last_reset_date
-                FROM t_p24058207_website_creation_pro.users 
-                WHERE id = %s
-            """, (user_id,))
-            row = cur.fetchone()
-            
-            if not row:
-                return {'needs_selection': True, 'reason': 'user_not_found'}
-            
-            selected_org_id = row[0]
-            selected_date = row[1]
-            last_reset_date = row[2]
-            
-            # Если организация не выбрана - нужен выбор
-            if selected_org_id is None:
-                return {'needs_selection': True, 'reason': 'not_selected'}
-            
-            # Если был сброс администратором ПОСЛЕ последнего выбора - нужен новый выбор
-            if last_reset_date and selected_date:
-                if last_reset_date > selected_date:
-                    return {'needs_selection': True, 'reason': 'reset_by_admin', 'reset_date': str(last_reset_date)}
-            
-            # Если был сброс, но не было выбора - нужен выбор
-            if last_reset_date and not selected_date:
-                return {'needs_selection': True, 'reason': 'reset_by_admin', 'reset_date': str(last_reset_date)}
-            
-            return {'needs_selection': False, 'selected_organization_id': selected_org_id}
-
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
@@ -612,15 +564,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({'organizations': organizations})
-            }
-        
-        # Проверка статуса выбора организации (доступен для всех)
-        if action == 'check_organization_selection':
-            check_result = check_organization_selection(user['id'])
-            return {
-                'statusCode': 200,
-                'headers': headers,
-                'body': json.dumps(check_result)
             }
         
         # Остальные действия требуют прав админа
@@ -783,25 +726,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
-        
-        elif action == 'reset_selected_organizations':
-            if not user['is_admin']:
-                return {
-                    'statusCode': 403,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Требуются права администратора'})
-                }
-            
-            count = reset_all_selected_organizations()
-            return {
-                'statusCode': 200,
-                'headers': headers,
-                'body': json.dumps({
-                    'success': True, 
-                    'message': f'Сброшено выбранных организаций: {count}',
-                    'count': count
-                })
-            }
         
         elif action == 'add_organization':
             name = body_data.get('name', '').strip()

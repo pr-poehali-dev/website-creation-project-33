@@ -527,14 +527,12 @@ def delete_leads_by_date(user_id: int, date_str: str) -> int:
     """Удалить все лиды пользователя за конкретный день (московская дата). Возвращает количество удалённых лидов."""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Получаем все лиды пользователя и фильтруем по московской дате
             cur.execute("""
                 SELECT id, created_at 
                 FROM t_p24058207_website_creation_pro.leads_analytics 
                 WHERE user_id = %s
             """, (user_id,))
             
-            # Находим ID лидов, которые попадают в заданную московскую дату
             lead_ids_to_delete = []
             for row in cur.fetchall():
                 moscow_dt = get_moscow_time_from_utc(row[1])
@@ -543,7 +541,6 @@ def delete_leads_by_date(user_id: int, date_str: str) -> int:
                 if date_key == date_str:
                     lead_ids_to_delete.append(row[0])
             
-            # Удаляем найденные лиды
             if lead_ids_to_delete:
                 placeholders = ','.join(['%s'] * len(lead_ids_to_delete))
                 cur.execute(f"""
@@ -554,6 +551,17 @@ def delete_leads_by_date(user_id: int, date_str: str) -> int:
                 return cur.rowcount
             
             return 0
+
+def delete_shift_by_date(user_id: int, work_date: str) -> bool:
+    """Удалить информацию о смене (открытие/закрытие) для конкретного дня и пользователя"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                DELETE FROM t_p24058207_website_creation_pro.shift_videos 
+                WHERE user_id = %s AND work_date = %s
+            """, (user_id, work_date))
+            conn.commit()
+            return cur.rowcount > 0
 
 def get_pending_users() -> List[Dict[str, Any]]:
     """Получить список пользователей, ожидающих одобрения"""
@@ -1053,6 +1061,24 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({'success': True, 'deleted_count': deleted_count})
+            }
+        
+        elif action == 'delete_shift':
+            user_id = body_data.get('user_id')
+            work_date = body_data.get('work_date')
+            
+            if not user_id or not work_date:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID пользователя и дата обязательны'})
+                }
+            
+            success = delete_shift_by_date(user_id, work_date)
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': success})
             }
 
     return {

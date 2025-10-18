@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import { Button } from '@/components/ui/button';
 
 interface WorkTimeData {
   user_id: number;
@@ -19,6 +20,7 @@ interface AllUsersWorkTimeProps {
 export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps) {
   const [workTimeData, setWorkTimeData] = useState<WorkTimeData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deletingShift, setDeletingShift] = useState<string | null>(null);
 
   const loadWorkTime = async () => {
     setIsLoading(true);
@@ -39,6 +41,45 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
       console.error('Ошибка загрузки времени работы:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteShift = async (userId: number, workDate: string) => {
+    if (!confirm('Вы уверены, что хотите удалить информацию о смене?')) {
+      return;
+    }
+
+    const shiftKey = `${userId}-${workDate}`;
+    setDeletingShift(shiftKey);
+
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': sessionToken,
+          },
+          body: JSON.stringify({
+            action: 'delete_shift',
+            user_id: userId,
+            work_date: workDate,
+          }),
+        }
+      );
+
+      const result = await response.json();
+      if (result.success) {
+        await loadWorkTime();
+      } else {
+        alert('Ошибка при удалении смены');
+      }
+    } catch (error) {
+      console.error('Ошибка удаления смены:', error);
+      alert('Ошибка при удалении смены');
+    } finally {
+      setDeletingShift(null);
     }
   };
 
@@ -115,21 +156,41 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                 </div>
                 
                 <div className="space-y-2">
-                  {shifts.map((shift, index) => (
-                    <div 
-                      key={index} 
-                      className="bg-white/50 rounded-lg p-3 border border-[#001f54]/10"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Icon name="Calendar" size={14} className="text-[#001f54]/70" />
-                          <span className="font-medium text-[#001f54] text-sm">{shift.date}</span>
+                  {shifts.map((shift, index) => {
+                    const workDate = shift.date.split('.').reverse().join('-');
+                    const shiftKey = `${shift.user_id}-${workDate}`;
+                    const isDeleting = deletingShift === shiftKey;
+
+                    return (
+                      <div 
+                        key={index} 
+                        className="bg-white/50 rounded-lg p-3 border border-[#001f54]/10"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Icon name="Calendar" size={14} className="text-[#001f54]/70" />
+                            <span className="font-medium text-[#001f54] text-sm">{shift.date}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 text-xs text-[#001f54]/70">
+                              <Icon name="MessageSquare" size={12} />
+                              <span>{shift.leads_count} лидов</span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteShift(shift.user_id, workDate)}
+                              disabled={isDeleting}
+                              className="h-6 w-6 p-0 hover:bg-red-100"
+                            >
+                              {isDeleting ? (
+                                <Icon name="Loader2" size={14} className="animate-spin text-[#001f54]/70" />
+                              ) : (
+                                <Icon name="Trash2" size={14} className="text-red-600" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-[#001f54]/70">
-                          <Icon name="MessageSquare" size={12} />
-                          <span>{shift.leads_count} лидов</span>
-                        </div>
-                      </div>
                       
                       <div className="grid grid-cols-3 gap-3 text-sm">
                         <div className="flex flex-col">
@@ -156,8 +217,9 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}

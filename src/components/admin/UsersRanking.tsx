@@ -99,8 +99,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                 key={user.email} 
                 className={`border-2 rounded-xl p-3 md:p-4 transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02] ${
                   user.duplicates > 0 
-                    ? 'border-red-500/50 bg-red-500/10 hover:bg-red-500/20' 
-                    : 'border-gray-200 bg-gray-100 hover:bg-gray-100'
+                    ? 'border-red-500/50 bg-red-50 hover:bg-red-100' 
+                    : 'border-gray-200 bg-white hover:bg-gray-50'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">

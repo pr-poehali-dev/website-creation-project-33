@@ -485,19 +485,19 @@ def reset_all_selected_organizations() -> int:
             cur.execute("""
                 UPDATE t_p24058207_website_creation_pro.users 
                 SET selected_organization_id = NULL, 
-                    selected_organization_date = %s
+                    selected_organization_date = NULL,
+                    last_reset_date = %s
                 WHERE is_admin = FALSE
-            """, (moscow_now.date(),))
+            """, (moscow_now,))
             conn.commit()
             return cur.rowcount
 
 def check_organization_selection(user_id: int) -> Dict[str, Any]:
     """Проверить, нужно ли пользователю заново выбрать организацию"""
-    moscow_today = get_moscow_time().date()
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT selected_organization_id, selected_organization_date
+                SELECT selected_organization_id, selected_organization_date, last_reset_date
                 FROM t_p24058207_website_creation_pro.users 
                 WHERE id = %s
             """, (user_id,))
@@ -508,13 +508,20 @@ def check_organization_selection(user_id: int) -> Dict[str, Any]:
             
             selected_org_id = row[0]
             selected_date = row[1]
+            last_reset_date = row[2]
             
-            # Если организация не выбрана
+            # Если организация не выбрана - нужен выбор
             if selected_org_id is None:
-                # Проверяем, был ли сброс сегодня
-                if selected_date and selected_date == moscow_today:
-                    return {'needs_selection': True, 'reason': 'reset_by_admin', 'reset_date': str(selected_date)}
                 return {'needs_selection': True, 'reason': 'not_selected'}
+            
+            # Если был сброс администратором ПОСЛЕ последнего выбора - нужен новый выбор
+            if last_reset_date and selected_date:
+                if last_reset_date > selected_date:
+                    return {'needs_selection': True, 'reason': 'reset_by_admin', 'reset_date': str(last_reset_date)}
+            
+            # Если был сброс, но не было выбора - нужен выбор
+            if last_reset_date and not selected_date:
+                return {'needs_selection': True, 'reason': 'reset_by_admin', 'reset_date': str(last_reset_date)}
             
             return {'needs_selection': False, 'selected_organization_id': selected_org_id}
 

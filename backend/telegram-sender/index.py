@@ -244,7 +244,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 SET selected_organization_id = %s, 
                                     selected_organization_date = %s 
                                 WHERE id = %s""",
-                                (organization_id, moscow_time.date(), int(user_id))
+                                (organization_id, moscow_time, int(user_id))
                             )
                         
                         conn.commit()

@@ -354,38 +354,58 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
             return leads
 
 def get_user_work_time(user_id: int) -> List[Dict[str, Any]]:
-    """Получить данные о времени работы промоутера за каждый день"""
+    """Получить данные о времени работы промоутера за каждый день на основе видео открытия/закрытия смены"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
-                    DATE(created_at) as work_date,
-                    MIN(created_at) as first_lead,
-                    MAX(created_at) as last_lead,
-                    COUNT(*) as leads_count
-                FROM t_p24058207_website_creation_pro.leads_analytics
+                    work_date,
+                    MIN(CASE WHEN video_type = 'start' THEN created_at END) as shift_start,
+                    MAX(CASE WHEN video_type = 'end' THEN created_at END) as shift_end,
+                    organization_id
+                FROM t_p24058207_website_creation_pro.shift_videos
                 WHERE user_id = %s
-                GROUP BY DATE(created_at)
+                GROUP BY work_date, organization_id
                 ORDER BY work_date DESC
             """, (user_id,))
             
             work_time_data = []
             for row in cur.fetchall():
-                if row[1] and row[2]:
-                    first_lead_moscow = get_moscow_time_from_utc(row[1])
-                    last_lead_moscow = get_moscow_time_from_utc(row[2])
-                    
-                    time_diff = last_lead_moscow - first_lead_moscow
+                work_date = row[0]
+                shift_start = row[1]
+                shift_end = row[2]
+                organization_id = row[3]
+                
+                if not shift_start:
+                    continue
+                
+                shift_start_moscow = get_moscow_time_from_utc(shift_start)
+                
+                if shift_end:
+                    shift_end_moscow = get_moscow_time_from_utc(shift_end)
+                    time_diff = shift_end_moscow - shift_start_moscow
                     hours = int(time_diff.total_seconds() // 3600)
                     minutes = int((time_diff.total_seconds() % 3600) // 60)
-                    
-                    work_time_data.append({
-                        'date': first_lead_moscow.strftime('%d.%m.%Y'),
-                        'start_time': first_lead_moscow.strftime('%H:%M'),
-                        'end_time': last_lead_moscow.strftime('%H:%M'),
-                        'hours_worked': f'{hours}ч {minutes}м',
-                        'leads_count': row[3]
-                    })
+                    hours_worked = f'{hours}ч {minutes}м'
+                    end_time_str = shift_end_moscow.strftime('%H:%M')
+                else:
+                    hours_worked = 'Смена не закрыта'
+                    end_time_str = '—'
+                
+                cur.execute(
+                    "SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = %s AND DATE(created_at) = %s AND organization_id = %s",
+                    (user_id, work_date, organization_id)
+                )
+                leads_count_result = cur.fetchone()
+                leads_count = leads_count_result[0] if leads_count_result else 0
+                
+                work_time_data.append({
+                    'date': work_date.strftime('%d.%m.%Y') if hasattr(work_date, 'strftime') else str(work_date),
+                    'start_time': shift_start_moscow.strftime('%H:%M'),
+                    'end_time': end_time_str,
+                    'hours_worked': hours_worked,
+                    'leads_count': leads_count
+                })
             
             return work_time_data
 

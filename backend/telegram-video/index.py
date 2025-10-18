@@ -127,6 +127,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': f'Failed to send to Telegram: {error_text}'})
             }
         
+        telegram_message_id = None
+        try:
+            telegram_response = response.json()
+            if 'result' in telegram_response and 'message_id' in telegram_response['result']:
+                telegram_message_id = telegram_response['result']['message_id']
+        except Exception as e:
+            print(f'Error parsing Telegram response: {e}')
+        
+        if database_url:
+            try:
+                with psycopg2.connect(database_url) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            """
+                            INSERT INTO t_p24058207_website_creation_pro.shift_videos 
+                            (user_id, organization_id, video_type, telegram_message_id, work_date) 
+                            VALUES (%s, %s, %s, %s, CURRENT_DATE)
+                            """,
+                            (int(user_id), int(organization_id), video_type, telegram_message_id)
+                        )
+                        conn.commit()
+                        print(f'Saved shift video record: user={user_id}, org={organization_id}, type={video_type}')
+            except Exception as e:
+                print(f'Error saving shift video record: {e}')
+        
         contacts_today = 0
         if video_type == 'end' and database_url:
             try:

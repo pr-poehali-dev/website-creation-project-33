@@ -376,21 +376,27 @@ def get_user_work_time(user_id: int) -> List[Dict[str, Any]]:
                 shift_end = row[2]
                 organization_id = row[3]
                 
-                if not shift_start:
-                    continue
-                
-                shift_start_moscow = get_moscow_time_from_utc(shift_start)
+                # Обрабатываем смены даже если нет начала или конца
+                if shift_start:
+                    shift_start_moscow = get_moscow_time_from_utc(shift_start)
+                    start_time_str = shift_start_moscow.strftime('%H:%M')
+                else:
+                    start_time_str = '—'
                 
                 if shift_end:
                     shift_end_moscow = get_moscow_time_from_utc(shift_end)
-                    time_diff = shift_end_moscow - shift_start_moscow
-                    hours = int(time_diff.total_seconds() // 3600)
-                    minutes = int((time_diff.total_seconds() % 3600) // 60)
-                    hours_worked = f'{hours}ч {minutes}м'
                     end_time_str = shift_end_moscow.strftime('%H:%M')
+                    
+                    if shift_start:
+                        time_diff = shift_end_moscow - shift_start_moscow
+                        hours = int(time_diff.total_seconds() // 3600)
+                        minutes = int((time_diff.total_seconds() % 3600) // 60)
+                        hours_worked = f'{hours}ч {minutes}м'
+                    else:
+                        hours_worked = 'Только закрытие'
                 else:
-                    hours_worked = 'Смена не закрыта'
                     end_time_str = '—'
+                    hours_worked = 'Смена не закрыта' if shift_start else 'Нет данных'
                 
                 cur.execute(
                     "SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = %s AND DATE(created_at) = %s AND organization_id = %s",
@@ -401,7 +407,7 @@ def get_user_work_time(user_id: int) -> List[Dict[str, Any]]:
                 
                 work_time_data.append({
                     'date': work_date.strftime('%d.%m.%Y') if hasattr(work_date, 'strftime') else str(work_date),
-                    'start_time': shift_start_moscow.strftime('%H:%M'),
+                    'start_time': start_time_str,
                     'end_time': end_time_str,
                     'hours_worked': hours_worked,
                     'leads_count': leads_count
@@ -436,25 +442,31 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                 shift_end = row[4]
                 organization_id = row[5]
                 
-                if not shift_start:
-                    continue
-                
-                if shift_start.tzinfo is None:
-                    shift_start = shift_start.replace(tzinfo=pytz.UTC)
-                shift_start_moscow = shift_start.astimezone(MOSCOW_TZ)
+                # Обрабатываем смены даже если нет начала или конца
+                if shift_start:
+                    if shift_start.tzinfo is None:
+                        shift_start = shift_start.replace(tzinfo=pytz.UTC)
+                    shift_start_moscow = shift_start.astimezone(MOSCOW_TZ)
+                    start_time_str = shift_start_moscow.strftime('%H:%M')
+                else:
+                    start_time_str = '—'
                 
                 if shift_end:
                     if shift_end.tzinfo is None:
                         shift_end = shift_end.replace(tzinfo=pytz.UTC)
                     shift_end_moscow = shift_end.astimezone(MOSCOW_TZ)
-                    time_diff = shift_end_moscow - shift_start_moscow
-                    hours = int(time_diff.total_seconds() // 3600)
-                    minutes = int((time_diff.total_seconds() % 3600) // 60)
-                    hours_worked = f'{hours}ч {minutes}м'
                     end_time_str = shift_end_moscow.strftime('%H:%M')
+                    
+                    if shift_start:
+                        time_diff = shift_end_moscow - shift_start_moscow
+                        hours = int(time_diff.total_seconds() // 3600)
+                        minutes = int((time_diff.total_seconds() % 3600) // 60)
+                        hours_worked = f'{hours}ч {minutes}м'
+                    else:
+                        hours_worked = 'Только закрытие'
                 else:
-                    hours_worked = 'Смена не закрыта'
                     end_time_str = '—'
+                    hours_worked = 'Смена не закрыта' if shift_start else 'Нет данных'
                 
                 cur.execute(
                     "SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = %s AND DATE(created_at) = %s AND organization_id = %s",
@@ -467,7 +479,7 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                     'user_id': user_id,
                     'user_name': user_name,
                     'date': work_date.strftime('%d.%m.%Y') if hasattr(work_date, 'strftime') else str(work_date),
-                    'start_time': shift_start_moscow.strftime('%H:%M'),
+                    'start_time': start_time_str,
                     'end_time': end_time_str,
                     'hours_worked': hours_worked,
                     'leads_count': leads_count

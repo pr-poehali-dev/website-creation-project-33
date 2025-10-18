@@ -44,6 +44,12 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
 
   useEffect(() => {
     loadWorkTime();
+    
+    const interval = setInterval(() => {
+      loadWorkTime();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [sessionToken]);
 
   if (isLoading) {
@@ -76,12 +82,21 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
   return (
     <Card className="glass-panel border-white/10 rounded-2xl">
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2 text-lg md:text-xl">
-          <div className="p-2 rounded-lg bg-white/5">
-            <Icon name="Clock" size={20} className="md:w-6 md:h-6" />
-          </div>
-          Время работы промоутеров
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-white flex items-center gap-2 text-lg md:text-xl">
+            <div className="p-2 rounded-lg bg-white/5">
+              <Icon name="Clock" size={20} className="md:w-6 md:h-6" />
+            </div>
+            Время работы промоутеров
+          </CardTitle>
+          <button
+            onClick={loadWorkTime}
+            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+            title="Обновить данные"
+          >
+            <Icon name="RefreshCw" size={18} className="text-white" />
+          </button>
+        </div>
       </CardHeader>
       <CardContent>
         {workTimeData.length === 0 ? (

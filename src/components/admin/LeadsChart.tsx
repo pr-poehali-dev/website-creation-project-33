@@ -284,8 +284,12 @@ export default function LeadsChart({
                 }}
               />
               <Legend 
-                wrapperStyle={{ paddingTop: '20px' }}
+                wrapperStyle={{ 
+                  paddingTop: '20px',
+                  fontSize: '14px'
+                }}
                 iconType="circle"
+                formatter={(value) => <span style={{ color: '#000', fontWeight: '500' }}>{value}</span>}
               />
               
               {showTotal && filterType === 'contacts' && (

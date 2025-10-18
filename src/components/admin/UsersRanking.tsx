@@ -113,10 +113,10 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-gray-900 text-sm md:text-base truncate">
+                      <div className="font-bold text-black text-base md:text-lg truncate">
                         {user.name || 'Без имени'}
                       </div>
-                      <div className="text-xs md:text-sm text-gray-500 truncate">
+                      <div className="text-xs md:text-sm text-gray-600 truncate">
                         {user.email}
                       </div>
                     </div>

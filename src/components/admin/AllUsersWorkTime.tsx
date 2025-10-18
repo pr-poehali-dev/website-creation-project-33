@@ -175,27 +175,27 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
               return (
                 <div key={date} className="border-2 border-white/10 rounded-xl overflow-hidden bg-white/5">
                   <div 
-                    className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/10 transition-colors"
+                    className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 cursor-pointer hover:bg-white/10 transition-colors gap-2"
                     onClick={() => toggleDate(date)}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                       <Icon 
                         name={isExpanded ? "ChevronDown" : "ChevronRight"} 
-                        size={20} 
-                        className="text-white transition-transform" 
+                        size={18} 
+                        className="text-white transition-transform md:w-5 md:h-5" 
                       />
-                      <Icon name="Calendar" size={20} className="text-white" />
-                      <span className="font-bold text-white text-base md:text-lg">{date}</span>
-                      <span className="text-sm text-white/50">({shifts.length} {shifts.length === 1 ? 'промоутер' : 'промоутера'})</span>
+                      <Icon name="Calendar" size={18} className="text-white md:w-5 md:h-5" />
+                      <span className="font-bold text-white text-sm md:text-base">{date}</span>
+                      <span className="text-xs md:text-sm text-white/50">({shifts.length})</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-sm text-white/70 bg-white/10 px-3 py-1 rounded-lg">
-                      <Icon name="MessageSquare" size={14} />
+                    <div className="flex items-center gap-1.5 text-xs md:text-sm text-white/70 bg-white/10 px-2 py-1 md:px-3 rounded-lg ml-7 md:ml-0">
+                      <Icon name="MessageSquare" size={12} className="md:w-[14px] md:h-[14px]" />
                       <span>{totalLeads} лидов</span>
                     </div>
                   </div>
                   
                   {isExpanded && (
-                    <div className="space-y-2 p-4 pt-0">
+                    <div className="space-y-2 p-3 md:p-4 pt-0">
                     {shifts.map((shift, index) => {
                       const workDate = shift.date.split('.').reverse().join('-');
                       const shiftKey = `${shift.user_id}-${workDate}`;
@@ -204,56 +204,59 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                       return (
                         <div 
                           key={index} 
-                          className="bg-white/50 rounded-lg p-3 border border-[#001f54]/10"
+                          className="bg-white/50 rounded-lg p-2.5 md:p-3 border border-[#001f54]/10"
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <Icon name="User" size={14} className="text-[#001f54]/70" />
-                              <span className="font-medium text-[#001f54] text-sm">{shift.user_name}</span>
+                          <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                            <div className="flex items-center gap-1.5 md:gap-2">
+                              <Icon name="User" size={12} className="text-[#001f54]/70 md:w-[14px] md:h-[14px]" />
+                              <span className="font-medium text-[#001f54] text-xs md:text-sm">{shift.user_name}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1 text-xs text-[#001f54]/70">
-                                <Icon name="MessageSquare" size={12} />
-                                <span>{shift.leads_count} лидов</span>
+                            <div className="flex items-center gap-1.5 md:gap-2">
+                              <div className="flex items-center gap-0.5 md:gap-1 text-[10px] md:text-xs text-[#001f54]/70">
+                                <Icon name="MessageSquare" size={10} className="md:w-3 md:h-3" />
+                                <span>{shift.leads_count}</span>
                               </div>
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleDeleteShift(shift.user_id, workDate)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteShift(shift.user_id, workDate);
+                                }}
                                 disabled={isDeleting}
-                                className="h-6 w-6 p-0 hover:bg-red-100"
+                                className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-red-100"
                               >
                                 {isDeleting ? (
-                                  <Icon name="Loader2" size={14} className="animate-spin text-[#001f54]/70" />
+                                  <Icon name="Loader2" size={12} className="animate-spin text-[#001f54]/70 md:w-[14px] md:h-[14px]" />
                                 ) : (
-                                  <Icon name="Trash2" size={14} className="text-red-600" />
+                                  <Icon name="Trash2" size={12} className="text-red-600 md:w-[14px] md:h-[14px]" />
                                 )}
                               </Button>
                             </div>
                           </div>
                       
-                      <div className="grid grid-cols-3 gap-3 text-sm">
+                      <div className="grid grid-cols-3 gap-2 md:gap-3 text-xs md:text-sm">
                         <div className="flex flex-col">
-                          <span className="text-[#001f54]/60 text-xs mb-1">Начало</span>
-                          <div className="flex items-center gap-1.5 text-[#001f54] font-medium">
-                            <Icon name="LogIn" size={14} className="text-green-600" />
-                            <span>{shift.start_time}</span>
+                          <span className="text-[#001f54]/60 text-[10px] md:text-xs mb-0.5 md:mb-1">Начало</span>
+                          <div className="flex items-center gap-1 md:gap-1.5 text-[#001f54] font-medium">
+                            <Icon name="LogIn" size={12} className="text-green-600 md:w-[14px] md:h-[14px]" />
+                            <span className="text-[11px] md:text-sm">{shift.start_time}</span>
                           </div>
                         </div>
                         
                         <div className="flex flex-col">
-                          <span className="text-[#001f54]/60 text-xs mb-1">Окончание</span>
-                          <div className="flex items-center gap-1.5 text-[#001f54] font-medium">
-                            <Icon name="LogOut" size={14} className="text-red-600" />
-                            <span>{shift.end_time}</span>
+                          <span className="text-[#001f54]/60 text-[10px] md:text-xs mb-0.5 md:mb-1">Окончание</span>
+                          <div className="flex items-center gap-1 md:gap-1.5 text-[#001f54] font-medium">
+                            <Icon name="LogOut" size={12} className="text-red-600 md:w-[14px] md:h-[14px]" />
+                            <span className="text-[11px] md:text-sm">{shift.end_time}</span>
                           </div>
                         </div>
                         
                         <div className="flex flex-col">
-                          <span className="text-[#001f54]/60 text-xs mb-1">Отработано</span>
-                          <div className="flex items-center gap-1.5 text-[#001f54] font-bold">
-                            <Icon name="Timer" size={14} className="text-blue-600" />
-                            <span className="text-xs">{shift.hours_worked}</span>
+                          <span className="text-[#001f54]/60 text-[10px] md:text-xs mb-0.5 md:mb-1">Отработано</span>
+                          <div className="flex items-center gap-1 md:gap-1.5 text-[#001f54] font-bold">
+                            <Icon name="Timer" size={12} className="text-blue-600 md:w-[14px] md:h-[14px]" />
+                            <span className="text-[10px] md:text-xs">{shift.hours_worked}</span>
                           </div>
                         </div>
                       </div>

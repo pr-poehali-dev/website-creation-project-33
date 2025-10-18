@@ -353,6 +353,42 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
                 })
             return leads
 
+def get_user_work_time(user_id: int) -> List[Dict[str, Any]]:
+    """Получить данные о времени работы промоутера за каждый день"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT 
+                    DATE(created_at) as work_date,
+                    MIN(created_at) as first_lead,
+                    MAX(created_at) as last_lead,
+                    COUNT(*) as leads_count
+                FROM t_p24058207_website_creation_pro.leads_analytics
+                WHERE user_id = %s
+                GROUP BY DATE(created_at)
+                ORDER BY work_date DESC
+            """, (user_id,))
+            
+            work_time_data = []
+            for row in cur.fetchall():
+                if row[1] and row[2]:
+                    first_lead_moscow = get_moscow_time_from_utc(row[1])
+                    last_lead_moscow = get_moscow_time_from_utc(row[2])
+                    
+                    time_diff = last_lead_moscow - first_lead_moscow
+                    hours = int(time_diff.total_seconds() // 3600)
+                    minutes = int((time_diff.total_seconds() % 3600) // 60)
+                    
+                    work_time_data.append({
+                        'date': first_lead_moscow.strftime('%d.%m.%Y'),
+                        'start_time': first_lead_moscow.strftime('%H:%M'),
+                        'end_time': last_lead_moscow.strftime('%H:%M'),
+                        'hours_worked': f'{hours}ч {minutes}м',
+                        'leads_count': row[3]
+                    })
+            
+            return work_time_data
+
 def update_user_name(user_id: int, new_name: str) -> bool:
     """Обновить имя пользователя"""
     with get_db_connection() as conn:
@@ -672,8 +708,38 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 return {
                     'statusCode': 400,
                     'headers': headers,
+                    'body': json.dumps({'error': 'Неверный формат user_id'})
+                }
+        
+        elif action == 'user_work_time':
+            user_id = event.get('queryStringParameters', {}).get('user_id')
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Требуется user_id'})
+                }
+            
+            try:
+                user_id = int(user_id)
+                work_time = get_user_work_time(user_id)
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'work_time': work_time})
+                }
+            except ValueError:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
                     'body': json.dumps({'error': 'Неверный user_id'})
                 }
+        
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'error': 'Неизвестное действие'})
+        }
     
     elif method == 'POST':
         body_data = json.loads(event.get('body', '{}'))

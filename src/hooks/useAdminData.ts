@@ -252,3 +252,22 @@ export function useLeadsStats(userId: number | null) {
     refetchInterval: 10000,
   });
 }
+
+export function useUserWorkTime(userId: number | null) {
+  return useQuery({
+    queryKey: ['userWorkTime', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const response = await fetch(`${ADMIN_API}?action=user_work_time&user_id=${userId}`, {
+        headers: {
+          'X-Session-Token': getSessionToken(),
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch work time');
+      const data = await response.json();
+      return data.work_time || [];
+    },
+    enabled: !!userId,
+    staleTime: Infinity,
+  });
+}

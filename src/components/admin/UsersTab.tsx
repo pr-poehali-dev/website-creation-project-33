@@ -7,7 +7,7 @@ import UserCard from './UserCard';
 import UserLeadsSection from './UserLeadsSection';
 import { User, Lead } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
-import { useUsers, useUpdateUserName, useDeleteUser, useUserLeads, useDeleteLead, useDeleteLeadsByDate } from '@/hooks/useAdminData';
+import { useUsers, useUpdateUserName, useDeleteUser, useUserLeads, useDeleteLead, useDeleteLeadsByDate, useUserWorkTime } from '@/hooks/useAdminData';
 
 interface UsersTabProps {
   enabled?: boolean;
@@ -24,6 +24,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const [newName, setNewName] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { data: userLeads = [], isLoading: leadsLoading } = useUserLeads(selectedUser?.id || null);
+  const { data: workTimeData = [], isLoading: workTimeLoading } = useUserWorkTime(selectedUser?.id || null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -201,6 +202,8 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
                         isLoading={leadsLoading}
                         selectedDate={selectedDate}
                         groupedLeads={groupedLeads}
+                        workTimeData={workTimeData}
+                        workTimeLoading={workTimeLoading}
                         onDateSelect={setSelectedDate}
                         onDeleteLead={deleteLead}
                         onDeleteDate={deleteLeadsByDate}

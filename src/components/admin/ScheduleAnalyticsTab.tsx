@@ -132,40 +132,42 @@ export default function ScheduleAnalyticsTab() {
     <div className="space-y-6">
       <Card className="bg-gray-800 border-gray-700">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Icon name="Calendar" size={28} />
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+            <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+              <Icon name="Calendar" size={24} className="md:w-7 md:h-7" />
               График работы отдела
             </h2>
             <div className="flex gap-2">
               <Button
                 onClick={() => setView('team')}
                 variant={view === 'team' ? 'default' : 'outline'}
-                className={view === 'team' ? 'bg-blue-600 hover:bg-blue-700' : 'border-gray-600 text-gray-300'}
+                className={`text-xs md:text-sm ${view === 'team' ? 'bg-blue-600 hover:bg-blue-700' : 'border-gray-600 text-gray-300'}`}
+                size="sm"
               >
-                <Icon name="Users" size={18} className="mr-2" />
-                Общий график
+                <Icon name="Users" size={16} className="mr-1 md:mr-2" />
+                Общий
               </Button>
               <Button
                 onClick={() => setView('individual')}
                 variant={view === 'individual' ? 'default' : 'outline'}
-                className={view === 'individual' ? 'bg-blue-600 hover:bg-blue-700' : 'border-gray-600 text-gray-300'}
+                className={`text-xs md:text-sm ${view === 'individual' ? 'bg-blue-600 hover:bg-blue-700' : 'border-gray-600 text-gray-300'}`}
+                size="sm"
               >
-                <Icon name="User" size={18} className="mr-2" />
-                По сотрудникам
+                <Icon name="User" size={16} className="mr-1 md:mr-2" />
+                Индивидуально
               </Button>
             </div>
           </div>
 
           {view === 'team' && (
             <div className="space-y-4">
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1 md:gap-2">
                 {weekDays.map(day => (
-                  <div key={day.date} className={`p-3 rounded-lg text-center ${day.isWeekend ? 'bg-orange-900/30' : 'bg-blue-900/30'}`}>
-                    <div className={`text-xs font-semibold mb-1 ${day.isWeekend ? 'text-orange-400' : 'text-blue-400'}`}>
+                  <div key={day.date} className={`p-2 md:p-3 rounded-lg text-center ${day.isWeekend ? 'bg-orange-900/30' : 'bg-blue-900/30'}`}>
+                    <div className={`text-[10px] md:text-xs font-semibold mb-1 ${day.isWeekend ? 'text-orange-400' : 'text-blue-400'}`}>
                       {day.dayName}
                     </div>
-                    <div className="text-lg font-bold text-white">
+                    <div className="text-sm md:text-lg font-bold text-white">
                       {new Date(day.date).getDate()}.10
                     </div>
                   </div>
@@ -190,30 +192,30 @@ export default function ScheduleAnalyticsTab() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                       {day.slots.map(slot => {
                         const workers = getUsersWorkingOnSlot(day.date, slot.time);
                         return (
-                          <div key={slot.time} className="bg-gray-800 p-3 rounded-lg">
+                          <div key={slot.time} className="bg-gray-800 p-2 md:p-3 rounded-lg">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-semibold text-gray-300">
-                                <Icon name="Clock" size={14} className="inline mr-1" />
+                              <span className="text-xs md:text-sm font-semibold text-gray-300">
+                                <Icon name="Clock" size={12} className="inline mr-1 md:w-[14px] md:h-[14px]" />
                                 {slot.label}
                               </span>
-                              <Badge className={workers.length > 0 ? 'bg-green-600' : 'bg-gray-600'}>
-                                {workers.length} чел.
+                              <Badge className={`text-xs ${workers.length > 0 ? 'bg-green-600' : 'bg-gray-600'}`}>
+                                {workers.length}
                               </Badge>
                             </div>
                             {workers.length > 0 ? (
                               <div className="space-y-1">
                                 {workers.map(worker => (
-                                  <div key={worker.user_id} className="text-xs text-gray-300">
+                                  <div key={worker.user_id} className="text-[10px] md:text-xs text-gray-300">
                                     • {worker.first_name} {worker.last_name}
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-xs text-gray-500 italic">Никого не запланировано</p>
+                              <p className="text-[10px] md:text-xs text-gray-500 italic">Никого</p>
                             )}
                           </div>
                         );
@@ -227,12 +229,12 @@ export default function ScheduleAnalyticsTab() {
 
           {view === 'individual' && (
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col md:flex-row md:items-center gap-3">
                 <Select
                   value={selectedUser?.toString() || ''}
                   onValueChange={(val) => setSelectedUser(parseInt(val))}
                 >
-                  <SelectTrigger className="w-64 bg-gray-700 border-gray-600 text-white">
+                  <SelectTrigger className="w-full md:w-64 bg-gray-700 border-gray-600 text-white">
                     <SelectValue placeholder="Выберите промоутера" />
                   </SelectTrigger>
                   <SelectContent>
@@ -244,7 +246,7 @@ export default function ScheduleAnalyticsTab() {
                   </SelectContent>
                 </Select>
                 {selectedUserData && (
-                  <Badge className="bg-blue-600 text-white text-lg px-4 py-2">
+                  <Badge className="bg-blue-600 text-white text-sm md:text-lg px-3 md:px-4 py-1 md:py-2">
                     {getTotalShifts(selectedUserData.schedule)} смен
                   </Badge>
                 )}

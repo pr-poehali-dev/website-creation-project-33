@@ -173,17 +173,17 @@ export default function ScheduleTab() {
     <div className="space-y-6">
       <Card className="bg-white border-2 border-[#001f54]/10 shadow-lg">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-[#001f54] flex items-center gap-2">
-                <Icon name="Calendar" size={28} />
+              <h2 className="text-xl md:text-2xl font-bold text-[#001f54] flex items-center gap-2">
+                <Icon name="Calendar" size={24} className="md:w-7 md:h-7" />
                 График работы
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-xs md:text-sm text-gray-600 mt-1">
                 Выберите удобные промежутки времени на неделю
               </p>
             </div>
-            <Badge className="bg-[#001f54] text-white text-lg px-4 py-2">
+            <Badge className="bg-[#001f54] text-white text-sm md:text-lg px-3 md:px-4 py-1 md:py-2">
               {getSelectedCount()} смен
             </Badge>
           </div>
@@ -195,35 +195,36 @@ export default function ScheduleTab() {
                 className={`border-2 ${day.isWeekend ? 'border-orange-200 bg-orange-50/30' : 'border-blue-200 bg-blue-50/30'}`}
               >
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-[#001f54]'} text-white flex flex-col items-center justify-center font-bold`}>
-                        <span className="text-xs">{day.dayName}</span>
-                        <span className="text-lg">{new Date(day.date).getDate()}.10</span>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-[#001f54]'} text-white flex flex-col items-center justify-center font-bold`}>
+                        <span className="text-[10px] md:text-xs">{day.dayName}</span>
+                        <span className="text-sm md:text-lg">{new Date(day.date).getDate()}.10</span>
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">
+                        <p className="text-sm md:text-base font-semibold text-gray-800">
                           {day.isWeekend ? 'Выходной' : 'Рабочий день'}
                         </p>
-                        <p className="text-xs text-gray-500">{day.date}</p>
+                        <p className="text-[10px] md:text-xs text-gray-500">{day.date}</p>
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       {day.slots.map((slot, slotIndex) => (
                         <Button
                           key={slot.time}
                           onClick={() => toggleSlot(dayIndex, slotIndex)}
                           variant={slot.selected ? 'default' : 'outline'}
-                          className={`transition-all duration-300 ${
+                          className={`text-xs md:text-sm transition-all duration-300 ${
                             slot.selected
                               ? day.isWeekend
                                 ? 'bg-orange-500 hover:bg-orange-600 text-white'
                                 : 'bg-[#001f54] hover:bg-[#002b6b] text-white'
                               : 'border-2 hover:border-[#001f54] hover:bg-gray-50'
                           }`}
+                          size="sm"
                         >
-                          <Icon name="Clock" size={16} className="mr-2" />
+                          <Icon name="Clock" size={14} className="mr-1 md:mr-2" />
                           {slot.label}
                         </Button>
                       ))}
@@ -234,9 +235,9 @@ export default function ScheduleTab() {
             ))}
           </div>
 
-          <div className="mt-6 flex justify-end gap-3">
+          <div className="mt-6 flex flex-col md:flex-row justify-end gap-3">
             {saved && (
-              <Badge className="bg-green-500 text-white px-4 py-2 flex items-center gap-2">
+              <Badge className="bg-green-500 text-white px-3 md:px-4 py-2 flex items-center gap-2 justify-center">
                 <Icon name="Check" size={16} />
                 Сохранено
               </Badge>
@@ -244,16 +245,16 @@ export default function ScheduleTab() {
             <Button
               onClick={saveSchedule}
               disabled={saving || getSelectedCount() === 0}
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white px-8 py-6 text-lg shadow-lg hover:scale-105 transition-all duration-300"
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white px-6 md:px-8 py-4 md:py-6 text-base md:text-lg shadow-lg hover:scale-105 transition-all duration-300 w-full md:w-auto"
             >
               {saving ? (
                 <>
-                  <Icon name="Loader2" size={20} className="mr-2 animate-spin" />
+                  <Icon name="Loader2" size={18} className="mr-2 animate-spin md:w-5 md:h-5" />
                   Сохранение...
                 </>
               ) : (
                 <>
-                  <Icon name="Save" size={20} className="mr-2" />
+                  <Icon name="Save" size={18} className="mr-2 md:w-5 md:h-5" />
                   Подтвердить график
                 </>
               )}

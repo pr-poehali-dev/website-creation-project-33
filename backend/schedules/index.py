@@ -54,13 +54,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if week_start:
             # Get specific week
             cur.execute(
-                "SELECT schedule_data, week_start_date FROM promoter_schedules WHERE user_id = %s AND week_start_date = %s",
+                "SELECT schedule_data, week_start_date FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
                 (int(user_id), week_start)
             )
         else:
             # Get current week
             cur.execute(
-                "SELECT schedule_data, week_start_date FROM promoter_schedules WHERE user_id = %s ORDER BY week_start_date DESC LIMIT 1",
+                "SELECT schedule_data, week_start_date FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s ORDER BY week_start_date DESC LIMIT 1",
                 (int(user_id),)
             )
         
@@ -103,7 +103,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Upsert schedule
         cur.execute("""
-            INSERT INTO promoter_schedules (user_id, week_start_date, schedule_data, updated_at)
+            INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at)
             VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
             ON CONFLICT (user_id, week_start_date)
             DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP
@@ -135,11 +135,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur = conn.cursor()
         
         cur.execute("""
-            SELECT ps.user_id, ps.schedule_data, ps.week_start_date, u.first_name, u.last_name
-            FROM promoter_schedules ps
-            JOIN users u ON ps.user_id = u.id
+            SELECT ps.user_id, ps.schedule_data, ps.week_start_date, u.name, u.email
+            FROM t_p24058207_website_creation_pro.promoter_schedules ps
+            JOIN t_p24058207_website_creation_pro.users u ON ps.user_id = u.id
             WHERE ps.week_start_date = %s
-            ORDER BY u.first_name, u.last_name
+            ORDER BY u.name
         """, (week_start,))
         
         rows = cur.fetchall()
@@ -152,8 +152,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'user_id': row[0],
                 'schedule': row[1],
                 'week_start_date': row[2].isoformat(),
-                'first_name': row[3],
-                'last_name': row[4]
+                'first_name': row[3].split()[0] if row[3] else 'User',
+                'last_name': row[3].split()[1] if row[3] and len(row[3].split()) > 1 else ''
             })
         
         return {

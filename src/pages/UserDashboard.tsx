@@ -26,6 +26,32 @@ export default function UserDashboard() {
   const contactsCounterRef = useRef<ContactsCounterRef>(null);
 
   useEffect(() => {
+    checkOrganizationStatus();
+  }, []);
+
+  const checkOrganizationStatus = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=check_organization_selection', {
+        headers: {
+          'X-Session-Token': localStorage.getItem('session_token') || '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.needs_selection) {
+          console.log('🔄 Admin reset detected, clearing selection');
+          localStorage.removeItem('selected_organization_id');
+          setSelectedOrganization(null);
+          setActiveTab('start');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking organization status:', error);
+    }
+  };
+
+  useEffect(() => {
     if (selectedOrganization) {
       localStorage.setItem('selected_organization_id', selectedOrganization.toString());
       setActiveTab('work');

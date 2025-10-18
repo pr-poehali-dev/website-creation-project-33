@@ -479,16 +479,44 @@ def reject_user(user_id: int) -> bool:
 
 def reset_all_selected_organizations() -> int:
     """Сбросить выбранные организации у всех промоутеров (не админов)"""
+    moscow_now = get_moscow_time()
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
                 UPDATE t_p24058207_website_creation_pro.users 
                 SET selected_organization_id = NULL, 
-                    selected_organization_date = NULL
+                    selected_organization_date = %s
                 WHERE is_admin = FALSE
-            """)
+            """, (moscow_now.date(),))
             conn.commit()
             return cur.rowcount
+
+def check_organization_selection(user_id: int) -> Dict[str, Any]:
+    """Проверить, нужно ли пользователю заново выбрать организацию"""
+    moscow_today = get_moscow_time().date()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT selected_organization_id, selected_organization_date
+                FROM t_p24058207_website_creation_pro.users 
+                WHERE id = %s
+            """, (user_id,))
+            row = cur.fetchone()
+            
+            if not row:
+                return {'needs_selection': True, 'reason': 'user_not_found'}
+            
+            selected_org_id = row[0]
+            selected_date = row[1]
+            
+            # Если организация не выбрана
+            if selected_org_id is None:
+                # Проверяем, был ли сброс сегодня
+                if selected_date and selected_date == moscow_today:
+                    return {'needs_selection': True, 'reason': 'reset_by_admin', 'reset_date': str(selected_date)}
+                return {'needs_selection': True, 'reason': 'not_selected'}
+            
+            return {'needs_selection': False, 'selected_organization_id': selected_org_id}
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -577,6 +605,15 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({'organizations': organizations})
+            }
+        
+        # Проверка статуса выбора организации (доступен для всех)
+        if action == 'check_organization_selection':
+            check_result = check_organization_selection(user['id'])
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps(check_result)
             }
         
         # Остальные действия требуют прав админа

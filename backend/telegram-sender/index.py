@@ -236,6 +236,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 moscow_time
                             )
                         )
+                        
+                        # Обновить выбранную организацию пользователя
+                        if organization_id:
+                            cur.execute(
+                                """UPDATE t_p24058207_website_creation_pro.users 
+                                SET selected_organization_id = %s, 
+                                    selected_organization_date = %s 
+                                WHERE id = %s""",
+                                (organization_id, moscow_time.date(), int(user_id))
+                            )
+                        
                         conn.commit()
             except Exception as db_error:
                 print(f"Database error: {db_error}")

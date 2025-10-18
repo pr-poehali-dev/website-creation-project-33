@@ -9,6 +9,7 @@ import ChatDialog from '@/components/chat/ChatDialog';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
 import TrainingTab from '@/components/user/TrainingTab';
+import ScheduleTab from '@/components/user/ScheduleTab';
 import ContactsCounter, { ContactsStats, ContactsCounterRef } from '@/components/user/ContactsCounter';
 
 export default function UserDashboard() {
@@ -145,7 +146,7 @@ export default function UserDashboard() {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-50 border border-gray-200 h-12 md:h-14">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-50 border border-gray-200 h-12 md:h-14">
             <TabsTrigger 
               value="start" 
               disabled={!!selectedOrganization}
@@ -161,6 +162,14 @@ export default function UserDashboard() {
             >
               <Icon name="Briefcase" size={16} className="md:w-[18px] md:h-[18px]" />
               Работа
+            </TabsTrigger>
+            <TabsTrigger 
+              value="schedule" 
+              disabled={!selectedOrganization}
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base disabled:opacity-50"
+            >
+              <Icon name="Calendar" size={16} className="md:w-[18px] md:h-[18px]" />
+              График
             </TabsTrigger>
             <TabsTrigger 
               value="training" 
@@ -193,6 +202,10 @@ export default function UserDashboard() {
               todayContactsCount={todayContacts}
               onContactAdded={() => contactsCounterRef.current?.refresh()}
             />
+          </TabsContent>
+
+          <TabsContent value="schedule">
+            <ScheduleTab />
           </TabsContent>
 
           <TabsContent value="training">

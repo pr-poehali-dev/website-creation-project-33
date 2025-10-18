@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Save schedule for user",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "user_id": 1,
+        "week_start_date": "2025-10-20",
+        "schedule": {
+          "2025-10-20": {"slot1": true, "slot2": false},
+          "2025-10-21": {"slot1": false, "slot2": true}
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get schedule for user",
+      "method": "GET",
+      "path": "/?user_id=1&week_start=2025-10-20",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "week_start_date": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

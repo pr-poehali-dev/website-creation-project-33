@@ -7,6 +7,7 @@ import UsersTab from './UsersTab';
 import StatsTab from './StatsTab';
 import OrganizationsTab from './OrganizationsTab';
 import AdminChatTab from './AdminChatTab';
+import ScheduleAnalyticsTab from './ScheduleAnalyticsTab';
 
 interface AdminMetroTilesProps {
   unreadCount: number;
@@ -112,11 +113,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
           <Icon name="ArrowLeft" size={20} />
           <span className="text-lg">Назад к плиткам</span>
         </button>
-        <div className="bg-gray-800 rounded-lg p-12 text-center">
-          <Icon name="BarChart3" size={64} className="mx-auto mb-4 text-gray-600" />
-          <h2 className="text-2xl font-bold text-white mb-2">График</h2>
-          <p className="text-gray-400">Раздел в разработке</p>
-        </div>
+        <ScheduleAnalyticsTab />
       </div>
     );
   }

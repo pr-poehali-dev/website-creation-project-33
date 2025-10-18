@@ -477,6 +477,19 @@ def reject_user(user_id: int) -> bool:
     """Отклонить заявку пользователя (удалить и заблокировать IP)"""
     return delete_user(user_id)
 
+def reset_all_selected_organizations() -> int:
+    """Сбросить выбранные организации у всех промоутеров (не админов)"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE t_p24058207_website_creation_pro.users 
+                SET selected_organization_id = NULL, 
+                    selected_organization_date = NULL
+                WHERE is_admin = FALSE
+            """)
+            conn.commit()
+            return cur.rowcount
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
@@ -726,6 +739,25 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
+        
+        elif action == 'reset_selected_organizations':
+            if not user['is_admin']:
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Требуются права администратора'})
+                }
+            
+            count = reset_all_selected_organizations()
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({
+                    'success': True, 
+                    'message': f'Сброшено выбранных организаций: {count}',
+                    'count': count
+                })
+            }
         
         elif action == 'add_organization':
             name = body_data.get('name', '').strip()

@@ -6,10 +6,11 @@ interface AdminHeaderProps {
   onLogout: () => void;
   onOpenGoogleSheets: () => void;
   onResetApproaches: () => void;
+  onResetOrganizations: () => void;
   resetting: boolean;
 }
 
-export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetApproaches, resetting }: AdminHeaderProps) {
+export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetApproaches, onResetOrganizations, resetting }: AdminHeaderProps) {
   return (
     <>
       <div className="md:hidden mb-6 admin-card p-4">
@@ -33,6 +34,15 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
               ) : (
                 <Icon name="RotateCcw" size={16} className="text-red-600" />
               )}
+            </Button>
+            <Button 
+              onClick={onResetOrganizations}
+              disabled={resetting}
+              className="admin-button px-3 py-2"
+              size="sm"
+              variant="outline"
+            >
+              <Icon name="Building2" size={16} className="text-orange-600" />
             </Button>
             <Button 
               onClick={onOpenGoogleSheets}
@@ -79,6 +89,15 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
                 <span className="text-slate-700">Обнулить подходы</span>
               </>
             )}
+          </Button>
+          <Button 
+            onClick={onResetOrganizations}
+            disabled={resetting}
+            className="admin-button"
+            variant="outline"
+          >
+            <Icon name="Building2" size={16} className="mr-2 text-orange-600" />
+            <span className="text-slate-700">Сбросить организации</span>
           </Button>
           <Button 
             onClick={onOpenGoogleSheets}

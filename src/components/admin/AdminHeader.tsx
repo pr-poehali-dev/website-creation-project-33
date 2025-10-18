@@ -41,7 +41,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
               variant="outline"
               title={theme === 'light' ? 'Тёмная тема' : 'Светлая тема'}
             >
-              <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={16} />
+              <Icon name="Moon" size={16} className={theme === 'dark' ? 'text-white' : 'text-gray-700'} />
             </Button>
             <Button 
               onClick={onResetApproaches}

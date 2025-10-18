@@ -211,12 +211,16 @@ export default function LeadsChart({
                 onClick={() => toggleUser(user.name)}
                 variant={selectedUsers.includes(user.name) ? 'default' : 'outline'}
                 size="sm"
-                className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${selectedUsers.includes(user.name)
-                  ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                  : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 font-semibold ${selectedUsers.includes(user.name)
+                  ? 'bg-[#001f54] hover:bg-[#002b6b] !text-white shadow-lg'
+                  : 'bg-white hover:bg-gray-50 !text-black border-2 border-gray-300'
                 }`}
+                style={selectedUsers.includes(user.name) ? {} : { 
+                  borderColor: userColorMap[user.name],
+                  color: '#000'
+                }}
               >
-                {user.name}
+                {user.name || 'Без имени'}
               </Button>
             ))}
           </div>

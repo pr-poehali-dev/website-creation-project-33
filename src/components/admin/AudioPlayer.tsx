@@ -250,7 +250,7 @@ export default function AudioPlayer({ audioData, leadId, className = '' }: Audio
           onClick={downloadAudio}
           size="sm"
           disabled={loading}
-          className="bg-gray-600 hover:bg-gray-700 text-white w-8 h-8 p-0 rounded flex-shrink-0"
+          className="bg-blue-600 hover:bg-blue-700 text-white w-8 h-8 p-0 rounded flex-shrink-0"
           title="Скачать аудио"
         >
           {loading ? <Icon name="Loader2" size={12} className="animate-spin" /> : <Icon name="Download" size={12} />}

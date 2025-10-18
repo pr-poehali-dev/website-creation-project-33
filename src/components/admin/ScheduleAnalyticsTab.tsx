@@ -287,7 +287,7 @@ export default function ScheduleAnalyticsTab() {
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-[10px] md:text-xs text-gray-400 italic">Никого</p>
+                              <p className="text-[10px] md:text-xs text-gray-600 italic">Никого</p>
                             )}
                           </div>
                         );
@@ -329,7 +329,7 @@ export default function ScheduleAnalyticsTab() {
                   {weekDays.map(day => {
                     const daySchedule = getUserScheduleForDay(selectedUserData.schedule, day.date);
                     return (
-                      <Card key={day.date} className="bg-white border-gray-200 shadow-sm">
+                      <Card key={day.date} className="bg-white border-2 border-gray-200 shadow-sm">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -349,7 +349,7 @@ export default function ScheduleAnalyticsTab() {
                               {day.slots.map(slot => (
                                 <div key={slot.time} className="relative group">
                                   <Badge
-                                    className={`${daySchedule[slot.time] ? 'bg-green-600 pr-7' : 'bg-gray-600'}`}
+                                    className={`${daySchedule[slot.time] ? 'bg-green-600 pr-7' : 'bg-gray-400'}`}
                                   >
                                     <Icon name="Clock" size={14} className="mr-1" />
                                     {slot.label}
@@ -380,7 +380,7 @@ export default function ScheduleAnalyticsTab() {
               )}
 
               {!selectedUserData && schedules.length > 0 && (
-                <Card className="bg-white border-gray-200 shadow-sm">
+                <Card className="bg-white border-2 border-gray-200 shadow-sm">
                   <CardContent className="p-8 text-center">
                     <Icon name="UserSearch" size={48} className="mx-auto mb-3 text-gray-400" />
                     <p className="text-gray-600">Выберите промоутера для просмотра графика</p>
@@ -389,7 +389,7 @@ export default function ScheduleAnalyticsTab() {
               )}
 
               {schedules.length === 0 && (
-                <Card className="bg-white border-gray-200 shadow-sm">
+                <Card className="bg-white border-2 border-gray-200 shadow-sm">
                   <CardContent className="p-8 text-center">
                     <Icon name="Calendar" size={48} className="mx-auto mb-3 text-gray-400" />
                     <p className="text-gray-600">Графики еще не заполнены</p>
@@ -416,7 +416,7 @@ export default function ScheduleAnalyticsTab() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white text-gray-700 hover:bg-gray-50 border-gray-300">
+            <AlertDialogCancel className="bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300">
               Отмена
             </AlertDialogCancel>
             <AlertDialogAction

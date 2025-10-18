@@ -52,41 +52,6 @@ export default function AdminPanel() {
     }
   };
 
-  const resetSelectedOrganizations = async () => {
-    if (!confirm('Вы уверены? Все промоутеры должны будут заново выбрать организацию сегодня.')) {
-      return;
-    }
-
-    setResetting(true);
-    try {
-      const sessionToken = localStorage.getItem('session_token');
-      const response = await fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': sessionToken || ''
-        },
-        body: JSON.stringify({ action: 'reset_selected_organizations' })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        toast({
-          title: 'Готово!',
-          description: `Сброшено выбранных организаций: ${data.count}`
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось сбросить организации',
-        variant: 'destructive'
-      });
-    } finally {
-      setResetting(false);
-    }
-  };
-
   if (!user?.is_admin) {
     return <AdminAccessDenied onLogout={logout} />;
   }
@@ -99,8 +64,7 @@ export default function AdminPanel() {
         <AdminHeader 
           onLogout={logout} 
           onOpenGoogleSheets={openGoogleSheets} 
-          onResetApproaches={resetApproaches} 
-          onResetOrganizations={resetSelectedOrganizations}
+          onResetApproaches={resetApproaches}
           resetting={resetting} 
         />
         <AdminTabs 

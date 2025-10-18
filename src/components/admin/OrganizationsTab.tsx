@@ -26,8 +26,43 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
   const [newOrgName, setNewOrgName] = useState('');
   const [adding, setAdding] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
+
+  const resetSelectedOrganizations = async () => {
+    if (!confirm('Вы уверены? Все промоутеры должны будут заново выбрать организацию сегодня.')) {
+      return;
+    }
+
+    setResetting(true);
+    try {
+      const response = await fetch(ADMIN_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || ''
+        },
+        body: JSON.stringify({ action: 'reset_selected_organizations' })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast({
+          title: 'Готово!',
+          description: `Сброшено выбранных организаций: ${data.count}`
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось сбросить организации',
+        variant: 'destructive'
+      });
+    } finally {
+      setResetting(false);
+    }
+  };
 
 
 
@@ -134,11 +169,28 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
     <div className="space-y-4 md:space-y-6">
       <Card className="glass-panel border-white/10 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-lg md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
-              <Icon name="Building2" size={18} className="text-white md:w-5 md:h-5" />
+          <CardTitle className="flex items-center justify-between gap-2 md:gap-3 text-white text-lg md:text-xl">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
+                <Icon name="Building2" size={18} className="text-white md:w-5 md:h-5" />
+              </div>
+              Управление организациями
             </div>
-            Добавить организацию
+            <Button
+              onClick={resetSelectedOrganizations}
+              disabled={resetting}
+              className="glass-button bg-orange-500/20 hover:bg-orange-500/30 text-orange-200 border-2 border-orange-400/30 shadow-lg transition-all duration-300 hover:scale-105 h-8 md:h-9 text-xs md:text-sm"
+            >
+              {resetting ? (
+                <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
+              ) : (
+                <>
+                  <Icon name="RotateCcw" size={14} className="mr-1.5 md:mr-2 md:w-4 md:h-4" />
+                  <span className="hidden sm:inline">Сбросить выбор</span>
+                  <span className="sm:hidden">Сброс</span>
+                </>
+              )}
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -117,15 +117,15 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
 
   if (isLoading) {
     return (
-      <Card className="bg-gray-800 border-gray-700 rounded-2xl">
+      <Card className="bg-white border-gray-200 rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-gray-900 flex items-center gap-2">
             <Icon name="UserCheck" size={24} />
             Заявки на регистрацию
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center gap-2 text-white py-8">
+          <div className="flex items-center justify-center gap-2 text-gray-900 py-8">
             <Icon name="Loader2" size={20} className="animate-spin" />
             Загрузка заявок...
           </div>
@@ -135,9 +135,9 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
   }
 
   return (
-    <Card className="bg-gray-800 border-gray-700 rounded-2xl">
+    <Card className="bg-white border-gray-200 rounded-2xl">
       <CardHeader>
-        <CardTitle className="text-white flex flex-col sm:flex-row items-start sm:items-center gap-2 text-lg md:text-xl">
+        <CardTitle className="text-gray-900 flex flex-col sm:flex-row items-start sm:items-center gap-2 text-lg md:text-xl">
           <div className="flex items-center gap-2">
             <Icon name="UserCheck" size={20} className="md:w-6 md:h-6" />
             <span>Заявки на регистрацию</span>
@@ -151,9 +151,9 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
       </CardHeader>
       <CardContent>
         {pendingUsers.length === 0 ? (
-          <div className="text-center py-6 md:py-8 text-white/70">
+          <div className="text-center py-6 md:py-8 text-gray-600">
             <Icon name="Check" size={40} className="mx-auto mb-3 md:mb-4 text-green-400 md:w-12 md:h-12" />
-            <p className="text-base md:text-lg font-medium text-white">Нет новых заявок</p>
+            <p className="text-base md:text-lg font-medium text-gray-900">Нет новых заявок</p>
             <p className="text-xs md:text-sm mt-2">Все заявки обработаны</p>
           </div>
         ) : (
@@ -166,10 +166,10 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
                 <div className="flex flex-col gap-3 md:gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Icon name="User" size={16} className="text-white md:w-[18px] md:h-[18px]" />
-                      <span className="font-bold text-white text-base md:text-lg">{user.name}</span>
+                      <Icon name="User" size={16} className="text-gray-900 md:w-[18px] md:h-[18px]" />
+                      <span className="font-bold text-gray-900 text-base md:text-lg">{user.name}</span>
                     </div>
-                    <div className="space-y-1 text-xs md:text-sm text-white/70">
+                    <div className="space-y-1 text-xs md:text-sm text-gray-600">
                       <div className="flex items-center gap-2">
                         <Icon name="Mail" size={12} className="md:w-[14px] md:h-[14px]" />
                         <span className="truncate">{user.email}</span>

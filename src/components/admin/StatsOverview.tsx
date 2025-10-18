@@ -12,12 +12,12 @@ interface StatsOverviewProps {
 
 export default function StatsOverview({ stats, onExportAll, exportingAll }: StatsOverviewProps) {
   return (
-    <Card className="bg-gray-800 border-gray-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-base md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
-              <Icon name="BarChart3" size={18} className="text-white md:w-5 md:h-5" />
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-base md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
+              <Icon name="BarChart3" size={18} className="text-gray-900 md:w-5 md:h-5" />
             </div>
             Общая статистика
           </CardTitle>
@@ -25,7 +25,7 @@ export default function StatsOverview({ stats, onExportAll, exportingAll }: Stat
             <Button
               onClick={onExportAll}
               disabled={exportingAll}
-              className="glass-button bg-white/10 hover:bg-white/20 text-white shadow-lg transition-all duration-300 hover:scale-105 w-full md:w-auto text-sm md:text-base"
+              className="glass-button bg-gray-100 hover:bg-gray-100 text-gray-900 shadow-lg transition-all duration-300 hover:scale-105 w-full md:w-auto text-sm md:text-base"
               size="sm"
             >
               {exportingAll ? (
@@ -50,7 +50,7 @@ export default function StatsOverview({ stats, onExportAll, exportingAll }: Stat
             <div className="text-2xl md:text-3xl font-bold text-green-600 mb-2">
               {stats.contacts}
             </div>
-            <div className="text-white/70 text-sm md:text-base font-medium">Контактов</div>
+            <div className="text-gray-600 text-sm md:text-base font-medium">Контактов</div>
           </div>
 
           {/* Подходы */}
@@ -58,17 +58,17 @@ export default function StatsOverview({ stats, onExportAll, exportingAll }: Stat
             <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-2">
               {stats.approaches}
             </div>
-            <div className="text-white/70 text-sm md:text-base font-medium">Подходов</div>
+            <div className="text-gray-600 text-sm md:text-base font-medium">Подходов</div>
           </div>
         </div>
 
         {/* Проценты */}
         <div className="mt-4 md:mt-6 grid grid-cols-2 gap-3 md:gap-6">
-          <div className="flex items-center gap-2 text-white/80 font-medium text-xs md:text-base">
+          <div className="flex items-center gap-2 text-gray-700 font-medium text-xs md:text-base">
             <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-green-600 rounded-full shadow-sm"></div>
             <span>Контакты: {stats.total_leads > 0 ? Math.round((stats.contacts / stats.total_leads) * 100) : 0}%</span>
           </div>
-          <div className="flex items-center gap-2 text-white/80 font-medium text-xs md:text-base">
+          <div className="flex items-center gap-2 text-gray-700 font-medium text-xs md:text-base">
             <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-orange-600 rounded-full shadow-sm"></div>
             <span>Подходы: {stats.total_leads > 0 ? Math.round((stats.approaches / stats.total_leads) * 100) : 0}%</span>
           </div>

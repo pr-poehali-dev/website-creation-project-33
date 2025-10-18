@@ -13,9 +13,9 @@ interface UserListProps {
 
 export default function UserList({ users, selectedUser, onSelectUser }: UserListProps) {
   return (
-    <Card className="bg-gray-800 border-gray-700 rounded-2xl md:col-span-1 h-full">
+    <Card className="bg-white border-gray-200 rounded-2xl md:col-span-1 h-full">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-sm md:text-base text-white">
+        <CardTitle className="flex items-center gap-2 text-sm md:text-base text-gray-900">
           <Icon name="Users" size={18} className="md:w-5 md:h-5" />
           Диалоги ({users.length})
         </CardTitle>
@@ -23,7 +23,7 @@ export default function UserList({ users, selectedUser, onSelectUser }: UserList
       <CardContent className="p-0">
         <ScrollArea className="h-[calc(100vh-300px)] md:h-[calc(100vh-300px)]">
           {users.length === 0 ? (
-            <div className="p-4 md:p-6 text-center text-white/70">
+            <div className="p-4 md:p-6 text-center text-gray-600">
               <Icon name="MessageCircle" size={28} className="mx-auto mb-2 opacity-50 md:w-8 md:h-8" />
               <p className="text-xs md:text-sm">Нет активных диалогов</p>
             </div>
@@ -33,20 +33,20 @@ export default function UserList({ users, selectedUser, onSelectUser }: UserList
                 <button
                   key={userChat.id}
                   onClick={() => onSelectUser(userChat)}
-                  className={`w-full p-3 md:p-4 text-left hover:bg-white/5 active:bg-white/10 transition-colors border-b border-white/10 ${
-                    selectedUser?.id === userChat.id ? 'bg-white/10 border-l-4 border-l-white/50' : ''
+                  className={`w-full p-3 md:p-4 text-left hover:bg-gray-100 active:bg-gray-100 transition-colors border-b border-gray-200 ${
+                    selectedUser?.id === userChat.id ? 'bg-gray-100 border-l-4 border-l-gray-500' : ''
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 md:gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-xs md:text-sm truncate text-white">{userChat.name}</p>
-                      <p className="text-[10px] md:text-xs text-white/50 truncate">{userChat.email}</p>
+                      <p className="font-medium text-xs md:text-sm truncate text-gray-900">{userChat.name}</p>
+                      <p className="text-[10px] md:text-xs text-gray-500 truncate">{userChat.email}</p>
                       {userChat.last_message_time ? (
-                        <p className="text-[10px] md:text-xs text-white/40 mt-1">
+                        <p className="text-[10px] md:text-xs text-gray-500 mt-1">
                           {formatChatListTime(userChat.last_message_time)}
                         </p>
                       ) : (
-                        <p className="text-[10px] md:text-xs text-white/40 mt-1 italic">
+                        <p className="text-[10px] md:text-xs text-gray-500 mt-1 italic">
                           Нет сообщений
                         </p>
                       )}

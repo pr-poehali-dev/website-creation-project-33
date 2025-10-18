@@ -108,15 +108,15 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
 
   if (isLoading) {
     return (
-      <Card className="bg-gray-800 border-gray-700 rounded-2xl">
+      <Card className="bg-white border-gray-200 rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
+          <CardTitle className="text-gray-900 flex items-center gap-2">
             <Icon name="Clock" size={24} />
             Время работы
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center gap-2 text-white py-8">
+          <div className="flex items-center justify-center gap-2 text-gray-900 py-8">
             <Icon name="Loader2" size={20} className="animate-spin" />
             Загрузка данных...
           </div>
@@ -140,29 +140,29 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
   });
 
   return (
-    <Card className="bg-gray-800 border-gray-700 rounded-2xl">
+    <Card className="bg-white border-gray-200 rounded-2xl">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-white flex items-center gap-2 text-lg md:text-xl">
-            <div className="p-2 rounded-lg bg-white/5">
+          <CardTitle className="text-gray-900 flex items-center gap-2 text-lg md:text-xl">
+            <div className="p-2 rounded-lg bg-gray-100">
               <Icon name="Clock" size={20} className="md:w-6 md:h-6" />
             </div>
             Время работы промоутеров
           </CardTitle>
           <button
             onClick={loadWorkTime}
-            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-100 transition-colors"
             title="Обновить данные"
           >
-            <Icon name="RefreshCw" size={18} className="text-white" />
+            <Icon name="RefreshCw" size={18} className="text-gray-900" />
           </button>
         </div>
       </CardHeader>
       <CardContent>
         {workTimeData.length === 0 ? (
-          <div className="text-center py-6 md:py-8 text-white/70">
-            <Icon name="Calendar" size={40} className="mx-auto mb-3 md:mb-4 text-white/30 md:w-12 md:h-12" />
-            <p className="text-base md:text-lg font-medium text-white">Нет данных</p>
+          <div className="text-center py-6 md:py-8 text-gray-600">
+            <Icon name="Calendar" size={40} className="mx-auto mb-3 md:mb-4 text-gray-300 md:w-12 md:h-12" />
+            <p className="text-base md:text-lg font-medium text-gray-900">Нет данных</p>
             <p className="text-xs md:text-sm mt-2">Промоутеры еще не открывали смены</p>
           </div>
         ) : (
@@ -173,22 +173,22 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
               const isExpanded = expandedDates.has(date);
               
               return (
-                <div key={date} className="border-2 border-white/10 rounded-xl overflow-hidden bg-white/5">
+                <div key={date} className="border-2 border-gray-200 rounded-xl overflow-hidden bg-gray-100">
                   <div 
-                    className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 cursor-pointer hover:bg-white/10 transition-colors gap-2"
+                    className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 cursor-pointer hover:bg-gray-100 transition-colors gap-2"
                     onClick={() => toggleDate(date)}
                   >
                     <div className="flex items-center gap-2 md:gap-3">
                       <Icon 
                         name={isExpanded ? "ChevronDown" : "ChevronRight"} 
                         size={18} 
-                        className="text-white transition-transform md:w-5 md:h-5" 
+                        className="text-gray-900 transition-transform md:w-5 md:h-5" 
                       />
-                      <Icon name="Calendar" size={18} className="text-white md:w-5 md:h-5" />
-                      <span className="font-bold text-white text-sm md:text-base">{date}</span>
-                      <span className="text-xs md:text-sm text-white/50">({shifts.length})</span>
+                      <Icon name="Calendar" size={18} className="text-gray-900 md:w-5 md:h-5" />
+                      <span className="font-bold text-gray-900 text-sm md:text-base">{date}</span>
+                      <span className="text-xs md:text-sm text-gray-500">({shifts.length})</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs md:text-sm text-white/70 bg-white/10 px-2 py-1 md:px-3 rounded-lg ml-7 md:ml-0">
+                    <div className="flex items-center gap-1.5 text-xs md:text-sm text-gray-600 bg-gray-100 px-2 py-1 md:px-3 rounded-lg ml-7 md:ml-0">
                       <Icon name="MessageSquare" size={12} className="md:w-[14px] md:h-[14px]" />
                       <span>{totalLeads} лидов</span>
                     </div>

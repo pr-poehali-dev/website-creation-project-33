@@ -86,11 +86,11 @@ export default function LeadsChart({
   }, {} as Record<string, string>);
 
   return (
-    <Card className="bg-gray-800 border-gray-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-3 md:pb-4">
-        <CardTitle className="flex items-center gap-2 md:gap-3 text-white text-lg md:text-xl">
-          <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
-            <Icon name="TrendingUp" size={18} className="text-white md:w-5 md:h-5" />
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
+            <Icon name="TrendingUp" size={18} className="text-gray-900 md:w-5 md:h-5" />
           </div>
           График лидов
         </CardTitle>
@@ -104,7 +104,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'contacts'
                 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
-                : 'bg-white/5 hover:bg-white/10 text-green-400 border-green-400/30'
+                : 'bg-gray-100 hover:bg-gray-100 text-green-400 border-green-400/30'
               }`}
             >
               Контакты
@@ -115,7 +115,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'approaches'
                 ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
-                : 'bg-white/5 hover:bg-white/10 text-orange-400 border-orange-400/30'
+                : 'bg-gray-100 hover:bg-gray-100 text-orange-400 border-orange-400/30'
               }`}
             >
               Подходы
@@ -127,7 +127,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${showTotal
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
+                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
               }`}
             >
               <Icon name={showTotal ? "Eye" : "EyeOff"} size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
@@ -137,14 +137,14 @@ export default function LeadsChart({
           </div>
 
           <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-            <span className="text-xs md:text-sm text-white/70 font-medium">Период:</span>
+            <span className="text-xs md:text-sm text-gray-600 font-medium">Период:</span>
             <Button
               onClick={() => setTimeRange('week')}
               variant={timeRange === 'week' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'week'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
+                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
               }`}
             >
               7д
@@ -155,7 +155,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'twoWeeks'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
+                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
               }`}
             >
               14д
@@ -166,7 +166,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'month'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
+                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
               }`}
             >
               30д
@@ -177,7 +177,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'year'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
+                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
               }`}
             >
               Год
@@ -188,7 +188,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'all'
                 ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
+                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
               }`}
             >
               Всё
@@ -196,12 +196,12 @@ export default function LeadsChart({
           </div>
 
           <div className="flex flex-wrap gap-1.5 md:gap-2">
-            <span className="text-xs md:text-sm text-white/70 font-medium">Пользователи:</span>
+            <span className="text-xs md:text-sm text-gray-600 font-medium">Пользователи:</span>
             <Button
               onClick={toggleAllUsers}
               variant="outline"
               size="sm"
-              className="glass-button bg-white/5 hover:bg-white/10 text-white border-white/10 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
+              className="glass-button bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
             >
               {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
             </Button>
@@ -213,7 +213,7 @@ export default function LeadsChart({
                 size="sm"
                 className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${selectedUsers.includes(user.name)
                   ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                  : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
+                  : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
                 }`}
               >
                 {user.name}

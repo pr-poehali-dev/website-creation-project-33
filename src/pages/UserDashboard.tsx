@@ -165,7 +165,8 @@ export default function UserDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="schedule" 
-              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base"
+              disabled={!selectedOrganization}
+              className="flex items-center gap-1 md:gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all duration-300 text-sm md:text-base disabled:opacity-50"
             >
               <Icon name="Calendar" size={16} className="md:w-[18px] md:h-[18px]" />
               График

@@ -114,7 +114,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-gray-900 text-sm md:text-base truncate">
-                        {user.name}
+                        {user.name || 'Без имени'}
                       </div>
                       <div className="text-xs md:text-sm text-gray-500 truncate">
                         {user.email}
@@ -124,12 +124,12 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                   <div className="flex-shrink-0 text-right">
                     <div className="flex justify-end gap-1.5 md:gap-2 text-xs">
                       <div className="text-center">
-                        <div className="text-xs md:text-sm font-bold text-green-600">{user.contacts}</div>
-                        <div className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">контакт</div>
+                        <div className="text-xs md:text-sm font-bold text-green-600">К: {user.contacts}</div>
+                        <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">контакт</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-xs md:text-sm font-bold text-orange-600">{user.approaches}</div>
-                        <div className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">подход</div>
+                        <div className="text-xs md:text-sm font-bold text-orange-600">П: {user.approaches}</div>
+                        <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">подход</div>
                       </div>
                       {user.duplicates > 0 && (
                         <div className="text-center">

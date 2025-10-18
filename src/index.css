@@ -113,32 +113,32 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 220 15% 12%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 220 15% 15%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 220 15% 15%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 217.2 32.6% 20%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 217.2 32.6% 20%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 217.2 32.6% 20%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 217.2 20% 25%;
+    --input: 217.2 20% 25%;
     --ring: 212.7 26.8% 83.9%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -159,8 +159,11 @@
   body {
     @apply bg-background text-foreground;
     font-family: "Inter", sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
     min-height: 100vh;
+  }
+
+  body:not(.dark) {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
   }
 }
 
@@ -235,122 +238,6 @@
     background: transparent;
     cursor: pointer;
     outline: none;
-  }
-
-  /* Admin Panel Override ALL */
-  .admin-card,
-  .glass-panel {
-    background: white !important;
-    border: 1px solid #e5e7eb !important;
-    color: #0f172a !important;
-    backdrop-filter: none !important;
-  }
-
-  /* All cards inside admin with borders */
-  [role="tabpanel"] > div > div,
-  [role="tabpanel"] [class*="rounded"] {
-    border: 1px solid #e5e7eb !important;
-  }
-
-  /* User cards need visible borders */
-  [role="tabpanel"] [class*="border-"] {
-    border-color: #cbd5e1 !important;
-  }
-
-  /* Text visibility */
-  [role="tabpanel"] .text-white,
-  [role="tabpanel"] h1,
-  [role="tabpanel"] h2,
-  [role="tabpanel"] h3,
-  [role="tabpanel"] p,
-  [role="tabpanel"] span:not([class*="bg-"]),
-  [role="tabpanel"] label {
-    color: #0f172a !important;
-  }
-
-  /* Exception for gradient backgrounds - keep white text */
-  [role="tabpanel"] .bg-gradient-to-br h3,
-  [role="tabpanel"] .bg-gradient-to-br p,
-  [role="tabpanel"] .bg-gradient-to-br .text-white,
-  [role="tabpanel"] [class*="bg-gradient"] h3,
-  [role="tabpanel"] [class*="bg-gradient"] p,
-  [role="tabpanel"] [class*="bg-gradient"] .text-white {
-    color: white !important;
-  }
-
-  /* Secondary text - email, dates, etc */
-  [role="tabpanel"] .text-white\/70,
-  [role="tabpanel"] .text-white\/60,
-  [role="tabpanel"] .text-white\/50 {
-    color: #64748b !important;
-  }
-
-  /* Badges visibility */
-  [role="tabpanel"] [class*="badge"],
-  [role="tabpanel"] .bg-white\/10 {
-    background: #f1f5f9 !important;
-    color: #334155 !important;
-    border: 1px solid #cbd5e1 !important;
-  }
-
-  [role="tabpanel"] .bg-green-50 {
-    background: #f0fdf4 !important;
-    color: #16a34a !important;
-    border: 1px solid #86efac !important;
-  }
-
-  /* Icons visibility */
-  [role="tabpanel"] svg,
-  [role="tabpanel"] button svg,
-  [role="tab"] svg {
-    opacity: 1 !important;
-  }
-
-  [role="tab"] svg {
-    color: #64748b !important;
-    stroke: #64748b !important;
-  }
-
-  [role="tab"][data-state="active"] svg {
-    color: white !important;
-    stroke: white !important;
-  }
-
-  [role="tabpanel"] svg {
-    color: #0f172a !important;
-    stroke: #0f172a !important;
-  }
-
-  /* Buttons */
-  [role="tabpanel"] button:not(.audio-record-button) {
-    background: white !important;
-    border: 1px solid #e5e7eb !important;
-    color: #0f172a !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: inline-flex !important;
-  }
-
-  [role="tabpanel"] button:not(.audio-record-button):hover {
-    background: #f8fafc !important;
-    border-color: #94a3b8 !important;
-  }
-
-  [role="tabpanel"] button:not(.audio-record-button) svg {
-    color: #0f172a !important;
-    stroke: #0f172a !important;
-  }
-
-  [role="tabpanel"] button .text-red-500,
-  [role="tabpanel"] button:has(.text-red-500) svg {
-    color: #ef4444 !important;
-    stroke: #ef4444 !important;
-  }
-
-  /* Backgrounds */
-  [role="tabpanel"] .bg-white\/5,
-  [role="tabpanel"] .bg-white\/10 {
-    background: #f8fafc !important;
   }
 
   /* iOS 18 Spring Animations - Global */

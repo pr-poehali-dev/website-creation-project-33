@@ -12,9 +12,15 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetApproaches, resetting }: AdminHeaderProps) {
   return (
     <>
-      <div className="md:hidden mb-6 bg-gray-50 border border-gray-200 p-4 rounded-lg">
+      <div className={`md:hidden mb-6 p-4 rounded-lg border transition-colors ${
+        theme === 'dark' 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-gray-50 border-gray-200'
+      }`}>
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className={`text-xl font-bold flex items-center gap-2 ${
+            theme === 'dark' ? 'text-white' : 'text-gray-900'
+          }`}>
             <div className="p-2 rounded-lg bg-blue-600">
               <Icon name="Shield" size={20} className="text-white" />
             </div>
@@ -53,8 +59,14 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
         </div>
       </div>
 
-      <div className="hidden md:flex justify-between items-center mb-8 bg-gray-50 border border-gray-200 p-6 rounded-lg">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+      <div className={`hidden md:flex justify-between items-center mb-8 p-6 rounded-lg border transition-colors ${
+        theme === 'dark'
+          ? 'bg-gray-800 border-gray-700'
+          : 'bg-gray-50 border-gray-200'
+      }`}>
+        <h1 className={`text-3xl font-bold flex items-center gap-3 ${
+          theme === 'dark' ? 'text-white' : 'text-gray-900'
+        }`}>
           <div className="p-3 rounded bg-blue-600">
             <Icon name="Shield" size={32} className="text-white" />
           </div>

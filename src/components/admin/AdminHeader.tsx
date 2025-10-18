@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
-
 interface AdminHeaderProps {
   onLogout: () => void;
   onOpenGoogleSheets: () => void;
@@ -70,13 +69,13 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
           >
             {resetting ? (
               <>
-                <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                <span>Обнуление...</span>
+                <Icon name="Loader2" size={16} className="mr-2 text-gray-700 animate-spin" />
+                <span className="text-gray-700">Обнуление...</span>
               </>
             ) : (
               <>
-                <Icon name="RotateCcw" size={16} className="mr-2" />
-                <span>Обнулить подходы</span>
+                <Icon name="RotateCcw" size={16} className="mr-2 text-gray-700" />
+                <span className="text-gray-700">Обнулить подходы</span>
               </>
             )}
           </Button>

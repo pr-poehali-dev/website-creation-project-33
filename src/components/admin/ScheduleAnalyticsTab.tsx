@@ -10,6 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface TimeSlot {
   label: string;
@@ -38,6 +48,8 @@ export default function ScheduleAnalyticsTab() {
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [weekDays, setWeekDays] = useState<DaySchedule[]>([]);
+  const [deletingSlot, setDeletingSlot] = useState<{userId: number, date: string, slot: string} | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{userId: number, userName: string, date: string, slot: string, slotLabel: string} | null>(null);
 
   useEffect(() => {
     initializeWeekDays();
@@ -116,6 +128,52 @@ export default function ScheduleAnalyticsTab() {
       if (day.slot2) total++;
     });
     return total;
+  };
+
+  const confirmRemoveSlot = (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => {
+    setConfirmDelete({userId, userName, date, slot: slotTime, slotLabel});
+  };
+
+  const removeSlot = async () => {
+    if (!confirmDelete) return;
+    
+    const {userId, date, slot: slotTime} = confirmDelete;
+    setDeletingSlot({userId, date, slot: slotTime});
+    setConfirmDelete(null);
+    
+    try {
+      const userSchedule = schedules.find(s => s.user_id === userId);
+      if (!userSchedule) return;
+
+      const updatedSchedule = { ...userSchedule.schedule };
+      if (updatedSchedule[date]) {
+        updatedSchedule[date] = {
+          ...updatedSchedule[date],
+          [slotTime]: false
+        };
+      }
+
+      const response = await fetch('https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': localStorage.getItem('session_token') || '',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          week_start_date: WEEK_START,
+          schedule: updatedSchedule
+        })
+      });
+
+      if (response.ok) {
+        await loadAllSchedules();
+      }
+    } catch (error) {
+      console.error('Error removing slot:', error);
+    } finally {
+      setDeletingSlot(null);
+    }
   };
 
   if (loading) {
@@ -209,8 +267,22 @@ export default function ScheduleAnalyticsTab() {
                             {workers.length > 0 ? (
                               <div className="space-y-1">
                                 {workers.map(worker => (
-                                  <div key={worker.user_id} className="text-[10px] md:text-xs text-gray-300">
-                                    • {worker.first_name} {worker.last_name}
+                                  <div key={worker.user_id} className="flex items-center justify-between group">
+                                    <span className="text-[10px] md:text-xs text-gray-300">
+                                      • {worker.first_name} {worker.last_name}
+                                    </span>
+                                    <button
+                                      onClick={() => confirmRemoveSlot(worker.user_id, `${worker.first_name} ${worker.last_name}`, day.date, slot.time, slot.label)}
+                                      disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
+                                      className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300 disabled:opacity-50"
+                                      title="Удалить смену"
+                                    >
+                                      {deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (
+                                        <Icon name="Loader2" size={14} className="animate-spin" />
+                                      ) : (
+                                        <Icon name="X" size={14} />
+                                      )}
+                                    </button>
                                   </div>
                                 ))}
                               </div>
@@ -275,13 +347,28 @@ export default function ScheduleAnalyticsTab() {
 
                             <div className="flex gap-2">
                               {day.slots.map(slot => (
-                                <Badge
-                                  key={slot.time}
-                                  className={daySchedule[slot.time] ? 'bg-green-600' : 'bg-gray-600'}
-                                >
-                                  <Icon name="Clock" size={14} className="mr-1" />
-                                  {slot.label}
-                                </Badge>
+                                <div key={slot.time} className="relative group">
+                                  <Badge
+                                    className={`${daySchedule[slot.time] ? 'bg-green-600 pr-7' : 'bg-gray-600'}`}
+                                  >
+                                    <Icon name="Clock" size={14} className="mr-1" />
+                                    {slot.label}
+                                  </Badge>
+                                  {daySchedule[slot.time] && (
+                                    <button
+                                      onClick={() => confirmRemoveSlot(selectedUserData.user_id, `${selectedUserData.first_name} ${selectedUserData.last_name}`, day.date, slot.time, slot.label)}
+                                      disabled={deletingSlot?.userId === selectedUserData.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
+                                      className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white hover:text-red-200 disabled:opacity-50"
+                                      title="Удалить смену"
+                                    >
+                                      {deletingSlot?.userId === selectedUserData.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (
+                                        <Icon name="Loader2" size={12} className="animate-spin" />
+                                      ) : (
+                                        <Icon name="X" size={12} />
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -313,6 +400,34 @@ export default function ScheduleAnalyticsTab() {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
+        <AlertDialogContent className="bg-gray-800 border-gray-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Удалить смену?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
+              {confirmDelete && (
+                <>
+                  Вы уверены, что хотите удалить смену <strong>{confirmDelete.slotLabel}</strong> для{' '}
+                  <strong>{confirmDelete.userName}</strong> на{' '}
+                  <strong>{new Date(confirmDelete.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</strong>?
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600">
+              Отмена
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={removeSlot}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

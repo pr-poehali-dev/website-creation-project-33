@@ -21,6 +21,19 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
   const [workTimeData, setWorkTimeData] = useState<WorkTimeData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingShift, setDeletingShift] = useState<string | null>(null);
+  const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
+
+  const toggleDate = (date: string) => {
+    setExpandedDates(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(date)) {
+        newSet.delete(date);
+      } else {
+        newSet.add(date);
+      }
+      return newSet;
+    });
+  };
 
   const loadWorkTime = async () => {
     setIsLoading(true);
@@ -157,21 +170,32 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
             {sortedDates.map((date) => {
               const shifts = groupedByDate[date];
               const totalLeads = shifts.reduce((sum, shift) => sum + shift.leads_count, 0);
+              const isExpanded = expandedDates.has(date);
               
               return (
-                <div key={date} className="border-2 border-white/10 rounded-xl p-4 bg-white/5">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
+                <div key={date} className="border-2 border-white/10 rounded-xl overflow-hidden bg-white/5">
+                  <div 
+                    className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/10 transition-colors"
+                    onClick={() => toggleDate(date)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon 
+                        name={isExpanded ? "ChevronDown" : "ChevronRight"} 
+                        size={20} 
+                        className="text-white transition-transform" 
+                      />
                       <Icon name="Calendar" size={20} className="text-white" />
                       <span className="font-bold text-white text-base md:text-lg">{date}</span>
+                      <span className="text-sm text-white/50">({shifts.length} {shifts.length === 1 ? 'промоутер' : 'промоутера'})</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-sm text-white/70 bg-white/10 px-3 py-1 rounded-lg">
                       <Icon name="MessageSquare" size={14} />
-                      <span>{totalLeads} лидов всего</span>
+                      <span>{totalLeads} лидов</span>
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
+                  {isExpanded && (
+                    <div className="space-y-2 p-4 pt-0">
                     {shifts.map((shift, index) => {
                       const workDate = shift.date.split('.').reverse().join('-');
                       const shiftKey = `${shift.user_id}-${workDate}`;
@@ -236,10 +260,11 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                       </div>
                     );
                   })}
+                    </div>
+                  )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
           </div>
         )}
       </CardContent>

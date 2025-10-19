@@ -279,7 +279,7 @@ export default function ScheduleAnalyticsTab() {
                     <div className={`text-[10px] md:text-xs font-semibold mb-1 ${day.isWeekend ? 'text-orange-600' : 'text-blue-600'}`}>
                       {day.dayName}
                     </div>
-                    <div className="text-sm md:text-lg font-bold text-gray-900">
+                    <div className="text-xs md:text-lg font-bold text-gray-900">
                       {new Date(day.date).getDate()}.10
                     </div>
                   </div>

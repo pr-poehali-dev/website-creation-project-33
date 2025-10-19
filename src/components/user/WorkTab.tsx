@@ -345,7 +345,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           fontSize: '20px',
           fontWeight: '600',
           borderRadius: '8px',
-          border: '2px solid #ef4444',
+          border: '2px solid #e5e7eb',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',

@@ -312,24 +312,27 @@ export default function ScheduleAnalyticsTab() {
                         {day.slots.map(slot => {
                           const workers = getUsersWorkingOnSlot(day.date, slot.time);
                           if (workers.length === 0) return null;
+                          const hasMaxim = workers.some(w => w.first_name === 'Максим' && w.last_name === 'Корельский');
 
                           return (
-                            <div key={slot.time} className="bg-green-50 border-2 border-green-300 p-2 md:p-3 rounded-lg">
+                            <div key={slot.time} className={`${hasMaxim ? 'bg-purple-50 border-2 border-purple-300' : 'bg-green-50 border-2 border-green-300'} p-2 md:p-3 rounded-lg`}>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs md:text-sm font-semibold text-green-700">
-                                  <Icon name="Clock" size={12} className="text-green-600 inline mr-1 md:w-[14px] md:h-[14px]" />
+                                <span className={`text-xs md:text-sm font-semibold ${hasMaxim ? 'text-purple-700' : 'text-green-700'}`}>
+                                  <Icon name="Clock" size={12} className={`${hasMaxim ? 'text-purple-600' : 'text-green-600'} inline mr-1 md:w-[14px] md:h-[14px]`} />
                                   {slot.label}
                                 </span>
-                                <Badge className="text-xs bg-green-600">
+                                <Badge className={`text-xs ${hasMaxim ? 'bg-purple-600' : 'bg-green-600'}`}>
                                   {workers.length}
                                 </Badge>
                               </div>
                               <div className="space-y-1">
-                                {workers.map(worker => (
-                                  <div key={worker.user_id} className="flex items-center justify-between group">
-                                    <span className="text-[10px] md:text-xs text-gray-700">
-                                      • {worker.first_name} {worker.last_name}
-                                    </span>
+                                {workers.map(worker => {
+                                  const isMaxim = worker.first_name === 'Максим' && worker.last_name === 'Корельский';
+                                  return (
+                                    <div key={worker.user_id} className="flex items-center justify-between group">
+                                      <span className="text-[10px] md:text-xs text-gray-700">
+                                        • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
+                                      </span>
                                     <button
                                       onClick={() => confirmRemoveSlot(worker.user_id, `${worker.first_name} ${worker.last_name}`, day.date, slot.time, slot.label)}
                                       disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
@@ -343,7 +346,8 @@ export default function ScheduleAnalyticsTab() {
                                       )}
                                     </button>
                                   </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           );
@@ -367,11 +371,14 @@ export default function ScheduleAnalyticsTab() {
                     <SelectValue placeholder="Выберите промоутера" />
                   </SelectTrigger>
                   <SelectContent>
-                    {schedules.map(user => (
-                      <SelectItem key={user.user_id} value={user.user_id.toString()}>
-                        {user.first_name} {user.last_name}
-                      </SelectItem>
-                    ))}
+                    {schedules.map(user => {
+                      const isMaxim = user.first_name === 'Максим' && user.last_name === 'Корельский';
+                      return (
+                        <SelectItem key={user.user_id} value={user.user_id.toString()}>
+                          {user.first_name} {user.last_name}{isMaxim && ' 👑'}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 {selectedUserData && (
@@ -387,6 +394,7 @@ export default function ScheduleAnalyticsTab() {
                     const daySchedule = getUserScheduleForDay(selectedUserData.schedule, day.date);
                     const hasActiveSlots = day.slots.some(slot => daySchedule[slot.time]);
                     if (!hasActiveSlots) return null;
+                    const isMaxim = selectedUserData.first_name === 'Максим' && selectedUserData.last_name === 'Корельский';
 
                     return (
                       <Card key={day.date} className="bg-white border-2 border-gray-200 shadow-sm">
@@ -411,7 +419,7 @@ export default function ScheduleAnalyticsTab() {
 
                                 return (
                                   <div key={slot.time} className="relative group">
-                                    <Badge className="bg-green-600 pr-7">
+                                    <Badge className={`${isMaxim ? 'bg-purple-600' : 'bg-green-600'} pr-7`}>
                                       <Icon name="Clock" size={14} className="mr-1" />
                                       {slot.label}
                                     </Badge>

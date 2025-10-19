@@ -21,9 +21,10 @@ export default function ScheduleAnalyticsTab() {
   const [dayStats, setDayStats] = useState<DayStats[]>([]);
 
   useEffect(() => {
-    setWeekDays(initializeWeekDays(weeks[currentWeekIndex].start));
+    const days = initializeWeekDays(weeks[currentWeekIndex].start);
+    setWeekDays(days);
     if (view === 'team') {
-      loadAllSchedules();
+      loadAllSchedules(days);
     }
   }, [view, currentWeekIndex]);
 
@@ -52,10 +53,9 @@ export default function ScheduleAnalyticsTab() {
     return schedules;
   };
 
-  const calculateDayStats = (schedules: UserSchedule[]) => {
-    const stats: DayStats[] = weekDays.map(day => {
+  const calculateDayStats = (schedules: UserSchedule[], days: DaySchedule[]) => {
+    const stats: DayStats[] = days.map(day => {
       let expected = 0;
-      const actual = 0;
 
       day.slots.forEach(slot => {
         const workers = schedules.filter(user => 
@@ -75,7 +75,9 @@ export default function ScheduleAnalyticsTab() {
     });
 
     setDayStats(stats);
-    loadActualStats(stats);
+    if (stats.length > 0) {
+      loadActualStats(stats);
+    }
   };
 
   const loadActualStats = async (stats: DayStats[]) => {
@@ -107,7 +109,7 @@ export default function ScheduleAnalyticsTab() {
     }
   };
 
-  const loadAllSchedules = async () => {
+  const loadAllSchedules = async (days: DaySchedule[]) => {
     setLoading(true);
     try {
       const response = await fetch('https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2', {
@@ -125,7 +127,7 @@ export default function ScheduleAnalyticsTab() {
         const data = await response.json();
         const schedulesWithStats = await enrichSchedulesWithStats(data.schedules || []);
         setSchedules(schedulesWithStats);
-        calculateDayStats(schedulesWithStats);
+        calculateDayStats(schedulesWithStats, days);
       }
     } catch (error) {
       console.error('Error loading schedules:', error);
@@ -177,7 +179,7 @@ export default function ScheduleAnalyticsTab() {
       });
 
       if (response.ok) {
-        await loadAllSchedules();
+        await loadAllSchedules(weekDays);
       }
     } catch (error) {
       console.error('Error removing slot:', error);

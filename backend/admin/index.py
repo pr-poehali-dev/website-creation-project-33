@@ -475,15 +475,19 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                 leads_count_result = cur.fetchone()
                 leads_count = leads_count_result[0] if leads_count_result else 0
                 
+                date_str = work_date.strftime('%d.%m.%Y') if hasattr(work_date, 'strftime') else str(work_date)
+                
                 work_time_data.append({
                     'user_id': user_id,
                     'user_name': user_name,
-                    'date': work_date.strftime('%d.%m.%Y') if hasattr(work_date, 'strftime') else str(work_date),
+                    'date': date_str,
                     'start_time': start_time_str,
                     'end_time': end_time_str,
                     'hours_worked': hours_worked,
                     'leads_count': leads_count
                 })
+                
+                print(f'📅 Work time record: user_id={user_id}, work_date={work_date}, formatted={date_str}, start={start_time_str}')
             
             return work_time_data
 

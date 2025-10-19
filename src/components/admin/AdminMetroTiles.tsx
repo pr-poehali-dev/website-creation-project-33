@@ -176,7 +176,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         <div className="relative z-10">
           <Icon name="TrendingUp" size={48} className="text-white mb-4 md:mb-6" />
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
-          <p className="text-purple-100 text-sm md:text-base">В разработке</p>
         </div>
         <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
           <Icon name="TrendingUp" size={120} className="text-white" />

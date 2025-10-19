@@ -68,10 +68,14 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
       );
       const data = await response.json();
       if (data.work_time) {
+        console.log('🔍 Raw data from backend:', data.work_time.slice(0, 3));
+        
         const convertedData = data.work_time.map((item: WorkTimeData) => {
           const startConverted = convertUTCDateToMoscow(item.date, item.start_time);
           const endTime = item.end_time || item.start_time;
           const endConverted = convertUTCDateToMoscow(item.date, endTime);
+          
+          console.log(`📅 Converting ${item.date} ${item.start_time} → ${startConverted.date} ${startConverted.time}`);
           
           return {
             ...item,
@@ -80,6 +84,8 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
             end_time: endConverted.time
           };
         });
+        
+        console.log('✅ Converted data:', convertedData.slice(0, 3));
         setWorkTimeData(convertedData);
       }
     } catch (error) {

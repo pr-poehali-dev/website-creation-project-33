@@ -132,6 +132,42 @@ export default function TeamScheduleView({
           </Card>
         );
       })}
+
+      {dayStats.length > 0 && (() => {
+        const totalExpected = dayStats.reduce((sum, stat) => sum + stat.expected, 0);
+        const totalActual = dayStats.reduce((sum, stat) => sum + stat.actual, 0);
+        
+        if (totalExpected > 0) {
+          return (
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-md">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <Icon name="TrendingUp" size={24} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">Итого за неделю</h3>
+                      <p className="text-sm text-gray-600">Общий прогноз и результат</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-blue-600">
+                      Ожидается {totalExpected} / Факт {totalActual}
+                    </div>
+                    {totalActual > 0 && (
+                      <div className="text-sm text-gray-600 mt-1">
+                        Выполнение: {Math.round((totalActual / totalExpected) * 100)}%
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        }
+        return null;
+      })()}
     </div>
   );
 }

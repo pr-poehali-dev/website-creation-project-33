@@ -65,5 +65,7 @@ export const getUserScheduleForDay = (userSchedule: any, date: string) => {
 };
 
 export const isMaximKorelsky = (firstName: string, lastName: string): boolean => {
-  return firstName?.toLowerCase() === 'максим' && lastName?.toLowerCase() === 'корельский';
+  const fn = firstName?.toLowerCase() || '';
+  const ln = lastName?.toLowerCase() || '';
+  return (fn === 'максим' && ln === 'корельский') || (fn === 'корельский' && ln === 'максим');
 };

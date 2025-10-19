@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
@@ -21,6 +22,24 @@ export default function TeamScheduleView({
   deletingSlot,
   dayStats
 }: TeamScheduleViewProps) {
+  const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
+
+  const toggleDay = (date: string) => {
+    setExpandedDays(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(date)) {
+        newSet.delete(date);
+      } else {
+        newSet.add(date);
+      }
+      return newSet;
+    });
+  };
+
+  const daysWithWorkers = weekDays.filter(day => 
+    day.slots.some(slot => getUsersWorkingOnSlot(day.date, slot.time).length > 0)
+  );
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-7 gap-1 md:gap-2">
@@ -36,14 +55,18 @@ export default function TeamScheduleView({
         ))}
       </div>
 
-      {weekDays.map(day => {
-        const hasAnyWorkers = day.slots.some(slot => getUsersWorkingOnSlot(day.date, slot.time).length > 0);
-        if (!hasAnyWorkers) return null;
+      {daysWithWorkers.map((day, index) => {
+        const isExpanded = expandedDays.has(day.date);
+        const isFirstDay = index === 0;
+        const stats = dayStats.find(s => s.date === day.date);
 
         return (
           <Card key={day.date} className="bg-white border-2 border-gray-200 shadow-sm">
             <CardContent className="p-4">
-              <div className="mb-3">
+              <div 
+                className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -m-4 p-4 rounded-lg transition-colors"
+                onClick={() => !isFirstDay && toggleDay(day.date)}
+              >
                 <div className="flex items-center gap-2">
                   <div className={`w-10 h-10 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-blue-600'} text-white flex flex-col items-center justify-center font-bold text-xs`}>
                     <span>{day.dayName}</span>
@@ -55,10 +78,25 @@ export default function TeamScheduleView({
                     </p>
                     <p className="text-xs text-gray-500">{day.date}</p>
                   </div>
+                  {stats && stats.expected > 0 && (
+                    <span className="text-xs text-gray-600 ml-2 bg-gray-100 px-2 py-1 rounded">
+                      {stats.expected} / {stats.actual}
+                    </span>
+                  )}
                 </div>
+                {!isFirstDay && (
+                  <Icon 
+                    name={isExpanded ? "ChevronUp" : "ChevronDown"} 
+                    size={20} 
+                    className="text-gray-400"
+                  />
+                )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+              {(isFirstDay || isExpanded) && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                 {day.slots.map(slot => {
                   const workers = getUsersWorkingOnSlot(day.date, slot.time);
                   if (workers.length === 0) return null;
@@ -112,22 +150,18 @@ export default function TeamScheduleView({
                 })}
               </div>
 
-              {dayStats.length > 0 && (() => {
-                const stats = dayStats.find(s => s.date === day.date);
-                if (stats && stats.expected > 0) {
-                  return (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 font-medium">Прогноз на день:</span>
-                        <span className="font-bold text-blue-600">
-                          Ожидается {stats.expected} / Факт {stats.actual}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
+              {stats && stats.expected > 0 && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 font-medium">Прогноз на день:</span>
+                    <span className="font-bold text-blue-600">
+                      Ожидается {stats.expected} / Факт {stats.actual}
+                    </span>
+                  </div>
+                </div>
+              )}
+              </div>
+              )}
             </CardContent>
           </Card>
         );

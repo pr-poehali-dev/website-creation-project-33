@@ -65,6 +65,10 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
     const shiftKey = `${userId}-${workDate}`;
     setDeletingShift(shiftKey);
 
+    const [day, month] = workDate.split('.');
+    const year = new Date().getFullYear();
+    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
     try {
       const response = await fetch(
         'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
@@ -77,7 +81,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
           body: JSON.stringify({
             action: 'delete_shift',
             user_id: userId,
-            work_date: workDate,
+            work_date: formattedDate,
           }),
         }
       );
@@ -197,8 +201,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                   {isExpanded && (
                     <div className="space-y-2 p-3 md:p-4 pt-0">
                     {shifts.map((shift, index) => {
-                      const workDate = shift.date.split('.').reverse().join('-');
-                      const shiftKey = `${shift.user_id}-${workDate}`;
+                      const shiftKey = `${shift.user_id}-${shift.date}`;
                       const isDeleting = deletingShift === shiftKey;
 
                       return (
@@ -221,7 +224,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                                 size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteShift(shift.user_id, workDate);
+                                  handleDeleteShift(shift.user_id, shift.date);
                                 }}
                                 disabled={isDeleting}
                                 className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-red-100"

@@ -143,7 +143,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             """
                             INSERT INTO t_p24058207_website_creation_pro.shift_videos 
                             (user_id, organization_id, video_type, telegram_message_id, work_date) 
-                            VALUES (%s, %s, %s, %s, CURRENT_DATE)
+                            VALUES (%s, %s, %s, %s, (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')::date)
                             """,
                             (int(user_id), int(organization_id), video_type, telegram_message_id)
                         )

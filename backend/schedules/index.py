@@ -148,12 +148,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         schedules = []
         for row in rows:
+            name_parts = row[3].split() if row[3] else ['User']
+            # Максим Корельский записан как "Корельский Максим" (фамилия имя)
+            # Остальные как "Имя Фамилия"
+            # Проверяем по первому слову
+            is_korelsky_maxim = (
+                len(name_parts) >= 2 and 
+                name_parts[0].lower() == 'корельский' and 
+                name_parts[1].lower() == 'максим'
+            )
+            
+            if is_korelsky_maxim:
+                # Для Максима: "Корельский Максим" -> first_name=Максим, last_name=Корельский
+                first_name = name_parts[1]
+                last_name = name_parts[0]
+            else:
+                # Для всех остальных: "Имя Фамилия"
+                first_name = name_parts[0] if name_parts else 'User'
+                last_name = name_parts[1] if len(name_parts) > 1 else ''
+            
             schedules.append({
                 'user_id': row[0],
                 'schedule': row[1],
                 'week_start_date': row[2].isoformat(),
-                'first_name': row[3].split()[0] if row[3] else 'User',
-                'last_name': row[3].split()[1] if row[3] and len(row[3].split()) > 1 else ''
+                'first_name': first_name,
+                'last_name': last_name
             })
         
         return {

@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Get promoter statistics",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get actual contacts for dates",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "dates": ["2025-10-19", "2025-10-20"]
+      },
+      "expectedStatus": 200
+    }
+  ]
+}

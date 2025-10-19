@@ -8,6 +8,7 @@ export interface UserSchedule {
   first_name: string;
   last_name: string;
   schedule: any;
+  avg_contacts_per_day?: number;
 }
 
 export interface DaySchedule {
@@ -15,6 +16,12 @@ export interface DaySchedule {
   dayName: string;
   isWeekend: boolean;
   slots: TimeSlot[];
+}
+
+export interface DayStats {
+  date: string;
+  expected: number;
+  actual: number;
 }
 
 export interface Week {

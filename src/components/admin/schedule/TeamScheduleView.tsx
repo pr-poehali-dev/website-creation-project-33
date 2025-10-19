@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { DaySchedule, UserSchedule, DeleteSlotState } from './types';
+import { DaySchedule, UserSchedule, DeleteSlotState, DayStats } from './types';
 import { isMaximKorelsky } from './utils';
 
 interface TeamScheduleViewProps {
@@ -10,6 +10,7 @@ interface TeamScheduleViewProps {
   getUsersWorkingOnSlot: (date: string, slotTime: string) => UserSchedule[];
   confirmRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
+  dayStats: DayStats[];
 }
 
 export default function TeamScheduleView({
@@ -17,7 +18,8 @@ export default function TeamScheduleView({
   schedules,
   getUsersWorkingOnSlot,
   confirmRemoveSlot,
-  deletingSlot
+  deletingSlot,
+  dayStats
 }: TeamScheduleViewProps) {
   return (
     <div className="space-y-4">
@@ -76,11 +78,19 @@ export default function TeamScheduleView({
                       <div className="space-y-1">
                         {workers.map(worker => {
                           const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
+                          const avgContacts = worker.avg_contacts_per_day || 0;
                           return (
                             <div key={worker.user_id} className="flex items-center justify-between group">
-                              <span className="text-[10px] md:text-xs text-gray-700">
-                                • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] md:text-xs text-gray-700">
+                                  • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
+                                </span>
+                                {avgContacts > 0 && (
+                                  <span className="text-[9px] md:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                    ~{avgContacts.toFixed(1)}
+                                  </span>
+                                )}
+                              </div>
                               <button
                                 onClick={() => confirmRemoveSlot(worker.user_id, `${worker.first_name} ${worker.last_name}`, day.date, slot.time, slot.label)}
                                 disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
@@ -101,6 +111,23 @@ export default function TeamScheduleView({
                   );
                 })}
               </div>
+
+              {dayStats.length > 0 && (() => {
+                const stats = dayStats.find(s => s.date === day.date);
+                if (stats && stats.expected > 0) {
+                  return (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 font-medium">Прогноз на день:</span>
+                        <span className="font-bold text-blue-600">
+                          Ожидается {stats.expected} / Факт {stats.actual}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </CardContent>
           </Card>
         );

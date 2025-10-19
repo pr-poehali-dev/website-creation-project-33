@@ -42,6 +42,7 @@ export default function ScheduleAnalyticsTab() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('🔍 DEBUG schedules:', JSON.stringify(data.schedules, null, 2));
         setSchedules(data.schedules || []);
       }
     } catch (error) {

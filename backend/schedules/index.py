@@ -167,6 +167,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 first_name = name_parts[0] if name_parts else 'User'
                 last_name = name_parts[1] if len(name_parts) > 1 else ''
             
+            print(f"DEBUG: name={row[3]}, first_name={first_name}, last_name={last_name}, is_korelsky={is_korelsky_maxim}")
+            
             schedules.append({
                 'user_id': row[0],
                 'schedule': row[1],

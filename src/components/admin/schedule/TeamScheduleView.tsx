@@ -140,23 +140,23 @@ export default function TeamScheduleView({
         if (totalExpected > 0) {
           return (
             <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-md">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <Icon name="TrendingUp" size={24} className="text-white" />
+              <CardContent className="p-3 md:p-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon name="TrendingUp" size={20} className="text-white md:w-6 md:h-6" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Итого за неделю</h3>
-                      <p className="text-sm text-gray-600">Общий прогноз и результат</p>
+                      <h3 className="text-sm md:text-lg font-bold text-gray-900">Итого за неделю</h3>
+                      <p className="text-xs md:text-sm text-gray-600">Общий прогноз и результат</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-left md:text-right">
+                    <div className="text-lg md:text-2xl font-bold text-blue-600">
                       Ожидается {totalExpected} / Факт {totalActual}
                     </div>
                     {totalActual > 0 && (
-                      <div className="text-sm text-gray-600 mt-1">
+                      <div className="text-xs md:text-sm text-gray-600 mt-1">
                         Выполнение: {Math.round((totalActual / totalExpected) * 100)}%
                       </div>
                     )}

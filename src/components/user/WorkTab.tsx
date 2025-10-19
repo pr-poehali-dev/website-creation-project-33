@@ -170,7 +170,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       {/* Блокнот */}
       <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-blue-600">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
             <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
               <Icon name="NotebookPen" size={18} className="text-blue-500 md:w-5 md:h-5" />
             </div>
@@ -190,7 +190,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       {/* Аудиозапись */}
       <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-blue-600">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
             <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
               <Icon name="Star" size={18} className="text-blue-500 md:w-5 md:h-5" />
             </div>
@@ -284,7 +284,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           width: '100%',
           height: '60px',
           backgroundColor: (!audioBlob || isLoading) ? '#d1d5db' : '#3b82f6',
-          color: 'white',
+          color: 'black',
           fontSize: '20px',
           fontWeight: '600',
           borderRadius: '8px',
@@ -341,7 +341,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           width: '100%',
           height: '60px',
           backgroundColor: 'white',
-          color: '#ef4444',
+          color: 'black',
           fontSize: '20px',
           fontWeight: '600',
           borderRadius: '8px',

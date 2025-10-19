@@ -35,6 +35,26 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
     });
   };
 
+  const convertUTCDateToMoscow = (dateStr: string, timeStr: string): { date: string, time: string } => {
+    const [day, month] = dateStr.split('.');
+    const year = new Date().getFullYear();
+    const [hours, minutes] = timeStr.split(':');
+    
+    const utcDate = new Date(Date.UTC(year, parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes)));
+    const moscowOffset = 3 * 60;
+    const moscowDate = new Date(utcDate.getTime() + moscowOffset * 60 * 1000);
+    
+    const moscowDay = String(moscowDate.getDate()).padStart(2, '0');
+    const moscowMonth = String(moscowDate.getMonth() + 1).padStart(2, '0');
+    const moscowHours = String(moscowDate.getHours()).padStart(2, '0');
+    const moscowMinutes = String(moscowDate.getMinutes()).padStart(2, '0');
+    
+    return {
+      date: `${moscowDay}.${moscowMonth}`,
+      time: `${moscowHours}:${moscowMinutes}`
+    };
+  };
+
   const loadWorkTime = async () => {
     setIsLoading(true);
     try {
@@ -48,7 +68,19 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
       );
       const data = await response.json();
       if (data.work_time) {
-        setWorkTimeData(data.work_time);
+        const convertedData = data.work_time.map((item: WorkTimeData) => {
+          const startConverted = convertUTCDateToMoscow(item.date, item.start_time);
+          const endTime = item.end_time || item.start_time;
+          const endConverted = convertUTCDateToMoscow(item.date, endTime);
+          
+          return {
+            ...item,
+            date: startConverted.date,
+            start_time: startConverted.time,
+            end_time: endConverted.time
+          };
+        });
+        setWorkTimeData(convertedData);
       }
     } catch (error) {
       console.error('Ошибка загрузки времени работы:', error);

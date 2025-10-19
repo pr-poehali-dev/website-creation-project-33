@@ -55,9 +55,8 @@ export default function TeamScheduleView({
         ))}
       </div>
 
-      {daysWithWorkers.map((day, index) => {
+      {daysWithWorkers.map((day) => {
         const isExpanded = expandedDays.has(day.date);
-        const isFirstDay = index === 0;
         const stats = dayStats.find(s => s.date === day.date);
 
         return (
@@ -65,7 +64,7 @@ export default function TeamScheduleView({
             <CardContent className="p-4">
               <div 
                 className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -m-4 p-4 rounded-lg transition-colors"
-                onClick={() => !isFirstDay && toggleDay(day.date)}
+                onClick={() => toggleDay(day.date)}
               >
                 <div className="flex items-center gap-2">
                   <div className={`w-10 h-10 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-blue-600'} text-white flex flex-col items-center justify-center font-bold text-xs`}>
@@ -84,16 +83,14 @@ export default function TeamScheduleView({
                     </span>
                   )}
                 </div>
-                {!isFirstDay && (
-                  <Icon 
-                    name={isExpanded ? "ChevronUp" : "ChevronDown"} 
-                    size={20} 
-                    className="text-gray-400"
-                  />
-                )}
+                <Icon 
+                  name={isExpanded ? "ChevronUp" : "ChevronDown"} 
+                  size={20} 
+                  className="text-gray-400"
+                />
               </div>
 
-              {(isFirstDay || isExpanded) && (
+              {isExpanded && (
                 <div className="mt-3 pt-3 border-t border-gray-200">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">

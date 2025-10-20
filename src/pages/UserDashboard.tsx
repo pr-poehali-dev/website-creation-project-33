@@ -268,7 +268,7 @@ export default function UserDashboard() {
         {currentView === 'schedule' && (
           <div className="space-y-4">
             <button
-              onClick={() => setCurrentView('tiles')}
+              onClick={() => setCurrentView(selectedOrganization ? 'tiles' : 'start')}
               className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
             >
               <Icon name="ArrowLeft" size={20} />

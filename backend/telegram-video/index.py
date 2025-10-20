@@ -54,6 +54,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         video_base64 = body_data.get('video_data')
         video_type = body_data.get('video_type')
         organization_id = body_data.get('organization_id')
+        mime_type = body_data.get('mime_type', 'video/mp4')
         
         if not video_base64 or not video_type or not organization_id:
             return {
@@ -72,7 +73,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             video_base64_clean += '=' * (4 - missing_padding)
         
         video_bytes = base64.b64decode(video_base64_clean)
-        print(f'Video size: {len(video_bytes)} bytes, org_id: {organization_id}, type: {video_type}')
+        
+        file_extension = 'mp4'
+        if 'quicktime' in mime_type.lower() or 'mov' in mime_type.lower():
+            file_extension = 'mov'
+        elif 'webm' in mime_type.lower():
+            file_extension = 'webm'
+        
+        print(f'Video size: {len(video_bytes)} bytes, format: {file_extension}, mime: {mime_type}, org_id: {organization_id}, type: {video_type}')
         
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
         chat_id = '5215501225'
@@ -107,7 +115,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         caption = f"🎥 Видео {video_type_text}\n👤 Промоутер: {user_name}\n🏢 Организация: {organization_name}"
         
         url = f'https://api.telegram.org/bot{bot_token}/sendVideo'
-        files = {'video': ('shift_video.mp4', video_bytes, 'video/mp4')}
+        filename = f'shift_video.{file_extension}'
+        files = {'video': (filename, video_bytes, mime_type)}
         data = {'chat_id': chat_id, 'caption': caption}
         
         print(f'Sending video to Telegram...')

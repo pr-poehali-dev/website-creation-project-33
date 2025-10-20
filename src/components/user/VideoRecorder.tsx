@@ -20,6 +20,7 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
   const [isSending, setIsSending] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState<Blob | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [recordedMimeType, setRecordedMimeType] = useState<string>('video/mp4');
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -93,6 +94,7 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
           setRecordedVideo(e.data);
+          setRecordedMimeType(e.data.type || selectedMimeType);
           const url = URL.createObjectURL(e.data);
           setVideoUrl(url);
           toast({
@@ -165,6 +167,7 @@ export default function VideoRecorder({ open, onOpenChange, onSuccess, type, org
               video_data: base64Video,
               video_type: type,
               organization_id: organizationId,
+              mime_type: recordedMimeType,
             }),
           });
 

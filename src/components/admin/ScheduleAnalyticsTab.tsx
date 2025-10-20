@@ -55,7 +55,7 @@ export default function ScheduleAnalyticsTab() {
 
   const calculateDayStats = (schedules: UserSchedule[], days: DaySchedule[]) => {
     const stats: DayStats[] = days.map(day => {
-      let expected = 0;
+      const uniqueWorkers = new Set<number>();
 
       day.slots.forEach(slot => {
         const workers = schedules.filter(user => 
@@ -63,9 +63,14 @@ export default function ScheduleAnalyticsTab() {
         );
         
         workers.forEach(worker => {
-          expected += worker.avg_contacts_per_day || 0;
+          uniqueWorkers.add(worker.user_id);
         });
       });
+
+      const expected = Array.from(uniqueWorkers).reduce((sum, userId) => {
+        const worker = schedules.find(s => s.user_id === userId);
+        return sum + (worker?.avg_contacts_per_day || 0);
+      }, 0);
 
       return {
         date: day.date,

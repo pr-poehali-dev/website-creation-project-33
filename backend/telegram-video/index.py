@@ -7,8 +7,8 @@ import psycopg2
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Send shift confirmation videos to Telegram
-    Args: event with httpMethod, body containing video_data, video_type, organization_id
+    Business: Send shift confirmation photos to Telegram
+    Args: event with httpMethod, body containing photo_data, photo_type, organization_id
           context with request_id
     Returns: HTTP response with success status
     '''
@@ -51,12 +51,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         body_data = json.loads(event.get('body', '{}'))
-        video_base64 = body_data.get('video_data')
-        video_type = body_data.get('video_type')
+        photo_base64 = body_data.get('photo_data')
+        photo_type = body_data.get('photo_type')
         organization_id = body_data.get('organization_id')
-        mime_type = body_data.get('mime_type', 'video/mp4')
         
-        if not video_base64 or not video_type or not organization_id:
+        if not photo_base64 or not photo_type or not organization_id:
             return {
                 'statusCode': 400,
                 'headers': {
@@ -64,23 +63,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Content-Type': 'application/json'
                 },
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'Missing video_data, video_type or organization_id'})
+                'body': json.dumps({'error': 'Missing photo_data, photo_type or organization_id'})
             }
         
-        video_base64_clean = video_base64.strip().replace('\n', '').replace('\r', '')
-        missing_padding = len(video_base64_clean) % 4
+        photo_base64_clean = photo_base64.strip().replace('\n', '').replace('\r', '')
+        missing_padding = len(photo_base64_clean) % 4
         if missing_padding:
-            video_base64_clean += '=' * (4 - missing_padding)
+            photo_base64_clean += '=' * (4 - missing_padding)
         
-        video_bytes = base64.b64decode(video_base64_clean)
-        
-        file_extension = 'mp4'
-        if 'quicktime' in mime_type.lower() or 'mov' in mime_type.lower():
-            file_extension = 'mov'
-        elif 'webm' in mime_type.lower():
-            file_extension = 'webm'
-        
-        print(f'Video size: {len(video_bytes)} bytes, format: {file_extension}, mime: {mime_type}, org_id: {organization_id}, type: {video_type}')
+        photo_bytes = base64.b64decode(photo_base64_clean)
+        print(f'Photo size: {len(photo_bytes)} bytes, org_id: {organization_id}, type: {photo_type}')
         
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
         chat_id = '5215501225'
@@ -111,16 +103,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             except Exception as e:
                 print(f'DB error: {e}')
         
-        video_type_text = 'начала смены' if video_type == 'start' else 'окончания смены'
-        caption = f"🎥 Видео {video_type_text}\n👤 Промоутер: {user_name}\n🏢 Организация: {organization_name}"
+        photo_type_text = 'начала смены' if photo_type == 'start' else 'окончания смены'
+        caption = f"📸 Фото {photo_type_text}\n👤 Промоутер: {user_name}\n🏢 Организация: {organization_name}"
         
-        url = f'https://api.telegram.org/bot{bot_token}/sendVideo'
-        filename = f'shift_video.{file_extension}'
-        files = {'video': (filename, video_bytes, mime_type)}
+        url = f'https://api.telegram.org/bot{bot_token}/sendPhoto'
+        files = {'photo': ('shift_photo.jpg', photo_bytes, 'image/jpeg')}
         data = {'chat_id': chat_id, 'caption': caption}
         
-        print(f'Sending video to Telegram...')
-        response = requests.post(url, files=files, data=data, timeout=60)
+        print(f'Sending photo to Telegram...')
+        response = requests.post(url, files=files, data=data, timeout=30)
         print(f'Telegram response status: {response.status_code}')
         
         if not response.ok:
@@ -154,15 +145,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             (user_id, organization_id, video_type, telegram_message_id, work_date) 
                             VALUES (%s, %s, %s, %s, (CURRENT_TIMESTAMP + INTERVAL '3 hours')::date)
                             """,
-                            (int(user_id), int(organization_id), video_type, telegram_message_id)
+                            (int(user_id), int(organization_id), photo_type, telegram_message_id)
                         )
                         conn.commit()
-                        print(f'Saved shift video record: user={user_id}, org={organization_id}, type={video_type}')
+                        print(f'Saved shift photo record: user={user_id}, org={organization_id}, type={photo_type}')
             except Exception as e:
-                print(f'Error saving shift video record: {e}')
+                print(f'Error saving shift photo record: {e}')
         
         contacts_today = 0
-        if video_type == 'end' and database_url:
+        if photo_type == 'end' and database_url:
             try:
                 with psycopg2.connect(database_url) as conn:
                     with conn.cursor() as cur:
@@ -183,7 +174,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 print(f'Error counting contacts: {e}')
         
         response_body = {'success': True}
-        if video_type == 'end':
+        if photo_type == 'end':
             response_body['contacts_today'] = contacts_today
         
         return {

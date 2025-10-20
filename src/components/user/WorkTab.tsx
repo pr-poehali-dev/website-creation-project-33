@@ -6,7 +6,7 @@ import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
-import VideoRecorder from './VideoRecorder';
+import PhotoCapture from './PhotoCapture';
 import DayResultsDialog from './DayResultsDialog';
 
 interface WorkTabProps {
@@ -27,7 +27,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [endShiftVideoOpen, setEndShiftVideoOpen] = useState(false);
+  const [endShiftPhotoOpen, setEndShiftPhotoOpen] = useState(false);
   const [dayResultsOpen, setDayResultsOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -45,8 +45,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   }, [audioBlob]);
 
   useEffect(() => {
-    console.log('🔴 endShiftVideoOpen changed:', endShiftVideoOpen);
-  }, [endShiftVideoOpen]);
+    console.log('🔴 endShiftPhotoOpen changed:', endShiftPhotoOpen);
+  }, [endShiftPhotoOpen]);
 
   const startRecording = async () => {
     try {
@@ -334,8 +334,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           console.log('🔴 Кнопка завершения смены нажата');
           console.log('🔄 Обновляем статистику лидов перед закрытием смены...');
           await queryClient.invalidateQueries({ queryKey: ['leadsStats', user?.id] });
-          console.log('✅ Статистика обновлена, открываем VideoRecorder');
-          setEndShiftVideoOpen(true);
+          console.log('✅ Статистика обновлена, открываем PhotoCapture');
+          setEndShiftPhotoOpen(true);
         }}
         style={{
           width: '100%',
@@ -367,16 +367,16 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       </button>
 
       {selectedOrganizationId && (
-        <VideoRecorder
-          open={endShiftVideoOpen}
-          onOpenChange={setEndShiftVideoOpen}
+        <PhotoCapture
+          open={endShiftPhotoOpen}
+          onOpenChange={setEndShiftPhotoOpen}
           onSuccess={(contactsCount) => {
             if (contactsCount !== undefined) {
               setDayResultsOpen(true);
             } else {
               toast({
                 title: 'Смена закрыта',
-                description: 'Видео окончания смены отправлено'
+                description: 'Фото окончания смены отправлено'
               });
             }
           }}

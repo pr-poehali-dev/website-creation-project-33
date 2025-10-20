@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
-import VideoRecorder from './VideoRecorder';
+import PhotoCapture from './PhotoCapture';
 
 const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
 
@@ -26,7 +26,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
   const [showAll, setShowAll] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [pendingOrg, setPendingOrg] = useState<Organization | null>(null);
-  const [videoRecorderOpen, setVideoRecorderOpen] = useState(false);
+  const [photoCaptureOpen, setPhotoCaptureOpen] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -66,11 +66,11 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
   const handleConfirm = () => {
     if (pendingOrg) {
       setConfirmDialogOpen(false);
-      setVideoRecorderOpen(true);
+      setPhotoCaptureOpen(true);
     }
   };
 
-  const handleVideoSuccess = () => {
+  const handlePhotoSuccess = () => {
     if (pendingOrg) {
       console.log('🏢 Selected org:', pendingOrg.name);
       onOrganizationSelect(pendingOrg.id, pendingOrg.name);
@@ -225,10 +225,10 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
       </Dialog>
 
       {pendingOrg && (
-        <VideoRecorder
-          open={videoRecorderOpen}
-          onOpenChange={setVideoRecorderOpen}
-          onSuccess={handleVideoSuccess}
+        <PhotoCapture
+          open={photoCaptureOpen}
+          onOpenChange={setPhotoCaptureOpen}
+          onSuccess={handlePhotoSuccess}
           type="start"
           organizationId={pendingOrg.id}
         />

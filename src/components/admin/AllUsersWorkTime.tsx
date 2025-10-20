@@ -17,11 +17,24 @@ interface AllUsersWorkTimeProps {
   sessionToken: string;
 }
 
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+}
+
 export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps) {
   const [workTimeData, setWorkTimeData] = useState<WorkTimeData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingShift, setDeletingShift] = useState<string | null>(null);
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleDate = (date: string) => {
     setExpandedDates(prev => {
@@ -100,8 +113,74 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
     }
   };
 
+  const loadUsers = async () => {
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2',
+        {
+          method: 'GET',
+          headers: {
+            'X-Session-Token': sessionToken,
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.users) {
+        setUsers(data.users);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки пользователей:', error);
+    }
+  };
+
+  const handleAddShift = async () => {
+    if (!selectedUser || !selectedDate || !startTime || !endTime) {
+      alert('Заполните все поля');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': sessionToken,
+          },
+          body: JSON.stringify({
+            action: 'add_shift',
+            user_id: selectedUser,
+            work_date: selectedDate,
+            start_time: startTime,
+            end_time: endTime,
+          }),
+        }
+      );
+
+      const result = await response.json();
+      if (result.success) {
+        setShowAddModal(false);
+        setSelectedUser(null);
+        setSelectedDate('');
+        setStartTime('');
+        setEndTime('');
+        await loadWorkTime();
+      } else {
+        alert(result.error || 'Ошибка при добавлении смены');
+      }
+    } catch (error) {
+      console.error('Ошибка добавления смены:', error);
+      alert('Ошибка при добавлении смены');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     loadWorkTime();
+    loadUsers();
     
     const interval = setInterval(() => {
       loadWorkTime();
@@ -153,13 +232,23 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
             </div>
             Время работы промоутеров
           </CardTitle>
-          <button
-            onClick={loadWorkTime}
-            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-100 transition-colors"
-            title="Обновить данные"
-          >
-            <Icon name="RefreshCw" size={18} className="text-gray-900" />
-          </button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setShowAddModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+              size="sm"
+            >
+              <Icon name="Plus" size={16} className="mr-1" />
+              Добавить смену
+            </Button>
+            <button
+              onClick={loadWorkTime}
+              className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              title="Обновить данные"
+            >
+              <Icon name="RefreshCw" size={18} className="text-gray-900" />
+            </button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -274,6 +363,105 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
           </div>
         )}
       </CardContent>
+
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Добавить смену</CardTitle>
+                <button 
+                  onClick={() => setShowAddModal(false)} 
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <Icon name="X" size={20} />
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Промоутер
+                </label>
+                <select
+                  value={selectedUser || ''}
+                  onChange={(e) => setSelectedUser(Number(e.target.value))}
+                  className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="">Выберите промоутера</option>
+                  {users.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.first_name} {user.last_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Дата
+                </label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Время открытия
+                  </label>
+                  <input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Время закрытия
+                  </label>
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  onClick={handleAddShift}
+                  disabled={isSubmitting || !selectedUser || !selectedDate || !startTime || !endTime}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                      Добавление...
+                    </>
+                  ) : (
+                    'Добавить'
+                  )}
+                </Button>
+                <Button
+                  onClick={() => setShowAddModal(false)}
+                  variant="outline"
+                  disabled={isSubmitting}
+                >
+                  Отмена
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </Card>
   );
 }

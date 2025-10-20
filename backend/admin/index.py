@@ -568,6 +568,34 @@ def delete_leads_by_date(user_id: int, date_str: str) -> int:
             
             return 0
 
+def add_manual_shift(user_id: int, work_date: str, start_time: str, end_time: str) -> bool:
+    """Добавить смену вручную для промоутера"""
+    try:
+        start_datetime = datetime.strptime(f"{work_date} {start_time}", "%Y-%m-%d %H:%M")
+        end_datetime = datetime.strptime(f"{work_date} {end_time}", "%Y-%m-%d %H:%M")
+        
+        moscow_tz = pytz.timezone('Europe/Moscow')
+        start_moscow = moscow_tz.localize(start_datetime)
+        end_moscow = moscow_tz.localize(end_datetime)
+        
+        start_utc = start_moscow.astimezone(pytz.UTC)
+        end_utc = end_moscow.astimezone(pytz.UTC)
+        
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO t_p24058207_website_creation_pro.shift_videos 
+                    (user_id, work_date, video_type, created_at, organization_id, video_url)
+                    VALUES 
+                    (%s, %s, 'start', %s, 1, 'manual'),
+                    (%s, %s, 'end', %s, 1, 'manual')
+                """, (user_id, work_date, start_utc, user_id, work_date, end_utc))
+                conn.commit()
+                return True
+    except Exception as e:
+        print(f"Error adding manual shift: {e}")
+        return False
+
 def delete_shift_by_date(user_id: int, work_date: str) -> bool:
     """Удалить информацию о смене (открытие/закрытие) для конкретного дня и пользователя"""
     with get_db_connection() as conn:
@@ -1078,6 +1106,33 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'headers': headers,
                 'body': json.dumps({'success': True, 'deleted_count': deleted_count})
             }
+        
+        elif action == 'add_shift':
+            user_id = body_data.get('user_id')
+            work_date = body_data.get('work_date')
+            start_time = body_data.get('start_time')
+            end_time = body_data.get('end_time')
+            
+            if not all([user_id, work_date, start_time, end_time]):
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Все поля обязательны'})
+                }
+            
+            success = add_manual_shift(user_id, work_date, start_time, end_time)
+            if success:
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'success': True})
+                }
+            else:
+                return {
+                    'statusCode': 500,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Ошибка при добавлении смены'})
+                }
         
         elif action == 'delete_shift':
             user_id = body_data.get('user_id')

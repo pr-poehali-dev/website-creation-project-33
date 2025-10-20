@@ -49,15 +49,15 @@ export default function DailyModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 md:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xl md:text-2xl font-bold text-black">
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+      <div className="bg-white rounded-t-2xl sm:rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-3 sm:p-4 md:p-6">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base sm:text-xl md:text-2xl font-bold text-black truncate">
                 Статистика по пользователям
               </h3>
-              <p className="text-gray-600 text-sm md:text-base">
+              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
                 {new Date(selectedDate).toLocaleDateString('ru-RU', {
                   day: 'numeric',
                   month: 'long',
@@ -69,23 +69,23 @@ export default function DailyModal({
               onClick={onClose}
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-gray-100"
+              className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-gray-100 flex-shrink-0"
             >
               <Icon name="X" size={16} />
             </Button>
           </div>
         </div>
         
-        <div className="p-4 md:p-6 overflow-y-auto">
+        <div className="p-3 sm:p-4 md:p-6 overflow-y-auto">
           {dailyLoading ? (
             <div className="text-center text-gray-600 flex items-center justify-center gap-3 py-8">
-              <Icon name="Loader2" size={24} className="animate-spin" />
-              Загрузка статистики...
+              <Icon name="Loader2" size={20} className="animate-spin sm:w-6 sm:h-6" />
+              <span className="text-sm sm:text-base">Загрузка статистики...</span>
             </div>
           ) : dailyUserStats.length > 0 ? (
-            <div className="space-y-3">
-              <div className="space-y-4">
-                <div className="text-lg font-bold text-[#001f54] mb-3">Сводка по пользователям</div>
+            <div className="space-y-2 sm:space-y-3">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="text-sm sm:text-base md:text-lg font-bold text-[#001f54] mb-2 sm:mb-3">Сводка по пользователям</div>
                 {dailyUserStats.map((user, index) => {
                   const userLeads = getUserLeads(user.name);
                   const isExpanded = expandedUser === user.name;
@@ -99,68 +99,65 @@ export default function DailyModal({
                         onClick={() => toggleUser(user.name)}
                         className="p-3 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#001f54]/10 text-[#001f54] font-bold text-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+                            <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#001f54]/10 text-[#001f54] font-bold text-xs md:text-sm flex-shrink-0">
                               {index + 1}
                             </div>
-                            <div>
-                              <div className="font-medium text-[#001f54] text-sm md:text-base">{user.name}</div>
-                              <div className="text-xs md:text-sm text-gray-600">{user.email}</div>
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-[#001f54] text-xs sm:text-sm md:text-base truncate">{user.name}</div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <div className="text-right">
-                              <div className="flex justify-end gap-3 text-xs">
-                                <div className="text-center">
-                                  <div className="text-sm font-bold text-green-600">{user.contacts}</div>
-                                  <div className="text-gray-500">контакты</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="text-sm font-bold text-orange-600">{user.approaches}</div>
-                                  <div className="text-gray-500">подходы</div>
-                                </div>
+                          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                            <div className="flex gap-2 md:gap-3 text-xs">
+                              <div className="text-center">
+                                <div className="text-sm md:text-base font-bold text-green-600">{user.contacts}</div>
+                                <div className="text-[10px] md:text-xs text-gray-500">контакты</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-sm md:text-base font-bold text-orange-600">{user.approaches}</div>
+                                <div className="text-[10px] md:text-xs text-gray-500">подходы</div>
                               </div>
                             </div>
                             <Icon 
                               name={isExpanded ? "ChevronUp" : "ChevronDown"} 
-                              size={20} 
-                              className="text-[#001f54]"
+                              size={18} 
+                              className="text-[#001f54] md:w-5 md:h-5 flex-shrink-0"
                             />
                           </div>
                         </div>
                       </div>
 
                       {isExpanded && userLeads.length > 0 && (
-                        <div className="px-3 md:px-4 pb-3 md:pb-4 pt-0">
-                          <div className="border-t border-gray-200 pt-3">
-                            <div className="text-sm font-semibold text-[#001f54] mb-2">Детали по лидам</div>
-                            <div className="space-y-2">
+                        <div className="px-2 sm:px-3 md:px-4 pb-2 sm:pb-3 md:pb-4 pt-0">
+                          <div className="border-t border-gray-200 pt-2 sm:pt-3">
+                            <div className="text-xs sm:text-sm font-semibold text-[#001f54] mb-2">Детали по лидам</div>
+                            <div className="space-y-1.5 sm:space-y-2">
                               {userLeads.map((lead, idx) => (
                                 <div 
                                   key={idx}
-                                  className="border border-gray-200 rounded-lg p-3 bg-gray-50"
+                                  className="border border-gray-200 rounded-lg p-2 sm:p-3 bg-gray-50"
                                 >
-                                  <div className="flex items-start justify-between gap-3">
-                                    <div className="flex items-start gap-3 flex-1">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex items-start gap-2 flex-1 min-w-0">
                                       <Icon 
                                         name={getTypeIcon(lead.lead_type)} 
-                                        size={16} 
-                                        className={`mt-0.5 ${lead.lead_type === 'контакт' ? 'text-green-600' : 'text-orange-600'}`}
+                                        size={14} 
+                                        className={`mt-0.5 flex-shrink-0 sm:w-4 sm:h-4 ${lead.lead_type === 'контакт' ? 'text-green-600' : 'text-orange-600'}`}
                                       />
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-2">
-                                          <Badge className={`text-xs ${getTypeColor(lead.lead_type)}`}>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                          <Badge className={`text-[10px] sm:text-xs ${getTypeColor(lead.lead_type)}`}>
                                             {lead.lead_type}
                                           </Badge>
-                                          <Badge className="text-xs bg-[#001f54]/10 text-[#001f54]">
-                                            <Icon name="Building2" size={10} className="mr-1" />
-                                            {lead.organization}
+                                          <Badge className="text-[10px] sm:text-xs bg-[#001f54]/10 text-[#001f54] truncate max-w-[150px]">
+                                            <Icon name="Building2" size={8} className="mr-0.5 sm:mr-1 sm:w-[10px] sm:h-[10px] flex-shrink-0" />
+                                            <span className="truncate">{lead.organization}</span>
                                           </Badge>
                                         </div>
                                       </div>
                                     </div>
-                                    <div className="text-xs text-gray-500 whitespace-nowrap">
+                                    <div className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
                                       {new Date(lead.created_at).toLocaleTimeString('ru-RU', {
                                         hour: '2-digit',
                                         minute: '2-digit'

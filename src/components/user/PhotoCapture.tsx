@@ -26,7 +26,7 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
-          facingMode: { ideal: 'environment' },
+          facingMode: 'user',
           width: { ideal: 1920 },
           height: { ideal: 1080 }
         },

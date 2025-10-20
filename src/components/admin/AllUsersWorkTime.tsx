@@ -116,7 +116,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
   const loadUsers = async () => {
     try {
       const response = await fetch(
-        'https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2',
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=users',
         {
           method: 'GET',
           headers: {
@@ -126,7 +126,12 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
       );
       const data = await response.json();
       if (data.users) {
-        setUsers(data.users);
+        const formattedUsers = data.users.map((u: any) => ({
+          id: u.id,
+          first_name: u.name?.split(' ')[0] || '',
+          last_name: u.name?.split(' ')[1] || ''
+        }));
+        setUsers(formattedUsers);
       }
     } catch (error) {
       console.error('Ошибка загрузки пользователей:', error);

@@ -653,6 +653,8 @@ def reject_user(user_id: int) -> bool:
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
+    print(f'🚀 Handler called: method={method}, url={event.get("url", "N/A")}')
+    print(f'🚀 Request path: {event.get("requestContext", {}).get("http", {}).get("path", "N/A")}')
     
     if method == 'OPTIONS':
         return {

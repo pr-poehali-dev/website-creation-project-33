@@ -1002,6 +1002,35 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'headers': headers,
                             'body': json.dumps({'error': 'Организация не найдена'})
                         }
+        
+        elif action == 'add_shift':
+            print(f'✅ Processing add_shift')
+            user_id = body_data.get('user_id')
+            work_date = body_data.get('work_date')
+            start_time = body_data.get('start_time')
+            end_time = body_data.get('end_time')
+            
+            if not all([user_id, work_date, start_time, end_time]):
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Все поля обязательны'})
+                }
+            
+            success = add_manual_shift(user_id, work_date, start_time, end_time)
+            print(f'✅ add_manual_shift result: {success}')
+            if success:
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'success': True})
+                }
+            else:
+                return {
+                    'statusCode': 500,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Ошибка при добавлении смены'})
+                }
     
     elif method == 'PUT':
         body_data = json.loads(event.get('body', '{}'))
@@ -1031,52 +1060,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
-    
-    elif method == 'POST':
-        print(f'🔵 POST request received, user is_admin: {user.get("is_admin")}')
-        if not user['is_admin']:
-            return {
-                'statusCode': 403,
-                'headers': headers,
-                'body': json.dumps({'error': 'Доступ запрещен'})
-            }
-        
-        body_data = json.loads(event.get('body', '{}'))
-        action = body_data.get('action')
-        print(f'🔵 POST action: {action}, body: {body_data}')
-        
-        if action == 'add_shift':
-            user_id = body_data.get('user_id')
-            work_date = body_data.get('work_date')
-            start_time = body_data.get('start_time')
-            end_time = body_data.get('end_time')
-            
-            if not all([user_id, work_date, start_time, end_time]):
-                return {
-                    'statusCode': 400,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Все поля обязательны'})
-                }
-            
-            success = add_manual_shift(user_id, work_date, start_time, end_time)
-            if success:
-                return {
-                    'statusCode': 200,
-                    'headers': headers,
-                    'body': json.dumps({'success': True})
-                }
-            else:
-                return {
-                    'statusCode': 500,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Ошибка при добавлении смены'})
-                }
-        else:
-            return {
-                'statusCode': 400,
-                'headers': headers,
-                'body': json.dumps({'error': f'Неизвестное действие POST: {action}'})
-            }
     
     elif method == 'DELETE':
         # Проверяем права админа для DELETE операций

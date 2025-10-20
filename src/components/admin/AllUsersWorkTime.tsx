@@ -165,7 +165,9 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
       );
 
       const result = await response.json();
-      if (result.success) {
+      console.log('Add shift response:', response.status, result);
+      
+      if (response.ok && result.success) {
         setShowAddModal(false);
         setSelectedUser(null);
         setSelectedDate('');
@@ -173,11 +175,11 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
         setEndTime('');
         await loadWorkTime();
       } else {
-        alert(result.error || 'Ошибка при добавлении смены');
+        alert(result.error || `Ошибка ${response.status}: ${JSON.stringify(result)}`);
       }
     } catch (error) {
       console.error('Ошибка добавления смены:', error);
-      alert('Ошибка при добавлении смены');
+      alert('Ошибка при добавлении смены: ' + error);
     } finally {
       setIsSubmitting(false);
     }

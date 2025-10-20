@@ -1066,6 +1066,12 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'headers': headers,
                     'body': json.dumps({'error': 'Ошибка при добавлении смены'})
                 }
+        else:
+            return {
+                'statusCode': 400,
+                'headers': headers,
+                'body': json.dumps({'error': f'Неизвестное действие POST: {action}'})
+            }
     
     elif method == 'DELETE':
         # Проверяем права админа для DELETE операций

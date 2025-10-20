@@ -12,6 +12,8 @@ interface TeamScheduleViewProps {
   confirmRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
   dayStats: DayStats[];
+  addSlot: (userId: number, date: string, slotTime: string) => Promise<void>;
+  addingSlot: DeleteSlotState | null;
 }
 
 export default function TeamScheduleView({
@@ -20,9 +22,12 @@ export default function TeamScheduleView({
   getUsersWorkingOnSlot,
   confirmRemoveSlot,
   deletingSlot,
-  dayStats
+  dayStats,
+  addSlot,
+  addingSlot
 }: TeamScheduleViewProps) {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
+  const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
 
   const toggleDay = (date: string) => {
     setExpandedDays(prev => {
@@ -96,7 +101,6 @@ export default function TeamScheduleView({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                 {day.slots.map(slot => {
                   const workers = getUsersWorkingOnSlot(day.date, slot.time);
-                  if (workers.length === 0) return null;
                   const hasMaxim = workers.some(w => isMaximKorelsky(w.first_name, w.last_name));
 
                   return (
@@ -106,41 +110,54 @@ export default function TeamScheduleView({
                           <Icon name="Clock" size={12} className={`${hasMaxim ? 'text-purple-600' : 'text-green-600'} inline mr-1 md:w-[14px] md:h-[14px]`} />
                           {slot.label}
                         </span>
-                        <Badge className={`text-xs ${hasMaxim ? 'bg-purple-600' : 'bg-green-600'}`}>
-                          {workers.length}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge className={`text-xs ${hasMaxim ? 'bg-purple-600' : 'bg-green-600'}`}>
+                            {workers.length}
+                          </Badge>
+                          <button
+                            onClick={() => setShowAddModal({date: day.date, slotTime: slot.time, slotLabel: slot.label})}
+                            className="text-green-600 hover:text-green-700"
+                            title="Добавить промоутера"
+                          >
+                            <Icon name="Plus" size={16} />
+                          </button>
+                        </div>
                       </div>
                       <div className="space-y-1">
-                        {workers.map(worker => {
-                          const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
-                          const avgContacts = worker.avg_contacts_per_day || 0;
-                          return (
-                            <div key={worker.user_id} className="flex items-center justify-between group">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] md:text-xs text-gray-700">
-                                  • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
-                                </span>
-                                {avgContacts > 0 && (
-                                  <span className="text-[9px] md:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                                    ~{avgContacts.toFixed(1)}
+                        {workers.length === 0 ? (
+                          <p className="text-xs text-gray-500 italic">Нет промоутеров</p>
+                        ) : (
+                          workers.map(worker => {
+                            const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
+                            const avgContacts = worker.avg_contacts_per_day || 0;
+                            return (
+                              <div key={worker.user_id} className="flex items-center justify-between group">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] md:text-xs text-gray-700">
+                                    • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
                                   </span>
-                                )}
+                                  {avgContacts > 0 && (
+                                    <span className="text-[9px] md:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                      ~{avgContacts.toFixed(1)}
+                                    </span>
+                                  )}
+                                </div>
+                                <button
+                                  onClick={() => confirmRemoveSlot(worker.user_id, `${worker.first_name} ${worker.last_name}`, day.date, slot.time, slot.label)}
+                                  disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 disabled:opacity-50"
+                                  title="Удалить смену"
+                                >
+                                  {deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (
+                                    <Icon name="Loader2" size={14} className="animate-spin" />
+                                  ) : (
+                                    <Icon name="X" size={14} />
+                                  )}
+                                </button>
                               </div>
-                              <button
-                                onClick={() => confirmRemoveSlot(worker.user_id, `${worker.first_name} ${worker.last_name}`, day.date, slot.time, slot.label)}
-                                disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 disabled:opacity-50"
-                                title="Удалить смену"
-                              >
-                                {deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (
-                                  <Icon name="Loader2" size={14} className="animate-spin" />
-                                ) : (
-                                  <Icon name="X" size={14} />
-                                )}
-                              </button>
-                            </div>
-                          );
-                        })}
+                            );
+                          })
+                        )}
                       </div>
                     </div>
                   );
@@ -199,6 +216,64 @@ export default function TeamScheduleView({
         }
         return null;
       })()}
+
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">Добавить промоутера</h3>
+                <button onClick={() => setShowAddModal(null)} className="text-gray-400 hover:text-gray-600">
+                  <Icon name="X" size={20} />
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                Слот: {showAddModal.slotLabel} • {new Date(showAddModal.date).getDate()}.10
+              </p>
+              <div className="space-y-2">
+                {schedules.map(user => {
+                  const alreadyAssigned = user.schedule[showAddModal.date]?.[showAddModal.slotTime];
+                  const isAdding = addingSlot?.userId === user.user_id && addingSlot?.date === showAddModal.date && addingSlot?.slot === showAddModal.slotTime;
+                  
+                  return (
+                    <button
+                      key={user.user_id}
+                      onClick={() => {
+                        if (!alreadyAssigned) {
+                          addSlot(user.user_id, showAddModal.date, showAddModal.slotTime);
+                          setShowAddModal(null);
+                        }
+                      }}
+                      disabled={alreadyAssigned || isAdding}
+                      className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                        alreadyAssigned 
+                          ? 'bg-gray-50 border-gray-200 cursor-not-allowed opacity-50' 
+                          : 'bg-white border-gray-200 hover:border-blue-500 hover:bg-blue-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-gray-900">
+                          {user.first_name} {user.last_name}
+                        </span>
+                        {isAdding ? (
+                          <Icon name="Loader2" size={16} className="animate-spin text-blue-600" />
+                        ) : alreadyAssigned ? (
+                          <Badge className="bg-green-600 text-xs">Уже в смене</Badge>
+                        ) : null}
+                      </div>
+                      {user.avg_contacts_per_day && user.avg_contacts_per_day > 0 && (
+                        <span className="text-xs text-gray-500">
+                          Средний показатель: ~{user.avg_contacts_per_day.toFixed(1)}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

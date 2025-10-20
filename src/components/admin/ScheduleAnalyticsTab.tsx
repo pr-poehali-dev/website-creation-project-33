@@ -19,6 +19,7 @@ export default function ScheduleAnalyticsTab() {
   const [deletingSlot, setDeletingSlot] = useState<DeleteSlotState | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<ConfirmDeleteState | null>(null);
   const [dayStats, setDayStats] = useState<DayStats[]>([]);
+  const [addingSlot, setAddingSlot] = useState<DeleteSlotState | null>(null);
 
   useEffect(() => {
     const days = initializeWeekDays(weeks[currentWeekIndex].start);
@@ -151,6 +152,45 @@ export default function ScheduleAnalyticsTab() {
     setConfirmDelete({userId, userName, date, slot: slotTime, slotLabel});
   };
 
+  const addSlot = async (userId: number, date: string, slotTime: string) => {
+    setAddingSlot({userId, date, slot: slotTime});
+    
+    try {
+      const userSchedule = schedules.find(s => s.user_id === userId);
+      if (!userSchedule) return;
+
+      const updatedSchedule = { ...userSchedule.schedule };
+      if (!updatedSchedule[date]) {
+        updatedSchedule[date] = {};
+      }
+      updatedSchedule[date] = {
+        ...updatedSchedule[date],
+        [slotTime]: true
+      };
+
+      const response = await fetch('https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': localStorage.getItem('session_token') || '',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          week_start_date: weeks[currentWeekIndex].start,
+          schedule: updatedSchedule
+        })
+      });
+
+      if (response.ok) {
+        await loadAllSchedules(weekDays);
+      }
+    } catch (error) {
+      console.error('Error adding slot:', error);
+    } finally {
+      setAddingSlot(null);
+    }
+  };
+
   const removeSlot = async () => {
     if (!confirmDelete) return;
     
@@ -222,6 +262,8 @@ export default function ScheduleAnalyticsTab() {
               confirmRemoveSlot={confirmRemoveSlot}
               deletingSlot={deletingSlot}
               dayStats={dayStats}
+              addSlot={addSlot}
+              addingSlot={addingSlot}
             />
           )}
 

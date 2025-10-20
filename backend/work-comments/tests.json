@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Get comments for date",
+      "method": "GET",
+      "path": "/?work_date=2025-10-20",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "comments": {}
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Save location comment",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "user_name": "Test User",
+        "work_date": "2025-10-20",
+        "location_comment": "Бульвар Дмитрия Донского"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

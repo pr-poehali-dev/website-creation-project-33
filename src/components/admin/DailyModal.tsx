@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { UserStats } from './types';
 
@@ -27,6 +28,52 @@ export default function DailyModal({
   onClose 
 }: DailyModalProps) {
   const [expandedUser, setExpandedUser] = React.useState<string | null>(null);
+  const [comments, setComments] = React.useState<Record<string, string>>({});
+  const [savingComment, setSavingComment] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (selectedDate) {
+      fetchComments();
+    }
+  }, [selectedDate]);
+
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(
+        `https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2?work_date=${selectedDate}`
+      );
+      const data = await response.json();
+      setComments(data.comments || {});
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
+  const saveComment = async (userName: string, comment: string) => {
+    setSavingComment(userName);
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_name: userName,
+            work_date: selectedDate,
+            location_comment: comment
+          })
+        }
+      );
+      
+      if (response.ok) {
+        setComments(prev => ({ ...prev, [userName]: comment }));
+      }
+    } catch (error) {
+      console.error('Error saving comment:', error);
+    } finally {
+      setSavingComment(null);
+    }
+  };
 
   if (!selectedDate) {
     return null;
@@ -128,8 +175,31 @@ export default function DailyModal({
                         </div>
                       </div>
 
-                      {isExpanded && userLeads.length > 0 && (
-                        <div className="px-2 sm:px-3 md:px-4 pb-2 sm:pb-3 md:pb-4 pt-0">
+                      {isExpanded && (
+                        <div className="px-2 sm:px-3 md:px-4 pb-2 sm:pb-3 md:pb-4 pt-0 space-y-2 sm:space-y-3">
+                          <div className="border-t border-gray-200 pt-2 sm:pt-3">
+                            <div className="text-xs sm:text-sm font-semibold text-[#001f54] mb-2">Место работы</div>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="text"
+                                placeholder="Например: Бульвар Дмитрия Донского"
+                                value={comments[user.name] || ''}
+                                onChange={(e) => setComments(prev => ({ ...prev, [user.name]: e.target.value }))}
+                                onBlur={(e) => saveComment(user.name, e.target.value)}
+                                className="flex-1 text-xs sm:text-sm"
+                                disabled={savingComment === user.name}
+                              />
+                              {savingComment === user.name && (
+                                <Icon name="Loader2" size={16} className="animate-spin text-[#001f54] flex-shrink-0" />
+                              )}
+                              {!savingComment && comments[user.name] && (
+                                <Icon name="MapPin" size={16} className="text-green-600 flex-shrink-0" />
+                              )}
+                            </div>
+                          </div>
+
+                          {userLeads.length > 0 && (
+                        <div>
                           <div className="border-t border-gray-200 pt-2 sm:pt-3">
                             <div className="text-xs sm:text-sm font-semibold text-[#001f54] mb-2">Детали по лидам</div>
                             <div className="space-y-1.5 sm:space-y-2">
@@ -168,6 +238,8 @@ export default function DailyModal({
                               ))}
                             </div>
                           </div>
+                        </div>
+                          )}
                         </div>
                       )}
                     </div>

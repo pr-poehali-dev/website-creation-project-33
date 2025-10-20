@@ -49,10 +49,12 @@ export default function ScheduleTab() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [workComments, setWorkComments] = useState<Record<string, string>>({});
 
   useEffect(() => {
     initializeSchedule();
     loadSchedule();
+    loadWorkComments();
   }, [currentWeekIndex]);
 
   const initializeSchedule = () => {
@@ -107,6 +109,36 @@ export default function ScheduleTab() {
       console.error('Error loading schedule:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadWorkComments = async () => {
+    if (!user?.name) return;
+    
+    try {
+      const startDate = new Date(weeks[currentWeekIndex].start);
+      const comments: Record<string, string> = {};
+      
+      for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + i);
+        const dateStr = currentDate.toISOString().split('T')[0];
+        
+        const response = await fetch(
+          `https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2?work_date=${dateStr}`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.comments && data.comments[user.name]) {
+            comments[dateStr] = data.comments[user.name];
+          }
+        }
+      }
+      
+      setWorkComments(comments);
+    } catch (error) {
+      console.error('Error loading work comments:', error);
     }
   };
 
@@ -283,6 +315,13 @@ export default function ScheduleTab() {
                         </Button>
                       ))}
                     </div>
+
+                    {workComments[day.date] && (
+                      <div className="mt-2 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
+                        <Icon name="MapPin" size={14} className="text-blue-600 flex-shrink-0" />
+                        <span className="text-xs text-blue-900 font-medium">{workComments[day.date]}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { DaySchedule, UserSchedule, DeleteSlotState, DayStats } from './types';
 import { isMaximKorelsky } from './utils';
@@ -28,6 +29,68 @@ export default function TeamScheduleView({
 }: TeamScheduleViewProps) {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
+  const [workComments, setWorkComments] = useState<Record<string, Record<string, string>>>({});
+  const [savingComment, setSavingComment] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadWorkComments();
+  }, [weekDays]);
+
+  const loadWorkComments = async () => {
+    const comments: Record<string, Record<string, string>> = {};
+    
+    for (const day of weekDays) {
+      try {
+        const response = await fetch(
+          `https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2?work_date=${day.date}`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.comments) {
+            comments[day.date] = data.comments;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading work comments:', error);
+      }
+    }
+    
+    setWorkComments(comments);
+  };
+
+  const saveComment = async (userName: string, date: string, comment: string) => {
+    const key = `${userName}-${date}`;
+    setSavingComment(key);
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_name: userName,
+            work_date: date,
+            location_comment: comment
+          })
+        }
+      );
+      
+      if (response.ok) {
+        setWorkComments(prev => ({
+          ...prev,
+          [date]: {
+            ...prev[date],
+            [userName]: comment
+          }
+        }));
+      }
+    } catch (error) {
+      console.error('Error saving comment:', error);
+    } finally {
+      setSavingComment(null);
+    }
+  };
 
   const toggleDay = (date: string) => {
     setExpandedDays(prev => {
@@ -130,30 +193,61 @@ export default function TeamScheduleView({
                           workers.map(worker => {
                             const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
                             const avgContacts = worker.avg_contacts_per_day || 0;
+                            const workerName = `${worker.first_name} ${worker.last_name}`;
+                            const commentKey = `${workerName}-${day.date}`;
+                            const currentComment = workComments[day.date]?.[workerName] || '';
+                            
                             return (
-                              <div key={worker.user_id} className="flex items-center justify-between group">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[10px] md:text-xs text-gray-700">
-                                    • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
-                                  </span>
-                                  {avgContacts > 0 && (
-                                    <span className="text-[9px] md:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                                      ~{avgContacts.toFixed(1)}
+                              <div key={worker.user_id} className="space-y-1">
+                                <div className="flex items-center justify-between group">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] md:text-xs text-gray-700">
+                                      • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
                                     </span>
+                                    {avgContacts > 0 && (
+                                      <span className="text-[9px] md:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                        ~{avgContacts.toFixed(1)}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() => confirmRemoveSlot(worker.user_id, workerName, day.date, slot.time, slot.label)}
+                                    disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 disabled:opacity-50"
+                                    title="Удалить смену"
+                                  >
+                                    {deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (
+                                      <Icon name="Loader2" size={14} className="animate-spin" />
+                                    ) : (
+                                      <Icon name="X" size={14} />
+                                    )}
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-1 ml-2">
+                                  <Input
+                                    type="text"
+                                    placeholder="Место работы (например: Бульвар Дмитрия Донского)"
+                                    value={currentComment}
+                                    onChange={(e) => {
+                                      setWorkComments(prev => ({
+                                        ...prev,
+                                        [day.date]: {
+                                          ...prev[day.date],
+                                          [workerName]: e.target.value
+                                        }
+                                      }));
+                                    }}
+                                    onBlur={(e) => saveComment(workerName, day.date, e.target.value)}
+                                    className="h-7 text-[10px] md:text-xs flex-1"
+                                    disabled={savingComment === commentKey}
+                                  />
+                                  {savingComment === commentKey && (
+                                    <Icon name="Loader2" size={12} className="animate-spin text-blue-600 flex-shrink-0" />
+                                  )}
+                                  {!savingComment && currentComment && (
+                                    <Icon name="MapPin" size={12} className="text-green-600 flex-shrink-0" />
                                   )}
                                 </div>
-                                <button
-                                  onClick={() => confirmRemoveSlot(worker.user_id, `${worker.first_name} ${worker.last_name}`, day.date, slot.time, slot.label)}
-                                  disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 disabled:opacity-50"
-                                  title="Удалить смену"
-                                >
-                                  {deletingSlot?.userId === worker.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (
-                                    <Icon name="Loader2" size={14} className="animate-spin" />
-                                  ) : (
-                                    <Icon name="X" size={14} />
-                                  )}
-                                </button>
                               </div>
                             );
                           })

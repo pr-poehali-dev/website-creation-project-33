@@ -182,7 +182,7 @@ export default function DailyModal({
                             <div className="flex items-center gap-2">
                               <Input
                                 type="text"
-                                placeholder="Например: Бульвар Дмитрия Донского"
+                                placeholder=""
                                 value={comments[user.name] || ''}
                                 onChange={(e) => setComments(prev => ({ ...prev, [user.name]: e.target.value }))}
                                 onBlur={(e) => saveComment(user.name, e.target.value)}

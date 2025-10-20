@@ -40,8 +40,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method == 'GET':
             params = event.get('queryStringParameters', {})
             work_date = params.get('work_date')
+            get_locations = params.get('get_locations')
+            
+            cursor = conn.cursor()
+            
+            if get_locations == 'true':
+                cursor.execute("""
+                    SELECT location_name
+                    FROM work_locations
+                    ORDER BY usage_count DESC, last_used_at DESC
+                    LIMIT 50
+                """)
+                
+                locations = [row[0] for row in cursor.fetchall()]
+                cursor.close()
+                conn.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'locations': locations})
+                }
             
             if not work_date:
+                cursor.close()
+                conn.close()
                 return {
                     'statusCode': 400,
                     'headers': {
@@ -51,7 +77,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'work_date parameter required'})
                 }
             
-            cursor = conn.cursor()
             cursor.execute("""
                 SELECT user_name, location_comment
                 FROM work_location_comments
@@ -92,6 +117,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cursor = conn.cursor()
+            
+            if location_comment:
+                cursor.execute("""
+                    INSERT INTO work_locations (location_name, usage_count, last_used_at)
+                    VALUES (%s, 1, CURRENT_TIMESTAMP)
+                    ON CONFLICT (location_name)
+                    DO UPDATE SET 
+                        usage_count = work_locations.usage_count + 1,
+                        last_used_at = CURRENT_TIMESTAMP
+                """, (location_comment,))
+            
             cursor.execute("""
                 INSERT INTO work_location_comments (user_name, work_date, location_comment, updated_at)
                 VALUES (%s, %s, %s, CURRENT_TIMESTAMP)

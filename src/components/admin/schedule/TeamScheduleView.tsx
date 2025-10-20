@@ -31,10 +31,29 @@ export default function TeamScheduleView({
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
   const [workComments, setWorkComments] = useState<Record<string, Record<string, string>>>({});
   const [savingComment, setSavingComment] = useState<string | null>(null);
+  const [allLocations, setAllLocations] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState<string | null>(null);
+  const [filteredLocations, setFilteredLocations] = useState<string[]>([]);
 
   useEffect(() => {
     loadWorkComments();
+    loadAllLocations();
   }, [weekDays]);
+
+  const loadAllLocations = async () => {
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2?get_locations=true'
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAllLocations(data.locations || []);
+      }
+    } catch (error) {
+      console.error('Error loading locations:', error);
+    }
+  };
 
   const loadWorkComments = async () => {
     const comments: Record<string, Record<string, string>> = {};
@@ -223,21 +242,46 @@ export default function TeamScheduleView({
                                     )}
                                   </button>
                                 </div>
-                                <div className="flex items-center gap-1 ml-2">
+                                <div className="relative flex items-center gap-1 ml-2">
                                   <Input
                                     type="text"
-                                    placeholder="Место работы (например: Бульвар Дмитрия Донского)"
+                                    placeholder=""
                                     value={currentComment}
                                     onChange={(e) => {
+                                      const value = e.target.value;
                                       setWorkComments(prev => ({
                                         ...prev,
                                         [day.date]: {
                                           ...prev[day.date],
-                                          [workerName]: e.target.value
+                                          [workerName]: value
                                         }
                                       }));
+                                      
+                                      if (value.length > 0) {
+                                        const filtered = allLocations.filter(loc => 
+                                          loc.toLowerCase().includes(value.toLowerCase())
+                                        );
+                                        setFilteredLocations(filtered);
+                                        setShowSuggestions(commentKey);
+                                      } else {
+                                        setShowSuggestions(null);
+                                      }
                                     }}
-                                    onBlur={(e) => saveComment(workerName, day.date, e.target.value)}
+                                    onFocus={() => {
+                                      if (currentComment.length > 0) {
+                                        const filtered = allLocations.filter(loc => 
+                                          loc.toLowerCase().includes(currentComment.toLowerCase())
+                                        );
+                                        setFilteredLocations(filtered);
+                                        setShowSuggestions(commentKey);
+                                      }
+                                    }}
+                                    onBlur={(e) => {
+                                      setTimeout(() => {
+                                        setShowSuggestions(null);
+                                        saveComment(workerName, day.date, e.target.value);
+                                      }, 200);
+                                    }}
                                     className="h-7 text-[10px] md:text-xs flex-1"
                                     disabled={savingComment === commentKey}
                                   />
@@ -246,6 +290,31 @@ export default function TeamScheduleView({
                                   )}
                                   {!savingComment && currentComment && (
                                     <Icon name="MapPin" size={12} className="text-green-600 flex-shrink-0" />
+                                  )}
+                                  
+                                  {showSuggestions === commentKey && filteredLocations.length > 0 && (
+                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-32 overflow-y-auto">
+                                      {filteredLocations.map((location, idx) => (
+                                        <div
+                                          key={idx}
+                                          className="px-2 py-1.5 hover:bg-blue-50 cursor-pointer text-[10px] md:text-xs text-gray-700"
+                                          onClick={() => {
+                                            setWorkComments(prev => ({
+                                              ...prev,
+                                              [day.date]: {
+                                                ...prev[day.date],
+                                                [workerName]: location
+                                              }
+                                            }));
+                                            setShowSuggestions(null);
+                                            saveComment(workerName, day.date, location);
+                                          }}
+                                        >
+                                          <Icon name="MapPin" size={10} className="inline mr-1 text-blue-600" />
+                                          {location}
+                                        </div>
+                                      ))}
+                                    </div>
                                   )}
                                 </div>
                               </div>

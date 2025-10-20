@@ -1029,6 +1029,44 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
     
+    elif method == 'POST':
+        if not user['is_admin']:
+            return {
+                'statusCode': 403,
+                'headers': headers,
+                'body': json.dumps({'error': 'Доступ запрещен'})
+            }
+        
+        body_data = json.loads(event.get('body', '{}'))
+        action = body_data.get('action')
+        
+        if action == 'add_shift':
+            user_id = body_data.get('user_id')
+            work_date = body_data.get('work_date')
+            start_time = body_data.get('start_time')
+            end_time = body_data.get('end_time')
+            
+            if not all([user_id, work_date, start_time, end_time]):
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Все поля обязательны'})
+                }
+            
+            success = add_manual_shift(user_id, work_date, start_time, end_time)
+            if success:
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'success': True})
+                }
+            else:
+                return {
+                    'statusCode': 500,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Ошибка при добавлении смены'})
+                }
+    
     elif method == 'DELETE':
         # Проверяем права админа для DELETE операций
         if not user['is_admin']:
@@ -1106,33 +1144,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'headers': headers,
                 'body': json.dumps({'success': True, 'deleted_count': deleted_count})
             }
-        
-        elif action == 'add_shift':
-            user_id = body_data.get('user_id')
-            work_date = body_data.get('work_date')
-            start_time = body_data.get('start_time')
-            end_time = body_data.get('end_time')
-            
-            if not all([user_id, work_date, start_time, end_time]):
-                return {
-                    'statusCode': 400,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Все поля обязательны'})
-                }
-            
-            success = add_manual_shift(user_id, work_date, start_time, end_time)
-            if success:
-                return {
-                    'statusCode': 200,
-                    'headers': headers,
-                    'body': json.dumps({'success': True})
-                }
-            else:
-                return {
-                    'statusCode': 500,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Ошибка при добавлении смены'})
-                }
         
         elif action == 'delete_shift':
             user_id = body_data.get('user_id')

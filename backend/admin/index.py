@@ -892,6 +892,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
     elif method == 'POST':
         body_data = json.loads(event.get('body', '{}'))
         action = body_data.get('action')
+        print(f'📮 POST action: {action}, body: {body_data}')
         
         if action == 'approve_user':
             user_id = body_data.get('user_id')

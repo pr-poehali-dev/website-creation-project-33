@@ -1030,6 +1030,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 }
     
     elif method == 'POST':
+        print(f'🔵 POST request received, user is_admin: {user.get("is_admin")}')
         if not user['is_admin']:
             return {
                 'statusCode': 403,
@@ -1039,6 +1040,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
         
         body_data = json.loads(event.get('body', '{}'))
         action = body_data.get('action')
+        print(f'🔵 POST action: {action}, body: {body_data}')
         
         if action == 'add_shift':
             user_id = body_data.get('user_id')

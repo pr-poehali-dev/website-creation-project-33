@@ -585,10 +585,10 @@ def add_manual_shift(user_id: int, work_date: str, start_time: str, end_time: st
             with conn.cursor() as cur:
                 cur.execute("""
                     INSERT INTO t_p24058207_website_creation_pro.shift_videos 
-                    (user_id, work_date, video_type, created_at, organization_id, video_url)
+                    (user_id, work_date, video_type, created_at, organization_id)
                     VALUES 
-                    (%s, %s, 'start', %s, 1, 'manual'),
-                    (%s, %s, 'end', %s, 1, 'manual')
+                    (%s, %s, 'start', %s, 1),
+                    (%s, %s, 'end', %s, 1)
                 """, (user_id, work_date, start_utc, user_id, work_date, end_utc))
                 conn.commit()
                 return True

@@ -128,16 +128,14 @@ export default function UserDashboard() {
                   </Button>
                 </>
               )}
-              {selectedOrganization && (
-                <Button 
-                  onClick={() => setCurrentView('schedule')} 
-                  className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 h-9"
-                  size="sm"
-                >
-                  <Icon name="Calendar" size={16} className="md:mr-1.5" />
-                  <span className="hidden sm:inline">График</span>
-                </Button>
-              )}
+              <Button 
+                onClick={() => setCurrentView('schedule')} 
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 h-9"
+                size="sm"
+              >
+                <Icon name="Calendar" size={16} className="md:mr-1.5" />
+                <span className="hidden sm:inline">График</span>
+              </Button>
               <Button 
                 onClick={logout} 
                 className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 h-9"

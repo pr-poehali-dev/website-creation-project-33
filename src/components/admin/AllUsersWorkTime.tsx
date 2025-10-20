@@ -231,29 +231,31 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
 
   return (
     <Card className="bg-white border-gray-200 rounded-2xl">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-gray-900 flex items-center gap-2 text-lg md:text-xl">
-            <div className="p-2 rounded-lg bg-gray-100">
-              <Icon name="Clock" size={20} className="md:w-6 md:h-6" />
+      <CardHeader className="pb-3 sm:pb-6">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-gray-900 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-lg md:text-xl">
+            <div className="p-1.5 sm:p-2 rounded-lg bg-gray-100">
+              <Icon name="Clock" size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
             </div>
-            Время работы промоутеров
+            <span className="hidden xs:inline">Время работы промоутеров</span>
+            <span className="xs:hidden">Время работы</span>
           </CardTitle>
           <div className="flex items-center gap-2">
             <Button
               onClick={() => setShowAddModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm"
               size="sm"
             >
-              <Icon name="Plus" size={16} className="mr-1" />
-              Добавить смену
+              <Icon name="Plus" size={14} className="md:w-4 md:h-4" />
+              <span className="hidden sm:inline ml-1">Добавить смену</span>
+              <span className="sm:hidden ml-1">Добавить</span>
             </Button>
             <button
               onClick={loadWorkTime}
               className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
               title="Обновить данные"
             >
-              <Icon name="RefreshCw" size={18} className="text-gray-900" />
+              <Icon name="RefreshCw" size={16} className="text-gray-900 md:w-[18px] md:h-[18px]" />
             </button>
           </div>
         </div>
@@ -372,28 +374,28 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
       </CardContent>
 
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md">
-            <CardHeader>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <Card className="w-full max-w-md rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto">
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Добавить смену</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Добавить смену</CardTitle>
                 <button 
                   onClick={() => setShowAddModal(false)} 
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 p-1"
                 >
                   <Icon name="X" size={20} />
                 </button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Промоутер
                 </label>
                 <select
                   value={selectedUser || ''}
                   onChange={(e) => setSelectedUser(Number(e.target.value))}
-                  className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full p-2.5 sm:p-2 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                 >
                   <option value="">Выберите промоутера</option>
                   {users.map(user => (
@@ -405,48 +407,48 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Дата
                 </label>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full p-2.5 sm:p-2 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Время открытия
                   </label>
                   <input
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full p-2.5 sm:p-2 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Время закрытия
                   </label>
                   <input
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full p-2.5 sm:p-2 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <Button
                   onClick={handleAddShift}
                   disabled={isSubmitting || !selectedUser || !selectedDate || !startTime || !endTime}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2.5"
                 >
                   {isSubmitting ? (
                     <>
@@ -461,6 +463,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                   onClick={() => setShowAddModal(false)}
                   variant="outline"
                   disabled={isSubmitting}
+                  className="sm:flex-none text-sm py-2.5"
                 >
                   Отмена
                 </Button>

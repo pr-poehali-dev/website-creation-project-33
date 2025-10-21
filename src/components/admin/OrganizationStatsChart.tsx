@@ -17,8 +17,11 @@ interface OrganizationStat {
 
 export default function OrganizationStatsChart() {
   const { data: orgStatsData = [], isLoading } = useOrganizationStats(true);
-  const [timeRange, setTimeRange] = React.useState<'week' | 'twoWeeks' | 'month' | 'year' | 'all'>('week');
+  const [timeRange, setTimeRange] = React.useState<'week' | 'month' | 'year'>('week');
   const [selectedOrg, setSelectedOrg] = React.useState<string | null>(null);
+  const [selectedWeekIndex, setSelectedWeekIndex] = React.useState<number>(0);
+  const [selectedMonthIndex, setSelectedMonthIndex] = React.useState<number>(0);
+  const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
 
   if (isLoading) {
     return (
@@ -37,23 +40,89 @@ export default function OrganizationStatsChart() {
     return null;
   }
 
+  // Получаем доступные недели (последние 12 недель)
+  const getAvailableWeeks = () => {
+    const weeks = [];
+    const now = new Date();
+    
+    for (let i = 0; i < 12; i++) {
+      const weekEnd = new Date(now);
+      weekEnd.setDate(now.getDate() - (i * 7));
+      
+      const weekStart = new Date(weekEnd);
+      weekStart.setDate(weekEnd.getDate() - 6);
+      
+      weeks.push({
+        start: weekStart,
+        end: weekEnd,
+        label: `${weekStart.getDate()} ${weekStart.toLocaleDateString('ru-RU', { month: 'short' })} - ${weekEnd.getDate()} ${weekEnd.toLocaleDateString('ru-RU', { month: 'short' })}`
+      });
+    }
+    
+    return weeks;
+  };
+
+  // Получаем доступные месяцы (последние 12 месяцев)
+  const getAvailableMonths = () => {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 0; i < 12; i++) {
+      const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({
+        date: monthDate,
+        label: monthDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
+      });
+    }
+    
+    return months;
+  };
+
+  // Получаем доступные годы
+  const getAvailableYears = () => {
+    const years = [];
+    const currentYear = new Date().getFullYear();
+    const oldestDataYear = orgStatsData.length > 0 
+      ? new Date(orgStatsData[orgStatsData.length - 1].date).getFullYear()
+      : currentYear;
+    
+    for (let year = currentYear; year >= Math.max(oldestDataYear, currentYear - 5); year--) {
+      years.push(year);
+    }
+    
+    return years;
+  };
+
+  const availableWeeks = getAvailableWeeks();
+  const availableMonths = getAvailableMonths();
+  const availableYears = getAvailableYears();
+
   const getFilteredData = () => {
-    if (timeRange === 'all') {
-      return orgStatsData;
+    if (timeRange === 'week') {
+      const week = availableWeeks[selectedWeekIndex];
+      return orgStatsData.filter(item => {
+        const itemDate = new Date(item.date);
+        return itemDate >= week.start && itemDate <= week.end;
+      });
+    }
+    
+    if (timeRange === 'month') {
+      const month = availableMonths[selectedMonthIndex];
+      return orgStatsData.filter(item => {
+        const itemDate = new Date(item.date);
+        return itemDate.getMonth() === month.date.getMonth() && 
+               itemDate.getFullYear() === month.date.getFullYear();
+      });
+    }
+    
+    if (timeRange === 'year') {
+      return orgStatsData.filter(item => {
+        const itemDate = new Date(item.date);
+        return itemDate.getFullYear() === selectedYear;
+      });
     }
 
-    const now = new Date();
-    const daysToSubtract = {
-      week: 7,
-      twoWeeks: 14,
-      month: 30,
-      year: 365,
-    }[timeRange];
-
-    const cutoffDate = new Date(now);
-    cutoffDate.setDate(cutoffDate.getDate() - daysToSubtract);
-
-    return orgStatsData.filter(item => new Date(item.date) >= cutoffDate);
+    return orgStatsData;
   };
 
   const filteredData = getFilteredData();
@@ -125,7 +194,10 @@ export default function OrganizationStatsChart() {
           <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
             <span className="text-xs md:text-sm text-gray-600 font-medium">Период:</span>
             <Button
-              onClick={() => setTimeRange('week')}
+              onClick={() => {
+                setTimeRange('week');
+                setSelectedWeekIndex(0);
+              }}
               variant={timeRange === 'week' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'week'
@@ -133,21 +205,13 @@ export default function OrganizationStatsChart() {
                 : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
               }`}
             >
-              7д
+              Неделя
             </Button>
             <Button
-              onClick={() => setTimeRange('twoWeeks')}
-              variant={timeRange === 'twoWeeks' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'twoWeeks'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
-              }`}
-            >
-              14д
-            </Button>
-            <Button
-              onClick={() => setTimeRange('month')}
+              onClick={() => {
+                setTimeRange('month');
+                setSelectedMonthIndex(0);
+              }}
               variant={timeRange === 'month' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'month'
@@ -155,10 +219,13 @@ export default function OrganizationStatsChart() {
                 : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
               }`}
             >
-              30д
+              Месяц
             </Button>
             <Button
-              onClick={() => setTimeRange('year')}
+              onClick={() => {
+                setTimeRange('year');
+                setSelectedYear(new Date().getFullYear());
+              }}
               variant={timeRange === 'year' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'year'
@@ -168,18 +235,88 @@ export default function OrganizationStatsChart() {
             >
               Год
             </Button>
-            <Button
-              onClick={() => setTimeRange('all')}
-              variant={timeRange === 'all' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'all'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
-              }`}
-            >
-              Всё
-            </Button>
           </div>
+
+          {/* Выбор конкретной недели */}
+          {timeRange === 'week' && (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setSelectedWeekIndex(prev => Math.min(prev + 1, availableWeeks.length - 1))}
+                disabled={selectedWeekIndex >= availableWeeks.length - 1}
+                variant="outline"
+                size="sm"
+                className="h-8"
+              >
+                <Icon name="ChevronLeft" size={16} />
+              </Button>
+              <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[180px] text-center">
+                {availableWeeks[selectedWeekIndex]?.label}
+              </span>
+              <Button
+                onClick={() => setSelectedWeekIndex(prev => Math.max(prev - 1, 0))}
+                disabled={selectedWeekIndex <= 0}
+                variant="outline"
+                size="sm"
+                className="h-8"
+              >
+                <Icon name="ChevronRight" size={16} />
+              </Button>
+            </div>
+          )}
+
+          {/* Выбор конкретного месяца */}
+          {timeRange === 'month' && (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setSelectedMonthIndex(prev => Math.min(prev + 1, availableMonths.length - 1))}
+                disabled={selectedMonthIndex >= availableMonths.length - 1}
+                variant="outline"
+                size="sm"
+                className="h-8"
+              >
+                <Icon name="ChevronLeft" size={16} />
+              </Button>
+              <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[180px] text-center">
+                {availableMonths[selectedMonthIndex]?.label}
+              </span>
+              <Button
+                onClick={() => setSelectedMonthIndex(prev => Math.max(prev - 1, 0))}
+                disabled={selectedMonthIndex <= 0}
+                variant="outline"
+                size="sm"
+                className="h-8"
+              >
+                <Icon name="ChevronRight" size={16} />
+              </Button>
+            </div>
+          )}
+
+          {/* Выбор года */}
+          {timeRange === 'year' && (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setSelectedYear(prev => Math.min(prev + 1, availableYears[0]))}
+                disabled={selectedYear >= availableYears[0]}
+                variant="outline"
+                size="sm"
+                className="h-8"
+              >
+                <Icon name="ChevronLeft" size={16} />
+              </Button>
+              <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[100px] text-center">
+                {selectedYear}
+              </span>
+              <Button
+                onClick={() => setSelectedYear(prev => Math.max(prev - 1, availableYears[availableYears.length - 1]))}
+                disabled={selectedYear <= availableYears[availableYears.length - 1]}
+                variant="outline"
+                size="sm"
+                className="h-8"
+              >
+                <Icon name="ChevronRight" size={16} />
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">

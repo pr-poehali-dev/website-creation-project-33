@@ -570,7 +570,7 @@ def update_user_name(user_id: int, new_name: str) -> bool:
             return cur.rowcount > 0
 
 def delete_user(user_id: int) -> bool:
-    """Удалить пользователя и ВСЕ связанные данные (метрики лидов, чат, сессии), заблокировать IP"""
+    """Деактивировать пользователя (is_active=false), сохранив все данные, и заблокировать IP"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT registration_ip FROM t_p24058207_website_creation_pro.users WHERE id = %s", (user_id,))
@@ -580,20 +580,15 @@ def delete_user(user_id: int) -> bool:
             if user_ip and user_ip != 'unknown':
                 cur.execute(
                     "INSERT INTO t_p24058207_website_creation_pro.blocked_ips (ip_address, blocked_reason) VALUES (%s, %s) ON CONFLICT (ip_address) DO NOTHING",
-                    (user_ip, f'User ID {user_id} deleted by admin')
+                    (user_ip, f'User ID {user_id} deactivated by admin')
                 )
             
-            # Удаляем все связанные данные
-            cur.execute("DELETE FROM t_p24058207_website_creation_pro.work_location_comments WHERE user_id = %s", (user_id,))
-            cur.execute("DELETE FROM t_p24058207_website_creation_pro.shift_videos WHERE user_id = %s", (user_id,))
-            cur.execute("DELETE FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s", (user_id,))
-            cur.execute("DELETE FROM t_p24058207_website_creation_pro.work_shifts WHERE user_id = %s", (user_id,))
-            cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = %s", (user_id,))
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.user_sessions WHERE user_id = %s", (user_id,))
-            cur.execute("DELETE FROM t_p24058207_website_creation_pro.chat_messages WHERE user_id = %s", (user_id,))
             
-            # Удаляем пользователя (только не админов)
-            cur.execute("DELETE FROM t_p24058207_website_creation_pro.users WHERE id = %s AND is_admin = FALSE", (user_id,))
+            cur.execute(
+                "UPDATE t_p24058207_website_creation_pro.users SET is_active = FALSE WHERE id = %s AND is_admin = FALSE",
+                (user_id,)
+            )
             
             conn.commit()
             return cur.rowcount > 0

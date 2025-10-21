@@ -136,6 +136,9 @@ export default function OrganizationStatsChart() {
 
   const filteredData = getFilteredData();
 
+  // Подсчитываем общее количество контактов за выбранный период
+  const totalContactsForPeriod = filteredData.reduce((sum, item) => sum + item.total_contacts, 0);
+
   // Получаем список всех организаций
   const organizations = Array.from(
     new Set(filteredData.map(d => d.organization_name))
@@ -248,82 +251,103 @@ export default function OrganizationStatsChart() {
 
           {/* Выбор конкретной недели */}
           {timeRange === 'week' && (
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setSelectedWeekIndex(prev => Math.min(prev + 1, availableWeeks.length - 1))}
-                disabled={selectedWeekIndex >= availableWeeks.length - 1}
-                variant="outline"
-                size="sm"
-                className="h-8"
-              >
-                <Icon name="ChevronLeft" size={16} />
-              </Button>
-              <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[180px] text-center">
-                {availableWeeks[selectedWeekIndex]?.label}
-              </span>
-              <Button
-                onClick={() => setSelectedWeekIndex(prev => Math.max(prev - 1, 0))}
-                disabled={selectedWeekIndex <= 0}
-                variant="outline"
-                size="sm"
-                className="h-8"
-              >
-                <Icon name="ChevronRight" size={16} />
-              </Button>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setSelectedWeekIndex(prev => Math.min(prev + 1, availableWeeks.length - 1))}
+                  disabled={selectedWeekIndex >= availableWeeks.length - 1}
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                >
+                  <Icon name="ChevronLeft" size={16} />
+                </Button>
+                <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[180px] text-center">
+                  {availableWeeks[selectedWeekIndex]?.label}
+                </span>
+                <Button
+                  onClick={() => setSelectedWeekIndex(prev => Math.max(prev - 1, 0))}
+                  disabled={selectedWeekIndex <= 0}
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                >
+                  <Icon name="ChevronRight" size={16} />
+                </Button>
+              </div>
+              <div className="text-center">
+                <span className="text-sm font-semibold text-[#001f54]">
+                  Всего за неделю: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
+                </span>
+              </div>
             </div>
           )}
 
           {/* Выбор конкретного месяца */}
           {timeRange === 'month' && (
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setSelectedMonthIndex(prev => Math.min(prev + 1, availableMonths.length - 1))}
-                disabled={selectedMonthIndex >= availableMonths.length - 1}
-                variant="outline"
-                size="sm"
-                className="h-8"
-              >
-                <Icon name="ChevronLeft" size={16} />
-              </Button>
-              <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[180px] text-center">
-                {availableMonths[selectedMonthIndex]?.label}
-              </span>
-              <Button
-                onClick={() => setSelectedMonthIndex(prev => Math.max(prev - 1, 0))}
-                disabled={selectedMonthIndex <= 0}
-                variant="outline"
-                size="sm"
-                className="h-8"
-              >
-                <Icon name="ChevronRight" size={16} />
-              </Button>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setSelectedMonthIndex(prev => Math.min(prev + 1, availableMonths.length - 1))}
+                  disabled={selectedMonthIndex >= availableMonths.length - 1}
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                >
+                  <Icon name="ChevronLeft" size={16} />
+                </Button>
+                <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[180px] text-center">
+                  {availableMonths[selectedMonthIndex]?.label}
+                </span>
+                <Button
+                  onClick={() => setSelectedMonthIndex(prev => Math.max(prev - 1, 0))}
+                  disabled={selectedMonthIndex <= 0}
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                >
+                  <Icon name="ChevronRight" size={16} />
+                </Button>
+              </div>
+              <div className="text-center">
+                <span className="text-sm font-semibold text-[#001f54]">
+                  Всего за месяц: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
+                </span>
+              </div>
             </div>
           )}
 
           {/* Выбор года */}
           {timeRange === 'year' && (
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setSelectedYear(prev => Math.min(prev + 1, availableYears[0]))}
-                disabled={selectedYear >= availableYears[0]}
-                variant="outline"
-                size="sm"
-                className="h-8"
-              >
-                <Icon name="ChevronLeft" size={16} />
-              </Button>
-              <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[100px] text-center">
-                {selectedYear}
-              </span>
-              <Button
-                onClick={() => setSelectedYear(prev => Math.max(prev - 1, availableYears[availableYears.length - 1]))}
-                disabled={selectedYear <= availableYears[availableYears.length - 1]}
-                variant="outline"
-                size="sm"
-                className="h-8"
-              >
-                <Icon name="ChevronRight" size={16} />
-              </Button>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setSelectedYear(prev => Math.min(prev + 1, availableYears[0]))}
+                  disabled={selectedYear >= availableYears[0]}
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                >
+                  <Icon name="ChevronLeft" size={16} />
+                </Button>
+                <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[100px] text-center">
+                  {selectedYear}
+                </span>
+                <Button
+                  onClick={() => setSelectedYear(prev => Math.max(prev - 1, availableYears[availableYears.length - 1]))}
+                  disabled={selectedYear <= availableYears[availableYears.length - 1]}
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                >
+                  <Icon name="ChevronRight" size={16} />
+                </Button>
+              </div>
+              <div className="text-center">
+                <span className="text-sm font-semibold text-[#001f54]">
+                  Всего за год: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
+                </span>
+              </div>
             </div>
           )}
         </div>

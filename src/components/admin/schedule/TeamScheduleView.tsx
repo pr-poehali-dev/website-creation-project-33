@@ -273,8 +273,10 @@ export default function TeamScheduleView({
                                           loc.toLowerCase().includes(currentComment.toLowerCase())
                                         );
                                         setFilteredLocations(filtered);
-                                        setShowSuggestions(commentKey);
+                                      } else {
+                                        setFilteredLocations(allLocations);
                                       }
+                                      setShowSuggestions(commentKey);
                                     }}
                                     onBlur={(e) => {
                                       setTimeout(() => {

@@ -340,31 +340,6 @@ export default function LeadsChart({
             </LineChart>
           </ResponsiveContainer>
         </div>
-
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
-          {userStats.map((user, index) => (
-            <div 
-              key={user.name}
-              className="p-4 rounded-lg border-2 border-gray-200 bg-white hover:shadow-lg transition-all duration-300"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div 
-                  className="w-3 h-3 rounded-full shadow-sm" 
-                  style={{ backgroundColor: USER_COLORS[index % USER_COLORS.length] }}
-                />
-                <span className="text-sm font-bold text-black">{user.name}</span>
-              </div>
-              <div className="space-y-1">
-                <div className="text-2xl font-bold text-gray-900">{user.lead_count}</div>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-green-600 font-medium">К: {user.contacts}</span>
-                  <span className="text-gray-400">•</span>
-                  <span className="text-orange-600 font-medium">П: {user.approaches}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
       </CardContent>
     </Card>
   );

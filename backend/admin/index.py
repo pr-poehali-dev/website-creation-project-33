@@ -269,7 +269,7 @@ def get_chart_data() -> List[Dict[str, Any]]:
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.created_at >= %s
                 ORDER BY l.created_at DESC
-            """, (get_moscow_time() - timedelta(days=30),))
+            """, (get_moscow_time() - timedelta(days=365),))
             
             # Группируем по московской дате и пользователю
             groups = {}

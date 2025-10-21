@@ -99,28 +99,18 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     setIsLoading(true);
     
     try {
-      console.log('🎯 sendToTelegram: audioBlob =', audioBlob);
-      
-      console.log('🎯 Reading audioBlob, size:', audioBlob.size);
       const reader = new FileReader();
       const audioData = await new Promise<string>((resolve, reject) => {
         reader.onloadend = () => {
           const result = reader.result as string;
-          console.log('🎯 FileReader result length:', result?.length);
           const base64 = result.split(',')[1];
-          console.log('🎯 Base64 length:', base64?.length);
           resolve(base64);
         };
-        reader.onerror = () => {
-          console.error('🎯 FileReader error');
-          reject(new Error('Failed to read audio'));
-        };
+        reader.onerror = () => reject(new Error('Failed to read audio'));
         reader.readAsDataURL(audioBlob);
       });
 
-      console.log('🎯 audioData result:', audioData ? `${audioData.length} chars` : 'null');
-
-      const response = await fetch('https://functions.poehali.dev/ecd9eaa3-7399-4f8b-8219-529b81f87b6a', {
+      fetch('https://functions.poehali.dev/ecd9eaa3-7399-4f8b-8219-529b81f87b6a', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,27 +122,17 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           organization_id: selectedOrganizationId,
           organization_name: organizationName
         })
+      }).catch(err => console.error('Background send error:', err));
+
+      toast({ 
+        title: 'Отправлено!',
+        description: 'Ваши данные отправляются в Telegram'
       });
-
-      if (!response.ok) {
-        throw new Error('Ошибка сети');
-      }
-
-      const result = await response.json();
       
-      if (result.success) {
-        toast({ 
-          title: 'Отправлено!',
-          description: 'Ваши данные успешно отправлены в Telegram'
-        });
-        
-        onContactAdded?.();
-        setNotes('');
-        setAudioBlob(null);
-        localStorage.removeItem('notepad_draft');
-      } else {
-        throw new Error(result.error || 'Неизвестная ошибка');
-      }
+      onContactAdded?.();
+      setNotes('');
+      setAudioBlob(null);
+      localStorage.removeItem('notepad_draft');
     } catch (error) {
       console.error('Send error:', error);
       toast({ 

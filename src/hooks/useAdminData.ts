@@ -73,7 +73,8 @@ export function useUserLeads(userId: number | null) {
       return data.leads || [];
     },
     enabled: !!userId,
-    staleTime: Infinity,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 

@@ -335,8 +335,11 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
                 
                 result_emoji = {
                     'положительный': '✅',
+                    'positive': '✅',
                     'нейтральный': '⚪',
-                    'отрицательный': '❌'
+                    'neutral': '⚪',
+                    'отрицательный': '❌',
+                    'negative': '❌'
                 }.get(row[3], '⚪')
                 
                 leads.append({

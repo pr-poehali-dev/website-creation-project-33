@@ -60,6 +60,7 @@ def get_all_users() -> List[Dict[str, Any]]:
                        u.latitude, u.longitude, u.location_city, u.location_country
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id
+                WHERE u.is_active = TRUE
                 GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country
                 ORDER BY u.created_at DESC
             """, (online_threshold,))

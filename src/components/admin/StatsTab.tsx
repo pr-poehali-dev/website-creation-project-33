@@ -160,9 +160,9 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
       />
 
       {/* Рейтинг пользователей */}
-      {/* <UsersRanking 
+      <UsersRanking 
         userStats={stats.user_stats}
-      /> */}
+      />
 
       {/* Статистика за последние дни */}
       <DailyStatsCard 

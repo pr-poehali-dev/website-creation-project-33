@@ -583,13 +583,13 @@ def delete_user(user_id: int) -> bool:
                     (user_ip, f'User ID {user_id} deleted by admin')
                 )
             
-            # Удаляем метрики лидов (текст/аудио не хранятся, только в Telegram!)
+            # Удаляем все связанные данные
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.work_location_comments WHERE user_id = %s", (user_id,))
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.shift_videos WHERE user_id = %s", (user_id,))
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s", (user_id,))
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.work_shifts WHERE user_id = %s", (user_id,))
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = %s", (user_id,))
-            
-            # Удаляем сессии
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.user_sessions WHERE user_id = %s", (user_id,))
-            
-            # Удаляем чат
             cur.execute("DELETE FROM t_p24058207_website_creation_pro.chat_messages WHERE user_id = %s", (user_id,))
             
             # Удаляем пользователя (только не админов)

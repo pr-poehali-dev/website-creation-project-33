@@ -40,22 +40,31 @@ export default function OrganizationStatsChart() {
     return null;
   }
 
-  // Получаем доступные недели (последние 12 недель)
+  // Получаем доступные недели (последние 12 недель с понедельника по воскресенье)
   const getAvailableWeeks = () => {
     const weeks = [];
     const now = new Date();
     
+    // Находим ближайшее воскресенье (конец недели)
+    const currentDayOfWeek = now.getDay(); // 0 = воскресенье, 1 = понедельник, ..., 6 = суббота
+    const daysUntilSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek;
+    
+    const lastSunday = new Date(now);
+    lastSunday.setDate(now.getDate() + daysUntilSunday);
+    lastSunday.setHours(23, 59, 59, 999);
+    
     for (let i = 0; i < 12; i++) {
-      const weekEnd = new Date(now);
-      weekEnd.setDate(now.getDate() - (i * 7));
+      const weekEnd = new Date(lastSunday);
+      weekEnd.setDate(lastSunday.getDate() - (i * 7));
       
       const weekStart = new Date(weekEnd);
       weekStart.setDate(weekEnd.getDate() - 6);
+      weekStart.setHours(0, 0, 0, 0);
       
       weeks.push({
         start: weekStart,
         end: weekEnd,
-        label: `${weekStart.getDate()} ${weekStart.toLocaleDateString('ru-RU', { month: 'short' })} - ${weekEnd.getDate()} ${weekEnd.toLocaleDateString('ru-RU', { month: 'short' })}`
+        label: `${weekStart.getDate()}.${String(weekStart.getMonth() + 1).padStart(2, '0')} - ${weekEnd.getDate()}.${String(weekEnd.getMonth() + 1).padStart(2, '0')}`
       });
     }
     

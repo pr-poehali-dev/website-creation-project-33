@@ -58,6 +58,24 @@ export function useChartData(enabled = true) {
   });
 }
 
+export function useOrganizationStats(enabled = true) {
+  return useQuery({
+    queryKey: ['organizationStats'],
+    queryFn: async () => {
+      const response = await fetch(`${ADMIN_API}?action=organization_stats`, {
+        headers: {
+          'X-Session-Token': getSessionToken(),
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch organization stats');
+      const data = await response.json();
+      return data.organization_stats;
+    },
+    enabled,
+    staleTime: Infinity,
+  });
+}
+
 export function useUserLeads(userId: number | null) {
   return useQuery({
     queryKey: ['userLeads', userId],

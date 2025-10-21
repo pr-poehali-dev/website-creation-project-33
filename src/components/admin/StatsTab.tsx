@@ -6,6 +6,7 @@ import StatsOverview from './StatsOverview';
 import UsersRanking from './UsersRanking';
 import DailyStatsCard from './DailyStatsCard';
 import LeadsChart from './LeadsChart';
+import OrganizationStatsChart from './OrganizationStatsChart';
 import DailyModal from './DailyModal';
 import { Stats, UserStats, ChartDataPoint } from './types';
 import { useStats, useChartData, useDailyUserStats } from '@/hooks/useAdminData';
@@ -178,6 +179,9 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
         onFilterTypeChange={setFilterType}
         onUsersChange={setSelectedUsers}
       />
+
+      {/* Статистика по организациям */}
+      <OrganizationStatsChart />
 
       {/* Модальное окно с детализацией по дням */}
       <DailyModal

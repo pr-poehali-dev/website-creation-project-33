@@ -304,6 +304,70 @@ def get_chart_data() -> List[Dict[str, Any]]:
             chart_data.sort(key=lambda x: (x['date'], x['user_name']), reverse=True)
             return chart_data
 
+def get_organization_stats() -> List[Dict[str, Any]]:
+    """Получить статистику по организациям с группировкой по пользователям и датам"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Получаем данные по контактам для каждого пользователя в каждой организации по датам
+            cur.execute("""
+                SELECT 
+                    l.created_at,
+                    u.name as user_name,
+                    o.name as organization_name,
+                    o.id as organization_id,
+                    l.lead_type
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.created_at >= %s AND l.lead_type = 'контакт'
+                ORDER BY l.created_at DESC
+            """, (get_moscow_time() - timedelta(days=365),))
+            
+            # Группируем по дате, пользователю и организации
+            groups = {}
+            for row in cur.fetchall():
+                moscow_dt = get_moscow_time_from_utc(row[0])
+                date_key = moscow_dt.date().isoformat()
+                user_name = row[1]
+                org_name = row[2] if row[2] else 'Не указана'
+                org_id = row[3] if row[3] else 0
+                
+                # Группируем по дате и организации для общей статистики
+                org_key = (date_key, org_name, org_id)
+                if org_key not in groups:
+                    groups[org_key] = {
+                        'total_contacts': 0,
+                        'users': {}
+                    }
+                
+                groups[org_key]['total_contacts'] += 1
+                
+                # Группируем по пользователям внутри организации
+                if user_name not in groups[org_key]['users']:
+                    groups[org_key]['users'][user_name] = 0
+                groups[org_key]['users'][user_name] += 1
+            
+            # Преобразуем в список
+            org_stats = []
+            for (date_key, org_name, org_id), stats in groups.items():
+                # Создаем запись для каждой организации по каждой дате
+                user_stats_list = [
+                    {'user_name': name, 'contacts': count}
+                    for name, count in stats['users'].items()
+                ]
+                
+                org_stats.append({
+                    'date': date_key,
+                    'organization_name': org_name,
+                    'organization_id': org_id,
+                    'total_contacts': stats['total_contacts'],
+                    'user_stats': user_stats_list
+                })
+            
+            # Сортируем по дате
+            org_stats.sort(key=lambda x: x['date'], reverse=True)
+            return org_stats
+
 def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
     """Получить метрики лидов пользователя (без текста/аудио - они в Telegram!)"""
     with get_db_connection() as conn:
@@ -796,6 +860,14 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({'chart_data': chart_data})
+            }
+        
+        elif action == 'organization_stats':
+            org_stats = get_organization_stats()
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'organization_stats': org_stats})
             }
         
         elif action == 'daily_user_stats':

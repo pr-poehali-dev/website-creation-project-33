@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Update organizations for contacts",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "updates": [
+          {
+            "lead_ids": [1, 2, 3],
+            "organization_id": 2
+          }
+        ]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "updated_count": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

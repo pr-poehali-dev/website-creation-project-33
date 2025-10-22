@@ -20,10 +20,10 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-6 admin-card h-12 md:h-14 p-1">
+      <TabsList className="flex w-full admin-card h-12 md:h-14 p-1 overflow-x-auto gap-1">
         <TabsTrigger 
           value="pending" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 min-w-fit whitespace-nowrap"
         >
           <Icon name="UserCheck" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Заявки</span>
@@ -31,7 +31,7 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
         </TabsTrigger>
         <TabsTrigger 
           value="users" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 min-w-fit whitespace-nowrap"
         >
           <Icon name="Users" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Пользователи</span>
@@ -39,7 +39,7 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
         </TabsTrigger>
         <TabsTrigger 
           value="stats" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 min-w-fit whitespace-nowrap"
         >
           <Icon name="BarChart3" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Рейтинг</span>
@@ -47,7 +47,7 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
         </TabsTrigger>
         <TabsTrigger 
           value="organizations" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 min-w-fit whitespace-nowrap"
         >
           <Icon name="Building2" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Организации</span>
@@ -55,7 +55,7 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
         </TabsTrigger>
         <TabsTrigger 
           value="archive" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 min-w-fit whitespace-nowrap"
         >
           <Icon name="Archive" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Архив</span>
@@ -63,7 +63,7 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
         </TabsTrigger>
         <TabsTrigger 
           value="chat" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm relative rounded-lg font-medium"
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm relative rounded-lg font-medium flex-1 min-w-fit whitespace-nowrap"
         >
           <Icon name="MessageCircle" size={14} className="md:w-[16px] md:h-[16px]" />
           <span className="hidden sm:inline">Чат</span>

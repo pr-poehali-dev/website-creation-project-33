@@ -119,7 +119,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     errors.append(f"Skipped row: {row}")
                     continue
                 
-                parts = date_time.split('\t')
+                parts = date_time.split()
                 if len(parts) < 2:
                     errors.append(f"Invalid datetime format: {date_time}")
                     continue

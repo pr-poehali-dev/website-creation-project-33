@@ -117,7 +117,7 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': sessionToken
+          'X-Session-Token': sessionToken
         },
         body: JSON.stringify({ data })
       });

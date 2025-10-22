@@ -49,7 +49,7 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'X-Admin-Token': sessionToken,
+            'X-Session-Token': sessionToken,
           },
         }
       );

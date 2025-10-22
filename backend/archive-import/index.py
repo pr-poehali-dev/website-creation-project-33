@@ -201,14 +201,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         continue
                     
                     try:
+                        print(f"Attempting INSERT: org_id={org_id}, promoter={promoter_name}, count={contact_count}, created_at={created_at}")
                         cur.execute("""
                             INSERT INTO t_p24058207_website_creation_pro.archive_leads_analytics
                             (user_id, organization_id, promoter_name, lead_type, contact_count, created_at)
                             VALUES (%s, %s, %s, %s, %s, %s)
                         """, (None, org_id, promoter_name, 'контакт', contact_count, created_at))
+                        print(f"INSERT successful for {promoter_name}")
                         imported_count += 1
                     except Exception as e:
-                        errors.append(f"Insert failed: {str(e)}")
+                        error_msg = f"Insert failed for {promoter_name}: {str(e)}"
+                        print(f"ERROR: {error_msg}")
+                        errors.append(error_msg)
                         continue
         
         conn.commit()

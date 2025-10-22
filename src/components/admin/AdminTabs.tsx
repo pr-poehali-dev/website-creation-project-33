@@ -8,6 +8,7 @@ import PendingUsers from './PendingUsers';
 import AllUsersWorkTime from './AllUsersWorkTime';
 import AdminChatTab from './AdminChatTab';
 import OrganizationsTab from './OrganizationsTab';
+import ArchiveTab from './ArchiveTab';
 
 interface AdminTabsProps {
   unreadCount: number;
@@ -19,7 +20,7 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-5 admin-card h-12 md:h-14 p-1">
+      <TabsList className="grid w-full grid-cols-6 admin-card h-12 md:h-14 p-1">
         <TabsTrigger 
           value="pending" 
           className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
@@ -53,6 +54,14 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
           <span className="sm:hidden">Орг.</span>
         </TabsTrigger>
         <TabsTrigger 
+          value="archive" 
+          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+        >
+          <Icon name="Archive" size={14} className="md:w-[16px] md:h-[16px]" />
+          <span className="hidden sm:inline">Архив</span>
+          <span className="sm:hidden">Арх.</span>
+        </TabsTrigger>
+        <TabsTrigger 
           value="chat" 
           className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm relative rounded-lg font-medium"
         >
@@ -84,6 +93,10 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
 
       <TabsContent value="organizations">
         <OrganizationsTab enabled={activeTab === 'organizations'} />
+      </TabsContent>
+
+      <TabsContent value="archive">
+        <ArchiveTab enabled={activeTab === 'archive'} sessionToken={sessionToken} />
       </TabsContent>
 
       <TabsContent value="chat">

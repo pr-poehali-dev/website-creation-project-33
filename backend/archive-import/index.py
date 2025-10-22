@@ -137,10 +137,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     org_result = cur.fetchone()
                     
                     if not org_result:
-                        errors.append(f"Organization not found: {org_name}")
-                        continue
-                    
-                    org_id = org_result[0]
+                        cur.execute("""
+                            INSERT INTO t_p24058207_website_creation_pro.organizations (name)
+                            VALUES (%s) RETURNING id
+                        """, (org_name,))
+                        org_id = cur.fetchone()[0]
+                    else:
+                        org_id = org_result[0]
                     
                     cur.execute("""
                         SELECT id FROM t_p24058207_website_creation_pro.users 
@@ -149,10 +152,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     user_result = cur.fetchone()
                     
                     if not user_result:
-                        errors.append(f"User not found: {user_name}")
-                        continue
-                    
-                    user_id = user_result[0]
+                        cur.execute("""
+                            INSERT INTO t_p24058207_website_creation_pro.users (name, is_admin)
+                            VALUES (%s, FALSE) RETURNING id
+                        """, (user_name,))
+                        user_id = cur.fetchone()[0]
+                    else:
+                        user_id = user_result[0]
                     
                     cur.execute("""
                         INSERT INTO t_p24058207_website_creation_pro.archive_leads_analytics

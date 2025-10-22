@@ -55,8 +55,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cur.execute("""
                 SELECT u.is_admin 
                 FROM t_p24058207_website_creation_pro.users u
-                JOIN t_p24058207_website_creation_pro.sessions s ON s.user_id = u.id
-                WHERE s.token = %s AND s.expires_at > NOW()
+                JOIN t_p24058207_website_creation_pro.user_sessions s ON s.user_id = u.id
+                WHERE s.session_token = %s AND s.expires_at > NOW()
             """, (session_token,))
             result = cur.fetchone()
             

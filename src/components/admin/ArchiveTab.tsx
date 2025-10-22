@@ -79,6 +79,20 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
     }
   };
 
+  const handleImportSuccess = () => {
+    setChartData([]);
+    setPromotersData([]);
+    setOrganizationsData([]);
+    
+    if (activeSubTab === 'chart') {
+      fetchArchiveData('chart');
+    } else if (activeSubTab === 'promoters') {
+      fetchArchiveData('promoters');
+    } else if (activeSubTab === 'organizations') {
+      fetchArchiveData('organizations');
+    }
+  };
+
   useEffect(() => {
     if (enabled && activeSubTab === 'chart' && chartData.length === 0) {
       fetchArchiveData('chart');
@@ -165,7 +179,7 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
         </TabsContent>
 
         <TabsContent value="import">
-          <ArchiveImport sessionToken={sessionToken} />
+          <ArchiveImport sessionToken={sessionToken} onImportSuccess={handleImportSuccess} />
         </TabsContent>
       </Tabs>
     </div>

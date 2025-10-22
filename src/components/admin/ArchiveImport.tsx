@@ -7,9 +7,10 @@ import { toast } from '@/hooks/use-toast';
 
 interface ArchiveImportProps {
   sessionToken: string;
+  onImportSuccess?: () => void;
 }
 
-export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
+export default function ArchiveImport({ sessionToken, onImportSuccess }: ArchiveImportProps) {
   const [csvData, setCsvData] = useState('');
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -139,6 +140,12 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
       });
 
       setCsvData('');
+      setFileName('');
+      setPreviewCount(0);
+      
+      if (onImportSuccess) {
+        onImportSuccess();
+      }
     } catch (error: any) {
       console.error('Import error:', error);
       toast({

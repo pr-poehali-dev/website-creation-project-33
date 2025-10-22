@@ -133,6 +133,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     with conn:
         with conn.cursor() as cur:
+            org_cache = {}
+            user_cache = {}
+            
+            cur.execute("SELECT id, name FROM t_p24058207_website_creation_pro.organizations")
+            for org_id, org_name in cur.fetchall():
+                org_cache[org_name] = org_id
+            
+            cur.execute("SELECT id, name FROM t_p24058207_website_creation_pro.users")
+            for user_id, user_name in cur.fetchall():
+                user_cache[user_name] = user_id
+            
+            records_to_insert = []
+            
             for row in csv_data:
                 if use_russian:
                     date_time = row.get('Дата', '').strip()
@@ -154,47 +167,38 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 try:
                     created_at = parse_moscow_datetime(date_time)
                     
-                    cur.execute("""
-                        SELECT id FROM t_p24058207_website_creation_pro.organizations 
-                        WHERE name = %s LIMIT 1
-                    """, (org_name,))
-                    org_result = cur.fetchone()
-                    
-                    if not org_result:
+                    if org_name not in org_cache:
                         cur.execute("""
                             INSERT INTO t_p24058207_website_creation_pro.organizations (name)
                             VALUES (%s) RETURNING id
                         """, (org_name,))
-                        org_id = cur.fetchone()[0]
-                    else:
-                        org_id = org_result[0]
+                        org_cache[org_name] = cur.fetchone()[0]
                     
-                    cur.execute("""
-                        SELECT id FROM t_p24058207_website_creation_pro.users 
-                        WHERE name = %s LIMIT 1
-                    """, (user_name,))
-                    user_result = cur.fetchone()
-                    
-                    if not user_result:
+                    if user_name not in user_cache:
                         cur.execute("""
                             INSERT INTO t_p24058207_website_creation_pro.users (name, is_admin)
                             VALUES (%s, FALSE) RETURNING id
                         """, (user_name,))
-                        user_id = cur.fetchone()[0]
-                    else:
-                        user_id = user_result[0]
+                        user_cache[user_name] = cur.fetchone()[0]
                     
-                    cur.execute("""
-                        INSERT INTO t_p24058207_website_creation_pro.archive_leads_analytics
-                        (user_id, organization_id, lead_type, contact_count, created_at)
-                        VALUES (%s, %s, 'контакт', %s, %s)
-                    """, (user_id, org_id, contact_count, created_at))
-                    
-                    imported_count += 1
+                    records_to_insert.append((
+                        user_cache[user_name],
+                        org_cache[org_name],
+                        contact_count,
+                        created_at
+                    ))
                     
                 except Exception as e:
                     errors.append(f"Error processing row {row}: {str(e)}")
                     continue
+            
+            if records_to_insert:
+                execute_batch(cur, """
+                    INSERT INTO t_p24058207_website_creation_pro.archive_leads_analytics
+                    (user_id, organization_id, lead_type, contact_count, created_at)
+                    VALUES (%s, %s, 'контакт', %s, %s)
+                """, records_to_insert)
+                imported_count = len(records_to_insert)
     
     conn.close()
     

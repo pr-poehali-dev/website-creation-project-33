@@ -18,6 +18,7 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
   const [importing, setImporting] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
 
   const clearForm = () => {
     setDate('');
@@ -67,6 +68,91 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
       });
     } finally {
       setClearing(false);
+    }
+  };
+
+  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCsvFile(file);
+    setImporting(true);
+    setResult(null);
+
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      if (lines.length === 0) {
+        throw new Error('CSV файл пустой');
+      }
+
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      
+      const data = lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const row: any = {};
+        
+        headers.forEach((header, i) => {
+          if (header.includes('дата') || header === 'datetime') {
+            row.datetime = values[i];
+          } else if (header.includes('организ') || header === 'organization') {
+            row.organization = values[i];
+          } else if (header.includes('промоутер') || header === 'user') {
+            row.user = values[i];
+          } else if (header.includes('контакт') || header.includes('количеств') || header === 'count') {
+            row.count = parseInt(values[i], 10) || 1;
+          }
+        });
+        
+        return row;
+      }).filter(row => row.datetime && row.user);
+
+      console.log('Sending CSV data:', data);
+
+      const response = await fetch('https://functions.poehali.dev/94c5eb5a-9182-4dc0-82f0-b4ddbb44acaf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': sessionToken
+        },
+        body: JSON.stringify({ data })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        try {
+          const error = JSON.parse(errorText);
+          throw new Error(error.error || 'Ошибка импорта');
+        } catch (e) {
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+      }
+
+      const importResult = await response.json();
+      console.log('Import result:', importResult);
+      setResult(importResult);
+
+      toast({
+        title: 'Успешно!',
+        description: `Импортировано: ${importResult.imported} записей из ${data.length}`
+      });
+
+      if (onImportSuccess) {
+        onImportSuccess();
+      }
+    } catch (error: any) {
+      console.error('CSV import error:', error);
+      toast({
+        title: 'Ошибка импорта CSV',
+        description: error.message || 'Не удалось импортировать данные',
+        variant: 'destructive'
+      });
+    } finally {
+      setImporting(false);
+      setCsvFile(null);
+      e.target.value = '';
     }
   };
 
@@ -156,7 +242,35 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
           Импорт архивных данных
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <label className="block">
+            <div className="flex items-center justify-center gap-3 cursor-pointer">
+              <Icon name="FileUp" size={24} className="text-blue-600" />
+              <div>
+                <p className="font-semibold text-blue-900">Загрузить CSV файл</p>
+                <p className="text-sm text-blue-700">Для массового импорта (поддерживает русские и английские заголовки)</p>
+              </div>
+            </div>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleCsvUpload}
+              disabled={importing}
+              className="hidden"
+            />
+          </label>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-gray-500">или добавьте вручную</span>
+          </div>
+        </div>
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

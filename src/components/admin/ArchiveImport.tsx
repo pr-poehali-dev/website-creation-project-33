@@ -270,17 +270,25 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Вставить данные вручную
             </label>
-            <Textarea
-              value={csvData}
-              onChange={(e) => setCsvData(e.target.value)}
-              placeholder="15.03.2025	Кид Форс Выхино	Вероника	3
+            <div className="border border-gray-300 rounded-lg overflow-hidden">
+              <div className="bg-gray-50 border-b border-gray-300 grid grid-cols-4 text-xs font-medium text-gray-700">
+                <div className="px-3 py-2 border-r border-gray-300">Дата</div>
+                <div className="px-3 py-2 border-r border-gray-300">Организация</div>
+                <div className="px-3 py-2 border-r border-gray-300">Промоутер</div>
+                <div className="px-3 py-2">Количество</div>
+              </div>
+              <Textarea
+                value={csvData}
+                onChange={(e) => setCsvData(e.target.value)}
+                placeholder="15.03.2025	Кид Форс Выхино	Вероника	3
 18.03.2025	ШИЯ Солнцево	Арсен	15
 22.03.2025	Воркаут Царицыно	Наталия	4"
-              rows={15}
-              className="font-mono text-sm"
-            />
+                rows={15}
+                className="font-mono text-sm border-0 rounded-none focus:ring-0"
+              />
+            </div>
             <p className="text-xs text-gray-500 mt-2">
-              Формат: дата[TAB]организация[TAB]промоутер[TAB]количество
+              💡 Формат: дата[TAB]организация[TAB]промоутер[TAB]количество. Можно скопировать из Excel с сохранением табуляции.
             </p>
           </div>
         </div>

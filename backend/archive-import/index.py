@@ -17,27 +17,27 @@ def get_db_connection():
         raise Exception('DATABASE_URL not found')
     return psycopg2.connect(dsn)
 
-def parse_moscow_datetime(date_str: str, time_str: str) -> str:
+def parse_moscow_datetime(datetime_str: str) -> str:
     '''Parse Moscow datetime and convert to UTC'''
-    dt_str = f"{date_str} {time_str}"
-    
     formats = [
         "%d.%m.%Y %H:%M:%S",
         "%d.%m.%Y %H:%M",
+        "%d.%m.%Y",
         "%Y-%m-%d %H:%M:%S",
         "%Y-%m-%d %H:%M",
+        "%Y-%m-%d",
     ]
     
     dt = None
     for fmt in formats:
         try:
-            dt = datetime.strptime(dt_str, fmt)
+            dt = datetime.strptime(datetime_str.strip(), fmt)
             break
         except ValueError:
             continue
     
     if not dt:
-        raise ValueError(f"Cannot parse datetime: {dt_str}")
+        raise ValueError(f"Cannot parse datetime: {datetime_str}")
     
     return dt.strftime("%Y-%m-%d %H:%M:%S+03:00")
 
@@ -151,16 +151,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     errors.append(f"Skipped row: {row}")
                     continue
                 
-                parts = date_time.split()
-                if len(parts) < 2:
-                    errors.append(f"Invalid datetime format: {date_time}")
-                    continue
-                
-                date_part = parts[0].strip()
-                time_part = parts[1].strip()
-                
                 try:
-                    created_at = parse_moscow_datetime(date_part, time_part)
+                    created_at = parse_moscow_datetime(date_time)
                     
                     cur.execute("""
                         SELECT id FROM t_p24058207_website_creation_pro.organizations 

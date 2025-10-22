@@ -1,0 +1,6 @@
+ALTER TABLE t_p24058207_website_creation_pro.archive_leads_analytics
+DROP CONSTRAINT archive_leads_analytics_user_id_fkey;
+
+ALTER TABLE t_p24058207_website_creation_pro.archive_leads_analytics
+ADD CONSTRAINT archive_leads_analytics_user_id_fkey 
+FOREIGN KEY (user_id) REFERENCES t_p24058207_website_creation_pro.users(id);

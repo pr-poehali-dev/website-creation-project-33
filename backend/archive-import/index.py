@@ -90,18 +90,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     actual_columns = set(csv_data[0].keys()) if csv_data else set()
     
-    required_columns = {'Дата', 'Организация', 'Промоутер', 'Контакты'}
-    if not required_columns.issubset(actual_columns):
+    required_columns_ru = {'Дата', 'Организация', 'Промоутер', 'Контакты'}
+    required_columns_en = {'datetime', 'organization', 'user', 'count'}
+    
+    has_russian = required_columns_ru.issubset(actual_columns)
+    has_english = required_columns_en.issubset(actual_columns)
+    
+    if not has_russian and not has_english:
         conn.close()
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({
-                'error': f'CSV format error. Expected columns: Дата, Организация, Промоутер, Контакты',
-                'expected': list(required_columns),
+                'error': 'CSV format error. Expected columns: datetime, organization, user, count',
+                'expected_en': list(required_columns_en),
+                'expected_ru': list(required_columns_ru),
                 'found': list(actual_columns)
             })
         }
+    
+    use_russian = has_russian
     
     imported_count = 0
     errors = []
@@ -109,10 +117,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     with conn:
         with conn.cursor() as cur:
             for row in csv_data:
-                date_time = row.get('Дата', '').strip()
-                org_name = row.get('Организация', '').strip()
-                user_name = row.get('Промоутер', '').strip()
-                contact_count_str = row.get('Контакты', '0').strip()
+                if use_russian:
+                    date_time = row.get('Дата', '').strip()
+                    org_name = row.get('Организация', '').strip()
+                    user_name = row.get('Промоутер', '').strip()
+                    contact_count_str = row.get('Контакты', '0').strip()
+                else:
+                    date_time = row.get('datetime', '').strip()
+                    org_name = row.get('organization', '').strip()
+                    user_name = row.get('user', '').strip()
+                    contact_count_str = str(row.get('count', 0)).strip()
+                
                 contact_count = int(contact_count_str) if contact_count_str else 0
                 
                 if not date_time or not org_name or not user_name:

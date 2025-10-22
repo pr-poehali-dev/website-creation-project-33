@@ -14,6 +14,7 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [fileName, setFileName] = useState<string>('');
+  const [previewCount, setPreviewCount] = useState<number>(0);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -34,6 +35,22 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
     reader.onload = (e) => {
       const text = e.target?.result as string;
       setCsvData(text);
+      
+      const lines = text.trim().split('\n');
+      const validLines = lines.filter((line, index) => {
+        if (index === 0 && (line.toLowerCase().includes('дата') || line.toLowerCase().includes('date'))) {
+          return false;
+        }
+        const delimiter = line.includes('\t') ? '\t' : line.includes(';') ? ';' : ',';
+        const parts = line.split(delimiter);
+        return parts.length >= 4;
+      });
+      setPreviewCount(validLines.length);
+      
+      toast({
+        title: 'Файл загружен',
+        description: `Найдено ${validLines.length} записей для импорта`
+      });
     };
     reader.onerror = () => {
       toast({
@@ -61,17 +78,40 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
     try {
       const lines = csvData.trim().split('\n');
       
-      const data = lines.map(line => {
-        const parts = line.split('\t');
-        if (parts.length < 4) return null;
-        
-        return {
-          datetime: parts[0].trim(),
-          organization: parts[1].trim(),
-          user: parts[2].trim(),
-          count: parts[3].trim()
-        };
-      }).filter(Boolean);
+      const data = lines
+        .map((line, index) => {
+          if (index === 0 && (line.toLowerCase().includes('дата') || line.toLowerCase().includes('date'))) {
+            return null;
+          }
+
+          let parts: string[];
+          if (line.includes('\t')) {
+            parts = line.split('\t');
+          } else if (line.includes(';')) {
+            parts = line.split(';');
+          } else if (line.includes(',')) {
+            parts = line.split(',');
+          } else {
+            return null;
+          }
+
+          if (parts.length < 4) return null;
+          
+          const datetime = parts[0].trim();
+          const organization = parts[1].trim();
+          const user = parts[2].trim();
+          const countStr = parts[3].trim();
+          
+          if (!datetime || !organization || !user || !countStr) return null;
+          
+          return {
+            datetime,
+            organization,
+            user,
+            count: countStr
+          };
+        })
+        .filter(Boolean);
 
       const response = await fetch('https://functions.poehali.dev/94c5eb5a-9182-4dc0-82f0-b4ddbb44acaf', {
         method: 'POST',
@@ -168,6 +208,14 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
           </div>
         </div>
 
+        {previewCount > 0 && (
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              📊 Готово к импорту: <strong>{previewCount}</strong> записей
+            </p>
+          </div>
+        )}
+
         <Button
           onClick={handleImport}
           disabled={importing || !csvData.trim()}
@@ -181,7 +229,7 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
           ) : (
             <>
               <Icon name="Upload" size={16} className="mr-2" />
-              Импортировать данные
+              Импортировать данные {previewCount > 0 ? `(${previewCount})` : ''}
             </>
           )}
         </Button>

@@ -11,58 +11,14 @@ interface ArchiveImportProps {
 }
 
 export default function ArchiveImport({ sessionToken, onImportSuccess }: ArchiveImportProps) {
-  const [csvData, setCsvData] = useState('');
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [dates, setDates] = useState('');
+  const [organizations, setOrganizations] = useState('');
+  const [users, setUsers] = useState('');
+  const [counts, setCounts] = useState('');
   const [importing, setImporting] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [fileName, setFileName] = useState<string>('');
-  const [previewCount, setPreviewCount] = useState<number>(0);
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!file.name.endsWith('.csv')) {
-      toast({
-        title: 'Ошибка',
-        description: 'Выберите CSV файл',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    setFileName(file.name);
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      setCsvData(text);
-      
-      const lines = text.trim().split('\n');
-      const validLines = lines.filter((line, index) => {
-        if (index === 0 && (line.toLowerCase().includes('дата') || line.toLowerCase().includes('date'))) {
-          return false;
-        }
-        const delimiter = line.includes('\t') ? '\t' : line.includes(';') ? ';' : ',';
-        const parts = line.split(delimiter);
-        return parts.length >= 4;
-      });
-      setPreviewCount(validLines.length);
-      
-      toast({
-        title: 'Файл загружен',
-        description: `Найдено ${validLines.length} записей для импорта`
-      });
-    };
-    reader.onerror = () => {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось прочитать файл',
-        variant: 'destructive'
-      });
-    };
-    reader.readAsText(file);
-  };
 
   const handleClearArchive = async () => {
     if (!confirm('Удалить ВСЕ архивные данные? Это действие необратимо!')) {
@@ -108,58 +64,86 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
     }
   };
 
-  const handleImport = async () => {
-    if (!csvData.trim()) {
+  const handleNextStep = () => {
+    const currentData = step === 1 ? dates : step === 2 ? organizations : step === 3 ? users : counts;
+    const lines = currentData.trim().split('\n').filter(l => l.trim());
+    
+    if (lines.length === 0) {
       toast({
         title: 'Ошибка',
-        description: 'Вставьте CSV данные',
+        description: 'Вставьте данные',
         variant: 'destructive'
       });
       return;
     }
 
+    if (step === 1) {
+      toast({
+        title: 'Шаг 1 готов',
+        description: `${lines.length} дат сохранено`
+      });
+      setStep(2);
+    } else if (step === 2) {
+      const dateLines = dates.trim().split('\n').filter(l => l.trim());
+      if (lines.length !== dateLines.length) {
+        toast({
+          title: 'Ошибка',
+          description: `Количество организаций (${lines.length}) не совпадает с количеством дат (${dateLines.length})`,
+          variant: 'destructive'
+        });
+        return;
+      }
+      toast({
+        title: 'Шаг 2 готов',
+        description: `${lines.length} организаций сохранено`
+      });
+      setStep(3);
+    } else if (step === 3) {
+      const dateLines = dates.trim().split('\n').filter(l => l.trim());
+      if (lines.length !== dateLines.length) {
+        toast({
+          title: 'Ошибка',
+          description: `Количество промоутеров (${lines.length}) не совпадает с количеством дат (${dateLines.length})`,
+          variant: 'destructive'
+        });
+        return;
+      }
+      toast({
+        title: 'Шаг 3 готов',
+        description: `${lines.length} промоутеров сохранено`
+      });
+      setStep(4);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (step > 1) {
+      setStep((step - 1) as 1 | 2 | 3 | 4);
+    }
+  };
+
+  const handleImport = async () => {
     setImporting(true);
     setResult(null);
 
     try {
-      const lines = csvData.trim().split('\n');
-      
-      const data = lines
-        .map((line, index) => {
-          if (index === 0 && (line.toLowerCase().includes('дата') || line.toLowerCase().includes('date'))) {
-            return null;
-          }
+      const dateLines = dates.trim().split('\n').filter(l => l.trim());
+      const orgLines = organizations.trim().split('\n').filter(l => l.trim());
+      const userLines = users.trim().split('\n').filter(l => l.trim());
+      const countLines = counts.trim().split('\n').filter(l => l.trim());
 
-          let parts: string[];
-          if (line.includes('\t')) {
-            parts = line.split('\t');
-          } else if (line.includes(';')) {
-            parts = line.split(';');
-          } else if (line.includes(',')) {
-            parts = line.split(',');
-          } else {
-            return null;
-          }
+      if (dateLines.length !== orgLines.length || 
+          dateLines.length !== userLines.length || 
+          dateLines.length !== countLines.length) {
+        throw new Error('Количество строк не совпадает во всех полях');
+      }
 
-          if (parts.length < 4) return null;
-          
-          const datetime = parts[0].trim();
-          const organization = parts[1].trim();
-          const user = parts[2].trim();
-          const countStr = parts[3].trim();
-          
-          if (!datetime || !user) return null;
-          
-          const count = parseInt(countStr, 10) || 1;
-          
-          return {
-            datetime,
-            organization,
-            user,
-            count
-          };
-        })
-        .filter(Boolean);
+      const data = dateLines.map((date, index) => ({
+        datetime: date.trim(),
+        organization: orgLines[index].trim(),
+        user: userLines[index].trim(),
+        count: parseInt(countLines[index].trim(), 10) || 1
+      }));
 
       const response = await fetch('https://functions.poehali.dev/94c5eb5a-9182-4dc0-82f0-b4ddbb44acaf', {
         method: 'POST',
@@ -183,9 +167,11 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
         description: `Импортировано ${importResult.imported} записей`
       });
 
-      setCsvData('');
-      setFileName('');
-      setPreviewCount(0);
+      setDates('');
+      setOrganizations('');
+      setUsers('');
+      setCounts('');
+      setStep(1);
       
       if (onImportSuccess) {
         onImportSuccess();
@@ -202,6 +188,46 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
     }
   };
 
+  const getStepInfo = () => {
+    switch (step) {
+      case 1:
+        return {
+          title: 'Шаг 1: Даты',
+          placeholder: '15.03.2025 18:09:53\n18.03.2025 22:19:14\n22.03.2025 10:30:00',
+          description: 'Вставьте все даты, каждая на новой строке',
+          value: dates,
+          onChange: setDates
+        };
+      case 2:
+        return {
+          title: 'Шаг 2: Организации',
+          placeholder: 'Кид Форс Выхино\nШИЯ Солнцево\nВоркаут Щербинка',
+          description: 'Вставьте организации в том же порядке (можно оставить пустую строку)',
+          value: organizations,
+          onChange: setOrganizations
+        };
+      case 3:
+        return {
+          title: 'Шаг 3: Промоутеры',
+          placeholder: 'Вероника\nАрсен\nНаталья',
+          description: 'Вставьте имена промоутеров в том же порядке',
+          value: users,
+          onChange: setUsers
+        };
+      case 4:
+        return {
+          title: 'Шаг 4: Количество контактов',
+          placeholder: '3\n15\n7',
+          description: 'Вставьте количество контактов в том же порядке',
+          value: counts,
+          onChange: setCounts
+        };
+    }
+  };
+
+  const stepInfo = getStepInfo();
+  const dateCount = dates.trim().split('\n').filter(l => l.trim()).length;
+
   return (
     <Card className="bg-white border-gray-200 rounded-2xl">
       <CardHeader>
@@ -213,121 +239,140 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-4">
-          <div className="flex gap-3">
-            <label className="flex-1">
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="csv-file-input"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
-                onClick={() => document.getElementById('csv-file-input')?.click()}
-              >
-                <Icon name="FileUp" size={16} className="mr-2" />
-                {fileName || 'Выбрать CSV файл'}
-              </Button>
-            </label>
-          </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-200" />
+        {/* Progress indicator */}
+        <div className="flex items-center gap-2 mb-4">
+          {[1, 2, 3, 4].map((s) => (
+            <div key={s} className="flex items-center flex-1">
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                step === s 
+                  ? 'bg-blue-600 text-white' 
+                  : step > s 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-gray-200 text-gray-500'
+              }`}>
+                {step > s ? '✓' : s}
+              </div>
+              {s < 4 && <div className={`flex-1 h-1 mx-2 ${step > s ? 'bg-green-500' : 'bg-gray-200'}`} />}
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">или</span>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Вставить CSV данные вручную
-            </label>
-            <Textarea
-              value={csvData}
-              onChange={(e) => setCsvData(e.target.value)}
-              placeholder="15.03.2025 18:09:53	Кид Форс Выхино	Вероника	3
-18.03.2025 22:19:14	ШИЯ Солнцево	Арсен	15"
-              rows={10}
-              className="font-mono text-sm"
-            />
-            <p className="text-xs text-gray-500 mt-2">
-              Формат: дата\tорганизация\tпользователь\tколичество (столбцы разделены табуляцией)
-            </p>
-          </div>
+          ))}
         </div>
 
-        {previewCount > 0 && (
+        {dateCount > 0 && (
           <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
-              📊 Готово к импорту: <strong>{previewCount}</strong> записей
+              Всего записей: {dateCount}
             </p>
           </div>
         )}
 
-        <div className="flex gap-3">
-          <Button
-            onClick={handleImport}
-            disabled={importing || clearing || !csvData.trim()}
-            className="flex-1 bg-blue-600 hover:bg-blue-700"
-          >
-            {importing ? (
-              <>
-                <Icon name="Loader2" size={16} className="animate-spin mr-2" />
-                Импортируем...
-              </>
-            ) : (
-              <>
-                <Icon name="Upload" size={16} className="mr-2" />
-                Импортировать {previewCount > 0 ? `(${previewCount})` : ''}
-              </>
-            )}
-          </Button>
-
-          <Button
-            onClick={handleClearArchive}
-            disabled={importing || clearing}
-            variant="destructive"
-            className="bg-red-600 hover:bg-red-700"
-          >
-            {clearing ? (
-              <>
-                <Icon name="Loader2" size={16} className="animate-spin mr-2" />
-                Очистка...
-              </>
-            ) : (
-              <>
-                <Icon name="Trash2" size={16} className="mr-2" />
-                Очистить архив
-              </>
-            )}
-          </Button>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {stepInfo.title}
+          </label>
+          <Textarea
+            value={stepInfo.value}
+            onChange={(e) => stepInfo.onChange(e.target.value)}
+            placeholder={stepInfo.placeholder}
+            rows={15}
+            className="font-mono text-sm"
+          />
+          <p className="text-xs text-gray-500 mt-2">
+            {stepInfo.description}
+          </p>
         </div>
 
+        <div className="flex gap-3">
+          {step > 1 && (
+            <Button
+              variant="outline"
+              onClick={handlePrevStep}
+              className="flex-1"
+            >
+              <Icon name="ChevronLeft" size={16} className="mr-2" />
+              Назад
+            </Button>
+          )}
+          
+          {step < 4 ? (
+            <Button
+              onClick={handleNextStep}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Далее
+              <Icon name="ChevronRight" size={16} className="ml-2" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleImport}
+              disabled={importing}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+            >
+              {importing ? (
+                <>
+                  <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                  Импортирую...
+                </>
+              ) : (
+                <>
+                  <Icon name="Upload" size={16} className="mr-2" />
+                  Импортировать
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+
+        <Button
+          variant="outline"
+          onClick={handleClearArchive}
+          disabled={clearing}
+          className="w-full border-red-300 text-red-700 hover:bg-red-50"
+        >
+          {clearing ? (
+            <>
+              <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+              Очищаю...
+            </>
+          ) : (
+            <>
+              <Icon name="Trash2" size={16} className="mr-2" />
+              Очистить архив
+            </>
+          )}
+        </Button>
+
         {result && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="font-semibold text-green-800">
-              ✅ Импортировано: {result.imported} записей
-            </p>
-            {result.errors && result.errors.length > 0 && (
-              <div className="mt-3">
-                <p className="text-sm font-medium text-orange-800 mb-2">
-                  ⚠️ Ошибки ({result.errors.length}):
+          <div className={`p-4 rounded-lg ${
+            result.errors && result.errors.length > 0 
+              ? 'bg-yellow-50 border border-yellow-200' 
+              : 'bg-green-50 border border-green-200'
+          }`}>
+            <div className="flex items-start gap-3">
+              <Icon 
+                name={result.errors && result.errors.length > 0 ? "AlertTriangle" : "CheckCircle2"} 
+                size={20} 
+                className={result.errors && result.errors.length > 0 ? "text-yellow-600" : "text-green-600"}
+              />
+              <div className="flex-1">
+                <p className={`font-medium ${
+                  result.errors && result.errors.length > 0 ? 'text-yellow-800' : 'text-green-800'
+                }`}>
+                  Импортировано: {result.imported} записей
                 </p>
-                <div className="space-y-1 max-h-40 overflow-y-auto">
-                  {result.errors.map((err: string, idx: number) => (
-                    <p key={idx} className="text-xs text-gray-600 font-mono">
-                      {err}
+                {result.errors && result.errors.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-yellow-800 mb-1">
+                      Ошибки ({result.errors.length}):
                     </p>
-                  ))}
-                </div>
+                    <div className="text-xs text-yellow-700 space-y-1 max-h-40 overflow-y-auto">
+                      {result.errors.map((error: string, index: number) => (
+                        <div key={index} className="font-mono">{error}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         )}
       </CardContent>

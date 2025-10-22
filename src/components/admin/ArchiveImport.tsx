@@ -107,12 +107,21 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
         body: JSON.stringify({ data })
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Ошибка импорта');
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        try {
+          const error = JSON.parse(errorText);
+          throw new Error(error.error || 'Ошибка импорта');
+        } catch (e) {
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
       }
 
       const importResult = await response.json();
+      console.log('Import result:', importResult);
       setResult(importResult);
 
       toast({

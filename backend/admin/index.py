@@ -59,7 +59,7 @@ def get_all_users() -> List[Dict[str, Any]]:
                        COUNT(l.id) as lead_count,
                        u.latitude, u.longitude, u.location_city, u.location_country
                 FROM t_p24058207_website_creation_pro.users u 
-                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id
+                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
                 WHERE u.is_active = TRUE
                 GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country
                 ORDER BY u.created_at DESC
@@ -98,6 +98,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 SELECT COUNT(*) 
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.is_active = true
             """)
             total_leads = cur.fetchone()[0]
             
@@ -106,7 +107,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 SELECT COUNT(*) 
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'контакт'
+                WHERE l.lead_type = 'контакт' AND l.is_active = true
             """)
             contacts = cur.fetchone()[0]
             
@@ -115,7 +116,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 SELECT COUNT(*) 
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'подход'
+                WHERE l.lead_type = 'подход' AND l.is_active = true
             """)
             approaches = cur.fetchone()[0]
             
@@ -126,7 +127,7 @@ def get_leads_stats() -> Dict[str, Any]:
                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
                        COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.users u
-                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id
+                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
                 GROUP BY u.id, u.name, u.email
                 HAVING COUNT(l.id) > 0
                 ORDER BY lead_count DESC
@@ -148,7 +149,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 SELECT l.created_at, l.lead_type
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.created_at >= %s
+                WHERE l.created_at >= %s AND l.is_active = true
                 ORDER BY l.created_at DESC
             """, (get_moscow_time() - timedelta(days=30),))
             
@@ -194,7 +195,7 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                 SELECT u.id, u.name, u.email, l.created_at, l.lead_type
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id 
-                WHERE l.created_at IS NOT NULL
+                WHERE l.created_at IS NOT NULL AND l.is_active = true
             """)
             
             # Группируем по пользователям для заданной московской даты

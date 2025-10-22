@@ -81,12 +81,12 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
-                    COALESCE(u.name, l.promoter_name) as promoter_name, 
+                    COALESCE(l.promoter_name, u.name) as promoter_name, 
                     SUM(l.contact_count) as total_contacts
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.lead_type = 'контакт'
-                GROUP BY COALESCE(u.name, l.promoter_name)
+                GROUP BY COALESCE(l.promoter_name, u.name)
                 ORDER BY total_contacts DESC
             """)
             

@@ -29,9 +29,12 @@ def get_chart_data() -> List[Dict[str, Any]]:
     with conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT created_at, u.name, contact_count
+                SELECT 
+                    created_at, 
+                    COALESCE(u.name, l.promoter_name) as promoter_name, 
+                    contact_count
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
-                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.lead_type = 'контакт'
                 ORDER BY created_at
             """)
@@ -42,7 +45,7 @@ def get_chart_data() -> List[Dict[str, Any]]:
                 if row[0]:
                     moscow_dt = get_moscow_time_from_utc(row[0])
                     date_key = moscow_dt.date().isoformat()
-                    user_name = row[1]
+                    user_name = row[1] or 'Неизвестно'
                     count = row[2]
                     
                     if date_key not in daily_data:
@@ -77,11 +80,13 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
     with conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT u.name, SUM(l.contact_count) as total_contacts
+                SELECT 
+                    COALESCE(u.name, l.promoter_name) as promoter_name, 
+                    SUM(l.contact_count) as total_contacts
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
-                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.lead_type = 'контакт'
-                GROUP BY u.name
+                GROUP BY COALESCE(u.name, l.promoter_name)
                 ORDER BY total_contacts DESC
             """)
             
@@ -90,7 +95,7 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
             for row in cur.fetchall():
                 result.append({
                     'rank': rank,
-                    'name': row[0],
+                    'name': row[0] or 'Неизвестно',
                     'contacts': int(row[1])
                 })
                 rank += 1

@@ -13,6 +13,7 @@ interface ArchiveImportProps {
 export default function ArchiveImport({ sessionToken, onImportSuccess }: ArchiveImportProps) {
   const [csvData, setCsvData] = useState('');
   const [importing, setImporting] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [fileName, setFileName] = useState<string>('');
   const [previewCount, setPreviewCount] = useState<number>(0);
@@ -61,6 +62,50 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
       });
     };
     reader.readAsText(file);
+  };
+
+  const handleClearArchive = async () => {
+    if (!confirm('Удалить ВСЕ архивные данные? Это действие необратимо!')) {
+      return;
+    }
+
+    setClearing(true);
+    setResult(null);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/3ec36009-afec-4784-a580-4723897402b3', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': sessionToken
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка очистки');
+      }
+
+      const clearResult = await response.json();
+
+      toast({
+        title: 'Архив очищен',
+        description: `Удалено ${clearResult.deleted} записей`
+      });
+
+      if (onImportSuccess) {
+        onImportSuccess();
+      }
+    } catch (error: any) {
+      console.error('Clear error:', error);
+      toast({
+        title: 'Ошибка очистки',
+        description: error.message || 'Не удалось очистить архив',
+        variant: 'destructive'
+      });
+    } finally {
+      setClearing(false);
+    }
   };
 
   const handleImport = async () => {
@@ -226,23 +271,44 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
           </div>
         )}
 
-        <Button
-          onClick={handleImport}
-          disabled={importing || !csvData.trim()}
-          className="w-full bg-blue-600 hover:bg-blue-700"
-        >
-          {importing ? (
-            <>
-              <Icon name="Loader2" size={16} className="animate-spin mr-2" />
-              Импортируем...
-            </>
-          ) : (
-            <>
-              <Icon name="Upload" size={16} className="mr-2" />
-              Импортировать данные {previewCount > 0 ? `(${previewCount})` : ''}
-            </>
-          )}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={handleImport}
+            disabled={importing || clearing || !csvData.trim()}
+            className="flex-1 bg-blue-600 hover:bg-blue-700"
+          >
+            {importing ? (
+              <>
+                <Icon name="Loader2" size={16} className="animate-spin mr-2" />
+                Импортируем...
+              </>
+            ) : (
+              <>
+                <Icon name="Upload" size={16} className="mr-2" />
+                Импортировать {previewCount > 0 ? `(${previewCount})` : ''}
+              </>
+            )}
+          </Button>
+
+          <Button
+            onClick={handleClearArchive}
+            disabled={importing || clearing}
+            variant="destructive"
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {clearing ? (
+              <>
+                <Icon name="Loader2" size={16} className="animate-spin mr-2" />
+                Очистка...
+              </>
+            ) : (
+              <>
+                <Icon name="Trash2" size={16} className="mr-2" />
+                Очистить архив
+              </>
+            )}
+          </Button>
+        </div>
 
         {result && (
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">

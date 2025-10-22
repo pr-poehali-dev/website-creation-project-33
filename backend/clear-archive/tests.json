@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Test OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Test unauthorized access",
+      "method": "DELETE",
+      "path": "/",
+      "expectedStatus": 401
+    }
+  ]
+}

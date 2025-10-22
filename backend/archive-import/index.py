@@ -154,14 +154,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     
                     user_id = user_result[0]
                     
-                    for _ in range(contact_count):
-                        cur.execute("""
-                            INSERT INTO t_p24058207_website_creation_pro.archive_leads_analytics
-                            (user_id, organization_id, lead_type, contact_count, created_at)
-                            VALUES (%s, %s, 'контакт', 1, %s)
-                        """, (user_id, org_id, created_at))
+                    cur.execute("""
+                        INSERT INTO t_p24058207_website_creation_pro.archive_leads_analytics
+                        (user_id, organization_id, lead_type, contact_count, created_at)
+                        VALUES (%s, %s, 'контакт', %s, %s)
+                    """, (user_id, org_id, contact_count, created_at))
                     
-                    imported_count += contact_count
+                    imported_count += 1
                     
                 except Exception as e:
                     errors.append(f"Error processing row {row}: {str(e)}")

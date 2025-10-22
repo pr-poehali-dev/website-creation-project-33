@@ -20,9 +20,26 @@ def get_db_connection():
 def parse_moscow_datetime(date_str: str, time_str: str) -> str:
     '''Parse Moscow datetime and convert to UTC'''
     dt_str = f"{date_str} {time_str}"
-    dt = datetime.strptime(dt_str, "%d.%m.%Y %H:%M:%S")
-    utc_dt = dt.replace(tzinfo=None)
-    return utc_dt.strftime("%Y-%m-%d %H:%M:%S+03:00")
+    
+    formats = [
+        "%d.%m.%Y %H:%M:%S",
+        "%d.%m.%Y %H:%M",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %H:%M",
+    ]
+    
+    dt = None
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(dt_str, fmt)
+            break
+        except ValueError:
+            continue
+    
+    if not dt:
+        raise ValueError(f"Cannot parse datetime: {dt_str}")
+    
+    return dt.strftime("%Y-%m-%d %H:%M:%S+03:00")
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')

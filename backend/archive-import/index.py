@@ -88,6 +88,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'No data provided'})
         }
     
+    expected_columns = {'datetime', 'organization', 'user', 'count'}
+    actual_columns = set(csv_data[0].keys()) if csv_data else set()
+    
+    if not expected_columns.issubset(actual_columns):
+        missing_cols = expected_columns - actual_columns
+        conn.close()
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({
+                'error': f'CSV format error. Expected columns: {", ".join(expected_columns)}',
+                'expected': list(expected_columns),
+                'found': list(actual_columns)
+            })
+        }
+    
     imported_count = 0
     errors = []
     

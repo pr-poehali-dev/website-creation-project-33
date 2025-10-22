@@ -88,18 +88,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'No data provided'})
         }
     
-    expected_columns = {'datetime', 'organization', 'user', 'count'}
     actual_columns = set(csv_data[0].keys()) if csv_data else set()
     
-    if not expected_columns.issubset(actual_columns):
-        missing_cols = expected_columns - actual_columns
+    required_columns = {'Дата', 'Организация', 'Промоутер', 'Контакты'}
+    if not required_columns.issubset(actual_columns):
         conn.close()
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({
-                'error': f'CSV format error. Expected columns: {", ".join(expected_columns)}',
-                'expected': list(expected_columns),
+                'error': f'CSV format error. Expected columns: Дата, Организация, Промоутер, Контакты',
+                'expected': list(required_columns),
                 'found': list(actual_columns)
             })
         }
@@ -110,10 +109,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     with conn:
         with conn.cursor() as cur:
             for row in csv_data:
-                date_time = row.get('datetime', '').strip()
-                org_name = row.get('organization', '').strip()
-                user_name = row.get('user', '').strip()
-                contact_count = int(row.get('count', 1))
+                date_time = row.get('Дата', '').strip()
+                org_name = row.get('Организация', '').strip()
+                user_name = row.get('Промоутер', '').strip()
+                contact_count_str = row.get('Контакты', '0').strip()
+                contact_count = int(contact_count_str) if contact_count_str else 0
                 
                 if not date_time or not org_name or not user_name:
                     errors.append(f"Skipped row: {row}")

@@ -148,10 +148,9 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
           const user = parts[2].trim();
           const countStr = parts[3].trim();
           
-          if (!datetime || !organization || !user || !countStr) return null;
+          if (!datetime || !user) return null;
           
-          const count = parseInt(countStr, 10);
-          if (isNaN(count)) return null;
+          const count = parseInt(countStr, 10) || 1;
           
           return {
             datetime,

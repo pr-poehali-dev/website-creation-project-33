@@ -13,6 +13,37 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
   const [csvData, setCsvData] = useState('');
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [fileName, setFileName] = useState<string>('');
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      toast({
+        title: 'Ошибка',
+        description: 'Выберите CSV файл',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      setCsvData(text);
+    };
+    reader.onerror = () => {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось прочитать файл',
+        variant: 'destructive'
+      });
+    };
+    reader.readAsText(file);
+  };
 
   const handleImport = async () => {
     if (!csvData.trim()) {
@@ -88,21 +119,53 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            CSV данные (формат: дата\tорганизация\tпользователь\tколичество)
-          </label>
-          <Textarea
-            value={csvData}
-            onChange={(e) => setCsvData(e.target.value)}
-            placeholder="15.03.2025 18:09:53	Кид Форс Выхино	Вероника	3
+        <div className="space-y-4">
+          <div className="flex gap-3">
+            <label className="flex-1">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="csv-file-input"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+                onClick={() => document.getElementById('csv-file-input')?.click()}
+              >
+                <Icon name="FileUp" size={16} className="mr-2" />
+                {fileName || 'Выбрать CSV файл'}
+              </Button>
+            </label>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-gray-500">или</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Вставить CSV данные вручную
+            </label>
+            <Textarea
+              value={csvData}
+              onChange={(e) => setCsvData(e.target.value)}
+              placeholder="15.03.2025 18:09:53	Кид Форс Выхино	Вероника	3
 18.03.2025 22:19:14	ШИЯ Солнцево	Арсен	15"
-            rows={10}
-            className="font-mono text-sm"
-          />
-          <p className="text-xs text-gray-500 mt-2">
-            Вставьте данные из Excel/таблицы. Столбцы должны быть разделены табуляцией.
-          </p>
+              rows={10}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              Формат: дата\tорганизация\tпользователь\tколичество (столбцы разделены табуляцией)
+            </p>
+          </div>
         </div>
 
         <Button

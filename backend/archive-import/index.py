@@ -163,19 +163,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 except (ValueError, TypeError):
                     contact_count = 1
                 
-                if not date_time or not org_name or not user_name:
-                    errors.append(f"Skipped row: missing required fields")
+                if not date_time or not user_name:
+                    errors.append(f"Skipped row: missing required fields (date or user)")
                     continue
                 
                 try:
                     created_at = parse_moscow_datetime(date_time)
                     
-                    if org_name not in org_cache:
-                        cur.execute("""
-                            INSERT INTO t_p24058207_website_creation_pro.organizations (name)
-                            VALUES (%s) RETURNING id
-                        """, (org_name,))
-                        org_cache[org_name] = cur.fetchone()[0]
+                    org_id = None
+                    if org_name:
+                        if org_name not in org_cache:
+                            cur.execute("""
+                                INSERT INTO t_p24058207_website_creation_pro.organizations (name)
+                                VALUES (%s) RETURNING id
+                            """, (org_name,))
+                            org_cache[org_name] = cur.fetchone()[0]
+                        org_id = org_cache[org_name]
                     
                     if user_name not in user_cache:
                         cur.execute("""
@@ -186,13 +189,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     
                     records_to_insert.append((
                         user_cache[user_name],
-                        org_cache[org_name],
+                        org_id,
                         max(1, contact_count),
                         created_at
                     ))
                     
                 except Exception as e:
-                    errors.append(f"Error processing row {row}: {str(e)}")
+                    errors.append(f"Error processing row (date={date_time}, org={org_name}, user={user_name}): {str(e)}")
                     continue
             
             if records_to_insert:

@@ -10,6 +10,17 @@ interface ArchiveImportProps {
   onImportSuccess?: () => void;
 }
 
+const BULK_DATA = `15.03.2025	Кид Форс Выхино	Вероника	3
+18.03.2025	ШИЯ Солнцево	Арсен	15
+22.03.2025	Воркаут Царицыно	Наталия	4
+23.03.2025	ШИЯ Солнцево	Арсен	5
+26.03.2025	ШИЯ Солнцево	Влад	10
+26.03.2025	ШИЯ Солнцево	Злата	9
+28.03.2025	Топ Беляево	Марина	7
+28.03.2025	Воркаут Царицыно 	Дмитрий	5
+29.03.2025	Худ.гимн. Люблино	Александр	19
+31.03.2025	ШИЯ Солнцево	Влад	17`;
+
 export default function ArchiveImport({ sessionToken, onImportSuccess }: ArchiveImportProps) {
   const [csvData, setCsvData] = useState('');
   const [importing, setImporting] = useState(false);
@@ -17,6 +28,15 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
   const [result, setResult] = useState<any>(null);
   const [fileName, setFileName] = useState<string>('');
   const [previewCount, setPreviewCount] = useState<number>(0);
+  
+  const handleBulkImport = async () => {
+    setCsvData(BULK_DATA);
+    setPreviewCount(10);
+    toast({
+      title: 'Данные загружены',
+      description: 'Нажмите "Импортировать" для начала'
+    });
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

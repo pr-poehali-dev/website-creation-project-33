@@ -134,15 +134,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     with conn:
         with conn.cursor() as cur:
             org_cache = {}
-            user_cache = {}
             
             cur.execute("SELECT id, name FROM t_p24058207_website_creation_pro.organizations")
             for org_id, org_name in cur.fetchall():
                 org_cache[org_name] = org_id
-            
-            cur.execute("SELECT id, name FROM t_p24058207_website_creation_pro.users")
-            for user_id, user_name in cur.fetchall():
-                user_cache[user_name] = user_id
             
             records_to_insert = []
             
@@ -150,12 +145,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if use_russian:
                     date_time = row.get('Дата', '').strip()
                     org_name = row.get('Организация', '').strip()
-                    user_name = row.get('Промоутер', '').strip()
+                    promoter_name = row.get('Промоутер', '').strip()
                     contact_count_str = row.get('Контакты', '0').strip()
                 else:
                     date_time = row.get('datetime', '').strip()
                     org_name = row.get('organization', '').strip()
-                    user_name = row.get('user', '').strip()
+                    promoter_name = row.get('user', '').strip()
                     contact_count_str = str(row.get('count', 0)).strip()
                 
                 try:
@@ -163,8 +158,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 except (ValueError, TypeError):
                     contact_count = 1
                 
-                if not date_time or not user_name:
-                    errors.append(f"Skipped row: missing required fields (date or user)")
+                if not date_time or not promoter_name:
+                    errors.append(f"Skipped row: missing date or promoter name")
                     continue
                 
                 try:
@@ -180,22 +175,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             org_cache[org_name] = cur.fetchone()[0]
                         org_id = org_cache[org_name]
                     
-                    if user_name not in user_cache:
-                        cur.execute("""
-                            INSERT INTO t_p24058207_website_creation_pro.users (name, is_admin)
-                            VALUES (%s, FALSE) RETURNING id
-                        """, (user_name,))
-                        user_cache[user_name] = cur.fetchone()[0]
-                    
                     records_to_insert.append((
-                        user_cache[user_name],
                         org_id,
+                        promoter_name,
                         max(1, contact_count),
                         created_at
                     ))
                     
                 except Exception as e:
-                    errors.append(f"Error processing row (date={date_time}, org={org_name}, user={user_name}): {str(e)}")
+                    errors.append(f"Error processing row (date={date_time}, org={org_name}, promoter={promoter_name}): {str(e)}")
                     continue
             
             if records_to_insert:
@@ -203,26 +191,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 print(f"First record sample: {records_to_insert[0] if records_to_insert else 'None'}")
                 
                 for record in records_to_insert:
-                    user_id, org_id, contact_count, created_at = record
-                    if user_id is None:
-                        errors.append(f"NULL user_id in record: {record}")
-                        continue
-                    if contact_count is None or contact_count < 1:
-                        errors.append(f"Invalid contact_count in record: {record}")
+                    org_id, promoter_name, contact_count, created_at = record
+                    
+                    if contact_count < 1:
+                        errors.append(f"Invalid contact_count: {contact_count}")
                         continue
                     if created_at is None:
-                        errors.append(f"NULL created_at in record: {record}")
+                        errors.append(f"NULL created_at in record")
                         continue
                     
                     try:
                         cur.execute("""
                             INSERT INTO t_p24058207_website_creation_pro.archive_leads_analytics
-                            (user_id, organization_id, lead_type, contact_count, created_at)
-                            VALUES (%s, %s, %s, %s, %s)
-                        """, (user_id, org_id, 'контакт', contact_count, created_at))
+                            (user_id, organization_id, promoter_name, lead_type, contact_count, created_at)
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (None, org_id, promoter_name, 'контакт', contact_count, created_at))
                         imported_count += 1
                     except Exception as e:
-                        errors.append(f"Insert failed for record {record}: {str(e)}")
+                        errors.append(f"Insert failed: {str(e)}")
                         continue
     
     conn.close()

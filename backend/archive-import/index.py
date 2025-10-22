@@ -131,7 +131,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     imported_count = 0
     errors = []
     
-    with conn:
+    try:
         with conn.cursor() as cur:
             org_cache = {}
             
@@ -210,8 +210,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     except Exception as e:
                         errors.append(f"Insert failed: {str(e)}")
                         continue
-    
-    conn.close()
+        
+        conn.commit()
+    finally:
+        conn.close()
     
     return {
         'statusCode': 200,

@@ -33,22 +33,42 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
         }
     
     headers = event.get('headers', {})
-    admin_token = headers.get('x-admin-token') or headers.get('X-Admin-Token')
+    session_token = headers.get('x-session-token') or headers.get('X-Session-Token')
     
-    expected_token = os.environ.get('ADMIN_SECRET_TOKEN')
-    if not expected_token or admin_token != expected_token:
+    if not session_token:
         return {
             'statusCode': 401,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Unauthorized'})
+            'body': json.dumps({'error': 'Unauthorized: No session token'})
         }
+    
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT u.is_admin 
+                FROM t_p24058207_website_creation_pro.users u
+                JOIN t_p24058207_website_creation_pro.sessions s ON s.user_id = u.id
+                WHERE s.token = %s AND s.expires_at > NOW()
+            """, (session_token,))
+            result = cur.fetchone()
+            
+            if not result or not result[0]:
+                conn.close()
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Forbidden: Admin access required'})
+                }
+    finally:
+        pass
     
     if method != 'POST':
         return {
@@ -61,13 +81,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     csv_data: List[Dict[str, Any]] = body_data.get('data', [])
     
     if not csv_data:
+        conn.close()
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': 'No data provided'})
         }
-    
-    conn = get_db_connection()
     
     imported_count = 0
     errors = []

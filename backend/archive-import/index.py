@@ -199,12 +199,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     continue
             
             if records_to_insert:
-                execute_batch(cur, """
-                    INSERT INTO t_p24058207_website_creation_pro.archive_leads_analytics
-                    (user_id, organization_id, lead_type, contact_count, created_at)
-                    VALUES (%s, %s, 'контакт', %s, %s)
-                """, records_to_insert)
-                imported_count = len(records_to_insert)
+                print(f"Inserting {len(records_to_insert)} records")
+                print(f"First record sample: {records_to_insert[0] if records_to_insert else 'None'}")
+                
+                for record in records_to_insert:
+                    user_id, org_id, contact_count, created_at = record
+                    if user_id is None:
+                        errors.append(f"NULL user_id in record: {record}")
+                        continue
+                    if contact_count is None or contact_count < 1:
+                        errors.append(f"Invalid contact_count in record: {record}")
+                        continue
+                    if created_at is None:
+                        errors.append(f"NULL created_at in record: {record}")
+                        continue
+                    
+                    try:
+                        cur.execute("""
+                            INSERT INTO t_p24058207_website_creation_pro.archive_leads_analytics
+                            (user_id, organization_id, lead_type, contact_count, created_at)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (user_id, org_id, 'контакт', contact_count, created_at))
+                        imported_count += 1
+                    except Exception as e:
+                        errors.append(f"Insert failed for record {record}: {str(e)}")
+                        continue
     
     conn.close()
     

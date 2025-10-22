@@ -236,6 +236,7 @@ def get_daily_detailed_leads(date: str) -> List[Dict[str, Any]]:
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.is_active = true
                 ORDER BY l.created_at DESC
             """)
             
@@ -269,7 +270,7 @@ def get_chart_data() -> List[Dict[str, Any]]:
                 SELECT l.created_at, u.name, l.lead_type
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.created_at >= %s
+                WHERE l.created_at >= %s AND l.is_active = true
                 ORDER BY l.created_at DESC
             """, (get_moscow_time() - timedelta(days=365),))
             
@@ -321,7 +322,7 @@ def get_organization_stats() -> List[Dict[str, Any]]:
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE l.created_at >= %s AND l.lead_type = 'контакт'
+                WHERE l.created_at >= %s AND l.lead_type = 'контакт' AND l.is_active = true
                 ORDER BY l.created_at DESC
             """, (get_moscow_time() - timedelta(days=365),))
             

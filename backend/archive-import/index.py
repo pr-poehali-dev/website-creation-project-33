@@ -158,10 +158,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     user_name = row.get('user', '').strip()
                     contact_count_str = str(row.get('count', 0)).strip()
                 
-                contact_count = int(contact_count_str) if contact_count_str else 0
+                try:
+                    contact_count = int(contact_count_str) if contact_count_str and contact_count_str.isdigit() else 1
+                except (ValueError, TypeError):
+                    contact_count = 1
                 
                 if not date_time or not org_name or not user_name:
-                    errors.append(f"Skipped row: {row}")
+                    errors.append(f"Skipped row: missing required fields")
                     continue
                 
                 try:
@@ -184,7 +187,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     records_to_insert.append((
                         user_cache[user_name],
                         org_cache[org_name],
-                        contact_count,
+                        max(1, contact_count),
                         created_at
                     ))
                     

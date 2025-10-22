@@ -23,51 +23,51 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
       <TabsList className="flex w-full admin-card h-12 md:h-14 p-1 overflow-x-auto overflow-y-hidden gap-1 scrollbar-thin">
         <TabsTrigger 
           value="pending" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium min-w-[80px] md:flex-1 whitespace-nowrap px-2 md:px-4"
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          title="Заявки"
         >
-          <Icon name="UserCheck" size={14} className="md:w-[16px] md:h-[16px]" />
-          <span className="hidden sm:inline">Заявки</span>
-          <span className="sm:hidden">Заяв.</span>
+          <Icon name="UserCheck" size={16} />
+          <span className="hidden lg:inline">Заявки</span>
         </TabsTrigger>
         <TabsTrigger 
           value="users" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium min-w-[80px] md:flex-1 whitespace-nowrap px-2 md:px-4"
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          title="Пользователи"
         >
-          <Icon name="Users" size={14} className="md:w-[16px] md:h-[16px]" />
-          <span className="hidden sm:inline">Пользователи</span>
-          <span className="sm:hidden">Польз.</span>
+          <Icon name="Users" size={16} />
+          <span className="hidden lg:inline">Пользователи</span>
         </TabsTrigger>
         <TabsTrigger 
           value="stats" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium min-w-[80px] md:flex-1 whitespace-nowrap px-2 md:px-4"
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          title="Рейтинг"
         >
-          <Icon name="BarChart3" size={14} className="md:w-[16px] md:h-[16px]" />
-          <span className="hidden sm:inline">Рейтинг</span>
-          <span className="sm:hidden">Рейт.</span>
+          <Icon name="BarChart3" size={16} />
+          <span className="hidden lg:inline">Рейтинг</span>
         </TabsTrigger>
         <TabsTrigger 
           value="organizations" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium min-w-[80px] md:flex-1 whitespace-nowrap px-2 md:px-4"
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          title="Организации"
         >
-          <Icon name="Building2" size={14} className="md:w-[16px] md:h-[16px]" />
-          <span className="hidden sm:inline">Организации</span>
-          <span className="sm:hidden">Орг.</span>
+          <Icon name="Building2" size={16} />
+          <span className="hidden lg:inline">Организации</span>
         </TabsTrigger>
         <TabsTrigger 
           value="archive" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium min-w-[80px] md:flex-1 whitespace-nowrap px-2 md:px-4"
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          title="Архив"
         >
-          <Icon name="Archive" size={14} className="md:w-[16px] md:h-[16px]" />
-          <span className="hidden sm:inline">Архив</span>
-          <span className="sm:hidden">Арх.</span>
+          <Icon name="Archive" size={16} />
+          <span className="hidden lg:inline">Архив</span>
         </TabsTrigger>
         <TabsTrigger 
           value="chat" 
-          className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm relative rounded-lg font-medium min-w-[80px] md:flex-1 whitespace-nowrap px-2 md:px-4"
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm relative rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          title="Чат"
         >
-          <Icon name="MessageCircle" size={14} className="md:w-[16px] md:h-[16px]" />
-          <span className="hidden sm:inline">Чат</span>
-          <span className="sm:hidden">Чат</span>
+          <Icon name="MessageCircle" size={16} />
+          <span className="hidden lg:inline">Чат</span>
           {unreadCount > 0 && (
             <Badge className="ml-1 h-5 min-w-[20px] flex items-center justify-center bg-red-500 hover:bg-red-500 text-white text-xs px-1 rounded-full">
               {unreadCount}

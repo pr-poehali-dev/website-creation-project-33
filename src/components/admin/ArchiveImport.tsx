@@ -104,11 +104,14 @@ export default function ArchiveImport({ sessionToken }: ArchiveImportProps) {
           
           if (!datetime || !organization || !user || !countStr) return null;
           
+          const count = parseInt(countStr, 10);
+          if (isNaN(count)) return null;
+          
           return {
             datetime,
             organization,
             user,
-            count: countStr
+            count
           };
         })
         .filter(Boolean);

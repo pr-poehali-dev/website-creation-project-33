@@ -8,13 +8,14 @@ import StatsTab from './StatsTab';
 import OrganizationsTab from './OrganizationsTab';
 import AdminChatTab from './AdminChatTab';
 import ScheduleAnalyticsTab from './ScheduleAnalyticsTab';
+import ArchiveTab from './ArchiveTab';
 
 interface AdminMetroTilesProps {
   unreadCount: number;
   sessionToken: string;
 }
 
-type TileView = 'tiles' | 'requests' | 'stats' | 'chat' | 'analytics';
+type TileView = 'tiles' | 'requests' | 'stats' | 'chat' | 'analytics' | 'archive';
 type StatsSubView = 'users' | 'rating' | 'organizations';
 
 export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetroTilesProps) {
@@ -118,6 +119,21 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     );
   }
 
+  if (currentView === 'archive') {
+    return (
+      <div className="space-y-4">
+        <button
+          onClick={() => setCurrentView('tiles')}
+          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
+        >
+          <Icon name="ArrowLeft" size={20} />
+          <span className="text-lg">Назад к плиткам</span>
+        </button>
+        <ArchiveTab enabled={true} sessionToken={sessionToken} />
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 mt-8">
       <div
@@ -179,6 +195,20 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         </div>
         <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
           <Icon name="TrendingUp" size={120} className="text-white" />
+        </div>
+      </div>
+
+      <div
+        onClick={() => setCurrentView('archive')}
+        className="metro-tile bg-indigo-600 hover:bg-indigo-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+      >
+        <div className="relative z-10">
+          <Icon name="Archive" size={48} className="text-white mb-4 md:mb-6" />
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Архив</h2>
+          <p className="text-indigo-100 text-sm md:text-base">Исторические данные</p>
+        </div>
+        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
+          <Icon name="Archive" size={120} className="text-white" />
         </div>
       </div>
     </div>

@@ -90,85 +90,85 @@ export default function ArchivePromotersByDays({
   return (
     <Card className="bg-white border-gray-200 rounded-2xl hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-3 text-gray-900 text-xl">
-          <div className="p-2 rounded-lg bg-blue-100">
-            <Icon name="Briefcase" size={20} className="text-blue-600" />
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-base md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-blue-100">
+            <Icon name="Briefcase" size={16} className="md:w-5 md:h-5 text-blue-600" />
           </div>
           Рейтинг промоутеров по стажу
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-6">
+        <div className="mb-4 md:mb-6">
           <div className="relative">
             <Icon
               name="Search"
-              size={18}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={16}
+              className="absolute left-2.5 md:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-[18px] md:h-[18px]"
             />
             <Input
               placeholder="Поиск промоутера..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-11"
+              className="pl-9 md:pl-10 h-10 md:h-11 text-sm md:text-base"
             />
           </div>
         </div>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-          <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="mb-4 md:mb-6 p-3 md:p-4 bg-blue-50 rounded-lg">
+          <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-blue-600">{data.length}</p>
-              <p className="text-sm text-gray-600">Промоутеров</p>
+              <p className="text-lg md:text-2xl font-bold text-blue-600">{data.length}</p>
+              <p className="text-xs md:text-sm text-gray-600">Промоутеров</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-blue-600">{totalDays}</p>
-              <p className="text-sm text-gray-600">Всего дней</p>
+              <p className="text-lg md:text-2xl font-bold text-blue-600">{totalDays}</p>
+              <p className="text-xs md:text-sm text-gray-600">Всего дней</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-blue-600">{avgDays}</p>
-              <p className="text-sm text-gray-600">Средний стаж</p>
+              <p className="text-lg md:text-2xl font-bold text-blue-600">{avgDays}</p>
+              <p className="text-xs md:text-sm text-gray-600">Средний</p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-3 max-h-[600px] overflow-y-auto">
+        <div className="space-y-2 md:space-y-3 max-h-[600px] overflow-y-auto">
           {filteredData.map((promoter) => (
             <div
               key={promoter.rank}
-              className={`p-4 rounded-xl border transition-all duration-300 hover:shadow-lg ${
+              className={`p-3 md:p-4 rounded-xl border transition-all duration-300 hover:shadow-lg ${
                 promoter.rank <= 3
                   ? 'border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50'
                   : 'border-gray-200 hover:border-blue-200'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${getRankColor(
+                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 ${getRankColor(
                       promoter.rank
                     )}`}
                   >
                     {promoter.rank <= 3 ? (
-                      <span className="text-2xl">{getMedalIcon(promoter.rank)}</span>
+                      <span className="text-xl md:text-2xl">{getMedalIcon(promoter.rank)}</span>
                     ) : (
-                      <span className="text-gray-700">#{promoter.rank}</span>
+                      <span className="text-gray-700 text-sm md:text-base">#{promoter.rank}</span>
                     )}
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-lg">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-gray-900 text-sm md:text-lg truncate">
                       {promoter.name}
                     </p>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Icon name="Calendar" size={14} />
-                      <span>
+                    <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
+                      <Icon name="Calendar" size={12} className="flex-shrink-0 md:w-[14px] md:h-[14px]" />
+                      <span className="truncate">
                         {formatDate(promoter.firstDate)} — {formatDate(promoter.lastDate)}
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0">
                   <div
-                    className={`px-4 py-2 rounded-lg ${
+                    className={`px-2 py-1 md:px-4 md:py-2 rounded-lg ${
                       promoter.rank === 1
                         ? 'bg-yellow-100 text-yellow-800'
                         : promoter.rank === 2
@@ -178,8 +178,8 @@ export default function ArchivePromotersByDays({
                         : 'bg-blue-100 text-blue-800'
                     }`}
                   >
-                    <p className="text-2xl font-bold">{promoter.daysWorked}</p>
-                    <p className="text-xs font-medium">{getDaysText(promoter.daysWorked)}</p>
+                    <p className="text-lg md:text-2xl font-bold">{promoter.daysWorked}</p>
+                    <p className="text-[10px] md:text-xs font-medium">{getDaysText(promoter.daysWorked)}</p>
                   </div>
                 </div>
               </div>
@@ -188,9 +188,9 @@ export default function ArchivePromotersByDays({
         </div>
 
         {filteredData.length === 0 && (
-          <div className="text-center py-8 text-gray-600">
-            <Icon name="Search" size={32} className="mx-auto mb-3 opacity-40" />
-            <p>Промоутер не найден</p>
+          <div className="text-center py-6 md:py-8 text-gray-600">
+            <Icon name="Search" size={24} className="mx-auto mb-2 md:mb-3 opacity-40 md:w-8 md:h-8" />
+            <p className="text-sm md:text-base">Промоутер не найден</p>
           </div>
         )}
       </CardContent>

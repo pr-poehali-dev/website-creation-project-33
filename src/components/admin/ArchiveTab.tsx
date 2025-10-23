@@ -5,6 +5,7 @@ import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import ArchiveLeadsChart from './ArchiveLeadsChart';
 import ArchivePromotersRating from './ArchivePromotersRating';
+import ArchivePromotersByDays from './ArchivePromotersByDays';
 import ArchiveOrganizationsStats from './ArchiveOrganizationsStats';
 import ArchiveImport from './ArchiveImport';
 
@@ -23,6 +24,16 @@ interface PromoterRating {
   rank: number;
   name: string;
   contacts: number;
+  dailyBreakdown?: { date: string; contacts: number }[];
+}
+
+interface PromoterByDays {
+  rank: number;
+  name: string;
+  daysWorked: number;
+  contacts: number;
+  firstDate: string;
+  lastDate: string;
 }
 
 interface OrganizationStats {
@@ -33,9 +44,11 @@ interface OrganizationStats {
 
 export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabProps) {
   const [activeSubTab, setActiveSubTab] = useState('chart');
+  const [activePromotersTab, setActivePromotersTab] = useState('contacts');
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [promotersData, setPromotersData] = useState<PromoterRating[]>([]);
+  const [promotersByDaysData, setPromotersByDaysData] = useState<PromoterByDays[]>([]);
   const [organizationsData, setOrganizationsData] = useState<OrganizationStats[]>([]);
 
   const fetchArchiveData = async (action: string) => {
@@ -64,6 +77,8 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
         setChartData(result.data || []);
       } else if (action === 'promoters') {
         setPromotersData(result.data || []);
+      } else if (action === 'promoters_by_days') {
+        setPromotersByDaysData(result.data || []);
       } else if (action === 'organizations') {
         setOrganizationsData(result.data || []);
       }
@@ -82,12 +97,17 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
   const handleImportSuccess = () => {
     setChartData([]);
     setPromotersData([]);
+    setPromotersByDaysData([]);
     setOrganizationsData([]);
     
     if (activeSubTab === 'chart') {
       fetchArchiveData('chart');
     } else if (activeSubTab === 'promoters') {
-      fetchArchiveData('promoters');
+      if (activePromotersTab === 'contacts') {
+        fetchArchiveData('promoters');
+      } else {
+        fetchArchiveData('promoters_by_days');
+      }
     } else if (activeSubTab === 'organizations') {
       fetchArchiveData('organizations');
     }
@@ -96,14 +116,18 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
   useEffect(() => {
     if (enabled && activeSubTab === 'chart' && chartData.length === 0) {
       fetchArchiveData('chart');
-    } else if (enabled && activeSubTab === 'promoters' && promotersData.length === 0) {
-      fetchArchiveData('promoters');
+    } else if (enabled && activeSubTab === 'promoters') {
+      if (activePromotersTab === 'contacts' && promotersData.length === 0) {
+        fetchArchiveData('promoters');
+      } else if (activePromotersTab === 'days' && promotersByDaysData.length === 0) {
+        fetchArchiveData('promoters_by_days');
+      }
     } else if (enabled && activeSubTab === 'organizations' && organizationsData.length === 0) {
       fetchArchiveData('organizations');
     }
-  }, [enabled, activeSubTab]);
+  }, [enabled, activeSubTab, activePromotersTab]);
 
-  if (loading && chartData.length === 0 && promotersData.length === 0 && organizationsData.length === 0) {
+  if (loading && chartData.length === 0 && promotersData.length === 0 && promotersByDaysData.length === 0 && organizationsData.length === 0) {
     return (
       <Card className="bg-white border-gray-200 rounded-2xl">
         <CardContent className="p-4 md:p-8">
@@ -171,15 +195,43 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
         </TabsContent>
 
         <TabsContent value="promoters">
-          <ArchivePromotersRating 
-            data={promotersData} 
-            loading={loading}
-            sessionToken={sessionToken}
-            onSyncSuccess={() => {
-              setPromotersData([]);
-              fetchArchiveData('promoters');
-            }}
-          />
+          <Tabs value={activePromotersTab} onValueChange={setActivePromotersTab} className="space-y-4">
+            <TabsList className="grid w-full grid-cols-2 admin-card h-12 p-1">
+              <TabsTrigger
+                value="contacts"
+                className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-sm rounded-lg font-medium"
+              >
+                <Icon name="Phone" size={14} />
+                <span>По контактам</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="days"
+                className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-sm rounded-lg font-medium"
+              >
+                <Icon name="Briefcase" size={14} />
+                <span>По стажу</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="contacts">
+              <ArchivePromotersRating 
+                data={promotersData} 
+                loading={loading}
+                sessionToken={sessionToken}
+                onSyncSuccess={() => {
+                  setPromotersData([]);
+                  fetchArchiveData('promoters');
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="days">
+              <ArchivePromotersByDays 
+                data={promotersByDaysData} 
+                loading={loading}
+              />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         <TabsContent value="organizations">

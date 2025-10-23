@@ -67,9 +67,9 @@ export default function ArchiveOrganizationsStats({
   if (loading) {
     return (
       <Card className="bg-white border-gray-200 rounded-2xl">
-        <CardContent className="p-8">
-          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
-            <Icon name="Loader2" size={20} className="animate-spin" />
+        <CardContent className="p-4 md:p-8">
+          <div className="text-center text-gray-600 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
+            <Icon name="Loader2" size={16} className="md:w-5 md:h-5 animate-spin" />
             Загрузка статистики...
           </div>
         </CardContent>

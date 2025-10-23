@@ -199,16 +199,16 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
             <TabsList className="grid w-full grid-cols-2 admin-card h-10 md:h-12 p-0.5 md:p-1">
               <TabsTrigger
                 value="contacts"
-                className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-sm rounded-lg font-medium"
+                className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
               >
-                <Icon name="Phone" size={14} />
+                <Icon name="Phone" size={12} className="md:w-[14px] md:h-[14px]" />
                 <span>По контактам</span>
               </TabsTrigger>
               <TabsTrigger
                 value="days"
-                className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-sm rounded-lg font-medium"
+                className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
               >
-                <Icon name="Briefcase" size={14} />
+                <Icon name="Briefcase" size={12} className="md:w-[14px] md:h-[14px]" />
                 <span>По стажу</span>
               </TabsTrigger>
             </TabsList>

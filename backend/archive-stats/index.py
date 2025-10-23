@@ -136,18 +136,20 @@ def get_organization_promoters(organization_name: str) -> List[Dict[str, Any]]:
     '''Get promoters details for specific organization'''
     conn = get_db_connection()
     
+    escaped_name = organization_name.replace("'", "''")
+    
     with conn:
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.execute(f"""
                 SELECT 
                     l.promoter_name,
                     SUM(l.contact_count) as total_contacts
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE o.name = %s AND l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                WHERE o.name = '{escaped_name}' AND l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
                 GROUP BY l.promoter_name
                 ORDER BY total_contacts DESC
-            """, (organization_name,))
+            """)
             
             result = []
             for row in cur.fetchall():
@@ -188,13 +190,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     conn = get_db_connection()
     try:
+        escaped_token = session_token.replace("'", "''")
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.execute(f"""
                 SELECT u.is_admin 
                 FROM t_p24058207_website_creation_pro.users u
                 JOIN t_p24058207_website_creation_pro.user_sessions s ON s.user_id = u.id
-                WHERE s.session_token = %s AND s.expires_at > NOW()
-            """, (session_token,))
+                WHERE s.session_token = '{escaped_token}' AND s.expires_at > NOW()
+            """)
             result = cur.fetchone()
             
             if not result or not result[0]:

@@ -30,13 +30,13 @@ def get_chart_data() -> List[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
-                    created_at, 
+                    l.created_at, 
                     COALESCE(u.name, l.promoter_name) as promoter_name, 
-                    contact_count
+                    l.contact_count
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
-                ORDER BY created_at
+                ORDER BY l.created_at
             """)
             
             daily_data = {}

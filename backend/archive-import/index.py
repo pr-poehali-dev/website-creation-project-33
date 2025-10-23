@@ -97,6 +97,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     body_data = json.loads(event.get('body', '{}'))
     csv_data: List[Dict[str, Any]] = body_data.get('data', [])
     
+    print(f"Received body_data keys: {list(body_data.keys())}")
+    print(f"csv_data length: {len(csv_data) if csv_data else 0}")
+    print(f"csv_data type: {type(csv_data)}")
+    
     if not csv_data:
         conn.close()
         return {

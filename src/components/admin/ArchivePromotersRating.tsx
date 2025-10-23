@@ -5,10 +5,16 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 
+interface DailyBreakdown {
+  date: string;
+  contacts: number;
+}
+
 interface PromoterRating {
   rank: number;
   name: string;
   contacts: number;
+  dailyBreakdown?: DailyBreakdown[];
 }
 
 interface ArchivePromotersRatingProps {
@@ -26,6 +32,7 @@ export default function ArchivePromotersRating({
 }: ArchivePromotersRatingProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [syncing, setSyncing] = useState(false);
+  const [expandedPromoter, setExpandedPromoter] = useState<number | null>(null);
 
   const handleSync = async () => {
     if (!sessionToken) {
@@ -191,52 +198,87 @@ export default function ArchivePromotersRating({
 
         <div className="space-y-3 max-h-[600px] overflow-y-auto">
           {filteredData.map((promoter) => (
-            <div
-              key={promoter.rank}
-              className={`p-4 rounded-xl border transition-all duration-300 hover:shadow-lg ${
-                promoter.rank <= 3
-                  ? 'border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50'
-                  : 'border-gray-200 hover:border-purple-200'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${getRankColor(
-                      promoter.rank
-                    )}`}
-                  >
-                    {promoter.rank <= 3 ? (
-                      <span className="text-2xl">{getMedalIcon(promoter.rank)}</span>
-                    ) : (
-                      <span className="text-gray-700">#{promoter.rank}</span>
-                    )}
+            <div key={promoter.rank}>
+              <div
+                onClick={() => setExpandedPromoter(expandedPromoter === promoter.rank ? null : promoter.rank)}
+                className={`p-4 rounded-xl border transition-all duration-300 hover:shadow-lg cursor-pointer ${
+                  promoter.rank <= 3
+                    ? 'border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50'
+                    : 'border-gray-200 hover:border-purple-200'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${getRankColor(
+                        promoter.rank
+                      )}`}
+                    >
+                      {promoter.rank <= 3 ? (
+                        <span className="text-2xl">{getMedalIcon(promoter.rank)}</span>
+                      ) : (
+                        <span className="text-gray-700">#{promoter.rank}</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-lg">
+                        {promoter.name}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {promoter.contacts} контактов
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-lg">
-                      {promoter.name}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {promoter.contacts} контактов
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div
-                    className={`px-4 py-2 rounded-lg ${
-                      promoter.rank === 1
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : promoter.rank === 2
-                        ? 'bg-gray-200 text-gray-800'
-                        : promoter.rank === 3
-                        ? 'bg-orange-100 text-orange-800'
-                        : 'bg-purple-100 text-purple-800'
-                    }`}
-                  >
-                    <p className="text-2xl font-bold">{promoter.contacts}</p>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`px-4 py-2 rounded-lg ${
+                        promoter.rank === 1
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : promoter.rank === 2
+                          ? 'bg-gray-200 text-gray-800'
+                          : promoter.rank === 3
+                          ? 'bg-orange-100 text-orange-800'
+                          : 'bg-purple-100 text-purple-800'
+                      }`}
+                    >
+                      <p className="text-2xl font-bold">{promoter.contacts}</p>
+                    </div>
+                    <Icon
+                      name={expandedPromoter === promoter.rank ? 'ChevronUp' : 'ChevronDown'}
+                      size={20}
+                      className="text-gray-400"
+                    />
                   </div>
                 </div>
               </div>
+              
+              {expandedPromoter === promoter.rank && promoter.dailyBreakdown && (
+                <div className="mt-2 ml-16 mr-4 space-y-2 animate-in slide-in-from-top-2">
+                  {promoter.dailyBreakdown.map((day) => (
+                    <div
+                      key={day.date}
+                      className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-purple-300 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon name="Calendar" size={16} className="text-purple-500" />
+                        <span className="text-sm font-medium text-gray-700">
+                          {new Date(day.date).toLocaleDateString('ru-RU', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Icon name="Phone" size={14} className="text-purple-400" />
+                        <span className="text-sm font-bold text-purple-600">
+                          {day.contacts}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

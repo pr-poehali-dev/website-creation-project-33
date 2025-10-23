@@ -74,7 +74,7 @@ def get_chart_data() -> List[Dict[str, Any]]:
         conn.close()
 
 def get_promoters_rating() -> List[Dict[str, Any]]:
-    '''Get promoters rating by total contacts'''
+    '''Get promoters rating by total contacts with daily breakdown'''
     conn = get_db_connection()
     
     try:
@@ -93,10 +93,34 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
             result = []
             rank = 1
             for row in cur.fetchall():
+                promoter_name = row[0] or 'Неизвестно'
+                total_contacts = int(row[1])
+                
+                escaped_name = promoter_name.replace("'", "''")
+                cur.execute(f"""
+                    SELECT 
+                        DATE(l.created_at) as date,
+                        SUM(l.contact_count) as daily_contacts
+                    FROM t_p24058207_website_creation_pro.archive_leads_analytics l
+                    WHERE COALESCE(l.promoter_name, '') = '{escaped_name}'
+                      AND l.lead_type = 'контакт' 
+                      AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                    GROUP BY DATE(l.created_at)
+                    ORDER BY DATE(l.created_at) DESC
+                """)
+                
+                daily_breakdown = []
+                for daily_row in cur.fetchall():
+                    daily_breakdown.append({
+                        'date': daily_row[0].isoformat() if daily_row[0] else '',
+                        'contacts': int(daily_row[1])
+                    })
+                
                 result.append({
                     'rank': rank,
-                    'name': row[0] or 'Неизвестно',
-                    'contacts': int(row[1])
+                    'name': promoter_name,
+                    'contacts': total_contacts,
+                    'dailyBreakdown': daily_breakdown
                 })
                 rank += 1
             

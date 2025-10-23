@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -25,8 +25,14 @@ interface ArchiveLeadsChartProps {
 }
 
 export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartProps) {
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('all');
+
+  const allUsers = useMemo(
+    () => Array.from(new Set(data.flatMap((d) => d.users.map((u) => u.name)))),
+    [data]
+  );
+
+  const [selectedUsers, setSelectedUsers] = useState<string[]>(allUsers);
 
   if (loading) {
     return (
@@ -68,10 +74,6 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
   };
 
   const filteredData = getFilteredChartData();
-
-  const allUsers = Array.from(
-    new Set(data.flatMap((d) => d.users.map((u) => u.name)))
-  );
 
   const USER_COLORS = [
     '#7C93C3',
@@ -116,12 +118,14 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
     return (
       <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
         <p className="font-semibold text-gray-900 mb-2">{date}</p>
-        <p className="text-sm text-gray-600">Всего: {total}</p>
-        {payload.slice(1).map((entry: any, index: number) => (
-          <p key={index} className="text-sm" style={{ color: entry.color }}>
-            {entry.name}: {entry.value}
-          </p>
-        ))}
+        <p className="text-sm text-purple-600 font-semibold mb-1">Всего: {total}</p>
+        <div className="border-t border-gray-100 mt-2 pt-2">
+          {payload.slice(1).map((entry: any, index: number) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name}: {entry.value}
+            </p>
+          ))}
+        </div>
       </div>
     );
   };
@@ -181,7 +185,7 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
             <div className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-medium text-gray-700">
-                  Фильтр по промоутерам
+                  Фильтр по промоутерам ({selectedUsers.length} из {allUsers.length})
                 </p>
                 <Button
                   onClick={() =>
@@ -198,7 +202,7 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
                     : 'Выбрать всё'}
                 </Button>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
                 {allUsers.map((user) => (
                   <Button
                     key={user}
@@ -208,7 +212,7 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
                     className="text-xs h-8"
                     style={
                       selectedUsers.includes(user)
-                        ? { backgroundColor: userColorMap[user] }
+                        ? { backgroundColor: userColorMap[user], borderColor: userColorMap[user] }
                         : {}
                     }
                   >
@@ -261,13 +265,23 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
         </div>
 
         <div className="mt-6 p-4 bg-purple-50 rounded-lg">
-          <p className="text-sm text-gray-700">
-            <strong>Всего контактов за период:</strong>{' '}
-            {data.reduce((sum, item) => sum + item.total, 0)}
-          </p>
-          <p className="text-sm text-gray-600 mt-1">
-            Период: {data[0]?.date} — {data[data.length - 1]?.date}
-          </p>
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <p className="text-2xl font-bold text-purple-600">
+                {filteredData.reduce((sum, d) => sum + d.total, 0)}
+              </p>
+              <p className="text-sm text-gray-600">Контактов за период</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-purple-600">
+                {Math.round(
+                  filteredData.reduce((sum, d) => sum + d.total, 0) /
+                    (filteredData.length || 1)
+                )}
+              </p>
+              <p className="text-sm text-gray-600">Среднее за день</p>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

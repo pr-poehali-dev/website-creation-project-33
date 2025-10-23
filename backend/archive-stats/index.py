@@ -131,8 +131,6 @@ def get_organizations_stats() -> List[Dict[str, Any]]:
                 })
             
             return result
-    
-    conn.close()
 
 def get_organization_promoters(organization_name: str) -> List[Dict[str, Any]]:
     '''Get promoters details for specific organization'''
@@ -159,8 +157,6 @@ def get_organization_promoters(organization_name: str) -> List[Dict[str, Any]]:
                 })
             
             return result
-    
-    conn.close()
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')

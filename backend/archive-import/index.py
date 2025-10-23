@@ -17,6 +17,17 @@ def get_db_connection():
         raise Exception('DATABASE_URL not found')
     return psycopg2.connect(dsn)
 
+def clean_text(text: str) -> str:
+    '''Remove non-breaking spaces and other invisible characters from text'''
+    if not text:
+        return text
+    text = text.replace('\u00A0', ' ')
+    text = text.replace('\u202F', ' ')
+    text = text.replace('\t', ' ')
+    while '  ' in text:
+        text = text.replace('  ', ' ')
+    return text.strip()
+
 def parse_moscow_datetime(datetime_str: str) -> str:
     '''Parse Moscow datetime and convert to UTC'''
     formats = [
@@ -147,15 +158,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             for row in csv_data:
                 if use_russian:
-                    date_time = row.get('Дата', '').strip()
-                    org_name = row.get('Организация', '').strip()
-                    promoter_name = row.get('Промоутер', '').strip()
-                    contact_count_str = row.get('Контакты', '0').strip()
+                    date_time = clean_text(row.get('Дата', ''))
+                    org_name = clean_text(row.get('Организация', ''))
+                    promoter_name = clean_text(row.get('Промоутер', ''))
+                    contact_count_str = clean_text(row.get('Контакты', '0'))
                 else:
-                    date_time = row.get('datetime', '').strip()
-                    org_name = row.get('organization', '').strip()
-                    promoter_name = row.get('user', '').strip()
-                    contact_count_str = str(row.get('count', 0)).strip()
+                    date_time = clean_text(row.get('datetime', ''))
+                    org_name = clean_text(row.get('organization', ''))
+                    promoter_name = clean_text(row.get('user', ''))
+                    contact_count_str = clean_text(str(row.get('count', 0)))
                 
                 try:
                     contact_count = int(contact_count_str) if contact_count_str and contact_count_str.isdigit() else 1

@@ -114,7 +114,7 @@ export default function ArchiveOrganizationsStats({
         </div>
 
         <div className="mb-6 p-4 bg-purple-50 rounded-lg">
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-2 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold text-purple-600">{data.length}</p>
               <p className="text-sm text-gray-600">Организаций</p>
@@ -122,10 +122,6 @@ export default function ArchiveOrganizationsStats({
             <div>
               <p className="text-2xl font-bold text-purple-600">{totalContacts}</p>
               <p className="text-sm text-gray-600">Всего контактов</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-purple-600">{totalPromoters}</p>
-              <p className="text-sm text-gray-600">Всего промоутеров</p>
             </div>
           </div>
         </div>

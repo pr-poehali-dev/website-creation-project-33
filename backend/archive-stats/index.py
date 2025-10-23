@@ -35,7 +35,7 @@ def get_chart_data() -> List[Dict[str, Any]]:
                     contact_count
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'контакт'
+                WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
                 ORDER BY created_at
             """)
             
@@ -85,7 +85,7 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
                     SUM(l.contact_count) as total_contacts
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'контакт'
+                WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
                 GROUP BY COALESCE(l.promoter_name, u.name)
                 ORDER BY total_contacts DESC
             """)
@@ -117,7 +117,7 @@ def get_organizations_stats() -> List[Dict[str, Any]]:
                     SUM(l.contact_count) as total_contacts
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE l.lead_type = 'контакт'
+                WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
                 GROUP BY o.name
                 ORDER BY total_contacts DESC
             """)

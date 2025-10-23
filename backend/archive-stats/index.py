@@ -26,7 +26,7 @@ def get_chart_data() -> List[Dict[str, Any]]:
     '''Get daily contacts chart data with user breakdown'''
     conn = get_db_connection()
     
-    with conn:
+    try:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
@@ -70,14 +70,14 @@ def get_chart_data() -> List[Dict[str, Any]]:
                 })
             
             return result
-    
-    conn.close()
+    finally:
+        conn.close()
 
 def get_promoters_rating() -> List[Dict[str, Any]]:
     '''Get promoters rating by total contacts'''
     conn = get_db_connection()
     
-    with conn:
+    try:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
@@ -101,14 +101,14 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
                 rank += 1
             
             return result
-    
-    conn.close()
+    finally:
+        conn.close()
 
 def get_organizations_stats() -> List[Dict[str, Any]]:
     '''Get organizations statistics'''
     conn = get_db_connection()
     
-    with conn:
+    try:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
@@ -131,14 +131,16 @@ def get_organizations_stats() -> List[Dict[str, Any]]:
                 })
             
             return result
+    finally:
+        conn.close()
 
 def get_organization_promoters(organization_name: str) -> List[Dict[str, Any]]:
     '''Get promoters details for specific organization'''
     conn = get_db_connection()
     
-    escaped_name = organization_name.replace("'", "''")
-    
-    with conn:
+    try:
+        escaped_name = organization_name.replace("'", "''")
+        
         with conn.cursor() as cur:
             cur.execute(f"""
                 SELECT 
@@ -159,6 +161,8 @@ def get_organization_promoters(organization_name: str) -> List[Dict[str, Any]]:
                 })
             
             return result
+    finally:
+        conn.close()
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -201,7 +205,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             result = cur.fetchone()
             
             if not result or not result[0]:
-                conn.close()
                 return {
                     'statusCode': 403,
                     'headers': {
@@ -211,7 +214,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Forbidden: Admin access required'})
                 }
     finally:
-        pass
+        conn.close()
     
     if method != 'GET':
         return {
@@ -254,6 +257,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     except Exception as e:
+        print(f"Error in handler: {str(e)}")
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

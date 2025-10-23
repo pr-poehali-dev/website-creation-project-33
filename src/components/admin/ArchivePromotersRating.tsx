@@ -14,6 +14,7 @@ interface PromoterRating {
   rank: number;
   name: string;
   contacts: number;
+  daysWorked?: number;
   dailyBreakdown?: DailyBreakdown[];
 }
 
@@ -221,9 +222,19 @@ export default function ArchivePromotersRating({
                       )}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 text-lg">
-                        {promoter.name}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <p className="font-semibold text-gray-900 text-lg">
+                          {promoter.name}
+                        </p>
+                        {promoter.daysWorked !== undefined && promoter.daysWorked > 0 && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 rounded-lg">
+                            <Icon name="Briefcase" size={14} className="text-blue-600" />
+                            <span className="text-xs font-semibold text-blue-600">
+                              {promoter.daysWorked} {promoter.daysWorked === 1 ? 'день' : promoter.daysWorked < 5 ? 'дня' : 'дней'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                       <p className="text-sm text-gray-600">
                         {promoter.contacts} контактов
                       </p>

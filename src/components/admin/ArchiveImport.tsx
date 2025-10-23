@@ -63,17 +63,17 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
   };
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-gray-900">
-          <div className="p-2 rounded-lg bg-blue-100">
-            <Icon name="Upload" size={20} className="text-blue-600" />
+    <Card className="bg-white border-gray-200 rounded-xl md:rounded-2xl">
+      <CardHeader className="px-3 md:px-6 pt-4 md:pt-6 pb-4 md:pb-6">
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-base md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-blue-100">
+            <Icon name="Upload" size={16} className="md:w-5 md:h-5 text-blue-600" />
           </div>
-          Импорт архивных данных
+          <span className="truncate">Импорт архивных данных</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-4">
+      <CardContent className="space-y-4 md:space-y-6 px-3 md:px-6 pb-4 md:pb-6">
+        <div className="p-3 md:p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3 md:space-y-4">
           <ArchivePasteImport
             sessionToken={sessionToken}
             onImportSuccess={onImportSuccess}
@@ -84,7 +84,7 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-blue-300" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
+            <div className="relative flex justify-center text-[10px] md:text-xs uppercase">
               <span className="bg-blue-50 px-2 text-blue-600">или</span>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-gray-300" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
+          <div className="relative flex justify-center text-[10px] md:text-xs uppercase">
             <span className="bg-white px-2 text-gray-500">или добавить вручную</span>
           </div>
         </div>
@@ -113,16 +113,16 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
         />
 
         {result && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800">
+          <div className="p-3 md:p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-green-800 text-xs md:text-sm">
               ✅ Импортировано: <strong>{result.imported}</strong> записей
             </p>
             {result.errors && result.errors.length > 0 && (
               <div className="mt-2">
-                <p className="text-red-700 font-semibold">Ошибки:</p>
-                <ul className="text-sm text-red-600 list-disc list-inside">
+                <p className="text-red-700 font-semibold text-xs md:text-sm">Ошибки:</p>
+                <ul className="text-xs md:text-sm text-red-600 list-disc list-inside">
                   {result.errors.slice(0, 5).map((err: string, i: number) => (
-                    <li key={i}>{err}</li>
+                    <li key={i} className="truncate">{err}</li>
                   ))}
                   {result.errors.length > 5 && (
                     <li>...и ещё {result.errors.length - 5}</li>
@@ -133,7 +133,7 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
           </div>
         )}
 
-        <div className="pt-4 border-t border-gray-300">
+        <div className="pt-3 md:pt-4 border-t border-gray-300">
           <ArchiveClearButton
             sessionToken={sessionToken}
             onClearSuccess={onImportSuccess}

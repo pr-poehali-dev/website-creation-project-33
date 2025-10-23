@@ -69,11 +69,11 @@ export default function ArchiveCsvUpload({ sessionToken, onImportSuccess, parseC
 
   return (
     <label className="block">
-      <div className="flex items-center justify-center gap-3 cursor-pointer">
-        <Icon name="FileUp" size={24} className="text-blue-600" />
+      <div className="flex items-center justify-center gap-2 md:gap-3 cursor-pointer">
+        <Icon name="FileUp" size={20} className="md:w-6 md:h-6 text-blue-600 flex-shrink-0" />
         <div>
-          <p className="font-semibold text-blue-900">Загрузить CSV файл</p>
-          <p className="text-sm text-blue-700">Для массового импорта</p>
+          <p className="font-semibold text-blue-900 text-sm md:text-base">Загрузить CSV файл</p>
+          <p className="text-xs md:text-sm text-blue-700">Для массового импорта</p>
         </div>
       </div>
       <input

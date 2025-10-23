@@ -80,19 +80,19 @@ export default function ArchivePasteImport({ sessionToken, onImportSuccess, pars
 
   return (
     <div>
-      <p className="font-semibold text-blue-900 mb-2">Вставить из Excel</p>
-      <p className="text-sm text-blue-700 mb-3">Скопируйте таблицу с заголовками: Дата | Организация | Промоутер | Контакты</p>
+      <p className="font-semibold text-blue-900 mb-1.5 md:mb-2 text-sm md:text-base">Вставить из Excel</p>
+      <p className="text-xs md:text-sm text-blue-700 mb-2 md:mb-3">Скопируйте таблицу с заголовками: Дата | Организация | Промоутер | Контакты</p>
       <textarea
         value={pasteData}
         onChange={(e) => setPasteData(e.target.value)}
         placeholder="Вставьте данные из Excel (Ctrl+C → Ctrl+V)"
         disabled={importing}
-        className="w-full h-32 p-3 border border-blue-300 rounded-lg font-mono text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full h-24 md:h-32 p-2 md:p-3 border border-blue-300 rounded-lg font-mono text-xs md:text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
       <Button
         onClick={handlePasteImport}
         disabled={importing || !pasteData.trim()}
-        className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white"
+        className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm h-9 md:h-10"
       >
         {importing ? 'Импорт...' : 'Импортировать данные'}
       </Button>

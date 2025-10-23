@@ -79,11 +79,11 @@ export default function ArchiveOrganizationsStats({
 
   if (data.length === 0) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
-        <CardContent className="p-8">
+      <Card className="bg-white border-gray-200 rounded-xl md:rounded-2xl">
+        <CardContent className="p-4 md:p-8">
           <div className="text-center text-gray-600">
-            <Icon name="AlertCircle" size={28} className="mx-auto mb-3 opacity-60" />
-            <div className="text-lg font-medium">Нет данных для отображения</div>
+            <Icon name="AlertCircle" size={20} className="md:w-7 md:h-7 mx-auto mb-2 md:mb-3 opacity-60" />
+            <div className="text-sm md:text-lg font-medium">Нет данных для отображения</div>
           </div>
         </CardContent>
       </Card>
@@ -106,35 +106,35 @@ export default function ArchiveOrganizationsStats({
   const totalContacts = data.reduce((sum, org) => sum + org.contacts, 0);
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl hover:shadow-2xl transition-all duration-300">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-3 text-gray-900 text-xl">
-          <div className="p-2 rounded-lg bg-purple-100">
-            <Icon name="Building2" size={20} className="text-purple-600" />
+    <Card className="bg-white border-gray-200 rounded-xl md:rounded-2xl hover:shadow-2xl transition-all duration-300">
+      <CardHeader className="pb-3 md:pb-4">
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-base md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-purple-100">
+            <Icon name="Building2" size={16} className="md:w-5 md:h-5 text-purple-600" />
           </div>
           Статистика по организациям
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-6 space-y-4">
+        <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
           <div className="relative">
             <Icon
               name="Search"
-              size={18}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={16}
+              className="absolute left-2.5 md:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-[18px] md:h-[18px]"
             />
             <Input
               placeholder="Поиск организации..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-11"
+              className="pl-9 md:pl-10 h-9 md:h-11 text-sm md:text-base"
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 md:gap-2">
             <button
               onClick={() => setSortBy('contacts')}
-              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`flex-1 px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
                 sortBy === 'contacts'
                   ? 'bg-purple-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -144,7 +144,7 @@ export default function ArchiveOrganizationsStats({
             </button>
             <button
               onClick={() => setSortBy('promoters')}
-              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`flex-1 px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
                 sortBy === 'promoters'
                   ? 'bg-purple-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -155,20 +155,20 @@ export default function ArchiveOrganizationsStats({
           </div>
         </div>
 
-        <div className="mb-6 p-4 bg-purple-50 rounded-lg">
-          <div className="grid grid-cols-2 gap-4 text-center">
+        <div className="mb-4 md:mb-6 p-3 md:p-4 bg-purple-50 rounded-lg">
+          <div className="grid grid-cols-2 gap-3 md:gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-purple-600">{data.length}</p>
-              <p className="text-sm text-gray-600">Организаций</p>
+              <p className="text-lg md:text-2xl font-bold text-purple-600">{data.length}</p>
+              <p className="text-xs md:text-sm text-gray-600">Организаций</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-purple-600">{totalContacts}</p>
-              <p className="text-sm text-gray-600">Всего контактов</p>
+              <p className="text-lg md:text-2xl font-bold text-purple-600">{totalContacts}</p>
+              <p className="text-xs md:text-sm text-gray-600">Всего контактов</p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-3 max-h-[600px] overflow-y-auto">
+        <div className="space-y-2 md:space-y-3 max-h-[600px] overflow-y-auto">
           {sortedData.map((org, index) => {
             const isExpanded = expandedOrg === org.organization;
             const details = promotersDetails[org.organization];
@@ -176,20 +176,20 @@ export default function ArchiveOrganizationsStats({
             return (
               <div
                 key={org.organization}
-                className={`rounded-xl border transition-all duration-300 ${
+                className={`rounded-lg md:rounded-xl border transition-all duration-300 ${
                   index < 3
                     ? 'border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50'
                     : 'border-gray-200 hover:border-purple-200'
                 } ${isExpanded ? 'shadow-lg' : 'hover:shadow-lg'}`}
               >
                 <div
-                  className="p-4 cursor-pointer"
+                  className="p-2.5 md:p-4 cursor-pointer"
                   onClick={() => toggleOrganization(org.organization)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center font-bold ${
+                        className={`w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-sm md:text-base flex-shrink-0 ${
                           index === 0
                             ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white'
                             : index === 1
@@ -202,29 +202,29 @@ export default function ArchiveOrganizationsStats({
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 text-base truncate">
+                        <p className="font-semibold text-gray-900 text-xs md:text-base truncate">
                           {org.organization}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-[10px] md:text-sm text-gray-600">
                           {org.promoters} промоутер(ов)
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-3 items-center">
+                    <div className="flex gap-1.5 md:gap-3 items-center flex-shrink-0">
                       <div className="text-right">
-                        <div className="px-3 py-1.5 rounded-lg bg-green-100">
-                          <p className="text-lg font-bold text-green-800">
+                        <div className="px-1.5 py-1 md:px-3 md:py-1.5 rounded-lg bg-green-100">
+                          <p className="text-sm md:text-lg font-bold text-green-800">
                             {org.contacts}
                           </p>
-                          <p className="text-xs text-green-600">контактов</p>
+                          <p className="text-[9px] md:text-xs text-green-600">контактов</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="px-3 py-1.5 rounded-lg bg-blue-100">
-                          <p className="text-lg font-bold text-blue-800">
+                      <div className="text-right hidden sm:block">
+                        <div className="px-1.5 py-1 md:px-3 md:py-1.5 rounded-lg bg-blue-100">
+                          <p className="text-sm md:text-lg font-bold text-blue-800">
                             {Math.round(org.contacts / org.promoters)}
                           </p>
-                          <p className="text-xs text-blue-600">средн./чел.</p>
+                          <p className="text-[9px] md:text-xs text-blue-600">средн.</p>
                         </div>
                       </div>
                       <Icon
@@ -259,17 +259,17 @@ export default function ArchiveOrganizationsStats({
                         {details.map((promoter) => (
                           <div
                             key={promoter.name}
-                            className="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-100 hover:border-purple-200 transition-colors"
+                            className="flex items-center justify-between p-2 md:p-2 bg-white rounded-lg border border-gray-100 hover:border-purple-200 transition-colors gap-2"
                           >
-                            <span className="text-sm text-gray-800">{promoter.name}</span>
-                            <span className="text-sm font-semibold text-purple-600">
+                            <span className="text-xs md:text-sm text-gray-800 truncate">{promoter.name}</span>
+                            <span className="text-xs md:text-sm font-semibold text-purple-600 flex-shrink-0">
                               {promoter.contacts} контактов
                             </span>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-4 text-gray-500 text-sm">
+                      <div className="text-center py-3 md:py-4 text-gray-500 text-xs md:text-sm">
                         Нет данных по промоутерам
                       </div>
                     )}
@@ -281,9 +281,9 @@ export default function ArchiveOrganizationsStats({
         </div>
 
         {sortedData.length === 0 && (
-          <div className="text-center py-8 text-gray-600">
-            <Icon name="Search" size={32} className="mx-auto mb-3 opacity-40" />
-            <p>Организация не найдена</p>
+          <div className="text-center py-6 md:py-8 text-gray-600">
+            <Icon name="Search" size={24} className="md:w-8 md:h-8 mx-auto mb-2 md:mb-3 opacity-40" />
+            <p className="text-sm md:text-base">Организация не найдена</p>
           </div>
         )}
       </CardContent>

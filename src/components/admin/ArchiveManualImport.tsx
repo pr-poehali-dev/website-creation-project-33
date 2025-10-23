@@ -97,9 +97,9 @@ export default function ArchiveManualImport({ sessionToken, onImportSuccess }: A
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5 md:mb-2">
           Дата (формат: дд.мм.гггг)
         </label>
         <Input
@@ -108,12 +108,12 @@ export default function ArchiveManualImport({ sessionToken, onImportSuccess }: A
           value={date}
           onChange={(e) => setDate(e.target.value)}
           disabled={importing}
-          className="w-full"
+          className="w-full text-xs md:text-sm h-9 md:h-10"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5 md:mb-2">
           Организация (опционально)
         </label>
         <Input
@@ -122,12 +122,12 @@ export default function ArchiveManualImport({ sessionToken, onImportSuccess }: A
           value={organization}
           onChange={(e) => setOrganization(e.target.value)}
           disabled={importing}
-          className="w-full"
+          className="w-full text-xs md:text-sm h-9 md:h-10"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5 md:mb-2">
           Промоутер *
         </label>
         <Input
@@ -136,12 +136,12 @@ export default function ArchiveManualImport({ sessionToken, onImportSuccess }: A
           value={promoter}
           onChange={(e) => setPromoter(e.target.value)}
           disabled={importing}
-          className="w-full"
+          className="w-full text-xs md:text-sm h-9 md:h-10"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5 md:mb-2">
           Количество контактов *
         </label>
         <Input
@@ -151,14 +151,14 @@ export default function ArchiveManualImport({ sessionToken, onImportSuccess }: A
           onChange={(e) => setQuantity(e.target.value)}
           disabled={importing}
           min="1"
-          className="w-full"
+          className="w-full text-xs md:text-sm h-9 md:h-10"
         />
       </div>
 
       <Button
         onClick={handleImport}
         disabled={importing}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm h-9 md:h-10"
       >
         {importing ? 'Импорт...' : 'Добавить запись'}
       </Button>

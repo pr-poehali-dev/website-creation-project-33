@@ -141,16 +141,16 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200 rounded-2xl">
-        <CardContent className="p-4 md:p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-xl">
-              <Icon name="Archive" size={24} className="text-purple-600" />
+    <div className="space-y-4 md:space-y-6">
+      <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200 rounded-xl md:rounded-2xl">
+        <CardContent className="p-3 md:p-6">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="p-1.5 md:p-2 bg-purple-100 rounded-lg md:rounded-xl">
+              <Icon name="Archive" size={18} className="md:w-6 md:h-6 text-purple-600" />
             </div>
             <div>
-              <h2 className="text-lg md:text-xl font-bold text-gray-800">Архив статистики</h2>
-              <p className="text-xs md:text-sm text-gray-600">
+              <h2 className="text-base md:text-xl font-bold text-gray-800">Архив статистики</h2>
+              <p className="text-[10px] md:text-sm text-gray-600">
                 Исторические данные: март - сентябрь 2025
               </p>
             </div>
@@ -158,35 +158,35 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
         </CardContent>
       </Card>
 
-      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 admin-card h-12 md:h-14 p-1">
+      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="space-y-4 md:space-y-6">
+        <TabsList className="grid w-full grid-cols-4 admin-card h-10 md:h-14 p-0.5 md:p-1">
           <TabsTrigger
             value="chart"
-            className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+            className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-[10px] md:text-sm rounded-md md:rounded-lg font-medium px-1 md:px-3"
           >
-            <Icon name="LineChart" size={14} className="md:w-[16px] md:h-[16px]" />
-            <span>График</span>
+            <Icon name="LineChart" size={12} className="md:w-4 md:h-4" />
+            <span className="hidden sm:inline">График</span>
           </TabsTrigger>
           <TabsTrigger
             value="promoters"
-            className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+            className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-[10px] md:text-sm rounded-md md:rounded-lg font-medium px-1 md:px-3"
           >
-            <Icon name="Users" size={14} className="md:w-[16px] md:h-[16px]" />
-            <span>Промоутеры</span>
+            <Icon name="Users" size={12} className="md:w-4 md:h-4" />
+            <span className="hidden sm:inline">Промоутеры</span>
           </TabsTrigger>
           <TabsTrigger
             value="organizations"
-            className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+            className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-[10px] md:text-sm rounded-md md:rounded-lg font-medium px-1 md:px-3"
           >
-            <Icon name="Building2" size={14} className="md:w-[16px] md:h-[16px]" />
-            <span>Организации</span>
+            <Icon name="Building2" size={12} className="md:w-4 md:h-4" />
+            <span className="hidden sm:inline">Организации</span>
           </TabsTrigger>
           <TabsTrigger
             value="import"
-            className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+            className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-[10px] md:text-sm rounded-md md:rounded-lg font-medium px-1 md:px-3"
           >
-            <Icon name="Upload" size={14} className="md:w-[16px] md:h-[16px]" />
-            <span>Импорт</span>
+            <Icon name="Upload" size={12} className="md:w-4 md:h-4" />
+            <span className="hidden sm:inline">Импорт</span>
           </TabsTrigger>
         </TabsList>
 
@@ -195,8 +195,8 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
         </TabsContent>
 
         <TabsContent value="promoters">
-          <Tabs value={activePromotersTab} onValueChange={setActivePromotersTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 admin-card h-12 p-1">
+          <Tabs value={activePromotersTab} onValueChange={setActivePromotersTab} className="space-y-3 md:space-y-4">
+            <TabsList className="grid w-full grid-cols-2 admin-card h-10 md:h-12 p-0.5 md:p-1">
               <TabsTrigger
                 value="contacts"
                 className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-sm rounded-lg font-medium"

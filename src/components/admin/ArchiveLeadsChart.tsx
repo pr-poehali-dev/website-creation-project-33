@@ -42,10 +42,10 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
 
   if (loading) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
-        <CardContent className="p-8">
-          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
-            <Icon name="Loader2" size={20} className="animate-spin" />
+      <Card className="bg-white border-gray-200 rounded-xl md:rounded-2xl">
+        <CardContent className="p-4 md:p-8">
+          <div className="text-center text-gray-600 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
+            <Icon name="Loader2" size={16} className="md:w-5 md:h-5 animate-spin" />
             Загрузка графика...
           </div>
         </CardContent>
@@ -55,11 +55,11 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
 
   if (data.length === 0) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
-        <CardContent className="p-8">
+      <Card className="bg-white border-gray-200 rounded-xl md:rounded-2xl">
+        <CardContent className="p-4 md:p-8">
           <div className="text-center text-gray-600">
-            <Icon name="AlertCircle" size={28} className="mx-auto mb-3 opacity-60" />
-            <div className="text-lg font-medium">Нет данных для отображения</div>
+            <Icon name="AlertCircle" size={20} className="md:w-7 md:h-7 mx-auto mb-2 md:mb-3 opacity-60" />
+            <div className="text-sm md:text-lg font-medium">Нет данных для отображения</div>
           </div>
         </CardContent>
       </Card>
@@ -111,26 +111,26 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
   };
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl hover:shadow-2xl transition-all duration-300">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-3 text-gray-900 text-xl">
-          <div className="p-2 rounded-lg bg-purple-100">
-            <Icon name="LineChart" size={20} className="text-purple-600" />
+    <Card className="bg-white border-gray-200 rounded-xl md:rounded-2xl hover:shadow-2xl transition-all duration-300">
+      <CardHeader className="pb-3 md:pb-4">
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-base md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-purple-100">
+            <Icon name="LineChart" size={16} className="md:w-5 md:h-5 text-purple-600" />
           </div>
-          График контактов по дням
+          График контактов
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
+          <div className="flex flex-wrap gap-1.5 md:gap-2">
             <Button
               onClick={() => setTimeRange('week')}
               variant={timeRange === 'week' ? 'default' : 'outline'}
               size="sm"
               className={
                 timeRange === 'week'
-                  ? 'bg-purple-600 hover:bg-purple-700'
-                  : 'text-purple-600'
+                  ? 'bg-purple-600 hover:bg-purple-700 text-xs md:text-sm h-8 md:h-9'
+                  : 'text-purple-600 text-xs md:text-sm h-8 md:h-9'
               }
             >
               Неделя
@@ -141,8 +141,8 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
               size="sm"
               className={
                 timeRange === 'month'
-                  ? 'bg-purple-600 hover:bg-purple-700'
-                  : 'text-purple-600'
+                  ? 'bg-purple-600 hover:bg-purple-700 text-xs md:text-sm h-8 md:h-9'
+                  : 'text-purple-600 text-xs md:text-sm h-8 md:h-9'
               }
             >
               Месяц
@@ -153,21 +153,22 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
               size="sm"
               className={
                 timeRange === 'all'
-                  ? 'bg-purple-600 hover:bg-purple-700'
-                  : 'text-purple-600'
+                  ? 'bg-purple-600 hover:bg-purple-700 text-xs md:text-sm h-8 md:h-9'
+                  : 'text-purple-600 text-xs md:text-sm h-8 md:h-9'
               }
             >
-              Весь период
+              <span className="hidden md:inline">Весь период</span>
+              <span className="md:hidden">Все</span>
             </Button>
           </div>
 
           {allUsers.length > 0 && (
-            <div className="border border-gray-200 rounded-lg p-4">
-              <p className="text-sm font-medium text-gray-700 mb-3">
+            <div className="border border-gray-200 rounded-lg p-3 md:p-4">
+              <p className="text-xs md:text-sm font-medium text-gray-700 mb-2 md:mb-3">
                 Выберите промоутера
               </p>
               <Select value={selectedPromoter} onValueChange={setSelectedPromoter}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-9 md:h-10 text-sm md:text-base">
                   <SelectValue placeholder="Все промоутеры" />
                 </SelectTrigger>
                 <SelectContent>
@@ -183,19 +184,19 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
           )}
         </div>
 
-        <div className="h-[400px] w-full">
+        <div className="h-[300px] md:h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartDataFormatted}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="date"
                 stroke="#6b7280"
-                style={{ fontSize: '12px' }}
+                style={{ fontSize: window.innerWidth < 768 ? '9px' : '12px' }}
                 angle={-45}
                 textAnchor="end"
-                height={80}
+                height={window.innerWidth < 768 ? 60 : 80}
               />
-              <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <YAxis stroke="#6b7280" style={{ fontSize: window.innerWidth < 768 ? '9px' : '12px' }} />
               <Tooltip content={<CustomTooltip />} />
               <Legend wrapperStyle={{ fontSize: '12px' }} />
               {selectedPromoter === 'all' ? (

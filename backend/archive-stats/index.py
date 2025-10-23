@@ -31,7 +31,7 @@ def get_chart_data() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT 
                     l.created_at, 
-                    COALESCE(u.name, l.promoter_name) as promoter_name, 
+                    COALESCE(l.promoter_name, u.name) as promoter_name, 
                     l.contact_count
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id

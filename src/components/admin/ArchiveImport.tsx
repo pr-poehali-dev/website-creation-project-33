@@ -28,24 +28,36 @@ export default function ArchiveImport({ sessionToken, onImportSuccess }: Archive
     
     const separator = lines[0].split('\t').length > 1 ? '\t' : ',';
     
-    const data = lines.slice(1).map(line => {
+    console.log('Parsed headers:', headers);
+    console.log('Separator:', separator === '\t' ? 'TAB' : 'COMMA');
+    console.log('Total lines:', lines.length);
+    
+    const data = lines.slice(1).map((line, lineIndex) => {
       const values = line.split(separator).map(v => v.trim());
       const row: any = {};
       
       headers.forEach((header, i) => {
-        if (header.includes('дата') || header === 'datetime') {
-          row.datetime = values[i];
-        } else if (header.includes('организ') || header === 'organization') {
-          row.organization = values[i];
-        } else if (header.includes('промоутер') || header === 'user') {
-          row.user = values[i];
-        } else if (header.includes('контакт') || header.includes('количеств') || header === 'count') {
-          row.count = parseInt(values[i], 10) || 1;
+        const value = values[i] || '';
+        
+        if (header.includes('дата') || header === 'datetime' || i === 0) {
+          row.datetime = value;
+        } else if (header.includes('организ') || header.includes('топ') || header.includes('шия') || header === 'organization' || i === 1) {
+          row.organization = value;
+        } else if (header.includes('промоутер') || header.includes('user') || header.includes('имя') || i === 2) {
+          row.user = value;
+        } else if (header.includes('контакт') || header.includes('количеств') || header === 'count' || !isNaN(parseInt(value, 10))) {
+          row.count = parseInt(value, 10) || 1;
         }
       });
       
+      if (lineIndex < 3) {
+        console.log(`Row ${lineIndex}:`, row);
+      }
+      
       return row;
     }).filter(row => row.datetime && row.user);
+
+    console.log('Parsed data count:', data.length);
 
     return data;
   };

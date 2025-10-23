@@ -27,6 +27,10 @@ export default function ArchivePasteImport({ sessionToken, onImportSuccess, pars
     try {
       const data = parseCsvText(pasteData);
 
+      if (!data || data.length === 0) {
+        throw new Error('Не удалось распарсить данные. Проверьте формат таблицы.');
+      }
+
       console.log('Sending paste data:', data);
 
       const response = await fetch('https://functions.poehali.dev/94c5eb5a-9182-4dc0-82f0-b4ddbb44acaf', {

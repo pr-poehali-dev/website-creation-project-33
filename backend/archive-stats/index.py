@@ -134,6 +134,34 @@ def get_organizations_stats() -> List[Dict[str, Any]]:
     
     conn.close()
 
+def get_organization_promoters(organization_name: str) -> List[Dict[str, Any]]:
+    '''Get promoters details for specific organization'''
+    conn = get_db_connection()
+    
+    with conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT 
+                    l.promoter_name,
+                    SUM(l.contact_count) as total_contacts
+                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
+                JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE o.name = %s AND l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                GROUP BY l.promoter_name
+                ORDER BY total_contacts DESC
+            """, (organization_name,))
+            
+            result = []
+            for row in cur.fetchall():
+                result.append({
+                    'name': row[0],
+                    'contacts': int(row[1])
+                })
+            
+            return result
+    
+    conn.close()
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
@@ -203,6 +231,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             data = get_promoters_rating()
         elif action == 'organizations':
             data = get_organizations_stats()
+        elif action == 'organization_promoters':
+            org_name = params.get('organization')
+            if not org_name:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Organization name required'})
+                }
+            data = get_organization_promoters(org_name)
         else:
             return {
                 'statusCode': 400,

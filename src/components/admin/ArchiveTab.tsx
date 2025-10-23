@@ -171,7 +171,15 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
         </TabsContent>
 
         <TabsContent value="promoters">
-          <ArchivePromotersRating data={promotersData} loading={loading} />
+          <ArchivePromotersRating 
+            data={promotersData} 
+            loading={loading}
+            sessionToken={sessionToken}
+            onSyncSuccess={() => {
+              setPromotersData([]);
+              fetchArchiveData('promoters');
+            }}
+          />
         </TabsContent>
 
         <TabsContent value="organizations">

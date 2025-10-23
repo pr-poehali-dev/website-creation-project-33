@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { toast } from '@/hooks/use-toast';
 
 interface PromoterRating {
   rank: number;
@@ -12,13 +14,67 @@ interface PromoterRating {
 interface ArchivePromotersRatingProps {
   data: PromoterRating[];
   loading: boolean;
+  sessionToken: string;
+  onSyncSuccess?: () => void;
 }
 
 export default function ArchivePromotersRating({
   data,
   loading,
+  sessionToken,
+  onSyncSuccess,
 }: ArchivePromotersRatingProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSync = async () => {
+    if (!sessionToken) {
+      toast({
+        title: 'Ошибка',
+        description: 'Требуется авторизация',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSyncing(true);
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/da57fe30-0429-4569-89c3-64d8c0875a6a',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': sessionToken,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка синхронизации');
+      }
+
+      const result = await response.json();
+      toast({
+        title: 'Успешно',
+        description: result.message || 'Архив обновлен',
+      });
+
+      if (onSyncSuccess) {
+        onSyncSuccess();
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+      toast({
+        title: 'Ошибка',
+        description: error instanceof Error ? error.message : 'Не удалось синхронизировать архив',
+        variant: 'destructive',
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -71,12 +127,31 @@ export default function ArchivePromotersRating({
   return (
     <Card className="bg-white border-gray-200 rounded-2xl hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-3 text-gray-900 text-xl">
-          <div className="p-2 rounded-lg bg-purple-100">
-            <Icon name="Trophy" size={20} className="text-purple-600" />
-          </div>
-          Рейтинг промоутеров по контактам
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3 text-gray-900 text-xl">
+            <div className="p-2 rounded-lg bg-purple-100">
+              <Icon name="Trophy" size={20} className="text-purple-600" />
+            </div>
+            Рейтинг промоутеров по контактам
+          </CardTitle>
+          <Button
+            onClick={handleSync}
+            disabled={syncing}
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+          >
+            {syncing ? (
+              <>
+                <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                Синхронизация...
+              </>
+            ) : (
+              <>
+                <Icon name="RefreshCw" size={16} className="mr-2" />
+                Синхронизировать архив
+              </>
+            )}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="mb-6">

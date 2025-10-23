@@ -113,7 +113,7 @@ def get_organizations_stats() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT 
                     o.name as organization_name,
-                    COUNT(DISTINCT l.user_id) as promoters_count,
+                    COUNT(DISTINCT l.promoter_name) as promoters_count,
                     SUM(l.contact_count) as total_contacts
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id

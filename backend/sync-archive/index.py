@@ -66,12 +66,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     schema = 't_p24058207_website_creation_pro'
     
+    escaped_token = session_token.replace("'", "''")
     cur.execute(f"""
         SELECT u.is_admin 
         FROM {schema}.users u
         JOIN {schema}.user_sessions s ON u.id = s.user_id
-        WHERE s.session_token = %s AND s.expires_at > NOW()
-    """, (session_token,))
+        WHERE s.session_token = '{escaped_token}' AND s.expires_at > NOW()
+    """)
     
     result = cur.fetchone()
     if not result or not result[0]:

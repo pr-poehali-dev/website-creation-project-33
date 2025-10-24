@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Get database records for comparison",
+    "event": {
+      "httpMethod": "GET"
+    },
+    "expected": {
+      "statusCode": 200,
+      "body": {
+        "success": true
+      }
+    }
+  }
+]

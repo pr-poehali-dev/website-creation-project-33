@@ -794,7 +794,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             AND a.lead_type = 'контакт' 
                             AND (a.is_excluded = FALSE OR a.is_excluded IS NULL)
                         GROUP BY o.id, o.name, o.created_at
-                        ORDER BY lead_count DESC, o.name
+                        ORDER BY o.name
                     """)
                     organizations = []
                     for row in cur.fetchall():

@@ -30,23 +30,24 @@ def get_chart_data() -> List[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
-                    DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as moscow_date,
+                    l.created_at,
                     COALESCE(l.promoter_name, u.name) as promoter_name, 
-                    SUM(l.contact_count) as contact_count
+                    l.contact_count
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
-                GROUP BY moscow_date, COALESCE(l.promoter_name, u.name)
-                ORDER BY moscow_date
+                ORDER BY l.created_at
             """)
             
             daily_data = {}
             
             for row in cur.fetchall():
                 if row[0]:
-                    date_key = row[0].isoformat()
+                    utc_dt = row[0]
+                    moscow_dt = utc_dt + timedelta(hours=3)
+                    date_key = moscow_dt.date().isoformat()
                     user_name = row[1] or 'Неизвестно'
-                    count = int(row[2])
+                    count = row[2]
                     
                     if date_key not in daily_data:
                         daily_data[date_key] = {'date': date_key, 'total': 0, 'users': {}}
@@ -99,21 +100,31 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
                 escaped_name = promoter_name.replace("'", "''")
                 cur.execute(f"""
                     SELECT 
-                        DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as date,
-                        SUM(l.contact_count) as daily_contacts
+                        l.created_at,
+                        l.contact_count
                     FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                     WHERE COALESCE(l.promoter_name, '') = '{escaped_name}'
                       AND l.lead_type = 'контакт' 
                       AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
-                    GROUP BY DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')
-                    ORDER BY DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') DESC
+                    ORDER BY l.created_at DESC
                 """)
                 
-                daily_breakdown = []
+                daily_data = {}
                 for daily_row in cur.fetchall():
+                    utc_dt = daily_row[0]
+                    moscow_dt = utc_dt + timedelta(hours=3)
+                    date_key = moscow_dt.date().isoformat()
+                    contacts = daily_row[1]
+                    
+                    if date_key not in daily_data:
+                        daily_data[date_key] = 0
+                    daily_data[date_key] += contacts
+                
+                daily_breakdown = []
+                for date_key in sorted(daily_data.keys(), reverse=True):
                     daily_breakdown.append({
-                        'date': daily_row[0].isoformat() if daily_row[0] else '',
-                        'contacts': int(daily_row[1])
+                        'date': date_key,
+                        'contacts': int(daily_data[date_key])
                     })
                 
                 result.append({
@@ -137,8 +148,8 @@ def get_promoters_by_days() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT 
                     COALESCE(l.promoter_name, u.name) as promoter_name, 
-                    MIN(DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as first_date,
-                    MAX(DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as last_date,
+                    MIN(l.created_at) as first_date,
+                    MAX(l.created_at) as last_date,
                     SUM(l.contact_count) as total_contacts
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
@@ -149,13 +160,20 @@ def get_promoters_by_days() -> List[Dict[str, Any]]:
             result = []
             for row in cur.fetchall():
                 promoter_name = row[0] or 'Неизвестно'
-                first_date = row[1]
-                last_date = row[2]
+                first_dt_utc = row[1]
+                last_dt_utc = row[2]
                 total_contacts = int(row[3])
                 
+                first_date = None
+                last_date = None
                 days_worked = 0
-                if first_date and last_date:
-                    days_worked = (last_date - first_date).days + 1
+                
+                if first_dt_utc and last_dt_utc:
+                    first_moscow = (first_dt_utc + timedelta(hours=3)).date()
+                    last_moscow = (last_dt_utc + timedelta(hours=3)).date()
+                    first_date = first_moscow
+                    last_date = last_moscow
+                    days_worked = (last_moscow - first_moscow).days + 1
                 
                 result.append({
                     'name': promoter_name,
@@ -183,23 +201,45 @@ def get_promoters_by_shifts() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT 
                     COALESCE(l.promoter_name, u.name) as promoter_name, 
-                    COUNT(DISTINCT DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as shifts_count,
-                    MIN(DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as first_date,
-                    MAX(DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as last_date,
-                    SUM(l.contact_count) as total_contacts
+                    l.created_at,
+                    l.contact_count
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
-                GROUP BY COALESCE(l.promoter_name, u.name)
             """)
             
-            result = []
+            promoters_data = {}
+            
             for row in cur.fetchall():
                 promoter_name = row[0] or 'Неизвестно'
-                shifts_count = int(row[1])
-                first_date = row[2]
-                last_date = row[3]
-                total_contacts = int(row[4])
+                utc_dt = row[1]
+                contact_count = row[2]
+                
+                moscow_dt = utc_dt + timedelta(hours=3)
+                moscow_date = moscow_dt.date()
+                
+                if promoter_name not in promoters_data:
+                    promoters_data[promoter_name] = {
+                        'dates': set(),
+                        'contacts': 0,
+                        'first_date': moscow_date,
+                        'last_date': moscow_date
+                    }
+                
+                promoters_data[promoter_name]['dates'].add(moscow_date)
+                promoters_data[promoter_name]['contacts'] += contact_count
+                
+                if moscow_date < promoters_data[promoter_name]['first_date']:
+                    promoters_data[promoter_name]['first_date'] = moscow_date
+                if moscow_date > promoters_data[promoter_name]['last_date']:
+                    promoters_data[promoter_name]['last_date'] = moscow_date
+            
+            result = []
+            for promoter_name, data in promoters_data.items():
+                shifts_count = len(data['dates'])
+                first_date = data['first_date']
+                last_date = data['last_date']
+                total_contacts = data['contacts']
                 
                 result.append({
                     'name': promoter_name,

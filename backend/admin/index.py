@@ -789,7 +789,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         SELECT o.id, o.name, o.created_at,
                                COUNT(l.id) as lead_count
                         FROM t_p24058207_website_creation_pro.organizations o
-                        LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON o.id = l.organization_id
+                        LEFT JOIN t_p24058207_website_creation_pro.archive_leads_analytics l ON o.id = l.organization_id
                         GROUP BY o.id, o.name, o.created_at
                         ORDER BY lead_count DESC, o.name
                     """)

@@ -30,23 +30,23 @@ def get_chart_data() -> List[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
-                    l.created_at, 
+                    DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as moscow_date,
                     COALESCE(l.promoter_name, u.name) as promoter_name, 
-                    l.contact_count
+                    SUM(l.contact_count) as contact_count
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
-                ORDER BY l.created_at
+                GROUP BY moscow_date, COALESCE(l.promoter_name, u.name)
+                ORDER BY moscow_date
             """)
             
             daily_data = {}
             
             for row in cur.fetchall():
                 if row[0]:
-                    moscow_dt = get_moscow_time_from_utc(row[0])
-                    date_key = moscow_dt.date().isoformat()
+                    date_key = row[0].isoformat()
                     user_name = row[1] or 'Неизвестно'
-                    count = row[2]
+                    count = int(row[2])
                     
                     if date_key not in daily_data:
                         daily_data[date_key] = {'date': date_key, 'total': 0, 'users': {}}
@@ -99,14 +99,14 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
                 escaped_name = promoter_name.replace("'", "''")
                 cur.execute(f"""
                     SELECT 
-                        DATE(l.created_at) as date,
+                        DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as date,
                         SUM(l.contact_count) as daily_contacts
                     FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                     WHERE COALESCE(l.promoter_name, '') = '{escaped_name}'
                       AND l.lead_type = 'контакт' 
                       AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
-                    GROUP BY DATE(l.created_at)
-                    ORDER BY DATE(l.created_at) DESC
+                    GROUP BY DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')
+                    ORDER BY DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') DESC
                 """)
                 
                 daily_breakdown = []
@@ -137,8 +137,8 @@ def get_promoters_by_days() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT 
                     COALESCE(l.promoter_name, u.name) as promoter_name, 
-                    MIN(DATE(l.created_at)) as first_date,
-                    MAX(DATE(l.created_at)) as last_date,
+                    MIN(DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as first_date,
+                    MAX(DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as last_date,
                     SUM(l.contact_count) as total_contacts
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
@@ -183,9 +183,9 @@ def get_promoters_by_shifts() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT 
                     COALESCE(l.promoter_name, u.name) as promoter_name, 
-                    COUNT(DISTINCT DATE(l.created_at)) as shifts_count,
-                    MIN(DATE(l.created_at)) as first_date,
-                    MAX(DATE(l.created_at)) as last_date,
+                    COUNT(DISTINCT DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as shifts_count,
+                    MIN(DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as first_date,
+                    MAX(DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as last_date,
                     SUM(l.contact_count) as total_contacts
                 FROM t_p24058207_website_creation_pro.archive_leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id

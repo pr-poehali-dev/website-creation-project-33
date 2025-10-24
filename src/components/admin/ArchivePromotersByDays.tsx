@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface PromoterByDays {
   rank: number;
@@ -16,14 +23,24 @@ interface ArchivePromotersByDaysProps {
   data: PromoterByDays[];
   loading: boolean;
   byShifts?: boolean;
+  sessionToken: string;
+}
+
+interface WeeklyStats {
+  weekStart: string;
+  contacts: number;
 }
 
 export default function ArchivePromotersByDays({
   data,
   loading,
   byShifts = false,
+  sessionToken,
 }: ArchivePromotersByDaysProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPromoter, setSelectedPromoter] = useState<PromoterByDays | null>(null);
+  const [weeklyStats, setWeeklyStats] = useState<WeeklyStats[]>([]);
+  const [loadingStats, setLoadingStats] = useState(false);
 
   if (loading) {
     return (
@@ -94,6 +111,51 @@ export default function ArchivePromotersByDays({
   const totalDays = data.reduce((sum, p) => sum + p.daysWorked, 0);
   const avgDays = Math.round(totalDays / data.length);
 
+  const handlePromoterClick = async (promoter: PromoterByDays) => {
+    if (!byShifts) return;
+    
+    setSelectedPromoter(promoter);
+    setLoadingStats(true);
+    
+    try {
+      const response = await fetch(
+        `https://functions.poehali.dev/6e86bd37-d9f4-4dcd-babd-21ff4d9b8a6f?action=promoter_weekly_stats&promoter=${encodeURIComponent(promoter.name)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': sessionToken,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Ошибка загрузки данных');
+      }
+
+      const result = await response.json();
+      setWeeklyStats(result.data || []);
+    } catch (error) {
+      console.error('Error fetching weekly stats:', error);
+      setWeeklyStats([]);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
+  const formatWeekLabel = (weekStart: string) => {
+    const date = new Date(weekStart);
+    const endDate = new Date(date);
+    endDate.setDate(endDate.getDate() + 6);
+    
+    return `${date.getDate()}.${date.getMonth() + 1} - ${endDate.getDate()}.${endDate.getMonth() + 1}`;
+  };
+
+  const chartData = weeklyStats.map(stat => ({
+    week: formatWeekLabel(stat.weekStart),
+    contacts: stat.contacts,
+  }));
+
   return (
     <Card className="bg-white border-gray-200 rounded-2xl hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-4">
@@ -142,7 +204,10 @@ export default function ArchivePromotersByDays({
           {filteredData.map((promoter) => (
             <div
               key={promoter.rank}
+              onClick={() => handlePromoterClick(promoter)}
               className={`p-3 md:p-4 rounded-xl border transition-all duration-300 hover:shadow-lg ${
+                byShifts ? 'cursor-pointer' : ''
+              } ${
                 promoter.rank <= 3
                   ? byShifts
                     ? 'border-green-200 bg-gradient-to-r from-green-50 to-emerald-50'
@@ -221,6 +286,107 @@ export default function ArchivePromotersByDays({
           </div>
         )}
       </CardContent>
+
+      <Dialog open={selectedPromoter !== null} onOpenChange={(open) => !open && setSelectedPromoter(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-100">
+                <Icon name="TrendingUp" size={20} className="text-green-600" />
+              </div>
+              <div>
+                <div className="text-xl font-bold">{selectedPromoter?.name}</div>
+                <div className="text-sm font-normal text-gray-600 mt-1">
+                  Динамика работы по неделям
+                </div>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+
+          {loadingStats ? (
+            <div className="flex items-center justify-center py-12">
+              <Icon name="Loader2" size={32} className="animate-spin text-green-600" />
+            </div>
+          ) : weeklyStats.length === 0 ? (
+            <div className="text-center py-12 text-gray-600">
+              <Icon name="AlertCircle" size={32} className="mx-auto mb-3 opacity-60" />
+              <p>Нет данных по неделям</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="grid grid-cols-3 gap-4 p-4 bg-green-50 rounded-lg">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-600">{selectedPromoter?.daysWorked}</p>
+                  <p className="text-sm text-gray-600">Всего смен</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-600">{selectedPromoter?.contacts}</p>
+                  <p className="text-sm text-gray-600">Всего контактов</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-600">
+                    {selectedPromoter?.daysWorked && selectedPromoter.daysWorked > 0
+                      ? Math.round(selectedPromoter.contacts / selectedPromoter.daysWorked)
+                      : 0}
+                  </p>
+                  <p className="text-sm text-gray-600">Средн./смена</p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Icon name="BarChart3" size={20} />
+                  График контактов по неделям
+                </h3>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis 
+                      dataKey="week" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                      style={{ fontSize: '12px' }}
+                    />
+                    <YAxis style={{ fontSize: '12px' }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Bar dataKey="contacts" fill="#22c55e" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <Icon name="List" size={20} />
+                  Детализация по неделям
+                </h3>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {weeklyStats.map((stat, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon name="Calendar" size={16} className="text-gray-500" />
+                        <span className="font-medium">{formatWeekLabel(stat.weekStart)}</span>
+                      </div>
+                      <div className="px-3 py-1 bg-green-100 text-green-800 rounded-lg font-bold">
+                        {stat.contacts}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

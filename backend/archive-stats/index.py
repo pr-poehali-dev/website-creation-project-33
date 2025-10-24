@@ -218,6 +218,40 @@ def get_promoters_by_shifts() -> List[Dict[str, Any]]:
     finally:
         conn.close()
 
+def get_promoter_weekly_stats(promoter_name: str) -> List[Dict[str, Any]]:
+    '''Get weekly statistics for a specific promoter (weeks start on Monday)'''
+    conn = get_db_connection()
+    
+    try:
+        with conn.cursor() as cur:
+            escaped_name = promoter_name.replace("'", "''")
+            cur.execute(f"""
+                SELECT 
+                    DATE_TRUNC('week', l.created_at)::date as week_start,
+                    SUM(l.contact_count) as weekly_contacts
+                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
+                LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE COALESCE(l.promoter_name, u.name) = '{escaped_name}'
+                  AND l.lead_type = 'контакт' 
+                  AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                GROUP BY week_start
+                ORDER BY week_start
+            """)
+            
+            result = []
+            for row in cur.fetchall():
+                week_start = row[0]
+                weekly_contacts = int(row[1])
+                
+                result.append({
+                    'weekStart': week_start.isoformat() if week_start else '',
+                    'contacts': weekly_contacts
+                })
+            
+            return result
+    finally:
+        conn.close()
+
 def get_organizations_stats() -> List[Dict[str, Any]]:
     '''Get organizations statistics'''
     conn = get_db_connection()
@@ -360,6 +394,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Organization name required'})
                 }
             data = get_organization_promoters(org_name)
+        elif action == 'promoter_weekly_stats':
+            promoter_name = params.get('promoter')
+            if not promoter_name:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Promoter name required'})
+                }
+            data = get_promoter_weekly_stats(promoter_name)
         else:
             return {
                 'statusCode': 400,

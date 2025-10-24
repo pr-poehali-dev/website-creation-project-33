@@ -244,6 +244,7 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
               <ArchivePromotersByDays 
                 data={promotersByDaysData} 
                 loading={loading}
+                sessionToken={sessionToken}
               />
             </TabsContent>
 
@@ -252,6 +253,7 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
                 data={promotersByShiftsData} 
                 loading={loading}
                 byShifts
+                sessionToken={sessionToken}
               />
             </TabsContent>
           </Tabs>

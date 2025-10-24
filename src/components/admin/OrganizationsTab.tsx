@@ -223,14 +223,13 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                 </div>
               ))}
               {organizations.length > 4 && (
-                <div className="pt-2">
+                <div className="pt-2 md:pt-3">
                   <Button
                     onClick={() => setShowAll(!showAll)}
-                    className="w-full glass-button bg-white/5 hover:bg-white/10 text-white border-2 border-white/10 transition-all duration-300"
-                    variant="outline"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 transition-all duration-300 h-10 md:h-11 text-sm md:text-base font-medium"
                   >
-                    <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} className="mr-2" />
-                    {showAll ? `Скрыть (${organizations.length - 4})` : `Показать ещё (${organizations.length - 4})`}
+                    <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} className="mr-2 md:w-[18px] md:h-[18px]" />
+                    {showAll ? `Скрыть` : `Показать все (${organizations.length})`}
                   </Button>
                 </div>
               )}

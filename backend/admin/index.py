@@ -787,12 +787,11 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 with conn.cursor() as cur:
                     cur.execute("""
                         SELECT o.id, o.name, o.created_at,
-                               COALESCE(SUM(a.contact_count), 0) as lead_count
+                               COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as lead_count
                         FROM t_p24058207_website_creation_pro.organizations o
-                        LEFT JOIN t_p24058207_website_creation_pro.archive_leads_analytics a 
-                            ON o.id = a.organization_id 
-                            AND a.lead_type = 'контакт' 
-                            AND (a.is_excluded = FALSE OR a.is_excluded IS NULL)
+                        LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
+                            ON o.id = l.organization_id 
+                            AND l.is_active = true
                         GROUP BY o.id, o.name, o.created_at
                         ORDER BY o.name
                     """)

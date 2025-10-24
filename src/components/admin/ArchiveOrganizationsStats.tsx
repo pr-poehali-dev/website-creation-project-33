@@ -28,6 +28,7 @@ export default function ArchiveOrganizationsStats({
   const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
   const [promotersDetails, setPromotersDetails] = useState<Record<string, PromoterDetail[]>>({});
   const [loadingDetails, setLoadingDetails] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const toggleOrganization = async (orgName: string) => {
     if (expandedOrg === orgName) {
@@ -168,8 +169,8 @@ export default function ArchiveOrganizationsStats({
           </div>
         </div>
 
-        <div className="space-y-2 md:space-y-3 max-h-[600px] overflow-y-auto">
-          {sortedData.map((org, index) => {
+        <div className="space-y-2 md:space-y-3">
+          {(showAll ? sortedData : sortedData.slice(0, 10)).map((org, index) => {
             const isExpanded = expandedOrg === org.organization;
             const details = promotersDetails[org.organization];
 
@@ -284,6 +285,27 @@ export default function ArchiveOrganizationsStats({
           <div className="text-center py-6 md:py-8 text-gray-600">
             <Icon name="Search" size={24} className="md:w-8 md:h-8 mx-auto mb-2 md:mb-3 opacity-40" />
             <p className="text-sm md:text-base">Организация не найдена</p>
+          </div>
+        )}
+
+        {!searchTerm && sortedData.length > 10 && (
+          <div className="mt-4 md:mt-6 text-center">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="px-4 md:px-6 py-2 md:py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium text-sm md:text-base transition-all duration-300 flex items-center gap-2 mx-auto"
+            >
+              {showAll ? (
+                <>
+                  <Icon name="ChevronUp" size={18} />
+                  Скрыть
+                </>
+              ) : (
+                <>
+                  <Icon name="ChevronDown" size={18} />
+                  Показать все ({sortedData.length})
+                </>
+              )}
+            </button>
           </div>
         )}
       </CardContent>

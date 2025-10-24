@@ -104,7 +104,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         JOIN {schema}.users u ON l.user_id = u.id
         WHERE 
           l.is_active = true 
-          AND u.is_active = true
           AND l.lead_type = 'контакт'
           AND NOT EXISTS (
             SELECT 1 

@@ -177,22 +177,36 @@ export default function ArchivePromotersByDays({
                     </div>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div
-                    className={`px-2 py-1 md:px-4 md:py-2 rounded-lg ${
-                      promoter.rank === 1
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : promoter.rank === 2
-                        ? 'bg-gray-200 text-gray-800'
-                        : promoter.rank === 3
-                        ? 'bg-orange-100 text-orange-800'
-                        : byShifts
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-blue-100 text-blue-800'
-                    }`}
-                  >
-                    <p className="text-lg md:text-2xl font-bold">{promoter.daysWorked}</p>
-                    <p className="text-[10px] md:text-xs font-medium">{getDaysText(promoter.daysWorked)}</p>
+                <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                  {byShifts && (
+                    <div className="text-right">
+                      <div className="px-2 py-1 md:px-3 md:py-1.5 rounded-lg bg-gray-100">
+                        <p className="text-sm md:text-lg font-bold text-gray-700">
+                          {promoter.daysWorked > 0 
+                            ? Math.round(promoter.contacts / promoter.daysWorked) 
+                            : 0}
+                        </p>
+                        <p className="text-[9px] md:text-[10px] font-medium text-gray-600">средн./смена</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-right">
+                    <div
+                      className={`px-2 py-1 md:px-4 md:py-2 rounded-lg ${
+                        promoter.rank === 1
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : promoter.rank === 2
+                          ? 'bg-gray-200 text-gray-800'
+                          : promoter.rank === 3
+                          ? 'bg-orange-100 text-orange-800'
+                          : byShifts
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-blue-100 text-blue-800'
+                      }`}
+                    >
+                      <p className="text-lg md:text-2xl font-bold">{promoter.daysWorked}</p>
+                      <p className="text-[10px] md:text-xs font-medium">{getDaysText(promoter.daysWorked)}</p>
+                    </div>
                   </div>
                 </div>
               </div>

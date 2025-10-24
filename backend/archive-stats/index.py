@@ -312,11 +312,14 @@ def get_organizations_stats() -> List[Dict[str, Any]]:
             
             result = []
             for row in cur.fetchall():
-                result.append({
+                org_data = {
                     'organization': row[0],
                     'promoters': int(row[1]),
                     'contacts': int(row[2])
-                })
+                }
+                result.append(org_data)
+                if row[0] == 'Сотка':
+                    print(f"DEBUG Сотка: promoters={row[1]}, contacts={row[2]}")
             
             return result
     finally:

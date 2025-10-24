@@ -45,6 +45,7 @@ interface OrganizationStats {
 export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabProps) {
   const [activeSubTab, setActiveSubTab] = useState('chart');
   const [activePromotersTab, setActivePromotersTab] = useState('contacts');
+  const [promotersByShiftsData, setPromotersByShiftsData] = useState<PromoterByDays[]>([]);
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [promotersData, setPromotersData] = useState<PromoterRating[]>([]);
@@ -79,6 +80,8 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
         setPromotersData(result.data || []);
       } else if (action === 'promoters_by_days') {
         setPromotersByDaysData(result.data || []);
+      } else if (action === 'promoters_by_shifts') {
+        setPromotersByShiftsData(result.data || []);
       } else if (action === 'organizations') {
         setOrganizationsData(result.data || []);
       }
@@ -98,6 +101,7 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
     setChartData([]);
     setPromotersData([]);
     setPromotersByDaysData([]);
+    setPromotersByShiftsData([]);
     setOrganizationsData([]);
     
     if (activeSubTab === 'chart') {
@@ -105,8 +109,10 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
     } else if (activeSubTab === 'promoters') {
       if (activePromotersTab === 'contacts') {
         fetchArchiveData('promoters');
-      } else {
+      } else if (activePromotersTab === 'days') {
         fetchArchiveData('promoters_by_days');
+      } else if (activePromotersTab === 'shifts') {
+        fetchArchiveData('promoters_by_shifts');
       }
     } else if (activeSubTab === 'organizations') {
       fetchArchiveData('organizations');
@@ -121,13 +127,15 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
         fetchArchiveData('promoters');
       } else if (activePromotersTab === 'days' && promotersByDaysData.length === 0) {
         fetchArchiveData('promoters_by_days');
+      } else if (activePromotersTab === 'shifts' && promotersByShiftsData.length === 0) {
+        fetchArchiveData('promoters_by_shifts');
       }
     } else if (enabled && activeSubTab === 'organizations' && organizationsData.length === 0) {
       fetchArchiveData('organizations');
     }
   }, [enabled, activeSubTab, activePromotersTab]);
 
-  if (loading && chartData.length === 0 && promotersData.length === 0 && promotersByDaysData.length === 0 && organizationsData.length === 0) {
+  if (loading && chartData.length === 0 && promotersData.length === 0 && promotersByDaysData.length === 0 && promotersByShiftsData.length === 0 && organizationsData.length === 0) {
     return (
       <Card className="bg-white border-gray-200 rounded-2xl">
         <CardContent className="p-4 md:p-8">
@@ -196,7 +204,7 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
 
         <TabsContent value="promoters">
           <Tabs value={activePromotersTab} onValueChange={setActivePromotersTab} className="space-y-3 md:space-y-4">
-            <TabsList className="grid w-full grid-cols-2 admin-card h-10 md:h-12 p-0.5 md:p-1">
+            <TabsList className="grid w-full grid-cols-3 admin-card h-10 md:h-12 p-0.5 md:p-1">
               <TabsTrigger
                 value="contacts"
                 className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
@@ -210,6 +218,13 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
               >
                 <Icon name="Briefcase" size={12} className="md:w-[14px] md:h-[14px]" />
                 <span>По стажу</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="shifts"
+                className="flex items-center gap-1 md:gap-2 text-slate-600 data-[state=active]:bg-green-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium"
+              >
+                <Icon name="CalendarCheck" size={12} className="md:w-[14px] md:h-[14px]" />
+                <span>По сменам</span>
               </TabsTrigger>
             </TabsList>
 
@@ -229,6 +244,14 @@ export default function ArchiveTab({ enabled = true, sessionToken }: ArchiveTabP
               <ArchivePromotersByDays 
                 data={promotersByDaysData} 
                 loading={loading}
+              />
+            </TabsContent>
+
+            <TabsContent value="shifts">
+              <ArchivePromotersByDays 
+                data={promotersByShiftsData} 
+                loading={loading}
+                byShifts
               />
             </TabsContent>
           </Tabs>

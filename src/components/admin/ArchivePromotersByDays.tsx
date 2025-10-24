@@ -15,11 +15,13 @@ interface PromoterByDays {
 interface ArchivePromotersByDaysProps {
   data: PromoterByDays[];
   loading: boolean;
+  byShifts?: boolean;
 }
 
 export default function ArchivePromotersByDays({
   data,
   loading,
+  byShifts = false,
 }: ArchivePromotersByDaysProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -79,6 +81,11 @@ export default function ArchivePromotersByDays({
   };
 
   const getDaysText = (days: number) => {
+    if (byShifts) {
+      if (days === 1) return 'смена';
+      if (days >= 2 && days <= 4) return 'смены';
+      return 'смен';
+    }
     if (days === 1) return 'день';
     if (days >= 2 && days <= 4) return 'дня';
     return 'дней';
@@ -91,10 +98,10 @@ export default function ArchivePromotersByDays({
     <Card className="bg-white border-gray-200 rounded-2xl hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-base md:text-xl">
-          <div className="p-1.5 md:p-2 rounded-lg bg-blue-100">
-            <Icon name="Briefcase" size={16} className="md:w-5 md:h-5 text-blue-600" />
+          <div className={`p-1.5 md:p-2 rounded-lg ${byShifts ? 'bg-green-100' : 'bg-blue-100'}`}>
+            <Icon name={byShifts ? "CalendarCheck" : "Briefcase"} size={16} className={`md:w-5 md:h-5 ${byShifts ? 'text-green-600' : 'text-blue-600'}`} />
           </div>
-          Рейтинг промоутеров по стажу
+          {byShifts ? 'Рейтинг промоутеров по сменам' : 'Рейтинг промоутеров по стажу'}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -114,18 +121,18 @@ export default function ArchivePromotersByDays({
           </div>
         </div>
 
-        <div className="mb-4 md:mb-6 p-3 md:p-4 bg-blue-50 rounded-lg">
+        <div className={`mb-4 md:mb-6 p-3 md:p-4 rounded-lg ${byShifts ? 'bg-green-50' : 'bg-blue-50'}`}>
           <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
             <div>
-              <p className="text-lg md:text-2xl font-bold text-blue-600">{data.length}</p>
+              <p className={`text-lg md:text-2xl font-bold ${byShifts ? 'text-green-600' : 'text-blue-600'}`}>{data.length}</p>
               <p className="text-xs md:text-sm text-gray-600">Промоутеров</p>
             </div>
             <div>
-              <p className="text-lg md:text-2xl font-bold text-blue-600">{totalDays}</p>
-              <p className="text-xs md:text-sm text-gray-600">Всего дней</p>
+              <p className={`text-lg md:text-2xl font-bold ${byShifts ? 'text-green-600' : 'text-blue-600'}`}>{totalDays}</p>
+              <p className="text-xs md:text-sm text-gray-600">{byShifts ? 'Всего смен' : 'Всего дней'}</p>
             </div>
             <div>
-              <p className="text-lg md:text-2xl font-bold text-blue-600">{avgDays}</p>
+              <p className={`text-lg md:text-2xl font-bold ${byShifts ? 'text-green-600' : 'text-blue-600'}`}>{avgDays}</p>
               <p className="text-xs md:text-sm text-gray-600">Средний</p>
             </div>
           </div>
@@ -137,7 +144,11 @@ export default function ArchivePromotersByDays({
               key={promoter.rank}
               className={`p-3 md:p-4 rounded-xl border transition-all duration-300 hover:shadow-lg ${
                 promoter.rank <= 3
-                  ? 'border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50'
+                  ? byShifts
+                    ? 'border-green-200 bg-gradient-to-r from-green-50 to-emerald-50'
+                    : 'border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50'
+                  : byShifts
+                  ? 'border-gray-200 hover:border-green-200'
                   : 'border-gray-200 hover:border-blue-200'
               }`}
             >
@@ -175,6 +186,8 @@ export default function ArchivePromotersByDays({
                         ? 'bg-gray-200 text-gray-800'
                         : promoter.rank === 3
                         ? 'bg-orange-100 text-orange-800'
+                        : byShifts
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-blue-100 text-blue-800'
                     }`}
                   >

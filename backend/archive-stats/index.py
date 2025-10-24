@@ -174,6 +174,50 @@ def get_promoters_by_days() -> List[Dict[str, Any]]:
     finally:
         conn.close()
 
+def get_promoters_by_shifts() -> List[Dict[str, Any]]:
+    '''Get promoters rating by number of shifts (unique days worked)'''
+    conn = get_db_connection()
+    
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT 
+                    COALESCE(l.promoter_name, u.name) as promoter_name, 
+                    COUNT(DISTINCT DATE(l.created_at)) as shifts_count,
+                    MIN(DATE(l.created_at)) as first_date,
+                    MAX(DATE(l.created_at)) as last_date,
+                    SUM(l.contact_count) as total_contacts
+                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
+                LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                GROUP BY COALESCE(l.promoter_name, u.name)
+            """)
+            
+            result = []
+            for row in cur.fetchall():
+                promoter_name = row[0] or 'Неизвестно'
+                shifts_count = int(row[1])
+                first_date = row[2]
+                last_date = row[3]
+                total_contacts = int(row[4])
+                
+                result.append({
+                    'name': promoter_name,
+                    'daysWorked': shifts_count,
+                    'contacts': total_contacts,
+                    'firstDate': first_date.isoformat() if first_date else '',
+                    'lastDate': last_date.isoformat() if last_date else ''
+                })
+            
+            result.sort(key=lambda x: x['daysWorked'], reverse=True)
+            
+            for i, promoter in enumerate(result, 1):
+                promoter['rank'] = i
+            
+            return result
+    finally:
+        conn.close()
+
 def get_organizations_stats() -> List[Dict[str, Any]]:
     '''Get organizations statistics'''
     conn = get_db_connection()
@@ -303,6 +347,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             data = get_promoters_rating()
         elif action == 'promoters_by_days':
             data = get_promoters_by_days()
+        elif action == 'promoters_by_shifts':
+            data = get_promoters_by_shifts()
         elif action == 'organizations':
             data = get_organizations_stats()
         elif action == 'organization_promoters':

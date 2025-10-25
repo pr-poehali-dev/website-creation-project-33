@@ -1078,6 +1078,51 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'body': json.dumps({'error': 'Организация не найдена'})
                         }
         
+        elif action == 'update_organization':
+            org_id = body_data.get('id')
+            name = body_data.get('name', '').strip()
+            
+            if not org_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID организации обязателен'})
+                }
+            
+            if not name:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Название организации обязательно'})
+                }
+            
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "UPDATE t_p24058207_website_creation_pro.organizations SET name = %s WHERE id = %s",
+                            (name, org_id)
+                        )
+                        conn.commit()
+                        if cur.rowcount > 0:
+                            return {
+                                'statusCode': 200,
+                                'headers': headers,
+                                'body': json.dumps({'success': True})
+                            }
+                        else:
+                            return {
+                                'statusCode': 404,
+                                'headers': headers,
+                                'body': json.dumps({'error': 'Организация не найдена'})
+                            }
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': f'Ошибка обновления: {str(e)}'})
+                }
+        
         elif action == 'add_shift':
             print(f'✅ Processing add_shift')
             user_id = body_data.get('user_id')

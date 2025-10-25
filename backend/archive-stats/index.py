@@ -31,11 +31,12 @@ def get_chart_data() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT 
                     l.created_at,
-                    COALESCE(l.promoter_name, u.name) as promoter_name, 
-                    l.contact_count
-                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
-                LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                    u.name as promoter_name, 
+                    COUNT(*) as contact_count
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.lead_type = 'контакт' AND l.is_active = TRUE
+                GROUP BY l.created_at, u.name
                 ORDER BY l.created_at
             """)
             
@@ -82,12 +83,12 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
-                    COALESCE(l.promoter_name, u.name) as promoter_name, 
-                    SUM(l.contact_count) as total_contacts
-                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
-                LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
-                GROUP BY COALESCE(l.promoter_name, u.name)
+                    u.name as promoter_name, 
+                    COUNT(*) as total_contacts
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.lead_type = 'контакт' AND l.is_active = TRUE
+                GROUP BY u.name
                 ORDER BY total_contacts DESC
             """)
             
@@ -101,11 +102,13 @@ def get_promoters_rating() -> List[Dict[str, Any]]:
                 cur.execute(f"""
                     SELECT 
                         l.created_at,
-                        l.contact_count
-                    FROM t_p24058207_website_creation_pro.archive_leads_analytics l
-                    WHERE COALESCE(l.promoter_name, '') = '{escaped_name}'
+                        COUNT(*) as contact_count
+                    FROM t_p24058207_website_creation_pro.leads_analytics l
+                    JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                    WHERE u.name = '{escaped_name}'
                       AND l.lead_type = 'контакт' 
-                      AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                      AND l.is_active = TRUE
+                    GROUP BY l.created_at
                     ORDER BY l.created_at DESC
                 """)
                 
@@ -147,14 +150,14 @@ def get_promoters_by_days() -> List[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
-                    COALESCE(l.promoter_name, u.name) as promoter_name, 
+                    u.name as promoter_name, 
                     MIN(l.created_at) as first_date,
                     MAX(l.created_at) as last_date,
-                    SUM(l.contact_count) as total_contacts
-                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
-                LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
-                GROUP BY COALESCE(l.promoter_name, u.name)
+                    COUNT(*) as total_contacts
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.lead_type = 'контакт' AND l.is_active = TRUE
+                GROUP BY u.name
             """)
             
             result = []
@@ -200,12 +203,13 @@ def get_promoters_by_shifts() -> List[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT 
-                    COALESCE(l.promoter_name, u.name) as promoter_name, 
+                    u.name as promoter_name, 
                     l.created_at,
-                    l.contact_count
-                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
-                LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                    COUNT(*) as contact_count
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.lead_type = 'контакт' AND l.is_active = TRUE
+                GROUP BY u.name, l.created_at
             """)
             
             promoters_data = {}
@@ -268,12 +272,12 @@ def get_promoter_weekly_stats(promoter_name: str) -> List[Dict[str, Any]]:
             cur.execute(f"""
                 SELECT 
                     DATE_TRUNC('week', l.created_at)::date as week_start,
-                    SUM(l.contact_count) as weekly_contacts
-                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
-                LEFT JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE COALESCE(l.promoter_name, u.name) = '{escaped_name}'
+                    COUNT(*) as weekly_contacts
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE u.name = '{escaped_name}'
                   AND l.lead_type = 'контакт' 
-                  AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                  AND l.is_active = TRUE
                 GROUP BY week_start
                 ORDER BY week_start
             """)
@@ -301,11 +305,12 @@ def get_organizations_stats() -> List[Dict[str, Any]]:
             cur.execute("""
                 SELECT 
                     o.name as organization_name,
-                    COUNT(DISTINCT l.promoter_name) as promoters_count,
-                    SUM(l.contact_count) as total_contacts
-                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
+                    COUNT(DISTINCT u.name) as promoters_count,
+                    COUNT(*) as total_contacts
+                FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE l.lead_type = 'контакт' AND l.is_active = TRUE
                 GROUP BY o.name
                 ORDER BY total_contacts DESC
             """)
@@ -335,12 +340,13 @@ def get_organization_promoters(organization_name: str) -> List[Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute(f"""
                 SELECT 
-                    l.promoter_name,
-                    SUM(l.contact_count) as total_contacts
-                FROM t_p24058207_website_creation_pro.archive_leads_analytics l
+                    u.name as promoter_name,
+                    COUNT(*) as total_contacts
+                FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE o.name = '{escaped_name}' AND l.lead_type = 'контакт' AND (l.is_excluded = FALSE OR l.is_excluded IS NULL)
-                GROUP BY l.promoter_name
+                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                WHERE o.name = '{escaped_name}' AND l.lead_type = 'контакт' AND l.is_active = TRUE
+                GROUP BY u.name
                 ORDER BY total_contacts DESC
             """)
             

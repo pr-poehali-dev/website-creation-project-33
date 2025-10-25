@@ -16,7 +16,7 @@ interface OrganizationStat {
 }
 
 export default function OrganizationStatsChart() {
-  const { data: orgStatsData = [], isLoading } = useOrganizationStats(true);
+  const { data: orgStatsData = [], isLoading, refetch } = useOrganizationStats(true);
   const [timeRange, setTimeRange] = React.useState<'week' | 'month' | 'year'>('week');
   const [selectedOrg, setSelectedOrg] = React.useState<string | null>(null);
   const [selectedWeekIndex, setSelectedWeekIndex] = React.useState<number>(0);
@@ -194,11 +194,21 @@ export default function OrganizationStatsChart() {
   return (
     <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-3 md:pb-4">
-        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
-          <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-            <Icon name="Building2" size={18} className="text-gray-900 md:w-5 md:h-5" />
+        <CardTitle className="flex items-center justify-between gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
+              <Icon name="Building2" size={18} className="text-gray-900 md:w-5 md:h-5" />
+            </div>
+            Статистика по организациям
           </div>
-          Статистика по организациям
+          <Button
+            onClick={() => refetch()}
+            variant="outline"
+            size="sm"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-200"
+          >
+            <Icon name="RefreshCw" size={14} className="md:w-4 md:h-4" />
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent>

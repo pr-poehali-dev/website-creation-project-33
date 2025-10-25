@@ -109,7 +109,9 @@ export default function ArchivePromotersByDays({
   };
 
   const totalDays = data.reduce((sum, p) => sum + p.daysWorked, 0);
+  const totalContacts = data.reduce((sum, p) => sum + p.contacts, 0);
   const avgDays = Math.round(totalDays / data.length);
+  const avgContactsPerShift = byShifts && totalDays > 0 ? Math.round(totalContacts / totalDays) : avgDays;
 
   const handlePromoterClick = async (promoter: PromoterByDays) => {
     if (!byShifts) return;
@@ -194,8 +196,8 @@ export default function ArchivePromotersByDays({
               <p className="text-xs md:text-sm text-gray-600">{byShifts ? 'Всего смен' : 'Всего дней'}</p>
             </div>
             <div>
-              <p className={`text-lg md:text-2xl font-bold ${byShifts ? 'text-green-600' : 'text-blue-600'}`}>{avgDays}</p>
-              <p className="text-xs md:text-sm text-gray-600">Средний</p>
+              <p className={`text-lg md:text-2xl font-bold ${byShifts ? 'text-green-600' : 'text-blue-600'}`}>{byShifts ? avgContactsPerShift : avgDays}</p>
+              <p className="text-xs md:text-sm text-gray-600">{byShifts ? 'Средний за смену' : 'Средний'}</p>
             </div>
           </div>
         </div>

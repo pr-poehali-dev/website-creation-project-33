@@ -96,7 +96,8 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
       if (selectedPromoter === 'all') {
         return item.total > 0;
       }
-      return item[selectedPromoter] > 0;
+      const promoterValue = item[selectedPromoter];
+      return promoterValue !== undefined && promoterValue > 0;
     });
 
   const CustomTooltip = ({ active, payload }: any) => {

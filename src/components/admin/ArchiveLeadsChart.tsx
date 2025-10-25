@@ -81,16 +81,23 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
 
   const filteredData = getFilteredChartData();
 
-  const chartDataFormatted = filteredData.map((item) => {
-    const formatted: any = { date: item.date, total: item.total };
-    
-    if (selectedPromoter !== 'all') {
-      const user = item.users.find(u => u.name === selectedPromoter);
-      formatted[selectedPromoter] = user ? user.count : 0;
-    }
-    
-    return formatted;
-  });
+  const chartDataFormatted = filteredData
+    .map((item) => {
+      const formatted: any = { date: item.date, total: item.total };
+      
+      if (selectedPromoter !== 'all') {
+        const user = item.users.find(u => u.name === selectedPromoter);
+        formatted[selectedPromoter] = user ? user.count : 0;
+      }
+      
+      return formatted;
+    })
+    .filter((item) => {
+      if (selectedPromoter === 'all') {
+        return item.total > 0;
+      }
+      return item[selectedPromoter] > 0;
+    });
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload) return null;

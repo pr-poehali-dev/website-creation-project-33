@@ -1,0 +1,263 @@
+# Duplicate Contact Analysis Summary
+
+## Reference Data File Found
+
+**File Path:** `/user_list.txt` (project root)
+
+This file contains reference contact data that was used to validate September 2025 duplicates and can now be used to validate June-August 2025 duplicates.
+
+### File Format
+Each line contains tab-separated values:
+```
+DD.MM.YYYY	Organization Name	Promoter Name	Expected Count
+```
+
+Example entries:
+```
+24.09.2025	Юниум Люблино		Ольга Алексеева	1
+25.09.2025	Юниум Люблино		Ольга Алексеева	7
+26.09.2025	ТОП Беляево		Ольга Алексеева	7
+```
+
+## Previous Duplicate Fixes
+
+The pattern from September fix (`db_migrations/V0101__fix_september_duplicates.sql`):
+- Compared actual database counts vs expected counts from `user_list.txt`
+- Identified records where actual = 2x expected
+- Deactivated excess records (keeping first X by ID)
+
+Example from September fix:
+```sql
+-- 25.09 | Юниум Люблино | Ольга Алексеева: оставить 7 из 14
+WITH ranked AS (
+  SELECT l.id, ROW_NUMBER() OVER (ORDER BY l.id ASC) as rn
+  FROM t_p24058207_website_creation_pro.leads_analytics l
+  JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+  JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+  WHERE l.is_active = true 
+    AND l.lead_type = 'контакт'
+    AND DATE(l.created_at + interval '3 hours') = '2025-09-25'
+    AND o.name = 'Юниум Люблино'
+    AND u.name = 'Ольга Алексеева'
+)
+UPDATE t_p24058207_website_creation_pro.leads_analytics
+SET is_active = false
+WHERE id IN (SELECT id FROM ranked WHERE rn > 7);
+```
+
+## Analysis Scripts Created
+
+### 1. Extract Data Script
+**File:** `extract_june_august_data.js`
+
+Extracts all June-August 2025 records from `user_list.txt` and provides statistics.
+
+```bash
+bun run extract_june_august_data.js
+```
+
+### 2. Verification Query Generator
+**File:** `generate_june_august_check.js`
+
+Generates SQL query to find duplicates without database connection.
+
+```bash
+bun run generate_june_august_check.js
+```
+
+**Output:** `june_august_verification.sql`
+
+### 3. Full Analysis with Database Connection
+**File:** `analyze_june_august_duplicates.js`
+
+Connects to database, finds duplicates, generates fix SQL.
+
+**Requirements:**
+- Database must be accessible
+- Set `DATABASE_URL` environment variable OR update connection string in script
+
+```bash
+export DATABASE_URL="postgresql://user:pass@host:port/database"
+bun run analyze_june_august_duplicates.js
+```
+
+**Output:** 
+- Console output with all duplicates
+- `fix_june_august_duplicates.sql` - Fix statements
+
+### 4. Manual Fix Template Generator
+**File:** `generate_fix_template.js`
+
+For manual workflow after running verification query.
+
+```bash
+# Edit file to add duplicate records
+# Then run:
+bun run generate_fix_template.js
+```
+
+## Recommended Next Steps
+
+### Option A: Automated Analysis (Recommended)
+
+1. **Verify database connection:**
+   ```bash
+   echo $DATABASE_URL
+   # Should output something like: postgresql://user:pass@host:port/db
+   ```
+
+2. **Run full analysis:**
+   ```bash
+   bun run analyze_june_august_duplicates.js
+   ```
+
+3. **Review output:**
+   - Script will print all duplicates found to console
+   - SQL fix statements will be saved to `fix_june_august_duplicates.sql`
+
+4. **Review the SQL file before applying:**
+   ```bash
+   cat fix_june_august_duplicates.sql
+   ```
+
+5. **Apply fixes (after review!):**
+   ```bash
+   psql $DATABASE_URL < fix_june_august_duplicates.sql
+   ```
+
+### Option B: Manual Analysis (No Database Connection)
+
+1. **Generate verification query:**
+   ```bash
+   bun run generate_june_august_check.js
+   ```
+
+2. **Run verification query in your PostgreSQL client:**
+   ```bash
+   psql $DATABASE_URL < june_august_verification.sql
+   ```
+
+3. **Review results and identify duplicates**
+
+4. **Edit `generate_fix_template.js`:**
+   - Add duplicate records to the array
+   - Follow the format in the comments
+
+5. **Generate fix SQL:**
+   ```bash
+   bun run generate_fix_template.js
+   ```
+
+6. **Apply fixes:**
+   ```bash
+   psql $DATABASE_URL < fix_june_august_duplicates.sql
+   ```
+
+### Option C: Just Extract Data First
+
+To see what data we're working with:
+
+```bash
+bun run extract_june_august_data.js
+```
+
+This will show all June-August records and save them to `june_august_records.json`.
+
+## Expected Data Range
+
+The analysis covers:
+- **Start Date:** 01.06.2025 (June 1, 2025)
+- **End Date:** 31.08.2025 (August 31, 2025)
+
+Based on typical patterns in `user_list.txt`, we expect to find:
+- Multiple records per day
+- Various organizations (ТОП locations, КиберВан, etc.)
+- Various promoters
+- Contact counts ranging from 1 to 40+
+
+## Duplicate Detection Criteria
+
+A record is flagged as a duplicate if:
+```
+Actual Count in Database = Expected Count from user_list.txt × 2
+```
+
+This is the same pattern observed in September and October fixes.
+
+## Files in This Analysis
+
+| File | Purpose | Generated By |
+|------|---------|--------------|
+| `user_list.txt` | Reference data source | Manual (already exists) |
+| `extract_june_august_data.js` | Extract and display records | Created |
+| `generate_june_august_check.js` | Generate verification SQL | Created |
+| `analyze_june_august_duplicates.js` | Full automated analysis | Created |
+| `generate_fix_template.js` | Manual fix generator | Created |
+| `june_august_records.json` | Extracted records data | Generated (option C) |
+| `june_august_verification.sql` | Verification query | Generated (option B) |
+| `fix_june_august_duplicates.sql` | Fix statements | Generated (option A or B) |
+| `JUNE_AUGUST_DUPLICATE_ANALYSIS.md` | Detailed documentation | Created |
+| `DUPLICATE_ANALYSIS_SUMMARY.md` | This file | Created |
+
+## Safety Considerations
+
+1. **Backup First:** Consider backing up the database before applying any fixes
+2. **Review SQL:** Always review generated SQL before running
+3. **Test Environment:** If possible, test on a copy of the database first
+4. **Soft Delete:** The fixes use `is_active = false` (soft delete) not DELETE
+5. **Reversible:** Changes can be reversed by setting `is_active = true` again
+
+## Questions to Answer Before Proceeding
+
+1. **Do you have database access?** 
+   - Yes → Use Option A (automated)
+   - No → Use Option B (manual)
+
+2. **What's your DATABASE_URL?**
+   - Check with: `echo $DATABASE_URL`
+   - If not set, you'll need to configure it
+
+3. **Do you want to see the data first?**
+   - Yes → Run Option C first (extract data)
+   - No → Proceed directly to Option A or B
+
+## Example Expected Output
+
+When you run the analysis, you might see output like:
+
+```
+Found 150 expected records for June-August 2025
+
+Querying database for actual counts...
+
+DUPLICATE FOUND: 01.06.2025 | Воркаут Царицыно | Артём | Expected: 5, Actual: 10
+DUPLICATE FOUND: 04.06.2025 | ТОП Беляево | Дамир | Expected: 17, Actual: 34
+...
+
+========================================
+Total duplicates found (2x): 25
+========================================
+
+SQL fix statements written to: fix_june_august_duplicates.sql
+```
+
+## Next Action Required
+
+**Please choose one of the following:**
+
+1. Run automated analysis (requires database connection):
+   ```bash
+   bun run analyze_june_august_duplicates.js
+   ```
+
+2. Generate verification SQL only (no database needed):
+   ```bash
+   bun run generate_june_august_check.js
+   ```
+
+3. Just see the data first:
+   ```bash
+   bun run extract_june_august_data.js
+   ```
+
+Let me know which option you'd like to proceed with, or if you need help configuring database access.

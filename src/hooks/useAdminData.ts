@@ -19,7 +19,6 @@ export function useUsers(enabled = true) {
       return data.users;
     },
     enabled,
-    staleTime: Infinity,
   });
 }
 
@@ -36,7 +35,6 @@ export function useStats(enabled = true) {
       return response.json();
     },
     enabled,
-    staleTime: Infinity,
   });
 }
 
@@ -54,7 +52,6 @@ export function useChartData(enabled = true) {
       return data.chart_data;
     },
     enabled,
-    staleTime: Infinity,
   });
 }
 
@@ -72,7 +69,6 @@ export function useOrganizationStats(enabled = true) {
       return data.organization_stats;
     },
     enabled,
-    staleTime: Infinity,
   });
 }
 
@@ -109,7 +105,6 @@ export function useDailyUserStats(date: string | null) {
       return response.json();
     },
     enabled: !!date,
-    staleTime: Infinity,
   });
 }
 
@@ -127,7 +122,6 @@ export function useOrganizations(enabled = true) {
       return data.organizations || [];
     },
     enabled,
-    staleTime: Infinity,
   });
 }
 
@@ -252,7 +246,6 @@ export function useChatMessages(userId: string | null) {
       return response.json();
     },
     enabled: !!userId,
-    staleTime: Infinity,
   });
 }
 

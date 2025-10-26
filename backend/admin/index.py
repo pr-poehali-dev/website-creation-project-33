@@ -774,7 +774,7 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
                     l.lead_type
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE l.user_id = %s AND l.is_active = true AND l.lead_type = 'контакт'
+                WHERE l.user_id = %s AND l.is_active = true
             """, (user_id,))
             
             org_data = {}
@@ -782,6 +782,7 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
                 org_id = row[0]
                 org_name = row[1]
                 created_at = row[2]
+                lead_type = row[3]
                 
                 moscow_dt = get_moscow_time_from_utc(created_at)
                 moscow_date = moscow_dt.date()
@@ -795,9 +796,10 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
                 
                 org_data[key]['dates'].add(moscow_date)
                 
-                if moscow_date not in org_data[key]['daily_contacts']:
-                    org_data[key]['daily_contacts'][moscow_date] = 0
-                org_data[key]['daily_contacts'][moscow_date] += 1
+                if lead_type == 'контакт':
+                    if moscow_date not in org_data[key]['daily_contacts']:
+                        org_data[key]['daily_contacts'][moscow_date] = 0
+                    org_data[key]['daily_contacts'][moscow_date] += 1
             
             org_stats = []
             for (org_id, org_name), data in org_data.items():

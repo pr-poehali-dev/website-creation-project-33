@@ -9,12 +9,11 @@ interface UsersRankingProps {
   userStats: UserStats[];
 }
 
-type RankingType = 'contacts' | 'approaches' | 'shifts' | 'avg_per_shift';
+type RankingType = 'contacts' | 'shifts' | 'avg_per_shift';
 
 export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
   const [showAllContacts, setShowAllContacts] = useState(false);
-  const [showAllApproaches, setShowAllApproaches] = useState(false);
   const [showAllShifts, setShowAllShifts] = useState(false);
   const [showAllAvg, setShowAllAvg] = useState(false);
 
@@ -22,8 +21,6 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const sortedUsers = [...userStats].sort((a, b) => {
     if (rankingType === 'contacts') {
       return b.contacts - a.contacts;
-    } else if (rankingType === 'approaches') {
-      return b.approaches - a.approaches;
     } else if (rankingType === 'shifts') {
       return (b.shifts_count || 0) - (a.shifts_count || 0);
     } else {
@@ -35,8 +32,6 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const displayUsers = (() => {
     if (rankingType === 'contacts') {
       return showAllContacts ? sortedUsers : sortedUsers.slice(0, 4);
-    } else if (rankingType === 'approaches') {
-      return showAllApproaches ? sortedUsers : sortedUsers.slice(0, 4);
     } else if (rankingType === 'shifts') {
       return showAllShifts ? sortedUsers : sortedUsers.slice(0, 4);
     } else {
@@ -47,7 +42,6 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const hasMore = sortedUsers.length > 4;
   const isExpanded = (() => {
     if (rankingType === 'contacts') return showAllContacts;
-    if (rankingType === 'approaches') return showAllApproaches;
     if (rankingType === 'shifts') return showAllShifts;
     return showAllAvg;
   })();
@@ -55,8 +49,6 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const toggleExpand = () => {
     if (rankingType === 'contacts') {
       setShowAllContacts(!showAllContacts);
-    } else if (rankingType === 'approaches') {
-      setShowAllApproaches(!showAllApproaches);
     } else if (rankingType === 'shifts') {
       setShowAllShifts(!showAllShifts);
     } else {
@@ -66,7 +58,6 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
 
   const getRankingTitle = () => {
     if (rankingType === 'contacts') return 'по контактам';
-    if (rankingType === 'approaches') return 'по подходам';
     if (rankingType === 'shifts') return 'по сменам';
     return 'по среднему за смену';
   };
@@ -95,18 +86,6 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
           >
             <Icon name="UserCheck" size={14} className="mr-1.5" />
             Контакты
-          </Button>
-          <Button
-            onClick={() => setRankingType('approaches')}
-            variant={rankingType === 'approaches' ? 'default' : 'outline'}
-            size="sm"
-            className={`transition-all duration-300 ${rankingType === 'approaches'
-              ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
-              : 'bg-gray-100 hover:bg-gray-100 text-orange-400 border-orange-400/30'
-            }`}
-          >
-            <Icon name="Users" size={14} className="mr-1.5" />
-            Подходы
           </Button>
           <Button
             onClick={() => setRankingType('shifts')}

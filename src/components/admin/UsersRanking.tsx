@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { UserStats } from './types';
@@ -16,9 +17,20 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [showAllContacts, setShowAllContacts] = useState(false);
   const [showAllShifts, setShowAllShifts] = useState(false);
   const [showAllAvg, setShowAllAvg] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Сортируем пользователей в зависимости от выбранного типа
-  const sortedUsers = [...userStats].sort((a, b) => {
+  // Фильтруем пользователей по поисковому запросу
+  const filteredUsers = userStats.filter(user => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      user.name?.toLowerCase().includes(query) ||
+      user.email?.toLowerCase().includes(query)
+    );
+  });
+
+  // Сортируем отфильтрованных пользователей в зависимости от выбранного типа
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (rankingType === 'contacts') {
       return b.contacts - a.contacts;
     } else if (rankingType === 'shifts') {
@@ -73,6 +85,20 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Поиск по промоутеру */}
+        <div className="mb-4">
+          <div className="relative">
+            <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Поиск по имени или email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-white border-gray-200 focus:border-green-500 focus:ring-green-500"
+            />
+          </div>
+        </div>
+
         {/* Кнопки выбора типа рейтинга */}
         <div className="flex flex-wrap gap-2 mb-6">
           <Button
@@ -114,7 +140,13 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
         </div>
 
         <div className="space-y-4">
-          {displayUsers.map((user, index) => {
+          {displayUsers.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Icon name="Search" size={32} className="mx-auto mb-2 opacity-50" />
+              <div className="text-sm">Промоутеры не найдены</div>
+            </div>
+          ) : (
+            displayUsers.map((user, index) => {
             const isTop3 = index < 3;
             const medals = ['🥇', '🥈', '🥉'];
             
@@ -170,7 +202,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                 </div>
               </div>
             );
-          })}
+          })
+          )}
         </div>
 
         {/* Кнопка Показать еще / Свернуть */}

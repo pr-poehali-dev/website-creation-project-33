@@ -53,11 +53,16 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         usersData.users?.map((u: any) => [`${u.name}`, u.email]) || []
       );
       
+      console.log('📧 Маппинг имён и email:', Object.fromEntries(userEmailMap));
+      
       for (const user of schedules) {
         const userName = `${user.first_name} ${user.last_name}`;
         const userEmail = userEmailMap.get(userName);
         
-        if (!userEmail) continue;
+        if (!userEmail) {
+          console.log(`⚠️ Email не найден для: ${userName}`);
+          continue;
+        }
         
         try {
           const response = await fetch(

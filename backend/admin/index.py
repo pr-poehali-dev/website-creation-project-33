@@ -86,23 +86,24 @@ def get_all_users() -> List[Dict[str, Any]]:
             for user in users:
                 if user['lead_count'] > 0:
                     cur.execute("""
-                        SELECT l.created_at
+                        SELECT l.created_at, l.organization_id
                         FROM t_p24058207_website_creation_pro.leads_analytics l
                         WHERE l.user_id = %s AND l.is_active = true
                         ORDER BY l.created_at DESC
                     """, (user['id'],))
                     
-                    # Группируем по московским датам
-                    moscow_dates = set()
+                    # Группируем по московским датам + организация
+                    shift_combinations = set()
                     last_shift_date = None
                     for lead_row in cur.fetchall():
                         moscow_dt = get_moscow_time_from_utc(lead_row[0])
                         moscow_date = moscow_dt.date()
-                        moscow_dates.add(moscow_date)
+                        org_id = lead_row[1]
+                        shift_combinations.add((moscow_date, org_id))
                         if last_shift_date is None:
                             last_shift_date = moscow_date
                     
-                    shifts = len(moscow_dates)
+                    shifts = len(shift_combinations)
                     avg_per_shift = round(user['lead_count'] / shifts) if shifts > 0 else 0
                     user['shifts_count'] = shifts
                     user['avg_per_shift'] = avg_per_shift
@@ -168,19 +169,21 @@ def get_leads_stats() -> Dict[str, Any]:
                 user_id = row[0]
                 lead_count = row[3]
                 
-                # Вычисляем смены для пользователя
+                # Вычисляем смены для пользователя (дата + организация)
                 cur.execute("""
-                    SELECT l.created_at
+                    SELECT l.created_at, l.organization_id
                     FROM t_p24058207_website_creation_pro.leads_analytics l
                     WHERE l.user_id = %s AND l.is_active = true
                 """, (user_id,))
                 
-                moscow_dates = set()
+                shift_combinations = set()
                 for lead_row in cur.fetchall():
                     moscow_dt = get_moscow_time_from_utc(lead_row[0])
-                    moscow_dates.add(moscow_dt.date())
+                    moscow_date = moscow_dt.date()
+                    org_id = lead_row[1]
+                    shift_combinations.add((moscow_date, org_id))
                 
-                shifts = len(moscow_dates)
+                shifts = len(shift_combinations)
                 avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
                 
                 user_stats.append({
@@ -790,9 +793,14 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
                 key = (org_id, org_name)
                 if key not in org_data:
                     org_data[key] = {
+                        'shift_dates': set(),
                         'daily_contacts': {}
                     }
                 
+                # Считаем смены по всем лидам (дата + организация)
+                org_data[key]['shift_dates'].add(moscow_date)
+                
+                # Считаем контакты отдельно
                 if lead_type == 'контакт':
                     if moscow_date not in org_data[key]['daily_contacts']:
                         org_data[key]['daily_contacts'][moscow_date] = 0
@@ -801,7 +809,7 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             org_stats = []
             for (org_id, org_name), data in org_data.items():
                 total_contacts = sum(data['daily_contacts'].values())
-                shifts = len(data['daily_contacts'])
+                shifts = len(data['shift_dates'])
                 
                 if shifts > 0:
                     avg_per_shift = round(total_contacts / shifts, 1)

@@ -95,12 +95,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
 
   const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>) => {
     const usedOrgsByUser: Record<string, Set<string>> = {};
-    const usedOrgsByDay: Record<string, Set<string>> = {};
+    const usedOrgsThisWeek: Set<string> = new Set();
     const recommendations: Record<string, Record<string, string>> = {};
-    
-    weekDays.forEach(day => {
-      usedOrgsByDay[day.date] = new Set();
-    });
     
     schedules.forEach(user => {
       const userName = `${user.first_name} ${user.last_name}`;
@@ -126,10 +122,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         let recommendedOrg = '';
         for (const orgStat of userStats) {
           const orgName = orgStat.organization_name;
-          if (!usedOrgsByUser[userName].has(orgName) && !usedOrgsByDay[day.date].has(orgName)) {
+          if (!usedOrgsByUser[userName].has(orgName) && !usedOrgsThisWeek.has(orgName)) {
             recommendedOrg = orgName;
             usedOrgsByUser[userName].add(orgName);
-            usedOrgsByDay[day.date].add(orgName);
+            usedOrgsThisWeek.add(orgName);
             break;
           }
         }

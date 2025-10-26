@@ -767,42 +767,56 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             user_id = user_row[0]
             
             cur.execute("""
-                WITH user_org_data AS (
-                    SELECT 
-                        o.id as org_id,
-                        o.name as organization_name,
-                        DATE(l.created_at) as work_date,
-                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as daily_contacts
-                    FROM t_p24058207_website_creation_pro.leads_analytics l
-                    JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                    WHERE l.user_id = %s AND l.is_active = true
-                    GROUP BY o.id, o.name, DATE(l.created_at)
-                )
                 SELECT 
-                    organization_name,
-                    SUM(daily_contacts) as total_contacts,
-                    COUNT(DISTINCT work_date) as shifts,
-                    ROUND(AVG(daily_contacts), 1) as avg_per_shift
-                FROM user_org_data
-                GROUP BY org_id, organization_name
-                HAVING COUNT(DISTINCT work_date) > 0
-                ORDER BY avg_per_shift DESC
+                    o.id as org_id,
+                    o.name as organization_name,
+                    l.created_at,
+                    l.lead_type
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.user_id = %s AND l.is_active = true AND l.lead_type = 'контакт'
             """, (user_id,))
             
-            org_stats = []
+            org_data = {}
             for row in cur.fetchall():
-                organization_name = row[0]
-                total_contacts = int(row[1]) if row[1] else 0
-                shifts = int(row[2]) if row[2] else 0
-                avg_per_shift = float(row[3]) if row[3] else 0.0
+                org_id = row[0]
+                org_name = row[1]
+                created_at = row[2]
+                
+                moscow_dt = get_moscow_time_from_utc(created_at)
+                moscow_date = moscow_dt.date()
+                
+                key = (org_id, org_name)
+                if key not in org_data:
+                    org_data[key] = {
+                        'dates': set(),
+                        'daily_contacts': {}
+                    }
+                
+                org_data[key]['dates'].add(moscow_date)
+                
+                if moscow_date not in org_data[key]['daily_contacts']:
+                    org_data[key]['daily_contacts'][moscow_date] = 0
+                org_data[key]['daily_contacts'][moscow_date] += 1
+            
+            org_stats = []
+            for (org_id, org_name), data in org_data.items():
+                total_contacts = sum(data['daily_contacts'].values())
+                shifts = len(data['dates'])
+                
+                if shifts > 0:
+                    avg_per_shift = round(sum(data['daily_contacts'].values()) / len(data['daily_contacts']), 1)
+                else:
+                    avg_per_shift = 0.0
                 
                 org_stats.append({
-                    'organization_name': organization_name,
+                    'organization_name': org_name,
                     'contacts': total_contacts,
                     'shifts': shifts,
                     'avg_per_shift': avg_per_shift
                 })
             
+            org_stats.sort(key=lambda x: x['avg_per_shift'], reverse=True)
             return org_stats
 
 def approve_user(user_id: int, admin_id: int) -> bool:

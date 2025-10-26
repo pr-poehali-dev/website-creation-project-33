@@ -792,9 +792,9 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             org_stats = []
             for row in cur.fetchall():
                 organization_name = row[0]
-                total_contacts = row[1]
-                shifts = row[2]
-                avg_per_shift = float(row[3]) if row[3] else 0
+                total_contacts = int(row[1]) if row[1] else 0
+                shifts = int(row[2]) if row[2] else 0
+                avg_per_shift = float(row[3]) if row[3] else 0.0
                 
                 org_stats.append({
                     'organization_name': organization_name,

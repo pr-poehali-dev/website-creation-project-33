@@ -21,8 +21,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
 
   // Фильтруем пользователей по поисковому запросу и по количеству смен
   const filteredUsers = userStats.filter(user => {
-    // Если выбран рейтинг по сменам, показываем только тех, кто отработал более 3 смен
-    if (rankingType === 'shifts' && (user.shifts_count || 0) <= 3) {
+    // Если выбран рейтинг по среднему за смену, показываем только тех, кто отработал более 3 смен
+    if (rankingType === 'avg_per_shift' && (user.shifts_count || 0) <= 3) {
       return false;
     }
     

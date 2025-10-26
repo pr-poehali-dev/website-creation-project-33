@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { formatMoscowDate } from '@/utils/date';
 
 interface PromoterByDays {
   rank: number;
@@ -90,7 +91,7 @@ export default function ArchivePromotersByDays({
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('ru-RU', {
+    return formatMoscowDate(dateStr, {
       day: 'numeric',
       month: 'short',
       year: 'numeric'

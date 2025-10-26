@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { UserStats } from './types';
+import { formatMoscowDate } from '@/utils/date';
 
 interface DetailedLead {
   user_name: string;
@@ -105,11 +106,7 @@ export default function DailyModal({
                 Статистика по пользователям
               </h3>
               <p className="text-gray-600 text-xs sm:text-sm md:text-base">
-                {new Date(selectedDate).toLocaleDateString('ru-RU', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric'
-                })}
+                {formatMoscowDate(selectedDate)}
               </p>
             </div>
             <Button

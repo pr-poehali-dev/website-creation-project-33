@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { ChartDataPoint, UserStats } from './types';
+import { toMoscowTime } from '@/utils/date';
 
 interface LeadsChartProps {
   chartData: ChartDataPoint[];
@@ -45,7 +46,7 @@ export default function LeadsChart({
     const cutoffDate = new Date(now);
     cutoffDate.setDate(cutoffDate.getDate() - daysToSubtract);
 
-    return chartData.filter(item => new Date(item.date) >= cutoffDate);
+    return chartData.filter(item => new Date(toMoscowTime(item.date)) >= cutoffDate);
   };
 
   const filteredChartData = getFilteredChartData();

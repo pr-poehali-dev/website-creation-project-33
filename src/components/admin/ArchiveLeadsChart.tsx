@@ -19,6 +19,7 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import { toMoscowTime } from '@/utils/date';
 
 interface ChartDataPoint {
   date: string;
@@ -76,7 +77,7 @@ export default function ArchiveLeadsChart({ data, loading }: ArchiveLeadsChartPr
     const cutoffDate = new Date(now);
     cutoffDate.setDate(cutoffDate.getDate() - daysToSubtract);
 
-    return data.filter((item) => new Date(item.date) >= cutoffDate);
+    return data.filter((item) => new Date(toMoscowTime(item.date)) >= cutoffDate);
   };
 
   const filteredData = getFilteredChartData();

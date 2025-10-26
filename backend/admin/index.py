@@ -89,21 +89,28 @@ def get_all_users() -> List[Dict[str, Any]]:
                         SELECT l.created_at
                         FROM t_p24058207_website_creation_pro.leads_analytics l
                         WHERE l.user_id = %s AND l.is_active = true
+                        ORDER BY l.created_at DESC
                     """, (user['id'],))
                     
                     # Группируем по московским датам
                     moscow_dates = set()
+                    last_shift_date = None
                     for lead_row in cur.fetchall():
                         moscow_dt = get_moscow_time_from_utc(lead_row[0])
-                        moscow_dates.add(moscow_dt.date())
+                        moscow_date = moscow_dt.date()
+                        moscow_dates.add(moscow_date)
+                        if last_shift_date is None:
+                            last_shift_date = moscow_date
                     
                     shifts = len(moscow_dates)
                     avg_per_shift = round(user['lead_count'] / shifts) if shifts > 0 else 0
                     user['shifts_count'] = shifts
                     user['avg_per_shift'] = avg_per_shift
+                    user['last_shift_date'] = last_shift_date.isoformat() if last_shift_date else None
                 else:
                     user['shifts_count'] = 0
                     user['avg_per_shift'] = 0
+                    user['last_shift_date'] = None
     return users
 
 def get_moscow_time_from_utc(utc_time):

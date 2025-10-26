@@ -9,6 +9,7 @@ export interface User {
   lead_count: number;
   shifts_count?: number;
   avg_per_shift?: number;
+  last_shift_date?: string;
   latitude?: number;
   longitude?: number;
   location_city?: string;

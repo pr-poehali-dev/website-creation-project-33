@@ -126,9 +126,18 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const groupedLeads = groupLeadsByDate(userLeads);
   
   const filteredUsers = users
-    .filter(user => 
-      user.name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    .filter(user => {
+      // Фильтр по имени
+      const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+      
+      // Фильтр: показывать только тех, кто работал в октябре 2025
+      if (!user.last_shift_date) return false;
+      const lastShiftDate = new Date(user.last_shift_date);
+      const isOctober2025 = lastShiftDate.getFullYear() === 2025 && lastShiftDate.getMonth() === 9; // октябрь = 9
+      
+      return isOctober2025;
+    })
     .sort((a, b) => b.lead_count - a.lead_count);
   
   const displayedUsers = showAll ? filteredUsers : filteredUsers.slice(0, 4);

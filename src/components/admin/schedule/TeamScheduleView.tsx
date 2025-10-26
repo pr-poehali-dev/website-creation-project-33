@@ -211,7 +211,7 @@ export default function TeamScheduleView({
                         ) : (
                           workers.map(worker => {
                             const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
-                            const avgContacts = worker.avg_contacts_per_day || 0;
+                            const avgContacts = worker.avg_per_shift || 0;
                             const workerName = `${worker.first_name} ${worker.last_name}`;
                             const commentKey = `${workerName}-${day.date}`;
                             const currentComment = workComments[day.date]?.[workerName] || '';

@@ -751,6 +751,53 @@ def get_pending_users() -> List[Dict[str, Any]]:
                 })
             return pending_users
 
+def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
+    """Получить статистику пользователя по организациям"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT u.id FROM t_p24058207_website_creation_pro.users 
+                WHERE email = %s
+            """, (email,))
+            user_row = cur.fetchone()
+            
+            if not user_row:
+                return []
+            
+            user_id = user_row[0]
+            
+            cur.execute("""
+                SELECT 
+                    o.name as organization_name,
+                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                    COUNT(DISTINCT DATE(sv.work_date)) as shifts
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                LEFT JOIN t_p24058207_website_creation_pro.shift_videos sv 
+                    ON sv.user_id = l.user_id 
+                    AND sv.organization_id = l.organization_id
+                WHERE l.user_id = %s AND l.is_active = true
+                GROUP BY o.name
+                HAVING COUNT(DISTINCT DATE(sv.work_date)) > 0
+                ORDER BY contacts DESC
+            """, (user_id,))
+            
+            org_stats = []
+            for row in cur.fetchall():
+                organization_name = row[0]
+                contacts = row[1]
+                shifts = row[2]
+                avg_per_shift = round(contacts / shifts, 1) if shifts > 0 else 0
+                
+                org_stats.append({
+                    'organization_name': organization_name,
+                    'contacts': contacts,
+                    'shifts': shifts,
+                    'avg_per_shift': avg_per_shift
+                })
+            
+            return org_stats
+
 def approve_user(user_id: int, admin_id: int) -> bool:
     """Одобрить пользователя"""
     with get_db_connection() as conn:
@@ -1066,6 +1113,23 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
+        
+        elif action == 'get_user_org_stats':
+            email = body_data.get('email')
+            
+            if not email:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Email обязателен'})
+                }
+            
+            org_stats = get_user_org_stats(email)
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': True, 'org_stats': org_stats})
+            }
         
         elif action == 'add_organization':
             name = body_data.get('name', '').strip()

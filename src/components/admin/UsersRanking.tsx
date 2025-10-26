@@ -12,12 +12,21 @@ interface UsersRankingProps {
 
 type RankingType = 'contacts' | 'shifts' | 'avg_per_shift';
 
+interface OrgStats {
+  organization_name: string;
+  contacts: number;
+  shifts: number;
+  avg_per_shift: number;
+}
+
 export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
   const [showAllContacts, setShowAllContacts] = useState(false);
   const [showAllShifts, setShowAllShifts] = useState(false);
   const [showAllAvg, setShowAllAvg] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedUserEmail, setExpandedUserEmail] = useState<string | null>(null);
+  const [userOrgStats, setUserOrgStats] = useState<Record<string, OrgStats[]>>({});
 
   // Фильтруем пользователей по поисковому запросу и по количеству смен
   const filteredUsers = userStats.filter(user => {
@@ -78,6 +87,53 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
     if (rankingType === 'contacts') return 'по контактам';
     if (rankingType === 'shifts') return 'по сменам';
     return 'по среднему за смену';
+  };
+
+  const fetchUserOrgStats = async (email: string) => {
+    if (userOrgStats[email]) {
+      return;
+    }
+
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      const response = await fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': sessionToken || ''
+        },
+        body: JSON.stringify({
+          action: 'get_user_org_stats',
+          email: email
+        })
+      });
+
+      const data = await response.json();
+      if (data.success && data.org_stats) {
+        setUserOrgStats(prev => ({
+          ...prev,
+          [email]: data.org_stats
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching user org stats:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить статистику по организациям',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleUserClick = async (email: string) => {
+    if (rankingType !== 'avg_per_shift') return;
+    
+    if (expandedUserEmail === email) {
+      setExpandedUserEmail(null);
+    } else {
+      setExpandedUserEmail(email);
+      await fetchUserOrgStats(email);
+    }
   };
 
   return (
@@ -156,16 +212,24 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
             const isTop3 = index < 3;
             const medals = ['🥇', '🥈', '🥉'];
             
+            const isExpanded = expandedUserEmail === user.email;
+            const orgStats = userOrgStats[user.email] || [];
+            
             return (
               <div 
                 key={user.email} 
-                className={`border-2 rounded-xl p-3 md:p-4 transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02] ${
+                className={`border-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl ${
                   user.duplicates > 0 
-                    ? 'border-red-500/50 bg-red-50 hover:bg-red-100' 
-                    : 'border-gray-200 bg-white hover:bg-gray-50'
+                    ? 'border-red-500/50 bg-red-50' 
+                    : 'border-gray-200 bg-white'
                 }`}
               >
-                <div className="flex items-center justify-between gap-2">
+                <div 
+                  className={`p-3 md:p-4 flex items-center justify-between gap-2 ${
+                    rankingType === 'avg_per_shift' ? 'cursor-pointer hover:bg-gray-50' : ''
+                  }`}
+                  onClick={() => handleUserClick(user.email)}
+                >
                   <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
                     <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 text-2xl md:text-3xl">
                       {isTop3 ? medals[index] : (
@@ -198,14 +262,58 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                         </div>
                       )}
                       {rankingType === 'avg_per_shift' && (
-                        <div className="text-center">
-                          <div className="text-xs md:text-sm font-bold text-purple-600">~{user.avg_per_shift || 0}</div>
-                          <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">за см</div>
-                        </div>
+                        <>
+                          <div className="text-center">
+                            <div className="text-xs md:text-sm font-bold text-purple-600">~{user.avg_per_shift || 0}</div>
+                            <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">за см</div>
+                          </div>
+                          <Icon 
+                            name={isExpanded ? "ChevronUp" : "ChevronDown"} 
+                            size={16} 
+                            className="text-gray-400 ml-2"
+                          />
+                        </>
                       )}
                     </div>
                   </div>
                 </div>
+                
+                {/* Детализация по организациям */}
+                {rankingType === 'avg_per_shift' && isExpanded && (
+                  <div className="border-t border-gray-200 mt-3 pt-3 px-3 md:px-4 pb-3">
+                    <div className="text-xs font-semibold text-gray-600 mb-2">Статистика по организациям:</div>
+                    {orgStats.length === 0 ? (
+                      <div className="text-xs text-gray-500 italic">Загрузка...</div>
+                    ) : (
+                      <div className="space-y-2">
+                        {orgStats.map((org) => (
+                          <div 
+                            key={org.organization_name} 
+                            className="flex items-center justify-between bg-gray-50 rounded-lg p-2 text-xs"
+                          >
+                            <div className="font-medium text-gray-700 truncate flex-1 mr-2">
+                              {org.organization_name}
+                            </div>
+                            <div className="flex items-center gap-3 text-[10px] md:text-xs flex-shrink-0">
+                              <div className="text-center">
+                                <div className="font-bold text-green-600">{org.contacts}</div>
+                                <div className="text-gray-500">К</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-bold text-blue-600">{org.shifts}</div>
+                                <div className="text-gray-500">См</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-bold text-purple-600">~{org.avg_per_shift}</div>
+                                <div className="text-gray-500">Ср</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })

@@ -36,14 +36,13 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     
     try {
       const usersResponse = await fetch(
-        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=users',
         {
-          method: 'POST',
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'X-Session-Token': localStorage.getItem('session_token') || '',
-          },
-          body: JSON.stringify({ action: 'get_users' })
+          }
         }
       );
       
@@ -115,7 +114,12 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         const userStats = stats[userName] || [];
         
         const daySchedule = user.schedule[day.date];
-        if (!daySchedule || (!daySchedule.slot1 && !daySchedule.slot2)) {
+        if (!daySchedule) {
+          return;
+        }
+        
+        const hasAnySlot = Object.keys(daySchedule).some(slotTime => daySchedule[slotTime] === true);
+        if (!hasAnySlot) {
           return;
         }
         

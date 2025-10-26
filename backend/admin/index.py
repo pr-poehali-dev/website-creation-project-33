@@ -767,20 +767,33 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             user_id = user_row[0]
             
             cur.execute("""
+                WITH user_org_contacts AS (
+                    SELECT 
+                        o.id as org_id,
+                        o.name as organization_name,
+                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts
+                    FROM t_p24058207_website_creation_pro.leads_analytics l
+                    JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                    WHERE l.user_id = %s AND l.is_active = true
+                    GROUP BY o.id, o.name
+                ),
+                user_org_shifts AS (
+                    SELECT 
+                        organization_id,
+                        COUNT(DISTINCT work_date) as shifts
+                    FROM t_p24058207_website_creation_pro.shift_videos
+                    WHERE user_id = %s
+                    GROUP BY organization_id
+                )
                 SELECT 
-                    o.name as organization_name,
-                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                    COUNT(DISTINCT sv.work_date) as shifts
-                FROM t_p24058207_website_creation_pro.leads_analytics l
-                JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                LEFT JOIN t_p24058207_website_creation_pro.shift_videos sv 
-                    ON sv.user_id = l.user_id 
-                    AND sv.organization_id = l.organization_id
-                WHERE l.user_id = %s AND l.is_active = true
-                GROUP BY o.name
-                HAVING COUNT(DISTINCT sv.work_date) > 0
-                ORDER BY contacts DESC
-            """, (user_id,))
+                    c.organization_name,
+                    c.contacts,
+                    COALESCE(s.shifts, 0) as shifts
+                FROM user_org_contacts c
+                LEFT JOIN user_org_shifts s ON c.org_id = s.organization_id
+                WHERE COALESCE(s.shifts, 0) > 0
+                ORDER BY c.contacts DESC
+            """, (user_id, user_id))
             
             org_stats = []
             for row in cur.fetchall():

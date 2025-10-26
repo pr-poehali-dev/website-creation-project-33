@@ -223,7 +223,7 @@ export default function TeamScheduleView({
                                     <span className="text-[10px] md:text-xs text-gray-700">
                                       • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
                                     </span>
-                                    {avgContacts > 0 && (
+                                    {avgContacts !== undefined && avgContacts !== null && (
                                       <span className="text-[9px] md:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
                                         ~{avgContacts.toFixed(1)}
                                       </span>

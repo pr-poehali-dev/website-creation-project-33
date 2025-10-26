@@ -767,44 +767,38 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             user_id = user_row[0]
             
             cur.execute("""
-                WITH user_org_contacts AS (
+                WITH user_org_data AS (
                     SELECT 
                         o.id as org_id,
                         o.name as organization_name,
-                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts
+                        DATE(l.created_at) as work_date,
+                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as daily_contacts
                     FROM t_p24058207_website_creation_pro.leads_analytics l
                     JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
                     WHERE l.user_id = %s AND l.is_active = true
-                    GROUP BY o.id, o.name
-                ),
-                user_org_shifts AS (
-                    SELECT 
-                        organization_id,
-                        COUNT(DISTINCT work_date) as shifts
-                    FROM t_p24058207_website_creation_pro.shift_videos
-                    WHERE user_id = %s
-                    GROUP BY organization_id
+                    GROUP BY o.id, o.name, DATE(l.created_at)
                 )
                 SELECT 
-                    c.organization_name,
-                    c.contacts,
-                    COALESCE(s.shifts, 0) as shifts
-                FROM user_org_contacts c
-                LEFT JOIN user_org_shifts s ON c.org_id = s.organization_id
-                WHERE COALESCE(s.shifts, 0) > 0
-                ORDER BY c.contacts DESC
-            """, (user_id, user_id))
+                    organization_name,
+                    SUM(daily_contacts) as total_contacts,
+                    COUNT(DISTINCT work_date) as shifts,
+                    ROUND(AVG(daily_contacts), 1) as avg_per_shift
+                FROM user_org_data
+                GROUP BY org_id, organization_name
+                HAVING COUNT(DISTINCT work_date) > 0
+                ORDER BY avg_per_shift DESC
+            """, (user_id,))
             
             org_stats = []
             for row in cur.fetchall():
                 organization_name = row[0]
-                contacts = row[1]
+                total_contacts = row[1]
                 shifts = row[2]
-                avg_per_shift = round(contacts / shifts, 1) if shifts > 0 else 0
+                avg_per_shift = float(row[3]) if row[3] else 0
                 
                 org_stats.append({
                     'organization_name': organization_name,
-                    'contacts': contacts,
+                    'contacts': total_contacts,
                     'shifts': shifts,
                     'avg_per_shift': avg_per_shift
                 })

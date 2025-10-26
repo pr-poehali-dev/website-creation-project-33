@@ -104,6 +104,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 COUNT(id) as count
             FROM t_p24058207_website_creation_pro.leads_analytics
             WHERE DATE(created_at) IN ({date_list})
+                AND lead_type = 'контакт'
+                AND is_active = true
             GROUP BY DATE(created_at)
         """)
         

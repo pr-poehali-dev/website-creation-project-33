@@ -147,30 +147,22 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                   </div>
                   <div className="flex-shrink-0 text-right">
                     <div className="flex justify-end gap-1.5 md:gap-2 text-xs">
-                      <div className="text-center">
-                        <div className="text-xs md:text-sm font-bold text-green-600">К: {user.contacts}</div>
-                        <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">контакт</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-xs md:text-sm font-bold text-orange-600">П: {user.approaches}</div>
-                        <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">подход</div>
-                      </div>
-                      {user.shifts_count && user.shifts_count > 0 && (
-                        <>
-                          <div className="text-center">
-                            <div className="text-xs md:text-sm font-bold text-blue-600">{user.shifts_count}</div>
-                            <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">смен</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs md:text-sm font-bold text-purple-600">~{user.avg_per_shift}</div>
-                            <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">за см</div>
-                          </div>
-                        </>
-                      )}
-                      {user.duplicates > 0 && (
+                      {rankingType === 'contacts' && (
                         <div className="text-center">
-                          <div className="text-xs md:text-sm font-bold text-amber-600">{user.duplicates}</div>
-                          <div className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">дубль</div>
+                          <div className="text-xs md:text-sm font-bold text-green-600">К: {user.contacts}</div>
+                          <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">контакт</div>
+                        </div>
+                      )}
+                      {rankingType === 'shifts' && (
+                        <div className="text-center">
+                          <div className="text-xs md:text-sm font-bold text-blue-600">{user.shifts_count || 0}</div>
+                          <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">смен</div>
+                        </div>
+                      )}
+                      {rankingType === 'avg_per_shift' && (
+                        <div className="text-center">
+                          <div className="text-xs md:text-sm font-bold text-purple-600">~{user.avg_per_shift || 0}</div>
+                          <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">за см</div>
                         </div>
                       )}
                     </div>

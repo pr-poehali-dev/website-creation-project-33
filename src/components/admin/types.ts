@@ -7,6 +7,8 @@ export interface User {
   last_seen: string;
   created_at: string;
   lead_count: number;
+  shifts_count?: number;
+  avg_per_shift?: number;
   latitude?: number;
   longitude?: number;
   location_city?: string;
@@ -29,6 +31,8 @@ export interface UserStats {
   contacts: number;
   approaches: number;
   duplicates: number;
+  shifts_count?: number;
+  avg_per_shift?: number;
 }
 
 export interface DailyStats {

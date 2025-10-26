@@ -72,20 +72,34 @@ export default function UserCard({
               )}
             </div>
             <div className="text-sm text-gray-600 truncate">{user.email}</div>
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>
+            <div className="flex items-center justify-between text-xs text-gray-500 gap-2">
+              <span className="truncate">
                 {user.is_online 
                   ? 'Онлайн сейчас' 
                   : `Был(а) онлайн: ${formatLastSeen(user.last_seen)}`
                 }
               </span>
-              <Badge className={`ml-2 px-1.5 py-0.5 text-xs font-medium ${
-                user.is_online 
-                  ? 'bg-green-50 text-green-600 border border-green-200' 
-                  : 'bg-gray-100 text-gray-600 border border-gray-200'
-              }`}>
-                {user.lead_count} лидов
-              </Badge>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <Badge className={`px-1.5 py-0.5 text-xs font-medium ${
+                  user.is_online 
+                    ? 'bg-green-50 text-green-600 border border-green-200' 
+                    : 'bg-gray-100 text-gray-600 border border-gray-200'
+                }`}>
+                  {user.lead_count}
+                </Badge>
+                {user.shifts_count && user.shifts_count > 0 && (
+                  <>
+                    <span className="text-gray-400">•</span>
+                    <Badge className="bg-blue-50 text-blue-600 border border-blue-200 px-1.5 py-0.5 text-xs font-medium">
+                      {user.shifts_count} см
+                    </Badge>
+                    <span className="text-gray-400">•</span>
+                    <Badge className="bg-purple-50 text-purple-600 border border-purple-200 px-1.5 py-0.5 text-xs font-medium">
+                      ~{user.avg_per_shift}
+                    </Badge>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

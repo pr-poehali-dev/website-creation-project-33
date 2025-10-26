@@ -57,7 +57,8 @@ def get_all_users() -> List[Dict[str, Any]]:
                 SELECT u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at,
                        CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online,
                        COUNT(l.id) as lead_count,
-                       u.latitude, u.longitude, u.location_city, u.location_country
+                       u.latitude, u.longitude, u.location_city, u.location_country,
+                       COUNT(DISTINCT DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as shifts_count
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
                 WHERE u.is_active = TRUE
@@ -67,6 +68,9 @@ def get_all_users() -> List[Dict[str, Any]]:
             
             users = []
             for row in cur.fetchall():
+                lead_count = row[7]
+                shifts = row[12] if row[12] else 0
+                avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
                 users.append({
                     'id': row[0],
                     'email': row[1],
@@ -75,11 +79,13 @@ def get_all_users() -> List[Dict[str, Any]]:
                     'last_seen': row[4].isoformat() if row[4] else None,
                     'created_at': row[5].isoformat() if row[5] else None,
                     'is_online': row[6],
-                    'lead_count': row[7],
+                    'lead_count': lead_count,
                     'latitude': row[8],
                     'longitude': row[9],
                     'location_city': row[10],
-                    'location_country': row[11]
+                    'location_country': row[11],
+                    'shifts_count': shifts,
+                    'avg_per_shift': avg_per_shift
                 })
     return users
 
@@ -125,7 +131,8 @@ def get_leads_stats() -> Dict[str, Any]:
                 SELECT u.name, u.email,
                        COUNT(l.id) as lead_count,
                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
+                       COUNT(DISTINCT DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as shifts_count
                 FROM t_p24058207_website_creation_pro.users u
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
                 GROUP BY u.id, u.name, u.email
@@ -135,12 +142,17 @@ def get_leads_stats() -> Dict[str, Any]:
             
             user_stats = []
             for row in cur.fetchall():
+                shifts = row[5] if row[5] else 0
+                lead_count = row[2]
+                avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
                 user_stats.append({
                     'name': row[0],
                     'email': row[1], 
-                    'lead_count': row[2],
+                    'lead_count': lead_count,
                     'contacts': row[3],
-                    'approaches': row[4]
+                    'approaches': row[4],
+                    'shifts_count': shifts,
+                    'avg_per_shift': avg_per_shift
                 })
             
             # Статистика за последние 30 дней (только от реальных пользователей)

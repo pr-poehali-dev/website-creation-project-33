@@ -14,6 +14,7 @@ interface TimeSlot {
 interface DaySchedule {
   date: string;
   dayName: string;
+  dayNameFull: string;
   isWeekend: boolean;
   slots: TimeSlot[];
 }
@@ -61,6 +62,7 @@ export default function ScheduleTab() {
     const days: DaySchedule[] = [];
     const startDate = new Date(weeks[currentWeekIndex].start);
     const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const dayNamesFull = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
     
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(startDate);
@@ -71,6 +73,7 @@ export default function ScheduleTab() {
       days.push({
         date: dateStr,
         dayName: dayNames[i],
+        dayNameFull: dayNamesFull[i],
         isWeekend,
         slots: isWeekend ? [
           { label: '11:00-15:00', time: 'slot1', selected: false },

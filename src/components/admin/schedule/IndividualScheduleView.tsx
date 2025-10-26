@@ -77,7 +77,7 @@ export default function IndividualScheduleView({
                       </div>
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {day.isWeekend ? 'Выходной' : 'Рабочий день'}
+                          {day.dayNameFull}
                         </p>
                         <p className="text-xs text-gray-600">{day.date}</p>
                       </div>

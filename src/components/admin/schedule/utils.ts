@@ -27,6 +27,7 @@ export const initializeWeekDays = (weekStart: string): DaySchedule[] => {
   const days: DaySchedule[] = [];
   const startDate = new Date(weekStart);
   const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  const dayNamesFull = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
   
   for (let i = 0; i < 7; i++) {
     const currentDate = new Date(startDate);
@@ -37,6 +38,7 @@ export const initializeWeekDays = (weekStart: string): DaySchedule[] => {
     days.push({
       date: dateStr,
       dayName: dayNames[i],
+      dayNameFull: dayNamesFull[i],
       isWeekend,
       slots: isWeekend ? [
         { label: '11:00-15:00', time: 'slot1' },

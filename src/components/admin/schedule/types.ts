@@ -14,6 +14,7 @@ export interface UserSchedule {
 export interface DaySchedule {
   date: string;
   dayName: string;
+  dayNameFull: string;
   isWeekend: boolean;
   slots: TimeSlot[];
 }

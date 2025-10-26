@@ -131,6 +131,18 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                         <div className="text-xs md:text-sm font-bold text-orange-600">П: {user.approaches}</div>
                         <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">подход</div>
                       </div>
+                      {user.shifts_count && user.shifts_count > 0 && (
+                        <>
+                          <div className="text-center">
+                            <div className="text-xs md:text-sm font-bold text-blue-600">{user.shifts_count}</div>
+                            <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">смен</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs md:text-sm font-bold text-purple-600">~{user.avg_per_shift}</div>
+                            <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">за см</div>
+                          </div>
+                        </>
+                      )}
                       {user.duplicates > 0 && (
                         <div className="text-center">
                           <div className="text-xs md:text-sm font-bold text-amber-600">{user.duplicates}</div>

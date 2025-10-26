@@ -1,0 +1,215 @@
+import { useState, useEffect } from 'react';
+import { DaySchedule, UserSchedule } from './types';
+
+export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule[]) {
+  const [workComments, setWorkComments] = useState<Record<string, Record<string, string>>>({});
+  const [savingComment, setSavingComment] = useState<string | null>(null);
+  const [allLocations, setAllLocations] = useState<string[]>([]);
+  const [userOrgStats, setUserOrgStats] = useState<Record<string, Array<{organization_name: string, avg_per_shift: number}>>>({});
+  const [recommendedOrgs, setRecommendedOrgs] = useState<Record<string, Record<string, string>>>({});
+
+  useEffect(() => {
+    loadWorkComments();
+    loadAllLocations();
+    loadUserOrgStats();
+  }, [weekDays, schedules]);
+
+  const loadAllLocations = async () => {
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2?get_locations=true'
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAllLocations(data.locations || []);
+      }
+    } catch (error) {
+      console.error('Error loading locations:', error);
+    }
+  };
+
+  const loadUserOrgStats = async () => {
+    if (schedules.length === 0) return;
+    
+    const stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>> = {};
+    
+    try {
+      const usersResponse = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': localStorage.getItem('session_token') || '',
+          },
+          body: JSON.stringify({ action: 'get_users' })
+        }
+      );
+      
+      if (!usersResponse.ok) return;
+      
+      const usersData = await usersResponse.json();
+      const userEmailMap = new Map(
+        usersData.users?.map((u: any) => [`${u.name}`, u.email]) || []
+      );
+      
+      for (const user of schedules) {
+        const userName = `${user.first_name} ${user.last_name}`;
+        const userEmail = userEmailMap.get(userName);
+        
+        if (!userEmail) continue;
+        
+        try {
+          const response = await fetch(
+            'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Session-Token': localStorage.getItem('session_token') || '',
+              },
+              body: JSON.stringify({
+                action: 'get_user_org_stats',
+                email: userEmail
+              })
+            }
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.org_stats && data.org_stats.length > 0) {
+              stats[userName] = data.org_stats.sort((a: any, b: any) => b.avg_per_shift - a.avg_per_shift);
+            }
+          }
+        } catch (error) {
+          console.error(`Error loading org stats for ${userName}:`, error);
+        }
+      }
+      
+      setUserOrgStats(stats);
+      calculateRecommendations(stats);
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
+  };
+
+  const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>) => {
+    const usedOrgsByUser: Record<string, Set<string>> = {};
+    const usedOrgsByDay: Record<string, Set<string>> = {};
+    const recommendations: Record<string, Record<string, string>> = {};
+    
+    weekDays.forEach(day => {
+      usedOrgsByDay[day.date] = new Set();
+    });
+    
+    schedules.forEach(user => {
+      const userName = `${user.first_name} ${user.last_name}`;
+      usedOrgsByUser[userName] = new Set();
+      recommendations[userName] = {};
+    });
+    
+    weekDays.forEach(day => {
+      schedules.forEach(user => {
+        const userName = `${user.first_name} ${user.last_name}`;
+        const userStats = stats[userName] || [];
+        
+        const daySchedule = user.schedule[day.date];
+        if (!daySchedule || (!daySchedule.slot1 && !daySchedule.slot2)) {
+          return;
+        }
+        
+        let recommendedOrg = '';
+        for (const orgStat of userStats) {
+          const orgName = orgStat.organization_name;
+          if (!usedOrgsByUser[userName].has(orgName) && !usedOrgsByDay[day.date].has(orgName)) {
+            recommendedOrg = orgName;
+            usedOrgsByUser[userName].add(orgName);
+            usedOrgsByDay[day.date].add(orgName);
+            break;
+          }
+        }
+        
+        recommendations[userName][day.date] = recommendedOrg;
+      });
+    });
+    
+    setRecommendedOrgs(recommendations);
+  };
+
+  const loadWorkComments = async () => {
+    const comments: Record<string, Record<string, string>> = {};
+    
+    for (const day of weekDays) {
+      try {
+        const response = await fetch(
+          `https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2?work_date=${day.date}`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.comments) {
+            comments[day.date] = data.comments;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading work comments:', error);
+      }
+    }
+    
+    setWorkComments(comments);
+  };
+
+  const saveComment = async (userName: string, date: string, comment: string) => {
+    const key = `${userName}-${date}`;
+    setSavingComment(key);
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_name: userName,
+            work_date: date,
+            location_comment: comment
+          })
+        }
+      );
+      
+      if (response.ok) {
+        setWorkComments(prev => ({
+          ...prev,
+          [date]: {
+            ...prev[date],
+            [userName]: comment
+          }
+        }));
+      }
+    } catch (error) {
+      console.error('Error saving comment:', error);
+    } finally {
+      setSavingComment(null);
+    }
+  };
+
+  const updateComment = (userName: string, date: string, comment: string) => {
+    setWorkComments(prev => ({
+      ...prev,
+      [date]: {
+        ...prev[date],
+        [userName]: comment
+      }
+    }));
+  };
+
+  return {
+    workComments,
+    savingComment,
+    allLocations,
+    userOrgStats,
+    recommendedOrgs,
+    saveComment,
+    updateComment
+  };
+}

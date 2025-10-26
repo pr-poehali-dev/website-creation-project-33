@@ -8,7 +8,7 @@ export interface UserSchedule {
   first_name: string;
   last_name: string;
   schedule: any;
-  avg_contacts_per_day?: number;
+  avg_per_shift?: number;
 }
 
 export interface DaySchedule {

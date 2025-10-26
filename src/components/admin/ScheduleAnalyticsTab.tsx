@@ -41,11 +41,11 @@ export default function ScheduleAnalyticsTab() {
 
       if (response.ok) {
         const data = await response.json();
-        const statsMap = new Map(data.stats?.map((s: any) => [s.user_id, s.avg_contacts_per_day]) || []);
+        const statsMap = new Map(data.stats?.map((s: any) => [s.user_id, s.avg_per_shift]) || []);
         
         return schedules.map(schedule => ({
           ...schedule,
-          avg_contacts_per_day: statsMap.get(schedule.user_id) || 0
+          avg_per_shift: statsMap.get(schedule.user_id) || 0
         }));
       }
     } catch (error) {
@@ -70,7 +70,7 @@ export default function ScheduleAnalyticsTab() {
 
       const expected = Array.from(uniqueWorkers).reduce((sum, userId) => {
         const worker = schedules.find(s => s.user_id === userId);
-        return sum + (worker?.avg_contacts_per_day || 0);
+        return sum + (worker?.avg_per_shift || 0);
       }, 0);
 
       return {

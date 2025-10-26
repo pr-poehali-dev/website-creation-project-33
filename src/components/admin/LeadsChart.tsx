@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { ChartDataPoint, UserStats } from './types';
@@ -25,6 +26,20 @@ export default function LeadsChart({
 }: LeadsChartProps) {
   const [showTotal, setShowTotal] = React.useState(true);
   const [timeRange, setTimeRange] = React.useState<'week' | 'twoWeeks' | 'month' | 'year' | 'all'>('week');
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   
   if (chartData.length === 0) {
     return null;
@@ -67,6 +82,16 @@ export default function LeadsChart({
     } else {
       onUsersChange(allUsers);
     }
+  };
+
+  const filteredUsers = userStats.filter(user =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleUserSelect = (userName: string) => {
+    toggleUser(userName);
+    setSearchQuery('');
+    setIsDropdownOpen(false);
   };
 
   const USER_COLORS = [
@@ -196,34 +221,85 @@ export default function LeadsChart({
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-1.5 md:gap-2">
-            <span className="text-xs md:text-sm text-gray-600 font-medium">Пользователи:</span>
-            <Button
-              onClick={toggleAllUsers}
-              variant="outline"
-              size="sm"
-              className="glass-button bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
-            >
-              {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
-            </Button>
-            {userStats.map(user => (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs md:text-sm text-gray-600 font-medium whitespace-nowrap">Пользователи:</span>
               <Button
-                key={user.name}
-                onClick={() => toggleUser(user.name)}
-                variant={selectedUsers.includes(user.name) ? 'default' : 'outline'}
+                onClick={toggleAllUsers}
+                variant="outline"
                 size="sm"
-                className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 font-semibold ${selectedUsers.includes(user.name)
-                  ? 'bg-[#001f54] hover:bg-[#002b6b] !text-white shadow-lg'
-                  : 'bg-white hover:bg-gray-50 !text-black border-2 border-gray-300'
-                }`}
-                style={selectedUsers.includes(user.name) ? {} : { 
-                  borderColor: userColorMap[user.name],
-                  color: '#000'
-                }}
+                className="glass-button bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
               >
-                {user.name || 'Без имени'}
+                {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
               </Button>
-            ))}
+            </div>
+            
+            <div className="relative" ref={dropdownRef}>
+              <div className="relative">
+                <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Input
+                  type="text"
+                  placeholder="Поиск промоутера..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setIsDropdownOpen(true);
+                  }}
+                  onFocus={() => setIsDropdownOpen(true)}
+                  className="pl-9 pr-9 bg-gray-100 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:border-gray-300 focus:ring-gray-200 h-9 text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setIsDropdownOpen(false);
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
+                  >
+                    <Icon name="X" size={14} />
+                  </button>
+                )}
+              </div>
+
+              {isDropdownOpen && searchQuery && filteredUsers.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {filteredUsers.map(user => (
+                    <button
+                      key={user.name}
+                      onClick={() => handleUserSelect(user.name)}
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${
+                        selectedUsers.includes(user.name) ? 'bg-gray-50' : ''
+                      }`}
+                    >
+                      <span className="text-gray-900">{user.name}</span>
+                      {selectedUsers.includes(user.name) && (
+                        <Icon name="Check" size={14} className="text-green-600" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {selectedUsers.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {selectedUsers.map(userName => {
+                  const user = userStats.find(u => u.name === userName);
+                  if (!user) return null;
+                  return (
+                    <button
+                      key={userName}
+                      onClick={() => toggleUser(userName)}
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 transition-colors border"
+                      style={{ borderColor: userColorMap[userName] }}
+                    >
+                      <span>{userName}</span>
+                      <Icon name="X" size={12} />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 

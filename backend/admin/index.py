@@ -57,8 +57,7 @@ def get_all_users() -> List[Dict[str, Any]]:
                 SELECT u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at,
                        CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online,
                        COUNT(l.id) as lead_count,
-                       u.latitude, u.longitude, u.location_city, u.location_country,
-                       COUNT(DISTINCT DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as shifts_count
+                       u.latitude, u.longitude, u.location_city, u.location_country
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
                 WHERE u.is_active = TRUE
@@ -68,9 +67,6 @@ def get_all_users() -> List[Dict[str, Any]]:
             
             users = []
             for row in cur.fetchall():
-                lead_count = row[7]
-                shifts = row[12] if row[12] else 0
-                avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
                 users.append({
                     'id': row[0],
                     'email': row[1],
@@ -79,14 +75,35 @@ def get_all_users() -> List[Dict[str, Any]]:
                     'last_seen': row[4].isoformat() if row[4] else None,
                     'created_at': row[5].isoformat() if row[5] else None,
                     'is_online': row[6],
-                    'lead_count': lead_count,
+                    'lead_count': row[7],
                     'latitude': row[8],
                     'longitude': row[9],
                     'location_city': row[10],
-                    'location_country': row[11],
-                    'shifts_count': shifts,
-                    'avg_per_shift': avg_per_shift
+                    'location_country': row[11]
                 })
+            
+            # Вычисляем смены для каждого пользователя отдельным запросом
+            for user in users:
+                if user['lead_count'] > 0:
+                    cur.execute("""
+                        SELECT l.created_at
+                        FROM t_p24058207_website_creation_pro.leads_analytics l
+                        WHERE l.user_id = %s AND l.is_active = true
+                    """, (user['id'],))
+                    
+                    # Группируем по московским датам
+                    moscow_dates = set()
+                    for lead_row in cur.fetchall():
+                        moscow_dt = get_moscow_time_from_utc(lead_row[0])
+                        moscow_dates.add(moscow_dt.date())
+                    
+                    shifts = len(moscow_dates)
+                    avg_per_shift = round(user['lead_count'] / shifts) if shifts > 0 else 0
+                    user['shifts_count'] = shifts
+                    user['avg_per_shift'] = avg_per_shift
+                else:
+                    user['shifts_count'] = 0
+                    user['avg_per_shift'] = 0
     return users
 
 def get_moscow_time_from_utc(utc_time):
@@ -128,11 +145,10 @@ def get_leads_stats() -> Dict[str, Any]:
             
             # Статистика по пользователям
             cur.execute("""
-                SELECT u.name, u.email,
+                SELECT u.id, u.name, u.email,
                        COUNT(l.id) as lead_count,
                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
-                       COUNT(DISTINCT DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')) as shifts_count
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.users u
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
                 GROUP BY u.id, u.name, u.email
@@ -142,15 +158,30 @@ def get_leads_stats() -> Dict[str, Any]:
             
             user_stats = []
             for row in cur.fetchall():
-                shifts = row[5] if row[5] else 0
-                lead_count = row[2]
+                user_id = row[0]
+                lead_count = row[3]
+                
+                # Вычисляем смены для пользователя
+                cur.execute("""
+                    SELECT l.created_at
+                    FROM t_p24058207_website_creation_pro.leads_analytics l
+                    WHERE l.user_id = %s AND l.is_active = true
+                """, (user_id,))
+                
+                moscow_dates = set()
+                for lead_row in cur.fetchall():
+                    moscow_dt = get_moscow_time_from_utc(lead_row[0])
+                    moscow_dates.add(moscow_dt.date())
+                
+                shifts = len(moscow_dates)
                 avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
+                
                 user_stats.append({
-                    'name': row[0],
-                    'email': row[1], 
+                    'name': row[1],
+                    'email': row[2], 
                     'lead_count': lead_count,
-                    'contacts': row[3],
-                    'approaches': row[4],
+                    'contacts': row[4],
+                    'approaches': row[5],
                     'shifts_count': shifts,
                     'avg_per_shift': avg_per_shift
                 })

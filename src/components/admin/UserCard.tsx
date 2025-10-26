@@ -31,12 +31,6 @@ export default function UserCard({
   onDeleteUser,
   onEditNameChange,
 }: UserCardProps) {
-  console.log('User data:', user.name, {
-    lead_count: user.lead_count,
-    shifts_count: user.shifts_count,
-    avg_per_shift: user.avg_per_shift
-  });
-  
   return (
     <div 
       className="border-2 border-gray-200 rounded-xl p-3 md:p-4 hover:bg-gray-50 transition-all duration-300 cursor-pointer bg-white shadow-md hover:shadow-xl hover:scale-[1.01]"

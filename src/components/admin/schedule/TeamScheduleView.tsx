@@ -34,11 +34,14 @@ export default function TeamScheduleView({
   const [allLocations, setAllLocations] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<string | null>(null);
   const [filteredLocations, setFilteredLocations] = useState<string[]>([]);
+  const [userOrgStats, setUserOrgStats] = useState<Record<string, Array<{organization_name: string, avg_per_shift: number}>>>({});
+  const [recommendedOrgs, setRecommendedOrgs] = useState<Record<string, Record<string, string>>>({});
 
   useEffect(() => {
     loadWorkComments();
     loadAllLocations();
-  }, [weekDays]);
+    loadUserOrgStats();
+  }, [weekDays, schedules]);
 
   const loadAllLocations = async () => {
     try {
@@ -53,6 +56,124 @@ export default function TeamScheduleView({
     } catch (error) {
       console.error('Error loading locations:', error);
     }
+  };
+
+  const loadUserOrgStats = async () => {
+    if (schedules.length === 0) return;
+    
+    const stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>> = {};
+    
+    // Получаем список всех пользователей с email
+    try {
+      const usersResponse = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': localStorage.getItem('session_token') || '',
+          },
+          body: JSON.stringify({ action: 'get_users' })
+        }
+      );
+      
+      if (!usersResponse.ok) return;
+      
+      const usersData = await usersResponse.json();
+      const userEmailMap = new Map(
+        usersData.users?.map((u: any) => [`${u.name}`, u.email]) || []
+      );
+      
+      // Для каждого пользователя в расписании загружаем статистику
+      for (const user of schedules) {
+        const userName = `${user.first_name} ${user.last_name}`;
+        const userEmail = userEmailMap.get(userName);
+        
+        if (!userEmail) continue;
+        
+        try {
+          const response = await fetch(
+            'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Session-Token': localStorage.getItem('session_token') || '',
+              },
+              body: JSON.stringify({
+                action: 'get_user_org_stats',
+                email: userEmail
+              })
+            }
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.org_stats && data.org_stats.length > 0) {
+              stats[userName] = data.org_stats.sort((a: any, b: any) => b.avg_per_shift - a.avg_per_shift);
+            }
+          }
+        } catch (error) {
+          console.error(`Error loading org stats for ${userName}:`, error);
+        }
+      }
+      
+      setUserOrgStats(stats);
+      calculateRecommendations(stats);
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
+  };
+
+  const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>) => {
+    const usedOrgsByUser: Record<string, Set<string>> = {}; // userName -> Set<org_name> (на всю неделю)
+    const usedOrgsByDay: Record<string, Set<string>> = {}; // date -> Set<org_name> (на конкретный день)
+    const recommendations: Record<string, Record<string, string>> = {}; // userName -> {date -> org_name}
+    
+    // Инициализация
+    weekDays.forEach(day => {
+      usedOrgsByDay[day.date] = new Set();
+    });
+    
+    // Для каждого пользователя инициализируем его список использованных организаций
+    schedules.forEach(user => {
+      const userName = `${user.first_name} ${user.last_name}`;
+      usedOrgsByUser[userName] = new Set();
+      recommendations[userName] = {};
+    });
+    
+    // Для каждого дня
+    weekDays.forEach(day => {
+      // Для каждого промоутера в этот день
+      schedules.forEach(user => {
+        const userName = `${user.first_name} ${user.last_name}`;
+        const userStats = stats[userName] || [];
+        
+        // Проверяем, работает ли пользователь в этот день
+        const daySchedule = user.schedule[day.date];
+        if (!daySchedule || (!daySchedule.slot1 && !daySchedule.slot2)) {
+          return;
+        }
+        
+        // Ищем лучшую организацию:
+        // 1. Не использована этим пользователем на неделе
+        // 2. Не использована другими пользователями в этот день
+        let recommendedOrg = '';
+        for (const orgStat of userStats) {
+          const orgName = orgStat.organization_name;
+          if (!usedOrgsByUser[userName].has(orgName) && !usedOrgsByDay[day.date].has(orgName)) {
+            recommendedOrg = orgName;
+            usedOrgsByUser[userName].add(orgName);
+            usedOrgsByDay[day.date].add(orgName);
+            break;
+          }
+        }
+        
+        recommendations[userName][day.date] = recommendedOrg;
+      });
+    });
+    
+    setRecommendedOrgs(recommendations);
   };
 
   const loadWorkComments = async () => {
@@ -216,16 +337,27 @@ export default function TeamScheduleView({
                             const commentKey = `${workerName}-${day.date}`;
                             const currentComment = workComments[day.date]?.[workerName] || '';
                             
+                            const recommendedOrg = recommendedOrgs[workerName]?.[day.date] || '';
+                            const orgStats = userOrgStats[workerName] || [];
+                            const orgAvg = orgStats.find(o => o.organization_name === recommendedOrg)?.avg_per_shift;
+                            
                             return (
                               <div key={worker.user_id} className="space-y-1">
                                 <div className="flex items-center justify-between group">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[10px] md:text-xs text-gray-700">
-                                      • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
-                                    </span>
-                                    {avgContacts !== undefined && avgContacts !== null && (
-                                      <span className="text-[9px] md:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                                        ~{avgContacts.toFixed(1)}
+                                  <div className="flex flex-col gap-0.5">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] md:text-xs text-gray-700">
+                                        • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
+                                      </span>
+                                      {avgContacts !== undefined && avgContacts !== null && (
+                                        <span className="text-[9px] md:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                          ~{avgContacts.toFixed(1)}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {recommendedOrg && (
+                                      <span className="text-[9px] md:text-[10px] text-blue-600 ml-2">
+                                        → {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)})` : ''}
                                       </span>
                                     )}
                                   </div>

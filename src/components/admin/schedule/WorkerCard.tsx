@@ -80,7 +80,7 @@ export default function WorkerCard({
           </div>
           {recommendedOrg && (
             <span className="text-[9px] md:text-[10px] text-blue-600 ml-2">
-              → {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)})` : ''}
+              Рекомендация: {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)})` : ''}
             </span>
           )}
         </div>

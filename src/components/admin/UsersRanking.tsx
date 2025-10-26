@@ -19,8 +19,14 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [showAllAvg, setShowAllAvg] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Фильтруем пользователей по поисковому запросу
+  // Фильтруем пользователей по поисковому запросу и по количеству смен
   const filteredUsers = userStats.filter(user => {
+    // Если выбран рейтинг по сменам, показываем только тех, кто отработал более 3 смен
+    if (rankingType === 'shifts' && (user.shifts_count || 0) <= 3) {
+      return false;
+    }
+    
+    // Фильтр по поисковому запросу
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
     return (

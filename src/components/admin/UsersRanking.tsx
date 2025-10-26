@@ -9,19 +9,25 @@ interface UsersRankingProps {
   userStats: UserStats[];
 }
 
-type RankingType = 'contacts' | 'approaches';
+type RankingType = 'contacts' | 'approaches' | 'shifts' | 'avg_per_shift';
 
 export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
   const [showAllContacts, setShowAllContacts] = useState(false);
   const [showAllApproaches, setShowAllApproaches] = useState(false);
+  const [showAllShifts, setShowAllShifts] = useState(false);
+  const [showAllAvg, setShowAllAvg] = useState(false);
 
   // Сортируем пользователей в зависимости от выбранного типа
   const sortedUsers = [...userStats].sort((a, b) => {
     if (rankingType === 'contacts') {
       return b.contacts - a.contacts;
-    } else {
+    } else if (rankingType === 'approaches') {
       return b.approaches - a.approaches;
+    } else if (rankingType === 'shifts') {
+      return (b.shifts_count || 0) - (a.shifts_count || 0);
+    } else {
+      return (b.avg_per_shift || 0) - (a.avg_per_shift || 0);
     }
   });
 
@@ -29,25 +35,40 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const displayUsers = (() => {
     if (rankingType === 'contacts') {
       return showAllContacts ? sortedUsers : sortedUsers.slice(0, 4);
-    } else {
+    } else if (rankingType === 'approaches') {
       return showAllApproaches ? sortedUsers : sortedUsers.slice(0, 4);
+    } else if (rankingType === 'shifts') {
+      return showAllShifts ? sortedUsers : sortedUsers.slice(0, 4);
+    } else {
+      return showAllAvg ? sortedUsers : sortedUsers.slice(0, 4);
     }
   })();
 
   const hasMore = sortedUsers.length > 4;
-  const isExpanded = rankingType === 'contacts' ? showAllContacts : showAllApproaches;
+  const isExpanded = (() => {
+    if (rankingType === 'contacts') return showAllContacts;
+    if (rankingType === 'approaches') return showAllApproaches;
+    if (rankingType === 'shifts') return showAllShifts;
+    return showAllAvg;
+  })();
 
   const toggleExpand = () => {
     if (rankingType === 'contacts') {
       setShowAllContacts(!showAllContacts);
-    } else {
+    } else if (rankingType === 'approaches') {
       setShowAllApproaches(!showAllApproaches);
+    } else if (rankingType === 'shifts') {
+      setShowAllShifts(!showAllShifts);
+    } else {
+      setShowAllAvg(!showAllAvg);
     }
   };
 
   const getRankingTitle = () => {
     if (rankingType === 'contacts') return 'по контактам';
-    return 'по подходам';
+    if (rankingType === 'approaches') return 'по подходам';
+    if (rankingType === 'shifts') return 'по сменам';
+    return 'по среднему за смену';
   };
 
   return (
@@ -86,6 +107,30 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
           >
             <Icon name="Users" size={14} className="mr-1.5" />
             Подходы
+          </Button>
+          <Button
+            onClick={() => setRankingType('shifts')}
+            variant={rankingType === 'shifts' ? 'default' : 'outline'}
+            size="sm"
+            className={`transition-all duration-300 ${rankingType === 'shifts'
+              ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
+              : 'bg-gray-100 hover:bg-gray-100 text-blue-400 border-blue-400/30'
+            }`}
+          >
+            <Icon name="Calendar" size={14} className="mr-1.5" />
+            Смены
+          </Button>
+          <Button
+            onClick={() => setRankingType('avg_per_shift')}
+            variant={rankingType === 'avg_per_shift' ? 'default' : 'outline'}
+            size="sm"
+            className={`transition-all duration-300 ${rankingType === 'avg_per_shift'
+              ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg'
+              : 'bg-gray-100 hover:bg-gray-100 text-purple-400 border-purple-400/30'
+            }`}
+          >
+            <Icon name="TrendingUp" size={14} className="mr-1.5" />
+            Средний
           </Button>
         </div>
 

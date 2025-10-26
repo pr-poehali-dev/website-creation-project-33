@@ -790,11 +790,8 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
                 key = (org_id, org_name)
                 if key not in org_data:
                     org_data[key] = {
-                        'dates': set(),
                         'daily_contacts': {}
                     }
-                
-                org_data[key]['dates'].add(moscow_date)
                 
                 if lead_type == 'контакт':
                     if moscow_date not in org_data[key]['daily_contacts']:
@@ -804,10 +801,10 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             org_stats = []
             for (org_id, org_name), data in org_data.items():
                 total_contacts = sum(data['daily_contacts'].values())
-                shifts = len(data['dates'])
+                shifts = len(data['daily_contacts'])
                 
                 if shifts > 0:
-                    avg_per_shift = round(sum(data['daily_contacts'].values()) / len(data['daily_contacts']), 1)
+                    avg_per_shift = round(total_contacts / shifts, 1)
                 else:
                     avg_per_shift = 0.0
                 

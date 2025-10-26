@@ -48,11 +48,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 COUNT(DISTINCT DATE(la.created_at)) as days_worked,
                 CASE 
                     WHEN COUNT(DISTINCT DATE(la.created_at)) > 0 
-                    THEN ROUND(COUNT(la.id)::numeric / COUNT(DISTINCT DATE(la.created_at)), 2)
+                    THEN ROUND(COUNT(la.id)::numeric / COUNT(DISTINCT DATE(la.created_at)), 1)
                     ELSE 0
-                END as avg_contacts_per_day
+                END as avg_per_shift
             FROM t_p24058207_website_creation_pro.users u
-            LEFT JOIN t_p24058207_website_creation_pro.leads_analytics la ON u.id = la.user_id
+            LEFT JOIN t_p24058207_website_creation_pro.leads_analytics la 
+                ON u.id = la.user_id 
+                AND la.lead_type = 'контакт' 
+                AND la.is_active = true
             WHERE u.is_admin = false
             GROUP BY u.id, u.name
         """)
@@ -68,7 +71,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'name': row[1],
                 'total_contacts': row[2],
                 'days_worked': row[3],
-                'avg_contacts_per_day': float(row[4]) if row[4] else 0
+                'avg_per_shift': float(row[4]) if row[4] else 0
             })
         
         return {

@@ -119,6 +119,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           return;
         }
         
+        if (userStats.length === 0) {
+          console.log(`⚠️ Нет статистики для ${userName}`);
+        }
+        
         let recommendedOrg = '';
         for (const orgStat of userStats) {
           const orgName = orgStat.organization_name;
@@ -128,6 +132,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             usedOrgsThisWeek.add(orgName);
             break;
           }
+        }
+        
+        if (!recommendedOrg && userStats.length > 0) {
+          console.log(`⚠️ Все организации для ${userName} уже использованы. Доступно: ${userStats.length}, Использовано на неделе: ${usedOrgsThisWeek.size}`);
         }
         
         recommendations[userName][day.date] = recommendedOrg;

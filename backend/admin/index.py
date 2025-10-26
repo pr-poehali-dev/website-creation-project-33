@@ -756,7 +756,7 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT u.id FROM t_p24058207_website_creation_pro.users 
+                SELECT id FROM t_p24058207_website_creation_pro.users 
                 WHERE email = %s
             """, (email,))
             user_row = cur.fetchone()
@@ -770,7 +770,7 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
                 SELECT 
                     o.name as organization_name,
                     COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                    COUNT(DISTINCT DATE(sv.work_date)) as shifts
+                    COUNT(DISTINCT sv.work_date) as shifts
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
                 LEFT JOIN t_p24058207_website_creation_pro.shift_videos sv 
@@ -778,7 +778,7 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
                     AND sv.organization_id = l.organization_id
                 WHERE l.user_id = %s AND l.is_active = true
                 GROUP BY o.name
-                HAVING COUNT(DISTINCT DATE(sv.work_date)) > 0
+                HAVING COUNT(DISTINCT sv.work_date) > 0
                 ORDER BY contacts DESC
             """, (user_id,))
             

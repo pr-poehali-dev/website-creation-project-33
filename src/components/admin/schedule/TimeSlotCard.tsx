@@ -79,6 +79,7 @@ export default function TimeSlotCard({
                 allLocations={allLocations}
                 recommendedOrg={recommendedOrg}
                 orgAvg={orgAvg}
+                orgStats={orgStats}
                 onCommentChange={onCommentChange}
                 onCommentBlur={onCommentBlur}
                 onRemoveSlot={onRemoveSlot}

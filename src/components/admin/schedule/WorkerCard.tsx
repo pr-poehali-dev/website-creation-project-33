@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { UserSchedule, DeleteSlotState } from './types';
 import { isMaximKorelsky } from './utils';
+import OrgStatsModal from './OrgStatsModal';
 
 interface WorkerCardProps {
   worker: UserSchedule;
@@ -14,6 +15,7 @@ interface WorkerCardProps {
   allLocations: string[];
   recommendedOrg: string;
   orgAvg?: number;
+  orgStats: Array<{organization_name: string, avg_per_shift: number}>;
   onCommentChange: (userName: string, date: string, comment: string) => void;
   onCommentBlur: (userName: string, date: string, comment: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
@@ -30,6 +32,7 @@ export default function WorkerCard({
   allLocations,
   recommendedOrg,
   orgAvg,
+  orgStats,
   onCommentChange,
   onCommentBlur,
   onRemoveSlot,
@@ -37,6 +40,7 @@ export default function WorkerCard({
 }: WorkerCardProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredLocations, setFilteredLocations] = useState<string[]>([]);
+  const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
 
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const avgContacts = worker.avg_per_shift || 0;
@@ -86,7 +90,10 @@ export default function WorkerCard({
             )}
           </div>
           {recommendedOrg && (
-            <span className="text-[9px] md:text-[10px] text-blue-600 ml-2">
+            <span 
+              className="text-[9px] md:text-[10px] text-blue-600 ml-2 cursor-pointer hover:underline"
+              onClick={() => setShowOrgStatsModal(true)}
+            >
               Рекомендация: {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)})` : ''}
             </span>
           )}
@@ -155,6 +162,14 @@ export default function WorkerCard({
           </div>
         )}
       </div>
+      
+      {showOrgStatsModal && (
+        <OrgStatsModal
+          workerName={workerName}
+          orgStats={orgStats}
+          onClose={() => setShowOrgStatsModal(false)}
+        />
+      )}
     </div>
   );
 }

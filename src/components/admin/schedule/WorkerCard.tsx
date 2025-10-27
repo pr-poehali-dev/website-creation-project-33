@@ -107,17 +107,35 @@ export default function WorkerCard({
       <div className="relative flex items-center gap-1 ml-2">
         <Input
           type="text"
-          placeholder=""
+          placeholder="Место работы"
           value={currentComment}
           onChange={(e) => handleInputChange(e.target.value)}
-          onBlur={handleBlur}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              setShowSuggestions(false);
+              onCommentBlur(workerName, dayDate, currentComment);
+            }
+          }}
           className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-white border-gray-300"
         />
-        {savingComment === commentKey && (
-          <Icon name="Loader2" size={12} className="animate-spin text-gray-400" />
-        )}
-        {currentComment && (
-          <Icon name="MapPin" size={12} className="text-green-600" />
+        <button
+          onClick={() => {
+            setShowSuggestions(false);
+            onCommentBlur(workerName, dayDate, currentComment);
+          }}
+          disabled={savingComment === commentKey}
+          className="px-2 py-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded text-[10px] md:text-xs h-6 md:h-7 flex items-center gap-1 whitespace-nowrap"
+          title="Сохранить место работы"
+        >
+          {savingComment === commentKey ? (
+            <Icon name="Loader2" size={12} className="animate-spin" />
+          ) : (
+            <Icon name="Check" size={12} />
+          )}
+        </button>
+        {currentComment && savingComment !== commentKey && (
+          <Icon name="MapPin" size={12} className="text-green-600 flex-shrink-0" />
         )}
         
         {showSuggestions && filteredLocations.length > 0 && (

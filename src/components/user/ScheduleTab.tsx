@@ -35,6 +35,13 @@ const getMondayOfWeek = (date: Date): Date => {
   return monday;
 };
 
+const formatDateLocal = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const getAllWeeksUntilEndOfYear = () => {
   const weeks = [];
   const startDate = new Date('2025-10-20');
@@ -47,7 +54,7 @@ const getAllWeeksUntilEndOfYear = () => {
     weekEnd.setDate(currentMonday.getDate() + 6);
     
     weeks.push({
-      start: currentMonday.toISOString().split('T')[0],
+      start: formatDateLocal(currentMonday),
       label: `${currentMonday.getDate().toString().padStart(2, '0')}.${(currentMonday.getMonth() + 1).toString().padStart(2, '0')} - ${weekEnd.getDate().toString().padStart(2, '0')}.${(weekEnd.getMonth() + 1).toString().padStart(2, '0')}`
     });
     
@@ -62,7 +69,7 @@ const getCurrentWeekIndex = (): number => {
   const weeks = getAllWeeksUntilEndOfYear();
   const moscowDate = getMoscowDate();
   const currentMonday = getMondayOfWeek(moscowDate);
-  const currentMondayStr = currentMonday.toISOString().split('T')[0];
+  const currentMondayStr = formatDateLocal(currentMonday);
   
   const index = weeks.findIndex(week => week.start === currentMondayStr);
   return index >= 0 ? index : 0;

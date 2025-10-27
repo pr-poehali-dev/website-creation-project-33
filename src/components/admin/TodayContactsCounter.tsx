@@ -20,18 +20,21 @@ export default function TodayContactsCounter({ sessionToken }: TodayContactsCoun
   }, [sessionToken]);
 
   const loadTodayContacts = async () => {
-    const urlsModule = await import('../../../backend/func2url.json');
-    const functionUrl = urlsModule['user-stats'];
-    
-    const response = await fetch(`${functionUrl}?user_id=all`, {
-      headers: {
-        'X-Session-Token': sessionToken
-      }
-    });
+    try {
+      const functionUrl = 'https://functions.poehali.dev/78eb7cbb-8b7c-4a62-aaa3-74d7b1e8f257';
+      
+      const response = await fetch(`${functionUrl}?user_id=all`, {
+        headers: {
+          'X-Session-Token': sessionToken
+        }
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      setTodayContacts(data.today_contacts || 0);
+      if (response.ok) {
+        const data = await response.json();
+        setTodayContacts(data.today_contacts || 0);
+      }
+    } catch (error) {
+      console.error('Failed to load contacts:', error);
     }
     
     setLoading(false);

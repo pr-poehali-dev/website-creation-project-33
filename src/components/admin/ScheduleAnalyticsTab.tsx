@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { UserSchedule, DaySchedule, DeleteSlotState, ConfirmDeleteState, DayStats } from './schedule/types';
-import { getAllWeeksUntilEndOfYear, initializeWeekDays } from './schedule/utils';
+import { getAllWeeksUntilEndOfYear, initializeWeekDays, getCurrentWeekIndex } from './schedule/utils';
 import ScheduleHeader from './schedule/ScheduleHeader';
 import TeamScheduleView from './schedule/TeamScheduleView';
 import IndividualScheduleView from './schedule/IndividualScheduleView';
@@ -10,7 +10,7 @@ import DeleteConfirmDialog from './schedule/DeleteConfirmDialog';
 
 export default function ScheduleAnalyticsTab() {
   const weeks = getAllWeeksUntilEndOfYear();
-  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(getCurrentWeekIndex());
   const [view, setView] = useState<'team' | 'individual'>('team');
   const [schedules, setSchedules] = useState<UserSchedule[]>([]);
   const [selectedUser, setSelectedUser] = useState<number | null>(null);

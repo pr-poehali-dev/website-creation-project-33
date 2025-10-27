@@ -19,9 +19,24 @@ interface DaySchedule {
   slots: TimeSlot[];
 }
 
+const getMoscowDate = (): Date => {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  return new Date(utc + (3600000 * 3));
+};
+
+const getMondayOfWeek = (date: Date): Date => {
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(date);
+  monday.setDate(diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+};
+
 const getAllWeeksUntilEndOfYear = () => {
   const weeks = [];
-  const startDate = new Date('2025-10-20'); // Первая неделя
+  const startDate = new Date('2025-10-20');
   const endOfYear = new Date('2025-12-31');
   
   let currentMonday = new Date(startDate);
@@ -42,10 +57,20 @@ const getAllWeeksUntilEndOfYear = () => {
   return weeks;
 };
 
+const getCurrentWeekIndex = (): number => {
+  const weeks = getAllWeeksUntilEndOfYear();
+  const moscowDate = getMoscowDate();
+  const currentMonday = getMondayOfWeek(moscowDate);
+  const currentMondayStr = currentMonday.toISOString().split('T')[0];
+  
+  const index = weeks.findIndex(week => week.start === currentMondayStr);
+  return index >= 0 ? index : 0;
+};
+
 export default function ScheduleTab() {
   const { user } = useAuth();
   const weeks = getAllWeeksUntilEndOfYear();
-  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(getCurrentWeekIndex());
   const [schedule, setSchedule] = useState<DaySchedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);

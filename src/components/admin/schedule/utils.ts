@@ -1,5 +1,20 @@
 import { DaySchedule, Week } from './types';
 
+export const getMoscowDate = (): Date => {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  return new Date(utc + (3600000 * 3));
+};
+
+export const getMondayOfWeek = (date: Date): Date => {
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(date);
+  monday.setDate(diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+};
+
 export const getAllWeeksUntilEndOfYear = (): Week[] => {
   const weeks = [];
   const startDate = new Date('2025-10-20');
@@ -21,6 +36,16 @@ export const getAllWeeksUntilEndOfYear = (): Week[] => {
   }
   
   return weeks;
+};
+
+export const getCurrentWeekIndex = (): number => {
+  const weeks = getAllWeeksUntilEndOfYear();
+  const moscowDate = getMoscowDate();
+  const currentMonday = getMondayOfWeek(moscowDate);
+  const currentMondayStr = currentMonday.toISOString().split('T')[0];
+  
+  const index = weeks.findIndex(week => week.start === currentMondayStr);
+  return index >= 0 ? index : 0;
 };
 
 export const initializeWeekDays = (weekStart: string): DaySchedule[] => {

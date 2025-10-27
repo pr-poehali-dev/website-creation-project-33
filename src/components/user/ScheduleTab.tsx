@@ -27,13 +27,7 @@ const getMoscowDate = (): Date => {
 
 const getMondayOfWeek = (date: Date): Date => {
   const day = date.getDay();
-  let diff: number;
-  
-  if (day === 0) {
-    diff = 1;
-  } else {
-    diff = 1 - day;
-  }
+  const diff = day === 0 ? -6 : 1 - day;
   
   const monday = new Date(date);
   monday.setDate(date.getDate() + diff);

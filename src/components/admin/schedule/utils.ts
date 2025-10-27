@@ -8,9 +8,16 @@ export const getMoscowDate = (): Date => {
 
 export const getMondayOfWeek = (date: Date): Date => {
   const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  let diff: number;
+  
+  if (day === 0) {
+    diff = 1;
+  } else {
+    diff = 1 - day;
+  }
+  
   const monday = new Date(date);
-  monday.setDate(diff);
+  monday.setDate(date.getDate() + diff);
   monday.setHours(0, 0, 0, 0);
   return monday;
 };

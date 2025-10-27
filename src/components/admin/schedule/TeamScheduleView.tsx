@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DaySchedule, UserSchedule, DeleteSlotState, DayStats } from './types';
 import { useScheduleData } from './useScheduleData';
 import WeekCalendar from './WeekCalendar';
 import DayCard from './DayCard';
 import AddPromoterModal from './AddPromoterModal';
+import OrganizationFilter from './OrganizationFilter';
 
 interface TeamScheduleViewProps {
   weekDays: DaySchedule[];
@@ -28,6 +29,7 @@ export default function TeamScheduleView({
 }: TeamScheduleViewProps) {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
+  const [selectedOrgs, setSelectedOrgs] = useState<Set<string>>(new Set());
 
   const {
     workComments,
@@ -37,7 +39,39 @@ export default function TeamScheduleView({
     recommendedLocations,
     saveComment,
     updateComment
-  } = useScheduleData(weekDays, schedules);
+  } = useScheduleData(weekDays, schedules, selectedOrgs);
+
+  useEffect(() => {
+    const allOrgs = new Set<string>();
+    Object.values(userOrgStats).forEach(stats => {
+      stats.forEach(stat => allOrgs.add(stat.organization_name));
+    });
+    setSelectedOrgs(allOrgs);
+  }, [userOrgStats]);
+
+  const handleOrgToggle = (org: string) => {
+    setSelectedOrgs(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(org)) {
+        newSet.delete(org);
+      } else {
+        newSet.add(org);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    const allOrgs = new Set<string>();
+    Object.values(userOrgStats).forEach(stats => {
+      stats.forEach(stat => allOrgs.add(stat.organization_name));
+    });
+    setSelectedOrgs(allOrgs);
+  };
+
+  const handleClearAll = () => {
+    setSelectedOrgs(new Set());
+  };
 
   const toggleDay = (date: string) => {
     setExpandedDays(prev => {
@@ -66,6 +100,14 @@ export default function TeamScheduleView({
   return (
     <div className="space-y-4">
       <WeekCalendar weekDays={weekDays} />
+
+      <OrganizationFilter
+        userOrgStats={userOrgStats}
+        selectedOrgs={selectedOrgs}
+        onOrgToggle={handleOrgToggle}
+        onSelectAll={handleSelectAll}
+        onClearAll={handleClearAll}
+      />
 
       {daysWithWorkers.map((day) => {
         const isExpanded = expandedDays.has(day.date);

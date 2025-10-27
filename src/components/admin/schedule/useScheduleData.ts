@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DaySchedule, UserSchedule } from './types';
 
-export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule[]) {
+export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule[], selectedOrgs?: Set<string>) {
   const [workComments, setWorkComments] = useState<Record<string, Record<string, string>>>({});
   const [savingComment, setSavingComment] = useState<string | null>(null);
   const [allLocations, setAllLocations] = useState<string[]>([]);
@@ -13,6 +13,12 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     loadAllLocations();
     loadUserOrgStats();
   }, [weekDays, schedules]);
+
+  useEffect(() => {
+    if (Object.keys(userOrgStats).length > 0) {
+      calculateRecommendations(userOrgStats);
+    }
+  }, [selectedOrgs, userOrgStats, weekDays, schedules]);
 
   const loadAllLocations = async () => {
     try {
@@ -112,7 +118,11 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     weekDays.forEach(day => {
       schedules.forEach(user => {
         const userName = `${user.first_name} ${user.last_name}`;
-        const userStats = stats[userName] || [];
+        let userStats = stats[userName] || [];
+        
+        if (selectedOrgs && selectedOrgs.size > 0) {
+          userStats = userStats.filter(stat => selectedOrgs.has(stat.organization_name));
+        }
         
         const daySchedule = user.schedule[day.date];
         if (!daySchedule) {

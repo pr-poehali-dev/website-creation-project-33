@@ -52,10 +52,7 @@ export default function TeamScheduleView({
   };
 
   const handleCommentBlur = (userName: string, date: string, comment: string) => {
-    const currentComment = workComments[date]?.[userName] || '';
-    if (comment !== currentComment) {
-      saveComment(userName, date, comment);
-    }
+    saveComment(userName, date, comment);
   };
 
   const handleAddSlotClick = (date: string, slotTime: string, slotLabel: string) => {

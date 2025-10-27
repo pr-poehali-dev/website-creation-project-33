@@ -188,7 +188,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
           <Icon name="TrendingUp" size={120} className="text-white" />
         </div>
       </div>
-    </div>
+      </div>
     </div>
   );
 }

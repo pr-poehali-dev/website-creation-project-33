@@ -52,7 +52,7 @@ export default function WorkerCard({
         loc.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredLocations(filtered);
-      setShowSuggestions(true);
+      setShowSuggestions(filtered.length > 0);
     } else {
       setShowSuggestions(false);
     }
@@ -62,6 +62,13 @@ export default function WorkerCard({
     onCommentChange(workerName, dayDate, location);
     setShowSuggestions(false);
     onCommentBlur(workerName, dayDate, location);
+  };
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      setShowSuggestions(false);
+    }, 200);
+    onCommentBlur(workerName, dayDate, currentComment);
   };
 
   return (
@@ -103,10 +110,7 @@ export default function WorkerCard({
           placeholder=""
           value={currentComment}
           onChange={(e) => handleInputChange(e.target.value)}
-          onBlur={() => {
-            setShowSuggestions(false);
-            onCommentBlur(workerName, dayDate, currentComment);
-          }}
+          onBlur={handleBlur}
           className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-white border-gray-300"
         />
         {savingComment === commentKey && (

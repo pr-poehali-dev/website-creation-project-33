@@ -21,33 +21,9 @@ export default function FlipCounter({ value }: FlipCounterProps) {
 
   const digits = displayValue.toString().padStart(3, '0').split('');
 
-  const getStatusMessage = () => {
-    if (displayValue < 15) return { text: 'КОНЧЕНЫЕ', bg: 'from-red-800 to-red-900' };
-    if (displayValue < 30) return { text: 'НЕПЛОХО', bg: 'from-yellow-700 to-yellow-800' };
-    return { text: 'НИХУЯСЕБЕ', bg: 'from-green-700 to-green-800' };
-  };
-
-  const status = getStatusMessage();
-  const letters = status.text.split('');
-
   return (
-    <div className="flex items-center justify-center gap-3 mb-6">
-      <div className="flex gap-1">
-        {letters.map((letter, index) => (
-          <div
-            key={index}
-            className={`relative w-10 h-14 bg-gradient-to-b ${status.bg} rounded-lg shadow-lg overflow-hidden transition-all duration-500`}
-          >
-            <div className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white">
-              {letter}
-            </div>
-            <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-white opacity-20"></div>
-          </div>
-        ))}
-      </div>
-      
-      <div className="text-4xl font-bold text-gray-600">—</div>
-      
+    <div className="flex items-center justify-center gap-2 mb-6">
+      <div className="text-gray-600 text-xl font-medium">Собрано контактов сегодня:</div>
       <div className="flex gap-1">
         {digits.map((digit, index) => (
           <div

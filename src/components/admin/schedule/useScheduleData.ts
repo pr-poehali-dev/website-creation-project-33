@@ -105,13 +105,13 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   };
 
   const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>) => {
-    const usedOrgsByUser: Record<string, Set<string>> = {};
+    const userOrgUsageCount: Record<string, Record<string, number>> = {};
     const orgUsageCount: Record<string, number> = {};
     const recommendations: Record<string, Record<string, string>> = {};
     
     schedules.forEach(user => {
       const userName = `${user.first_name} ${user.last_name}`;
-      usedOrgsByUser[userName] = new Set();
+      userOrgUsageCount[userName] = {};
       recommendations[userName] = {};
     });
     
@@ -142,12 +142,13 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         for (const orgStat of userStats) {
           const orgName = orgStat.organization_name;
           const maxUses = orgLimits?.get(orgName) || 1;
-          const currentUses = orgUsageCount[orgName] || 0;
+          const userOrgUses = userOrgUsageCount[userName][orgName] || 0;
+          const totalOrgUses = orgUsageCount[orgName] || 0;
           
-          if (!usedOrgsByUser[userName].has(orgName) && currentUses < maxUses) {
+          if (userOrgUses < maxUses && totalOrgUses < maxUses) {
             recommendedOrg = orgName;
-            usedOrgsByUser[userName].add(orgName);
-            orgUsageCount[orgName] = currentUses + 1;
+            userOrgUsageCount[userName][orgName] = userOrgUses + 1;
+            orgUsageCount[orgName] = totalOrgUses + 1;
             break;
           }
         }

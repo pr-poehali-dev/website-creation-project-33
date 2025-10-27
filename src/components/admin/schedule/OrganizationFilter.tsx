@@ -3,11 +3,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
+export interface OrgUsageLimit {
+  name: string;
+  maxUses: number;
+}
+
 interface OrganizationFilterProps {
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
-  selectedOrgs: Set<string>;
+  orgLimits: Map<string, number>;
   weekStart: string;
   onOrgToggle: (org: string) => void;
+  onOrgLimitChange: (org: string, limit: number) => void;
   onSelectAll: () => void;
   onClearAll: () => void;
   onSave: () => Promise<void>;
@@ -16,15 +22,17 @@ interface OrganizationFilterProps {
 
 export default function OrganizationFilter({
   userOrgStats,
-  selectedOrgs,
+  orgLimits,
   weekStart,
   onOrgToggle,
+  onOrgLimitChange,
   onSelectAll,
   onClearAll,
   onSave,
   isSaving
 }: OrganizationFilterProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
   
   const allOrgs = new Set<string>();
   Object.values(userOrgStats).forEach(stats => {
@@ -33,7 +41,7 @@ export default function OrganizationFilter({
   
   const sortedOrgs = Array.from(allOrgs).sort();
   
-  const actualSelectedCount = sortedOrgs.filter(org => selectedOrgs.has(org)).length;
+  const actualSelectedCount = sortedOrgs.filter(org => orgLimits.has(org)).length;
 
   if (sortedOrgs.length === 0) {
     return null;
@@ -107,29 +115,87 @@ export default function OrganizationFilter({
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              {sortedOrgs.map(org => (
-                <div
-                  key={org}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOrgToggle(org);
-                  }}
-                  className={`p-2 rounded cursor-pointer transition-colors ${
-                    selectedOrgs.has(org)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-blue-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Icon 
-                      name={selectedOrgs.has(org) ? "CheckSquare" : "Square"} 
-                      size={16} 
-                    />
-                    <span className="text-sm">{org}</span>
+            <div className="grid grid-cols-1 gap-2">
+              {sortedOrgs.map(org => {
+                const isSelected = orgLimits.has(org);
+                const currentLimit = orgLimits.get(org) || 1;
+                const isOrgExpanded = expandedOrg === org;
+
+                return (
+                  <div key={org} className="space-y-1">
+                    <div
+                      className={`p-2 rounded transition-colors ${
+                        isSelected
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-gray-700 hover:bg-blue-100'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div 
+                          className="flex items-center gap-2 flex-1 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onOrgToggle(org);
+                          }}
+                        >
+                          <Icon 
+                            name={isSelected ? "CheckSquare" : "Square"} 
+                            size={16} 
+                          />
+                          <span className="text-sm">{org}</span>
+                        </div>
+                        {isSelected && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs">
+                              {currentLimit}x в неделю
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setExpandedOrg(isOrgExpanded ? null : org);
+                              }}
+                              className="p-1 hover:bg-blue-700 rounded"
+                            >
+                              <Icon 
+                                name={isOrgExpanded ? "ChevronUp" : "ChevronDown"} 
+                                size={14} 
+                              />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {isSelected && isOrgExpanded && (
+                      <div className="bg-white p-3 rounded border-2 border-blue-300 ml-6">
+                        <div className="space-y-2">
+                          <p className="text-xs text-gray-600 mb-2">
+                            Максимум использований в неделю:
+                          </p>
+                          <div className="flex gap-2 flex-wrap">
+                            {[1, 2, 3, 4, 5].map(limit => (
+                              <button
+                                key={limit}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onOrgLimitChange(org, limit);
+                                }}
+                                className={`px-3 py-1 rounded text-sm transition-colors ${
+                                  currentLimit === limit
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
+                              >
+                                {limit}x
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

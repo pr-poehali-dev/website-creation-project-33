@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DaySchedule, UserSchedule } from './types';
 
-export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule[], selectedOrgs?: Set<string>) {
+export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule[], orgLimits?: Map<string, number>) {
   const [workComments, setWorkComments] = useState<Record<string, Record<string, string>>>({});
   const [savingComment, setSavingComment] = useState<string | null>(null);
   const [allLocations, setAllLocations] = useState<string[]>([]);
@@ -18,7 +18,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     if (Object.keys(userOrgStats).length > 0) {
       calculateRecommendations(userOrgStats);
     }
-  }, [selectedOrgs, userOrgStats, weekDays, schedules]);
+  }, [orgLimits, userOrgStats, weekDays, schedules]);
 
   const loadAllLocations = async () => {
     try {
@@ -106,7 +106,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
 
   const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>) => {
     const usedOrgsByUser: Record<string, Set<string>> = {};
-    const usedOrgsThisWeek: Set<string> = new Set();
+    const orgUsageCount: Record<string, number> = {};
     const recommendations: Record<string, Record<string, string>> = {};
     
     schedules.forEach(user => {
@@ -120,8 +120,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         const userName = `${user.first_name} ${user.last_name}`;
         let userStats = stats[userName] || [];
         
-        if (selectedOrgs && selectedOrgs.size > 0) {
-          userStats = userStats.filter(stat => selectedOrgs.has(stat.organization_name));
+        if (orgLimits && orgLimits.size > 0) {
+          userStats = userStats.filter(stat => orgLimits.has(stat.organization_name));
         }
         
         const daySchedule = user.schedule[day.date];
@@ -141,16 +141,19 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         let recommendedOrg = '';
         for (const orgStat of userStats) {
           const orgName = orgStat.organization_name;
-          if (!usedOrgsByUser[userName].has(orgName) && !usedOrgsThisWeek.has(orgName)) {
+          const maxUses = orgLimits?.get(orgName) || 1;
+          const currentUses = orgUsageCount[orgName] || 0;
+          
+          if (!usedOrgsByUser[userName].has(orgName) && currentUses < maxUses) {
             recommendedOrg = orgName;
             usedOrgsByUser[userName].add(orgName);
-            usedOrgsThisWeek.add(orgName);
+            orgUsageCount[orgName] = currentUses + 1;
             break;
           }
         }
         
         if (!recommendedOrg && userStats.length > 0) {
-          console.log(`⚠️ Все организации для ${userName} уже использованы. Доступно: ${userStats.length}, Использовано на неделе: ${usedOrgsThisWeek.size}`);
+          console.log(`⚠️ Все организации для ${userName} уже использованы. Доступно: ${userStats.length}`);
         }
         
         recommendations[userName][day.date] = recommendedOrg;

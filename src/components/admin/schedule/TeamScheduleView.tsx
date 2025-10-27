@@ -29,7 +29,7 @@ export default function TeamScheduleView({
 }: TeamScheduleViewProps) {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
-  const [selectedOrgs, setSelectedOrgs] = useState<Set<string>>(new Set());
+  const [orgLimits, setOrgLimits] = useState<Map<string, number>>(new Map());
   const [isSavingFilters, setIsSavingFilters] = useState(false);
   const [filtersLoaded, setFiltersLoaded] = useState(false);
 
@@ -41,7 +41,7 @@ export default function TeamScheduleView({
     recommendedLocations,
     saveComment,
     updateComment
-  } = useScheduleData(weekDays, schedules, selectedOrgs);
+  } = useScheduleData(weekDays, schedules, orgLimits);
 
   const weekStart = weekDays.length > 0 ? weekDays[0].date : '';
 
@@ -59,35 +59,46 @@ export default function TeamScheduleView({
           const data = await response.json();
           console.log('📦 Данные фильтров из БД:', data);
           
-          let orgsToSelect: string[] = [];
+          let limitsData: Array<{name: string, maxUses: number}> = [];
           
           if (data.organizations) {
             if (typeof data.organizations === 'string') {
-              orgsToSelect = JSON.parse(data.organizations);
+              limitsData = JSON.parse(data.organizations);
             } else if (Array.isArray(data.organizations)) {
-              orgsToSelect = data.organizations;
+              limitsData = data.organizations;
             }
           }
           
-          if (orgsToSelect.length > 0) {
-            console.log(`✅ Загружено ${orgsToSelect.length} организаций из БД`);
-            setSelectedOrgs(new Set(orgsToSelect));
+          if (limitsData.length > 0 && typeof limitsData[0] === 'object' && 'name' in limitsData[0]) {
+            console.log(`✅ Загружено ${limitsData.length} организаций с лимитами из БД`);
+            const newLimits = new Map<string, number>();
+            limitsData.forEach(item => {
+              newLimits.set(item.name, item.maxUses);
+            });
+            setOrgLimits(newLimits);
+          } else if (limitsData.length > 0 && typeof limitsData[0] === 'string') {
+            console.log('🔄 Миграция старого формата данных');
+            const newLimits = new Map<string, number>();
+            limitsData.forEach((orgName: any) => {
+              newLimits.set(orgName, 1);
+            });
+            setOrgLimits(newLimits);
           } else {
             console.log('ℹ️ Нет сохранённых фильтров, выбираем все организации');
-            const allOrgs = new Set<string>();
+            const newLimits = new Map<string, number>();
             Object.values(userOrgStats).forEach(stats => {
-              stats.forEach(stat => allOrgs.add(stat.organization_name));
+              stats.forEach(stat => newLimits.set(stat.organization_name, 1));
             });
-            setSelectedOrgs(allOrgs);
+            setOrgLimits(newLimits);
           }
         }
       } catch (error) {
         console.error('❌ Ошибка загрузки фильтров:', error);
-        const allOrgs = new Set<string>();
+        const newLimits = new Map<string, number>();
         Object.values(userOrgStats).forEach(stats => {
-          stats.forEach(stat => allOrgs.add(stat.organization_name));
+          stats.forEach(stat => newLimits.set(stat.organization_name, 1));
         });
-        setSelectedOrgs(allOrgs);
+        setOrgLimits(newLimits);
       }
       setFiltersLoaded(true);
     };
@@ -96,32 +107,45 @@ export default function TeamScheduleView({
   }, [userOrgStats, weekStart, filtersLoaded]);
 
   const handleOrgToggle = (org: string) => {
-    setSelectedOrgs(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(org)) {
-        newSet.delete(org);
+    setOrgLimits(prev => {
+      const newLimits = new Map(prev);
+      if (newLimits.has(org)) {
+        newLimits.delete(org);
       } else {
-        newSet.add(org);
+        newLimits.set(org, 1);
       }
-      return newSet;
+      return newLimits;
+    });
+  };
+
+  const handleOrgLimitChange = (org: string, limit: number) => {
+    setOrgLimits(prev => {
+      const newLimits = new Map(prev);
+      newLimits.set(org, limit);
+      return newLimits;
     });
   };
 
   const handleSelectAll = () => {
-    const allOrgs = new Set<string>();
+    const newLimits = new Map<string, number>();
     Object.values(userOrgStats).forEach(stats => {
-      stats.forEach(stat => allOrgs.add(stat.organization_name));
+      stats.forEach(stat => newLimits.set(stat.organization_name, 1));
     });
-    setSelectedOrgs(allOrgs);
+    setOrgLimits(newLimits);
   };
 
   const handleClearAll = () => {
-    setSelectedOrgs(new Set());
+    setOrgLimits(new Map());
   };
 
   const handleSaveFilters = async () => {
     setIsSavingFilters(true);
     try {
+      const limitsArray = Array.from(orgLimits.entries()).map(([name, maxUses]) => ({
+        name,
+        maxUses
+      }));
+      
       const response = await fetch(
         'https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101',
         {
@@ -129,7 +153,7 @@ export default function TeamScheduleView({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             week_start: weekStart,
-            organizations: Array.from(selectedOrgs)
+            organizations: limitsArray
           })
         }
       );
@@ -176,9 +200,10 @@ export default function TeamScheduleView({
 
       <OrganizationFilter
         userOrgStats={userOrgStats}
-        selectedOrgs={selectedOrgs}
+        orgLimits={orgLimits}
         weekStart={weekStart}
         onOrgToggle={handleOrgToggle}
+        onOrgLimitChange={handleOrgLimitChange}
         onSelectAll={handleSelectAll}
         onClearAll={handleClearAll}
         onSave={handleSaveFilters}

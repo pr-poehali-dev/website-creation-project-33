@@ -11,12 +11,6 @@ export default function TodayContactsCounter({ sessionToken }: TodayContactsCoun
 
   useEffect(() => {
     loadTodayContacts();
-    
-    const interval = setInterval(() => {
-      loadTodayContacts();
-    }, 30000);
-
-    return () => clearInterval(interval);
   }, [sessionToken]);
 
   const loadTodayContacts = async () => {

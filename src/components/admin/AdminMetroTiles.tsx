@@ -123,11 +123,8 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
 
   return (
-    <div className="space-y-6">
-      <TodayContactsCounter sessionToken={sessionToken} />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
-        <div
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 mt-8">
+      <div
         onClick={() => setCurrentView('requests')}
         className="metro-tile bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
       >
@@ -145,10 +142,13 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         onClick={() => setCurrentView('stats')}
         className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
       >
-        <div className="relative z-10">
-          <Icon name="BarChart3" size={48} className="text-white mb-4 md:mb-6" />
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Статистика</h2>
-          <p className="text-green-100 text-sm md:text-base">Пользователи, рейтинг, организации</p>
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <Icon name="BarChart3" size={48} className="text-white mb-4 md:mb-6" />
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Статистика</h2>
+            <p className="text-green-100 text-sm md:text-base">Пользователи, рейтинг, организации</p>
+          </div>
+          <TodayContactsCounter sessionToken={sessionToken} />
         </div>
         <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
           <Icon name="BarChart3" size={120} className="text-white" />
@@ -187,7 +187,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
           <Icon name="TrendingUp" size={120} className="text-white" />
         </div>
-      </div>
       </div>
     </div>
   );

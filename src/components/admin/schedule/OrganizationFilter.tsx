@@ -123,13 +123,7 @@ export default function OrganizationFilter({
 
                 return (
                   <div key={org} className="space-y-1">
-                    <div
-                      className={`p-2 rounded transition-colors ${
-                        isSelected
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-blue-100'
-                      }`}
-                    >
+                    <div className="p-2 rounded bg-white text-gray-700 hover:bg-gray-50 transition-colors border border-gray-200">
                       <div className="flex items-center justify-between">
                         <div 
                           className="flex items-center gap-2 flex-1 cursor-pointer"
@@ -138,15 +132,18 @@ export default function OrganizationFilter({
                             onOrgToggle(org);
                           }}
                         >
-                          <Icon 
-                            name={isSelected ? "CheckSquare" : "Square"} 
-                            size={16} 
-                          />
+                          <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                            isSelected ? 'border-black bg-white' : 'border-gray-300 bg-white'
+                          }`}>
+                            {isSelected && (
+                              <Icon name="Check" size={12} className="text-black" />
+                            )}
+                          </div>
                           <span className="text-sm">{org}</span>
                         </div>
                         {isSelected && (
                           <div className="flex items-center gap-2">
-                            <span className="text-xs">
+                            <span className="text-xs text-gray-600">
                               {currentLimit}x в неделю
                             </span>
                             <button
@@ -154,7 +151,7 @@ export default function OrganizationFilter({
                                 e.stopPropagation();
                                 setExpandedOrg(isOrgExpanded ? null : org);
                               }}
-                              className="p-1 hover:bg-blue-700 rounded"
+                              className="p-1 hover:bg-gray-200 rounded"
                             >
                               <Icon 
                                 name={isOrgExpanded ? "ChevronUp" : "ChevronDown"} 

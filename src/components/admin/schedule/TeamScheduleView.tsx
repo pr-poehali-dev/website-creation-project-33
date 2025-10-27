@@ -46,9 +46,10 @@ export default function TeamScheduleView({
   const weekStart = weekDays.length > 0 ? weekDays[0].date : '';
 
   useEffect(() => {
-    if (Object.keys(userOrgStats).length === 0 || filtersLoaded) return;
+    if (Object.keys(userOrgStats).length === 0 || filtersLoaded || !weekStart) return;
     
     const loadFilters = async () => {
+      console.log(`📥 Загрузка фильтров для недели: ${weekStart}`);
       try {
         const response = await fetch(
           `https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101?week_start=${weekStart}`
@@ -56,9 +57,23 @@ export default function TeamScheduleView({
         
         if (response.ok) {
           const data = await response.json();
-          if (data.organizations && data.organizations.length > 0) {
-            setSelectedOrgs(new Set(data.organizations));
+          console.log('📦 Данные фильтров из БД:', data);
+          
+          let orgsToSelect: string[] = [];
+          
+          if (data.organizations) {
+            if (typeof data.organizations === 'string') {
+              orgsToSelect = JSON.parse(data.organizations);
+            } else if (Array.isArray(data.organizations)) {
+              orgsToSelect = data.organizations;
+            }
+          }
+          
+          if (orgsToSelect.length > 0) {
+            console.log(`✅ Загружено ${orgsToSelect.length} организаций из БД`);
+            setSelectedOrgs(new Set(orgsToSelect));
           } else {
+            console.log('ℹ️ Нет сохранённых фильтров, выбираем все организации');
             const allOrgs = new Set<string>();
             Object.values(userOrgStats).forEach(stats => {
               stats.forEach(stat => allOrgs.add(stat.organization_name));
@@ -67,7 +82,7 @@ export default function TeamScheduleView({
           }
         }
       } catch (error) {
-        console.error('Error loading filters:', error);
+        console.error('❌ Ошибка загрузки фильтров:', error);
         const allOrgs = new Set<string>();
         Object.values(userOrgStats).forEach(stats => {
           stats.forEach(stat => allOrgs.add(stat.organization_name));

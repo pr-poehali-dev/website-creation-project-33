@@ -175,6 +175,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
 
   const saveComment = async (userName: string, date: string, comment: string) => {
     const key = `${userName}-${date}`;
+    console.log(`💾 Сохранение места работы: ${userName} | ${date} | "${comment}"`);
     setSavingComment(key);
     try {
       const response = await fetch(
@@ -191,6 +192,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       );
       
       if (response.ok) {
+        const result = await response.json();
+        console.log(`✅ Место работы сохранено:`, result);
         setWorkComments(prev => ({
           ...prev,
           [date]: {
@@ -198,9 +201,11 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             [userName]: comment
           }
         }));
+      } else {
+        console.error(`❌ Ошибка сохранения: ${response.status}`, await response.text());
       }
     } catch (error) {
-      console.error('Error saving comment:', error);
+      console.error('❌ Ошибка сохранения места работы:', error);
     } finally {
       setSavingComment(null);
     }

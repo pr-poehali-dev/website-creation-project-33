@@ -206,23 +206,6 @@ export default function TeamScheduleView({
     <div className="space-y-4">
       <WeekCalendar weekDays={weekDays} />
 
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">Итого за неделю</h3>
-          <div className="flex gap-6">
-            <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1">Ожидаемо</div>
-              <div className="text-3xl font-bold text-blue-600">{weekTotals.expected}</div>
-            </div>
-            <div className="text-2xl text-gray-400">/</div>
-            <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1">Фактически</div>
-              <div className="text-3xl font-bold text-green-600">{weekTotals.actual}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <OrganizationFilter
         userOrgStats={userOrgStats}
         orgLimits={orgLimits}
@@ -260,6 +243,23 @@ export default function TeamScheduleView({
           />
         );
       })}
+
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-800">Итого за неделю</h3>
+          <div className="flex gap-6">
+            <div className="text-center">
+              <div className="text-sm text-gray-600 mb-1">Ожидаемо</div>
+              <div className="text-3xl font-bold text-blue-600">{weekTotals.expected}</div>
+            </div>
+            <div className="text-2xl text-gray-400">/</div>
+            <div className="text-center">
+              <div className="text-sm text-gray-600 mb-1">Фактически</div>
+              <div className="text-3xl font-bold text-green-600">{weekTotals.actual}</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {showAddModal && (
         <AddPromoterModal

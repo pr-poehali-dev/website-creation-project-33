@@ -32,6 +32,8 @@ export default function OrganizationFilter({
   });
   
   const sortedOrgs = Array.from(allOrgs).sort();
+  
+  const actualSelectedCount = sortedOrgs.filter(org => selectedOrgs.has(org)).length;
 
   if (sortedOrgs.length === 0) {
     return null;
@@ -50,7 +52,7 @@ export default function OrganizationFilter({
               Организации для рекомендаций
             </span>
             <span className="text-sm text-blue-700">
-              ({selectedOrgs.size} из {sortedOrgs.length})
+              ({actualSelectedCount} из {sortedOrgs.length})
             </span>
           </div>
           <Icon 

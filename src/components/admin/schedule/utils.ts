@@ -23,14 +23,6 @@ export const getMondayOfWeek = (date: Date): Date => {
   return monday;
 };
 
-// Helper function to format date as YYYY-MM-DD in local timezone
-const formatDateLocal = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
 export const getAllWeeksUntilEndOfYear = (): Week[] => {
   const weeks = [];
   const startDate = new Date('2025-10-20');

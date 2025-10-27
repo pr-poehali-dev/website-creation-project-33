@@ -12,7 +12,7 @@ interface TimeSlotCardProps {
   savingComment: string | null;
   allLocations: string[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
-  recommendedOrgs: Record<string, Record<string, string>>;
+  recommendedLocations: Record<string, Record<string, string>>;
   onCommentChange: (userName: string, date: string, comment: string) => void;
   onCommentBlur: (userName: string, date: string, comment: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
@@ -28,7 +28,7 @@ export default function TimeSlotCard({
   savingComment,
   allLocations,
   userOrgStats,
-  recommendedOrgs,
+  recommendedLocations,
   onCommentChange,
   onCommentBlur,
   onRemoveSlot,
@@ -63,7 +63,7 @@ export default function TimeSlotCard({
         ) : (
           workers.map(worker => {
             const workerName = `${worker.first_name} ${worker.last_name}`;
-            const recommendedOrg = recommendedOrgs[workerName]?.[dayDate] || '';
+            const recommendedOrg = recommendedLocations[workerName]?.[dayDate] || '';
             const orgStats = userOrgStats[workerName] || [];
             const orgAvg = orgStats.find(o => o.organization_name === recommendedOrg)?.avg_per_shift;
 

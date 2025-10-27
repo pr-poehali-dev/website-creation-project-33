@@ -6,7 +6,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   const [savingComment, setSavingComment] = useState<string | null>(null);
   const [allLocations, setAllLocations] = useState<string[]>([]);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, Array<{organization_name: string, avg_per_shift: number}>>>({});
-  const [recommendedOrgs, setRecommendedOrgs] = useState<Record<string, Record<string, string>>>({});
+  const [recommendedLocations, setRecommendedLocations] = useState<Record<string, Record<string, string>>>({});
 
   useEffect(() => {
     loadWorkComments();
@@ -147,7 +147,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       });
     });
     
-    setRecommendedOrgs(recommendations);
+    setRecommendedLocations(recommendations);
   };
 
   const loadWorkComments = async () => {
@@ -221,7 +221,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     savingComment,
     allLocations,
     userOrgStats,
-    recommendedOrgs,
+    recommendedLocations,
     saveComment,
     updateComment
   };

@@ -12,7 +12,7 @@ interface DayCardProps {
   savingComment: string | null;
   allLocations: string[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
-  recommendedOrgs: Record<string, Record<string, string>>;
+  recommendedLocations: Record<string, Record<string, string>>;
   onToggleDay: (date: string) => void;
   onCommentChange: (userName: string, date: string, comment: string) => void;
   onCommentBlur: (userName: string, date: string, comment: string) => void;
@@ -30,7 +30,7 @@ export default function DayCard({
   savingComment,
   allLocations,
   userOrgStats,
-  recommendedOrgs,
+  recommendedLocations,
   onToggleDay,
   onCommentChange,
   onCommentBlur,
@@ -85,7 +85,7 @@ export default function DayCard({
                     savingComment={savingComment}
                     allLocations={allLocations}
                     userOrgStats={userOrgStats}
-                    recommendedOrgs={recommendedOrgs}
+                    recommendedLocations={recommendedLocations}
                     onCommentChange={onCommentChange}
                     onCommentBlur={onCommentBlur}
                     onRemoveSlot={onRemoveSlot}

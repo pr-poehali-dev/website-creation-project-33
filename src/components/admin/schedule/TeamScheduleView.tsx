@@ -34,7 +34,7 @@ export default function TeamScheduleView({
     savingComment,
     allLocations,
     userOrgStats,
-    recommendedOrgs,
+    recommendedLocations,
     saveComment,
     updateComment
   } = useScheduleData(weekDays, schedules);
@@ -85,7 +85,7 @@ export default function TeamScheduleView({
             savingComment={savingComment}
             allLocations={allLocations}
             userOrgStats={userOrgStats}
-            recommendedOrgs={recommendedOrgs}
+            recommendedLocations={recommendedLocations}
             onToggleDay={toggleDay}
             onCommentChange={updateComment}
             onCommentBlur={handleCommentBlur}

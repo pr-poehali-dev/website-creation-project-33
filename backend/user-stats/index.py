@@ -70,11 +70,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor()
     
     # Get statistics using simple query (no parameters)
+    # Moscow time is UTC+3, so we need to check if created_at + 3 hours is today
     if user_id == 'all':
         query = """
             SELECT 
                 COUNT(*) as total_contacts,
-                SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 ELSE 0 END) as today_contacts
+                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') THEN 1 ELSE 0 END) as today_contacts
             FROM t_p24058207_website_creation_pro.leads_analytics
             WHERE lead_type = 'контакт'
         """
@@ -82,7 +83,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         query = f"""
             SELECT 
                 COUNT(*) as total_contacts,
-                SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 ELSE 0 END) as today_contacts
+                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') THEN 1 ELSE 0 END) as today_contacts
             FROM t_p24058207_website_creation_pro.leads_analytics
             WHERE user_id = {int(user_id)} AND lead_type = 'контакт'
         """

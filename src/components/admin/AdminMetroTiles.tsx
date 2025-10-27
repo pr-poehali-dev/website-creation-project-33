@@ -8,6 +8,7 @@ import StatsTab from './StatsTab';
 import OrganizationsTab from './OrganizationsTab';
 import AdminChatTab from './AdminChatTab';
 import ScheduleAnalyticsTab from './ScheduleAnalyticsTab';
+import TodayContactsCounter from './TodayContactsCounter';
 
 
 interface AdminMetroTilesProps {
@@ -122,8 +123,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 mt-8">
-      <div
+    <div className="space-y-6">
+      <TodayContactsCounter sessionToken={sessionToken} />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
+        <div
         onClick={() => setCurrentView('requests')}
         className="metro-tile bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
       >
@@ -184,8 +188,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
           <Icon name="TrendingUp" size={120} className="text-white" />
         </div>
       </div>
-
-
+    </div>
     </div>
   );
 }

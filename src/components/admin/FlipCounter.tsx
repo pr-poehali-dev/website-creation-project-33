@@ -31,7 +31,7 @@ export default function FlipCounter({ value }: FlipCounterProps) {
   const letters = status.text.split('');
 
   return (
-    <div className="flex flex-col items-center gap-3 mb-6">
+    <div className="flex items-center justify-center gap-3 mb-6">
       <div className="flex gap-1">
         {letters.map((letter, index) => (
           <div
@@ -46,26 +46,26 @@ export default function FlipCounter({ value }: FlipCounterProps) {
         ))}
       </div>
       
-      <div className="flex items-center justify-center gap-2">
-        <div className="flex gap-1">
-          {digits.map((digit, index) => (
+      <div className="text-4xl font-bold text-gray-600">—</div>
+      
+      <div className="flex gap-1">
+        {digits.map((digit, index) => (
+          <div
+            key={index}
+            className={`relative w-12 h-16 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg shadow-lg overflow-hidden transition-transform duration-300 ${
+              isFlipping ? 'scale-105' : 'scale-100'
+            }`}
+          >
             <div
-              key={index}
-              className={`relative w-12 h-16 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg shadow-lg overflow-hidden transition-transform duration-300 ${
-                isFlipping ? 'scale-105' : 'scale-100'
+              className={`absolute inset-0 flex items-center justify-center text-4xl font-bold text-white transition-all duration-300 ${
+                isFlipping ? 'translate-y-[-100%] opacity-0' : 'translate-y-0 opacity-100'
               }`}
             >
-              <div
-                className={`absolute inset-0 flex items-center justify-center text-4xl font-bold text-white transition-all duration-300 ${
-                  isFlipping ? 'translate-y-[-100%] opacity-0' : 'translate-y-0 opacity-100'
-                }`}
-              >
-                {digit}
-              </div>
-              <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-gray-700"></div>
+              {digit}
             </div>
-          ))}
-        </div>
+            <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-gray-700"></div>
+          </div>
+        ))}
       </div>
     </div>
   );

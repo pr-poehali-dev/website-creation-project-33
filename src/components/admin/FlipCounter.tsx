@@ -32,8 +32,21 @@ export default function FlipCounter({ value }: FlipCounterProps) {
 
   return (
     <div className="flex flex-col items-center gap-3 mb-6">
+      <div className="flex gap-1">
+        {letters.map((letter, index) => (
+          <div
+            key={index}
+            className={`relative w-10 h-14 bg-gradient-to-b ${status.bg} rounded-lg shadow-lg overflow-hidden transition-all duration-500`}
+          >
+            <div className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white">
+              {letter}
+            </div>
+            <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-white opacity-20"></div>
+          </div>
+        ))}
+      </div>
+      
       <div className="flex items-center justify-center gap-2">
-        <div className="text-gray-600 text-xl font-medium">Собрано контактов сегодня:</div>
         <div className="flex gap-1">
           {digits.map((digit, index) => (
             <div
@@ -53,20 +66,6 @@ export default function FlipCounter({ value }: FlipCounterProps) {
             </div>
           ))}
         </div>
-      </div>
-      
-      <div className="flex gap-1">
-        {letters.map((letter, index) => (
-          <div
-            key={index}
-            className={`relative w-10 h-14 bg-gradient-to-b ${status.bg} rounded-lg shadow-lg overflow-hidden transition-all duration-500`}
-          >
-            <div className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white">
-              {letter}
-            </div>
-            <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-white opacity-20"></div>
-          </div>
-        ))}
       </div>
     </div>
   );

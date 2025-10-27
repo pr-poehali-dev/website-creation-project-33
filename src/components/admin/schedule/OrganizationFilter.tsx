@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -6,17 +6,23 @@ import Icon from '@/components/ui/icon';
 interface OrganizationFilterProps {
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
   selectedOrgs: Set<string>;
+  weekStart: string;
   onOrgToggle: (org: string) => void;
   onSelectAll: () => void;
   onClearAll: () => void;
+  onSave: () => Promise<void>;
+  isSaving: boolean;
 }
 
 export default function OrganizationFilter({
   userOrgStats,
   selectedOrgs,
+  weekStart,
   onOrgToggle,
   onSelectAll,
-  onClearAll
+  onClearAll,
+  onSave,
+  isSaving
 }: OrganizationFilterProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   
@@ -56,7 +62,7 @@ export default function OrganizationFilter({
 
         {isExpanded && (
           <div className="mt-4 space-y-3">
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -80,6 +86,22 @@ export default function OrganizationFilter({
               >
                 <Icon name="Square" size={14} className="mr-1" />
                 Снять все
+              </Button>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSave();
+                }}
+                disabled={isSaving}
+                size="sm"
+                className="text-xs bg-green-600 hover:bg-green-700 text-white"
+              >
+                {isSaving ? (
+                  <Icon name="Loader2" size={14} className="mr-1 animate-spin" />
+                ) : (
+                  <Icon name="Save" size={14} className="mr-1" />
+                )}
+                Сохранить
               </Button>
             </div>
 

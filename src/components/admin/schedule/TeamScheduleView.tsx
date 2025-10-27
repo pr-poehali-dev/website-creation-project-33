@@ -30,6 +30,8 @@ export default function TeamScheduleView({
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
   const [selectedOrgs, setSelectedOrgs] = useState<Set<string>>(new Set());
+  const [isSavingFilters, setIsSavingFilters] = useState(false);
+  const [filtersLoaded, setFiltersLoaded] = useState(false);
 
   const {
     workComments,
@@ -41,13 +43,42 @@ export default function TeamScheduleView({
     updateComment
   } = useScheduleData(weekDays, schedules, selectedOrgs);
 
+  const weekStart = weekDays.length > 0 ? weekDays[0].date : '';
+
   useEffect(() => {
-    const allOrgs = new Set<string>();
-    Object.values(userOrgStats).forEach(stats => {
-      stats.forEach(stat => allOrgs.add(stat.organization_name));
-    });
-    setSelectedOrgs(allOrgs);
-  }, [userOrgStats]);
+    if (Object.keys(userOrgStats).length === 0 || filtersLoaded) return;
+    
+    const loadFilters = async () => {
+      try {
+        const response = await fetch(
+          `https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101?week_start=${weekStart}`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.organizations && data.organizations.length > 0) {
+            setSelectedOrgs(new Set(data.organizations));
+          } else {
+            const allOrgs = new Set<string>();
+            Object.values(userOrgStats).forEach(stats => {
+              stats.forEach(stat => allOrgs.add(stat.organization_name));
+            });
+            setSelectedOrgs(allOrgs);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading filters:', error);
+        const allOrgs = new Set<string>();
+        Object.values(userOrgStats).forEach(stats => {
+          stats.forEach(stat => allOrgs.add(stat.organization_name));
+        });
+        setSelectedOrgs(allOrgs);
+      }
+      setFiltersLoaded(true);
+    };
+    
+    loadFilters();
+  }, [userOrgStats, weekStart, filtersLoaded]);
 
   const handleOrgToggle = (org: string) => {
     setSelectedOrgs(prev => {
@@ -71,6 +102,33 @@ export default function TeamScheduleView({
 
   const handleClearAll = () => {
     setSelectedOrgs(new Set());
+  };
+
+  const handleSaveFilters = async () => {
+    setIsSavingFilters(true);
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            week_start: weekStart,
+            organizations: Array.from(selectedOrgs)
+          })
+        }
+      );
+      
+      if (response.ok) {
+        console.log('✅ Фильтры организаций сохранены');
+      } else {
+        console.error('❌ Ошибка сохранения фильтров:', await response.text());
+      }
+    } catch (error) {
+      console.error('❌ Ошибка сохранения фильтров:', error);
+    } finally {
+      setIsSavingFilters(false);
+    }
   };
 
   const toggleDay = (date: string) => {
@@ -104,9 +162,12 @@ export default function TeamScheduleView({
       <OrganizationFilter
         userOrgStats={userOrgStats}
         selectedOrgs={selectedOrgs}
+        weekStart={weekStart}
         onOrgToggle={handleOrgToggle}
         onSelectAll={handleSelectAll}
         onClearAll={handleClearAll}
+        onSave={handleSaveFilters}
+        isSaving={isSavingFilters}
       />
 
       {daysWithWorkers.map((day) => {

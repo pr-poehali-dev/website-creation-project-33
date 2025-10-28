@@ -66,8 +66,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 ws.shift_date,
                 u.full_name as user_name,
                 o.name as organization_name,
-                TO_CHAR(ws.shift_start AT TIME ZONE 'Europe/Moscow', 'HH24:MI') as start_time,
-                TO_CHAR(ws.shift_end AT TIME ZONE 'Europe/Moscow', 'HH24:MI') as end_time,
+                ws.shift_start,
+                ws.shift_end,
                 COALESCE(wsc.contacts_count, 0) as contacts_count,
                 COALESCE(wsc.contact_rate, 0) as contact_rate,
                 COALESCE(wsc.payment_type, 'cash') as payment_type,
@@ -76,9 +76,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 ws.paid_by_organization,
                 ws.paid_to_worker,
                 ws.paid_kvv,
-                ws.paid_kms,
-                EXTRACT(EPOCH FROM (ws.shift_end - ws.shift_start)) / 3600 as hours_worked,
-                COALESCE(wsc.contacts_count, 0) * COALESCE(wsc.contact_rate, 0) as total_contacts_payment
+                ws.paid_kms
             FROM t_p24058207_website_creation_pro.work_shifts ws
             JOIN t_p24058207_website_creation_pro.users u ON ws.user_id = u.id
             JOIN t_p24058207_website_creation_pro.organizations o ON ws.organization_id = o.id
@@ -122,18 +120,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         values = [headers]
         
         for shift in shifts:
+            start_time = shift['shift_start'].strftime('%H:%M') if shift['shift_start'] else ''
+            end_time = shift['shift_end'].strftime('%H:%M') if shift['shift_end'] else ''
+            
+            hours_worked = 0
+            if shift['shift_start'] and shift['shift_end']:
+                delta = shift['shift_end'] - shift['shift_start']
+                hours_worked = delta.total_seconds() / 3600
+            
+            total_payment = shift['contacts_count'] * shift['contact_rate']
+            
             row = [
                 shift['shift_date'].strftime('%Y-%m-%d') if shift['shift_date'] else '',
                 shift['user_name'] or '',
                 shift['organization_name'] or '',
-                shift['start_time'] or '',
-                shift['end_time'] or '',
-                f"{shift['hours_worked']:.2f}" if shift['hours_worked'] else '0',
-                str(shift['contacts_count']) if shift['contacts_count'] else '0',
-                str(shift['contact_rate']) if shift['contact_rate'] else '0',
-                str(shift['total_contacts_payment']) if shift['total_contacts_payment'] else '0',
+                start_time,
+                end_time,
+                f"{hours_worked:.2f}",
+                str(shift['contacts_count']),
+                str(shift['contact_rate']),
+                str(total_payment),
                 shift['payment_type'] or '',
-                str(shift['expense_amount']) if shift['expense_amount'] else '0',
+                str(shift['expense_amount']),
                 shift['expense_comment'] or '',
                 'Да' if shift['paid_by_organization'] else 'Нет',
                 'Да' if shift['paid_to_worker'] else 'Нет',

@@ -1182,22 +1182,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             u.id as user_id,
                             u.name as user_name,
                             COUNT(CASE WHEN l.lead_type = '\u043a\u043e\u043d\u0442\u0430\u043a\u0442' THEN 1 END) as contacts_count,
-                            COALESCE(
-                                (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
-                                 WHERE organization_id = o.id 
-                                 AND start_date <= l.created_at::date 
-                                 AND (end_date IS NULL OR end_date >= l.created_at::date)
-                                 ORDER BY start_date DESC LIMIT 1),
-                                o.contact_rate
-                            ) as contact_rate,
-                            COALESCE(
-                                (SELECT payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods 
-                                 WHERE organization_id = o.id 
-                                 AND start_date <= l.created_at::date 
-                                 AND (end_date IS NULL OR end_date >= l.created_at::date)
-                                 ORDER BY start_date DESC LIMIT 1),
-                                o.payment_type
-                            ) as payment_type,
+                            MAX(COALESCE(orp.contact_rate, o.contact_rate)) as contact_rate,
+                            MAX(COALESCE(orp.payment_type, o.payment_type)) as payment_type,
                             COALESCE(ae.expense_amount, 0) as expense_amount,
                             COALESCE(ae.expense_comment, '') as expense_comment,
                             COALESCE(ae.paid_by_organization, false) as paid_by_organization,
@@ -1211,6 +1197,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             ON ae.user_id = l.user_id
                             AND ae.work_date = l.created_at::date
                             AND ae.organization_id = l.organization_id
+                        LEFT JOIN t_p24058207_website_creation_pro.organization_rate_periods orp
+                            ON orp.organization_id = o.id
+                            AND orp.start_date <= l.created_at::date
+                            AND (orp.end_date IS NULL OR orp.end_date >= l.created_at::date)
                         LEFT JOIN LATERAL (
                             SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time as start_time
                             FROM t_p24058207_website_creation_pro.shift_videos

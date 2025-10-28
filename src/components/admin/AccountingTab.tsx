@@ -283,15 +283,33 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     );
   }
 
+  const handleRefresh = () => {
+    loadAccountingData();
+    toast({
+      title: 'Обновление',
+      description: 'Загрузка свежих данных...',
+    });
+  };
+
   return (
     <Card className="bg-white border-gray-200 rounded-2xl">
       <CardHeader className="pb-3 md:pb-4">
-        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
-          <div className="p-1.5 md:p-2 rounded-lg bg-blue-100">
-            <Icon name="Calculator" size={18} className="text-blue-600 md:w-5 md:h-5" />
-          </div>
-          Бух.учет
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-blue-100">
+              <Icon name="Calculator" size={18} className="text-blue-600 md:w-5 md:h-5" />
+            </div>
+            Бух.учет
+          </CardTitle>
+          <button
+            onClick={handleRefresh}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            title="Обновить данные"
+          >
+            <Icon name="RefreshCw" size={16} />
+            <span className="hidden md:inline">Обновить</span>
+          </button>
+        </div>
       </CardHeader>
       <CardContent>
         {shifts.length === 0 ? (

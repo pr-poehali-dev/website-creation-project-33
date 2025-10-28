@@ -332,7 +332,11 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
                         <select
                           value={(editingPayments[key]?.paid_by_organization ?? shift.paid_by_organization) ? 'yes' : 'no'}
                           onChange={(e) => handlePaymentToggle(shift, 'paid_by_organization')}
-                          className="w-16 h-7 text-xs border border-gray-300 rounded px-1"
+                          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+                            (editingPayments[key]?.paid_by_organization ?? shift.paid_by_organization)
+                              ? 'bg-green-100 text-green-800 border-green-300'
+                              : 'bg-red-100 text-red-800 border-red-300'
+                          }`}
                         >
                           <option value="no">Нет</option>
                           <option value="yes">Да</option>
@@ -342,7 +346,11 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
                         <select
                           value={(editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker) ? 'yes' : 'no'}
                           onChange={(e) => handlePaymentToggle(shift, 'paid_to_worker')}
-                          className="w-16 h-7 text-xs border border-gray-300 rounded px-1"
+                          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+                            (editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker)
+                              ? 'bg-green-100 text-green-800 border-green-300'
+                              : 'bg-red-100 text-red-800 border-red-300'
+                          }`}
                         >
                           <option value="no">Нет</option>
                           <option value="yes">Да</option>
@@ -352,7 +360,11 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
                         <select
                           value={(editingPayments[key]?.paid_kvv ?? shift.paid_kvv) ? 'yes' : 'no'}
                           onChange={(e) => handlePaymentToggle(shift, 'paid_kvv')}
-                          className="w-16 h-7 text-xs border border-gray-300 rounded px-1"
+                          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+                            (editingPayments[key]?.paid_kvv ?? shift.paid_kvv)
+                              ? 'bg-green-100 text-green-800 border-green-300'
+                              : 'bg-red-100 text-red-800 border-red-300'
+                          }`}
                         >
                           <option value="no">Нет</option>
                           <option value="yes">Да</option>
@@ -362,7 +374,11 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
                         <select
                           value={(editingPayments[key]?.paid_kms ?? shift.paid_kms) ? 'yes' : 'no'}
                           onChange={(e) => handlePaymentToggle(shift, 'paid_kms')}
-                          className="w-16 h-7 text-xs border border-gray-300 rounded px-1"
+                          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+                            (editingPayments[key]?.paid_kms ?? shift.paid_kms)
+                              ? 'bg-green-100 text-green-800 border-green-300'
+                              : 'bg-red-100 text-red-800 border-red-300'
+                          }`}
                         >
                           <option value="no">Нет</option>
                           <option value="yes">Да</option>

@@ -10,29 +10,13 @@
       }
     },
     {
-      "name": "Test POST with valid lead data",
+      "name": "Test POST without session token",
       "method": "POST",
       "path": "/",
       "body": {
-        "promoter_name": "Иван Иванов",
-        "notes": "Контакт: +79001234567, Имя: Петр",
-        "timestamp": "2025-09-30 14:30:00"
+        "shifts": []
       },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "success": true,
-        "message": "string"
-      },
-      "bodyMatcher": "partial"
-    },
-    {
-      "name": "Test POST without required fields",
-      "method": "POST",
-      "path": "/",
-      "body": {
-        "promoter_name": ""
-      },
-      "expectedStatus": 400,
+      "expectedStatus": 401,
       "expectedBody": {
         "error": "string"
       },

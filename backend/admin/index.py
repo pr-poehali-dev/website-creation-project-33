@@ -1133,6 +1133,42 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'body': json.dumps({'work_time': work_time})
             }
         
+        elif action == 'get_rate_periods':
+            organization_id = event.get('queryStringParameters', {}).get('organization_id')
+            
+            if not organization_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID организации обязателен'})
+                }
+            
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT id, start_date, end_date, contact_rate, payment_type, created_at
+                        FROM t_p24058207_website_creation_pro.organization_rate_periods
+                        WHERE organization_id = %s
+                        ORDER BY start_date DESC
+                    """, (organization_id,))
+                    
+                    periods = []
+                    for row in cur.fetchall():
+                        periods.append({
+                            'id': row[0],
+                            'start_date': row[1].isoformat() if row[1] else None,
+                            'end_date': row[2].isoformat() if row[2] else None,
+                            'contact_rate': int(row[3]),
+                            'payment_type': row[4],
+                            'created_at': row[5].isoformat() if row[5] else None
+                        })
+            
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'periods': periods})
+            }
+        
         return {
             'statusCode': 400,
             'headers': headers,
@@ -1362,6 +1398,80 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'statusCode': 500,
                     'headers': headers,
                     'body': json.dumps({'error': 'Ошибка при добавлении смены'})
+                }
+        
+        elif action == 'add_rate_period':
+            organization_id = body_data.get('organization_id')
+            start_date = body_data.get('start_date')
+            end_date = body_data.get('end_date')
+            contact_rate = body_data.get('contact_rate', 0)
+            payment_type = body_data.get('payment_type', 'cash')
+            
+            if not organization_id or not start_date:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID организации и дата начала обязательны'})
+                }
+            
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("""
+                            INSERT INTO t_p24058207_website_creation_pro.organization_rate_periods 
+                            (organization_id, start_date, end_date, contact_rate, payment_type)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (organization_id, start_date, end_date if end_date else None, contact_rate, payment_type))
+                        conn.commit()
+                        
+                        return {
+                            'statusCode': 200,
+                            'headers': headers,
+                            'body': json.dumps({'success': True})
+                        }
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': f'Ошибка добавления периода: {str(e)}'})
+                }
+        
+        elif action == 'delete_rate_period':
+            period_id = body_data.get('period_id')
+            
+            if not period_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID периода обязателен'})
+                }
+            
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "DELETE FROM t_p24058207_website_creation_pro.organization_rate_periods WHERE id = %s",
+                            (period_id,)
+                        )
+                        conn.commit()
+                        
+                        if cur.rowcount > 0:
+                            return {
+                                'statusCode': 200,
+                                'headers': headers,
+                                'body': json.dumps({'success': True})
+                            }
+                        else:
+                            return {
+                                'statusCode': 404,
+                                'headers': headers,
+                                'body': json.dumps({'error': 'Период не найден'})
+                            }
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': f'Ошибка удаления периода: {str(e)}'})
                 }
     
     elif method == 'PUT':

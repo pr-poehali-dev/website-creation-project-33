@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useOrganizations } from '@/hooks/useAdminData';
 import { useQueryClient } from '@tanstack/react-query';
+import RatePeriodsModal from './RatePeriodsModal';
 
 const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
 
@@ -33,6 +34,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
   const [editingRate, setEditingRate] = useState('');
   const [editingPaymentType, setEditingPaymentType] = useState<'cash' | 'cashless'>('cash');
   const [updating, setUpdating] = useState(false);
+  const [periodsModalOrg, setPeriodsModalOrg] = useState<{ id: number; name: string } | null>(null);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -351,6 +353,15 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Button
+                          onClick={() => setPeriodsModalOrg({ id: org.id, name: org.name })}
+                          className="border-2 border-green-200 bg-green-50 text-green-600 hover:bg-green-100 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
+                          variant="ghost"
+                          size="sm"
+                          title="Тарифные периоды"
+                        >
+                          <Icon name="Calendar" size={12} className="md:w-[14px] md:h-[14px]" />
+                        </Button>
+                        <Button
                           onClick={() => startEditing(org)}
                           className="border-2 border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
                           variant="ghost"
@@ -386,6 +397,14 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
           )}
         </CardContent>
       </Card>
+
+      {periodsModalOrg && (
+        <RatePeriodsModal
+          organizationId={periodsModalOrg.id}
+          organizationName={periodsModalOrg.name}
+          onClose={() => setPeriodsModalOrg(null)}
+        />
+      )}
     </div>
   );
 }

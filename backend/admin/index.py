@@ -1175,8 +1175,24 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     cur.execute("""
                         SELECT 
                             l.created_at::date as shift_date,
-                            sv_start.start_time,
-                            sv_end.end_time,
+                            (
+                                SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time
+                                FROM t_p24058207_website_creation_pro.shift_videos
+                                WHERE user_id = l.user_id 
+                                  AND work_date = l.created_at::date
+                                  AND organization_id = l.organization_id 
+                                  AND video_type = 'start'
+                                ORDER BY created_at LIMIT 1
+                            ) as start_time,
+                            (
+                                SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time
+                                FROM t_p24058207_website_creation_pro.shift_videos
+                                WHERE user_id = l.user_id 
+                                  AND work_date = l.created_at::date
+                                  AND organization_id = l.organization_id 
+                                  AND video_type = 'end'
+                                ORDER BY created_at DESC LIMIT 1
+                            ) as end_time,
                             o.name as organization,
                             o.id as organization_id,
                             u.id as user_id,
@@ -1197,29 +1213,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             ON ae.user_id = l.user_id
                             AND ae.work_date = l.created_at::date
                             AND ae.organization_id = l.organization_id
-                        LEFT JOIN LATERAL (
-                            SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time as start_time
-                            FROM t_p24058207_website_creation_pro.shift_videos
-                            WHERE user_id = l.user_id 
-                              AND work_date = l.created_at::date
-                              AND organization_id = l.organization_id 
-                              AND video_type = 'start'
-                            ORDER BY created_at LIMIT 1
-                        ) sv_start ON true
-                        LEFT JOIN LATERAL (
-                            SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time as end_time
-                            FROM t_p24058207_website_creation_pro.shift_videos
-                            WHERE user_id = l.user_id 
-                              AND work_date = l.created_at::date
-                              AND organization_id = l.organization_id 
-                              AND video_type = 'end'
-                            ORDER BY created_at DESC LIMIT 1
-                        ) sv_end ON true
                         WHERE l.created_at::date >= '2025-10-01'
                             AND l.is_active = true
                         GROUP BY l.created_at::date, l.user_id, l.organization_id, o.name, o.id, 
-                                 u.id, u.name, sv_start.start_time, sv_end.end_time, 
-                                 o.contact_rate, o.payment_type
+                                 u.id, u.name, o.contact_rate, o.payment_type
                         ORDER BY l.created_at::date DESC, u.name
                     """)
                     

@@ -92,19 +92,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         for shift in shifts:
             start_time = shift.get('start_time', '')
             end_time = shift.get('end_time', '')
-            hours_worked = shift.get('hours_worked', 0)
             
-            total_payment = shift.get('total_income', 0)
+            if start_time and end_time and ':' in start_time and ':' in end_time:
+                try:
+                    start_parts = start_time.split(':')
+                    end_parts = end_time.split(':')
+                    start_hours = int(start_parts[0]) + int(start_parts[1]) / 60
+                    end_hours = int(end_parts[0]) + int(end_parts[1]) / 60
+                    hours_worked = end_hours - start_hours
+                    if hours_worked < 0:
+                        hours_worked += 24
+                except:
+                    hours_worked = 0
+            else:
+                hours_worked = 0
+            
+            contacts = shift.get('contacts_count', 0)
+            rate = shift.get('contact_rate', 0)
+            total_payment = contacts * rate
             
             row = [
                 shift.get('date', ''),
                 shift.get('user_name', ''),
-                shift.get('organization_name', ''),
+                shift.get('organization', ''),
                 start_time,
                 end_time,
                 f"{hours_worked:.2f}",
-                str(shift.get('contacts_count', 0)),
-                str(shift.get('contact_rate', 0)),
+                str(contacts),
+                str(rate),
                 str(total_payment),
                 shift.get('payment_type', ''),
                 str(shift.get('expense_amount', 0)),

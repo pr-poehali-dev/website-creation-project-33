@@ -154,6 +154,9 @@ export function useShiftActions(
       const shift = shifts.find(s => getShiftKey(s) === key);
       if (!shift) return;
       
+      const expenseAmount = editingExpense[key] ?? shift.expense_amount ?? 0;
+      const expenseComment = editingComment[key] ?? shift.expense_comment ?? '';
+      
       return fetch(ADMIN_API, {
         method: 'POST',
         headers: {
@@ -165,8 +168,8 @@ export function useShiftActions(
           user_id: shift.user_id,
           work_date: shift.date,
           organization_id: shift.organization_id,
-          expense_amount: shift.expense_amount,
-          expense_comment: shift.expense_comment,
+          expense_amount: expenseAmount,
+          expense_comment: expenseComment,
           paid_by_organization: payments.paid_by_organization,
           paid_to_worker: payments.paid_to_worker,
           paid_kvv: payments.paid_kvv,

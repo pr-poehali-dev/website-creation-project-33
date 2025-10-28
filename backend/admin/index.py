@@ -1620,6 +1620,23 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         print(f"🔍 UPDATE params: new=({new_user_id}, {new_work_date}, {new_organization_id})")
                         print(f"🔍 Times: start={start_time}, end={end_time}")
                         
+                        cur.execute("""
+                            SELECT id, user_id, shift_date, organization_id 
+                            FROM t_p24058207_website_creation_pro.work_shifts
+                            WHERE user_id = %s AND shift_date = %s AND organization_id = %s
+                        """, (old_user_id, old_work_date, old_organization_id))
+                        
+                        existing_shift = cur.fetchone()
+                        if not existing_shift:
+                            print(f"❌ Shift NOT FOUND for update: user={old_user_id}, date={old_work_date}, org={old_organization_id}")
+                            return {
+                                'statusCode': 404,
+                                'headers': headers,
+                                'body': json.dumps({'error': 'Смена не найдена для обновления'})
+                            }
+                        
+                        print(f"✅ Found shift: id={existing_shift[0]}")
+                        
                         start_time_normalized = start_time.split(':')[0] + ':' + start_time.split(':')[1]
                         end_time_normalized = end_time.split(':')[0] + ':' + end_time.split(':')[1]
                         
@@ -1629,7 +1646,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             AND DATE(created_at AT TIME ZONE 'Europe/Moscow') = %s
                         """, (old_user_id, old_organization_id, old_work_date))
                         
-                        print(f"✅ Deleted {cur.rowcount} contacts")
+                        print(f"✅ Deleted contacts")
                         
                         shift_start_dt = f"{new_work_date} {start_time_normalized}+03"
                         shift_end_dt = f"{new_work_date} {end_time_normalized}+03"

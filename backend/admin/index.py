@@ -1175,8 +1175,16 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     cur.execute("""
                         SELECT 
                             s.shift_date,
-                            (MIN(CASE WHEN sv.video_type = 'start' THEN sv.created_at END) AT TIME ZONE 'Europe/Moscow')::time as start_time,
-                            (MAX(CASE WHEN sv.video_type = 'end' THEN sv.created_at END) AT TIME ZONE 'Europe/Moscow')::time as end_time,
+                            (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
+                             FROM t_p24058207_website_creation_pro.shift_videos 
+                             WHERE user_id = s.user_id AND work_date = s.shift_date 
+                             AND organization_id = s.organization_id AND video_type = 'start' 
+                             ORDER BY created_at LIMIT 1) as start_time,
+                            (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
+                             FROM t_p24058207_website_creation_pro.shift_videos 
+                             WHERE user_id = s.user_id AND work_date = s.shift_date 
+                             AND organization_id = s.organization_id AND video_type = 'end' 
+                             ORDER BY created_at DESC LIMIT 1) as end_time,
                             o.name as organization,
                             o.id as organization_id,
                             u.id as user_id,
@@ -1207,10 +1215,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         FROM t_p24058207_website_creation_pro.work_shifts s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
-                        LEFT JOIN t_p24058207_website_creation_pro.shift_videos sv
-                            ON sv.user_id = s.user_id
-                            AND sv.work_date = s.shift_date
-                            AND sv.organization_id = s.organization_id
                         LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
                             ON l.user_id = s.user_id 
                             AND l.created_at::date = s.shift_date

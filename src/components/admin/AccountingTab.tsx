@@ -199,6 +199,16 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   };
 
   const deleteShift = async (shift: ShiftRecord) => {
+    const password = prompt('Введите пароль для удаления:');
+    if (password !== '955650') {
+      toast({
+        title: 'Ошибка',
+        description: 'Неверный пароль',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (!confirm(`Удалить смену ${shift.user_name} от ${formatDate(shift.date)}?`)) {
       return;
     }

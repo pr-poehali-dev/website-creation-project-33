@@ -1616,6 +1616,12 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             try:
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
+                        cur.execute("""
+                            DELETE FROM t_p24058207_website_creation_pro.leads_analytics
+                            WHERE user_id = %s AND organization_id = %s 
+                            AND DATE(created_at AT TIME ZONE 'Europe/Moscow') = %s
+                        """, (old_user_id, old_organization_id, old_work_date))
+                        
                         shift_start_dt = f"{new_work_date} {start_time}+03"
                         shift_end_dt = f"{new_work_date} {end_time}+03"
                         
@@ -1647,12 +1653,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 'headers': headers,
                                 'body': json.dumps({'error': 'Смена не найдена для обновления'})
                             }
-                        
-                        cur.execute("""
-                            DELETE FROM t_p24058207_website_creation_pro.leads_analytics
-                            WHERE user_id = %s AND organization_id = %s 
-                            AND DATE(created_at AT TIME ZONE 'Europe/Moscow') = %s
-                        """, (old_user_id, old_organization_id, old_work_date))
                         
                         if contacts_count > 0:
                             moscow_tz = pytz.timezone('Europe/Moscow')

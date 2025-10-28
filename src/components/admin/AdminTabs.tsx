@@ -31,6 +31,14 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
           <span className="hidden lg:inline">Заявки</span>
         </TabsTrigger>
         <TabsTrigger 
+          value="accounting" 
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          title="Бух.учет"
+        >
+          <Icon name="Calculator" size={16} />
+          <span className="hidden lg:inline">Бух.учет</span>
+        </TabsTrigger>
+        <TabsTrigger 
           value="users" 
           className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
           title="Пользователи"
@@ -45,14 +53,6 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
         >
           <Icon name="BarChart3" size={16} />
           <span className="hidden lg:inline">Рейтинг</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="accounting" 
-          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
-          title="Бух.учет"
-        >
-          <Icon name="Calculator" size={16} />
-          <span className="hidden lg:inline">Бух.учет</span>
         </TabsTrigger>
         <TabsTrigger 
           value="organizations" 

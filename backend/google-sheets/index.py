@@ -1,12 +1,13 @@
 '''
-Business: Записывает данные лида в Google Sheets таблицу
-Args: event с методом POST и body с данными (promoter_name, notes, timestamp)
-Returns: HTTP response с результатом записи
+Business: Экспортирует бухгалтерские данные о сменах в новый лист Google Sheets
+Args: event с методом POST, body с массивом shifts, заголовок X-Session-Token для авторизации
+Returns: HTTP response с URL таблицы и результатом экспорта
 '''
 
 import json
 import os
 from typing import Dict, Any
+from datetime import datetime
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
@@ -19,7 +20,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Session-Token',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
@@ -35,20 +36,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Method not allowed'})
         }
     
+    headers = event.get('headers', {})
+    session_token = headers.get('X-Session-Token') or headers.get('x-session-token')
+    
+    if not session_token:
+        return {
+            'statusCode': 401,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'error': 'Unauthorized: No session token'})
+        }
+    
     body_data = json.loads(event.get('body', '{}'))
+    shifts = body_data.get('shifts', [])
     
-    promoter_name = body_data.get('promoter_name', '')
-    notes = body_data.get('notes', '')
-    timestamp = body_data.get('timestamp', '')
-    
-    if not promoter_name or not notes:
+    if not shifts:
         return {
             'statusCode': 400,
             'headers': {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': 'Promoter name and notes are required'})
+            'body': json.dumps({'error': 'No shifts data provided'})
         }
     
     credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_NEW')
@@ -61,25 +72,103 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': 'Google Sheets credentials not configured'})
+            'body': json.dumps({'error': 'Google Sheets не настроены. Обратитесь к администратору.'})
         }
     
     credentials_dict = json.loads(credentials_json)
-    
     scopes = ['https://www.googleapis.com/auth/spreadsheets']
     creds = Credentials.from_service_account_info(credentials_dict, scopes=scopes)
-    
     service = build('sheets', 'v4', credentials=creds)
     
-    values = [[promoter_name, notes, timestamp]]
-    body = {'values': values}
+    # Создаём новый лист с меткой времени
+    sheet_title = f"Экспорт {datetime.now().strftime('%d.%m.%Y %H:%M')}"
     
-    result = service.spreadsheets().values().append(
+    # Добавляем новый лист
+    add_sheet_request = {
+        'addSheet': {
+            'properties': {
+                'title': sheet_title,
+                'gridProperties': {
+                    'rowCount': len(shifts) + 1,
+                    'columnCount': 15
+                }
+            }
+        }
+    }
+    
+    batch_update_response = service.spreadsheets().batchUpdate(
         spreadsheetId=sheet_id,
-        range='Лист1!A:C',
-        valueInputOption='RAW',
-        body=body
+        body={'requests': [add_sheet_request]}
     ).execute()
+    
+    new_sheet_id = batch_update_response['replies'][0]['addSheet']['properties']['sheetId']
+    
+    # Заголовки таблицы
+    headers_row = [
+        'Дата', 'Сотрудник', 'Организация', 'Начало смены', 'Конец смены', 
+        'Контакты', 'Ставка', 'Тип оплаты', 'Сумма к оплате', 
+        'Расход (₽)', 'Комментарий к расходу', 
+        'Оплачено орг.', 'Оплачено работнику', 'Оплачено КВВ', 'Оплачено КМС'
+    ]
+    
+    # Формируем строки данных
+    data_rows = []
+    for shift in shifts:
+        payment_amount = shift.get('contacts_count', 0) * shift.get('contact_rate', 0)
+        
+        row = [
+            shift.get('date', ''),
+            shift.get('user_name', ''),
+            shift.get('organization', ''),
+            shift.get('start_time', ''),
+            shift.get('end_time', ''),
+            str(shift.get('contacts_count', 0)),
+            str(shift.get('contact_rate', 0)),
+            'Безнал' if shift.get('payment_type') == 'cashless' else 'Нал',
+            str(payment_amount),
+            str(shift.get('expense_amount', 0)),
+            shift.get('expense_comment', ''),
+            'Да' if shift.get('paid_by_organization') else 'Нет',
+            'Да' if shift.get('paid_to_worker') else 'Нет',
+            'Да' if shift.get('paid_kvv') else 'Нет',
+            'Да' if shift.get('paid_kms') else 'Нет'
+        ]
+        data_rows.append(row)
+    
+    # Записываем данные
+    all_data = [headers_row] + data_rows
+    
+    service.spreadsheets().values().update(
+        spreadsheetId=sheet_id,
+        range=f"'{sheet_title}'!A1",
+        valueInputOption='RAW',
+        body={'values': all_data}
+    ).execute()
+    
+    # Форматирование: жирный шрифт для заголовков
+    format_requests = [{
+        'repeatCell': {
+            'range': {
+                'sheetId': new_sheet_id,
+                'startRowIndex': 0,
+                'endRowIndex': 1
+            },
+            'cell': {
+                'userEnteredFormat': {
+                    'textFormat': {'bold': True},
+                    'backgroundColor': {'red': 0.9, 'green': 0.9, 'blue': 0.9}
+                }
+            },
+            'fields': 'userEnteredFormat(textFormat,backgroundColor)'
+        }
+    }]
+    
+    service.spreadsheets().batchUpdate(
+        spreadsheetId=sheet_id,
+        body={'requests': format_requests}
+    ).execute()
+    
+    sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit#gid={new_sheet_id}"
     
     return {
         'statusCode': 200,
@@ -90,7 +179,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'isBase64Encoded': False,
         'body': json.dumps({
             'success': True,
-            'message': 'Lead added to Google Sheets',
-            'updatedCells': result.get('updates', {}).get('updatedCells', 0)
+            'message': f'Экспортировано {len(shifts)} смен в новый лист "{sheet_title}"',
+            'sheet_url': sheet_url
         })
     }

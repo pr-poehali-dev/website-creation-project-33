@@ -959,13 +959,13 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("""
-                        SELECT o.id, o.name, o.created_at,
+                        SELECT o.id, o.name, o.created_at, o.contact_rate,
                                COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as lead_count
                         FROM t_p24058207_website_creation_pro.organizations o
                         LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
                             ON o.id = l.organization_id 
                             AND l.is_active = true
-                        GROUP BY o.id, o.name, o.created_at
+                        GROUP BY o.id, o.name, o.created_at, o.contact_rate
                         ORDER BY o.name
                     """)
                     organizations = []
@@ -974,7 +974,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'id': row[0],
                             'name': row[1],
                             'created_at': row[2].isoformat() if row[2] else None,
-                            'lead_count': int(row[3])
+                            'contact_rate': int(row[3]) if row[3] else 0,
+                            'lead_count': int(row[4])
                         })
             return {
                 'statusCode': 200,
@@ -1289,6 +1290,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
         elif action == 'update_organization':
             org_id = body_data.get('id')
             name = body_data.get('name', '').strip()
+            contact_rate = body_data.get('contact_rate', 0)
             
             if not org_id:
                 return {
@@ -1308,8 +1310,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
                         cur.execute(
-                            "UPDATE t_p24058207_website_creation_pro.organizations SET name = %s WHERE id = %s",
-                            (name, org_id)
+                            "UPDATE t_p24058207_website_creation_pro.organizations SET name = %s, contact_rate = %s WHERE id = %s",
+                            (name, contact_rate, org_id)
                         )
                         conn.commit()
                         if cur.rowcount > 0:

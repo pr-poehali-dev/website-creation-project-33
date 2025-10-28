@@ -14,6 +14,7 @@ interface Organization {
   name: string;
   created_at: string;
   lead_count: number;
+  contact_rate: number;
 }
 
 interface OrganizationsTabProps {
@@ -28,6 +29,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
   const [showAll, setShowAll] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [editingRate, setEditingRate] = useState('');
   const [updating, setUpdating] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
@@ -81,11 +83,13 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
   const startEditing = (org: Organization) => {
     setEditingId(org.id);
     setEditingName(org.name);
+    setEditingRate(org.contact_rate?.toString() || '0');
   };
 
   const cancelEditing = () => {
     setEditingId(null);
     setEditingName('');
+    setEditingRate('');
   };
 
   const updateOrganization = async (id: number) => {
@@ -103,6 +107,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
           action: 'update_organization',
           id,
           name: editingName.trim(),
+          contact_rate: parseInt(editingRate) || 0,
         }),
       });
 
@@ -253,37 +258,53 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                   className="border-2 border-gray-200 rounded-xl p-3 md:p-4 bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gray-300"
                 >
                   {editingId === org.id ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        className="flex-1 border-2 border-blue-300 bg-white text-gray-900 h-10 text-sm md:text-base"
-                        autoFocus
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') updateOrganization(org.id);
-                          if (e.key === 'Escape') cancelEditing();
-                        }}
-                      />
-                      <Button
-                        onClick={() => updateOrganization(org.id)}
-                        disabled={!editingName.trim() || updating}
-                        className="bg-green-600 hover:bg-green-700 text-white h-10 px-3"
-                        size="sm"
-                      >
-                        {updating ? (
-                          <Icon name="Loader2" size={16} className="animate-spin" />
-                        ) : (
-                          <Icon name="Check" size={16} />
-                        )}
-                      </Button>
-                      <Button
-                        onClick={cancelEditing}
-                        className="border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-100 h-10 px-3"
-                        variant="ghost"
-                        size="sm"
-                      >
-                        <Icon name="X" size={16} />
-                      </Button>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          placeholder="Название"
+                          className="flex-1 border-2 border-blue-300 bg-white text-gray-900 h-10 text-sm md:text-base"
+                          autoFocus
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') updateOrganization(org.id);
+                            if (e.key === 'Escape') cancelEditing();
+                          }}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          value={editingRate}
+                          onChange={(e) => setEditingRate(e.target.value)}
+                          placeholder="Ставка за контакт (₽)"
+                          className="flex-1 border-2 border-blue-300 bg-white text-gray-900 h-10 text-sm md:text-base"
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') updateOrganization(org.id);
+                            if (e.key === 'Escape') cancelEditing();
+                          }}
+                        />
+                        <Button
+                          onClick={() => updateOrganization(org.id)}
+                          disabled={!editingName.trim() || updating}
+                          className="bg-green-600 hover:bg-green-700 text-white h-10 px-3"
+                          size="sm"
+                        >
+                          {updating ? (
+                            <Icon name="Loader2" size={16} className="animate-spin" />
+                          ) : (
+                            <Icon name="Check" size={16} />
+                          )}
+                        </Button>
+                        <Button
+                          onClick={cancelEditing}
+                          className="border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-100 h-10 px-3"
+                          variant="ghost"
+                          size="sm"
+                        >
+                          <Icon name="X" size={16} />
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between gap-2">
@@ -297,6 +318,11 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                             <div className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] md:text-xs font-medium flex-shrink-0">
                               {org.lead_count} {org.lead_count === 1 ? 'лид' : org.lead_count < 5 ? 'лида' : 'лидов'}
                             </div>
+                            {org.contact_rate > 0 && (
+                              <div className="px-2 py-0.5 rounded-full bg-green-50 text-green-600 text-[10px] md:text-xs font-medium flex-shrink-0">
+                                {org.contact_rate} ₽/контакт
+                              </div>
+                            )}
                           </div>
                           <div className="text-[10px] md:text-xs text-gray-500">
                             Добавлено: {new Date(org.created_at).toLocaleDateString('ru-RU')}

@@ -1579,6 +1579,105 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'body': json.dumps({'error': f'Ошибка удаления смены: {str(e)}'})
                 }
         
+        elif action == 'update_work_shift':
+            old_user_id = body_data.get('old_user_id')
+            old_work_date = body_data.get('old_work_date')
+            old_organization_id = body_data.get('old_organization_id')
+            
+            new_user_id = body_data.get('new_user_id')
+            new_work_date = body_data.get('new_work_date')
+            new_organization_id = body_data.get('new_organization_id')
+            start_time = body_data.get('start_time', '09:00')
+            end_time = body_data.get('end_time', '18:00')
+            contacts_count = body_data.get('contacts_count', 0)
+            contact_rate = body_data.get('contact_rate', 0)
+            payment_type = body_data.get('payment_type', 'cash')
+            expense_amount = body_data.get('expense_amount', 0)
+            expense_comment = body_data.get('expense_comment', '')
+            paid_by_organization = body_data.get('paid_by_organization', False)
+            paid_to_worker = body_data.get('paid_to_worker', False)
+            paid_kvv = body_data.get('paid_kvv', False)
+            paid_kms = body_data.get('paid_kms', False)
+            
+            if not old_user_id or not old_work_date or not old_organization_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Старые параметры обязательны'})
+                }
+            
+            if not user['is_admin']:
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Только админ может редактировать смены'})
+                }
+            
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        shift_start_dt = f"{new_work_date} {start_time}+03"
+                        shift_end_dt = f"{new_work_date} {end_time}+03"
+                        
+                        cur.execute("""
+                            UPDATE t_p24058207_website_creation_pro.work_shifts 
+                            SET user_id = %s, 
+                                organization_id = %s, 
+                                shift_date = %s, 
+                                shift_start = %s::timestamptz, 
+                                shift_end = %s::timestamptz,
+                                expense_amount = %s,
+                                expense_comment = %s,
+                                paid_by_organization = %s,
+                                paid_to_worker = %s,
+                                paid_kvv = %s,
+                                paid_kms = %s
+                            WHERE user_id = %s AND shift_date = %s AND organization_id = %s
+                        """, (
+                            new_user_id, new_organization_id, new_work_date, 
+                            shift_start_dt, shift_end_dt,
+                            expense_amount, expense_comment,
+                            paid_by_organization, paid_to_worker, paid_kvv, paid_kms,
+                            old_user_id, old_work_date, old_organization_id
+                        ))
+                        
+                        if contacts_count > 0:
+                            cur.execute("""
+                                DELETE FROM t_p24058207_website_creation_pro.leads_analytics
+                                WHERE user_id = %s AND organization_id = %s 
+                                AND DATE(created_at AT TIME ZONE 'Europe/Moscow') = %s
+                            """, (old_user_id, old_organization_id, old_work_date))
+                            
+                            moscow_tz = pytz.timezone('Europe/Moscow')
+                            shift_date_obj = datetime.strptime(new_work_date, '%Y-%m-%d')
+                            base_time = moscow_tz.localize(datetime.combine(
+                                shift_date_obj, 
+                                datetime.strptime(start_time.split(':')[0] + ':' + start_time.split(':')[1], '%H:%M').time()
+                            ))
+                            
+                            for i in range(contacts_count):
+                                lead_time = base_time + timedelta(minutes=30 * i)
+                                lead_time_utc = lead_time.astimezone(pytz.UTC)
+                                
+                                cur.execute("""
+                                    INSERT INTO t_p24058207_website_creation_pro.leads_analytics 
+                                    (user_id, organization_id, lead_type, lead_result, created_at, is_active)
+                                    VALUES (%s, %s, 'контакт', 'согласие', %s, true)
+                                """, (new_user_id, new_organization_id, lead_time_utc))
+                        
+                        conn.commit()
+                        
+                        return {
+                            'statusCode': 200,
+                            'headers': headers,
+                            'body': json.dumps({'success': True})
+                        }
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': f'Ошибка обновления смены: {str(e)}'})
+                }
 
         elif action == 'add_manual_work_shift':
             user_id = body_data.get('user_id')

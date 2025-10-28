@@ -1654,12 +1654,12 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         
                         print(f"🔍 About to UPDATE shift id={shift_id}")
                         
+                        conn.commit()
+                        print("✅ Committed DELETE")
+                        
                         cur.execute("""
                             UPDATE t_p24058207_website_creation_pro.work_shifts 
-                            SET user_id = %s, 
-                                organization_id = %s, 
-                                shift_date = %s, 
-                                shift_start = %s::timestamptz, 
+                            SET shift_start = %s::timestamptz, 
                                 shift_end = %s::timestamptz,
                                 expense_amount = %s,
                                 expense_comment = %s,
@@ -1669,19 +1669,16 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 paid_kms = %s
                             WHERE id = %s
                         """, (
-                            new_user_id, new_organization_id, new_work_date, 
                             shift_start_dt, shift_end_dt,
                             expense_amount, expense_comment,
                             paid_by_organization, paid_to_worker, paid_kvv, paid_kms,
                             shift_id
                         ))
                         
-                        if cur.rowcount == 0:
-                            return {
-                                'statusCode': 404,
-                                'headers': headers,
-                                'body': json.dumps({'error': 'Смена не найдена для обновления'})
-                            }
+                        print(f"✅ Updated shift")
+                        
+                        conn.commit()
+                        print("✅ Committed UPDATE")
                         
                         if contacts_count > 0:
                             moscow_tz = pytz.timezone('Europe/Moscow')

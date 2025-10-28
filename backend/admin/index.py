@@ -1170,8 +1170,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             }
         
         elif action == 'get_accounting_data':
+            print('🔍 Starting get_accounting_data query')
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
+                    print('🔍 About to execute SQL query')
                     cur.execute("""
                         SELECT 
                             l.created_at::date as shift_date,

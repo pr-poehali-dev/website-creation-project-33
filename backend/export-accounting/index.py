@@ -81,10 +81,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             service.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=request_body).execute()
         
         headers = [
-            'Дата', 'Сотрудник', 'Организация', 'Начало', 'Конец', 'Часов',
-            'Контакты', 'Ставка', 'Сумма контакты', 'Налог', 'Сумма после налога',
-            'Тип оплаты', 'Расходы', 'Комментарий расходов',
-            'Оплачено орг.', 'Оплачено сотр.', 'КВВ', 'КМС'
+            'Дата', 'Время', 'Организация', 'Сумма прихода', 'Оплата', 'Налог 6%', 
+            'После налога', 'Промоутер', 'Контакты', 'Зарплата', 'Расход', 
+            'Комментарий', 'Чистый остаток', 'КВВ', 'КМС',
+            'Опл. орг.', 'Опл. испол.', 'Опл. КВВ', 'Опл. КМС'
         ]
         
         values = [headers]
@@ -92,43 +92,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         for shift in shifts:
             start_time = shift.get('start_time', '')
             end_time = shift.get('end_time', '')
-            
-            if start_time and end_time and ':' in start_time and ':' in end_time:
-                try:
-                    start_parts = start_time.split(':')
-                    end_parts = end_time.split(':')
-                    start_hours = int(start_parts[0]) + int(start_parts[1]) / 60
-                    end_hours = int(end_parts[0]) + int(end_parts[1]) / 60
-                    hours_worked = end_hours - start_hours
-                    if hours_worked < 0:
-                        hours_worked += 24
-                except:
-                    hours_worked = 0
-            else:
-                hours_worked = 0
+            time_str = f"{start_time[:5]} - {end_time[:5]}" if start_time and end_time else ''
             
             contacts = shift.get('contacts_count', 0)
             rate = shift.get('contact_rate', 0)
-            total_payment = contacts * rate
+            revenue = contacts * rate
             
-            tax = total_payment * 0.13
-            payment_after_tax = total_payment - tax
+            payment_type = shift.get('payment_type', '')
+            tax = round(revenue * 0.06) if payment_type == 'cashless' else 0
+            after_tax = revenue - tax
+            
+            worker_salary = contacts * 300 if contacts >= 10 else contacts * 200
+            expense = shift.get('expense_amount', 0)
+            net_profit = after_tax - worker_salary - expense
+            
+            kvv = round(net_profit / 2)
+            kms = round(net_profit / 2)
+            
+            payment_icon = '💵' if payment_type == 'cash' else '💳'
             
             row = [
                 shift.get('date', ''),
-                shift.get('user_name', ''),
+                time_str,
                 shift.get('organization', ''),
-                start_time,
-                end_time,
-                f"{hours_worked:.2f}",
-                str(contacts),
-                str(rate),
-                str(total_payment),
-                f"{tax:.2f}",
-                f"{payment_after_tax:.2f}",
-                shift.get('payment_type', ''),
-                str(shift.get('expense_amount', 0)),
+                revenue,
+                f"{payment_icon} {rate}₽",
+                tax if tax > 0 else '',
+                after_tax,
+                shift.get('user_name', ''),
+                contacts,
+                worker_salary,
+                expense,
                 shift.get('expense_comment', ''),
+                net_profit,
+                kvv,
+                kms,
                 'Да' if shift.get('paid_by_organization', False) else 'Нет',
                 'Да' if shift.get('paid_to_worker', False) else 'Нет',
                 'Да' if shift.get('paid_kvv', False) else 'Нет',

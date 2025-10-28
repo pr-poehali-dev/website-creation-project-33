@@ -1174,16 +1174,16 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 with conn.cursor() as cur:
                     cur.execute("""
                         SELECT 
-                            s.shift_date,
+                            l.created_at::date as shift_date,
                             (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
                              FROM t_p24058207_website_creation_pro.shift_videos 
-                             WHERE user_id = s.user_id AND work_date = s.shift_date 
-                             AND organization_id = s.organization_id AND video_type = 'start' 
+                             WHERE user_id = l.user_id AND work_date = l.created_at::date 
+                             AND organization_id = l.organization_id AND video_type = 'start' 
                              ORDER BY created_at LIMIT 1) as start_time,
                             (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
                              FROM t_p24058207_website_creation_pro.shift_videos 
-                             WHERE user_id = s.user_id AND work_date = s.shift_date 
-                             AND organization_id = s.organization_id AND video_type = 'end' 
+                             WHERE user_id = l.user_id AND work_date = l.created_at::date 
+                             AND organization_id = l.organization_id AND video_type = 'end' 
                              ORDER BY created_at DESC LIMIT 1) as end_time,
                             o.name as organization,
                             o.id as organization_id,
@@ -1193,16 +1193,16 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(
                                 (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
                                  WHERE organization_id = o.id 
-                                 AND start_date <= s.shift_date 
-                                 AND (end_date IS NULL OR end_date >= s.shift_date)
+                                 AND start_date <= l.created_at::date 
+                                 AND (end_date IS NULL OR end_date >= l.created_at::date)
                                  ORDER BY start_date DESC LIMIT 1),
                                 o.contact_rate
                             ) as contact_rate,
                             COALESCE(
                                 (SELECT payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods 
                                  WHERE organization_id = o.id 
-                                 AND start_date <= s.shift_date 
-                                 AND (end_date IS NULL OR end_date >= s.shift_date)
+                                 AND start_date <= l.created_at::date 
+                                 AND (end_date IS NULL OR end_date >= l.created_at::date)
                                  ORDER BY start_date DESC LIMIT 1),
                                 o.payment_type
                             ) as payment_type,
@@ -1212,23 +1212,19 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(ae.paid_to_worker, false) as paid_to_worker,
                             COALESCE(ae.paid_kvv, false) as paid_kvv,
                             COALESCE(ae.paid_kms, false) as paid_kms
-                        FROM t_p24058207_website_creation_pro.work_shifts s
-                        JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
-                        JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
-                        LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
-                            ON l.user_id = s.user_id 
-                            AND l.created_at::date = s.shift_date
-                            AND l.organization_id = s.organization_id
-                            AND l.is_active = true
+                        FROM t_p24058207_website_creation_pro.leads_analytics l
+                        JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
+                        JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
                         LEFT JOIN t_p24058207_website_creation_pro.accounting_expenses ae
-                            ON ae.user_id = s.user_id
-                            AND ae.work_date = s.shift_date
-                            AND ae.organization_id = s.organization_id
-                        WHERE s.shift_date >= '2025-10-01'
-                        GROUP BY s.shift_date, s.user_id, s.organization_id, o.name, o.id, o.contact_rate, 
+                            ON ae.user_id = l.user_id
+                            AND ae.work_date = l.created_at::date
+                            AND ae.organization_id = l.organization_id
+                        WHERE l.created_at::date >= '2025-10-01'
+                            AND l.is_active = true
+                        GROUP BY l.created_at::date, l.user_id, l.organization_id, o.name, o.id, o.contact_rate, 
                                  o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment,
                                  ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms
-                        ORDER BY s.shift_date DESC, u.name
+                        ORDER BY l.created_at::date DESC, u.name
                     """)
                     
                     shifts = []

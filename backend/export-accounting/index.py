@@ -82,8 +82,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         headers = [
             'Дата', 'Сотрудник', 'Организация', 'Начало', 'Конец', 'Часов',
-            'Контакты', 'Ставка', 'Сумма контакты', 'Тип оплаты',
-            'Расходы', 'Комментарий расходов',
+            'Контакты', 'Ставка', 'Сумма контакты', 'Налог', 'Сумма после налога',
+            'Тип оплаты', 'Расходы', 'Комментарий расходов',
             'Оплачено орг.', 'Оплачено сотр.', 'КВВ', 'КМС'
         ]
         
@@ -111,6 +111,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             rate = shift.get('contact_rate', 0)
             total_payment = contacts * rate
             
+            tax = total_payment * 0.13
+            payment_after_tax = total_payment - tax
+            
             row = [
                 shift.get('date', ''),
                 shift.get('user_name', ''),
@@ -121,6 +124,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 str(contacts),
                 str(rate),
                 str(total_payment),
+                f"{tax:.2f}",
+                f"{payment_after_tax:.2f}",
                 shift.get('payment_type', ''),
                 str(shift.get('expense_amount', 0)),
                 shift.get('expense_comment', ''),

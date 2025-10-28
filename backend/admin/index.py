@@ -1635,7 +1635,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 'body': json.dumps({'error': 'Смена не найдена для обновления'})
                             }
                         
-                        print(f"✅ Found shift: id={existing_shift[0]}")
+                        shift_id = existing_shift[0]
+                        print(f"✅ Found shift: id={shift_id}")
                         
                         start_time_normalized = start_time.split(':')[0] + ':' + start_time.split(':')[1]
                         end_time_normalized = end_time.split(':')[0] + ':' + end_time.split(':')[1]
@@ -1651,6 +1652,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         shift_start_dt = f"{new_work_date} {start_time_normalized}+03"
                         shift_end_dt = f"{new_work_date} {end_time_normalized}+03"
                         
+                        print(f"🔍 About to UPDATE shift id={shift_id}")
+                        
                         cur.execute("""
                             UPDATE t_p24058207_website_creation_pro.work_shifts 
                             SET user_id = %s, 
@@ -1664,13 +1667,13 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 paid_to_worker = %s,
                                 paid_kvv = %s,
                                 paid_kms = %s
-                            WHERE user_id = %s AND shift_date = %s AND organization_id = %s
+                            WHERE id = %s
                         """, (
                             new_user_id, new_organization_id, new_work_date, 
                             shift_start_dt, shift_end_dt,
                             expense_amount, expense_comment,
                             paid_by_organization, paid_to_worker, paid_kvv, paid_kms,
-                            old_user_id, old_work_date, old_organization_id
+                            shift_id
                         ))
                         
                         if cur.rowcount == 0:

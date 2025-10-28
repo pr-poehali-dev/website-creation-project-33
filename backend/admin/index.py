@@ -1217,6 +1217,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             AND ae.work_date = s.shift_date
                             AND ae.organization_id = s.organization_id
                         WHERE s.shift_date >= CURRENT_DATE - INTERVAL '90 days'
+                            AND s.shift_end != '1970-01-01 00:00:00+00'::timestamptz
                         GROUP BY s.shift_date, s.shift_start, s.shift_end, o.name, o.id, o.contact_rate, 
                                  o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment,
                                  ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms
@@ -1555,7 +1556,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
                         cur.execute("""
-                            DELETE FROM t_p24058207_website_creation_pro.work_shifts 
+                            UPDATE t_p24058207_website_creation_pro.work_shifts 
+                            SET shift_end = '1970-01-01 00:00:00+00'::timestamptz
                             WHERE user_id = %s AND shift_date = %s AND organization_id = %s
                         """, (user_id, work_date, organization_id))
                         conn.commit()

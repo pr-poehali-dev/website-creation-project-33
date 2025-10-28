@@ -7,6 +7,7 @@ import ShiftTable from './accounting/ShiftTable';
 import AddShiftModal from './accounting/AddShiftModal';
 import EditShiftModal from './accounting/EditShiftModal';
 import AccountingHeader from './accounting/AccountingHeader';
+import PaymentFilters from './accounting/PaymentFilters';
 import { useAccountingData } from './accounting/useAccountingData';
 import { useShiftActions } from './accounting/useShiftActions';
 
@@ -43,6 +44,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const [editingShift, setEditingShift] = useState<ShiftRecord | null>(null);
   const [exporting, setExporting] = useState(false);
   const [savingPayments, setSavingPayments] = useState(false);
+  const [filters, setFilters] = useState({
+    paid_by_organization: null as boolean | null,
+    paid_to_worker: null as boolean | null,
+    paid_kvv: null as boolean | null,
+    paid_kms: null as boolean | null
+  });
   const [newShift, setNewShift] = useState<NewShiftData>({
     user_id: 0,
     organization_id: 0,
@@ -147,6 +154,23 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
 
   const hasUnsavedPayments = Object.keys(editingPayments).length > 0;
 
+  const filteredShifts = shifts.filter(shift => {
+    if (filters.paid_by_organization !== null && shift.paid_by_organization !== filters.paid_by_organization) return false;
+    if (filters.paid_to_worker !== null && shift.paid_to_worker !== filters.paid_to_worker) return false;
+    if (filters.paid_kvv !== null && shift.paid_kvv !== filters.paid_kvv) return false;
+    if (filters.paid_kms !== null && shift.paid_kms !== filters.paid_kms) return false;
+    return true;
+  });
+
+  const handleFilterChange = (key: keyof typeof filters) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: prev[key] === null ? true : prev[key] === true ? false : null
+    }));
+  };
+
+  const activeFiltersCount = Object.values(filters).filter(v => v !== null).length;
+
   if (loading) {
     return (
       <Card className="bg-white border-gray-200 rounded-2xl">
@@ -169,6 +193,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         exporting={exporting}
       />
       <CardContent>
+        <PaymentFilters
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          activeCount={activeFiltersCount}
+        />
+        
         {hasUnsavedPayments && (
           <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -197,7 +227,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           </div>
         )}
         <ShiftTable
-          shifts={shifts}
+          shifts={filteredShifts}
           editingExpense={editingExpense}
           editingComment={editingComment}
           editingPayments={editingPayments}

@@ -1649,36 +1649,30 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         
                         print(f"✅ Deleted contacts")
                         
+                        cur.execute("""
+                            DELETE FROM t_p24058207_website_creation_pro.work_shifts
+                            WHERE id = %s
+                        """, (shift_id,))
+                        
+                        print(f"✅ Deleted old shift")
+                        
                         shift_start_dt = f"{new_work_date} {start_time_normalized}+03"
                         shift_end_dt = f"{new_work_date} {end_time_normalized}+03"
                         
-                        print(f"🔍 About to UPDATE shift id={shift_id}")
-                        
-                        conn.commit()
-                        print("✅ Committed DELETE")
-                        
                         cur.execute("""
-                            UPDATE t_p24058207_website_creation_pro.work_shifts 
-                            SET shift_start = %s::timestamptz, 
-                                shift_end = %s::timestamptz,
-                                expense_amount = %s,
-                                expense_comment = %s,
-                                paid_by_organization = %s,
-                                paid_to_worker = %s,
-                                paid_kvv = %s,
-                                paid_kms = %s
-                            WHERE id = %s
+                            INSERT INTO t_p24058207_website_creation_pro.work_shifts
+                            (user_id, organization_id, shift_date, shift_start, shift_end,
+                             expense_amount, expense_comment, paid_by_organization, 
+                             paid_to_worker, paid_kvv, paid_kms)
+                            VALUES (%s, %s, %s, %s::timestamptz, %s::timestamptz, %s, %s, %s, %s, %s, %s)
                         """, (
+                            new_user_id, new_organization_id, new_work_date,
                             shift_start_dt, shift_end_dt,
                             expense_amount, expense_comment,
-                            paid_by_organization, paid_to_worker, paid_kvv, paid_kms,
-                            shift_id
+                            paid_by_organization, paid_to_worker, paid_kvv, paid_kms
                         ))
                         
-                        print(f"✅ Updated shift")
-                        
-                        conn.commit()
-                        print("✅ Committed UPDATE")
+                        print(f"✅ Inserted new shift")
                         
                         if contacts_count > 0:
                             moscow_tz = pytz.timezone('Europe/Moscow')

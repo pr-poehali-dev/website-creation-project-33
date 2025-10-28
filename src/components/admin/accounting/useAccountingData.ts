@@ -60,6 +60,7 @@ export function useAccountingData(enabled: boolean) {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Accounting data received:', data.shifts?.[0]);
         const filteredShifts = (data.shifts || []).filter((shift: ShiftRecord) => {
           const shiftDate = new Date(shift.date);
           const cutoffDate = new Date('2025-10-20');

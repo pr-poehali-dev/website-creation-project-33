@@ -1199,7 +1199,11 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 o.payment_type
                             ) as payment_type,
                             COALESCE(ae.expense_amount, 0) as expense_amount,
-                            COALESCE(ae.expense_comment, '') as expense_comment
+                            COALESCE(ae.expense_comment, '') as expense_comment,
+                            COALESCE(ae.paid_by_organization, false) as paid_by_organization,
+                            COALESCE(ae.paid_to_worker, false) as paid_to_worker,
+                            COALESCE(ae.paid_kvv, false) as paid_kvv,
+                            COALESCE(ae.paid_kms, false) as paid_kms
                         FROM t_p24058207_website_creation_pro.work_shifts s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
@@ -1214,7 +1218,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             AND ae.organization_id = s.organization_id
                         WHERE s.shift_date >= CURRENT_DATE - INTERVAL '90 days'
                         GROUP BY s.shift_date, s.shift_start, s.shift_end, o.name, o.id, o.contact_rate, 
-                                 o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment
+                                 o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment,
+                                 ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms
                         ORDER BY s.shift_date DESC, u.name
                     """)
                     
@@ -1232,7 +1237,11 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'contact_rate': int(row[8]) if row[8] else 0,
                             'payment_type': row[9] if row[9] else 'cash',
                             'expense_amount': int(row[10]) if row[10] else 0,
-                            'expense_comment': row[11] if row[11] else ''
+                            'expense_comment': row[11] if row[11] else '',
+                            'paid_by_organization': bool(row[12]),
+                            'paid_to_worker': bool(row[13]),
+                            'paid_kvv': bool(row[14]),
+                            'paid_kms': bool(row[15])
                         })
             
             return {
@@ -1478,6 +1487,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             organization_id = body_data.get('organization_id')
             expense_amount = body_data.get('expense_amount', 0)
             expense_comment = body_data.get('expense_comment', '')
+            paid_by_organization = body_data.get('paid_by_organization', False)
+            paid_to_worker = body_data.get('paid_to_worker', False)
+            paid_kvv = body_data.get('paid_kvv', False)
+            paid_kms = body_data.get('paid_kms', False)
             
             if not user_id or not work_date or not organization_id:
                 return {
@@ -1491,14 +1504,20 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     with conn.cursor() as cur:
                         cur.execute("""
                             INSERT INTO t_p24058207_website_creation_pro.accounting_expenses 
-                            (user_id, work_date, organization_id, expense_amount, expense_comment, updated_at)
-                            VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                            (user_id, work_date, organization_id, expense_amount, expense_comment, 
+                             paid_by_organization, paid_to_worker, paid_kvv, paid_kms, updated_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
                             ON CONFLICT (user_id, work_date, organization_id) 
                             DO UPDATE SET 
                                 expense_amount = EXCLUDED.expense_amount,
                                 expense_comment = EXCLUDED.expense_comment,
+                                paid_by_organization = EXCLUDED.paid_by_organization,
+                                paid_to_worker = EXCLUDED.paid_to_worker,
+                                paid_kvv = EXCLUDED.paid_kvv,
+                                paid_kms = EXCLUDED.paid_kms,
                                 updated_at = CURRENT_TIMESTAMP
-                        """, (user_id, work_date, organization_id, expense_amount, expense_comment))
+                        """, (user_id, work_date, organization_id, expense_amount, expense_comment,
+                              paid_by_organization, paid_to_worker, paid_kvv, paid_kms))
                         conn.commit()
                         
                         return {

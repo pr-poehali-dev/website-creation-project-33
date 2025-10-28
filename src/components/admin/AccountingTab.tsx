@@ -19,6 +19,10 @@ interface ShiftRecord {
   payment_type: 'cash' | 'cashless';
   expense_amount: number;
   expense_comment: string;
+  paid_by_organization: boolean;
+  paid_to_worker: boolean;
+  paid_kvv: boolean;
+  paid_kms: boolean;
 }
 
 interface AccountingTabProps {
@@ -30,6 +34,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const [loading, setLoading] = useState(true);
   const [editingExpense, setEditingExpense] = useState<{[key: string]: number}>({});
   const [editingComment, setEditingComment] = useState<{[key: string]: string}>({});
+  const [editingPayments, setEditingPayments] = useState<{[key: string]: {
+    paid_by_organization: boolean;
+    paid_to_worker: boolean;
+    paid_kvv: boolean;
+    paid_kms: boolean;
+  }}>({});
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -73,7 +83,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     }
   };
 
-  const updateExpense = async (shift: ShiftRecord, expenseAmount: number, expenseComment: string) => {
+  const updateExpense = async (shift: ShiftRecord, expenseAmount: number, expenseComment: string, payments?: {
+    paid_by_organization: boolean;
+    paid_to_worker: boolean;
+    paid_kvv: boolean;
+    paid_kms: boolean;
+  }) => {
     try {
       const response = await fetch(ADMIN_API, {
         method: 'POST',
@@ -88,6 +103,10 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           organization_id: shift.organization_id,
           expense_amount: expenseAmount,
           expense_comment: expenseComment,
+          paid_by_organization: payments?.paid_by_organization ?? shift.paid_by_organization,
+          paid_to_worker: payments?.paid_to_worker ?? shift.paid_to_worker,
+          paid_kvv: payments?.paid_kvv ?? shift.paid_kvv,
+          paid_kms: payments?.paid_kms ?? shift.paid_kms,
         }),
       });
 
@@ -172,10 +191,29 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     const key = getShiftKey(shift);
     const expenseAmount = editingExpense[key] ?? shift.expense_amount;
     const expenseComment = editingComment[key] ?? shift.expense_comment;
+    const payments = editingPayments[key];
     
-    if (expenseAmount !== shift.expense_amount || expenseComment !== shift.expense_comment) {
-      updateExpense(shift, expenseAmount, expenseComment);
+    if (expenseAmount !== shift.expense_amount || expenseComment !== shift.expense_comment || payments) {
+      updateExpense(shift, expenseAmount, expenseComment, payments);
     }
+  };
+
+  const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => {
+    const key = getShiftKey(shift);
+    const currentPayments = editingPayments[key] || {
+      paid_by_organization: shift.paid_by_organization,
+      paid_to_worker: shift.paid_to_worker,
+      paid_kvv: shift.paid_kvv,
+      paid_kms: shift.paid_kms
+    };
+    
+    const newPayments = {
+      ...currentPayments,
+      [field]: !currentPayments[field]
+    };
+    
+    setEditingPayments({ ...editingPayments, [key]: newPayments });
+    updateExpense(shift, shift.expense_amount, shift.expense_comment, newPayments);
   };
 
   if (loading) {
@@ -227,6 +265,10 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
                   <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-green-50">Чистый остаток</th>
                   <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-blue-50">КВВ</th>
                   <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-purple-50">КМС</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. орг.</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. испол.</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. КВВ</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. КМС</th>
                 </tr>
               </thead>
               <tbody>
@@ -285,6 +327,46 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
                       </td>
                       <td className="border border-gray-300 p-1 md:p-2 text-right font-bold bg-purple-50">
                         {kms.toLocaleString()} ₽
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-center">
+                        <select
+                          value={(editingPayments[key]?.paid_by_organization ?? shift.paid_by_organization) ? 'yes' : 'no'}
+                          onChange={(e) => handlePaymentToggle(shift, 'paid_by_organization')}
+                          className="w-16 h-7 text-xs border border-gray-300 rounded px-1"
+                        >
+                          <option value="no">Нет</option>
+                          <option value="yes">Да</option>
+                        </select>
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-center">
+                        <select
+                          value={(editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker) ? 'yes' : 'no'}
+                          onChange={(e) => handlePaymentToggle(shift, 'paid_to_worker')}
+                          className="w-16 h-7 text-xs border border-gray-300 rounded px-1"
+                        >
+                          <option value="no">Нет</option>
+                          <option value="yes">Да</option>
+                        </select>
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-center">
+                        <select
+                          value={(editingPayments[key]?.paid_kvv ?? shift.paid_kvv) ? 'yes' : 'no'}
+                          onChange={(e) => handlePaymentToggle(shift, 'paid_kvv')}
+                          className="w-16 h-7 text-xs border border-gray-300 rounded px-1"
+                        >
+                          <option value="no">Нет</option>
+                          <option value="yes">Да</option>
+                        </select>
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-center">
+                        <select
+                          value={(editingPayments[key]?.paid_kms ?? shift.paid_kms) ? 'yes' : 'no'}
+                          onChange={(e) => handlePaymentToggle(shift, 'paid_kms')}
+                          className="w-16 h-7 text-xs border border-gray-300 rounded px-1"
+                        >
+                          <option value="no">Нет</option>
+                          <option value="yes">Да</option>
+                        </select>
                       </td>
                     </tr>
                   );

@@ -1217,8 +1217,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         ) sv_end ON true
                         WHERE l.created_at::date >= '2025-10-01'
                             AND l.is_active = true
-                        GROUP BY l.created_at::date, l.user_id, l.organization_id, o.name, o.id, o.contact_rate, 
-                                 o.payment_type, u.id, u.name, sv_start.start_time, sv_end.end_time
+                        GROUP BY l.created_at::date, l.user_id, l.organization_id, o.name, o.id, 
+                                 u.id, u.name, sv_start.start_time, sv_end.end_time, 
+                                 o.contact_rate, o.payment_type
                         ORDER BY l.created_at::date DESC, u.name
                     """)
                     

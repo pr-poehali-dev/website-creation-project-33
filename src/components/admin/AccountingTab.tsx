@@ -198,6 +198,50 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     }
   };
 
+  const deleteShift = async (shift: ShiftRecord) => {
+    if (!confirm(`Удалить смену ${shift.user_name} от ${formatDate(shift.date)}?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(ADMIN_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || '',
+        },
+        body: JSON.stringify({
+          action: 'delete_work_shift',
+          user_id: shift.user_id,
+          work_date: shift.date,
+          organization_id: shift.organization_id,
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: 'Смена удалена',
+        });
+        loadAccountingData();
+      } else {
+        const error = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: error.error || 'Не удалось удалить смену',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting shift:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось удалить смену',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => {
     const key = getShiftKey(shift);
     const currentPayments = editingPayments[key] || {
@@ -269,6 +313,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
                   <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. испол.</th>
                   <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. КВВ</th>
                   <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. КМС</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -386,6 +431,15 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
                           <option value="no">Нет</option>
                           <option value="yes">Да</option>
                         </select>
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-center">
+                        <button
+                          onClick={() => deleteShift(shift)}
+                          className="p-1 hover:bg-red-100 rounded transition-colors"
+                          title="Удалить смену"
+                        >
+                          <Icon name="Trash2" size={16} className="text-red-600" />
+                        </button>
                       </td>
                     </tr>
                   );

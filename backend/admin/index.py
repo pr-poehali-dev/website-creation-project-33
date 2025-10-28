@@ -1532,6 +1532,53 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'body': json.dumps({'error': f'Ошибка обновления расхода: {str(e)}'})
                 }
         
+        elif action == 'delete_work_shift':
+            user_id = body_data.get('user_id')
+            work_date = body_data.get('work_date')
+            organization_id = body_data.get('organization_id')
+            
+            if not user_id or not work_date or not organization_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'user_id, work_date и organization_id обязательны'})
+                }
+            
+            if not user['is_admin']:
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Только админ может удалять смены'})
+                }
+            
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("""
+                            DELETE FROM t_p24058207_website_creation_pro.work_shifts 
+                            WHERE user_id = %s AND shift_date = %s AND organization_id = %s
+                        """, (user_id, work_date, organization_id))
+                        conn.commit()
+                        
+                        if cur.rowcount > 0:
+                            return {
+                                'statusCode': 200,
+                                'headers': headers,
+                                'body': json.dumps({'success': True})
+                            }
+                        else:
+                            return {
+                                'statusCode': 404,
+                                'headers': headers,
+                                'body': json.dumps({'error': 'Смена не найдена'})
+                            }
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': f'Ошибка удаления смены: {str(e)}'})
+                }
+        
         elif action == 'add_rate_period':
             organization_id = body_data.get('organization_id')
             start_date = body_data.get('start_date')

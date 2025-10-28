@@ -9,6 +9,7 @@ import AllUsersWorkTime from './AllUsersWorkTime';
 import AdminChatTab from './AdminChatTab';
 import OrganizationsTab from './OrganizationsTab';
 import ArchiveTab from './ArchiveTab';
+import AccountingTab from './AccountingTab';
 
 interface AdminTabsProps {
   unreadCount: number;
@@ -44,6 +45,14 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
         >
           <Icon name="BarChart3" size={16} />
           <span className="hidden lg:inline">Рейтинг</span>
+        </TabsTrigger>
+        <TabsTrigger 
+          value="accounting" 
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          title="Бух.учет"
+        >
+          <Icon name="Calculator" size={16} />
+          <span className="hidden lg:inline">Бух.учет</span>
         </TabsTrigger>
         <TabsTrigger 
           value="organizations" 
@@ -89,6 +98,10 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
 
       <TabsContent value="stats">
         <StatsTab enabled={activeTab === 'stats'} />
+      </TabsContent>
+
+      <TabsContent value="accounting">
+        <AccountingTab enabled={activeTab === 'accounting'} />
       </TabsContent>
 
       <TabsContent value="organizations">

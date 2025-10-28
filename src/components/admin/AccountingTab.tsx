@@ -1,0 +1,299 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import Icon from '@/components/ui/icon';
+import { toast } from '@/hooks/use-toast';
+
+const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
+
+interface ShiftRecord {
+  date: string;
+  start_time: string;
+  end_time: string;
+  organization: string;
+  organization_id: number;
+  user_id: number;
+  user_name: string;
+  contacts_count: number;
+  contact_rate: number;
+  payment_type: 'cash' | 'cashless';
+  expense_amount: number;
+  expense_comment: string;
+}
+
+interface AccountingTabProps {
+  enabled?: boolean;
+}
+
+export default function AccountingTab({ enabled = true }: AccountingTabProps) {
+  const [shifts, setShifts] = useState<ShiftRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingExpense, setEditingExpense] = useState<{[key: string]: number}>({});
+  const [editingComment, setEditingComment] = useState<{[key: string]: string}>({});
+
+  const getSessionToken = () => localStorage.getItem('session_token');
+
+  useEffect(() => {
+    if (enabled) {
+      loadAccountingData();
+    }
+  }, [enabled]);
+
+  const loadAccountingData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${ADMIN_API}?action=get_accounting_data`,
+        {
+          headers: {
+            'X-Session-Token': getSessionToken() || '',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setShifts(data.shifts || []);
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось загрузить данные',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error loading accounting data:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить данные',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateExpense = async (shift: ShiftRecord, expenseAmount: number, expenseComment: string) => {
+    try {
+      const response = await fetch(ADMIN_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || '',
+        },
+        body: JSON.stringify({
+          action: 'update_accounting_expense',
+          user_id: shift.user_id,
+          work_date: shift.date,
+          organization_id: shift.organization_id,
+          expense_amount: expenseAmount,
+          expense_comment: expenseComment,
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: 'Данные обновлены',
+        });
+        loadAccountingData();
+      } else {
+        const error = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: error.error || 'Не удалось обновить данные',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error updating expense:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить данные',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const calculateRevenue = (shift: ShiftRecord) => {
+    return shift.contacts_count * shift.contact_rate;
+  };
+
+  const calculateTax = (shift: ShiftRecord) => {
+    if (shift.payment_type === 'cashless') {
+      const revenue = calculateRevenue(shift);
+      return Math.round(revenue * 0.06);
+    }
+    return 0;
+  };
+
+  const calculateAfterTax = (shift: ShiftRecord) => {
+    const revenue = calculateRevenue(shift);
+    const tax = calculateTax(shift);
+    return revenue - tax;
+  };
+
+  const calculateWorkerSalary = (contactsCount: number) => {
+    if (contactsCount >= 10) {
+      return contactsCount * 300;
+    }
+    return contactsCount * 200;
+  };
+
+  const calculateNetProfit = (shift: ShiftRecord) => {
+    const afterTax = calculateAfterTax(shift);
+    const workerSalary = calculateWorkerSalary(shift.contacts_count);
+    const expense = shift.expense_amount || 0;
+    return afterTax - workerSalary - expense;
+  };
+
+  const calculateKVV = (shift: ShiftRecord) => {
+    return Math.round(calculateNetProfit(shift) / 2);
+  };
+
+  const calculateKMS = (shift: ShiftRecord) => {
+    return Math.round(calculateNetProfit(shift) / 2);
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('ru-RU');
+  };
+
+  const formatTime = (timeStr: string | null) => {
+    if (!timeStr) return '—';
+    return timeStr.substring(0, 5);
+  };
+
+  const getShiftKey = (shift: ShiftRecord) => {
+    return `${shift.user_id}-${shift.date}-${shift.organization_id}`;
+  };
+
+  const handleExpenseBlur = (shift: ShiftRecord) => {
+    const key = getShiftKey(shift);
+    const expenseAmount = editingExpense[key] ?? shift.expense_amount;
+    const expenseComment = editingComment[key] ?? shift.expense_comment;
+    
+    if (expenseAmount !== shift.expense_amount || expenseComment !== shift.expense_comment) {
+      updateExpense(shift, expenseAmount, expenseComment);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card className="bg-white border-gray-200 rounded-2xl">
+        <CardContent className="p-8">
+          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
+            <Icon name="Loader2" size={24} className="animate-spin" />
+            Загрузка данных...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="bg-white border-gray-200 rounded-2xl">
+      <CardHeader className="pb-3 md:pb-4">
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-blue-100">
+            <Icon name="Calculator" size={18} className="text-blue-600 md:w-5 md:h-5" />
+          </div>
+          Бух.учет
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {shifts.length === 0 ? (
+          <div className="text-center py-8 text-gray-600">
+            <Icon name="FileSpreadsheet" size={32} className="mx-auto mb-3 opacity-30" />
+            <p>Данные отсутствуют</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs md:text-sm border-collapse">
+              <thead>
+                <tr className="bg-gray-100 text-gray-700">
+                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Дата</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Время</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Организация</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Сумма прихода</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Оплата</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Налог 6%</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">После налога</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Промоутер</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Контакты</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Зарплата</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Расход</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Комментарий</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-green-50">Чистый остаток</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-blue-50">КВВ</th>
+                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-purple-50">КМС</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shifts.map((shift) => {
+                  const key = getShiftKey(shift);
+                  const revenue = calculateRevenue(shift);
+                  const tax = calculateTax(shift);
+                  const afterTax = calculateAfterTax(shift);
+                  const workerSalary = calculateWorkerSalary(shift.contacts_count);
+                  const netProfit = calculateNetProfit(shift);
+                  const kvv = calculateKVV(shift);
+                  const kms = calculateKMS(shift);
+
+                  return (
+                    <tr key={key} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 p-1 md:p-2 whitespace-nowrap">{formatDate(shift.date)}</td>
+                      <td className="border border-gray-300 p-1 md:p-2 whitespace-nowrap">
+                        {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2">{shift.organization}</td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-right font-medium">{revenue.toLocaleString()} ₽</td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-center">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] ${shift.payment_type === 'cash' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {shift.payment_type === 'cash' ? '💵' : '💳'}
+                        </span>
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-right text-red-600">{tax > 0 ? `${tax.toLocaleString()} ₽` : '—'}</td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-right font-medium">{afterTax.toLocaleString()} ₽</td>
+                      <td className="border border-gray-300 p-1 md:p-2">{shift.user_name}</td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-right">{shift.contacts_count}</td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-right font-medium text-orange-600">{workerSalary.toLocaleString()} ₽</td>
+                      <td className="border border-gray-300 p-1 md:p-2">
+                        <Input
+                          type="number"
+                          value={editingExpense[key] ?? shift.expense_amount ?? 0}
+                          onChange={(e) => setEditingExpense({ ...editingExpense, [key]: parseInt(e.target.value) || 0 })}
+                          onBlur={() => handleExpenseBlur(shift)}
+                          className="w-20 h-7 text-xs border-gray-300"
+                        />
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2">
+                        <Input
+                          type="text"
+                          value={editingComment[key] ?? shift.expense_comment ?? ''}
+                          onChange={(e) => setEditingComment({ ...editingComment, [key]: e.target.value })}
+                          onBlur={() => handleExpenseBlur(shift)}
+                          placeholder="Комментарий"
+                          className="w-full min-w-[150px] h-7 text-xs border-gray-300"
+                        />
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-right font-bold bg-green-50">
+                        {netProfit.toLocaleString()} ₽
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-right font-bold bg-blue-50">
+                        {kvv.toLocaleString()} ₽
+                      </td>
+                      <td className="border border-gray-300 p-1 md:p-2 text-right font-bold bg-purple-50">
+                        {kms.toLocaleString()} ₽
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

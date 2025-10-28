@@ -1169,6 +1169,78 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'body': json.dumps({'periods': periods})
             }
         
+        elif action == 'get_accounting_data':
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 
+                            s.work_date,
+                            s.start_time,
+                            s.end_time,
+                            o.name as organization,
+                            o.id as organization_id,
+                            u.id as user_id,
+                            u.name as user_name,
+                            COUNT(CASE WHEN l.lead_type = '\u043a\u043e\u043d\u0442\u0430\u043a\u0442' THEN 1 END) as contacts_count,
+                            COALESCE(
+                                (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
+                                 WHERE organization_id = o.id 
+                                 AND start_date <= s.work_date 
+                                 AND (end_date IS NULL OR end_date >= s.work_date)
+                                 ORDER BY start_date DESC LIMIT 1),
+                                o.contact_rate
+                            ) as contact_rate,
+                            COALESCE(
+                                (SELECT payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods 
+                                 WHERE organization_id = o.id 
+                                 AND start_date <= s.work_date 
+                                 AND (end_date IS NULL OR end_date >= s.work_date)
+                                 ORDER BY start_date DESC LIMIT 1),
+                                o.payment_type
+                            ) as payment_type,
+                            COALESCE(ae.expense_amount, 0) as expense_amount,
+                            COALESCE(ae.expense_comment, '') as expense_comment
+                        FROM t_p24058207_website_creation_pro.schedules s
+                        JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
+                        JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
+                        LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
+                            ON l.user_id = s.user_id 
+                            AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = s.work_date
+                            AND l.organization_id = s.organization_id
+                            AND l.is_active = true
+                        LEFT JOIN t_p24058207_website_creation_pro.accounting_expenses ae
+                            ON ae.user_id = s.user_id
+                            AND ae.work_date = s.work_date
+                            AND ae.organization_id = s.organization_id
+                        WHERE s.work_date >= CURRENT_DATE - INTERVAL '90 days'
+                        GROUP BY s.work_date, s.start_time, s.end_time, o.name, o.id, o.contact_rate, 
+                                 o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment
+                        ORDER BY s.work_date DESC, u.name
+                    """)
+                    
+                    shifts = []
+                    for row in cur.fetchall():
+                        shifts.append({
+                            'date': row[0].isoformat() if row[0] else None,
+                            'start_time': str(row[1]) if row[1] else None,
+                            'end_time': str(row[2]) if row[2] else None,
+                            'organization': row[3],
+                            'organization_id': row[4],
+                            'user_id': row[5],
+                            'user_name': row[6],
+                            'contacts_count': int(row[7]),
+                            'contact_rate': int(row[8]) if row[8] else 0,
+                            'payment_type': row[9] if row[9] else 'cash',
+                            'expense_amount': int(row[10]) if row[10] else 0,
+                            'expense_comment': row[11] if row[11] else ''
+                        })
+            
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'shifts': shifts})
+            }
+        
         return {
             'statusCode': 400,
             'headers': headers,
@@ -1398,6 +1470,47 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'statusCode': 500,
                     'headers': headers,
                     'body': json.dumps({'error': 'Ошибка при добавлении смены'})
+                }
+        
+        elif action == 'update_accounting_expense':
+            user_id = body_data.get('user_id')
+            work_date = body_data.get('work_date')
+            organization_id = body_data.get('organization_id')
+            expense_amount = body_data.get('expense_amount', 0)
+            expense_comment = body_data.get('expense_comment', '')
+            
+            if not user_id or not work_date or not organization_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'user_id, work_date и organization_id обязательны'})
+                }
+            
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("""
+                            INSERT INTO t_p24058207_website_creation_pro.accounting_expenses 
+                            (user_id, work_date, organization_id, expense_amount, expense_comment, updated_at)
+                            VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                            ON CONFLICT (user_id, work_date, organization_id) 
+                            DO UPDATE SET 
+                                expense_amount = EXCLUDED.expense_amount,
+                                expense_comment = EXCLUDED.expense_comment,
+                                updated_at = CURRENT_TIMESTAMP
+                        """, (user_id, work_date, organization_id, expense_amount, expense_comment))
+                        conn.commit()
+                        
+                        return {
+                            'statusCode': 200,
+                            'headers': headers,
+                            'body': json.dumps({'success': True})
+                        }
+            except Exception as e:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': f'Ошибка обновления расхода: {str(e)}'})
                 }
         
         elif action == 'add_rate_period':

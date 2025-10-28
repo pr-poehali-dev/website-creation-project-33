@@ -1176,7 +1176,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         SELECT 
                             l.created_at::date as shift_date,
                             (
-                                SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time
+                                SELECT created_at::time
                                 FROM t_p24058207_website_creation_pro.shift_videos
                                 WHERE user_id = l.user_id 
                                   AND work_date = l.created_at::date
@@ -1185,7 +1185,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 ORDER BY created_at LIMIT 1
                             ) as start_time,
                             (
-                                SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time
+                                SELECT created_at::time
                                 FROM t_p24058207_website_creation_pro.shift_videos
                                 WHERE user_id = l.user_id 
                                   AND work_date = l.created_at::date

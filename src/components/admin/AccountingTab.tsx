@@ -29,6 +29,16 @@ interface AccountingTabProps {
   enabled?: boolean;
 }
 
+interface User {
+  id: number;
+  name: string;
+}
+
+interface Organization {
+  id: number;
+  name: string;
+}
+
 export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const [shifts, setShifts] = useState<ShiftRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,14 +50,55 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     paid_kvv: boolean;
     paid_kms: boolean;
   }}>({});
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [newShift, setNewShift] = useState({
+    user_id: 0,
+    organization_id: 0,
+    shift_date: new Date().toISOString().split('T')[0],
+    start_time: '09:00',
+    end_time: '18:00',
+    contacts_count: 0
+  });
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
   useEffect(() => {
     if (enabled) {
       loadAccountingData();
+      loadUsers();
+      loadOrganizations();
     }
   }, [enabled]);
+
+  const loadUsers = async () => {
+    try {
+      const response = await fetch(`${ADMIN_API}?action=users`, {
+        headers: { 'X-Session-Token': getSessionToken() || '' }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data.users || []);
+      }
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
+  };
+
+  const loadOrganizations = async () => {
+    try {
+      const response = await fetch(`${ADMIN_API}?action=get_organizations`, {
+        headers: { 'X-Session-Token': getSessionToken() || '' }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setOrganizations(data.organizations || []);
+      }
+    } catch (error) {
+      console.error('Error loading organizations:', error);
+    }
+  };
 
   const loadAccountingData = async () => {
     setLoading(true);
@@ -257,6 +308,61 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     }
   };
 
+  const addManualShift = async () => {
+    if (!newShift.user_id || !newShift.organization_id) {
+      toast({
+        title: 'Ошибка',
+        description: 'Выберите пользователя и организацию',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(ADMIN_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || ''
+        },
+        body: JSON.stringify({
+          action: 'add_manual_work_shift',
+          ...newShift
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успех',
+          description: 'Смена добавлена'
+        });
+        setShowAddModal(false);
+        setNewShift({
+          user_id: 0,
+          organization_id: 0,
+          shift_date: new Date().toISOString().split('T')[0],
+          start_time: '09:00',
+          end_time: '18:00',
+          contacts_count: 0
+        });
+        loadAccountingData();
+      } else {
+        const error = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: error.error || 'Не удалось добавить смену',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось добавить смену',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => {
     const key = getShiftKey(shift);
     const currentPayments = editingPayments[key] || {
@@ -306,14 +412,24 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             </div>
             Бух.учет
           </CardTitle>
-          <button
-            onClick={handleRefresh}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            title="Обновить данные"
-          >
-            <Icon name="RefreshCw" size={16} />
-            <span className="hidden md:inline">Обновить</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              title="Добавить смену"
+            >
+              <Icon name="Plus" size={16} />
+              <span className="hidden md:inline">Добавить</span>
+            </button>
+            <button
+              onClick={handleRefresh}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              title="Обновить данные"
+            >
+              <Icon name="RefreshCw" size={16} />
+              <span className="hidden md:inline">Обновить</span>
+            </button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -482,6 +598,97 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           </div>
         )}
       </CardContent>
+
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-4">Добавить смену</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Пользователь</label>
+                <select
+                  value={newShift.user_id}
+                  onChange={(e) => setNewShift({ ...newShift, user_id: parseInt(e.target.value) })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                >
+                  <option value={0}>Выберите пользователя</option>
+                  {users.map(user => (
+                    <option key={user.id} value={user.id}>{user.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Организация</label>
+                <select
+                  value={newShift.organization_id}
+                  onChange={(e) => setNewShift({ ...newShift, organization_id: parseInt(e.target.value) })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                >
+                  <option value={0}>Выберите организацию</option>
+                  {organizations.map(org => (
+                    <option key={org.id} value={org.id}>{org.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Дата</label>
+                <Input
+                  type="date"
+                  value={newShift.shift_date}
+                  onChange={(e) => setNewShift({ ...newShift, shift_date: e.target.value })}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Начало</label>
+                  <Input
+                    type="time"
+                    value={newShift.start_time}
+                    onChange={(e) => setNewShift({ ...newShift, start_time: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Конец</label>
+                  <Input
+                    type="time"
+                    value={newShift.end_time}
+                    onChange={(e) => setNewShift({ ...newShift, end_time: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Количество контактов</label>
+                <Input
+                  type="number"
+                  value={newShift.contacts_count}
+                  onChange={(e) => setNewShift({ ...newShift, contacts_count: parseInt(e.target.value) || 0 })}
+                  min={0}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={addManualShift}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Добавить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

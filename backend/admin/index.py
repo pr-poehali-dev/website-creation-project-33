@@ -1209,7 +1209,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
                         LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
                             ON l.user_id = s.user_id 
-                            AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = s.shift_date
+                            AND l.created_at::date = s.shift_date
                             AND l.organization_id = s.organization_id
                             AND l.is_active = true
                         LEFT JOIN t_p24058207_website_creation_pro.accounting_expenses ae

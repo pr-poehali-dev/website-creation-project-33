@@ -1686,6 +1686,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'body': json.dumps({'success': True})
                         }
             except Exception as e:
+                import traceback
+                error_details = traceback.format_exc()
+                print(f"❌ Update shift error: {str(e)}")
+                print(f"❌ Traceback: {error_details}")
                 return {
                     'statusCode': 400,
                     'headers': headers,

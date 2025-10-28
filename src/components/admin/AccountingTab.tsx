@@ -1,33 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
-import { ShiftRecord, User, Organization, NewShiftData, ADMIN_API } from './accounting/types';
-import { getShiftKey } from './accounting/calculations';
+import { ShiftRecord, User, Organization, NewShiftData } from './accounting/types';
 import ShiftTable from './accounting/ShiftTable';
 import AddShiftModal from './accounting/AddShiftModal';
 import EditShiftModal from './accounting/EditShiftModal';
+import AccountingHeader from './accounting/AccountingHeader';
+import { useAccountingData } from './accounting/useAccountingData';
+import { useShiftActions } from './accounting/useShiftActions';
 
 interface AccountingTabProps {
   enabled?: boolean;
 }
 
 export default function AccountingTab({ enabled = true }: AccountingTabProps) {
-  const [shifts, setShifts] = useState<ShiftRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingExpense, setEditingExpense] = useState<{[key: string]: number}>({});
-  const [editingComment, setEditingComment] = useState<{[key: string]: string}>({});
-  const [editingPayments, setEditingPayments] = useState<{[key: string]: {
-    paid_by_organization: boolean;
-    paid_to_worker: boolean;
-    paid_kvv: boolean;
-    paid_kms: boolean;
-  }}>({});
+  const {
+    shifts,
+    loading,
+    users,
+    organizations,
+    loadAccountingData,
+    getSessionToken
+  } = useAccountingData(enabled);
+
+  const {
+    editingExpense,
+    editingComment,
+    editingPayments,
+    setEditingExpense,
+    setEditingComment,
+    handleExpenseBlur,
+    deleteShift,
+    handlePaymentToggle,
+    saveEditedShift,
+    addManualShift
+  } = useShiftActions(loadAccountingData, getSessionToken);
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingShift, setEditingShift] = useState<ShiftRecord | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [exporting, setExporting] = useState(false);
   const [newShift, setNewShift] = useState<NewShiftData>({
     user_id: 0,
     organization_id: 0,
@@ -36,343 +49,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     end_time: '18:00',
     contacts_count: 0
   });
-  const [exporting, setExporting] = useState(false);
-
-  const getSessionToken = () => localStorage.getItem('session_token');
-
-  useEffect(() => {
-    if (enabled) {
-      loadAccountingData();
-      loadUsers();
-      loadOrganizations();
-    }
-  }, [enabled]);
-
-  const loadUsers = async () => {
-    try {
-      const response = await fetch(`${ADMIN_API}?action=users`, {
-        headers: { 'X-Session-Token': getSessionToken() || '' }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.users || []);
-      }
-    } catch (error) {
-      console.error('Error loading users:', error);
-    }
-  };
-
-  const loadOrganizations = async () => {
-    try {
-      const response = await fetch(`${ADMIN_API}?action=get_organizations`, {
-        headers: { 'X-Session-Token': getSessionToken() || '' }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setOrganizations(data.organizations || []);
-      }
-    } catch (error) {
-      console.error('Error loading organizations:', error);
-    }
-  };
-
-  const loadAccountingData = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `${ADMIN_API}?action=get_accounting_data`,
-        {
-          headers: {
-            'X-Session-Token': getSessionToken() || '',
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        const filteredShifts = (data.shifts || []).filter((shift: ShiftRecord) => {
-          const shiftDate = new Date(shift.date);
-          const cutoffDate = new Date('2025-10-20');
-          return shiftDate >= cutoffDate;
-        });
-        setShifts(filteredShifts);
-      } else {
-        toast({
-          title: 'Ошибка',
-          description: 'Не удалось загрузить данные',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      console.error('Error loading accounting data:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить данные',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateExpense = async (shift: ShiftRecord, expenseAmount: number, expenseComment: string, payments?: {
-    paid_by_organization: boolean;
-    paid_to_worker: boolean;
-    paid_kvv: boolean;
-    paid_kms: boolean;
-  }) => {
-    try {
-      const response = await fetch(ADMIN_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || '',
-        },
-        body: JSON.stringify({
-          action: 'update_accounting_expense',
-          user_id: shift.user_id,
-          work_date: shift.date,
-          organization_id: shift.organization_id,
-          expense_amount: expenseAmount,
-          expense_comment: expenseComment,
-          paid_by_organization: payments?.paid_by_organization ?? shift.paid_by_organization,
-          paid_to_worker: payments?.paid_to_worker ?? shift.paid_to_worker,
-          paid_kvv: payments?.paid_kvv ?? shift.paid_kvv,
-          paid_kms: payments?.paid_kms ?? shift.paid_kms,
-        }),
-      });
-
-      if (response.ok) {
-        toast({
-          title: 'Успешно',
-          description: 'Данные обновлены',
-        });
-        loadAccountingData();
-      } else {
-        const error = await response.json();
-        toast({
-          title: 'Ошибка',
-          description: error.error || 'Не удалось обновить данные',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      console.error('Error updating expense:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось обновить данные',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleExpenseBlur = (shift: ShiftRecord) => {
-    const key = getShiftKey(shift);
-    const expenseAmount = editingExpense[key] ?? shift.expense_amount;
-    const expenseComment = editingComment[key] ?? shift.expense_comment;
-    const payments = editingPayments[key];
-    
-    if (expenseAmount !== shift.expense_amount || expenseComment !== shift.expense_comment || payments) {
-      updateExpense(shift, expenseAmount, expenseComment, payments);
-    }
-  };
-
-  const deleteShift = async (shift: ShiftRecord) => {
-    const password = prompt('Введите пароль для удаления:');
-    if (password !== '955650') {
-      toast({
-        title: 'Ошибка',
-        description: 'Неверный пароль',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!confirm(`Удалить смену ${shift.user_name} от ${new Date(shift.date).toLocaleDateString('ru-RU')}?`)) {
-      return;
-    }
-
-    try {
-      const response = await fetch(ADMIN_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || '',
-        },
-        body: JSON.stringify({
-          action: 'delete_work_shift',
-          user_id: shift.user_id,
-          work_date: shift.date,
-          organization_id: shift.organization_id,
-        }),
-      });
-
-      if (response.ok) {
-        toast({
-          title: 'Успешно',
-          description: 'Смена удалена',
-        });
-        loadAccountingData();
-      } else {
-        const error = await response.json();
-        toast({
-          title: 'Ошибка',
-          description: error.error || 'Не удалось удалить смену',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      console.error('Error deleting shift:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось удалить смену',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => {
-    const key = getShiftKey(shift);
-    const currentPayments = editingPayments[key] || {
-      paid_by_organization: shift.paid_by_organization,
-      paid_to_worker: shift.paid_to_worker,
-      paid_kvv: shift.paid_kvv,
-      paid_kms: shift.paid_kms
-    };
-    
-    const newPayments = {
-      ...currentPayments,
-      [field]: !currentPayments[field]
-    };
-    
-    setEditingPayments({ ...editingPayments, [key]: newPayments });
-    updateExpense(shift, shift.expense_amount, shift.expense_comment, newPayments);
-  };
-
-  const handleEditShift = (shift: ShiftRecord) => {
-    setEditingShift(shift);
-    setShowEditModal(true);
-  };
-
-  const saveEditedShift = async (updatedShift: Partial<ShiftRecord>) => {
-    if (!editingShift) return;
-
-    try {
-      const response = await fetch(ADMIN_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || ''
-        },
-        body: JSON.stringify({
-          action: 'update_work_shift',
-          old_user_id: editingShift.user_id,
-          old_work_date: editingShift.date,
-          old_organization_id: editingShift.organization_id,
-          new_user_id: updatedShift.user_id,
-          new_work_date: updatedShift.date,
-          new_organization_id: updatedShift.organization_id,
-          start_time: updatedShift.start_time,
-          end_time: updatedShift.end_time,
-          contacts_count: updatedShift.contacts_count,
-          contact_rate: updatedShift.contact_rate,
-          payment_type: updatedShift.payment_type,
-          expense_amount: updatedShift.expense_amount,
-          expense_comment: updatedShift.expense_comment,
-          paid_by_organization: updatedShift.paid_by_organization,
-          paid_to_worker: updatedShift.paid_to_worker,
-          paid_kvv: updatedShift.paid_kvv,
-          paid_kms: updatedShift.paid_kms
-        })
-      });
-
-      if (response.ok) {
-        toast({
-          title: 'Успех',
-          description: 'Смена обновлена'
-        });
-        setShowEditModal(false);
-        setEditingShift(null);
-        loadAccountingData();
-      } else {
-        const error = await response.json();
-        toast({
-          title: 'Ошибка',
-          description: error.error || 'Не удалось обновить смену',
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось обновить смену',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const addManualShift = async () => {
-    if (!newShift.user_id || !newShift.organization_id) {
-      toast({
-        title: 'Ошибка',
-        description: 'Выберите пользователя и организацию',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch(ADMIN_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || ''
-        },
-        body: JSON.stringify({
-          action: 'add_manual_work_shift',
-          ...newShift
-        })
-      });
-
-      if (response.ok) {
-        toast({
-          title: 'Успех',
-          description: 'Смена добавлена'
-        });
-        setShowAddModal(false);
-        setNewShift({
-          user_id: 0,
-          organization_id: 0,
-          shift_date: new Date().toISOString().split('T')[0],
-          start_time: '09:00',
-          end_time: '18:00',
-          contacts_count: 0
-        });
-        loadAccountingData();
-      } else {
-        const error = await response.json();
-        toast({
-          title: 'Ошибка',
-          description: error.error || 'Не удалось добавить смену',
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось добавить смену',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const handleRefresh = () => {
-    loadAccountingData();
-    toast({
-      title: 'Обновление',
-      description: 'Загрузка свежих данных...',
-    });
-  };
 
   const handleExportToGoogleSheets = async () => {
     setExporting(true);
@@ -414,6 +90,44 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     }
   };
 
+  const handleRefresh = () => {
+    loadAccountingData();
+    toast({
+      title: 'Обновление',
+      description: 'Загрузка свежих данных...',
+    });
+  };
+
+  const handleEditShift = (shift: ShiftRecord) => {
+    setEditingShift(shift);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEditedShift = async (updatedShift: Partial<ShiftRecord>) => {
+    if (!editingShift) return;
+    
+    const success = await saveEditedShift(editingShift, updatedShift);
+    if (success) {
+      setShowEditModal(false);
+      setEditingShift(null);
+    }
+  };
+
+  const handleAddManualShift = async () => {
+    const success = await addManualShift(newShift);
+    if (success) {
+      setShowAddModal(false);
+      setNewShift({
+        user_id: 0,
+        organization_id: 0,
+        shift_date: new Date().toISOString().split('T')[0],
+        start_time: '09:00',
+        end_time: '18:00',
+        contacts_count: 0
+      });
+    }
+  };
+
   if (loading) {
     return (
       <Card className="bg-white border-gray-200 rounded-2xl">
@@ -429,47 +143,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
 
   return (
     <Card className="bg-white border-gray-200 rounded-2xl">
-      <CardHeader className="pb-3 md:pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-blue-100">
-              <Icon name="Calculator" size={18} className="text-blue-600 md:w-5 md:h-5" />
-            </div>
-            Бух.учет
-          </CardTitle>
-          <div className="flex gap-2">
-            <button
-              onClick={handleExportToGoogleSheets}
-              disabled={exporting}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Экспорт в Google Таблицы"
-            >
-              {exporting ? (
-                <Icon name="Loader2" size={16} className="animate-spin" />
-              ) : (
-                <Icon name="Sheet" size={16} />
-              )}
-              <span className="hidden md:inline">{exporting ? 'Экспорт...' : 'Google Таблицы'}</span>
-            </button>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              title="Добавить смену"
-            >
-              <Icon name="Plus" size={16} />
-              <span className="hidden md:inline">Добавить</span>
-            </button>
-            <button
-              onClick={handleRefresh}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              title="Обновить данные"
-            >
-              <Icon name="RefreshCw" size={16} />
-              <span className="hidden md:inline">Обновить</span>
-            </button>
-          </div>
-        </div>
-      </CardHeader>
+      <AccountingHeader
+        onExport={handleExportToGoogleSheets}
+        onAdd={() => setShowAddModal(true)}
+        onRefresh={handleRefresh}
+        exporting={exporting}
+      />
       <CardContent>
         <ShiftTable
           shifts={shifts}
@@ -488,7 +167,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
       <AddShiftModal
         show={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onAdd={addManualShift}
+        onAdd={handleAddManualShift}
         newShift={newShift}
         setNewShift={setNewShift}
         users={users}
@@ -501,7 +180,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           setShowEditModal(false);
           setEditingShift(null);
         }}
-        onSave={saveEditedShift}
+        onSave={handleSaveEditedShift}
         shift={editingShift}
         users={users}
         organizations={organizations}

@@ -1,42 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
-
-const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
-
-interface ShiftRecord {
-  date: string;
-  start_time: string;
-  end_time: string;
-  organization: string;
-  organization_id: number;
-  user_id: number;
-  user_name: string;
-  contacts_count: number;
-  contact_rate: number;
-  payment_type: 'cash' | 'cashless';
-  expense_amount: number;
-  expense_comment: string;
-  paid_by_organization: boolean;
-  paid_to_worker: boolean;
-  paid_kvv: boolean;
-  paid_kms: boolean;
-}
+import { ShiftRecord, User, Organization, NewShiftData, ADMIN_API } from './accounting/types';
+import { getShiftKey } from './accounting/calculations';
+import ShiftTable from './accounting/ShiftTable';
+import AddShiftModal from './accounting/AddShiftModal';
 
 interface AccountingTabProps {
   enabled?: boolean;
-}
-
-interface User {
-  id: number;
-  name: string;
-}
-
-interface Organization {
-  id: number;
-  name: string;
 }
 
 export default function AccountingTab({ enabled = true }: AccountingTabProps) {
@@ -53,7 +25,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [newShift, setNewShift] = useState({
+  const [newShift, setNewShift] = useState<NewShiftData>({
     user_id: 0,
     organization_id: 0,
     shift_date: new Date().toISOString().split('T')[0],
@@ -190,59 +162,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     }
   };
 
-  const calculateRevenue = (shift: ShiftRecord) => {
-    return shift.contacts_count * shift.contact_rate;
-  };
-
-  const calculateTax = (shift: ShiftRecord) => {
-    if (shift.payment_type === 'cashless') {
-      const revenue = calculateRevenue(shift);
-      return Math.round(revenue * 0.06);
-    }
-    return 0;
-  };
-
-  const calculateAfterTax = (shift: ShiftRecord) => {
-    const revenue = calculateRevenue(shift);
-    const tax = calculateTax(shift);
-    return revenue - tax;
-  };
-
-  const calculateWorkerSalary = (contactsCount: number) => {
-    if (contactsCount >= 10) {
-      return contactsCount * 300;
-    }
-    return contactsCount * 200;
-  };
-
-  const calculateNetProfit = (shift: ShiftRecord) => {
-    const afterTax = calculateAfterTax(shift);
-    const workerSalary = calculateWorkerSalary(shift.contacts_count);
-    const expense = shift.expense_amount || 0;
-    return afterTax - workerSalary - expense;
-  };
-
-  const calculateKVV = (shift: ShiftRecord) => {
-    return Math.round(calculateNetProfit(shift) / 2);
-  };
-
-  const calculateKMS = (shift: ShiftRecord) => {
-    return Math.round(calculateNetProfit(shift) / 2);
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('ru-RU');
-  };
-
-  const formatTime = (timeStr: string | null) => {
-    if (!timeStr) return '—';
-    return timeStr.substring(0, 5);
-  };
-
-  const getShiftKey = (shift: ShiftRecord) => {
-    return `${shift.user_id}-${shift.date}-${shift.organization_id}`;
-  };
-
   const handleExpenseBlur = (shift: ShiftRecord) => {
     const key = getShiftKey(shift);
     const expenseAmount = editingExpense[key] ?? shift.expense_amount;
@@ -265,7 +184,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
       return;
     }
 
-    if (!confirm(`Удалить смену ${shift.user_name} от ${formatDate(shift.date)}?`)) {
+    if (!confirm(`Удалить смену ${shift.user_name} от ${new Date(shift.date).toLocaleDateString('ru-RU')}?`)) {
       return;
     }
 
@@ -306,6 +225,24 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         variant: 'destructive',
       });
     }
+  };
+
+  const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => {
+    const key = getShiftKey(shift);
+    const currentPayments = editingPayments[key] || {
+      paid_by_organization: shift.paid_by_organization,
+      paid_to_worker: shift.paid_to_worker,
+      paid_kvv: shift.paid_kvv,
+      paid_kms: shift.paid_kms
+    };
+    
+    const newPayments = {
+      ...currentPayments,
+      [field]: !currentPayments[field]
+    };
+    
+    setEditingPayments({ ...editingPayments, [key]: newPayments });
+    updateExpense(shift, shift.expense_amount, shift.expense_comment, newPayments);
   };
 
   const addManualShift = async () => {
@@ -363,22 +300,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     }
   };
 
-  const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => {
-    const key = getShiftKey(shift);
-    const currentPayments = editingPayments[key] || {
-      paid_by_organization: shift.paid_by_organization,
-      paid_to_worker: shift.paid_to_worker,
-      paid_kvv: shift.paid_kvv,
-      paid_kms: shift.paid_kms
-    };
-    
-    const newPayments = {
-      ...currentPayments,
-      [field]: !currentPayments[field]
-    };
-    
-    setEditingPayments({ ...editingPayments, [key]: newPayments });
-    updateExpense(shift, shift.expense_amount, shift.expense_comment, newPayments);
+  const handleRefresh = () => {
+    loadAccountingData();
+    toast({
+      title: 'Обновление',
+      description: 'Загрузка свежих данных...',
+    });
   };
 
   if (loading) {
@@ -393,14 +320,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
       </Card>
     );
   }
-
-  const handleRefresh = () => {
-    loadAccountingData();
-    toast({
-      title: 'Обновление',
-      description: 'Загрузка свежих данных...',
-    });
-  };
 
   return (
     <Card className="bg-white border-gray-200 rounded-2xl">
@@ -433,262 +352,28 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {shifts.length === 0 ? (
-          <div className="text-center py-8 text-gray-600">
-            <Icon name="FileSpreadsheet" size={32} className="mx-auto mb-3 opacity-30" />
-            <p>Данные отсутствуют</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs md:text-sm border-collapse">
-              <thead>
-                <tr className="bg-gray-100 text-gray-700">
-                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Дата</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Время</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Организация</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Сумма прихода</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Оплата</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Налог 6%</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">После налога</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Промоутер</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Контакты</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Зарплата</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Расход</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Комментарий</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-green-50">Чистый остаток</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-blue-50">КВВ</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-purple-50">КМС</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. орг.</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. испол.</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. КВВ</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. КМС</th>
-                  <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shifts.map((shift) => {
-                  const key = getShiftKey(shift);
-                  const revenue = calculateRevenue(shift);
-                  const tax = calculateTax(shift);
-                  const afterTax = calculateAfterTax(shift);
-                  const workerSalary = calculateWorkerSalary(shift.contacts_count);
-                  const netProfit = calculateNetProfit(shift);
-                  const kvv = calculateKVV(shift);
-                  const kms = calculateKMS(shift);
-
-                  return (
-                    <tr key={key} className="hover:bg-gray-50">
-                      <td className="border border-gray-300 p-1 md:p-2 whitespace-nowrap">{formatDate(shift.date)}</td>
-                      <td className="border border-gray-300 p-1 md:p-2 whitespace-nowrap">
-                        {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2">{shift.organization}</td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-right font-medium">{revenue.toLocaleString()} ₽</td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <span className={`px-1.5 py-0.5 rounded text-[10px] ${shift.payment_type === 'cash' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                            {shift.payment_type === 'cash' ? '💵' : '💳'}
-                          </span>
-                          <span className="text-xs font-medium text-gray-700">{shift.contact_rate}₽</span>
-                        </div>
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-right text-red-600">{tax > 0 ? `${tax.toLocaleString()} ₽` : '—'}</td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-right font-medium">{afterTax.toLocaleString()} ₽</td>
-                      <td className="border border-gray-300 p-1 md:p-2">{shift.user_name}</td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-right">{shift.contacts_count}</td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-right font-medium text-orange-600">{workerSalary.toLocaleString()} ₽</td>
-                      <td className="border border-gray-300 p-1 md:p-2">
-                        <Input
-                          type="number"
-                          value={editingExpense[key] ?? shift.expense_amount ?? 0}
-                          onChange={(e) => setEditingExpense({ ...editingExpense, [key]: parseInt(e.target.value) || 0 })}
-                          onBlur={() => handleExpenseBlur(shift)}
-                          className="w-20 h-7 text-xs border-gray-300"
-                        />
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2">
-                        <Input
-                          type="text"
-                          value={editingComment[key] ?? shift.expense_comment ?? ''}
-                          onChange={(e) => setEditingComment({ ...editingComment, [key]: e.target.value })}
-                          onBlur={() => handleExpenseBlur(shift)}
-                          placeholder="Комментарий"
-                          className="w-full min-w-[150px] h-7 text-xs border-gray-300"
-                        />
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-right font-bold bg-green-50">
-                        {netProfit.toLocaleString()} ₽
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-right font-bold bg-blue-50">
-                        {kvv.toLocaleString()} ₽
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-right font-bold bg-purple-50">
-                        {kms.toLocaleString()} ₽
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-center">
-                        <select
-                          value={(editingPayments[key]?.paid_by_organization ?? shift.paid_by_organization) ? 'yes' : 'no'}
-                          onChange={(e) => handlePaymentToggle(shift, 'paid_by_organization')}
-                          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
-                            (editingPayments[key]?.paid_by_organization ?? shift.paid_by_organization)
-                              ? 'bg-green-100 text-green-800 border-green-300'
-                              : 'bg-red-100 text-red-800 border-red-300'
-                          }`}
-                        >
-                          <option value="no">Нет</option>
-                          <option value="yes">Да</option>
-                        </select>
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-center">
-                        <select
-                          value={(editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker) ? 'yes' : 'no'}
-                          onChange={(e) => handlePaymentToggle(shift, 'paid_to_worker')}
-                          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
-                            (editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker)
-                              ? 'bg-green-100 text-green-800 border-green-300'
-                              : 'bg-red-100 text-red-800 border-red-300'
-                          }`}
-                        >
-                          <option value="no">Нет</option>
-                          <option value="yes">Да</option>
-                        </select>
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-center">
-                        <select
-                          value={(editingPayments[key]?.paid_kvv ?? shift.paid_kvv) ? 'yes' : 'no'}
-                          onChange={(e) => handlePaymentToggle(shift, 'paid_kvv')}
-                          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
-                            (editingPayments[key]?.paid_kvv ?? shift.paid_kvv)
-                              ? 'bg-green-100 text-green-800 border-green-300'
-                              : 'bg-red-100 text-red-800 border-red-300'
-                          }`}
-                        >
-                          <option value="no">Нет</option>
-                          <option value="yes">Да</option>
-                        </select>
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-center">
-                        <select
-                          value={(editingPayments[key]?.paid_kms ?? shift.paid_kms) ? 'yes' : 'no'}
-                          onChange={(e) => handlePaymentToggle(shift, 'paid_kms')}
-                          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
-                            (editingPayments[key]?.paid_kms ?? shift.paid_kms)
-                              ? 'bg-green-100 text-green-800 border-green-300'
-                              : 'bg-red-100 text-red-800 border-red-300'
-                          }`}
-                        >
-                          <option value="no">Нет</option>
-                          <option value="yes">Да</option>
-                        </select>
-                      </td>
-                      <td className="border border-gray-300 p-1 md:p-2 text-center">
-                        <button
-                          onClick={() => deleteShift(shift)}
-                          className="p-1 hover:bg-red-100 rounded transition-colors"
-                          title="Удалить смену"
-                        >
-                          <Icon name="Trash2" size={16} className="text-red-600" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <ShiftTable
+          shifts={shifts}
+          editingExpense={editingExpense}
+          editingComment={editingComment}
+          editingPayments={editingPayments}
+          onExpenseChange={(key, value) => setEditingExpense({ ...editingExpense, [key]: value })}
+          onCommentChange={(key, value) => setEditingComment({ ...editingComment, [key]: value })}
+          onExpenseBlur={handleExpenseBlur}
+          onPaymentToggle={handlePaymentToggle}
+          onDelete={deleteShift}
+        />
       </CardContent>
 
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">Добавить смену</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Пользователь</label>
-                <select
-                  value={newShift.user_id}
-                  onChange={(e) => setNewShift({ ...newShift, user_id: parseInt(e.target.value) })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                >
-                  <option value={0}>Выберите пользователя</option>
-                  {users.map(user => (
-                    <option key={user.id} value={user.id}>{user.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Организация</label>
-                <select
-                  value={newShift.organization_id}
-                  onChange={(e) => setNewShift({ ...newShift, organization_id: parseInt(e.target.value) })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                >
-                  <option value={0}>Выберите организацию</option>
-                  {organizations.map(org => (
-                    <option key={org.id} value={org.id}>{org.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Дата</label>
-                <Input
-                  type="date"
-                  value={newShift.shift_date}
-                  onChange={(e) => setNewShift({ ...newShift, shift_date: e.target.value })}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Начало</label>
-                  <Input
-                    type="time"
-                    value={newShift.start_time}
-                    onChange={(e) => setNewShift({ ...newShift, start_time: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Конец</label>
-                  <Input
-                    type="time"
-                    value={newShift.end_time}
-                    onChange={(e) => setNewShift({ ...newShift, end_time: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Количество контактов</label>
-                <Input
-                  type="number"
-                  value={newShift.contacts_count}
-                  onChange={(e) => setNewShift({ ...newShift, contacts_count: parseInt(e.target.value) || 0 })}
-                  min={0}
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Отмена
-              </button>
-              <button
-                onClick={addManualShift}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Добавить
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AddShiftModal
+        show={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAdd={addManualShift}
+        newShift={newShift}
+        setNewShift={setNewShift}
+        users={users}
+        organizations={organizations}
+      />
     </Card>
   );
 }

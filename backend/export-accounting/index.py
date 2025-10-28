@@ -68,22 +68,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 o.name as organization_name,
                 ws.shift_start,
                 ws.shift_end,
-                COALESCE(wsc.contacts_count, 0) as contacts_count,
-                COALESCE(wsc.contact_rate, 0) as contact_rate,
-                COALESCE(wsc.payment_type, 'cash') as payment_type,
-                COALESCE(ws.expense_amount, 0) as expense_amount,
-                COALESCE(ws.expense_comment, '') as expense_comment,
-                ws.paid_by_organization,
-                ws.paid_to_worker,
-                ws.paid_kvv,
-                ws.paid_kms
+                COALESCE(SUM(la.contacts_count), 0) as contacts_count,
+                COALESCE(AVG(la.contact_rate), 0) as contact_rate,
+                COALESCE(MAX(la.payment_type), 'cash') as payment_type,
+                COALESCE(ae.expense_amount, 0) as expense_amount,
+                COALESCE(ae.expense_comment, '') as expense_comment,
+                COALESCE(ae.paid_by_organization, false) as paid_by_organization,
+                COALESCE(ae.paid_to_worker, false) as paid_to_worker,
+                COALESCE(ae.paid_kvv, false) as paid_kvv,
+                COALESCE(ae.paid_kms, false) as paid_kms
             FROM t_p24058207_website_creation_pro.work_shifts ws
             JOIN t_p24058207_website_creation_pro.users u ON ws.user_id = u.id
             JOIN t_p24058207_website_creation_pro.organizations o ON ws.organization_id = o.id
-            LEFT JOIN t_p24058207_website_creation_pro.work_shift_contacts wsc 
-                ON ws.user_id = wsc.user_id 
-                AND ws.shift_date = wsc.work_date 
-                AND ws.organization_id = wsc.organization_id
+            LEFT JOIN t_p24058207_website_creation_pro.leads_analytics la 
+                ON ws.user_id = la.user_id 
+                AND DATE(la.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = ws.shift_date
+                AND ws.organization_id = la.organization_id
+                AND la.is_active = true
+            LEFT JOIN t_p24058207_website_creation_pro.accounting_expenses ae 
+                ON ws.user_id = ae.user_id 
+                AND ws.shift_date = ae.work_date 
+                AND ws.organization_id = ae.organization_id
+            WHERE ws.shift_date >= '2025-10-20'
+            GROUP BY ws.shift_date, u.full_name, o.name, ws.shift_start, ws.shift_end, 
+                     ae.expense_amount, ae.expense_comment, ae.paid_by_organization, 
+                     ae.paid_to_worker, ae.paid_kvv, ae.paid_kms
             ORDER BY ws.shift_date DESC, u.full_name
         """)
         

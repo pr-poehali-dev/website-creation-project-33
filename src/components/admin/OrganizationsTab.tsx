@@ -15,6 +15,7 @@ interface Organization {
   created_at: string;
   lead_count: number;
   contact_rate: number;
+  payment_type: 'cash' | 'cashless';
 }
 
 interface OrganizationsTabProps {
@@ -30,6 +31,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
   const [editingRate, setEditingRate] = useState('');
+  const [editingPaymentType, setEditingPaymentType] = useState<'cash' | 'cashless'>('cash');
   const [updating, setUpdating] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
@@ -84,12 +86,14 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
     setEditingId(org.id);
     setEditingName(org.name);
     setEditingRate(org.contact_rate?.toString() || '0');
+    setEditingPaymentType(org.payment_type || 'cash');
   };
 
   const cancelEditing = () => {
     setEditingId(null);
     setEditingName('');
     setEditingRate('');
+    setEditingPaymentType('cash');
   };
 
   const updateOrganization = async (id: number) => {
@@ -108,6 +112,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
           id,
           name: editingName.trim(),
           contact_rate: parseInt(editingRate) || 0,
+          payment_type: editingPaymentType,
         }),
       });
 
@@ -284,6 +289,16 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                             if (e.key === 'Escape') cancelEditing();
                           }}
                         />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={editingPaymentType}
+                          onChange={(e) => setEditingPaymentType(e.target.value as 'cash' | 'cashless')}
+                          className="flex-1 border-2 border-blue-300 bg-white text-gray-900 h-10 text-sm md:text-base rounded-md px-3"
+                        >
+                          <option value="cash">💵 Наличный расчет</option>
+                          <option value="cashless">💳 Безналичный расчет</option>
+                        </select>
                         <Button
                           onClick={() => updateOrganization(org.id)}
                           disabled={!editingName.trim() || updating}
@@ -321,6 +336,11 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                             {org.contact_rate > 0 && (
                               <div className="px-2 py-0.5 rounded-full bg-green-50 text-green-600 text-[10px] md:text-xs font-medium flex-shrink-0">
                                 {org.contact_rate} ₽/контакт
+                              </div>
+                            )}
+                            {org.payment_type && (
+                              <div className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 text-[10px] md:text-xs font-medium flex-shrink-0">
+                                {org.payment_type === 'cash' ? '💵 Наличные' : '💳 Безнал'}
                               </div>
                             )}
                           </div>

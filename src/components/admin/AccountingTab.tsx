@@ -36,6 +36,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     end_time: '18:00',
     contacts_count: 0
   });
+  const [exporting, setExporting] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -373,6 +374,46 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     });
   };
 
+  const handleExportToGoogleSheets = async () => {
+    setExporting(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/e7ea8b8a-c7f4-4c24-84f4-436f40f76963', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || ''
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: 'Успешно!',
+          description: data.message,
+        });
+        if (data.sheet_url) {
+          window.open(data.sheet_url, '_blank');
+        }
+      } else {
+        const error = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: error.error || 'Не удалось экспортировать данные',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось экспортировать данные',
+        variant: 'destructive'
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card className="bg-white border-gray-200 rounded-2xl">
@@ -397,6 +438,19 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             Бух.учет
           </CardTitle>
           <div className="flex gap-2">
+            <button
+              onClick={handleExportToGoogleSheets}
+              disabled={exporting}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Экспорт в Google Таблицы"
+            >
+              {exporting ? (
+                <Icon name="Loader2" size={16} className="animate-spin" />
+              ) : (
+                <Icon name="Sheet" size={16} />
+              )}
+              <span className="hidden md:inline">{exporting ? 'Экспорт...' : 'Google Таблицы'}</span>
+            </button>
             <button
               onClick={() => setShowAddModal(true)}
               className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"

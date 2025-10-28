@@ -1184,12 +1184,12 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COUNT(CASE WHEN l.lead_type = '\u043a\u043e\u043d\u0442\u0430\u043a\u0442' THEN 1 END) as contacts_count,
                             MAX(COALESCE(orp.contact_rate, o.contact_rate)) as contact_rate,
                             MAX(COALESCE(orp.payment_type, o.payment_type)) as payment_type,
-                            COALESCE(ae.expense_amount, 0) as expense_amount,
-                            COALESCE(ae.expense_comment, '') as expense_comment,
-                            COALESCE(ae.paid_by_organization, false) as paid_by_organization,
-                            COALESCE(ae.paid_to_worker, false) as paid_to_worker,
-                            COALESCE(ae.paid_kvv, false) as paid_kvv,
-                            COALESCE(ae.paid_kms, false) as paid_kms
+                            COALESCE(MAX(ae.expense_amount), 0) as expense_amount,
+                            COALESCE(MAX(ae.expense_comment), '') as expense_comment,
+                            COALESCE(MAX(ae.paid_by_organization), false) as paid_by_organization,
+                            COALESCE(MAX(ae.paid_to_worker), false) as paid_to_worker,
+                            COALESCE(MAX(ae.paid_kvv), false) as paid_kvv,
+                            COALESCE(MAX(ae.paid_kms), false) as paid_kms
                         FROM t_p24058207_website_creation_pro.leads_analytics l
                         JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
@@ -1222,9 +1222,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         WHERE l.created_at::date >= '2025-10-01'
                             AND l.is_active = true
                         GROUP BY l.created_at::date, l.user_id, l.organization_id, o.name, o.id, o.contact_rate, 
-                                 o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment,
-                                 ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms,
-                                 sv_start.start_time, sv_end.end_time
+                                 o.payment_type, u.id, u.name, sv_start.start_time, sv_end.end_time
                         ORDER BY l.created_at::date DESC, u.name
                     """)
                     

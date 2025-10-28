@@ -1641,6 +1641,13 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             old_user_id, old_work_date, old_organization_id
                         ))
                         
+                        if cur.rowcount == 0:
+                            return {
+                                'statusCode': 404,
+                                'headers': headers,
+                                'body': json.dumps({'error': 'Смена не найдена для обновления'})
+                            }
+                        
                         if contacts_count > 0:
                             cur.execute("""
                                 DELETE FROM t_p24058207_website_creation_pro.leads_analytics

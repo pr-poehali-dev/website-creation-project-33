@@ -166,6 +166,7 @@ export default function WorkerCard({
       {showOrgStatsModal && (
         <OrgStatsModal
           workerName={workerName}
+          workerEmail={worker.email}
           orgStats={orgStats}
           onClose={() => setShowOrgStatsModal(false)}
         />

@@ -826,6 +826,54 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             org_stats.sort(key=lambda x: x['avg_per_shift'], reverse=True)
             return org_stats
 
+def get_user_org_shift_details(email: str, org_name: str) -> List[Dict[str, Any]]:
+    """Получить детальную информацию по сменам пользователя в конкретной организации"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id FROM t_p24058207_website_creation_pro.users 
+                WHERE email = %s
+            """, (email,))
+            user_row = cur.fetchone()
+            
+            if not user_row:
+                return []
+            
+            user_id = user_row[0]
+            
+            cur.execute("""
+                SELECT 
+                    l.created_at,
+                    l.lead_type
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.user_id = %s AND o.name = %s AND l.is_active = true
+                ORDER BY l.created_at
+            """, (user_id, org_name))
+            
+            daily_data = {}
+            for row in cur.fetchall():
+                created_at = row[0]
+                lead_type = row[1]
+                
+                moscow_dt = get_moscow_time_from_utc(created_at)
+                moscow_date = moscow_dt.date()
+                
+                if moscow_date not in daily_data:
+                    daily_data[moscow_date] = 0
+                
+                if lead_type == 'контакт':
+                    daily_data[moscow_date] += 1
+            
+            shift_details = []
+            for date, contacts in sorted(daily_data.items(), reverse=True):
+                shift_details.append({
+                    'date': date.isoformat(),
+                    'contacts': contacts
+                })
+            
+            return shift_details
+
 def approve_user(user_id: int, admin_id: int) -> bool:
     """Одобрить пользователя"""
     with get_db_connection() as conn:
@@ -1157,6 +1205,24 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({'success': True, 'org_stats': org_stats})
+            }
+        
+        elif action == 'get_user_org_shift_details':
+            email = body_data.get('email')
+            org_name = body_data.get('org_name')
+            
+            if not email or not org_name:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Email и org_name обязательны'})
+                }
+            
+            shift_details = get_user_org_shift_details(email, org_name)
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': True, 'shift_details': shift_details})
             }
         
         elif action == 'add_organization':

@@ -7,6 +7,7 @@ export interface UserSchedule {
   user_id: number;
   first_name: string;
   last_name: string;
+  email: string;
   schedule: any;
   avg_per_shift?: number;
 }

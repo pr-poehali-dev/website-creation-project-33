@@ -1,11 +1,18 @@
+import { useState } from 'react';
+import ShiftDetailsModal from './ShiftDetailsModal';
+
 interface OrgStatsModalProps {
   workerName: string;
+  workerEmail: string;
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
   onClose: () => void;
 }
 
-export default function OrgStatsModal({ workerName, orgStats, onClose }: OrgStatsModalProps) {
+export default function OrgStatsModal({ workerName, workerEmail, orgStats, onClose }: OrgStatsModalProps) {
+  const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
+
   return (
+    <>
     <div 
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
       onClick={onClose}
@@ -39,7 +46,8 @@ export default function OrgStatsModal({ workerName, orgStats, onClose }: OrgStat
               .map((stat, idx) => (
                 <div 
                   key={idx}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                  onClick={() => setSelectedOrg(stat.organization_name)}
                 >
                   <span className="text-sm text-gray-700 font-medium">
                     {stat.organization_name}
@@ -53,5 +61,15 @@ export default function OrgStatsModal({ workerName, orgStats, onClose }: OrgStat
         </div>
       </div>
     </div>
+    
+    {selectedOrg && (
+      <ShiftDetailsModal
+        workerName={workerName}
+        workerEmail={workerEmail}
+        orgName={selectedOrg}
+        onClose={() => setSelectedOrg(null)}
+      />
+    )}
+    </>
   );
 }

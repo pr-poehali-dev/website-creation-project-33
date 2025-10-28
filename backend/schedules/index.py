@@ -153,7 +153,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'schedule': row[1],
                 'week_start_date': row[2].isoformat(),
                 'first_name': row[3].split()[0] if row[3] else 'User',
-                'last_name': row[3].split()[1] if row[3] and len(row[3].split()) > 1 else ''
+                'last_name': row[3].split()[1] if row[3] and len(row[3].split()) > 1 else '',
+                'email': row[4]
             })
         
         return {

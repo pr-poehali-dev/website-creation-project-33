@@ -8,7 +8,7 @@ Returns: JSON с данными пользователей, статистико
 import json
 import os
 import psycopg2
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Dict, Any, List, Optional
 import pytz
 
@@ -1227,7 +1227,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     """)
                     
                     shifts = []
-                    for row in cur.fetchall():
+                    rows = cur.fetchall()
+                    print(f'📊 Total rows fetched: {len(rows)}')
+                    
+                    for row in rows:
                         shifts.append({
                             'date': row[0].isoformat() if row[0] else None,
                             'start_time': str(row[1]) if row[1] else None,
@@ -1246,6 +1249,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'paid_kvv': bool(row[14]),
                             'paid_kms': bool(row[15])
                         })
+                        if row[0] and row[0] < date(2025, 10, 15):
+                            print(f'📅 Early date row: date={row[0]}, user={row[6]}, org={row[3]}, contacts={row[7]}')
             
             return {
                 'statusCode': 200,

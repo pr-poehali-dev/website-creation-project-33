@@ -149,13 +149,10 @@ export function useShiftActions(
     setEditingPayments({ ...editingPayments, [key]: newPayments });
   };
 
-  const saveAllPayments = async () => {
+  const saveAllPayments = async (shifts: ShiftRecord[]) => {
     const updates = Object.entries(editingPayments).map(async ([key, payments]) => {
-      const shift = { user_id: 0, date: '', organization_id: 0, expense_amount: 0, expense_comment: '' };
-      const parts = key.split('-');
-      shift.user_id = parseInt(parts[0]);
-      shift.date = parts[1];
-      shift.organization_id = parseInt(parts[2]);
+      const shift = shifts.find(s => getShiftKey(s) === key);
+      if (!shift) return;
       
       return fetch(ADMIN_API, {
         method: 'POST',
@@ -168,8 +165,8 @@ export function useShiftActions(
           user_id: shift.user_id,
           work_date: shift.date,
           organization_id: shift.organization_id,
-          expense_amount: 0,
-          expense_comment: '',
+          expense_amount: shift.expense_amount,
+          expense_comment: shift.expense_comment,
           paid_by_organization: payments.paid_by_organization,
           paid_to_worker: payments.paid_to_worker,
           paid_kvv: payments.paid_kvv,

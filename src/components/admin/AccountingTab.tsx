@@ -135,7 +135,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
 
   const handleSavePayments = async () => {
     setSavingPayments(true);
-    await saveAllPayments();
+    await saveAllPayments(shifts);
     setSavingPayments(false);
   };
 

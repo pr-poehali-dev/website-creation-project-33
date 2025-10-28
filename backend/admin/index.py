@@ -1174,9 +1174,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 with conn.cursor() as cur:
                     cur.execute("""
                         SELECT 
-                            s.work_date,
-                            s.start_time,
-                            s.end_time,
+                            s.shift_date,
+                            s.shift_start::time,
+                            s.shift_end::time,
                             o.name as organization,
                             o.id as organization_id,
                             u.id as user_id,
@@ -1185,37 +1185,37 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(
                                 (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
                                  WHERE organization_id = o.id 
-                                 AND start_date <= s.work_date 
-                                 AND (end_date IS NULL OR end_date >= s.work_date)
+                                 AND start_date <= s.shift_date 
+                                 AND (end_date IS NULL OR end_date >= s.shift_date)
                                  ORDER BY start_date DESC LIMIT 1),
                                 o.contact_rate
                             ) as contact_rate,
                             COALESCE(
                                 (SELECT payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods 
                                  WHERE organization_id = o.id 
-                                 AND start_date <= s.work_date 
-                                 AND (end_date IS NULL OR end_date >= s.work_date)
+                                 AND start_date <= s.shift_date 
+                                 AND (end_date IS NULL OR end_date >= s.shift_date)
                                  ORDER BY start_date DESC LIMIT 1),
                                 o.payment_type
                             ) as payment_type,
                             COALESCE(ae.expense_amount, 0) as expense_amount,
                             COALESCE(ae.expense_comment, '') as expense_comment
-                        FROM t_p24058207_website_creation_pro.promoter_schedules s
+                        FROM t_p24058207_website_creation_pro.work_shifts s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
                         LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
                             ON l.user_id = s.user_id 
-                            AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = s.work_date
+                            AND DATE(l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = s.shift_date
                             AND l.organization_id = s.organization_id
                             AND l.is_active = true
                         LEFT JOIN t_p24058207_website_creation_pro.accounting_expenses ae
                             ON ae.user_id = s.user_id
-                            AND ae.work_date = s.work_date
+                            AND ae.work_date = s.shift_date
                             AND ae.organization_id = s.organization_id
-                        WHERE s.work_date >= CURRENT_DATE - INTERVAL '90 days'
-                        GROUP BY s.work_date, s.start_time, s.end_time, o.name, o.id, o.contact_rate, 
+                        WHERE s.shift_date >= CURRENT_DATE - INTERVAL '90 days'
+                        GROUP BY s.shift_date, s.shift_start, s.shift_end, o.name, o.id, o.contact_rate, 
                                  o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment
-                        ORDER BY s.work_date DESC, u.name
+                        ORDER BY s.shift_date DESC, u.name
                     """)
                     
                     shifts = []

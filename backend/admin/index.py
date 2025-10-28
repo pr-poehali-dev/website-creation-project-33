@@ -1650,9 +1650,15 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             
                             moscow_tz = pytz.timezone('Europe/Moscow')
                             shift_date_obj = datetime.strptime(new_work_date, '%Y-%m-%d')
+                            
+                            time_parts = start_time.split(':')
+                            hours = int(time_parts[0])
+                            minutes = int(time_parts[1]) if len(time_parts) > 1 else 0
+                            
+                            from datetime import time as time_obj
                             base_time = moscow_tz.localize(datetime.combine(
                                 shift_date_obj, 
-                                datetime.strptime(start_time.split(':')[0] + ':' + start_time.split(':')[1], '%H:%M').time()
+                                time_obj(hours, minutes)
                             ))
                             
                             for i in range(contacts_count):

@@ -1,21 +1,14 @@
 '''
 Business: Export accounting data to Google Sheets on separate sheet
-Args: event with httpMethod, headers; context with request_id
-Returns: HTTP response with success status
+Args: event with httpMethod, headers, body (shifts data); context with request_id
+Returns: HTTP response with success status and sheet URL
 '''
 
 import json
 import os
 from typing import Dict, Any
-from datetime import datetime
-import psycopg2
-from psycopg2.extras import RealDictCursor
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
-
-def get_db_connection():
-    dsn = os.environ.get('DATABASE_URL')
-    return psycopg2.connect(dsn)
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -40,6 +33,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     try:
+        body_data = json.loads(event.get('body', '{}'))
+        shifts = body_data.get('shifts', [])
+        
+        if not shifts:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'No shifts data provided'})
+            }
+        
         credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_NEW')
         sheet_id = os.environ.get('GOOGLE_SHEET_ID_NEW')
         
@@ -57,48 +60,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         )
         
         service = build('sheets', 'v4', credentials=credentials)
-        
-        conn = get_db_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        
-        cur.execute("""
-            SELECT 
-                ws.shift_date,
-                u.full_name as user_name,
-                o.name as organization_name,
-                ws.shift_start,
-                ws.shift_end,
-                COALESCE(SUM(la.contacts_count), 0) as contacts_count,
-                COALESCE(AVG(la.contact_rate), 0) as contact_rate,
-                COALESCE(MAX(la.payment_type), 'cash') as payment_type,
-                COALESCE(ae.expense_amount, 0) as expense_amount,
-                COALESCE(ae.expense_comment, '') as expense_comment,
-                COALESCE(ae.paid_by_organization, false) as paid_by_organization,
-                COALESCE(ae.paid_to_worker, false) as paid_to_worker,
-                COALESCE(ae.paid_kvv, false) as paid_kvv,
-                COALESCE(ae.paid_kms, false) as paid_kms
-            FROM t_p24058207_website_creation_pro.work_shifts ws
-            JOIN t_p24058207_website_creation_pro.users u ON ws.user_id = u.id
-            JOIN t_p24058207_website_creation_pro.organizations o ON ws.organization_id = o.id
-            LEFT JOIN t_p24058207_website_creation_pro.leads_analytics la 
-                ON ws.user_id = la.user_id 
-                AND DATE(la.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') = ws.shift_date
-                AND ws.organization_id = la.organization_id
-                AND la.is_active = true
-            LEFT JOIN t_p24058207_website_creation_pro.accounting_expenses ae 
-                ON ws.user_id = ae.user_id 
-                AND ws.shift_date = ae.work_date 
-                AND ws.organization_id = ae.organization_id
-            WHERE ws.shift_date >= '2025-10-20'
-            GROUP BY ws.shift_date, u.full_name, o.name, ws.shift_start, ws.shift_end, 
-                     ae.expense_amount, ae.expense_comment, ae.paid_by_organization, 
-                     ae.paid_to_worker, ae.paid_kvv, ae.paid_kms
-            ORDER BY ws.shift_date DESC, u.full_name
-        """)
-        
-        shifts = cur.fetchall()
-        cur.close()
-        conn.close()
         
         sheet_name = 'Бухучет'
         
@@ -129,33 +90,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         values = [headers]
         
         for shift in shifts:
-            start_time = shift['shift_start'].strftime('%H:%M') if shift['shift_start'] else ''
-            end_time = shift['shift_end'].strftime('%H:%M') if shift['shift_end'] else ''
+            start_time = shift.get('start_time', '')
+            end_time = shift.get('end_time', '')
+            hours_worked = shift.get('hours_worked', 0)
             
-            hours_worked = 0
-            if shift['shift_start'] and shift['shift_end']:
-                delta = shift['shift_end'] - shift['shift_start']
-                hours_worked = delta.total_seconds() / 3600
-            
-            total_payment = shift['contacts_count'] * shift['contact_rate']
+            total_payment = shift.get('total_income', 0)
             
             row = [
-                shift['shift_date'].strftime('%Y-%m-%d') if shift['shift_date'] else '',
-                shift['user_name'] or '',
-                shift['organization_name'] or '',
+                shift.get('date', ''),
+                shift.get('user_name', ''),
+                shift.get('organization_name', ''),
                 start_time,
                 end_time,
                 f"{hours_worked:.2f}",
-                str(shift['contacts_count']),
-                str(shift['contact_rate']),
+                str(shift.get('contacts_count', 0)),
+                str(shift.get('contact_rate', 0)),
                 str(total_payment),
-                shift['payment_type'] or '',
-                str(shift['expense_amount']),
-                shift['expense_comment'] or '',
-                'Да' if shift['paid_by_organization'] else 'Нет',
-                'Да' if shift['paid_to_worker'] else 'Нет',
-                'Да' if shift['paid_kvv'] else 'Нет',
-                'Да' if shift['paid_kms'] else 'Нет'
+                shift.get('payment_type', ''),
+                str(shift.get('expense_amount', 0)),
+                shift.get('expense_comment', ''),
+                'Да' if shift.get('paid_by_organization', False) else 'Нет',
+                'Да' if shift.get('paid_to_worker', False) else 'Нет',
+                'Да' if shift.get('paid_kvv', False) else 'Нет',
+                'Да' if shift.get('paid_kms', False) else 'Нет'
             ]
             values.append(row)
         

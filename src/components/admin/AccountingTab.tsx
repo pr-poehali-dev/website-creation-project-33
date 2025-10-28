@@ -58,7 +58,10 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         headers: {
           'Content-Type': 'application/json',
           'X-Session-Token': getSessionToken() || ''
-        }
+        },
+        body: JSON.stringify({
+          shifts: shifts
+        })
       });
 
       if (response.ok) {

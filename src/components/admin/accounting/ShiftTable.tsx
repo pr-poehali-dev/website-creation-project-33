@@ -1,6 +1,7 @@
 import React from 'react';
 import Icon from '@/components/ui/icon';
 import ShiftTableRow from './ShiftTableRow';
+import FilterableHeader from './FilterableHeader';
 import { ShiftRecord } from './types';
 
 interface ShiftTableProps {
@@ -13,10 +14,17 @@ interface ShiftTableProps {
     paid_kvv: boolean;
     paid_kms: boolean;
   }};
+  filters: {
+    paid_by_organization: boolean | null;
+    paid_to_worker: boolean | null;
+    paid_kvv: boolean | null;
+    paid_kms: boolean | null;
+  };
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
   onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => void;
+  onFilterChange: (key: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => void;
   onDelete: (shift: ShiftRecord) => void;
   onEdit: (shift: ShiftRecord) => void;
 }
@@ -26,10 +34,12 @@ export default function ShiftTable({
   editingExpense,
   editingComment,
   editingPayments,
+  filters,
   onExpenseChange,
   onCommentChange,
   onExpenseBlur,
   onPaymentToggle,
+  onFilterChange,
   onDelete,
   onEdit
 }: ShiftTableProps) {
@@ -62,10 +72,34 @@ export default function ShiftTable({
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-green-50">Чистый остаток</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-blue-50">КВВ</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-purple-50">КМС</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. орг.</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. испол.</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. КВВ</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Опл. КМС</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+              <FilterableHeader 
+                label="Опл. орг." 
+                filterValue={filters.paid_by_organization}
+                onFilterChange={() => onFilterChange('paid_by_organization')}
+              />
+            </th>
+            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+              <FilterableHeader 
+                label="Опл. испол." 
+                filterValue={filters.paid_to_worker}
+                onFilterChange={() => onFilterChange('paid_to_worker')}
+              />
+            </th>
+            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+              <FilterableHeader 
+                label="Опл. КВВ" 
+                filterValue={filters.paid_kvv}
+                onFilterChange={() => onFilterChange('paid_kvv')}
+              />
+            </th>
+            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+              <FilterableHeader 
+                label="Опл. КМС" 
+                filterValue={filters.paid_kms}
+                onFilterChange={() => onFilterChange('paid_kms')}
+              />
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Действия</th>
           </tr>
         </thead>

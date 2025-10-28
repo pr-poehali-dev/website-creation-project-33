@@ -7,7 +7,6 @@ import ShiftTable from './accounting/ShiftTable';
 import AddShiftModal from './accounting/AddShiftModal';
 import EditShiftModal from './accounting/EditShiftModal';
 import AccountingHeader from './accounting/AccountingHeader';
-import PaymentFilters from './accounting/PaymentFilters';
 import { useAccountingData } from './accounting/useAccountingData';
 import { useShiftActions } from './accounting/useShiftActions';
 
@@ -193,12 +192,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         exporting={exporting}
       />
       <CardContent>
-        <PaymentFilters
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          activeCount={activeFiltersCount}
-        />
-        
         {hasUnsavedPayments && (
           <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -231,10 +224,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           editingExpense={editingExpense}
           editingComment={editingComment}
           editingPayments={editingPayments}
+          filters={filters}
           onExpenseChange={(key, value) => setEditingExpense({ ...editingExpense, [key]: value })}
           onCommentChange={(key, value) => setEditingComment({ ...editingComment, [key]: value })}
           onExpenseBlur={handleExpenseBlur}
           onPaymentToggle={handlePaymentToggle}
+          onFilterChange={handleFilterChange}
           onDelete={deleteShift}
           onEdit={handleEditShift}
         />

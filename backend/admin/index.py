@@ -1217,7 +1217,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             AND ae.work_date = s.shift_date
                             AND ae.organization_id = s.organization_id
                         WHERE s.shift_date >= CURRENT_DATE - INTERVAL '90 days'
-                            AND s.shift_end != '1970-01-01 00:00:00+00'::timestamptz
                         GROUP BY s.shift_date, s.shift_start, s.shift_end, o.name, o.id, o.contact_rate, 
                                  o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment,
                                  ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms
@@ -1556,8 +1555,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
                         cur.execute("""
-                            UPDATE t_p24058207_website_creation_pro.work_shifts 
-                            SET shift_end = '1970-01-01 00:00:00+00'::timestamptz
+                            DELETE FROM t_p24058207_website_creation_pro.work_shifts 
                             WHERE user_id = %s AND shift_date = %s AND organization_id = %s
                         """, (user_id, work_date, organization_id))
                         conn.commit()
@@ -1581,69 +1579,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'body': json.dumps({'error': f'Ошибка удаления смены: {str(e)}'})
                 }
         
-        elif action == 'add_manual_work_shift':
-            user_id = body_data.get('user_id')
-            organization_id = body_data.get('organization_id')
-            shift_date = body_data.get('shift_date')
-            start_time = body_data.get('start_time', '09:00')
-            end_time = body_data.get('end_time', '18:00')
-            contacts_count = body_data.get('contacts_count', 0)
-            
-            if not user_id or not organization_id or not shift_date:
-                return {
-                    'statusCode': 400,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'user_id, organization_id и shift_date обязательны'})
-                }
-            
-            if not user['is_admin']:
-                return {
-                    'statusCode': 403,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Только админ может добавлять смены вручную'})
-                }
-            
-            try:
-                with get_db_connection() as conn:
-                    with conn.cursor() as cur:
-                        shift_start_dt = f"{shift_date} {start_time}:00+03"
-                        shift_end_dt = f"{shift_date} {end_time}:00+03"
-                        
-                        cur.execute("""
-                            INSERT INTO t_p24058207_website_creation_pro.work_shifts 
-                            (user_id, organization_id, shift_date, shift_start, shift_end)
-                            VALUES (%s, %s, %s, %s::timestamptz, %s::timestamptz)
-                        """, (user_id, organization_id, shift_date, shift_start_dt, shift_end_dt))
-                        
-                        if contacts_count > 0:
-                            moscow_tz = pytz.timezone('Europe/Moscow')
-                            shift_date_obj = datetime.strptime(shift_date, '%Y-%m-%d')
-                            base_time = moscow_tz.localize(datetime.combine(shift_date_obj, datetime.strptime(start_time, '%H:%M').time()))
-                            
-                            for i in range(contacts_count):
-                                lead_time = base_time + timedelta(minutes=30 * i)
-                                lead_time_utc = lead_time.astimezone(pytz.UTC)
-                                
-                                cur.execute("""
-                                    INSERT INTO t_p24058207_website_creation_pro.leads_analytics 
-                                    (user_id, organization_id, lead_type, lead_result, created_at, is_active)
-                                    VALUES (%s, %s, 'контакт', 'согласие', %s, true)
-                                """, (user_id, organization_id, lead_time_utc))
-                        
-                        conn.commit()
-                        
-                        return {
-                            'statusCode': 200,
-                            'headers': headers,
-                            'body': json.dumps({'success': True, 'contacts_added': contacts_count})
-                        }
-            except Exception as e:
-                return {
-                    'statusCode': 400,
-                    'headers': headers,
-                    'body': json.dumps({'error': f'Ошибка добавления смены: {str(e)}'})
-                }
-        
+
         elif action == 'add_rate_period':
             organization_id = body_data.get('organization_id')
             start_date = body_data.get('start_date')

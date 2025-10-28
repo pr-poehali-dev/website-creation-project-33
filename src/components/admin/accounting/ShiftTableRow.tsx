@@ -30,6 +30,7 @@ interface ShiftTableRowProps {
   onExpenseBlur: (shift: ShiftRecord) => void;
   onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => void;
   onDelete: (shift: ShiftRecord) => void;
+  onEdit: (shift: ShiftRecord) => void;
 }
 
 export default function ShiftTableRow({
@@ -41,7 +42,8 @@ export default function ShiftTableRow({
   onCommentChange,
   onExpenseBlur,
   onPaymentToggle,
-  onDelete
+  onDelete,
+  onEdit
 }: ShiftTableRowProps) {
   const key = getShiftKey(shift);
   const revenue = calculateRevenue(shift);
@@ -158,13 +160,22 @@ export default function ShiftTableRow({
         </select>
       </td>
       <td className="border border-gray-300 p-1 md:p-2 text-center">
-        <button
-          onClick={() => onDelete(shift)}
-          className="p-1 hover:bg-red-100 rounded transition-colors"
-          title="Удалить смену"
-        >
-          <Icon name="Trash2" size={16} className="text-red-600" />
-        </button>
+        <div className="flex items-center justify-center gap-1">
+          <button
+            onClick={() => onEdit(shift)}
+            className="p-1 hover:bg-blue-100 rounded transition-colors"
+            title="Редактировать смену"
+          >
+            <Icon name="Edit" size={16} className="text-blue-600" />
+          </button>
+          <button
+            onClick={() => onDelete(shift)}
+            className="p-1 hover:bg-red-100 rounded transition-colors"
+            title="Удалить смену"
+          >
+            <Icon name="Trash2" size={16} className="text-red-600" />
+          </button>
+        </div>
       </td>
     </tr>
   );

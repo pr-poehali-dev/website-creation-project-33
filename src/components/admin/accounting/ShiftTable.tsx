@@ -18,6 +18,7 @@ interface ShiftTableProps {
   onExpenseBlur: (shift: ShiftRecord) => void;
   onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => void;
   onDelete: (shift: ShiftRecord) => void;
+  onEdit: (shift: ShiftRecord) => void;
 }
 
 export default function ShiftTable({
@@ -29,7 +30,8 @@ export default function ShiftTable({
   onCommentChange,
   onExpenseBlur,
   onPaymentToggle,
-  onDelete
+  onDelete,
+  onEdit
 }: ShiftTableProps) {
   if (shifts.length === 0) {
     return (
@@ -80,6 +82,7 @@ export default function ShiftTable({
               onExpenseBlur={onExpenseBlur}
               onPaymentToggle={onPaymentToggle}
               onDelete={onDelete}
+              onEdit={onEdit}
             />
           ))}
         </tbody>

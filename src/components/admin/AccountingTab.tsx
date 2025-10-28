@@ -6,6 +6,7 @@ import { ShiftRecord, User, Organization, NewShiftData, ADMIN_API } from './acco
 import { getShiftKey } from './accounting/calculations';
 import ShiftTable from './accounting/ShiftTable';
 import AddShiftModal from './accounting/AddShiftModal';
+import EditShiftModal from './accounting/EditShiftModal';
 
 interface AccountingTabProps {
   enabled?: boolean;
@@ -23,6 +24,8 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     paid_kms: boolean;
   }}>({});
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingShift, setEditingShift] = useState<ShiftRecord | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [newShift, setNewShift] = useState<NewShiftData>({
@@ -245,6 +248,68 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     updateExpense(shift, shift.expense_amount, shift.expense_comment, newPayments);
   };
 
+  const handleEditShift = (shift: ShiftRecord) => {
+    setEditingShift(shift);
+    setShowEditModal(true);
+  };
+
+  const saveEditedShift = async (updatedShift: Partial<ShiftRecord>) => {
+    if (!editingShift) return;
+
+    try {
+      const response = await fetch(ADMIN_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || ''
+        },
+        body: JSON.stringify({
+          action: 'update_work_shift',
+          old_user_id: editingShift.user_id,
+          old_work_date: editingShift.date,
+          old_organization_id: editingShift.organization_id,
+          new_user_id: updatedShift.user_id,
+          new_work_date: updatedShift.date,
+          new_organization_id: updatedShift.organization_id,
+          start_time: updatedShift.start_time,
+          end_time: updatedShift.end_time,
+          contacts_count: updatedShift.contacts_count,
+          contact_rate: updatedShift.contact_rate,
+          payment_type: updatedShift.payment_type,
+          expense_amount: updatedShift.expense_amount,
+          expense_comment: updatedShift.expense_comment,
+          paid_by_organization: updatedShift.paid_by_organization,
+          paid_to_worker: updatedShift.paid_to_worker,
+          paid_kvv: updatedShift.paid_kvv,
+          paid_kms: updatedShift.paid_kms
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успех',
+          description: 'Смена обновлена'
+        });
+        setShowEditModal(false);
+        setEditingShift(null);
+        loadAccountingData();
+      } else {
+        const error = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: error.error || 'Не удалось обновить смену',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить смену',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const addManualShift = async () => {
     if (!newShift.user_id || !newShift.organization_id) {
       toast({
@@ -362,6 +427,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           onExpenseBlur={handleExpenseBlur}
           onPaymentToggle={handlePaymentToggle}
           onDelete={deleteShift}
+          onEdit={handleEditShift}
         />
       </CardContent>
 
@@ -371,6 +437,18 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         onAdd={addManualShift}
         newShift={newShift}
         setNewShift={setNewShift}
+        users={users}
+        organizations={organizations}
+      />
+
+      <EditShiftModal
+        show={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingShift(null);
+        }}
+        onSave={saveEditedShift}
+        shift={editingShift}
         users={users}
         organizations={organizations}
       />

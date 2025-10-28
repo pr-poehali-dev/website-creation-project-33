@@ -147,7 +147,55 @@ export function useShiftActions(
     };
     
     setEditingPayments({ ...editingPayments, [key]: newPayments });
-    updateExpense(shift, shift.expense_amount, shift.expense_comment, newPayments);
+  };
+
+  const saveAllPayments = async () => {
+    const updates = Object.entries(editingPayments).map(async ([key, payments]) => {
+      const shift = { user_id: 0, date: '', organization_id: 0, expense_amount: 0, expense_comment: '' };
+      const parts = key.split('-');
+      shift.user_id = parseInt(parts[0]);
+      shift.date = parts[1];
+      shift.organization_id = parseInt(parts[2]);
+      
+      return fetch(ADMIN_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken() || '',
+        },
+        body: JSON.stringify({
+          action: 'update_accounting_expense',
+          user_id: shift.user_id,
+          work_date: shift.date,
+          organization_id: shift.organization_id,
+          expense_amount: 0,
+          expense_comment: '',
+          paid_by_organization: payments.paid_by_organization,
+          paid_to_worker: payments.paid_to_worker,
+          paid_kvv: payments.paid_kvv,
+          paid_kms: payments.paid_kms,
+        }),
+      });
+    });
+
+    try {
+      await Promise.all(updates);
+      toast({
+        title: 'Успешно',
+        description: 'Все изменения сохранены',
+      });
+      setEditingPayments({});
+      loadAccountingData();
+      return true;
+    } catch (error) {
+      console.error('Error saving payments:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось сохранить изменения',
+        variant: 'destructive',
+      });
+      return false;
+    }
   };
 
   const saveEditedShift = async (editingShift: ShiftRecord, updatedShift: Partial<ShiftRecord>) => {
@@ -264,6 +312,7 @@ export function useShiftActions(
     handleExpenseBlur,
     deleteShift,
     handlePaymentToggle,
+    saveAllPayments,
     saveEditedShift,
     addManualShift
   };

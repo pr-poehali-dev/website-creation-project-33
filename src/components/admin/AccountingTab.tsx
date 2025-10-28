@@ -33,6 +33,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     handleExpenseBlur,
     deleteShift,
     handlePaymentToggle,
+    saveAllPayments,
     saveEditedShift,
     addManualShift
   } = useShiftActions(loadAccountingData, getSessionToken);
@@ -41,6 +42,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingShift, setEditingShift] = useState<ShiftRecord | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [savingPayments, setSavingPayments] = useState(false);
   const [newShift, setNewShift] = useState<NewShiftData>({
     user_id: 0,
     organization_id: 0,
@@ -131,6 +133,14 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     }
   };
 
+  const handleSavePayments = async () => {
+    setSavingPayments(true);
+    await saveAllPayments();
+    setSavingPayments(false);
+  };
+
+  const hasUnsavedPayments = Object.keys(editingPayments).length > 0;
+
   if (loading) {
     return (
       <Card className="bg-white border-gray-200 rounded-2xl">
@@ -153,6 +163,33 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         exporting={exporting}
       />
       <CardContent>
+        {hasUnsavedPayments && (
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Icon name="AlertCircle" size={20} className="text-amber-600" />
+              <span className="text-sm text-amber-800 font-medium">
+                У вас есть несохранённые изменения в оплатах
+              </span>
+            </div>
+            <button
+              onClick={handleSavePayments}
+              disabled={savingPayments}
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              {savingPayments ? (
+                <>
+                  <Icon name="Loader2" size={16} className="animate-spin" />
+                  Сохранение...
+                </>
+              ) : (
+                <>
+                  <Icon name="Save" size={16} />
+                  Сохранить изменения
+                </>
+              )}
+            </button>
+          </div>
+        )}
         <ShiftTable
           shifts={shifts}
           editingExpense={editingExpense}

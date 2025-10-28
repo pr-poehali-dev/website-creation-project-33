@@ -99,19 +99,21 @@ export default function EditShiftModal({
             <div>
               <label className="block text-sm font-medium mb-1">Количество контактов</label>
               <Input
-                type="number"
-                value={formData.contacts_count}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={formData.contacts_count?.toString() || ''}
                 onChange={(e) => setFormData({ ...formData, contacts_count: parseInt(e.target.value) || 0 })}
-                min={0}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Ставка за контакт (₽)</label>
               <Input
-                type="number"
-                value={formData.contact_rate}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={formData.contact_rate?.toString() || ''}
                 onChange={(e) => setFormData({ ...formData, contact_rate: parseInt(e.target.value) || 0 })}
-                min={0}
               />
             </div>
           </div>
@@ -132,10 +134,11 @@ export default function EditShiftModal({
             <div>
               <label className="block text-sm font-medium mb-1">Сумма расхода (₽)</label>
               <Input
-                type="number"
-                value={formData.expense_amount}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={formData.expense_amount?.toString() || ''}
                 onChange={(e) => setFormData({ ...formData, expense_amount: parseInt(e.target.value) || 0 })}
-                min={0}
               />
             </div>
             <div>

@@ -55,6 +55,9 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const handleExportToGoogleSheets = async () => {
     setExporting(true);
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      
       const response = await fetch('https://functions.poehali.dev/e7ea8b8a-c7f4-4c24-84f4-436f40f76963', {
         method: 'POST',
         headers: {
@@ -63,8 +66,11 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         },
         body: JSON.stringify({
           shifts: shifts
-        })
+        }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = await response.json();

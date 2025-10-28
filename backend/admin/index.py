@@ -1200,7 +1200,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             ) as payment_type,
                             COALESCE(ae.expense_amount, 0) as expense_amount,
                             COALESCE(ae.expense_comment, '') as expense_comment
-                        FROM t_p24058207_website_creation_pro.schedules s
+                        FROM t_p24058207_website_creation_pro.promoter_schedules s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
                         LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 

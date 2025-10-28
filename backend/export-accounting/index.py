@@ -81,7 +81,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             service.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=request_body).execute()
         
         headers = [
-            'Дата', 'Время', 'Организация', 'Сумма прихода', 'Оплата', 'Налог 6%', 
+            'Дата', 'Время', 'Организация', 'Сумма прихода', 'Оплата', 'Налог 7%', 
             'После налога', 'Промоутер', 'Контакты', 'Зарплата', 'Расход', 
             'Комментарий', 'Чистый остаток', 'КВВ', 'КМС',
             'Опл. орг.', 'Опл. испол.', 'Опл. КВВ', 'Опл. КМС'
@@ -99,7 +99,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             revenue = contacts * rate
             
             payment_type = shift.get('payment_type', '')
-            tax = round(revenue * 0.06) if payment_type == 'cashless' else 0
+            tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
             after_tax = revenue - tax
             
             worker_salary = contacts * 300 if contacts >= 10 else contacts * 200

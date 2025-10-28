@@ -52,7 +52,7 @@ export default function ShiftTable({
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Организация</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Сумма прихода</th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Оплата</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Налог 6%</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Налог 7%</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">После налога</th>
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Промоутер</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Контакты</th>

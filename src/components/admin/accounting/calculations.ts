@@ -7,7 +7,7 @@ export const calculateRevenue = (shift: ShiftRecord) => {
 export const calculateTax = (shift: ShiftRecord) => {
   if (shift.payment_type === 'cashless') {
     const revenue = calculateRevenue(shift);
-    return Math.round(revenue * 0.06);
+    return Math.round(revenue * 0.07);
   }
   return 0;
 };

@@ -49,6 +49,9 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     paid_kvv: null as boolean | null,
     paid_kms: null as boolean | null
   });
+  const [organizationFilter, setOrganizationFilter] = useState<string[]>([]);
+  const [promoterFilter, setPromoterFilter] = useState<string[]>([]);
+  const [paymentTypeFilter, setPaymentTypeFilter] = useState<('cash' | 'cashless')[]>([]);
   const [newShift, setNewShift] = useState<NewShiftData>({
     user_id: 0,
     organization_id: 0,
@@ -153,11 +156,19 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
 
   const hasUnsavedPayments = Object.keys(editingPayments).length > 0;
 
+  const uniqueOrganizations = Array.from(new Set(shifts.map(s => s.organization))).sort();
+  const uniquePromoters = Array.from(new Set(shifts.map(s => s.user_name))).sort();
+
   const filteredShifts = shifts.filter(shift => {
     if (filters.paid_by_organization !== null && shift.paid_by_organization !== filters.paid_by_organization) return false;
     if (filters.paid_to_worker !== null && shift.paid_to_worker !== filters.paid_to_worker) return false;
     if (filters.paid_kvv !== null && shift.paid_kvv !== filters.paid_kvv) return false;
     if (filters.paid_kms !== null && shift.paid_kms !== filters.paid_kms) return false;
+    
+    if (organizationFilter.length > 0 && !organizationFilter.includes(shift.organization)) return false;
+    if (promoterFilter.length > 0 && !promoterFilter.includes(shift.user_name)) return false;
+    if (paymentTypeFilter.length > 0 && !paymentTypeFilter.includes(shift.payment_type)) return false;
+    
     return true;
   });
 
@@ -225,11 +236,19 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           editingComment={editingComment}
           editingPayments={editingPayments}
           filters={filters}
+          organizationFilter={organizationFilter}
+          promoterFilter={promoterFilter}
+          paymentTypeFilter={paymentTypeFilter}
+          uniqueOrganizations={uniqueOrganizations}
+          uniquePromoters={uniquePromoters}
           onExpenseChange={(key, value) => setEditingExpense({ ...editingExpense, [key]: value })}
           onCommentChange={(key, value) => setEditingComment({ ...editingComment, [key]: value })}
           onExpenseBlur={handleExpenseBlur}
           onPaymentToggle={handlePaymentToggle}
           onFilterChange={handleFilterChange}
+          onOrganizationFilterChange={setOrganizationFilter}
+          onPromoterFilterChange={setPromoterFilter}
+          onPaymentTypeFilterChange={setPaymentTypeFilter}
           onDelete={deleteShift}
           onEdit={handleEditShift}
         />

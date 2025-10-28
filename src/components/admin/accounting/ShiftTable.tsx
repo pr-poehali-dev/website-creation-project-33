@@ -2,6 +2,8 @@ import React from 'react';
 import Icon from '@/components/ui/icon';
 import ShiftTableRow from './ShiftTableRow';
 import FilterableHeader from './FilterableHeader';
+import MultiSelectHeader from './MultiSelectHeader';
+import PaymentTypeHeader from './PaymentTypeHeader';
 import { ShiftRecord } from './types';
 
 interface ShiftTableProps {
@@ -20,11 +22,19 @@ interface ShiftTableProps {
     paid_kvv: boolean | null;
     paid_kms: boolean | null;
   };
+  organizationFilter: string[];
+  promoterFilter: string[];
+  paymentTypeFilter: ('cash' | 'cashless')[];
+  uniqueOrganizations: string[];
+  uniquePromoters: string[];
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
   onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => void;
   onFilterChange: (key: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => void;
+  onOrganizationFilterChange: (values: string[]) => void;
+  onPromoterFilterChange: (values: string[]) => void;
+  onPaymentTypeFilterChange: (types: ('cash' | 'cashless')[]) => void;
   onDelete: (shift: ShiftRecord) => void;
   onEdit: (shift: ShiftRecord) => void;
 }
@@ -35,11 +45,19 @@ export default function ShiftTable({
   editingComment,
   editingPayments,
   filters,
+  organizationFilter,
+  promoterFilter,
+  paymentTypeFilter,
+  uniqueOrganizations,
+  uniquePromoters,
   onExpenseChange,
   onCommentChange,
   onExpenseBlur,
   onPaymentToggle,
   onFilterChange,
+  onOrganizationFilterChange,
+  onPromoterFilterChange,
+  onPaymentTypeFilterChange,
   onDelete,
   onEdit
 }: ShiftTableProps) {
@@ -59,12 +77,32 @@ export default function ShiftTable({
           <tr className="bg-gray-100 text-gray-700">
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Дата</th>
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Время</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Организация</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">
+              <MultiSelectHeader
+                label="Организация"
+                options={uniqueOrganizations}
+                selectedValues={organizationFilter}
+                onSelectionChange={onOrganizationFilterChange}
+              />
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Сумма прихода</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Оплата</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+              <PaymentTypeHeader
+                label="Оплата"
+                selectedTypes={paymentTypeFilter}
+                onSelectionChange={onPaymentTypeFilterChange}
+              />
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Налог 7%</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">После налога</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Промоутер</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">
+              <MultiSelectHeader
+                label="Промоутер"
+                options={uniquePromoters}
+                selectedValues={promoterFilter}
+                onSelectionChange={onPromoterFilterChange}
+              />
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Контакты</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Зарплата</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Расход</th>

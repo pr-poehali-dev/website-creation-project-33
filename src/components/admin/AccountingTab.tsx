@@ -291,9 +291,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
                       <td className="border border-gray-300 p-1 md:p-2">{shift.organization}</td>
                       <td className="border border-gray-300 p-1 md:p-2 text-right font-medium">{revenue.toLocaleString()} ₽</td>
                       <td className="border border-gray-300 p-1 md:p-2 text-center">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] ${shift.payment_type === 'cash' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                          {shift.payment_type === 'cash' ? '💵' : '💳'}
-                        </span>
+                        <div className="flex items-center justify-center gap-1">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] ${shift.payment_type === 'cash' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                            {shift.payment_type === 'cash' ? '💵' : '💳'}
+                          </span>
+                          <span className="text-xs font-medium text-gray-700">{shift.contact_rate}₽</span>
+                        </div>
                       </td>
                       <td className="border border-gray-300 p-1 md:p-2 text-right text-red-600">{tax > 0 ? `${tax.toLocaleString()} ₽` : '—'}</td>
                       <td className="border border-gray-300 p-1 md:p-2 text-right font-medium">{afterTax.toLocaleString()} ₽</td>

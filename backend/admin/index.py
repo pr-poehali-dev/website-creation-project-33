@@ -1175,8 +1175,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     cur.execute("""
                         SELECT 
                             s.shift_date,
-                            s.shift_start::time,
-                            s.shift_end::time,
+                            (MIN(CASE WHEN sv.video_type = 'start' THEN sv.created_at END) AT TIME ZONE 'Europe/Moscow')::time as start_time,
+                            (MAX(CASE WHEN sv.video_type = 'end' THEN sv.created_at END) AT TIME ZONE 'Europe/Moscow')::time as end_time,
                             o.name as organization,
                             o.id as organization_id,
                             u.id as user_id,
@@ -1207,6 +1207,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         FROM t_p24058207_website_creation_pro.work_shifts s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
+                        LEFT JOIN t_p24058207_website_creation_pro.shift_videos sv
+                            ON sv.user_id = s.user_id
+                            AND sv.work_date = s.shift_date
+                            AND sv.organization_id = s.organization_id
                         LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
                             ON l.user_id = s.user_id 
                             AND l.created_at::date = s.shift_date
@@ -1217,7 +1221,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             AND ae.work_date = s.shift_date
                             AND ae.organization_id = s.organization_id
                         WHERE s.shift_date >= CURRENT_DATE - INTERVAL '90 days'
-                        GROUP BY s.shift_date, s.shift_start, s.shift_end, o.name, o.id, o.contact_rate, 
+                        GROUP BY s.shift_date, o.name, o.id, o.contact_rate, 
                                  o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment,
                                  ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms
                         ORDER BY s.shift_date DESC, u.name

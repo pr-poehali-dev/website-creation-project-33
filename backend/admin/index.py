@@ -1656,6 +1656,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         
                         print(f"✅ Deleted old shift")
                         
+                        conn.commit()
+                        print(f"✅ Committed deletes")
+                        
                         shift_start_dt = f"{new_work_date} {start_time_normalized}+03"
                         shift_end_dt = f"{new_work_date} {end_time_normalized}+03"
                         

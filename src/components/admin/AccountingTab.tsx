@@ -63,7 +63,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
 
       if (response.ok) {
         const data = await response.json();
-        setShifts(data.shifts || []);
+        const filteredShifts = (data.shifts || []).filter((shift: ShiftRecord) => {
+          const shiftDate = new Date(shift.date);
+          const cutoffDate = new Date('2025-10-20');
+          return shiftDate >= cutoffDate;
+        });
+        setShifts(filteredShifts);
       } else {
         toast({
           title: 'Ошибка',

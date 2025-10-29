@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
-import { Badge } from '@/components/ui/badge';
 
 interface Message {
   id: string;
@@ -186,76 +185,69 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col p-0">
-        <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-[#001f54] to-[#002b6b]">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2 text-white">
-              <Icon name="Bot" size={24} />
-              AI-Помощник
-            </DialogTitle>
-            <div className="flex items-center gap-2">
-              {!showWelcome && (
-                <Button
-                  onClick={handleResetChat}
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/10"
-                >
-                  <Icon name="ArrowLeft" size={20} />
-                </Button>
-              )}
+      <DialogContent className="sm:max-w-[500px] max-h-[600px] flex flex-col p-0 gap-0">
+        <div className="flex items-center justify-between px-4 py-3 bg-[#001f54] text-white">
+          <div className="flex items-center gap-2">
+            <Icon name="Bot" size={20} />
+            <span className="font-medium">AI-Помощник</span>
+          </div>
+          <div className="flex items-center gap-1">
+            {!showWelcome && (
               <Button
-                onClick={() => onOpenChange(false)}
+                onClick={handleResetChat}
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/10"
+                className="text-white hover:bg-white/10 h-8 w-8 p-0"
               >
-                <Icon name="X" size={20} />
+                <Icon name="ArrowLeft" size={18} />
               </Button>
-            </div>
+            )}
+            <Button
+              onClick={() => onOpenChange(false)}
+              variant="ghost"
+              size="sm"
+              className="text-white hover:bg-white/10 h-8 w-8 p-0"
+            >
+              <Icon name="X" size={18} />
+            </Button>
           </div>
-        </DialogHeader>
+        </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {showWelcome && (
             <div className="grid grid-cols-1 gap-2 mb-4">
-              {HELP_TOPICS.map(topic => (
-                <Button
+              {HELP_TOPICS.map((topic) => (
+                <button
                   key={topic.id}
                   onClick={() => handleTopicClick(topic)}
-                  variant="outline"
-                  className="h-auto py-3 px-4 text-left justify-start hover:bg-blue-50 transition-colors"
+                  className="text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors text-sm"
                 >
-                  <Icon name="HelpCircle" size={16} className="mr-2 text-blue-600 flex-shrink-0" />
-                  <span className="text-sm">{topic.title}</span>
-                </Button>
+                  {topic.title}
+                </button>
               ))}
             </div>
           )}
 
-          {messages.map(message => (
+          {messages.map((message) => (
             <div
               key={message.id}
               className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                   message.isUser
                     ? 'bg-[#001f54] text-white'
-                    : 'bg-gray-100 text-gray-800'
+                    : 'bg-gray-100 text-gray-900'
                 }`}
               >
-                <p className="text-sm whitespace-pre-line">{message.text}</p>
-                <p className={`text-xs mt-1 ${message.isUser ? 'text-blue-200' : 'text-gray-500'}`}>
-                  {message.timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-                </p>
+                <p className="whitespace-pre-wrap">{message.text}</p>
               </div>
             </div>
           ))}
 
           {isTyping && (
             <div className="flex justify-start">
-              <div className="bg-gray-100 rounded-2xl px-4 py-3">
+              <div className="bg-gray-100 rounded-lg px-4 py-2">
                 <div className="flex gap-1">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -264,11 +256,10 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
               </div>
             </div>
           )}
-
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 border-t bg-gray-50">
+        <div className="p-3 border-t bg-white">
           <div className="flex gap-2">
             <Textarea
               value={input}
@@ -279,15 +270,16 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
                   handleSend();
                 }
               }}
-              placeholder="Задайте вопрос..."
-              className="resize-none min-h-[60px]"
+              placeholder="Напишите ваш вопрос..."
+              className="min-h-[40px] max-h-[100px] resize-none text-sm"
+              rows={1}
             />
             <Button
               onClick={handleSend}
-              disabled={!input.trim()}
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white h-[60px] px-6"
+              disabled={!input.trim() || isTyping}
+              className="bg-[#001f54] hover:bg-[#002b6b] h-10 px-4"
             >
-              <Icon name="Send" size={20} />
+              <Icon name="Send" size={18} />
             </Button>
           </div>
         </div>

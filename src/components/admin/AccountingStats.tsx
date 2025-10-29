@@ -53,14 +53,16 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         const data = await response.json();
         const shifts: ShiftRecord[] = data.shifts || [];
         
-        const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
-        const todayStr = now.toISOString().split('T')[0];
+        const moscowTime = new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' });
+        const [month, day, year] = moscowTime.split('/');
+        const todayStr = `${year}-${month}-${day}`;
         
-        const yesterday = new Date(now);
+        const todayDate = new Date(todayStr);
+        const yesterday = new Date(todayDate);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toISOString().split('T')[0];
         
-        const dayBeforeYesterday = new Date(now);
+        const dayBeforeYesterday = new Date(todayDate);
         dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
         const dayBeforeYesterdayStr = dayBeforeYesterday.toISOString().split('T')[0];
         
@@ -72,8 +74,8 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
           allDates: shifts.map(s => s.date).slice(0, 10)
         });
         
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
+        const currentMonth = todayDate.getMonth();
+        const currentYear = todayDate.getFullYear();
         
         const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
         const prevMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;

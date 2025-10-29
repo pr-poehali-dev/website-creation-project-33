@@ -22,9 +22,11 @@ export default function TodayWorkersCounter({ sessionToken }: TodayWorkersCounte
 
   const loadTodayWorkers = async () => {
     try {
-      const moscowNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
-      const today = moscowNow.toISOString().split('T')[0];
-      const weekStart = getWeekStart(moscowNow);
+      const moscowTime = new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' });
+      const [month, day, year] = moscowTime.split('/');
+      const today = `${year}-${month}-${day}`;
+      const moscowDate = new Date(today);
+      const weekStart = getWeekStart(moscowDate);
       
       const response = await fetch('https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2', {
         method: 'PUT',

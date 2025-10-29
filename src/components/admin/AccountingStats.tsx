@@ -55,7 +55,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         const currentYear = now.getFullYear();
         
         let todayTotal = 0;
-        const yesterdayTotal = 0;
+        let yesterdayTotal = 0;
         let monthTotal = 0;
         
         const todayShifts = shifts.filter(s => s.date === todayStr);

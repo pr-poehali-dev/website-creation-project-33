@@ -123,7 +123,7 @@ export default function TasksTab() {
     const existingNotes = editingPlan.hourlyNotes || [];
     const updatedNotes = existingNotes.filter(n => n.hour !== hour);
     
-    if (note) {
+    if (note.trim()) {
       updatedNotes.push({ hour, note });
     }
     

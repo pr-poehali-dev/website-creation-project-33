@@ -207,20 +207,6 @@ export default function TasksTab() {
           </div>
         </div>
       )}
-
-      <div className="bg-blue-50 rounded-lg p-3 md:p-4 border border-blue-200">
-        <div className="flex items-start gap-2">
-          <Icon name="Info" size={20} className="text-blue-600 flex-shrink-0 mt-0.5 md:w-5 md:h-5" />
-          <div className="text-xs md:text-sm text-blue-800">
-            <p className="font-semibold mb-1">Как использовать:</p>
-            <ul className="list-disc list-inside space-y-0.5">
-              <li>Нажмите на день недели чтобы добавить организацию</li>
-              <li>Укажите название и примечания (сколько человек, время и т.д.)</li>
-              <li>Наведите на карточку и нажмите ✕ чтобы удалить</li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

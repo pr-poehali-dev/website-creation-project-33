@@ -78,7 +78,7 @@ export default function UserDashboard() {
 
   return (
     <div 
-      className="min-h-screen p-4 md:p-6"
+      className="min-h-screen p-3 md:p-6"
       style={{
         backgroundImage: backgroundImage || 'linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%)',
         backgroundSize: 'cover',
@@ -88,31 +88,30 @@ export default function UserDashboard() {
     >
       <div className="max-w-6xl mx-auto">
         {/* Шапка */}
-        <div className="mb-4 slide-up space-y-3">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border-2 border-[#001f54] overflow-hidden flex items-center justify-center p-2 shadow-lg">
+        <div className="mb-3 md:mb-4 slide-up">
+          <div className="flex justify-between items-start md:items-center gap-2">
+            <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+              <div className="w-12 h-12 rounded-full bg-white border-2 border-[#001f54] overflow-hidden flex items-center justify-center p-2 shadow-lg flex-shrink-0">
                 <img 
                   src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
                   alt="IMPERIA PROMO"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div>
-                <h1 className="text-lg md:text-xl font-bold text-[#001f54]">IMPERIA PROMO</h1>
-                <p className="text-xs md:text-sm text-gray-600">Привет, {user?.name}</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base md:text-xl font-bold text-[#001f54] truncate">IMPERIA PROMO</h1>
+                <p className="text-xs md:text-sm text-gray-600 truncate">Привет, {user?.name}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
               {selectedOrganization && (
                 <>
                   <Button 
                     onClick={() => setChatOpen(true)} 
-                    className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 relative h-9"
+                    className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg relative h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
                     size="sm"
                   >
-                    <Icon name="MessageCircle" size={16} className="md:mr-1.5" />
-                    <span className="hidden md:inline">Чат</span>
+                    <Icon name="MessageCircle" size={18} />
                     {unreadCount > 0 && (
                       <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-xs px-1">
                         {unreadCount}
@@ -121,38 +120,34 @@ export default function UserDashboard() {
                   </Button>
                   <Button 
                     onClick={handleChangeOrganization}
-                    className="border-2 border-[#001f54]/20 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300 h-9"
+                    className="border-2 border-[#001f54]/20 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300 h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
                     variant="ghost"
                     size="sm"
                   >
-                    <Icon name="RefreshCw" size={16} className="md:mr-1.5" />
-                    <span className="hidden md:inline">Сменить</span>
+                    <Icon name="RefreshCw" size={18} />
                   </Button>
                 </>
               )}
               <Button 
                 onClick={() => setAiHelperOpen(true)} 
-                className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg hover:scale-105 h-9"
+                className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
                 size="sm"
               >
-                <Icon name="Bot" size={16} className="md:mr-1.5" />
-                <span className="hidden sm:inline">AI</span>
+                <Icon name="Bot" size={18} />
               </Button>
               <Button 
                 onClick={() => setCurrentView('schedule')} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 h-9"
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
                 size="sm"
               >
-                <Icon name="Calendar" size={16} className="md:mr-1.5" />
-                <span className="hidden sm:inline">График</span>
+                <Icon name="Calendar" size={18} />
               </Button>
               <Button 
                 onClick={logout} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 h-9"
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
                 size="sm"
               >
-                <Icon name="LogOut" size={16} className="md:mr-1.5" />
-                <span className="hidden sm:inline">Выйти</span>
+                <Icon name="LogOut" size={18} />
               </Button>
             </div>
           </div>
@@ -176,8 +171,8 @@ export default function UserDashboard() {
         {currentView === 'tiles' && selectedOrganization && (
           <>
             {organizationName && (
-              <div className="flex justify-between items-center mb-6">
-                <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
+                <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1.5">
                   <Icon name="Building2" size={14} className="mr-1.5" />
                   {organizationName}
                 </Badge>
@@ -185,64 +180,64 @@ export default function UserDashboard() {
               </div>
             )}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-8">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-6">
               <div
                 onClick={() => setCurrentView('work')}
-                className="metro-tile bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+                className="metro-tile bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
               >
                 <div className="relative z-10">
-                  <Icon name="Briefcase" size={48} className="text-white mb-4 md:mb-6" />
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Работа</h2>
-                  <p className="text-blue-100 text-sm md:text-base">Лиды и контакты</p>
+                  <Icon name="Briefcase" size={56} className="text-white mb-5" />
+                  <h2 className="text-3xl font-bold text-white mb-2">Работа</h2>
+                  <p className="text-blue-100 text-base">Лиды и контакты</p>
                 </div>
                 <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="Briefcase" size={120} className="text-white" />
+                  <Icon name="Briefcase" size={140} className="text-white" />
                 </div>
               </div>
 
               <div
                 onClick={() => setCurrentView('schedule')}
-                className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+                className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
               >
                 <div className="relative z-10">
-                  <Icon name="Calendar" size={48} className="text-white mb-4 md:mb-6" />
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
-                  <p className="text-green-100 text-sm md:text-base">Расписание смен</p>
+                  <Icon name="Calendar" size={56} className="text-white mb-5" />
+                  <h2 className="text-3xl font-bold text-white mb-2">График</h2>
+                  <p className="text-green-100 text-base">Расписание смен</p>
                 </div>
                 <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="Calendar" size={120} className="text-white" />
+                  <Icon name="Calendar" size={140} className="text-white" />
                 </div>
               </div>
 
               <div
                 onClick={() => setCurrentView('training')}
-                className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+                className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
               >
                 <div className="relative z-10">
-                  <Icon name="GraduationCap" size={48} className="text-white mb-4 md:mb-6" />
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Обучение</h2>
-                  <p className="text-purple-100 text-sm md:text-base">Материалы и тесты</p>
+                  <Icon name="GraduationCap" size={56} className="text-white mb-5" />
+                  <h2 className="text-3xl font-bold text-white mb-2">Обучение</h2>
+                  <p className="text-purple-100 text-base">Материалы и тесты</p>
                 </div>
                 <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="GraduationCap" size={120} className="text-white" />
+                  <Icon name="GraduationCap" size={140} className="text-white" />
                 </div>
               </div>
 
               <div
                 onClick={() => setChatOpen(true)}
-                className="metro-tile bg-orange-600 hover:bg-orange-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+                className="metro-tile bg-orange-600 hover:bg-orange-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
               >
                 <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4 md:mb-6">
-                    <Icon name="MessageCircle" size={48} className="text-white" />
+                  <div className="flex items-center gap-3 mb-5">
+                    <Icon name="MessageCircle" size={56} className="text-white" />
                     {unreadCount > 0 && (
                       <Badge className="bg-red-500 text-white text-lg px-3 py-1">
                         {unreadCount}
                       </Badge>
                     )}
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Чат</h2>
-                  <p className="text-orange-100 text-sm md:text-base">Связь с администратором</p>
+                  <h2 className="text-3xl font-bold text-white mb-2">Чат</h2>
+                  <p className="text-orange-100 text-base">Связь с администратором</p>
                 </div>
                 <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
                   <Icon name="MessageCircle" size={120} className="text-white" />

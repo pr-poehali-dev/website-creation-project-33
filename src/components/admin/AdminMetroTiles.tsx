@@ -176,7 +176,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         onClick={() => setCurrentView('stats')}
         className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-2 md:order-3"
       >
-        <div className="absolute top-4 right-4 z-20">
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
           <TodayContactsCounter sessionToken={sessionToken} />
         </div>
         <div className="relative z-10">
@@ -193,7 +193,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         onClick={() => setCurrentView('analytics')}
         className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-3 md:order-6"
       >
-        <div className="absolute top-4 right-4 z-20">
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
           <TodayWorkersCounter sessionToken={sessionToken} />
         </div>
         <div className="relative z-10">

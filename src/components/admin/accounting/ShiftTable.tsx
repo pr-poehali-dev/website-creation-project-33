@@ -5,6 +5,7 @@ import FilterableHeader from './FilterableHeader';
 import MultiSelectHeader from './MultiSelectHeader';
 import PaymentTypeHeader from './PaymentTypeHeader';
 import { ShiftRecord } from './types';
+import { calculateWorkerSalary } from './calculations';
 
 interface ShiftTableProps {
   shifts: ShiftRecord[];

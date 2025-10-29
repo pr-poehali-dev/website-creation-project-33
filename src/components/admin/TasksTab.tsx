@@ -57,6 +57,8 @@ export default function TasksTab() {
   const [newNotes, setNewNotes] = useState('');
   const [weekOffset, setWeekOffset] = useState(0);
   const [editingPlan, setEditingPlan] = useState<PlannedOrganization | null>(null);
+  const [renamingPlanId, setRenamingPlanId] = useState<number | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const weekDates = getWeekDates(weekOffset);
   const todayStr = getMoscowDate();
   
@@ -88,6 +90,23 @@ export default function TasksTab() {
 
   const deletePlan = (id: number) => {
     setPlans(plans.filter(p => p.id !== id));
+  };
+  
+  const startRename = (plan: PlannedOrganization) => {
+    setRenamingPlanId(plan.id);
+    setRenameValue(plan.organization);
+  };
+  
+  const saveRename = (id: number) => {
+    if (!renameValue.trim()) return;
+    setPlans(plans.map(p => p.id === id ? { ...p, organization: renameValue.trim() } : p));
+    setRenamingPlanId(null);
+    setRenameValue('');
+  };
+  
+  const cancelRename = () => {
+    setRenamingPlanId(null);
+    setRenameValue('');
   };
   
   const updateHourlyNote = (hour: string, note: string) => {
@@ -210,26 +229,58 @@ export default function TasksTab() {
                       className="bg-white rounded px-1.5 py-1 border border-gray-200 relative group cursor-pointer hover:border-purple-400"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setEditingPlan(plan);
+                        if (renamingPlanId !== plan.id) {
+                          setEditingPlan(plan);
+                        }
                       }}
                     >
-                      <div className="text-[9px] md:text-xs font-medium text-gray-800 truncate pr-4">
-                        {plan.organization}
-                      </div>
-                      {plan.notes && (
-                        <div className="text-[8px] md:text-[10px] text-gray-500 truncate">
-                          {plan.notes}
+                      {renamingPlanId === plan.id ? (
+                        <div className="pr-12" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="text"
+                            value={renameValue}
+                            onChange={(e) => setRenameValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveRename(plan.id);
+                              if (e.key === 'Escape') cancelRename();
+                            }}
+                            onBlur={() => saveRename(plan.id)}
+                            className="w-full text-[9px] md:text-xs font-medium text-gray-800 border border-purple-500 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            autoFocus
+                          />
                         </div>
+                      ) : (
+                        <>
+                          <div className="text-[9px] md:text-xs font-medium text-gray-800 truncate pr-12">
+                            {plan.organization}
+                          </div>
+                          {plan.notes && (
+                            <div className="text-[8px] md:text-[10px] text-gray-500 truncate pr-12">
+                              {plan.notes}
+                            </div>
+                          )}
+                        </>
                       )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deletePlan(plan.id);
-                        }}
-                        className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Icon name="X" size={12} className="text-red-500 md:w-4 md:h-4" />
-                      </button>
+                      <div className="absolute top-0.5 right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startRename(plan);
+                          }}
+                          className="p-0.5 hover:bg-purple-100 rounded"
+                        >
+                          <Icon name="Pencil" size={12} className="text-purple-600 md:w-4 md:h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deletePlan(plan.id);
+                          }}
+                          className="p-0.5 hover:bg-red-100 rounded"
+                        >
+                          <Icon name="X" size={12} className="text-red-500 md:w-4 md:h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -186,7 +186,7 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] h-[85vh] flex flex-col p-0 gap-0 overflow-hidden [&>button]:hidden">
+      <DialogContent className="sm:max-w-[700px] h-[85vh] flex flex-col p-0 gap-0 overflow-hidden" style={{ position: 'relative' } as React.CSSProperties}>
         <DialogHeader className="px-6 py-5 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border-none shadow-lg">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3 text-white">

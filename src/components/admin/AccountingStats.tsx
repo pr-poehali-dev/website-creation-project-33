@@ -101,14 +101,16 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
   };
 
   return (
-    <div className="absolute top-4 right-4 z-20 flex flex-col gap-2 items-end">
-      <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-md">
-        <div className="text-xs text-yellow-700 font-medium">Сегодня</div>
-        <div className="text-lg font-bold text-yellow-800">{formatCurrency(earnings.today)} ₽</div>
+    <div className="absolute top-4 right-4 z-20 flex flex-col gap-3 items-end">
+      <div className="bg-white/95 backdrop-blur-sm px-4 py-3 rounded shadow-lg">
+        <div className="text-xs text-yellow-700 font-semibold mb-1">Сегодня</div>
+        <div className="text-2xl font-bold text-yellow-900">{formatCurrency(earnings.today)}</div>
+        <div className="text-sm text-yellow-700 font-medium">₽</div>
       </div>
-      <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-md">
-        <div className="text-xs text-yellow-700 font-medium">За месяц</div>
-        <div className="text-lg font-bold text-yellow-800">{formatCurrency(earnings.month)} ₽</div>
+      <div className="bg-white/95 backdrop-blur-sm px-4 py-3 rounded shadow-lg">
+        <div className="text-xs text-yellow-700 font-semibold mb-1">За месяц</div>
+        <div className="text-2xl font-bold text-yellow-900">{formatCurrency(earnings.month)}</div>
+        <div className="text-sm text-yellow-700 font-medium">₽</div>
       </div>
     </div>
   );

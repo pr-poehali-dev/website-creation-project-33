@@ -159,9 +159,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         onClick={() => setCurrentView('accounting')}
         className="metro-tile bg-yellow-500 hover:bg-yellow-600 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
       >
-        <div className="absolute top-4 right-4 z-20">
-          <AccountingStats sessionToken={sessionToken} />
-        </div>
+        <AccountingStats sessionToken={sessionToken} />
         <div className="relative z-10">
           <Icon name="Calculator" size={48} className="text-white mb-4 md:mb-6" />
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Бух.учет</h2>

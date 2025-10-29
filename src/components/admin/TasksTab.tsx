@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 
 interface Task {
@@ -11,31 +11,34 @@ interface Task {
   created_at: string;
 }
 
+const STORAGE_KEY = 'admin_tasks';
+
+const getInitialTasks = (): Task[] => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (error) {
+    console.error('Failed to load tasks:', error);
+  }
+  return [];
+};
+
 export default function TasksTab() {
   const [activeCategory, setActiveCategory] = useState<'kvv' | 'kms'>('kvv');
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 1,
-      title: 'Проверить новые заявки',
-      description: 'Обработать заявки за сегодня',
-      status: 'pending',
-      priority: 'high',
-      category: 'kvv',
-      created_at: new Date().toISOString()
-    },
-    {
-      id: 2,
-      title: 'Обновить график работы',
-      description: 'Внести изменения в расписание',
-      status: 'in_progress',
-      priority: 'medium',
-      category: 'kms',
-      created_at: new Date().toISOString()
-    }
-  ]);
+  const [tasks, setTasks] = useState<Task[]>(getInitialTasks);
 
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    } catch (error) {
+      console.error('Failed to save tasks:', error);
+    }
+  }, [tasks]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {

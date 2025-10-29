@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 
 interface Task {
@@ -7,10 +7,12 @@ interface Task {
   description: string;
   status: 'pending' | 'in_progress' | 'completed';
   priority: 'low' | 'medium' | 'high';
+  category: 'kvv' | 'kms';
   created_at: string;
 }
 
 export default function TasksTab() {
+  const [activeCategory, setActiveCategory] = useState<'kvv' | 'kms'>('kvv');
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: 1,
@@ -18,6 +20,7 @@ export default function TasksTab() {
       description: 'Обработать заявки за сегодня',
       status: 'pending',
       priority: 'high',
+      category: 'kvv',
       created_at: new Date().toISOString()
     },
     {
@@ -26,6 +29,7 @@ export default function TasksTab() {
       description: 'Внести изменения в расписание',
       status: 'in_progress',
       priority: 'medium',
+      category: 'kms',
       created_at: new Date().toISOString()
     }
   ]);
@@ -60,6 +64,7 @@ export default function TasksTab() {
       description: '',
       status: 'pending',
       priority: 'medium',
+      category: activeCategory,
       created_at: new Date().toISOString()
     };
     
@@ -84,9 +89,10 @@ export default function TasksTab() {
     setTasks(tasks.filter(task => task.id !== taskId));
   };
 
-  const pendingTasks = tasks.filter(t => t.status === 'pending').length;
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
-  const completedTasks = tasks.filter(t => t.status === 'completed').length;
+  const filteredTasks = tasks.filter(t => t.category === activeCategory);
+  const pendingTasks = filteredTasks.filter(t => t.status === 'pending').length;
+  const inProgressTasks = filteredTasks.filter(t => t.status === 'in_progress').length;
+  const completedTasks = filteredTasks.filter(t => t.status === 'completed').length;
 
   return (
     <div className="space-y-6">
@@ -98,6 +104,29 @@ export default function TasksTab() {
         >
           <Icon name="Plus" size={20} />
           Добавить задачу
+        </button>
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => setActiveCategory('kvv')}
+          className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+            activeCategory === 'kvv'
+              ? 'bg-blue-600 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          КВВ
+        </button>
+        <button
+          onClick={() => setActiveCategory('kms')}
+          className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+            activeCategory === 'kms'
+              ? 'bg-purple-600 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          КМС
         </button>
       </div>
 
@@ -159,7 +188,7 @@ export default function TasksTab() {
       )}
 
       <div className="space-y-3">
-        {tasks.map((task) => (
+        {filteredTasks.map((task) => (
           <div
             key={task.id}
             className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
@@ -212,10 +241,10 @@ export default function TasksTab() {
         ))}
       </div>
 
-      {tasks.length === 0 && (
+      {filteredTasks.length === 0 && (
         <div className="text-center py-12 text-gray-500">
           <Icon name="CheckCircle2" size={48} className="mx-auto mb-4 text-gray-300" />
-          <p>Нет задач. Добавьте первую задачу!</p>
+          <p>Нет задач в категории {activeCategory === 'kvv' ? 'КВВ' : 'КМС'}. Добавьте первую задачу!</p>
         </div>
       )}
     </div>

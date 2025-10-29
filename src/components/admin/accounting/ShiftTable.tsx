@@ -70,6 +70,8 @@ export default function ShiftTable({
     );
   }
 
+  const totalContacts = shifts.reduce((sum, shift) => sum + (shift.contacts_count || 0), 0);
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs md:text-sm border-collapse">
@@ -103,7 +105,10 @@ export default function ShiftTable({
                 onSelectionChange={onPromoterFilterChange}
               />
             </th>
-            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Контакты</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">
+              <div>Контакты</div>
+              <div className="text-blue-600 font-bold mt-1">{totalContacts}</div>
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Зарплата</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Расход</th>
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Комментарий</th>

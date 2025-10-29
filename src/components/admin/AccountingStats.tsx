@@ -151,7 +151,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
   const monthChange = calculateChange(earnings.month, earnings.previousMonth);
 
   return (
-    <div className="absolute top-3 left-3 right-3 md:top-4 md:right-4 md:left-auto z-20 flex flex-wrap gap-2 md:flex-nowrap justify-center md:justify-end">
+    <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20 flex flex-wrap gap-2 justify-end max-w-[calc(100%-24px)] md:max-w-none">
       <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-2.5 py-1.5 md:px-3 md:py-2 hover:shadow-lg transition-all flex-1 min-w-[90px] md:min-w-0 md:flex-initial">
         <div className="flex items-center justify-between mb-0.5">
           <div className="text-[9px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">Вчера</div>

@@ -100,7 +100,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
                 
             elif is_admin:
-                # Админ получает список ВСЕХ пользователей (не только с сообщениями)
+                # Админ получает список активных пользователей
                 cursor.execute("""
                     SELECT 
                         u.id,
@@ -111,7 +111,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         COALESCE(COUNT(cm.id), 0) as total_messages
                     FROM t_p24058207_website_creation_pro.users u
                     LEFT JOIN t_p24058207_website_creation_pro.chat_messages cm ON u.id = cm.user_id
-                    WHERE u.is_admin = FALSE
+                    WHERE u.is_admin = FALSE AND u.is_active = TRUE
                     GROUP BY u.id, u.name, u.email
                     ORDER BY MAX(cm.created_at) DESC NULLS LAST, u.name ASC
                 """)

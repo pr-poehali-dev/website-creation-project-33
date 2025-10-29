@@ -160,7 +160,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 mt-8">
       <div
         onClick={() => setCurrentView('requests')}
-        className="metro-tile bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+        className="metro-tile bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-1"
       >
         <div className="relative z-10">
           <Icon name="UserCheck" size={48} className="text-white mb-4 md:mb-6" />
@@ -173,23 +173,8 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       </div>
 
       <div
-        onClick={() => setCurrentView('accounting')}
-        className="metro-tile bg-yellow-500 hover:bg-yellow-600 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
-      >
-        <AccountingStats sessionToken={sessionToken} />
-        <div className="relative z-10">
-          <Icon name="Calculator" size={48} className="text-white mb-4 md:mb-6" />
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Бух.учет</h2>
-          <p className="text-yellow-100 text-sm md:text-base">Финансовый учет и отчетность</p>
-        </div>
-        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon name="Calculator" size={120} className="text-white" />
-        </div>
-      </div>
-
-      <div
         onClick={() => setCurrentView('stats')}
-        className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+        className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-2 md:order-3"
       >
         <div className="absolute top-4 right-4 z-20">
           <TodayContactsCounter sessionToken={sessionToken} />
@@ -205,8 +190,39 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       </div>
 
       <div
+        onClick={() => setCurrentView('analytics')}
+        className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-3 md:order-6"
+      >
+        <div className="absolute top-4 right-4 z-20">
+          <TodayWorkersCounter sessionToken={sessionToken} />
+        </div>
+        <div className="relative z-10">
+          <Icon name="TrendingUp" size={48} className="text-white mb-4 md:mb-6" />
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
+        </div>
+        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
+          <Icon name="TrendingUp" size={120} className="text-white" />
+        </div>
+      </div>
+
+      <div
+        onClick={() => setCurrentView('accounting')}
+        className="metro-tile bg-yellow-500 hover:bg-yellow-600 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-4 md:order-2"
+      >
+        <AccountingStats sessionToken={sessionToken} />
+        <div className="relative z-10">
+          <Icon name="Calculator" size={48} className="text-white mb-4 md:mb-6" />
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Бух.учет</h2>
+          <p className="text-yellow-100 text-sm md:text-base">Финансовый учет и отчетность</p>
+        </div>
+        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
+          <Icon name="Calculator" size={120} className="text-white" />
+        </div>
+      </div>
+
+      <div
         onClick={() => setCurrentView('tasks')}
-        className="metro-tile bg-indigo-600 hover:bg-indigo-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+        className="metro-tile bg-indigo-600 hover:bg-indigo-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-5 md:order-4"
       >
         <div className="relative z-10">
           <Icon name="ClipboardList" size={48} className="text-white mb-4 md:mb-6" />
@@ -220,7 +236,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('chat')}
-        className="metro-tile bg-orange-600 hover:bg-orange-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+        className="metro-tile bg-orange-600 hover:bg-orange-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-6 md:order-5"
       >
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-4 md:mb-6">
@@ -236,22 +252,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         </div>
         <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
           <Icon name="MessageCircle" size={120} className="text-white" />
-        </div>
-      </div>
-
-      <div
-        onClick={() => setCurrentView('analytics')}
-        className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
-      >
-        <div className="absolute top-4 right-4 z-20">
-          <TodayWorkersCounter sessionToken={sessionToken} />
-        </div>
-        <div className="relative z-10">
-          <Icon name="TrendingUp" size={48} className="text-white mb-4 md:mb-6" />
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
-        </div>
-        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon name="TrendingUp" size={120} className="text-white" />
         </div>
       </div>
     </div>

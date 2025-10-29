@@ -28,11 +28,12 @@ const getMoscowDate = () => {
   return `${year}-${month}-${day}`;
 };
 
-const getWeekDates = () => {
+const getWeekDates = (weekOffset: number = 0) => {
   const today = new Date(getMoscowDate());
   const dayOfWeek = today.getDay();
   const monday = new Date(today);
   monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  monday.setDate(monday.getDate() + (weekOffset * 7));
   
   const dates = [];
   for (let i = 0; i < 7; i++) {
@@ -48,7 +49,8 @@ export default function TasksTab() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [newOrg, setNewOrg] = useState('');
   const [newNotes, setNewNotes] = useState('');
-  const weekDates = getWeekDates();
+  const [weekOffset, setWeekOffset] = useState(0);
+  const weekDates = getWeekDates(weekOffset);
   const todayStr = getMoscowDate();
 
   useEffect(() => {
@@ -90,10 +92,51 @@ export default function TasksTab() {
     return date.getDate();
   };
 
+  const getWeekLabel = () => {
+    const firstDate = new Date(weekDates[0]);
+    const lastDate = new Date(weekDates[6]);
+    const firstDay = firstDate.getDate();
+    const lastDay = lastDate.getDate();
+    const month = firstDate.toLocaleDateString('ru-RU', { month: 'long' });
+    const year = firstDate.getFullYear();
+    
+    if (firstDate.getMonth() === lastDate.getMonth()) {
+      return `${firstDay}–${lastDay} ${month} ${year}`;
+    } else {
+      const month2 = lastDate.toLocaleDateString('ru-RU', { month: 'long' });
+      return `${firstDay} ${month} – ${lastDay} ${month2} ${year}`;
+    }
+  };
+
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">Планирование на неделю</h2>
+      </div>
+
+      <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-3 md:p-4">
+        <button
+          onClick={() => setWeekOffset(weekOffset - 1)}
+          className="p-2 hover:bg-gray-100 rounded transition-colors"
+        >
+          <Icon name="ChevronLeft" size={24} className="text-gray-600" />
+        </button>
+        
+        <div className="text-center">
+          <div className="text-base md:text-lg font-semibold text-gray-800">
+            {getWeekLabel()}
+          </div>
+          {weekOffset === 0 && (
+            <div className="text-xs md:text-sm text-blue-600 font-medium">Текущая неделя</div>
+          )}
+        </div>
+        
+        <button
+          onClick={() => setWeekOffset(weekOffset + 1)}
+          className="p-2 hover:bg-gray-100 rounded transition-colors"
+        >
+          <Icon name="ChevronRight" size={24} className="text-gray-600" />
+        </button>
       </div>
 
       <div className="grid grid-cols-7 gap-1 md:gap-2">
@@ -114,7 +157,7 @@ export default function TasksTab() {
                   ? 'border-gray-200 bg-gray-50 opacity-60'
                   : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
-              onClick={() => !isPast && setSelectedDate(date)}
+              onClick={() => setSelectedDate(date)}
             >
               <div className="text-center">
                 <div className={`text-[10px] md:text-xs font-semibold ${

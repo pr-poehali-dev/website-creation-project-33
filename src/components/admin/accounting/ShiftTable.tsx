@@ -118,7 +118,7 @@ export default function ShiftTable({
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">
               <div>Зарплата</div>
-              <div className="text-red-600 font-bold mt-1">{unpaidSalary.toLocaleString('ru-RU')} ₽</div>
+              <div className="text-red-600 font-bold mt-1">Долг: {unpaidSalary.toLocaleString('ru-RU')} ₽</div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Расход</th>
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Комментарий</th>

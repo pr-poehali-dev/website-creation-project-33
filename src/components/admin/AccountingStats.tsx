@@ -6,6 +6,7 @@ interface AccountingStatsProps {
 
 interface EarningsData {
   today: number;
+  yesterday: number;
   month: number;
 }
 
@@ -18,7 +19,7 @@ interface ShiftRecord {
 }
 
 export default function AccountingStats({ sessionToken }: AccountingStatsProps) {
-  const [earnings, setEarnings] = useState<EarningsData>({ today: 0, month: 0 });
+  const [earnings, setEarnings] = useState<EarningsData>({ today: 0, yesterday: 0, month: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,13 +46,20 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         
         const now = new Date();
         const todayStr = now.toISOString().split('T')[0];
+        
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
         
         let todayTotal = 0;
+        const yesterdayTotal = 0;
         let monthTotal = 0;
         
         const todayShifts = shifts.filter(s => s.date === todayStr);
+        const yesterdayShifts = shifts.filter(s => s.date === yesterdayStr);
         const monthShifts = shifts.filter(s => {
           const shiftDate = new Date(s.date);
           return shiftDate.getMonth() === currentMonth && shiftDate.getFullYear() === currentYear;
@@ -70,10 +78,12 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         };
         
         todayTotal = calculateTotalKMS(todayShifts);
+        yesterdayTotal = calculateTotalKMS(yesterdayShifts);
         monthTotal = calculateTotalKMS(monthShifts);
         
         setEarnings({
           today: todayTotal,
+          yesterday: yesterdayTotal,
           month: monthTotal
         });
       }
@@ -98,6 +108,12 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
 
   return (
     <>
+      <div className="absolute top-4 left-4 z-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-xl px-4 py-3 min-w-[110px] hover:shadow-2xl transition-shadow">
+        <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">Вчера</div>
+        <div className="text-2xl font-bold text-white leading-tight">{formatCurrency(earnings.yesterday)}</div>
+        <div className="text-xs text-white/80 font-medium">рублей</div>
+      </div>
+      
       <div className="absolute top-4 right-[138px] z-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg shadow-xl px-4 py-3 min-w-[110px] hover:shadow-2xl transition-shadow">
         <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">Сегодня</div>
         <div className="text-2xl font-bold text-white leading-tight">{formatCurrency(earnings.today)}</div>

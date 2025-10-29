@@ -21,15 +21,20 @@ const getMoscowDate = () => {
   return `${year}-${month}-${day}`;
 };
 
+interface TaskInfo {
+  count: number;
+  times: string[];
+}
+
 export default function TodayTasksCounter() {
-  const [count, setCount] = useState(0);
+  const [taskInfo, setTaskInfo] = useState<TaskInfo>({ count: 0, times: [] });
 
   useEffect(() => {
     const updateCount = () => {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) {
-          setCount(0);
+          setTaskInfo({ count: 0, times: [] });
           return;
         }
 
@@ -37,18 +42,21 @@ export default function TodayTasksCounter() {
         const todayDate = getMoscowDate();
         const todayPlans = plans.filter(p => p.date === todayDate);
         
-        let totalTasks = 0;
+        const times: string[] = [];
         todayPlans.forEach(plan => {
           if (plan.hourlyNotes) {
-            const tasksCount = plan.hourlyNotes.filter(n => n.note.trim()).length;
-            totalTasks += tasksCount;
+            plan.hourlyNotes.forEach(note => {
+              if (note.note.trim()) {
+                times.push(note.hour);
+              }
+            });
           }
         });
 
-        setCount(totalTasks);
+        setTaskInfo({ count: times.length, times: times.sort() });
       } catch (error) {
         console.error('Failed to count tasks:', error);
-        setCount(0);
+        setTaskInfo({ count: 0, times: [] });
       }
     };
 
@@ -70,11 +78,16 @@ export default function TodayTasksCounter() {
     };
   }, []);
 
-  if (count === 0) return null;
+  if (taskInfo.count === 0) return null;
+
+  const { count, times } = taskInfo;
 
   return (
     <div className="bg-white/20 backdrop-blur-sm rounded px-2 py-1 text-white text-xs md:text-sm font-semibold">
-      {count} {count === 1 ? 'задача' : count < 5 ? 'задачи' : 'задач'}
+      <div>{count} {count === 1 ? 'задача' : count < 5 ? 'задачи' : 'задач'}</div>
+      <div className="text-[10px] md:text-xs opacity-90 mt-0.5">
+        {times.join(', ')}
+      </div>
     </div>
   );
 }

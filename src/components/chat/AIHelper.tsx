@@ -186,79 +186,67 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] h-[85vh] flex flex-col p-0 gap-0 overflow-hidden" style={{ position: 'relative' } as React.CSSProperties}>
-        <DialogHeader className="px-6 py-5 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border-none shadow-lg">
+      <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col p-0">
+        <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-[#001f54] to-[#002b6b]">
           <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-3 text-white">
-              <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                <Icon name="Sparkles" size={22} className="text-white" />
-              </div>
-              <div>
-                <div className="text-lg font-semibold">AI-Помощник</div>
-                <div className="text-xs text-blue-100 font-normal">Всегда готов помочь</div>
-              </div>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <Icon name="Bot" size={24} />
+              AI-Помощник
             </DialogTitle>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               {!showWelcome && (
                 <Button
                   onClick={handleResetChat}
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-white/20 rounded-lg transition-all"
+                  className="text-white hover:bg-white/10"
                 >
-                  <Icon name="ArrowLeft" size={18} />
+                  <Icon name="ArrowLeft" size={20} />
                 </Button>
               )}
               <Button
                 onClick={() => onOpenChange(false)}
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-white/20 rounded-lg transition-all"
+                className="text-white hover:bg-white/10"
               >
-                <Icon name="X" size={18} />
+                <Icon name="X" size={20} />
               </Button>
             </div>
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50 to-white">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {showWelcome && (
-            <div className="space-y-3">
-              <div className="text-center mb-6">
-                <p className="text-gray-600 text-sm">Выберите тему или задайте свой вопрос</p>
-              </div>
-              <div className="grid grid-cols-1 gap-3">
-                {HELP_TOPICS.map(topic => (
-                  <Button
-                    key={topic.id}
-                    onClick={() => handleTopicClick(topic)}
-                    variant="outline"
-                    className="h-auto py-4 px-5 text-left justify-start hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 transition-all duration-200 rounded-xl shadow-sm hover:shadow-md group"
-                  >
-                    <div className="p-2 bg-blue-100 rounded-lg mr-3 group-hover:bg-blue-200 transition-colors">
-                      <Icon name="HelpCircle" size={18} className="text-blue-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-700 group-hover:text-blue-900">{topic.title}</span>
-                  </Button>
-                ))}
-              </div>
+            <div className="grid grid-cols-1 gap-2 mb-4">
+              {HELP_TOPICS.map(topic => (
+                <Button
+                  key={topic.id}
+                  onClick={() => handleTopicClick(topic)}
+                  variant="outline"
+                  className="h-auto py-3 px-4 text-left justify-start hover:bg-blue-50 transition-colors"
+                >
+                  <Icon name="HelpCircle" size={16} className="mr-2 text-blue-600 flex-shrink-0" />
+                  <span className="text-sm">{topic.title}</span>
+                </Button>
+              ))}
             </div>
           )}
 
           {messages.map(message => (
             <div
               key={message.id}
-              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-5 py-3.5 shadow-sm ${
+                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   message.isUser
-                    ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white'
-                    : 'bg-white text-gray-800 border border-gray-200'
+                    ? 'bg-[#001f54] text-white'
+                    : 'bg-gray-100 text-gray-800'
                 }`}
               >
-                <p className="text-sm whitespace-pre-line leading-relaxed">{message.text}</p>
-                <p className={`text-xs mt-2 ${message.isUser ? 'text-blue-100' : 'text-gray-400'}`}>
+                <p className="text-sm whitespace-pre-line">{message.text}</p>
+                <p className={`text-xs mt-1 ${message.isUser ? 'text-blue-200' : 'text-gray-500'}`}>
                   {message.timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
@@ -266,12 +254,12 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
           ))}
 
           {isTyping && (
-            <div className="flex justify-start animate-in fade-in duration-300">
-              <div className="bg-white border border-gray-200 rounded-2xl px-5 py-3.5 shadow-sm">
-                <div className="flex gap-1.5">
-                  <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            <div className="flex justify-start">
+              <div className="bg-gray-100 rounded-2xl px-4 py-3">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             </div>
@@ -280,8 +268,8 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-5 border-t bg-white shadow-lg">
-          <div className="flex gap-3">
+        <div className="p-4 border-t bg-gray-50">
+          <div className="flex gap-2">
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -292,12 +280,12 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
                 }
               }}
               placeholder="Задайте вопрос..."
-              className="resize-none min-h-[60px] rounded-xl border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+              className="resize-none min-h-[60px]"
             />
             <Button
               onClick={handleSend}
               disabled={!input.trim()}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white h-[60px] px-6 rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white h-[60px] px-6"
             >
               <Icon name="Send" size={20} />
             </Button>

@@ -352,7 +352,7 @@ export default function ScheduleTab() {
                       ))}
                     </div>
 
-                    {workComments[day.date] && (
+                    {workComments[day.date] && day.slots.some(slot => slot.selected) && (
                       <div className="mt-2 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
                         <Icon name="MapPin" size={14} className="text-blue-600 flex-shrink-0" />
                         <span className="text-xs text-blue-900 font-medium">{workComments[day.date]}</span>

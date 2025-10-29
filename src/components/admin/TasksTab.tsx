@@ -403,8 +403,15 @@ export default function TasksTab() {
       </div>
 
       {editingPlan && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setEditingPlan(null)}>
-          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setEditingPlan(null);
+            }
+          }}
+        >
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
               <div>
                 <h3 className="text-lg md:text-xl font-bold text-gray-800">{editingPlan.organization}</h3>

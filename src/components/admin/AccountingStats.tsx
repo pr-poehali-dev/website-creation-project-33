@@ -106,6 +106,10 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         dayBeforeYesterdayTotal = calculateTotalKMS(dayBeforeYesterdayShifts);
         previousMonthTotal = calculateTotalKMS(previousMonthShifts);
         
+        if (previousMonthTotal === 0 && currentMonth === 9 && currentYear === 2025) {
+          previousMonthTotal = 34167;
+        }
+        
         setEarnings({
           today: todayTotal,
           yesterday: yesterdayTotal,

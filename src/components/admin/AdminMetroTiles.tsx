@@ -12,6 +12,7 @@ import TodayContactsCounter from './TodayContactsCounter';
 import AccountingTab from './AccountingTab';
 import AccountingStats from './AccountingStats';
 import TodayWorkersCounter from './TodayWorkersCounter';
+import TasksTab from './TasksTab';
 
 
 interface AdminMetroTilesProps {
@@ -19,7 +20,7 @@ interface AdminMetroTilesProps {
   sessionToken: string;
 }
 
-type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics';
+type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'tasks';
 type StatsSubView = 'users' | 'rating' | 'organizations';
 
 export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetroTilesProps) {
@@ -138,6 +139,21 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     );
   }
 
+  if (currentView === 'tasks') {
+    return (
+      <div className="space-y-4">
+        <button
+          onClick={() => setCurrentView('tiles')}
+          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
+        >
+          <Icon name="ArrowLeft" size={20} />
+          <span className="text-lg">Назад к плиткам</span>
+        </button>
+        <TasksTab />
+      </div>
+    );
+  }
+
 
 
   return (
@@ -185,6 +201,20 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         </div>
         <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
           <Icon name="BarChart3" size={120} className="text-white" />
+        </div>
+      </div>
+
+      <div
+        onClick={() => setCurrentView('tasks')}
+        className="metro-tile bg-indigo-600 hover:bg-indigo-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group"
+      >
+        <div className="relative z-10">
+          <Icon name="ClipboardList" size={48} className="text-white mb-4 md:mb-6" />
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Задачи</h2>
+          <p className="text-indigo-100 text-sm md:text-base">Управление задачами и планами</p>
+        </div>
+        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
+          <Icon name="ClipboardList" size={120} className="text-white" />
         </div>
       </div>
 

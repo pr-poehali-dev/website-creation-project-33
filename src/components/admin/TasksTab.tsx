@@ -449,8 +449,20 @@ export default function TasksTab() {
                   <textarea
                     value={getHourlyNote(hour)}
                     onChange={(e) => updateHourlyNote(hour, e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === ' ') {
+                        e.stopPropagation();
+                      }
+                    }}
                     onKeyDown={(e) => {
-                      e.stopPropagation();
+                      if (e.key === ' ') {
+                        e.stopPropagation();
+                      }
+                    }}
+                    onKeyUp={(e) => {
+                      if (e.key === ' ') {
+                        e.stopPropagation();
+                      }
                     }}
                     onClick={(e) => e.stopPropagation()}
                     placeholder="Заметки для этого времени..."

@@ -64,6 +64,14 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
         const dayBeforeYesterdayStr = dayBeforeYesterday.toISOString().split('T')[0];
         
+        console.log('📅 Вычисленные даты:', {
+          today: todayStr,
+          yesterday: yesterdayStr,
+          dayBeforeYesterday: dayBeforeYesterdayStr,
+          totalShifts: shifts.length,
+          allDates: shifts.map(s => s.date).slice(0, 10)
+        });
+        
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
         
@@ -79,6 +87,13 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         const todayShifts = shifts.filter(s => s.date === todayStr);
         const yesterdayShifts = shifts.filter(s => s.date === yesterdayStr);
         const dayBeforeYesterdayShifts = shifts.filter(s => s.date === dayBeforeYesterdayStr);
+        
+        console.log('🔍 Найденные смены:', {
+          todayShifts: todayShifts.length,
+          yesterdayShifts: yesterdayShifts.length,
+          todayShiftsData: todayShifts.slice(0, 3),
+          yesterdayShiftsData: yesterdayShifts.slice(0, 3)
+        });
         const monthShifts = shifts.filter(s => {
           const shiftDate = new Date(s.date);
           return shiftDate.getMonth() === currentMonth && shiftDate.getFullYear() === currentYear;

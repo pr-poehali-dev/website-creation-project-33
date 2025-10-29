@@ -13,6 +13,7 @@ import AccountingTab from './AccountingTab';
 import AccountingStats from './AccountingStats';
 import TodayWorkersCounter from './TodayWorkersCounter';
 import TasksTab from './TasksTab';
+import TodayTasksCounter from './TodayTasksCounter';
 
 
 interface AdminMetroTilesProps {
@@ -224,6 +225,9 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         onClick={() => setCurrentView('tasks')}
         className="metro-tile bg-indigo-600 hover:bg-indigo-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-5 md:order-4"
       >
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
+          <TodayTasksCounter />
+        </div>
         <div className="relative z-10">
           <Icon name="ClipboardList" size={48} className="text-white mb-4 md:mb-6" />
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Задачи</h2>

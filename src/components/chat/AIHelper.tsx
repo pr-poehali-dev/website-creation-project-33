@@ -51,6 +51,7 @@ const HELP_TOPICS = [
 ];
 
 export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
+  const [showWelcome, setShowWelcome] = useState(true);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -121,6 +122,7 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
   const handleSend = () => {
     if (!input.trim()) return;
 
+    setShowWelcome(false);
     const userMessage: Message = {
       id: Date.now().toString(),
       text: input,
@@ -146,6 +148,7 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
   };
 
   const handleTopicClick = (topic: typeof HELP_TOPICS[0]) => {
+    setShowWelcome(false);
     const userMessage: Message = {
       id: Date.now().toString(),
       text: topic.title,
@@ -168,18 +171,53 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
     }, 800);
   };
 
+  const handleResetChat = () => {
+    setShowWelcome(true);
+    setMessages([
+      {
+        id: '1',
+        text: 'Привет! Я AI-помощник IMPERIA PROMO. Задай мне любой вопрос о работе с сайтом, и я помогу разобраться! 😊',
+        isUser: false,
+        timestamp: new Date()
+      }
+    ]);
+    setInput('');
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col p-0">
         <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-[#001f54] to-[#002b6b]">
-          <DialogTitle className="flex items-center gap-2 text-white">
-            <Icon name="Bot" size={24} />
-            AI-Помощник
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <Icon name="Bot" size={24} />
+              AI-Помощник
+            </DialogTitle>
+            <div className="flex items-center gap-2">
+              {!showWelcome && (
+                <Button
+                  onClick={handleResetChat}
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/10"
+                >
+                  <Icon name="ArrowLeft" size={20} />
+                </Button>
+              )}
+              <Button
+                onClick={() => onOpenChange(false)}
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/10"
+              >
+                <Icon name="X" size={20} />
+              </Button>
+            </div>
+          </div>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 1 && (
+          {showWelcome && (
             <div className="grid grid-cols-1 gap-2 mb-4">
               {HELP_TOPICS.map(topic => (
                 <Button

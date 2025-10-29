@@ -449,6 +449,10 @@ export default function TasksTab() {
                   <textarea
                     value={getHourlyNote(hour)}
                     onChange={(e) => updateHourlyNote(hour, e.target.value)}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => e.stopPropagation()}
                     placeholder="Заметки для этого времени..."
                     className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm md:text-base resize-none"
                     rows={2}

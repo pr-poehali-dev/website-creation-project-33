@@ -29,16 +29,25 @@ export default function TodayWorkersCounter({ sessionToken }: TodayWorkersCounte
         
         const uniqueWorkers = new Set<number>();
         
+        console.log('Today:', today);
+        console.log('Schedules:', schedules);
+        
         schedules.forEach((schedule: any) => {
           if (schedule.schedule && schedule.schedule[today]) {
             const todaySlots = schedule.schedule[today];
-            const hasSlots = Object.keys(todaySlots).some(time => todaySlots[time]);
+            console.log(`User ${schedule.user_name} (${schedule.user_id}) slots:`, todaySlots);
+            
+            const hasSlots = Object.keys(todaySlots).length > 0 && 
+                           Object.values(todaySlots).some((val: any) => val === true || val === 1 || val === '1');
+            
             if (hasSlots) {
+              console.log(`Adding user ${schedule.user_name}`);
               uniqueWorkers.add(schedule.user_id);
             }
           }
         });
         
+        console.log('Total workers today:', uniqueWorkers.size);
         setWorkersCount(uniqueWorkers.size);
       }
     } catch (error) {

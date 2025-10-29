@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChatUnread } from '@/hooks/useChatUnread';
 import ChatDialog from '@/components/chat/ChatDialog';
+import AIHelper from '@/components/chat/AIHelper';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
 import TrainingTab from '@/components/user/TrainingTab';
@@ -16,6 +17,7 @@ export default function UserDashboard() {
   const { user, logout } = useAuth();
   const unreadCount = useChatUnread();
   const [chatOpen, setChatOpen] = useState(false);
+  const [aiHelperOpen, setAiHelperOpen] = useState(false);
   const [organizationName, setOrganizationName] = useState<string>('');
   const [selectedOrganization, setSelectedOrganization] = useState<number | null>(() => {
     const saved = localStorage.getItem('selected_organization_id');
@@ -129,6 +131,14 @@ export default function UserDashboard() {
                 </>
               )}
               <Button 
+                onClick={() => setAiHelperOpen(true)} 
+                className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg hover:scale-105 h-9"
+                size="sm"
+              >
+                <Icon name="Bot" size={16} className="md:mr-1.5" />
+                <span className="hidden sm:inline">AI</span>
+              </Button>
+              <Button 
                 onClick={() => setCurrentView('schedule')} 
                 className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 h-9"
                 size="sm"
@@ -152,6 +162,11 @@ export default function UserDashboard() {
           open={chatOpen} 
           onOpenChange={setChatOpen}
           organizationId={selectedOrganization}
+        />
+
+        <AIHelper 
+          open={aiHelperOpen}
+          onOpenChange={setAiHelperOpen}
         />
 
         {currentView === 'start' && (

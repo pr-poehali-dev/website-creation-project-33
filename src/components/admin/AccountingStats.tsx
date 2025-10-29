@@ -151,61 +151,61 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
   const monthChange = calculateChange(earnings.month, earnings.previousMonth);
 
   return (
-    <div className="absolute top-4 right-4 z-20 flex gap-2">
-      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
+    <div className="absolute top-3 left-3 right-3 md:top-4 md:right-4 md:left-auto z-20 flex flex-wrap gap-2 md:flex-nowrap justify-center md:justify-end">
+      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-2.5 py-1.5 md:px-3 md:py-2 hover:shadow-lg transition-all flex-1 min-w-[90px] md:min-w-0 md:flex-initial">
         <div className="flex items-center justify-between mb-0.5">
-          <div className="text-[10px] text-white/70 font-medium uppercase tracking-wide">Вчера</div>
+          <div className="text-[9px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">Вчера</div>
           <div className="flex items-center gap-0.5">
             <Icon 
               name={yesterdayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
-              size={14} 
-              className={yesterdayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}
+              size={12} 
+              className={`md:w-[14px] md:h-[14px] ${yesterdayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}`}
             />
-            <span className={`text-[10px] font-extrabold ${yesterdayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
+            <span className={`text-[9px] md:text-[10px] font-extrabold ${yesterdayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
               {yesterdayChange.percent}%
             </span>
           </div>
         </div>
-        <div className="text-lg font-bold text-white leading-tight">
-          {formatCurrency(earnings.yesterday)} <span className="text-sm text-white/80">₽</span>
+        <div className="text-base md:text-lg font-bold text-white leading-tight">
+          {formatCurrency(earnings.yesterday)} <span className="text-xs md:text-sm text-white/80">₽</span>
         </div>
       </div>
       
-      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
+      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-2.5 py-1.5 md:px-3 md:py-2 hover:shadow-lg transition-all flex-1 min-w-[90px] md:min-w-0 md:flex-initial">
         <div className="flex items-center justify-between mb-0.5">
-          <div className="text-[10px] text-white/70 font-medium uppercase tracking-wide">Сегодня</div>
+          <div className="text-[9px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">Сегодня</div>
           <div className="flex items-center gap-0.5">
             <Icon 
               name={todayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
-              size={14} 
-              className={todayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}
+              size={12} 
+              className={`md:w-[14px] md:h-[14px] ${todayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}`}
             />
-            <span className={`text-[10px] font-extrabold ${todayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
+            <span className={`text-[9px] md:text-[10px] font-extrabold ${todayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
               {todayChange.percent}%
             </span>
           </div>
         </div>
-        <div className="text-lg font-bold text-white leading-tight">
-          {formatCurrency(earnings.today)} <span className="text-sm text-white/80">₽</span>
+        <div className="text-base md:text-lg font-bold text-white leading-tight">
+          {formatCurrency(earnings.today)} <span className="text-xs md:text-sm text-white/80">₽</span>
         </div>
       </div>
       
-      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
+      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-2.5 py-1.5 md:px-3 md:py-2 hover:shadow-lg transition-all flex-1 min-w-[90px] md:min-w-0 md:flex-initial">
         <div className="flex items-center justify-between mb-0.5">
-          <div className="text-[10px] text-white/70 font-medium uppercase tracking-wide">За месяц</div>
+          <div className="text-[9px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">За месяц</div>
           <div className="flex items-center gap-0.5">
             <Icon 
               name={monthChange.isPositive ? "TrendingUp" : "TrendingDown"} 
-              size={14} 
-              className={monthChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}
+              size={12} 
+              className={`md:w-[14px] md:h-[14px] ${monthChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}`}
             />
-            <span className={`text-[10px] font-extrabold ${monthChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
+            <span className={`text-[9px] md:text-[10px] font-extrabold ${monthChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
               {monthChange.percent}%
             </span>
           </div>
         </div>
-        <div className="text-lg font-bold text-white leading-tight">
-          {formatCurrency(earnings.month)} <span className="text-sm text-white/80">₽</span>
+        <div className="text-base md:text-lg font-bold text-white leading-tight">
+          {formatCurrency(earnings.month)} <span className="text-xs md:text-sm text-white/80">₽</span>
         </div>
       </div>
     </div>

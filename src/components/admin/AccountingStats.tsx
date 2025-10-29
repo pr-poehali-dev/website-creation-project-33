@@ -73,8 +73,8 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         let todayTotal = 0;
         let yesterdayTotal = 0;
         let monthTotal = 0;
-        const dayBeforeYesterdayTotal = 0;
-        const previousMonthTotal = 0;
+        let dayBeforeYesterdayTotal = 0;
+        let previousMonthTotal = 0;
         
         const todayShifts = shifts.filter(s => s.date === todayStr);
         const yesterdayShifts = shifts.filter(s => s.date === yesterdayStr);

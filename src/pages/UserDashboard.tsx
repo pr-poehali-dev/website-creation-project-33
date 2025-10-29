@@ -100,7 +100,6 @@ export default function UserDashboard() {
               </div>
               <div className="min-w-0 flex-1">
                 <h1 className="text-base md:text-xl font-bold text-[#001f54] truncate">IMPERIA PROMO</h1>
-                <p className="text-xs md:text-sm text-gray-600 truncate">Привет, {user?.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">

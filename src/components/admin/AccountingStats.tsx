@@ -159,9 +159,9 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
             <Icon 
               name={yesterdayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
               size={14} 
-              className={yesterdayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-200 drop-shadow-md"}
+              className={yesterdayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-500 drop-shadow-[0_2px_4px_rgba(239,68,68,0.8)]"}
             />
-            <span className={`text-[10px] font-extrabold ${yesterdayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
+            <span className={`text-[10px] font-extrabold ${yesterdayChange.isPositive ? "text-green-100" : "text-red-500"} drop-shadow-[0_2px_4px_rgba(239,68,68,0.8)]`}>
               {yesterdayChange.percent}%
             </span>
           </div>
@@ -178,9 +178,9 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
             <Icon 
               name={todayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
               size={14} 
-              className={todayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-200 drop-shadow-md"}
+              className={todayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-500 drop-shadow-[0_2px_4px_rgba(239,68,68,0.8)]"}
             />
-            <span className={`text-[10px] font-extrabold ${todayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
+            <span className={`text-[10px] font-extrabold ${todayChange.isPositive ? "text-green-100" : "text-red-500"} drop-shadow-[0_2px_4px_rgba(239,68,68,0.8)]`}>
               {todayChange.percent}%
             </span>
           </div>
@@ -197,9 +197,9 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
             <Icon 
               name={monthChange.isPositive ? "TrendingUp" : "TrendingDown"} 
               size={14} 
-              className={monthChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-200 drop-shadow-md"}
+              className={monthChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-500 drop-shadow-[0_2px_4px_rgba(239,68,68,0.8)]"}
             />
-            <span className={`text-[10px] font-extrabold ${monthChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
+            <span className={`text-[10px] font-extrabold ${monthChange.isPositive ? "text-green-100" : "text-red-500"} drop-shadow-[0_2px_4px_rgba(239,68,68,0.8)]`}>
               {monthChange.percent}%
             </span>
           </div>

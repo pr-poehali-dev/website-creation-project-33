@@ -53,7 +53,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         const data = await response.json();
         const shifts: ShiftRecord[] = data.shifts || [];
         
-        const now = new Date();
+        const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
         const todayStr = now.toISOString().split('T')[0];
         
         const yesterday = new Date(now);

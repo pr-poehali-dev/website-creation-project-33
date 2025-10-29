@@ -55,7 +55,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const [newShift, setNewShift] = useState<NewShiftData>({
     user_id: 0,
     organization_id: 0,
-    shift_date: new Date().toISOString().split('T')[0],
+    shift_date: new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' })).toISOString().split('T')[0],
     start_time: '09:00',
     end_time: '18:00',
     contacts_count: 0

@@ -107,24 +107,24 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
   };
 
   return (
-    <>
-      <div className="absolute top-4 left-4 z-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-xl px-4 py-3 min-w-[110px] hover:shadow-2xl transition-shadow">
-        <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">Вчера</div>
-        <div className="text-2xl font-bold text-white leading-tight">{formatCurrency(earnings.yesterday)}</div>
-        <div className="text-xs text-white/80 font-medium">рублей</div>
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+      <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg px-5 py-3.5 min-w-[130px] hover:shadow-xl transition-all hover:scale-105">
+        <div className="text-xs text-white/80 font-medium uppercase tracking-wide mb-1">Вчера</div>
+        <div className="text-2xl font-bold text-white">{formatCurrency(earnings.yesterday)}</div>
+        <div className="text-xs text-white/70 mt-0.5">₽</div>
       </div>
       
-      <div className="absolute top-4 right-[138px] z-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg shadow-xl px-4 py-3 min-w-[110px] hover:shadow-2xl transition-shadow">
-        <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">Сегодня</div>
-        <div className="text-2xl font-bold text-white leading-tight">{formatCurrency(earnings.today)}</div>
-        <div className="text-xs text-white/80 font-medium">рублей</div>
+      <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg px-5 py-3.5 min-w-[130px] hover:shadow-xl transition-all hover:scale-105">
+        <div className="text-xs text-white/80 font-medium uppercase tracking-wide mb-1">Сегодня</div>
+        <div className="text-2xl font-bold text-white">{formatCurrency(earnings.today)}</div>
+        <div className="text-xs text-white/70 mt-0.5">₽</div>
       </div>
       
-      <div className="absolute top-4 right-4 z-20 bg-gradient-to-br from-orange-400 to-amber-500 rounded-lg shadow-xl px-4 py-3 min-w-[110px] hover:shadow-2xl transition-shadow">
-        <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">За месяц</div>
-        <div className="text-2xl font-bold text-white leading-tight">{formatCurrency(earnings.month)}</div>
-        <div className="text-xs text-white/80 font-medium">рублей</div>
+      <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg px-5 py-3.5 min-w-[130px] hover:shadow-xl transition-all hover:scale-105">
+        <div className="text-xs text-white/80 font-medium uppercase tracking-wide mb-1">За месяц</div>
+        <div className="text-2xl font-bold text-white">{formatCurrency(earnings.month)}</div>
+        <div className="text-xs text-white/70 mt-0.5">₽</div>
       </div>
-    </>
+    </div>
   );
 }

@@ -135,12 +135,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur = conn.cursor()
         
         cur.execute("""
-            SELECT ps.user_id, ps.schedule_data, ps.week_start_date, u.name, u.email
-            FROM t_p24058207_website_creation_pro.promoter_schedules ps
-            JOIN t_p24058207_website_creation_pro.users u ON ps.user_id = u.id
-            WHERE ps.week_start_date = %s
+            SELECT u.id, COALESCE(ps.schedule_data, '{}'::jsonb), %s, u.name, u.email
+            FROM t_p24058207_website_creation_pro.users u
+            LEFT JOIN t_p24058207_website_creation_pro.promoter_schedules ps 
+                ON u.id = ps.user_id AND ps.week_start_date = %s
+            WHERE u.is_active = true AND u.is_approved = true
             ORDER BY u.name
-        """, (week_start,))
+        """, (week_start, week_start))
         
         rows = cur.fetchall()
         cur.close()

@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Get earnings stats",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-Session-Token": "test-admin-token"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "today": "number",
+        "month": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

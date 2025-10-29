@@ -80,6 +80,26 @@ export default function ShiftTable({
       return sum + salary;
     }, 0);
 
+  const totalRevenue = shifts.reduce((sum, shift) => sum + (shift.contacts_count * shift.contact_rate), 0);
+  const totalTax = shifts.reduce((sum, shift) => {
+    if (shift.payment_type === 'cashless') {
+      return sum + Math.round((shift.contacts_count * shift.contact_rate) * 0.07);
+    }
+    return sum;
+  }, 0);
+  const totalAfterTax = totalRevenue - totalTax;
+  const totalSalary = shifts.reduce((sum, shift) => sum + calculateWorkerSalary(shift.contacts_count), 0);
+  const totalNetProfit = shifts.reduce((sum, shift) => {
+    const revenue = shift.contacts_count * shift.contact_rate;
+    const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+    const afterTax = revenue - tax;
+    const salary = calculateWorkerSalary(shift.contacts_count);
+    const expense = shift.expense_amount || 0;
+    return sum + (afterTax - salary - expense);
+  }, 0);
+  const totalKVV = Math.round(totalNetProfit / 2);
+  const totalKMS = Math.round(totalNetProfit / 2);
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs md:text-sm border-collapse">
@@ -95,7 +115,10 @@ export default function ShiftTable({
                 onSelectionChange={onOrganizationFilterChange}
               />
             </th>
-            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Сумма прихода</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">
+              <div>Сумма прихода</div>
+              <div className="text-green-600 font-bold mt-1">{totalRevenue.toLocaleString('ru-RU')} ₽</div>
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
               <PaymentTypeHeader
                 label="Оплата"
@@ -103,8 +126,14 @@ export default function ShiftTable({
                 onSelectionChange={onPaymentTypeFilterChange}
               />
             </th>
-            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Налог 7%</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">После налога</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">
+              <div>Налог 7%</div>
+              <div className="text-red-600 font-bold mt-1">{totalTax.toLocaleString('ru-RU')} ₽</div>
+            </th>
+            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">
+              <div>После налога</div>
+              <div className="text-blue-600 font-bold mt-1">{totalAfterTax.toLocaleString('ru-RU')} ₽</div>
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">
               <MultiSelectHeader
                 label="Промоутер"
@@ -119,13 +148,23 @@ export default function ShiftTable({
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">
               <div>Зарплата</div>
-              <div className="text-red-600 font-bold mt-1">Долг: {unpaidSalary.toLocaleString('ru-RU')} ₽</div>
+              <div className="text-orange-600 font-bold mt-1">{totalSalary.toLocaleString('ru-RU')} ₽</div>
+              <div className="text-red-600 font-bold mt-1 text-[10px]">Долг: {unpaidSalary.toLocaleString('ru-RU')} ₽</div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Расход</th>
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Комментарий</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-green-50">Чистый остаток</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-blue-50">КВВ</th>
-            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-purple-50">КМС</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-green-50">
+              <div>Чистый остаток</div>
+              <div className="text-green-600 font-bold mt-1">{totalNetProfit.toLocaleString('ru-RU')} ₽</div>
+            </th>
+            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-blue-50">
+              <div>КВВ</div>
+              <div className="text-blue-600 font-bold mt-1">{totalKVV.toLocaleString('ru-RU')} ₽</div>
+            </th>
+            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-purple-50">
+              <div>КМС</div>
+              <div className="text-purple-600 font-bold mt-1">{totalKMS.toLocaleString('ru-RU')} ₽</div>
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
               <FilterableHeader 
                 label="Опл. орг." 

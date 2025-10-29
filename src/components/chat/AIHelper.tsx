@@ -74,13 +74,28 @@ export default function AIHelper({ open, onOpenChange }: AIHelperProps) {
   const findAnswer = (question: string): string => {
     const lowerQuestion = question.toLowerCase();
     
+    const restrictedKeywords = [
+      'админ', 'администратор', 'бух', 'бухгалтер', 'учет', 'зарплат', 
+      'промоутер', 'количество', 'сколько', 'статистик', 'данные',
+      'прибыл', 'доход', 'расход', 'кмс', 'квв', 'налог', 'смены',
+      'база', 'данных', 'пароль', 'доступ'
+    ];
+    
+    const hasRestrictedContent = restrictedKeywords.some(keyword => 
+      lowerQuestion.includes(keyword)
+    );
+    
+    if (hasRestrictedContent) {
+      return 'Извините, я помощник только для работы с пользовательской панелью. По вопросам административных функций, статистики и бухгалтерии обратитесь к администратору через чат. 🔒';
+    }
+    
     if (lowerQuestion.includes('организац') || lowerQuestion.includes('выбрать')) {
       return HELP_TOPICS[0].answer;
     }
     if (lowerQuestion.includes('лид') || lowerQuestion.includes('контакт')) {
       return HELP_TOPICS[1].answer;
     }
-    if (lowerQuestion.includes('график') || lowerQuestion.includes('смен')) {
+    if (lowerQuestion.includes('график')) {
       return HELP_TOPICS[2].answer;
     }
     if (lowerQuestion.includes('чат') || lowerQuestion.includes('сообщен')) {

@@ -8,7 +8,7 @@ Returns: JSON с данными пользователей, статистико
 import json
 import os
 import psycopg2
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 import pytz
 
@@ -1170,47 +1170,69 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             }
         
         elif action == 'get_accounting_data':
-            print('🔍 Starting get_accounting_data query')
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
-                    print('🔍 About to execute SQL query')
                     cur.execute("""
                         SELECT 
-                            l.created_at::date as shift_date,
-                            NULL::time as start_time,
-                            NULL::time as end_time,
+                            s.shift_date,
+                            (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
+                             FROM t_p24058207_website_creation_pro.shift_videos 
+                             WHERE user_id = s.user_id AND work_date = s.shift_date 
+                             AND organization_id = s.organization_id AND video_type = 'start' 
+                             ORDER BY created_at LIMIT 1) as start_time,
+                            (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
+                             FROM t_p24058207_website_creation_pro.shift_videos 
+                             WHERE user_id = s.user_id AND work_date = s.shift_date 
+                             AND organization_id = s.organization_id AND video_type = 'end' 
+                             ORDER BY created_at DESC LIMIT 1) as end_time,
                             o.name as organization,
                             o.id as organization_id,
                             u.id as user_id,
                             u.name as user_name,
                             COUNT(CASE WHEN l.lead_type = '\u043a\u043e\u043d\u0442\u0430\u043a\u0442' THEN 1 END) as contacts_count,
-                            o.contact_rate as contact_rate,
-                            o.payment_type as payment_type,
-                            COALESCE(MAX(ae.expense_amount), 0) as expense_amount,
-                            COALESCE(MAX(ae.expense_comment), '') as expense_comment,
-                            COALESCE(MAX(ae.paid_by_organization), false) as paid_by_organization,
-                            COALESCE(MAX(ae.paid_to_worker), false) as paid_to_worker,
-                            COALESCE(MAX(ae.paid_kvv), false) as paid_kvv,
-                            COALESCE(MAX(ae.paid_kms), false) as paid_kms
-                        FROM t_p24058207_website_creation_pro.leads_analytics l
-                        JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                        JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                        LEFT JOIN t_p24058207_website_creation_pro.accounting_expenses ae
-                            ON ae.user_id = l.user_id
-                            AND ae.work_date = l.created_at::date
-                            AND ae.organization_id = l.organization_id
-                        WHERE l.created_at::date >= '2025-10-01'
+                            COALESCE(
+                                (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
+                                 WHERE organization_id = o.id 
+                                 AND start_date <= s.shift_date 
+                                 AND (end_date IS NULL OR end_date >= s.shift_date)
+                                 ORDER BY start_date DESC LIMIT 1),
+                                o.contact_rate
+                            ) as contact_rate,
+                            COALESCE(
+                                (SELECT payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods 
+                                 WHERE organization_id = o.id 
+                                 AND start_date <= s.shift_date 
+                                 AND (end_date IS NULL OR end_date >= s.shift_date)
+                                 ORDER BY start_date DESC LIMIT 1),
+                                o.payment_type
+                            ) as payment_type,
+                            COALESCE(ae.expense_amount, 0) as expense_amount,
+                            COALESCE(ae.expense_comment, '') as expense_comment,
+                            COALESCE(ae.paid_by_organization, false) as paid_by_organization,
+                            COALESCE(ae.paid_to_worker, false) as paid_to_worker,
+                            COALESCE(ae.paid_kvv, false) as paid_kvv,
+                            COALESCE(ae.paid_kms, false) as paid_kms
+                        FROM t_p24058207_website_creation_pro.work_shifts s
+                        JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
+                        JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
+                        LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
+                            ON l.user_id = s.user_id 
+                            AND l.created_at::date = s.shift_date
+                            AND l.organization_id = s.organization_id
                             AND l.is_active = true
-                        GROUP BY l.created_at::date, l.user_id, l.organization_id, o.name, o.id, 
-                                 u.id, u.name, o.contact_rate, o.payment_type
-                        ORDER BY l.created_at::date DESC, u.name
+                        LEFT JOIN t_p24058207_website_creation_pro.accounting_expenses ae
+                            ON ae.user_id = s.user_id
+                            AND ae.work_date = s.shift_date
+                            AND ae.organization_id = s.organization_id
+                        WHERE s.shift_date >= CURRENT_DATE - INTERVAL '90 days'
+                        GROUP BY s.shift_date, s.user_id, s.organization_id, o.name, o.id, o.contact_rate, 
+                                 o.payment_type, u.id, u.name, ae.expense_amount, ae.expense_comment,
+                                 ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms
+                        ORDER BY s.shift_date DESC, u.name
                     """)
                     
                     shifts = []
-                    rows = cur.fetchall()
-                    print(f'📊 Total rows fetched: {len(rows)}')
-                    
-                    for row in rows:
+                    for row in cur.fetchall():
                         shifts.append({
                             'date': row[0].isoformat() if row[0] else None,
                             'start_time': str(row[1]) if row[1] else None,
@@ -1229,8 +1251,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'paid_kvv': bool(row[14]),
                             'paid_kms': bool(row[15])
                         })
-                        if row[0] and row[0] < date(2025, 10, 15):
-                            print(f'📅 Early date row: date={row[0]}, user={row[6]}, org={row[3]}, contacts={row[7]}')
             
             return {
                 'statusCode': 200,

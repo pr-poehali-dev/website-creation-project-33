@@ -25,20 +25,8 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
     loadEarnings();
   }, [sessionToken]);
 
-  const calculateKMS = (shift: ShiftRecord): number => {
-    const contacts = shift.contacts_count || 0;
-    const rate = shift.contact_rate || 0;
-    const revenue = contacts * rate;
-    
-    const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
-    const afterTax = revenue - tax;
-    
-    const workerSalary = contacts >= 10 ? contacts * 300 : contacts * 200;
-    const expense = shift.expense_amount || 0;
-    const netProfit = afterTax - workerSalary - expense;
-    
-    const kms = Math.round(netProfit / 2);
-    return kms;
+  const calculateWorkerSalary = (contacts: number): number => {
+    return contacts >= 10 ? contacts * 300 : contacts * 200;
   };
 
   const loadEarnings = async () => {
@@ -63,18 +51,26 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         let todayTotal = 0;
         let monthTotal = 0;
         
-        shifts.forEach(shift => {
-          const kms = calculateKMS(shift);
-          const shiftDate = new Date(shift.date);
-          
-          if (shift.date === todayStr) {
-            todayTotal += kms;
-          }
-          
-          if (shiftDate.getMonth() === currentMonth && shiftDate.getFullYear() === currentYear) {
-            monthTotal += kms;
-          }
+        const todayShifts = shifts.filter(s => s.date === todayStr);
+        const monthShifts = shifts.filter(s => {
+          const shiftDate = new Date(s.date);
+          return shiftDate.getMonth() === currentMonth && shiftDate.getFullYear() === currentYear;
         });
+        
+        const calculateTotalKMS = (shiftList: ShiftRecord[]) => {
+          const totalNetProfit = shiftList.reduce((sum, shift) => {
+            const revenue = shift.contacts_count * shift.contact_rate;
+            const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+            const afterTax = revenue - tax;
+            const salary = calculateWorkerSalary(shift.contacts_count);
+            const expense = shift.expense_amount || 0;
+            return sum + (afterTax - salary - expense);
+          }, 0);
+          return Math.round(totalNetProfit / 2);
+        };
+        
+        todayTotal = calculateTotalKMS(todayShifts);
+        monthTotal = calculateTotalKMS(monthShifts);
         
         setEarnings({
           today: todayTotal,

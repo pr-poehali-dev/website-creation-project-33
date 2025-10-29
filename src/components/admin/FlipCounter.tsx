@@ -19,27 +19,23 @@ export default function FlipCounter({ value }: FlipCounterProps) {
     }
   }, [value, displayValue]);
 
-  const digits = displayValue.toString().padStart(3, '0').split('');
+  const formatNumber = (value: number) => {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'decimal',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
+  };
 
   return (
-    <div className="flex gap-1">
-      {digits.map((digit, index) => (
-        <div
-          key={index}
-          className={`relative w-8 h-10 bg-white/95 rounded shadow-md overflow-hidden transition-transform duration-300 ${
-            isFlipping ? 'scale-105' : 'scale-100'
-          } backdrop-blur-sm`}
-        >
-          <div
-            className={`absolute inset-0 flex items-center justify-center text-xl font-bold text-green-700 transition-all duration-300 ${
-              isFlipping ? 'translate-y-[-100%] opacity-0' : 'translate-y-0 opacity-100'
-            }`}
-          >
-            {digit}
-          </div>
-          <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-green-200/30"></div>
-        </div>
-      ))}
+    <div className="bg-gradient-to-br from-emerald-400 to-green-500 rounded-lg shadow-xl px-4 py-3 min-w-[110px] hover:shadow-2xl transition-shadow">
+      <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">Контакты</div>
+      <div className={`text-2xl font-bold text-white leading-tight transition-transform duration-300 ${
+        isFlipping ? 'scale-110' : 'scale-100'
+      }`}>
+        {formatNumber(displayValue)}
+      </div>
+      <div className="text-xs text-white/80 font-medium">сегодня</div>
     </div>
   );
 }

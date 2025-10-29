@@ -22,16 +22,16 @@ export default function FlipCounter({ value }: FlipCounterProps) {
   const digits = displayValue.toString().padStart(3, '0').split('');
 
   return (
-    <div className="flex gap-1.5">
+    <div className="flex gap-1">
       {digits.map((digit, index) => (
         <div
           key={index}
-          className={`relative w-12 h-14 bg-white/95 rounded-lg shadow-md overflow-hidden transition-transform duration-300 ${
+          className={`relative w-8 h-10 bg-white/95 rounded shadow-md overflow-hidden transition-transform duration-300 ${
             isFlipping ? 'scale-105' : 'scale-100'
           } backdrop-blur-sm`}
         >
           <div
-            className={`absolute inset-0 flex items-center justify-center text-3xl font-bold text-green-700 transition-all duration-300 ${
+            className={`absolute inset-0 flex items-center justify-center text-xl font-bold text-green-700 transition-all duration-300 ${
               isFlipping ? 'translate-y-[-100%] opacity-0' : 'translate-y-0 opacity-100'
             }`}
           >

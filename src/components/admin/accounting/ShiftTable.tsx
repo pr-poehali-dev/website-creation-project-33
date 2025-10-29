@@ -72,18 +72,12 @@ export default function ShiftTable({
 
   const totalContacts = shifts.reduce((sum, shift) => sum + (shift.contacts_count || 0), 0);
   
-  const unpaidShifts = shifts.filter(shift => !shift.paid_to_worker);
-  console.log('Неоплаченные смены:', unpaidShifts.map(s => ({
-    contacts: s.contacts_count,
-    rate: s.contact_rate,
-    salary: (s.contacts_count || 0) * (s.contact_rate || 0),
-    paid: s.paid_to_worker
-  })));
-  
-  const unpaidSalary = unpaidShifts.reduce((sum, shift) => {
-    const salary = (shift.contacts_count || 0) * (shift.contact_rate || 0);
-    return sum + salary;
-  }, 0);
+  const unpaidSalary = shifts
+    .filter(shift => !shift.paid_to_worker)
+    .reduce((sum, shift) => {
+      const salary = calculateWorkerSalary(shift.contacts_count);
+      return sum + salary;
+    }, 0);
 
   return (
     <div className="overflow-x-auto">

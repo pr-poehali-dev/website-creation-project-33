@@ -101,7 +101,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
   };
 
   return (
-    <div className="absolute top-4 right-4 z-20 flex flex-col gap-2 items-end">
+    <div className="absolute top-4 right-4 z-20 flex gap-2">
       <div className="bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg shadow-xl px-4 py-3 min-w-[110px] hover:shadow-2xl transition-shadow">
         <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">Сегодня</div>
         <div className="text-2xl font-bold text-white leading-tight">{formatCurrency(earnings.today)}</div>

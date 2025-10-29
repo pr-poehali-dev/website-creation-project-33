@@ -108,21 +108,21 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
 
   return (
     <div className="absolute top-4 right-4 z-20 flex gap-2">
-      <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
+      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
         <div className="text-[10px] text-white/70 font-medium uppercase tracking-wide mb-0.5">Вчера</div>
         <div className="text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.yesterday)} <span className="text-sm text-white/80">₽</span>
         </div>
       </div>
       
-      <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
+      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
         <div className="text-[10px] text-white/70 font-medium uppercase tracking-wide mb-0.5">Сегодня</div>
         <div className="text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.today)} <span className="text-sm text-white/80">₽</span>
         </div>
       </div>
       
-      <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
+      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
         <div className="text-[10px] text-white/70 font-medium uppercase tracking-wide mb-0.5">За месяц</div>
         <div className="text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.month)} <span className="text-sm text-white/80">₽</span>

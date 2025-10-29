@@ -99,7 +99,9 @@ export default function UserDashboard() {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-base md:text-xl font-bold text-[#001f54] truncate">IMPERIA PROMO</h1>
+                <h1 className="text-sm md:text-xl font-bold text-[#001f54] leading-tight">
+                  IMPERIA<br/>PROMO
+                </h1>
               </div>
             </div>
             <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
@@ -129,10 +131,10 @@ export default function UserDashboard() {
               )}
               <Button 
                 onClick={() => setAiHelperOpen(true)} 
-                className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
+                className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 font-bold text-sm"
                 size="sm"
               >
-                <Icon name="Bot" size={18} />
+                AI
               </Button>
               <Button 
                 onClick={() => setCurrentView('schedule')} 

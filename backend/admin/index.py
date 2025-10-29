@@ -1177,24 +1177,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     cur.execute("""
                         SELECT 
                             l.created_at::date as shift_date,
-                            (
-                                SELECT created_at::time
-                                FROM t_p24058207_website_creation_pro.shift_videos
-                                WHERE user_id = l.user_id 
-                                  AND work_date = l.created_at::date
-                                  AND organization_id = l.organization_id 
-                                  AND video_type = 'start'
-                                ORDER BY created_at LIMIT 1
-                            ) as start_time,
-                            (
-                                SELECT created_at::time
-                                FROM t_p24058207_website_creation_pro.shift_videos
-                                WHERE user_id = l.user_id 
-                                  AND work_date = l.created_at::date
-                                  AND organization_id = l.organization_id 
-                                  AND video_type = 'end'
-                                ORDER BY created_at DESC LIMIT 1
-                            ) as end_time,
+                            MIN(sv_start.created_at)::time as start_time,
+                            MAX(sv_end.created_at)::time as end_time,
                             o.name as organization,
                             o.id as organization_id,
                             u.id as user_id,
@@ -1215,6 +1199,16 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             ON ae.user_id = l.user_id
                             AND ae.work_date = l.created_at::date
                             AND ae.organization_id = l.organization_id
+                        LEFT JOIN t_p24058207_website_creation_pro.shift_videos sv_start
+                            ON sv_start.user_id = l.user_id
+                            AND sv_start.work_date = l.created_at::date
+                            AND sv_start.organization_id = l.organization_id
+                            AND sv_start.video_type = 'start'
+                        LEFT JOIN t_p24058207_website_creation_pro.shift_videos sv_end
+                            ON sv_end.user_id = l.user_id
+                            AND sv_end.work_date = l.created_at::date
+                            AND sv_end.organization_id = l.organization_id
+                            AND sv_end.video_type = 'end'
                         WHERE l.created_at::date >= '2025-10-01'
                             AND l.is_active = true
                         GROUP BY l.created_at::date, l.user_id, l.organization_id, o.name, o.id, 

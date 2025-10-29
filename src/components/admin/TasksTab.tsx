@@ -243,7 +243,14 @@ export default function TasksTab() {
                       }}
                     >
                       {renamingPlanId === plan.id ? (
-                        <div className="pr-12 space-y-1" onClick={(e) => e.stopPropagation()}>
+                        <div 
+                          className="pr-12 space-y-1" 
+                          onClick={(e) => {
+                            if (e.target === e.currentTarget) {
+                              e.stopPropagation();
+                            }
+                          }}
+                        >
                           <input
                             type="text"
                             value={renameValue}
@@ -255,6 +262,7 @@ export default function TasksTab() {
                               }
                               if (e.key === 'Escape') cancelRename();
                             }}
+                            onClick={(e) => e.stopPropagation()}
                             placeholder="Название организации"
                             className="w-full text-[9px] md:text-xs font-medium text-gray-800 border border-purple-500 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-purple-500"
                             autoFocus
@@ -271,6 +279,7 @@ export default function TasksTab() {
                               if (e.key === 'Escape') cancelRename();
                             }}
                             onBlur={() => saveRename(plan.id)}
+                            onClick={(e) => e.stopPropagation()}
                             placeholder="Примечания (необязательно)"
                             className="w-full text-[8px] md:text-[10px] text-gray-600 border border-purple-300 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-purple-500"
                           />

@@ -71,6 +71,13 @@ export default function ShiftTable({
   }
 
   const totalContacts = shifts.reduce((sum, shift) => sum + (shift.contacts_count || 0), 0);
+  
+  const unpaidSalary = shifts
+    .filter(shift => !shift.paid_to_worker)
+    .reduce((sum, shift) => {
+      const salary = (shift.contacts_count || 0) * (shift.contact_rate || 0);
+      return sum + salary;
+    }, 0);
 
   return (
     <div className="overflow-x-auto">
@@ -109,7 +116,10 @@ export default function ShiftTable({
               <div>Контакты</div>
               <div className="text-blue-600 font-bold mt-1">{totalContacts}</div>
             </th>
-            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Зарплата</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">
+              <div>Зарплата</div>
+              <div className="text-red-600 font-bold mt-1">{unpaidSalary.toLocaleString('ru-RU')} ₽</div>
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">Расход</th>
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Комментарий</th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap bg-green-50">Чистый остаток</th>

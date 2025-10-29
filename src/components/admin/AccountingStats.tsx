@@ -161,7 +161,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
               size={14} 
               className={yesterdayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}
             />
-            <span className={`text-[10px] font-extrabold ${yesterdayChange.isPositive ? "text-green-100" : "text-red-300"} drop-shadow-md`}>
+            <span className={`text-[10px] font-extrabold ${yesterdayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
               {yesterdayChange.percent}%
             </span>
           </div>
@@ -180,7 +180,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
               size={14} 
               className={todayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}
             />
-            <span className={`text-[10px] font-extrabold ${todayChange.isPositive ? "text-green-100" : "text-red-300"} drop-shadow-md`}>
+            <span className={`text-[10px] font-extrabold ${todayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
               {todayChange.percent}%
             </span>
           </div>
@@ -199,7 +199,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
               size={14} 
               className={monthChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}
             />
-            <span className={`text-[10px] font-extrabold ${monthChange.isPositive ? "text-green-100" : "text-red-300"} drop-shadow-md`}>
+            <span className={`text-[10px] font-extrabold ${monthChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
               {monthChange.percent}%
             </span>
           </div>

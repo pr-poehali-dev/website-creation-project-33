@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '@/components/ui/icon';
 
 interface AccountingStatsProps {
   sessionToken: string;
@@ -101,14 +102,27 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
   };
 
   return (
-    <div className="absolute top-4 right-4 z-20 flex flex-col gap-2 items-end">
-      <div className="bg-yellow-100 border-l-4 border-yellow-600 px-3 py-2 min-w-[100px]">
-        <div className="text-xs text-yellow-800 font-medium">Сегодня</div>
-        <div className="text-xl font-bold text-yellow-900">{formatCurrency(earnings.today)} ₽</div>
+    <div className="absolute top-4 right-4 z-20 flex gap-2">
+      <div className="bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg shadow-xl px-4 py-3 min-w-[110px] relative overflow-hidden group hover:shadow-2xl transition-shadow">
+        <div className="absolute top-0 right-0 opacity-20">
+          <Icon name="TrendingUp" size={40} className="text-white" />
+        </div>
+        <div className="relative z-10">
+          <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">Сегодня</div>
+          <div className="text-2xl font-bold text-white leading-tight">{formatCurrency(earnings.today)}</div>
+          <div className="text-xs text-white/80 font-medium">рублей</div>
+        </div>
       </div>
-      <div className="bg-yellow-100 border-l-4 border-yellow-600 px-3 py-2 min-w-[100px]">
-        <div className="text-xs text-yellow-800 font-medium">За месяц</div>
-        <div className="text-xl font-bold text-yellow-900">{formatCurrency(earnings.month)} ₽</div>
+      
+      <div className="bg-gradient-to-br from-orange-400 to-amber-500 rounded-lg shadow-xl px-4 py-3 min-w-[110px] relative overflow-hidden group hover:shadow-2xl transition-shadow">
+        <div className="absolute top-0 right-0 opacity-20">
+          <Icon name="Calendar" size={40} className="text-white" />
+        </div>
+        <div className="relative z-10">
+          <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">За месяц</div>
+          <div className="text-2xl font-bold text-white leading-tight">{formatCurrency(earnings.month)}</div>
+          <div className="text-xs text-white/80 font-medium">рублей</div>
+        </div>
       </div>
     </div>
   );

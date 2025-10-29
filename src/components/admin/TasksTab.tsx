@@ -19,12 +19,16 @@ const STORAGE_KEY = 'planned_organizations';
 const getInitialPlans = (): PlannedOrganization[] => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
+    console.log('📦 Loading from localStorage:', saved);
     if (saved) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      console.log('✅ Parsed plans:', parsed);
+      return parsed;
     }
   } catch (error) {
     console.error('Failed to load plans:', error);
   }
+  console.log('⚠️ No plans found, returning empty array');
   return [];
 };
 

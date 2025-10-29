@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 
+interface HourlyNote {
+  hour: string;
+  note: string;
+}
+
 interface PlannedOrganization {
   id: number;
   organization: string;
   date: string;
   notes?: string;
+  hourlyNotes?: HourlyNote[];
 }
 
 const STORAGE_KEY = 'planned_organizations';
@@ -50,8 +56,11 @@ export default function TasksTab() {
   const [newOrg, setNewOrg] = useState('');
   const [newNotes, setNewNotes] = useState('');
   const [weekOffset, setWeekOffset] = useState(0);
+  const [editingPlan, setEditingPlan] = useState<PlannedOrganization | null>(null);
   const weekDates = getWeekDates(weekOffset);
   const todayStr = getMoscowDate();
+  
+  const timeSlots = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
 
   useEffect(() => {
     try {
@@ -79,6 +88,27 @@ export default function TasksTab() {
 
   const deletePlan = (id: number) => {
     setPlans(plans.filter(p => p.id !== id));
+  };
+  
+  const updateHourlyNote = (hour: string, note: string) => {
+    if (!editingPlan) return;
+    
+    const existingNotes = editingPlan.hourlyNotes || [];
+    const updatedNotes = existingNotes.filter(n => n.hour !== hour);
+    
+    if (note.trim()) {
+      updatedNotes.push({ hour, note: note.trim() });
+    }
+    
+    const updatedPlan = { ...editingPlan, hourlyNotes: updatedNotes };
+    setEditingPlan(updatedPlan);
+    setPlans(plans.map(p => p.id === editingPlan.id ? updatedPlan : p));
+  };
+  
+  const getHourlyNote = (hour: string): string => {
+    if (!editingPlan?.hourlyNotes) return '';
+    const note = editingPlan.hourlyNotes.find(n => n.hour === hour);
+    return note?.note || '';
   };
 
   const getDayName = (dateStr: string) => {
@@ -177,8 +207,11 @@ export default function TasksTab() {
                   {dayPlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className="bg-white rounded px-1.5 py-1 border border-gray-200 relative group"
-                      onClick={(e) => e.stopPropagation()}
+                      className="bg-white rounded px-1.5 py-1 border border-gray-200 relative group cursor-pointer hover:border-purple-400"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingPlan(plan);
+                      }}
                     >
                       <div className="text-[9px] md:text-xs font-medium text-gray-800 truncate pr-4">
                         {plan.organization}
@@ -189,7 +222,10 @@ export default function TasksTab() {
                         </div>
                       )}
                       <button
-                        onClick={() => deletePlan(plan.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deletePlan(plan.id);
+                        }}
                         className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Icon name="X" size={12} className="text-red-500 md:w-4 md:h-4" />
@@ -245,6 +281,57 @@ export default function TasksTab() {
                 className="flex-1 md:flex-none px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm md:text-base"
               >
                 Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editingPlan && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setEditingPlan(null)}>
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg md:text-xl font-bold text-gray-800">{editingPlan.organization}</h3>
+                <p className="text-sm text-gray-600">
+                  {new Date(editingPlan.date).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </p>
+              </div>
+              <button
+                onClick={() => setEditingPlan(null)}
+                className="p-2 hover:bg-gray-100 rounded transition-colors"
+              >
+                <Icon name="X" size={24} className="text-gray-600" />
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-3">
+              {timeSlots.map((hour) => (
+                <div key={hour} className="flex items-start gap-3 border-b border-gray-100 pb-3">
+                  <div className="flex-shrink-0 w-16 md:w-20 pt-2">
+                    <div className="text-sm md:text-base font-semibold text-gray-700">{hour}</div>
+                    <div className="text-xs text-gray-400">
+                      {hour.split(':')[0] === '08' && '2 часа'}
+                      {hour.split(':')[0] !== '08' && hour.split(':')[0] !== '22' && ''}
+                    </div>
+                  </div>
+                  <textarea
+                    value={getHourlyNote(hour)}
+                    onChange={(e) => updateHourlyNote(hour, e.target.value)}
+                    placeholder="Заметки для этого времени..."
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm md:text-base resize-none"
+                    rows={2}
+                  />
+                </div>
+              ))}
+            </div>
+            
+            <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-4">
+              <button
+                onClick={() => setEditingPlan(null)}
+                className="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors text-sm md:text-base"
+              >
+                Готово
               </button>
             </div>
           </div>

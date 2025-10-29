@@ -76,12 +76,12 @@ export default function TodayWorkersCounter({ sessionToken }: TodayWorkersCounte
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-400 to-violet-500 rounded-lg shadow-xl px-4 py-3 min-w-[110px] hover:shadow-2xl transition-shadow">
-      <div className="text-xs text-white/90 font-medium uppercase tracking-wider mb-1">Работают</div>
-      <div className="text-2xl font-bold text-white leading-tight">
+    <div className="bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg shadow-md px-3 py-2 hover:shadow-lg transition-all">
+      <div className="text-[10px] text-white/70 font-medium uppercase tracking-wide">Работают</div>
+      <div className="text-lg font-bold text-white leading-tight">
         {formatNumber(workersCount)}
       </div>
-      <div className="text-xs text-white/80 font-medium">сегодня</div>
+      <div className="text-[10px] text-white/60">сегодня</div>
     </div>
   );
 }

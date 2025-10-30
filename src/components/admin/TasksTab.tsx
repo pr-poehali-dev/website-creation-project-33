@@ -98,8 +98,8 @@ export default function TasksTab() {
   };
 
   const handleDateClick = (date: string, dayPlans: PlannedOrganization[]) => {
+    setShowingHourlyFor(date);
     if (dayPlans.length > 0) {
-      setShowingHourlyFor(date);
       setEditingPlan(dayPlans[0]);
     }
   };
@@ -175,7 +175,7 @@ export default function TasksTab() {
         />
       )}
 
-      <DailyHourlyView plans={plans} timeSlots={timeSlots} />
+      <DailyHourlyView plans={plans} timeSlots={timeSlots} selectedDate={showingHourlyFor} />
 
       {editingPlan && showingHourlyFor && (
         <HourlyPlanModal

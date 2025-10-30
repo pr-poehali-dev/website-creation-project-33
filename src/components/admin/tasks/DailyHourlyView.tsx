@@ -4,18 +4,20 @@ import { getMoscowDate } from './utils';
 interface DailyHourlyViewProps {
   plans: PlannedOrganization[];
   timeSlots: string[];
+  selectedDate: string | null;
 }
 
-export default function DailyHourlyView({ plans, timeSlots }: DailyHourlyViewProps) {
+export default function DailyHourlyView({ plans, timeSlots, selectedDate }: DailyHourlyViewProps) {
+  const displayDate = selectedDate || getMoscowDate();
+  
   return (
     <div className="mt-6 bg-white rounded-lg border border-gray-200 p-4">
       <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-4">
-        Почасовой график на {new Date(getMoscowDate()).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
+        Почасовой график на {new Date(displayDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
       </h3>
       <div className="space-y-2">
         {timeSlots.map((hour) => {
-          const todayDate = getMoscowDate();
-          const todayPlans = plans.filter(p => p.date === todayDate);
+          const todayPlans = plans.filter(p => p.date === displayDate);
           const allNotes = todayPlans.map(plan => ({
             org: plan.organization,
             note: plan.hourlyNotes?.find(n => n.hour === hour)?.note || ''

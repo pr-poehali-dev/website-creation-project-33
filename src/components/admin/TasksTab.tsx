@@ -99,9 +99,6 @@ export default function TasksTab() {
 
   const handleDateClick = (date: string, dayPlans: PlannedOrganization[]) => {
     setShowingHourlyFor(date);
-    if (dayPlans.length > 0) {
-      setEditingPlan(dayPlans[0]);
-    }
   };
 
   const handleAddOrgClick = (date: string) => {

@@ -226,7 +226,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
               >
                 <div 
                   className={`p-3 md:p-4 flex items-center justify-between gap-2 ${
-                    rankingType === 'avg_per_shift' ? 'cursor-pointer hover:bg-gray-50' : ''
+                    (rankingType === 'avg_per_shift' || rankingType === 'shifts') ? 'cursor-pointer hover:bg-gray-50' : ''
                   }`}
                   onClick={() => handleUserClick(user.email)}
                 >

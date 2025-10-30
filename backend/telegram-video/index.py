@@ -147,6 +147,45 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             """,
                             (int(user_id), int(organization_id), photo_type, telegram_message_id)
                         )
+                        
+                        if photo_type == 'start':
+                            cur.execute(
+                                """
+                                SELECT id FROM t_p24058207_website_creation_pro.work_shifts
+                                WHERE user_id = %s 
+                                AND organization_id = %s 
+                                AND shift_date = (CURRENT_TIMESTAMP + INTERVAL '3 hours')::date
+                                """,
+                                (int(user_id), int(organization_id))
+                            )
+                            existing_shift = cur.fetchone()
+                            
+                            if not existing_shift:
+                                cur.execute(
+                                    """
+                                    INSERT INTO t_p24058207_website_creation_pro.work_shifts 
+                                    (user_id, organization_id, shift_date, shift_start, created_at, updated_at)
+                                    VALUES (%s, %s, (CURRENT_TIMESTAMP + INTERVAL '3 hours')::date, CURRENT_TIMESTAMP, NOW(), NOW())
+                                    """,
+                                    (int(user_id), int(organization_id))
+                                )
+                                print(f'Created work_shift record for user={user_id}, org={organization_id}')
+                            else:
+                                print(f'Work shift already exists for user={user_id}, org={organization_id}')
+                        
+                        elif photo_type == 'end':
+                            cur.execute(
+                                """
+                                UPDATE t_p24058207_website_creation_pro.work_shifts
+                                SET shift_end = CURRENT_TIMESTAMP, updated_at = NOW()
+                                WHERE user_id = %s 
+                                AND organization_id = %s 
+                                AND shift_date = (CURRENT_TIMESTAMP + INTERVAL '3 hours')::date
+                                """,
+                                (int(user_id), int(organization_id))
+                            )
+                            print(f'Updated work_shift end time for user={user_id}, org={organization_id}')
+                        
                         conn.commit()
                         print(f'Saved shift photo record: user={user_id}, org={organization_id}, type={photo_type}')
             except Exception as e:

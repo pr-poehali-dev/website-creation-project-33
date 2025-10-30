@@ -57,6 +57,8 @@ const getWeekDates = (weekOffset: number = 0) => {
 export default function TasksTab() {
   const [plans, setPlans] = useState<PlannedOrganization[]>(getInitialPlans);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [showingHourlyFor, setShowingHourlyFor] = useState<string | null>(null);
+  const [addOrgMode, setAddOrgMode] = useState(false);
   const [newOrg, setNewOrg] = useState('');
   const [newNotes, setNewNotes] = useState('');
   const [weekOffset, setWeekOffset] = useState(0);
@@ -212,13 +214,18 @@ export default function TasksTab() {
               className={`rounded-lg border-2 p-2 md:p-3 transition-all cursor-pointer ${
                 isToday 
                   ? 'border-blue-500 bg-blue-50' 
-                  : selectedDate === date
+                  : showingHourlyFor === date
                   ? 'border-purple-500 bg-purple-50'
                   : isPast
                   ? 'border-gray-200 bg-gray-50 opacity-60'
                   : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
-              onClick={() => setSelectedDate(date)}
+              onClick={() => {
+                if (dayPlans.length > 0) {
+                  setShowingHourlyFor(date);
+                  setEditingPlan(dayPlans[0]);
+                }
+              }}
             >
               <div className="text-center">
                 <div className={`text-[10px] md:text-xs font-semibold ${
@@ -235,6 +242,17 @@ export default function TasksTab() {
               
               {dayPlans.length > 0 && (
                 <div className="mt-2 space-y-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedDate(date);
+                      setAddOrgMode(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-1 bg-green-500 hover:bg-green-600 text-white rounded px-2 py-1 mb-1 transition-colors"
+                  >
+                    <Icon name="Plus" size={14} className="md:w-4 md:h-4" />
+                    <span className="text-[9px] md:text-xs font-medium">Добавить</span>
+                  </button>
                   {dayPlans.map((plan) => (
                     <div
                       key={plan.id}
@@ -242,6 +260,7 @@ export default function TasksTab() {
                       onClick={(e) => {
                         e.stopPropagation();
                         if (renamingPlanId !== plan.id) {
+                          setShowingHourlyFor(date);
                           setEditingPlan(plan);
                         }
                       }}
@@ -324,12 +343,26 @@ export default function TasksTab() {
                   ))}
                 </div>
               )}
+              
+              {dayPlans.length === 0 && !isPast && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedDate(date);
+                    setAddOrgMode(true);
+                  }}
+                  className="w-full mt-2 flex items-center justify-center gap-1 bg-green-500 hover:bg-green-600 text-white rounded px-2 py-1 transition-colors"
+                >
+                  <Icon name="Plus" size={14} className="md:w-4 md:h-4" />
+                  <span className="text-[9px] md:text-xs font-medium">Добавить</span>
+                </button>
+              )}
             </div>
           );
         })}
       </div>
 
-      {selectedDate && (
+      {selectedDate && addOrgMode && (
         <div className="bg-white rounded-lg border-2 border-purple-500 p-3 md:p-4">
           <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3">
             Добавить организацию на {new Date(selectedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
@@ -356,7 +389,10 @@ export default function TasksTab() {
             
             <div className="flex gap-2">
               <button
-                onClick={addPlan}
+                onClick={() => {
+                  addPlan();
+                  setAddOrgMode(false);
+                }}
                 disabled={!newOrg.trim()}
                 className="flex-1 md:flex-none px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm md:text-base"
               >
@@ -365,6 +401,7 @@ export default function TasksTab() {
               <button
                 onClick={() => {
                   setSelectedDate(null);
+                  setAddOrgMode(false);
                   setNewOrg('');
                   setNewNotes('');
                 }}
@@ -415,12 +452,13 @@ export default function TasksTab() {
         </div>
       </div>
 
-      {editingPlan && (
+      {editingPlan && showingHourlyFor && (
         <div 
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" 
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setEditingPlan(null);
+              setShowingHourlyFor(null);
             }
           }}
         >
@@ -433,7 +471,10 @@ export default function TasksTab() {
                 </p>
               </div>
               <button
-                onClick={() => setEditingPlan(null)}
+                onClick={() => {
+                  setEditingPlan(null);
+                  setShowingHourlyFor(null);
+                }}
                 className="p-2 hover:bg-gray-100 rounded transition-colors"
               >
                 <Icon name="X" size={24} className="text-gray-600" />
@@ -479,7 +520,10 @@ export default function TasksTab() {
             
             <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-4">
               <button
-                onClick={() => setEditingPlan(null)}
+                onClick={() => {
+                  setEditingPlan(null);
+                  setShowingHourlyFor(null);
+                }}
                 className="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors text-sm md:text-base"
               >
                 Готово

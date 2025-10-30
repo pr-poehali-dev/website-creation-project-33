@@ -19,6 +19,12 @@ interface OrgStats {
   avg_per_shift: number;
 }
 
+interface ShiftDetail {
+  organization_name: string;
+  date: string;
+  contacts: number;
+}
+
 export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
   const [showAllContacts, setShowAllContacts] = useState(false);
@@ -27,6 +33,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedUserEmail, setExpandedUserEmail] = useState<string | null>(null);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, OrgStats[]>>({});
+  const [userShifts, setUserShifts] = useState<Record<string, ShiftDetail[]>>({});
 
   // Фильтруем пользователей по поисковому запросу и по количеству смен
   const filteredUsers = userStats.filter(user => {
@@ -125,14 +132,54 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
     }
   };
 
+  const fetchUserShifts = async (email: string) => {
+    if (userShifts[email]) {
+      return;
+    }
+
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      const response = await fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': sessionToken || ''
+        },
+        body: JSON.stringify({
+          action: 'get_user_shifts',
+          email: email
+        })
+      });
+
+      const data = await response.json();
+      if (data.success && data.shifts) {
+        setUserShifts(prev => ({
+          ...prev,
+          [email]: data.shifts
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching user shifts:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить список смен',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const handleUserClick = async (email: string) => {
-    if (rankingType !== 'avg_per_shift') return;
+    if (rankingType !== 'avg_per_shift' && rankingType !== 'shifts') return;
     
     if (expandedUserEmail === email) {
       setExpandedUserEmail(null);
     } else {
       setExpandedUserEmail(email);
-      await fetchUserOrgStats(email);
+      if (rankingType === 'avg_per_shift') {
+        await fetchUserOrgStats(email);
+      } else if (rankingType === 'shifts') {
+        await fetchUserShifts(email);
+      }
     }
   };
 
@@ -256,10 +303,17 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                         </div>
                       )}
                       {rankingType === 'shifts' && (
-                        <div className="text-center">
-                          <div className="text-xs md:text-sm font-bold text-blue-600">{user.shifts_count || 0}</div>
-                          <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">смен</div>
-                        </div>
+                        <>
+                          <div className="text-center">
+                            <div className="text-xs md:text-sm font-bold text-blue-600">{user.shifts_count || 0}</div>
+                            <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">смен</div>
+                          </div>
+                          <Icon 
+                            name={isExpanded ? "ChevronUp" : "ChevronDown"} 
+                            size={16} 
+                            className="text-gray-400 ml-2"
+                          />
+                        </>
                       )}
                       {rankingType === 'avg_per_shift' && (
                         <>
@@ -278,7 +332,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                   </div>
                 </div>
                 
-                {/* Детализация по организациям */}
+                {/* Детализация по организациям (для avg_per_shift) */}
                 {rankingType === 'avg_per_shift' && isExpanded && (
                   <div className="border-t border-gray-200 mt-3 pt-3 px-3 md:px-4 pb-3">
                     <div className="text-xs font-semibold text-gray-600 mb-2">Статистика по организациям:</div>
@@ -344,6 +398,44 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                           </div>
                         </div>
                       </>
+                    )}
+                  </div>
+                )}
+                
+                {/* Детализация по сменам (для shifts) */}
+                {rankingType === 'shifts' && isExpanded && (
+                  <div className="border-t border-gray-200 mt-3 pt-3 px-3 md:px-4 pb-3">
+                    <div className="text-xs font-semibold text-gray-600 mb-2">Все смены:</div>
+                    {!userShifts[user.email] ? (
+                      <div className="text-xs text-gray-500 italic">Загрузка...</div>
+                    ) : userShifts[user.email].length === 0 ? (
+                      <div className="text-xs text-gray-500 italic">Нет смен</div>
+                    ) : (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {userShifts[user.email].map((shift, idx) => (
+                          <div 
+                            key={idx}
+                            className="flex items-center justify-between bg-gray-50 rounded-lg p-2 text-xs"
+                          >
+                            <div className="flex-1 min-w-0 mr-2">
+                              <div className="font-medium text-gray-700 truncate">
+                                {shift.organization_name}
+                              </div>
+                              <div className="text-gray-500 text-[10px]">
+                                {new Date(shift.date).toLocaleDateString('ru-RU', { 
+                                  day: '2-digit', 
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </div>
+                            </div>
+                            <div className="text-center flex-shrink-0">
+                              <div className="font-bold text-green-600">{shift.contacts}</div>
+                              <div className="text-gray-500 text-[10px]">К</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                 )}

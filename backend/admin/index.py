@@ -826,6 +826,71 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             org_stats.sort(key=lambda x: x['avg_per_shift'], reverse=True)
             return org_stats
 
+def get_user_shifts(email: str) -> List[Dict[str, Any]]:
+    """Получить все смены пользователя с детальной информацией"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id FROM t_p24058207_website_creation_pro.users 
+                WHERE email = %s
+            """, (email,))
+            user_row = cur.fetchone()
+            
+            if not user_row:
+                return []
+            
+            user_id = user_row[0]
+            
+            cur.execute("""
+                SELECT 
+                    l.created_at,
+                    l.lead_type,
+                    o.id as org_id,
+                    o.name as organization_name
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.user_id = %s AND l.is_active = true
+                ORDER BY l.created_at DESC
+            """, (user_id,))
+            
+            shift_data = {}
+            for row in cur.fetchall():
+                created_at = row[0]
+                lead_type = row[1]
+                org_id = row[2]
+                org_name = row[3] if row[3] else 'Не указана'
+                
+                moscow_dt = get_moscow_time_from_utc(created_at)
+                moscow_date = moscow_dt.date()
+                
+                key = (moscow_date, org_id, org_name)
+                if key not in shift_data:
+                    shift_data[key] = {
+                        'total_leads': 0,
+                        'contacts': 0,
+                        'approaches': 0
+                    }
+                
+                shift_data[key]['total_leads'] += 1
+                if lead_type == 'контакт':
+                    shift_data[key]['contacts'] += 1
+                elif lead_type == 'подход':
+                    shift_data[key]['approaches'] += 1
+            
+            shifts = []
+            for (date, org_id, org_name), data in shift_data.items():
+                shifts.append({
+                    'date': date.isoformat(),
+                    'organization_id': org_id,
+                    'organization_name': org_name,
+                    'total_leads': data['total_leads'],
+                    'contacts': data['contacts'],
+                    'approaches': data['approaches']
+                })
+            
+            shifts.sort(key=lambda x: x['date'], reverse=True)
+            return shifts
+
 def get_user_org_shift_details(email: str, org_name: str) -> List[Dict[str, Any]]:
     """Получить детальную информацию по сменам пользователя в конкретной организации"""
     with get_db_connection() as conn:
@@ -1349,6 +1414,23 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({'success': True, 'shift_details': shift_details})
+            }
+        
+        elif action == 'get_user_shifts':
+            email = body_data.get('email')
+            
+            if not email:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Email обязателен'})
+                }
+            
+            shifts = get_user_shifts(email)
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': True, 'shifts': shifts})
             }
         
         elif action == 'add_organization':

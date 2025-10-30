@@ -1,3 +1,5 @@
+import Icon from '@/components/ui/icon';
+
 interface AddOrganizationFormProps {
   selectedDate: string;
   newOrg: string;
@@ -19,9 +21,17 @@ export default function AddOrganizationForm({
 }: AddOrganizationFormProps) {
   return (
     <div className="bg-white rounded-lg border-2 border-purple-500 p-3 md:p-4">
-      <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3">
-        Добавить организацию на {new Date(selectedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
-      </h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-base md:text-lg font-semibold text-gray-800">
+          Добавить организацию на {new Date(selectedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
+        </h3>
+        <button
+          onClick={onCancel}
+          className="p-1 hover:bg-gray-100 rounded transition-colors"
+        >
+          <Icon name="X" size={20} className="text-gray-600" />
+        </button>
+      </div>
       
       <div className="space-y-3">
         <input

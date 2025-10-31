@@ -71,7 +71,7 @@ export default function DateFilterHeader({
         </button>
 
         {isOpen && (
-          <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-1 bg-white border border-gray-300 rounded-lg shadow-2xl md:shadow-lg p-4 z-[1000] w-[90vw] max-w-[320px] md:w-auto md:min-w-[280px]">
+          <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-1 bg-white border border-gray-300 rounded-xl shadow-2xl md:shadow-lg p-5 z-[1000] w-[85vw] max-w-[280px] md:w-auto md:min-w-[280px]">
           <div className="space-y-4">
             <div>
               <label className="block text-sm md:text-xs text-gray-700 md:text-gray-600 mb-2 font-medium">От</label>

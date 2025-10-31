@@ -240,30 +240,32 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             </button>
           </div>
         )}
-        <ShiftTable
-          shifts={filteredShifts}
-          editingExpense={editingExpense}
-          editingComment={editingComment}
-          editingPayments={editingPayments}
-          filters={filters}
-          organizationFilter={organizationFilter}
-          promoterFilter={promoterFilter}
-          paymentTypeFilter={paymentTypeFilter}
-          dateFilter={dateFilter}
-          uniqueOrganizations={uniqueOrganizations}
-          uniquePromoters={uniquePromoters}
-          onExpenseChange={(key, value) => setEditingExpense({ ...editingExpense, [key]: value })}
-          onCommentChange={(key, value) => setEditingComment({ ...editingComment, [key]: value })}
-          onExpenseBlur={handleExpenseBlur}
-          onPaymentToggle={handlePaymentToggle}
-          onFilterChange={handleFilterChange}
-          onOrganizationFilterChange={setOrganizationFilter}
-          onPromoterFilterChange={setPromoterFilter}
-          onPaymentTypeFilterChange={setPaymentTypeFilter}
-          onDateFilterChange={(from, to) => setDateFilter({ from, to })}
-          onDelete={deleteShift}
-          onEdit={handleEditShift}
-        />
+        <div className="min-h-[70vh]">
+          <ShiftTable
+            shifts={filteredShifts}
+            editingExpense={editingExpense}
+            editingComment={editingComment}
+            editingPayments={editingPayments}
+            filters={filters}
+            organizationFilter={organizationFilter}
+            promoterFilter={promoterFilter}
+            paymentTypeFilter={paymentTypeFilter}
+            dateFilter={dateFilter}
+            uniqueOrganizations={uniqueOrganizations}
+            uniquePromoters={uniquePromoters}
+            onExpenseChange={(key, value) => setEditingExpense({ ...editingExpense, [key]: value })}
+            onCommentChange={(key, value) => setEditingComment({ ...editingComment, [key]: value })}
+            onExpenseBlur={handleExpenseBlur}
+            onPaymentToggle={handlePaymentToggle}
+            onFilterChange={handleFilterChange}
+            onOrganizationFilterChange={setOrganizationFilter}
+            onPromoterFilterChange={setPromoterFilter}
+            onPaymentTypeFilterChange={setPaymentTypeFilter}
+            onDateFilterChange={(from, to) => setDateFilter({ from, to })}
+            onDelete={deleteShift}
+            onEdit={handleEditShift}
+          />
+        </div>
       </CardContent>
 
       <AddShiftModal

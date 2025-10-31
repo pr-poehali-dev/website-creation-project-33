@@ -79,7 +79,7 @@ export default function DateFilterHeader({
               </div>
               
               <div>
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2.5">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                   <Icon name="Calendar" size={16} className="text-blue-600" />
                   От
                 </label>
@@ -87,12 +87,12 @@ export default function DateFilterHeader({
                   type="date"
                   value={tempFrom}
                   onChange={(e) => setTempFrom(e.target.value)}
-                  className="w-full px-4 py-3 md:py-2 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               
               <div>
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2.5">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                   <Icon name="Calendar" size={16} className="text-blue-600" />
                   До
                 </label>
@@ -100,7 +100,7 @@ export default function DateFilterHeader({
                   type="date"
                   value={tempTo}
                   onChange={(e) => setTempTo(e.target.value)}
-                  className="w-full px-4 py-3 md:py-2 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               

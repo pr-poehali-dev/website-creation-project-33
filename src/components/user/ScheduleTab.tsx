@@ -325,7 +325,7 @@ export default function ScheduleTab() {
                       </div>
                       <div>
                         <p className="text-sm md:text-base font-semibold text-gray-800">
-                          {day.isWeekend ? 'Выходной' : 'Рабочий день'}
+                          {day.dayNameFull}
                         </p>
                         <p className="text-[10px] md:text-xs text-gray-500">{day.date}</p>
                       </div>

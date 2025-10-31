@@ -53,14 +53,14 @@ export default function DateFilterHeader({
     <>
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 z-[999] md:hidden" 
+          className="fixed inset-0 bg-gradient-to-br from-black/40 to-black/20 backdrop-blur-sm z-[999] md:hidden animate-in fade-in duration-200" 
           onClick={() => setIsOpen(false)}
         />
       )}
       <div className="relative inline-block" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+          className="flex items-center gap-1 hover:text-blue-600 transition-all duration-200"
         >
           <span>{label}</span>
           <Icon 
@@ -71,44 +71,57 @@ export default function DateFilterHeader({
         </button>
 
         {isOpen && (
-          <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-1 bg-white border border-gray-300 rounded-xl shadow-2xl md:shadow-lg p-5 z-[1000] w-[85vw] max-w-[280px] md:w-auto md:min-w-[280px]">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm md:text-xs text-gray-700 md:text-gray-600 mb-2 font-medium">От</label>
-              <input
-                type="date"
-                value={tempFrom}
-                onChange={(e) => setTempFrom(e.target.value)}
-                className="w-full px-3 py-2.5 md:py-1.5 text-sm md:text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm md:text-xs text-gray-700 md:text-gray-600 mb-2 font-medium">До</label>
-              <input
-                type="date"
-                value={tempTo}
-                onChange={(e) => setTempTo(e.target.value)}
-                className="w-full px-3 py-2.5 md:py-1.5 text-sm md:text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="flex gap-2 pt-2">
-              <button
-                onClick={handleApply}
-                className="flex-1 px-4 py-2.5 md:py-2 text-sm md:text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-              >
-                Применить
-              </button>
-              {hasFilter && (
+          <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-2 bg-white border-0 rounded-2xl shadow-2xl md:shadow-xl p-6 z-[1000] w-[85vw] max-w-[280px] md:w-auto md:min-w-[280px] animate-in zoom-in-95 duration-200">
+            <div className="space-y-5">
+              <div className="text-center mb-4 md:hidden">
+                <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-3"></div>
+                <h3 className="text-lg font-semibold text-gray-900">Фильтр по дате</h3>
+              </div>
+              
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2.5">
+                  <Icon name="Calendar" size={16} className="text-blue-600" />
+                  От
+                </label>
+                <input
+                  type="date"
+                  value={tempFrom}
+                  onChange={(e) => setTempFrom(e.target.value)}
+                  className="w-full px-4 py-3 md:py-2 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2.5">
+                  <Icon name="Calendar" size={16} className="text-blue-600" />
+                  До
+                </label>
+                <input
+                  type="date"
+                  value={tempTo}
+                  onChange={(e) => setTempTo(e.target.value)}
+                  className="w-full px-4 py-3 md:py-2 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-3">
                 <button
-                  onClick={handleClear}
-                  className="flex-1 px-4 py-2.5 md:py-2 text-sm md:text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+                  onClick={handleApply}
+                  className="flex-1 px-5 py-3 md:py-2.5 text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 active:scale-95"
                 >
-                  Сбросить
+                  Применить
                 </button>
-              )}
+                {hasFilter && (
+                  <button
+                    onClick={handleClear}
+                    className="flex-1 px-5 py-3 md:py-2.5 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-200 active:scale-95"
+                  >
+                    Сбросить
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
         )}
       </div>
     </>

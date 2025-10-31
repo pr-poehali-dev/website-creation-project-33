@@ -176,8 +176,8 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     if (promoterFilter.length > 0 && !promoterFilter.includes(shift.user_name)) return false;
     if (paymentTypeFilter.length > 0 && !paymentTypeFilter.includes(shift.payment_type)) return false;
     
-    if (dateFilter.from && shift.shift_date < dateFilter.from) return false;
-    if (dateFilter.to && shift.shift_date > dateFilter.to) return false;
+    if (dateFilter.from && shift.date < dateFilter.from) return false;
+    if (dateFilter.to && shift.date > dateFilter.to) return false;
     
     return true;
   });

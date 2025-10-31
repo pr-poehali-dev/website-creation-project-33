@@ -50,21 +50,28 @@ export default function DateFilterHeader({
   };
 
   return (
-    <div className="relative inline-block" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 hover:text-blue-600 transition-colors"
-      >
-        <span>{label}</span>
-        <Icon 
-          name={hasFilter ? "FilterX" : "Filter"} 
-          size={14} 
-          className={hasFilter ? "text-blue-600" : "text-gray-400"}
-        />
-      </button>
-
+    <>
       {isOpen && (
-        <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-1 bg-white border border-gray-300 rounded-lg shadow-2xl md:shadow-lg p-4 z-50 w-[90vw] max-w-[320px] md:w-auto md:min-w-[280px]">
+        <div 
+          className="fixed inset-0 bg-black/20 z-[999] md:hidden" 
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      <div className="relative inline-block" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+        >
+          <span>{label}</span>
+          <Icon 
+            name={hasFilter ? "FilterX" : "Filter"} 
+            size={14} 
+            className={hasFilter ? "text-blue-600" : "text-gray-400"}
+          />
+        </button>
+
+        {isOpen && (
+          <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-1 bg-white border border-gray-300 rounded-lg shadow-2xl md:shadow-lg p-4 z-[1000] w-[90vw] max-w-[320px] md:w-auto md:min-w-[280px]">
           <div className="space-y-4">
             <div>
               <label className="block text-sm md:text-xs text-gray-700 md:text-gray-600 mb-2 font-medium">От</label>
@@ -102,7 +109,8 @@ export default function DateFilterHeader({
             </div>
           </div>
         </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }

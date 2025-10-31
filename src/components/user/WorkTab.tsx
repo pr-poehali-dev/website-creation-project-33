@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,6 +29,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [isLoading, setIsLoading] = useState(false);
   const [endShiftPhotoOpen, setEndShiftPhotoOpen] = useState(false);
   const [dayResultsOpen, setDayResultsOpen] = useState(false);
+  const [showNotepad, setShowNotepad] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -65,6 +66,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         console.log('🎤 Audio recorded, blob size:', blob.size);
         setAudioBlob(blob);
+        setShowNotepad(true);
         stream.getTracks().forEach(track => track.stop());
       };
 
@@ -84,6 +86,12 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
+  };
+
+  const restartRecording = async () => {
+    setAudioBlob(null);
+    setShowNotepad(false);
+    await startRecording();
   };
 
   const sendToTelegram = async () => {
@@ -132,6 +140,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       onContactAdded?.();
       setNotes('');
       setAudioBlob(null);
+      setShowNotepad(false);
       localStorage.removeItem('notepad_draft');
     } catch (error) {
       console.error('Send error:', error);
@@ -145,60 +154,87 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     }
   };
 
-  return (
-    <div className="space-y-4 md:space-y-6">
-      {/* Блокнот */}
-      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
-        <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
-            <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
-              <Icon name="NotebookPen" size={18} className="text-blue-500 md:w-5 md:h-5" />
-            </div>
-            Блокнот
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <Textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Имя родителя, телефон, класс"
-            className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300 text-sm md:text-base"
-          />
-        </CardContent>
-      </Card>
+  const handleEndShift = async (photo: string) => {
+    console.log('🚀 handleEndShift called with photo length:', photo.length);
+    
+    try {
+      const response = await fetch('https://functions.poehali.dev/4ab2d3fa-5a5a-462a-9a6a-5a97e5bfbbd8', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user?.id?.toString() || '',
+        },
+        body: JSON.stringify({
+          organization_id: selectedOrganizationId,
+          photo_data: photo.split(',')[1]
+        })
+      });
 
-      {/* Аудиозапись */}
-      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
-        <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
-            <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
-              <Icon name="Star" size={18} className="text-blue-500 md:w-5 md:h-5" />
-            </div>
-            Контроль качества
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="flex flex-col items-center gap-4 md:gap-6">
-            <div className="flex items-center gap-4">
+      if (!response.ok) {
+        throw new Error('Failed to end shift');
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['todayWork', user?.id] });
+
+      console.log('✅ Shift ended, opening dialog');
+      setEndShiftPhotoOpen(false);
+      setDayResultsOpen(true);
+
+    } catch (error) {
+      console.error('❌ End shift error:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось завершить смену',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-4 p-4">
+      {/* Современный блок с записью лида */}
+      <Card className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 shadow-2xl">
+        <CardContent className="p-6 md:p-8">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              Запись лида
+            </h2>
+            <p className="text-sm md:text-base text-gray-600">
+              {organizationName || 'Выберите организацию'}
+            </p>
+          </div>
+
+          {!showNotepad ? (
+            <div className="flex flex-col items-center gap-6">
               {!isRecording ? (
                 <button
                   onClick={startRecording}
-                  className="audio-record-button"
+                  className="group relative"
                   style={{
-                    width: '53px',
-                    height: '53px',
+                    width: '80px',
+                    height: '80px',
                     borderRadius: '50%',
-                    backgroundColor: audioBlob ? '#fbbf24' : '#001f54',
+                    backgroundColor: '#3b82f6',
                     border: 'none',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = '0 15px 40px rgba(59, 130, 246, 0.5)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(59, 130, 246, 0.3)';
                   }}
                 >
                   <svg 
-                    width="21" 
-                    height="21" 
+                    width="32" 
+                    height="32" 
                     viewBox="0 0 24 24" 
                     fill="white"
                     xmlns="http://www.w3.org/2000/svg"
@@ -210,168 +246,135 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
                 <div className="relative">
                   <style>{`
                     @keyframes rotate {
-                      from {
-                        transform: rotate(0deg);
-                      }
-                      to {
-                        transform: rotate(360deg);
-                      }
+                      from { transform: rotate(0deg); }
+                      to { transform: rotate(360deg); }
+                    }
+                    @keyframes pulse-ring {
+                      0% { transform: scale(1); opacity: 0.8; }
+                      50% { transform: scale(1.1); opacity: 0.4; }
+                      100% { transform: scale(1); opacity: 0.8; }
                     }
                     .rotate-animation {
                       animation: rotate 2s linear infinite;
                     }
+                    .pulse-ring {
+                      animation: pulse-ring 2s ease-in-out infinite;
+                    }
                   `}</style>
+                  <div 
+                    className="pulse-ring absolute inset-0 rounded-full bg-red-500"
+                    style={{
+                      width: '100px',
+                      height: '100px',
+                      left: '-10px',
+                      top: '-10px'
+                    }}
+                  />
                   <button
                     onClick={stopRecording}
-                    className="audio-record-button"
                     style={{
-                      width: '53px',
-                      height: '53px',
+                      width: '80px',
+                      height: '80px',
                       borderRadius: '50%',
-                      backgroundColor: '#001f54',
-                      border: 'none',
+                      backgroundColor: '#ef4444',
+                      border: '4px solid white',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      position: 'relative',
+                      zIndex: 10,
+                      boxShadow: '0 10px 30px rgba(239, 68, 68, 0.4)'
                     }}
                   >
-                    <div className="rotate-animation">
-                      <svg 
-                        width="21" 
-                        height="21" 
-                        viewBox="0 0 24 24" 
-                        fill="white"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                      </svg>
-                    </div>
+                    <svg 
+                      width="32" 
+                      height="32" 
+                      viewBox="0 0 24 24" 
+                      fill="white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="rotate-animation"
+                    >
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
                   </button>
                 </div>
               )}
+              
+              <p className="text-gray-700 font-medium">
+                {isRecording ? 'Идет запись...' : 'Нажмите для начала записи'}
+              </p>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="bg-white rounded-xl p-4 shadow-inner border border-blue-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon name="NotebookPen" size={20} className="text-blue-600" />
+                  <span className="font-semibold text-gray-900">Блокнот</span>
+                </div>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Имя родителя, телефон, класс"
+                  className="min-h-[150px] bg-gray-50 border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all"
+                />
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={restartRecording}
+                  variant="outline"
+                  className="w-full py-6 text-base font-semibold border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
+                >
+                  <Icon name="RefreshCw" className="mr-2" size={20} />
+                  Начать заново
+                </Button>
+
+                <Button
+                  onClick={sendToTelegram}
+                  disabled={isLoading}
+                  className="w-full py-6 text-base font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg"
+                >
+                  {isLoading ? (
+                    <>
+                      <Icon name="Loader2" className="mr-2 animate-spin" size={20} />
+                      Отправка...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="Send" className="mr-2" size={20} />
+                      Отправить в Telegram
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Кнопка Telegram */}
-      <button
-        type="button"
-        onClick={sendToTelegram}
-        disabled={isLoading || !audioBlob}
-        style={{
-          width: '100%',
-          height: '60px',
-          backgroundColor: (!audioBlob || isLoading) ? '#d1d5db' : '#3b82f6',
-          color: 'black',
-          fontSize: '20px',
-          fontWeight: '600',
-          borderRadius: '8px',
-          border: 'none',
-          cursor: (!audioBlob || isLoading) ? 'not-allowed' : 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.2s',
-          WebkitTapHighlightColor: 'transparent',
-          touchAction: 'manipulation'
-        }}
-        onMouseDown={(e) => {
-          if (!audioBlob || isLoading) return;
-          e.currentTarget.style.transform = 'scale(0.98)';
-        }}
-        onMouseUp={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-        }}
-        onTouchStart={(e) => {
-          if (!audioBlob || isLoading) return;
-          e.currentTarget.style.transform = 'scale(0.98)';
-        }}
-        onTouchEnd={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-        }}
+      {/* Кнопка завершить смену */}
+      <Button
+        onClick={() => setEndShiftPhotoOpen(true)}
+        className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-xl"
       >
-        {isLoading ? (
-          <>
-            <Icon name="Loader2" size={24} className="animate-spin" />
-            <span>Отправка...</span>
-          </>
-        ) : (
-          <>
-            <Icon name="Send" size={24} />
-            <span>Telegram</span>
-          </>
-        )}
-      </button>
+        <Icon name="LogOut" className="mr-2" size={24} />
+        Завершить смену
+      </Button>
 
-      {/* Кнопка завершения смены */}
-      <button
-        type="button"
-        onClick={async () => {
-          console.log('🔴 Кнопка завершения смены нажата');
-          console.log('🔄 Обновляем статистику лидов перед закрытием смены...');
-          await queryClient.invalidateQueries({ queryKey: ['leadsStats', user?.id] });
-          console.log('✅ Статистика обновлена, открываем PhotoCapture');
-          setEndShiftPhotoOpen(true);
-        }}
-        style={{
-          width: '100%',
-          height: '60px',
-          backgroundColor: 'white',
-          color: 'black',
-          fontSize: '20px',
-          fontWeight: '600',
-          borderRadius: '8px',
-          border: '2px solid #e5e7eb',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          transition: 'background-color 0.2s',
-          WebkitTapHighlightColor: 'transparent'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#fef2f2';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'white';
-        }}
-      >
-        <Icon name="LogOut" size={24} />
-        <span>Завершить смену</span>
-      </button>
-
-      {selectedOrganizationId && (
-        <PhotoCapture
-          open={endShiftPhotoOpen}
-          onOpenChange={setEndShiftPhotoOpen}
-          onSuccess={(contactsCount) => {
-            if (contactsCount !== undefined) {
-              setDayResultsOpen(true);
-            } else {
-              toast({
-                title: 'Смена закрыта',
-                description: 'Фото окончания смены отправлено'
-              });
-            }
-          }}
-          type="end"
-          organizationId={selectedOrganizationId}
-        />
-      )}
+      <PhotoCapture
+        isOpen={endShiftPhotoOpen}
+        onClose={() => setEndShiftPhotoOpen(false)}
+        onCapture={handleEndShift}
+        title="Завершение смены"
+        description="Сфотографируйте себя для подтверждения завершения смены"
+      />
 
       <DayResultsDialog
         open={dayResultsOpen}
+        onOpenChange={setDayResultsOpen}
+        organizationName={organizationName}
         contactsCount={todayContactsCount}
-        onClose={() => {
-          setDayResultsOpen(false);
-          onChangeOrganization();
-        }}
       />
     </div>
   );

@@ -224,6 +224,29 @@ export default function ShiftTable({
               onEdit={onEdit}
             />
           ))}
+          {Array.from({ length: Math.max(0, 10 - shifts.length) }).map((_, index) => (
+            <tr key={`empty-${index}`} className="border-b border-gray-200">
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

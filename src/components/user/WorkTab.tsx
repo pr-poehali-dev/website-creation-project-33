@@ -66,12 +66,12 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         console.log('🎤 Audio recorded, blob size:', blob.size);
         setAudioBlob(blob);
-        setShowNotepad(true);
         stream.getTracks().forEach(track => track.stop());
       };
 
       mediaRecorder.start();
       setIsRecording(true);
+      setShowNotepad(true);
     } catch (error) {
       toast({ 
         title: 'Ошибка доступа к микрофону',

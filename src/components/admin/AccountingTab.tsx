@@ -213,35 +213,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         exporting={exporting}
       />
       <CardContent>
-        <div className="mb-4 flex flex-wrap gap-3 items-center">
-          <div className="flex items-center gap-2">
-            <Icon name="Calendar" size={16} className="text-gray-600" />
-            <span className="text-sm text-gray-700 font-medium">Период:</span>
-          </div>
-          <input
-            type="date"
-            value={dateFilter.from}
-            onChange={(e) => setDateFilter(prev => ({ ...prev, from: e.target.value }))}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="От"
-          />
-          <span className="text-gray-500">—</span>
-          <input
-            type="date"
-            value={dateFilter.to}
-            onChange={(e) => setDateFilter(prev => ({ ...prev, to: e.target.value }))}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="До"
-          />
-          {(dateFilter.from || dateFilter.to) && (
-            <button
-              onClick={() => setDateFilter({ from: '', to: '' })}
-              className="px-3 py-1.5 text-sm text-red-600 hover:text-red-700 font-medium"
-            >
-              Сбросить
-            </button>
-          )}
-        </div>
         {hasUnsavedPayments && (
           <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -278,6 +249,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           organizationFilter={organizationFilter}
           promoterFilter={promoterFilter}
           paymentTypeFilter={paymentTypeFilter}
+          dateFilter={dateFilter}
           uniqueOrganizations={uniqueOrganizations}
           uniquePromoters={uniquePromoters}
           onExpenseChange={(key, value) => setEditingExpense({ ...editingExpense, [key]: value })}
@@ -288,6 +260,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           onOrganizationFilterChange={setOrganizationFilter}
           onPromoterFilterChange={setPromoterFilter}
           onPaymentTypeFilterChange={setPaymentTypeFilter}
+          onDateFilterChange={(from, to) => setDateFilter({ from, to })}
           onDelete={deleteShift}
           onEdit={handleEditShift}
         />

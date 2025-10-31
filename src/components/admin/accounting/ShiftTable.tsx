@@ -4,6 +4,7 @@ import ShiftTableRow from './ShiftTableRow';
 import FilterableHeader from './FilterableHeader';
 import MultiSelectHeader from './MultiSelectHeader';
 import PaymentTypeHeader from './PaymentTypeHeader';
+import DateFilterHeader from './DateFilterHeader';
 import { ShiftRecord } from './types';
 import { calculateWorkerSalary } from './calculations';
 
@@ -26,6 +27,7 @@ interface ShiftTableProps {
   organizationFilter: string[];
   promoterFilter: string[];
   paymentTypeFilter: ('cash' | 'cashless')[];
+  dateFilter: { from: string; to: string };
   uniqueOrganizations: string[];
   uniquePromoters: string[];
   onExpenseChange: (key: string, value: number) => void;
@@ -36,6 +38,7 @@ interface ShiftTableProps {
   onOrganizationFilterChange: (values: string[]) => void;
   onPromoterFilterChange: (values: string[]) => void;
   onPaymentTypeFilterChange: (types: ('cash' | 'cashless')[]) => void;
+  onDateFilterChange: (from: string, to: string) => void;
   onDelete: (shift: ShiftRecord) => void;
   onEdit: (shift: ShiftRecord) => void;
 }
@@ -49,6 +52,7 @@ export default function ShiftTable({
   organizationFilter,
   promoterFilter,
   paymentTypeFilter,
+  dateFilter,
   uniqueOrganizations,
   uniquePromoters,
   onExpenseChange,
@@ -59,6 +63,7 @@ export default function ShiftTable({
   onOrganizationFilterChange,
   onPromoterFilterChange,
   onPaymentTypeFilterChange,
+  onDateFilterChange,
   onDelete,
   onEdit
 }: ShiftTableProps) {
@@ -105,7 +110,14 @@ export default function ShiftTable({
       <table className="w-full text-xs md:text-sm border-collapse">
         <thead>
           <tr className="bg-gray-100 text-gray-700">
-            <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Дата</th>
+            <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">
+              <DateFilterHeader
+                label="Дата"
+                dateFrom={dateFilter.from}
+                dateTo={dateFilter.to}
+                onDateChange={onDateFilterChange}
+              />
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">Время</th>
             <th className="border border-gray-300 p-1 md:p-2 text-left whitespace-nowrap">
               <MultiSelectHeader

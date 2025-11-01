@@ -699,15 +699,31 @@ def add_manual_shift(user_id: int, work_date: str, start_time: str, end_time: st
         start_utc = start_moscow.astimezone(pytz.UTC)
         end_utc = end_moscow.astimezone(pytz.UTC)
         
+        organization_id = 1
+        
         with get_db_connection() as conn:
             with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO t_p24058207_website_creation_pro.work_shifts 
+                    (user_id, organization_id, shift_date, shift_start, shift_end)
+                    VALUES (%s, %s, %s, %s, %s)
+                    ON CONFLICT (user_id, organization_id, shift_date) 
+                    DO UPDATE SET 
+                        shift_start = EXCLUDED.shift_start,
+                        shift_end = EXCLUDED.shift_end
+                """, (user_id, organization_id, work_date, start_utc, end_utc))
+                
                 cur.execute("""
                     INSERT INTO t_p24058207_website_creation_pro.shift_videos 
                     (user_id, work_date, video_type, created_at, organization_id)
                     VALUES 
-                    (%s, %s, 'start', %s, 1),
-                    (%s, %s, 'end', %s, 1)
-                """, (user_id, work_date, start_utc, user_id, work_date, end_utc))
+                    (%s, %s, 'start', %s, %s),
+                    (%s, %s, 'end', %s, %s)
+                    ON CONFLICT (user_id, work_date, video_type, organization_id) 
+                    DO UPDATE SET created_at = EXCLUDED.created_at
+                """, (user_id, work_date, start_utc, organization_id, 
+                      user_id, work_date, end_utc, organization_id))
+                
                 conn.commit()
                 return True
     except Exception as e:

@@ -87,7 +87,7 @@ export default function ShiftTable({
 
   const totalContacts = shiftsForCurrentMonth.reduce((sum, shift) => sum + (shift.contacts_count || 0), 0);
   
-  const unpaidSalary = shiftsForCurrentMonth
+  const unpaidSalary = shifts
     .filter(shift => !shift.paid_to_worker)
     .reduce((sum, shift) => {
       const salary = calculateWorkerSalary(shift.contacts_count);

@@ -148,7 +148,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 md:gap-6 items-start">
         {/* Блокнот */}
         <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
           <CardHeader className="pb-3 md:pb-4">
@@ -170,7 +170,9 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         </Card>
 
         {/* QR-код */}
-        <UserQRCode userId={user?.id} />
+        <div className="md:w-[200px]">
+          <UserQRCode userId={user?.id} />
+        </div>
       </div>
 
       {/* Аудиозапись */}

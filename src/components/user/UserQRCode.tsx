@@ -40,18 +40,18 @@ export default function UserQRCode({ userId }: UserQRCodeProps) {
   return (
     <>
       <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300 h-full">
-        <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
-            <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
-              <Icon name="QrCode" size={18} className="text-blue-500 md:w-5 md:h-5" />
+        <CardHeader className="pb-2 md:pb-3">
+          <CardTitle className="flex items-center gap-1.5 text-base md:text-xl text-black">
+            <div className="p-1 md:p-2 rounded-lg bg-blue-500/10">
+              <Icon name="QrCode" size={14} className="text-blue-500 md:w-5 md:h-5" />
             </div>
-            QR-код
+            <span className="text-sm md:text-xl">QR-код</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 pb-3">
           {loading ? (
-            <div className="flex items-center justify-center h-[120px] md:h-[150px]">
-              <Icon name="Loader2" size={24} className="animate-spin text-blue-500" />
+            <div className="flex items-center justify-center h-[100px] md:h-[150px]">
+              <Icon name="Loader2" size={20} className="animate-spin text-blue-500" />
             </div>
           ) : qrCodeUrl ? (
             <div 
@@ -61,14 +61,13 @@ export default function UserQRCode({ userId }: UserQRCodeProps) {
               <img 
                 src={qrCodeUrl} 
                 alt="QR Code" 
-                className="max-w-full h-auto rounded-lg border-2 border-blue-200"
-                style={{ maxHeight: '150px' }}
+                className="w-full h-auto rounded-lg border-2 border-blue-200"
               />
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-[120px] md:h-[150px] text-gray-400">
-              <Icon name="QrCode" size={48} className="mb-2 opacity-30" />
-              <div className="text-sm text-center">QR-код не загружен</div>
+            <div className="flex flex-col items-center justify-center h-[100px] md:h-[150px] text-gray-400">
+              <Icon name="QrCode" size={32} className="mb-2 opacity-30" />
+              <div className="text-xs text-center">QR-код не загружен</div>
             </div>
           )}
         </CardContent>

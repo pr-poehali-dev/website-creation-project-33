@@ -148,13 +148,13 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 md:gap-6 items-start">
+      <div className="flex gap-3 items-start">
         {/* Блокнот */}
-        <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
+        <Card className="flex-1 bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
           <CardHeader className="pb-3 md:pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
+            <CardTitle className="flex items-center gap-2 text-base md:text-xl text-black">
               <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
-                <Icon name="NotebookPen" size={18} className="text-blue-500 md:w-5 md:h-5" />
+                <Icon name="NotebookPen" size={16} className="text-blue-500 md:w-5 md:h-5" />
               </div>
               Блокнот
             </CardTitle>
@@ -170,7 +170,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         </Card>
 
         {/* QR-код */}
-        <div className="md:w-[200px]">
+        <div className="w-[140px] md:w-[200px] flex-shrink-0">
           <UserQRCode userId={user?.id} />
         </div>
       </div>

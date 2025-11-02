@@ -187,6 +187,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
                 
                 user_stats.append({
+                    'user_id': user_id,
                     'name': row[1],
                     'email': row[2], 
                     'lead_count': lead_count,

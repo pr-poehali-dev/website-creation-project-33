@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import PhotoCapture from './PhotoCapture';
 import DayResultsDialog from './DayResultsDialog';
+import UserQRCode from './UserQRCode';
 
 interface WorkTabProps {
   selectedOrganizationId: number | null;
@@ -147,25 +148,30 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Блокнот */}
-      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
-        <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
-            <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
-              <Icon name="NotebookPen" size={18} className="text-blue-500 md:w-5 md:h-5" />
-            </div>
-            Блокнот
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <Textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Имя родителя, телефон, класс"
-            className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300 text-sm md:text-base"
-          />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        {/* Блокнот */}
+        <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">
+          <CardHeader className="pb-3 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-black">
+              <div className="p-1.5 md:p-2 rounded-lg bg-blue-500/10">
+                <Icon name="NotebookPen" size={18} className="text-blue-500 md:w-5 md:h-5" />
+              </div>
+              Блокнот
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Имя родителя, телефон, класс"
+              className="min-h-[120px] md:min-h-[150px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300 text-sm md:text-base"
+            />
+          </CardContent>
+        </Card>
+
+        {/* QR-код */}
+        <UserQRCode userId={user?.id} />
+      </div>
 
       {/* Аудиозапись */}
       <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300">

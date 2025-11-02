@@ -26,6 +26,7 @@ export interface Lead {
 }
 
 export interface UserStats {
+  user_id: number;
   name: string;
   email: string;
   lead_count: number;

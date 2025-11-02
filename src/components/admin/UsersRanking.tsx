@@ -1,11 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { UserStats } from './types';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface UsersRankingProps {
   userStats: UserStats[];
@@ -27,7 +26,6 @@ interface ShiftDetail {
 }
 
 export default function UsersRanking({ userStats }: UsersRankingProps) {
-  const { user } = useAuth();
   const [rankingType, setRankingType] = useState<RankingType>('contacts');
   const [showAllContacts, setShowAllContacts] = useState(false);
   const [showAllShifts, setShowAllShifts] = useState(false);
@@ -36,8 +34,6 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [expandedUserEmail, setExpandedUserEmail] = useState<string | null>(null);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, OrgStats[]>>({});
   const [userShifts, setUserShifts] = useState<Record<string, ShiftDetail[]>>({});
-  const [uploadingUserId, setUploadingUserId] = useState<number | null>(null);
-  const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   // Фильтруем пользователей по поисковому запросу и по количеству смен
   const filteredUsers = userStats.filter(user => {
@@ -187,56 +183,6 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
     }
   };
 
-  const handleQRUpload = async (userId: number, file: File) => {
-    setUploadingUserId(userId);
-    
-    try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Image = reader.result as string;
-        
-        const response = await fetch('https://functions.poehali.dev/07269a27-0500-4f53-8cb2-a718a9fc7c85', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            action: 'upload',
-            user_id: userId,
-            qr_image: base64Image,
-            admin_id: user?.id
-          })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          toast({
-            title: 'Успешно!',
-            description: 'QR-код загружен'
-          });
-        } else {
-          throw new Error(data.error || 'Ошибка загрузки');
-        }
-      };
-      
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error('QR upload error:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить QR-код',
-        variant: 'destructive'
-      });
-    } finally {
-      setUploadingUserId(null);
-    }
-  };
-
-  const triggerFileInput = (userId: number) => {
-    fileInputRefs.current[userId]?.click();
-  };
-
   return (
     <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
@@ -348,71 +294,40 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                       </div>
                     </div>
                   </div>
-                  <div className="flex-shrink-0 flex items-center gap-3">
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        triggerFileInput(user.user_id);
-                      }}
-                      size="sm"
-                      variant="outline"
-                      className="h-8 w-8 p-0 border-blue-500/30 hover:bg-blue-50"
-                      disabled={uploadingUserId === user.user_id}
-                    >
-                      {uploadingUserId === user.user_id ? (
-                        <Icon name="Loader2" size={16} className="text-blue-500 animate-spin" />
-                      ) : (
-                        <Icon name="Plus" size={16} className="text-blue-500" />
+                  <div className="flex-shrink-0 text-right">
+                    <div className="flex justify-end gap-1.5 md:gap-2 text-xs">
+                      {rankingType === 'contacts' && (
+                        <div className="text-center">
+                          <div className="text-xs md:text-sm font-bold text-green-600">К: {user.contacts}</div>
+                          <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">контакт</div>
+                        </div>
                       )}
-                    </Button>
-                    <input
-                      ref={(el) => (fileInputRefs.current[user.user_id] = el)}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleQRUpload(user.user_id, file);
-                        }
-                        e.target.value = '';
-                      }}
-                    />
-                    <div className="text-right">
-                      <div className="flex justify-end gap-1.5 md:gap-2 text-xs">
-                        {rankingType === 'contacts' && (
+                      {rankingType === 'shifts' && (
+                        <>
                           <div className="text-center">
-                            <div className="text-xs md:text-sm font-bold text-green-600">К: {user.contacts}</div>
-                            <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">контакт</div>
+                            <div className="text-xs md:text-sm font-bold text-blue-600">{user.shifts_count || 0}</div>
+                            <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">смен</div>
                           </div>
-                        )}
-                        {rankingType === 'shifts' && (
-                          <>
-                            <div className="text-center">
-                              <div className="text-xs md:text-sm font-bold text-blue-600">{user.shifts_count || 0}</div>
-                              <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">смен</div>
-                            </div>
-                            <Icon 
-                              name={isExpanded ? "ChevronUp" : "ChevronDown"} 
-                              size={16} 
-                              className="text-gray-400 ml-2"
-                            />
-                          </>
-                        )}
-                        {rankingType === 'avg_per_shift' && (
-                          <>
-                            <div className="text-center">
-                              <div className="text-xs md:text-sm font-bold text-purple-600">~{user.avg_per_shift || 0}</div>
-                              <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">за см</div>
-                            </div>
-                            <Icon 
-                              name={isExpanded ? "ChevronUp" : "ChevronDown"} 
-                              size={16} 
-                              className="text-gray-400 ml-2"
-                            />
-                          </>
-                        )}
-                      </div>
+                          <Icon 
+                            name={isExpanded ? "ChevronUp" : "ChevronDown"} 
+                            size={16} 
+                            className="text-gray-400 ml-2"
+                          />
+                        </>
+                      )}
+                      {rankingType === 'avg_per_shift' && (
+                        <>
+                          <div className="text-center">
+                            <div className="text-xs md:text-sm font-bold text-purple-600">~{user.avg_per_shift || 0}</div>
+                            <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">за см</div>
+                          </div>
+                          <Icon 
+                            name={isExpanded ? "ChevronUp" : "ChevronDown"} 
+                            size={16} 
+                            className="text-gray-400 ml-2"
+                          />
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

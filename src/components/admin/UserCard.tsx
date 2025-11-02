@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { User } from './types';
 import { formatLastSeen } from '@/utils/timeFormat';
+import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserCardProps {
   user: User;
@@ -31,6 +33,56 @@ export default function UserCard({
   onDeleteUser,
   onEditNameChange,
 }: UserCardProps) {
+  const { user: authUser } = useAuth();
+  const [uploadingQR, setUploadingQR] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleQRUpload = async (file: File) => {
+    setUploadingQR(true);
+    
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result as string;
+        
+        const response = await fetch('https://functions.poehali.dev/07269a27-0500-4f53-8cb2-a718a9fc7c85', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'upload',
+            user_id: user.id,
+            qr_image: base64Image,
+            admin_id: authUser?.id
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          toast({
+            title: 'Успешно!',
+            description: 'QR-код загружен'
+          });
+        } else {
+          throw new Error(data.error || 'Ошибка загрузки');
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('QR upload error:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить QR-код',
+        variant: 'destructive'
+      });
+    } finally {
+      setUploadingQR(false);
+    }
+  };
+
   return (
     <div 
       className="border-2 border-gray-200 rounded-xl p-3 md:p-4 hover:bg-gray-50 transition-all duration-300 cursor-pointer bg-white shadow-md hover:shadow-xl hover:scale-[1.01]"
@@ -131,6 +183,33 @@ export default function UserCard({
               </>
             ) : (
               <>
+                <Button
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingQR}
+                  className="border-2 border-blue-300 bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                  variant="ghost"
+                  title="Загрузить QR-код"
+                >
+                  {uploadingQR ? (
+                    <Icon name="Loader2" size={12} className="md:w-[14px] md:h-[14px] animate-spin" />
+                  ) : (
+                    <Icon name="Plus" size={12} className="md:w-[14px] md:h-[14px]" />
+                  )}
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleQRUpload(file);
+                    }
+                    e.target.value = '';
+                  }}
+                />
                 <Button 
                   size="sm" 
                   onClick={onStartEdit}

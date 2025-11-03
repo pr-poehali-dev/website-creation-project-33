@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Test OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Test DELETE without auth",
+      "method": "DELETE",
+      "path": "/?lead_id=999999",
+      "expectedStatus": 401
+    }
+  ]
+}

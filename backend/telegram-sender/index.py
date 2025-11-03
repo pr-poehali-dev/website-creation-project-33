@@ -67,18 +67,9 @@ def send_to_google_sheets(user_name: str, lead_type: str, notes: str, has_audio:
 
 def classify_lead_by_phone(notes: str) -> str:
     """
-    Классифицирует лид по наличию российского номера телефона
-    Контакт = есть 11-значный номер РФ
-    Подход = нет номера телефона
+    Все лиды считаются контактами
     """
-    phone_pattern = r'(?:\+7|8|7)?[\s\-\(]?\d{3}[\s\-\)]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}'
-    
-    match = re.search(phone_pattern, notes)
-    
-    if match:
-        return 'контакт'
-    else:
-        return 'подход'
+    return 'контакт'
 
 def send_telegram_async(bot_token: str, chat_id: str, caption: str, audio_data: str, notes: str, user_id: str, user_name: str, organization_id: int, organization_name: str, lead_type: str, database_url: str):
     '''

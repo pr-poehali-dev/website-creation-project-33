@@ -77,7 +77,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 COUNT(*) as total_contacts,
                 SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') THEN 1 ELSE 0 END) as today_contacts
             FROM t_p24058207_website_creation_pro.leads_analytics
-            WHERE lead_type = 'контакт'
+            WHERE lead_type = 'контакт' AND user_id != 999
         """
     else:
         query = f"""
@@ -85,7 +85,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 COUNT(*) as total_contacts,
                 SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') THEN 1 ELSE 0 END) as today_contacts
             FROM t_p24058207_website_creation_pro.leads_analytics
-            WHERE user_id = {int(user_id)} AND lead_type = 'контакт'
+            WHERE user_id = {int(user_id)} AND lead_type = 'контакт' AND user_id != 999
         """
     
     cur.execute(query)

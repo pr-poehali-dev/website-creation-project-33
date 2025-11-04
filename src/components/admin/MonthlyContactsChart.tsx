@@ -8,6 +8,7 @@ interface MonthlyStats {
   month_name: string;
   total_contacts: number;
   total_days: number;
+  total_users: number;
   ranges: {
     '0-10': number;
     '11-15': number;
@@ -82,7 +83,7 @@ export default function MonthlyContactsChart() {
                 <div className="flex items-center justify-between text-xs md:text-sm">
                   <span className="font-medium text-gray-700">{stat.month_name}</span>
                   <span className="text-gray-500 text-[10px] md:text-xs">
-                    {stat.total_contacts} контактов / {totalDays} дней
+                    {stat.total_contacts} контактов / {totalDays} дней / {stat.total_users} промоутеров
                   </span>
                 </div>
                 

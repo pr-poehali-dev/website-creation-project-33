@@ -40,17 +40,31 @@ export default function MonthComparisonBadge({ sessionToken }: MonthComparisonBa
     return null;
   }
 
-  const isPositive = difference > 0;
-  const bgColor = isPositive ? 'bg-green-500/20' : 'bg-red-500/20';
-  const textColor = isPositive ? 'text-green-700' : 'text-red-700';
+  const isPositive = difference >= 0;
+  const textColor = isPositive ? 'text-green-300' : 'text-red-300';
   const icon = isPositive ? 'TrendingUp' : 'TrendingDown';
+  
+  const now = new Date();
+  const currentMonth = now.toLocaleDateString('ru-RU', { month: 'short' }).replace('.', '');
+  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    .toLocaleDateString('ru-RU', { month: 'short' }).replace('.', '');
+  
+  const monthLabel = `${prevMonth}/${currentMonth}`.toUpperCase();
 
   return (
-    <div className={`${bgColor} ${textColor} px-3 py-1.5 rounded-lg flex items-center gap-2 text-sm font-semibold backdrop-blur-sm`}>
-      <Icon name={icon} size={16} />
-      <span>
-        {isPositive ? '+' : ''}{difference} ({percentageChange > 0 ? '+' : ''}{percentageChange}%)
-      </span>
+    <div className="bg-white/10 backdrop-blur-md rounded-lg px-3 py-2 flex flex-col items-center gap-1 min-w-[100px]">
+      <div className="text-white/70 text-[10px] font-medium tracking-wide">
+        {monthLabel}
+      </div>
+      <div className={`flex items-center gap-1.5 ${textColor} text-lg font-bold`}>
+        <Icon name={icon} size={18} />
+        <span>
+          {isPositive ? '+' : ''}{difference}
+        </span>
+      </div>
+      <div className={`text-xs ${textColor} font-semibold`}>
+        {percentageChange > 0 ? '+' : ''}{percentageChange}%
+      </div>
     </div>
   );
 }

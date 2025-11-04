@@ -6,9 +6,9 @@ from datetime import datetime
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Получить средние значения контактов по месяцам начиная с марта
+    Business: Получить медианные значения контактов по месяцам начиная с марта
     Args: event с httpMethod
-    Returns: JSON со средними контактами по месяцам
+    Returns: JSON с медианными контактами по месяцам
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -44,19 +44,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        # Получаем статистику по месяцам начиная с марта 2024
+        # Получаем медианную статистику по месяцам начиная с марта 2024
         query = '''
+            WITH daily_contacts AS (
+                SELECT 
+                    DATE_TRUNC('month', created_at) as month,
+                    DATE(created_at) as day,
+                    COUNT(*) FILTER (WHERE lead_type = 'контакт') as contacts_per_day
+                FROM t_p24058207_website_creation_pro.leads_analytics
+                WHERE created_at >= '2024-03-01'
+                    AND is_active = true
+                GROUP BY DATE_TRUNC('month', created_at), DATE(created_at)
+            )
             SELECT 
-                TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') as month,
-                COUNT(*) FILTER (WHERE lead_type = 'контакт') as total_contacts,
-                COUNT(DISTINCT DATE(created_at)) as days_count,
-                ROUND(COUNT(*) FILTER (WHERE lead_type = 'контакт')::numeric / 
-                      NULLIF(COUNT(DISTINCT DATE(created_at)), 0), 1) as avg_contacts
-            FROM t_p24058207_website_creation_pro.leads_analytics
-            WHERE created_at >= '2024-03-01'
-                AND is_active = true
-            GROUP BY DATE_TRUNC('month', created_at)
-            ORDER BY DATE_TRUNC('month', created_at)
+                TO_CHAR(month, 'YYYY-MM') as month,
+                SUM(contacts_per_day) as total_contacts,
+                COUNT(day) as days_count,
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY contacts_per_day) as median_contacts
+            FROM daily_contacts
+            GROUP BY month
+            ORDER BY month
         '''
         
         cur.execute(query)
@@ -71,14 +78,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         monthly_stats: List[Dict[str, Any]] = []
         for row in rows:
-            month, total_contacts, days_count, avg_contacts = row
+            month, total_contacts, days_count, median_contacts = row
             month_num = month.split('-')[1]
             year = month.split('-')[0]
             
             monthly_stats.append({
                 'month': month,
                 'month_name': f'{month_names[month_num]} {year}',
-                'avg_contacts': float(avg_contacts) if avg_contacts else 0,
+                'median_contacts': round(float(median_contacts), 1) if median_contacts else 0,
                 'days_count': days_count,
                 'total_contacts': int(total_contacts) if total_contacts else 0
             })

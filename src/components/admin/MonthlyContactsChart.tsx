@@ -6,7 +6,7 @@ import { useMonthlyContacts } from '@/hooks/useAdminData';
 interface MonthlyStats {
   month: string;
   month_name: string;
-  avg_contacts: number;
+  median_contacts: number;
   days_count: number;
   total_contacts: number;
 }
@@ -32,7 +32,7 @@ export default function MonthlyContactsChart() {
     return null;
   }
 
-  const maxAvg = Math.max(...monthlyStats.map(s => s.avg_contacts));
+  const maxMedian = Math.max(...monthlyStats.map(s => s.median_contacts));
 
   return (
     <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
@@ -41,14 +41,14 @@ export default function MonthlyContactsChart() {
           <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
             <Icon name="TrendingUp" size={18} className="text-gray-900 md:w-5 md:h-5" />
           </div>
-          Средние контакты по месяцам
+          Медианные контакты по месяцам
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3 md:space-y-4">
           {monthlyStats.map((stat) => {
-            const percentage = (stat.avg_contacts / maxAvg) * 100;
-            const isHighest = stat.avg_contacts === maxAvg;
+            const percentage = (stat.median_contacts / maxMedian) * 100;
+            const isHighest = stat.median_contacts === maxMedian;
             
             return (
               <div key={stat.month} className="space-y-1">
@@ -59,7 +59,7 @@ export default function MonthlyContactsChart() {
                       {stat.total_contacts} всего / {stat.days_count} дней
                     </span>
                     <span className={`font-bold ${isHighest ? 'text-green-600' : 'text-gray-900'}`}>
-                      {stat.avg_contacts.toFixed(1)}
+                      {stat.median_contacts.toFixed(1)}
                     </span>
                   </div>
                 </div>

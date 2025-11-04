@@ -60,6 +60,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         SELECT COUNT(*) 
         FROM t_p24058207_website_creation_pro.leads_analytics
         WHERE lead_type = 'контакт'
+        AND is_active = true
         AND DATE(created_at + INTERVAL '3 hours') >= DATE_TRUNC('month', NOW() + INTERVAL '3 hours')
         AND DATE(created_at + INTERVAL '3 hours') <= DATE(NOW() + INTERVAL '3 hours')
     """
@@ -70,6 +71,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         SELECT COUNT(*) 
         FROM t_p24058207_website_creation_pro.leads_analytics
         WHERE lead_type = 'контакт'
+        AND is_active = true
         AND DATE(created_at + INTERVAL '3 hours') >= DATE_TRUNC('month', NOW() + INTERVAL '3 hours' - INTERVAL '1 month')
         AND DATE(created_at + INTERVAL '3 hours') <= (DATE_TRUNC('month', NOW() + INTERVAL '3 hours') - INTERVAL '1 month' + INTERVAL '{current_day - 1} days')
     """

@@ -26,7 +26,7 @@ type StatsSubView = 'users' | 'rating' | 'organizations';
 
 export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetroTilesProps) {
   const [currentView, setCurrentView] = useState<TileView>('tiles');
-  const [statsSubView, setStatsSubView] = useState<StatsSubView>('users');
+  const [statsSubView, setStatsSubView] = useState<StatsSubView>('rating');
 
   if (currentView === 'requests') {
     return (
@@ -72,16 +72,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         
         <div className="flex gap-2 mb-6">
           <button
-            onClick={() => setStatsSubView('users')}
-            className={`px-4 py-2 rounded transition-colors ${
-              statsSubView === 'users' 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-            }`}
-          >
-            Пользователи
-          </button>
-          <button
             onClick={() => setStatsSubView('rating')}
             className={`px-4 py-2 rounded transition-colors ${
               statsSubView === 'rating' 
@@ -90,6 +80,16 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
             }`}
           >
             Рейтинг
+          </button>
+          <button
+            onClick={() => setStatsSubView('users')}
+            className={`px-4 py-2 rounded transition-colors ${
+              statsSubView === 'users' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+            }`}
+          >
+            Пользователи
           </button>
           <button
             onClick={() => setStatsSubView('organizations')}

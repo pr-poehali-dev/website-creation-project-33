@@ -6,9 +6,14 @@ import { useMonthlyContacts } from '@/hooks/useAdminData';
 interface MonthlyStats {
   month: string;
   month_name: string;
-  median_contacts: number;
-  days_count: number;
   total_contacts: number;
+  total_days: number;
+  ranges: {
+    '0-10': number;
+    '11-15': number;
+    '16-20': number;
+    '21+': number;
+  };
 }
 
 export default function MonthlyContactsChart() {
@@ -32,46 +37,74 @@ export default function MonthlyContactsChart() {
     return null;
   }
 
-  const maxMedian = Math.max(...monthlyStats.map(s => s.median_contacts));
+  const rangeColors = {
+    '0-10': 'bg-red-500',
+    '11-15': 'bg-orange-500',
+    '16-20': 'bg-blue-500',
+    '21+': 'bg-green-500'
+  };
+
+  const rangeLabels = {
+    '0-10': '0-10',
+    '11-15': '11-15',
+    '16-20': '16-20',
+    '21+': '21+'
+  };
 
   return (
     <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-base md:text-xl">
           <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-            <Icon name="TrendingUp" size={18} className="text-gray-900 md:w-5 md:h-5" />
+            <Icon name="BarChart3" size={18} className="text-gray-900 md:w-5 md:h-5" />
           </div>
-          Медианные контакты по месяцам
+          Распределение дней по контактам
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3 md:space-y-4">
+        <div className="space-y-4 md:space-y-5">
+          {/* Легенда */}
+          <div className="flex flex-wrap gap-3 md:gap-4 text-[10px] md:text-xs">
+            {Object.entries(rangeLabels).map(([key, label]) => (
+              <div key={key} className="flex items-center gap-1.5">
+                <div className={`w-3 h-3 rounded ${rangeColors[key as keyof typeof rangeColors]}`} />
+                <span className="text-gray-700">{label} контактов</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Графики по месяцам */}
           {monthlyStats.map((stat) => {
-            const percentage = (stat.median_contacts / maxMedian) * 100;
-            const isHighest = stat.median_contacts === maxMedian;
+            const totalDays = stat.total_days;
             
             return (
-              <div key={stat.month} className="space-y-1">
+              <div key={stat.month} className="space-y-2">
                 <div className="flex items-center justify-between text-xs md:text-sm">
                   <span className="font-medium text-gray-700">{stat.month_name}</span>
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <span className="text-gray-500 text-[10px] md:text-xs">
-                      {stat.total_contacts} всего / {stat.days_count} дней
-                    </span>
-                    <span className={`font-bold ${isHighest ? 'text-green-600' : 'text-gray-900'}`}>
-                      {stat.median_contacts.toFixed(1)}
-                    </span>
-                  </div>
+                  <span className="text-gray-500 text-[10px] md:text-xs">
+                    {stat.total_contacts} контактов / {totalDays} дней
+                  </span>
                 </div>
-                <div className="h-6 md:h-8 bg-gray-100 rounded-lg overflow-hidden">
-                  <div 
-                    className={`h-full transition-all duration-500 ${
-                      isHighest 
-                        ? 'bg-gradient-to-r from-green-500 to-green-600' 
-                        : 'bg-gradient-to-r from-blue-400 to-blue-500'
-                    }`}
-                    style={{ width: `${percentage}%` }}
-                  />
+                
+                <div className="flex h-8 md:h-10 rounded-lg overflow-hidden">
+                  {Object.entries(stat.ranges).map(([range, count]) => {
+                    const percentage = totalDays > 0 ? (count / totalDays) * 100 : 0;
+                    
+                    if (count === 0) return null;
+                    
+                    return (
+                      <div
+                        key={range}
+                        className={`${rangeColors[range as keyof typeof rangeColors]} flex items-center justify-center transition-all duration-500`}
+                        style={{ width: `${percentage}%` }}
+                        title={`${rangeLabels[range as keyof typeof rangeLabels]} контактов: ${count} дней`}
+                      >
+                        <span className="text-white font-bold text-[10px] md:text-xs">
+                          {count}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );

@@ -6,9 +6,9 @@ from datetime import datetime
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Получить медианные значения контактов по месяцам начиная с марта
+    Business: Получить распределение дней по диапазонам контактов для каждого месяца
     Args: event с httpMethod
-    Returns: JSON с медианными контактами по месяцам
+    Returns: JSON с количеством дней в каждом диапазоне контактов по месяцам
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -44,7 +44,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        # Получаем медианную статистику по месяцам начиная с марта 2024
+        # Получаем распределение по диапазонам контактов для каждого месяца
         query = '''
             WITH daily_contacts AS (
                 SELECT 
@@ -59,8 +59,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             SELECT 
                 TO_CHAR(month, 'YYYY-MM') as month,
                 SUM(contacts_per_day) as total_contacts,
-                COUNT(day) as days_count,
-                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY contacts_per_day) as median_contacts
+                COUNT(day) as total_days,
+                COUNT(*) FILTER (WHERE contacts_per_day >= 0 AND contacts_per_day <= 10) as range_0_10,
+                COUNT(*) FILTER (WHERE contacts_per_day >= 11 AND contacts_per_day <= 15) as range_11_15,
+                COUNT(*) FILTER (WHERE contacts_per_day >= 16 AND contacts_per_day <= 20) as range_16_20,
+                COUNT(*) FILTER (WHERE contacts_per_day >= 21) as range_21_plus
             FROM daily_contacts
             GROUP BY month
             ORDER BY month
@@ -78,16 +81,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         monthly_stats: List[Dict[str, Any]] = []
         for row in rows:
-            month, total_contacts, days_count, median_contacts = row
+            month, total_contacts, total_days, range_0_10, range_11_15, range_16_20, range_21_plus = row
             month_num = month.split('-')[1]
             year = month.split('-')[0]
             
             monthly_stats.append({
                 'month': month,
                 'month_name': f'{month_names[month_num]} {year}',
-                'median_contacts': round(float(median_contacts), 1) if median_contacts else 0,
-                'days_count': days_count,
-                'total_contacts': int(total_contacts) if total_contacts else 0
+                'total_contacts': int(total_contacts) if total_contacts else 0,
+                'total_days': int(total_days) if total_days else 0,
+                'ranges': {
+                    '0-10': int(range_0_10) if range_0_10 else 0,
+                    '11-15': int(range_11_15) if range_11_15 else 0,
+                    '16-20': int(range_16_20) if range_16_20 else 0,
+                    '21+': int(range_21_plus) if range_21_plus else 0
+                }
             })
         
         cur.close()

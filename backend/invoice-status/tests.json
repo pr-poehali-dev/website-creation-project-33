@@ -1,0 +1,38 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": "",
+      "bodyMatcher": "exact"
+    },
+    {
+      "name": "GET request returns invoice status",
+      "method": "GET",
+      "path": "/?user_name=Test%20User&work_date=2025-11-04",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "location_comment": "string",
+        "invoice_issued": "boolean"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST request updates invoice status",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "user_name": "Test User",
+        "work_date": "2025-11-04",
+        "invoice_issued": true
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

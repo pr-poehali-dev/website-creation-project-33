@@ -22,10 +22,7 @@ interface WorkerCardProps {
   deletingSlot: DeleteSlotState | null;
 }
 
-interface WorkLocationData {
-  location_comment: string;
-  invoice_issued: boolean;
-}
+
 
 export default function WorkerCard({
   worker,
@@ -46,8 +43,6 @@ export default function WorkerCard({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredLocations, setFilteredLocations] = useState<string[]>([]);
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
-  const [invoiceIssued, setInvoiceIssued] = useState(false);
-  const [togglingInvoice, setTogglingInvoice] = useState(false);
 
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const avgContacts = worker.avg_per_shift || 0;
@@ -55,24 +50,7 @@ export default function WorkerCard({
   const commentKey = `${workerName}-${dayDate}`;
   const currentComment = workComments[dayDate]?.[workerName] || '';
 
-  // Load invoice status
-  useState(() => {
-    const loadInvoiceStatus = async () => {
-      if (!currentComment) return;
-      try {
-        const response = await fetch(
-          `https://functions.poehali.dev/6d5e06ea-611a-422f-8674-27500a1e7cfc?user_name=${encodeURIComponent(workerName)}&work_date=${dayDate}`
-        );
-        if (response.ok) {
-          const data: WorkLocationData = await response.json();
-          setInvoiceIssued(data.invoice_issued || false);
-        }
-      } catch (error) {
-        console.error('Error loading invoice status:', error);
-      }
-    };
-    loadInvoiceStatus();
-  });
+
 
   const handleInputChange = (value: string) => {
     onCommentChange(workerName, dayDate, value);
@@ -101,33 +79,7 @@ export default function WorkerCard({
     onCommentBlur(workerName, dayDate, currentComment);
   };
 
-  const toggleInvoiceStatus = async () => {
-    if (!currentComment) return;
-    
-    setTogglingInvoice(true);
-    try {
-      const response = await fetch(
-        'https://functions.poehali.dev/6d5e06ea-611a-422f-8674-27500a1e7cfc',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_name: workerName,
-            work_date: dayDate,
-            invoice_issued: !invoiceIssued
-          })
-        }
-      );
-      
-      if (response.ok) {
-        setInvoiceIssued(!invoiceIssued);
-      }
-    } catch (error) {
-      console.error('Error toggling invoice status:', error);
-    } finally {
-      setTogglingInvoice(false);
-    }
-  };
+
 
   return (
     <div className="space-y-1">
@@ -151,20 +103,6 @@ export default function WorkerCard({
               >
                 Рекомендация: {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)})` : ''}
               </span>
-              {currentComment && (
-                <button
-                  onClick={toggleInvoiceStatus}
-                  disabled={togglingInvoice}
-                  className="text-[9px] md:text-[10px] px-1.5 py-0.5 rounded transition-colors disabled:opacity-50"
-                  style={{
-                    backgroundColor: invoiceIssued ? '#22c55e' : '#ef4444',
-                    color: 'white'
-                  }}
-                  title={invoiceIssued ? 'Счёт выставлен' : 'Счёт не выставлен'}
-                >
-                  {togglingInvoice ? '...' : `Счёт: ${invoiceIssued ? 'да' : 'нет'}`}
-                </button>
-              )}
             </div>
           )}
         </div>

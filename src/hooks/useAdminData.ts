@@ -4,6 +4,7 @@ import { ADMIN_API } from '@/components/admin/types';
 const getSessionToken = () => localStorage.getItem('session_token') || '';
 const CHAT_API_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
 const LEADS_STATS_API = 'https://functions.poehali.dev/78eb7cbb-8b7c-4a62-aaa3-74d7b1e8f257';
+const MONTHLY_CONTACTS_API = 'https://functions.poehali.dev/d0ce132d-5700-4f2a-850e-e49d41bd8969';
 
 export function useUsers(enabled = true) {
   return useQuery({
@@ -280,5 +281,18 @@ export function useUserWorkTime(userId: number | null) {
     },
     enabled: !!userId,
     staleTime: Infinity,
+  });
+}
+
+export function useMonthlyContacts(enabled = true) {
+  return useQuery({
+    queryKey: ['monthlyContacts'],
+    queryFn: async () => {
+      const response = await fetch(MONTHLY_CONTACTS_API);
+      if (!response.ok) throw new Error('Failed to fetch monthly contacts');
+      return response.json();
+    },
+    enabled,
+    staleTime: 300000,
   });
 }

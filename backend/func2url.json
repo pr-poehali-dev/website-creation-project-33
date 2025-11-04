@@ -1,4 +1,5 @@
 {
+  "monthly-contacts": "https://functions.poehali.dev/d0ce132d-5700-4f2a-850e-e49d41bd8969",
   "invoice-status": "https://functions.poehali.dev/6d5e06ea-611a-422f-8674-27500a1e7cfc",
   "delete-lead": "https://functions.poehali.dev/01c875be-7043-4dd4-bca9-b03159432355",
   "qr-upload": "https://functions.poehali.dev/07269a27-0500-4f53-8cb2-a718a9fc7c85",

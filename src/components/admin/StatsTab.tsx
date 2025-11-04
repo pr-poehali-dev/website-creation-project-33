@@ -7,6 +7,7 @@ import UsersRanking from './UsersRanking';
 import DailyStatsCard from './DailyStatsCard';
 import LeadsChart from './LeadsChart';
 import OrganizationStatsChart from './OrganizationStatsChart';
+import MonthlyContactsChart from './MonthlyContactsChart';
 import DailyModal from './DailyModal';
 import { Stats, UserStats, ChartDataPoint } from './types';
 import { useStats, useChartData, useDailyUserStats } from '@/hooks/useAdminData';
@@ -158,6 +159,9 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
         onExportAll={exportAllToGoogleSheets}
         exportingAll={exportingAll}
       />
+
+      {/* Средние контакты по месяцам */}
+      <MonthlyContactsChart />
 
       {/* Рейтинг пользователей */}
       <UsersRanking 

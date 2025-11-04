@@ -1,0 +1,10 @@
+{
+  "tests": [
+    {
+      "name": "Get monthly contacts stats",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

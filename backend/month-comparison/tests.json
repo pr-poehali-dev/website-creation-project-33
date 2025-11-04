@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "Get month comparison with valid admin token",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-Session-Token": "valid_admin_token"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "current_month_contacts": "number",
+        "prev_month_contacts": "number",
+        "difference": "number",
+        "percentage_change": "number",
+        "current_day": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Reject request without session token",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Unauthorized"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

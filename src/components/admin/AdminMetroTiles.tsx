@@ -9,6 +9,7 @@ import OrganizationsTab from './OrganizationsTab';
 import AdminChatTab from './AdminChatTab';
 import ScheduleAnalyticsTab from './ScheduleAnalyticsTab';
 import TodayContactsCounter from './TodayContactsCounter';
+import MonthComparisonBadge from './MonthComparisonBadge';
 import AccountingTab from './AccountingTab';
 import AccountingStats from './AccountingStats';
 import TodayWorkersCounter from './TodayWorkersCounter';
@@ -177,8 +178,9 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         onClick={() => setCurrentView('stats')}
         className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-2 md:order-3"
       >
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex flex-col gap-2 items-end">
           <TodayContactsCounter sessionToken={sessionToken} />
+          <MonthComparisonBadge sessionToken={sessionToken} />
         </div>
         <div className="relative z-10">
           <Icon name="BarChart3" size={48} className="text-white mb-4 md:mb-6" />

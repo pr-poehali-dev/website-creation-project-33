@@ -64,7 +64,7 @@ export default function DayCard({
               </span>
             )}
             {isSuccessful && (
-              <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center ml-1">
+              <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center ml-1 animate-in zoom-in-50 duration-500">
                 <Icon name="Check" size={16} className="text-white" />
               </div>
             )}

@@ -54,7 +54,7 @@ export default function MonthlyContactsChart() {
     '21+': '21+'
   };
 
-  const displayedStats = showAll ? monthlyStats : monthlyStats.slice(0, 2);
+  const displayedStats = showAll ? monthlyStats : monthlyStats.slice(-2);
 
   return (
     <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">

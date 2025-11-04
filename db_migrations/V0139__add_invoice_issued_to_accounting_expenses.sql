@@ -1,0 +1,2 @@
+ALTER TABLE t_p24058207_website_creation_pro.accounting_expenses 
+ADD COLUMN invoice_issued BOOLEAN DEFAULT FALSE;

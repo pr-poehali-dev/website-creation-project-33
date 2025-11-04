@@ -47,7 +47,8 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     paid_by_organization: null as boolean | null,
     paid_to_worker: null as boolean | null,
     paid_kvv: null as boolean | null,
-    paid_kms: null as boolean | null
+    paid_kms: null as boolean | null,
+    invoice_issued: null as boolean | null
   });
   const [organizationFilter, setOrganizationFilter] = useState<string[]>([]);
   const [promoterFilter, setPromoterFilter] = useState<string[]>([]);
@@ -171,6 +172,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     if (filters.paid_to_worker !== null && shift.paid_to_worker !== filters.paid_to_worker) return false;
     if (filters.paid_kvv !== null && shift.paid_kvv !== filters.paid_kvv) return false;
     if (filters.paid_kms !== null && shift.paid_kms !== filters.paid_kms) return false;
+    if (filters.invoice_issued !== null && shift.invoice_issued !== filters.invoice_issued) return false;
     
     if (organizationFilter.length > 0 && !organizationFilter.includes(shift.organization)) return false;
     if (promoterFilter.length > 0 && !promoterFilter.includes(shift.user_name)) return false;

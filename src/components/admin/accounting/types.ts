@@ -15,6 +15,7 @@ export interface ShiftRecord {
   paid_to_worker: boolean;
   paid_kvv: boolean;
   paid_kms: boolean;
+  invoice_issued: boolean;
 }
 
 export interface User {

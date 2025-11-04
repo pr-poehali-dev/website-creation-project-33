@@ -14,6 +14,7 @@ export function useShiftActions(
     paid_to_worker: boolean;
     paid_kvv: boolean;
     paid_kms: boolean;
+    invoice_issued: boolean;
   }}>({});
 
   const updateExpense = async (shift: ShiftRecord, expenseAmount: number, expenseComment: string, payments?: {
@@ -21,6 +22,7 @@ export function useShiftActions(
     paid_to_worker: boolean;
     paid_kvv: boolean;
     paid_kms: boolean;
+    invoice_issued: boolean;
   }) => {
     try {
       const response = await fetch(ADMIN_API, {
@@ -40,6 +42,7 @@ export function useShiftActions(
           paid_to_worker: payments?.paid_to_worker ?? shift.paid_to_worker,
           paid_kvv: payments?.paid_kvv ?? shift.paid_kvv,
           paid_kms: payments?.paid_kms ?? shift.paid_kms,
+          invoice_issued: payments?.invoice_issued ?? shift.invoice_issued,
         }),
       });
 
@@ -132,13 +135,14 @@ export function useShiftActions(
     }
   };
 
-  const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => {
+  const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => {
     const key = getShiftKey(shift);
     const currentPayments = editingPayments[key] || {
       paid_by_organization: shift.paid_by_organization,
       paid_to_worker: shift.paid_to_worker,
       paid_kvv: shift.paid_kvv,
-      paid_kms: shift.paid_kms
+      paid_kms: shift.paid_kms,
+      invoice_issued: shift.invoice_issued
     };
     
     const newPayments = {
@@ -174,6 +178,7 @@ export function useShiftActions(
           paid_to_worker: payments.paid_to_worker,
           paid_kvv: payments.paid_kvv,
           paid_kms: payments.paid_kms,
+          invoice_issued: payments.invoice_issued,
         }),
       });
     });
@@ -224,7 +229,8 @@ export function useShiftActions(
           paid_by_organization: updatedShift.paid_by_organization,
           paid_to_worker: updatedShift.paid_to_worker,
           paid_kvv: updatedShift.paid_kvv,
-          paid_kms: updatedShift.paid_kms
+          paid_kms: updatedShift.paid_kms,
+          invoice_issued: updatedShift.invoice_issued
         })
       });
 

@@ -24,11 +24,12 @@ interface ShiftTableRowProps {
     paid_to_worker: boolean;
     paid_kvv: boolean;
     paid_kms: boolean;
+    invoice_issued: boolean;
   }};
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
-  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => void;
+  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
   onDelete: (shift: ShiftRecord) => void;
   onEdit: (shift: ShiftRecord) => void;
 }
@@ -61,6 +62,20 @@ export default function ShiftTableRow({
         {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
       </td>
       <td className="border border-gray-300 p-1 md:p-2">{shift.organization}</td>
+      <td className="border border-gray-300 p-1 md:p-2 text-center">
+        <select
+          value={(editingPayments[key]?.invoice_issued ?? shift.invoice_issued) ? 'yes' : 'no'}
+          onChange={() => onPaymentToggle(shift, 'invoice_issued')}
+          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+            (editingPayments[key]?.invoice_issued ?? shift.invoice_issued)
+              ? 'bg-green-100 text-green-800 border-green-300'
+              : 'bg-red-100 text-red-800 border-red-300'
+          }`}
+        >
+          <option value="no">Нет</option>
+          <option value="yes">Да</option>
+        </select>
+      </td>
       <td className="border border-gray-300 p-1 md:p-2 text-right font-medium">{revenue.toLocaleString()} ₽</td>
       <td className="border border-gray-300 p-1 md:p-2 text-center">
         <div className="flex items-center justify-center gap-1">

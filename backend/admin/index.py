@@ -1293,7 +1293,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(ae.paid_by_organization, false) as paid_by_organization,
                             COALESCE(ae.paid_to_worker, false) as paid_to_worker,
                             COALESCE(ae.paid_kvv, false) as paid_kvv,
-                            COALESCE(ae.paid_kms, false) as paid_kms
+                            COALESCE(ae.paid_kms, false) as paid_kms,
+                            COALESCE(ae.invoice_issued, false) as invoice_issued
                         FROM t_p24058207_website_creation_pro.work_shifts s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
@@ -1308,7 +1309,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             AND ae.organization_id = s.organization_id
                         GROUP BY s.shift_date, s.user_id, s.organization_id, o.name, o.id, 
                                  u.id, u.name, ae.id, ae.expense_amount, ae.expense_comment,
-                                 ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms
+                                 ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms, ae.invoice_issued
                         ORDER BY s.shift_date DESC, u.name
                     """)
                     
@@ -1330,7 +1331,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'paid_by_organization': bool(row[12]),
                             'paid_to_worker': bool(row[13]),
                             'paid_kvv': bool(row[14]),
-                            'paid_kms': bool(row[15])
+                            'paid_kms': bool(row[15]),
+                            'invoice_issued': bool(row[16])
                         })
             
             return {
@@ -1597,6 +1599,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             paid_to_worker = body_data.get('paid_to_worker', False)
             paid_kvv = body_data.get('paid_kvv', False)
             paid_kms = body_data.get('paid_kms', False)
+            invoice_issued = body_data.get('invoice_issued', False)
             
             if not user_id or not work_date or not organization_id:
                 return {
@@ -1611,8 +1614,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         cur.execute("""
                             INSERT INTO t_p24058207_website_creation_pro.accounting_expenses 
                             (user_id, work_date, organization_id, expense_amount, expense_comment, 
-                             paid_by_organization, paid_to_worker, paid_kvv, paid_kms, updated_at)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                             paid_by_organization, paid_to_worker, paid_kvv, paid_kms, invoice_issued, updated_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
                             ON CONFLICT (user_id, work_date, organization_id) 
                             DO UPDATE SET 
                                 expense_amount = EXCLUDED.expense_amount,
@@ -1621,9 +1624,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 paid_to_worker = EXCLUDED.paid_to_worker,
                                 paid_kvv = EXCLUDED.paid_kvv,
                                 paid_kms = EXCLUDED.paid_kms,
+                                invoice_issued = EXCLUDED.invoice_issued,
                                 updated_at = CURRENT_TIMESTAMP
                         """, (user_id, work_date, organization_id, expense_amount, expense_comment,
-                              paid_by_organization, paid_to_worker, paid_kvv, paid_kms))
+                              paid_by_organization, paid_to_worker, paid_kvv, paid_kms, invoice_issued))
                         conn.commit()
                         
                         return {

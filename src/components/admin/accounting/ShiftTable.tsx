@@ -17,12 +17,14 @@ interface ShiftTableProps {
     paid_to_worker: boolean;
     paid_kvv: boolean;
     paid_kms: boolean;
+    invoice_issued: boolean;
   }};
   filters: {
     paid_by_organization: boolean | null;
     paid_to_worker: boolean | null;
     paid_kvv: boolean | null;
     paid_kms: boolean | null;
+    invoice_issued: boolean | null;
   };
   organizationFilter: string[];
   promoterFilter: string[];
@@ -33,8 +35,8 @@ interface ShiftTableProps {
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
-  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => void;
-  onFilterChange: (key: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms') => void;
+  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
+  onFilterChange: (key: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
   onOrganizationFilterChange: (values: string[]) => void;
   onPromoterFilterChange: (values: string[]) => void;
   onPaymentTypeFilterChange: (types: ('cash' | 'cashless')[]) => void;
@@ -136,6 +138,13 @@ export default function ShiftTable({
                 onSelectionChange={onOrganizationFilterChange}
               />
             </th>
+            <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+              <FilterableHeader 
+                label="Счёт" 
+                filterValue={filters.invoice_issued}
+                onFilterChange={() => onFilterChange('invoice_issued')}
+              />
+            </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">
               <div>Сумма прихода</div>
               <div className="text-green-600 font-bold mt-1">{totalRevenue.toLocaleString('ru-RU')} ₽</div>
@@ -235,6 +244,7 @@ export default function ShiftTable({
           ))}
           {Array.from({ length: Math.max(0, 10 - shifts.length) }).map((_, index) => (
             <tr key={`empty-${index}`} className="border-b border-gray-200">
+              <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
               <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
               <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>
               <td className="border border-gray-300 p-1 md:p-2 h-12 bg-gray-50/30"></td>

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useMonthlyContacts } from '@/hooks/useAdminData';
 
@@ -20,6 +21,7 @@ interface MonthlyStats {
 export default function MonthlyContactsChart() {
   const { data, isLoading } = useMonthlyContacts(true);
   const monthlyStats: MonthlyStats[] = data?.monthly_stats || [];
+  const [showAll, setShowAll] = useState(false);
 
   if (isLoading) {
     return (
@@ -52,6 +54,8 @@ export default function MonthlyContactsChart() {
     '21+': '21+'
   };
 
+  const displayedStats = showAll ? monthlyStats : monthlyStats.slice(0, 2);
+
   return (
     <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
@@ -75,7 +79,7 @@ export default function MonthlyContactsChart() {
           </div>
 
           {/* Графики по месяцам */}
-          {monthlyStats.map((stat) => {
+          {displayedStats.map((stat) => {
             const totalDays = stat.total_days;
             
             return (
@@ -110,6 +114,20 @@ export default function MonthlyContactsChart() {
               </div>
             );
           })}
+
+          {/* Кнопка показать все */}
+          {monthlyStats.length > 2 && (
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowAll(!showAll)}
+                className="text-sm"
+              >
+                <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} className="mr-2" />
+                {showAll ? 'Скрыть старые месяцы' : `Показать все месяцы (${monthlyStats.length - 2})`}
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

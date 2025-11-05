@@ -17,6 +17,7 @@ interface GroupedStats {
 
 export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCardProps) {
   const [showAll, setShowAll] = useState(false);
+  const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set());
   
   if (dailyStats.length === 0) {
     return null;
@@ -43,6 +44,18 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
   const visibleGroups = showAll ? groupedByMonth : groupedByMonth.slice(0, 1);
   const hasMore = groupedByMonth.length > 1;
 
+  const toggleMonth = (monthKey: string) => {
+    setExpandedMonths(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(monthKey)) {
+        newSet.delete(monthKey);
+      } else {
+        newSet.add(monthKey);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-3 md:pb-4">
@@ -55,13 +68,42 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
       </CardHeader>
       <CardContent>
         <div className="space-y-4 md:space-y-5">
-          {visibleGroups.map((group) => (
-            <div key={group.month} className="space-y-2">
-              <div className="text-xs md:text-sm font-semibold text-gray-600 uppercase tracking-wide px-1">
-                {group.monthLabel}
-              </div>
-              <div className="space-y-2 md:space-y-3">
-                {group.days.map((day) => (
+          {visibleGroups.map((group) => {
+            const isExpanded = expandedMonths.has(group.month);
+            const totalContacts = group.days.reduce((sum, day) => sum + day.contacts, 0);
+            const totalApproaches = group.days.reduce((sum, day) => sum + day.approaches, 0);
+            
+            return (
+              <div key={group.month} className="space-y-2">
+                <button
+                  onClick={() => toggleMonth(group.month)}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-all duration-200 flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon 
+                      name={isExpanded ? "ChevronDown" : "ChevronRight"} 
+                      size={16} 
+                      className="text-gray-400 transition-transform duration-200"
+                    />
+                    <div className="text-xs md:text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                      {group.monthLabel}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="text-right">
+                      <div className="text-sm md:text-base font-bold text-green-600">{totalContacts}</div>
+                      <div className="text-[9px] md:text-[10px] text-gray-400">контакты</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm md:text-base font-bold text-orange-600">{totalApproaches}</div>
+                      <div className="text-[9px] md:text-[10px] text-gray-400">подходы</div>
+                    </div>
+                  </div>
+                </button>
+                
+                {isExpanded && (
+                  <div className="space-y-2 md:space-y-3">
+                    {group.days.map((day) => (
                   <div 
                     key={day.date}
                     onClick={() => day.count > 0 && onDayClick(day.date, day.count)}
@@ -96,10 +138,12 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
                       </div>
                     </div>
                   </div>
-                ))}
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
           
           {hasMore && (
             <button

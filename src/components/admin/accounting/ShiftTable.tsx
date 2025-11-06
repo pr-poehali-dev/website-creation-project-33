@@ -116,6 +116,32 @@ export default function ShiftTable({
   const totalKVV = Math.round(totalNetProfit / 2);
   const totalKMS = Math.round(totalNetProfit / 2);
 
+  const unpaidKVV = shifts
+    .filter(shift => !shift.paid_kvv)
+    .reduce((sum, shift) => {
+      const revenue = shift.contacts_count * shift.contact_rate;
+      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+      const afterTax = revenue - tax;
+      const salary = calculateWorkerSalary(shift.contacts_count);
+      const expense = shift.expense_amount || 0;
+      const netProfit = afterTax - salary - expense;
+      const kvv = Math.round(netProfit / 2);
+      return sum + kvv;
+    }, 0);
+
+  const unpaidKMS = shifts
+    .filter(shift => !shift.paid_kms)
+    .reduce((sum, shift) => {
+      const revenue = shift.contacts_count * shift.contact_rate;
+      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+      const afterTax = revenue - tax;
+      const salary = calculateWorkerSalary(shift.contacts_count);
+      const expense = shift.expense_amount || 0;
+      const netProfit = afterTax - salary - expense;
+      const kms = Math.round(netProfit / 2);
+      return sum + kms;
+    }, 0);
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs md:text-sm border-collapse">
@@ -215,6 +241,7 @@ export default function ShiftTable({
                 filterValue={filters.paid_kvv}
                 onFilterChange={() => onFilterChange('paid_kvv')}
               />
+              <div className="text-red-600 font-bold mt-1 text-[10px]">Долг: {unpaidKVV.toLocaleString('ru-RU')} ₽</div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
               <FilterableHeader 
@@ -222,6 +249,7 @@ export default function ShiftTable({
                 filterValue={filters.paid_kms}
                 onFilterChange={() => onFilterChange('paid_kms')}
               />
+              <div className="text-red-600 font-bold mt-1 text-[10px]">Долг: {unpaidKMS.toLocaleString('ru-RU')} ₽</div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Действия</th>
           </tr>

@@ -30,6 +30,7 @@ export default function MonthlyContactsChart() {
   const monthlyStats: MonthlyStats[] = data?.monthly_stats || [];
   const [showAll, setShowAll] = useState(false);
   const [hoveredMonth, setHoveredMonth] = useState<string | null>(null);
+  const [pinnedMonth, setPinnedMonth] = useState<string | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
   if (isLoading) {
@@ -65,6 +66,21 @@ export default function MonthlyContactsChart() {
 
   const displayedStats = showAll ? monthlyStats : monthlyStats.slice(-2);
 
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (pinnedMonth) {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.tooltip-container') && !target.closest('.green-zone-segment')) {
+          setPinnedMonth(null);
+          setHoveredMonth(null);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [pinnedMonth]);
+
   return (
     <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
@@ -78,13 +94,19 @@ export default function MonthlyContactsChart() {
       <CardContent>
         <div className="space-y-4 md:space-y-5">
           {/* Легенда */}
-          <div className="flex flex-wrap gap-3 md:gap-4 text-[10px] md:text-xs">
-            {Object.entries(rangeLabels).map(([key, label]) => (
-              <div key={key} className="flex items-center gap-1.5">
-                <div className={`w-3 h-3 rounded ${rangeColors[key as keyof typeof rangeColors]}`} />
-                <span className="text-gray-700">{label} контактов</span>
-              </div>
-            ))}
+          <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 text-[10px] md:text-xs">
+            <div className="flex flex-wrap gap-3 md:gap-4">
+              {Object.entries(rangeLabels).map(([key, label]) => (
+                <div key={key} className="flex items-center gap-1.5">
+                  <div className={`w-3 h-3 rounded ${rangeColors[key as keyof typeof rangeColors]}`} />
+                  <span className="text-gray-700">{label} контактов</span>
+                </div>
+              ))}
+            </div>
+            <div className="text-[9px] md:text-xs text-gray-500 flex items-center gap-1">
+              <Icon name="Info" size={12} />
+              Кликните на зелёную зону для деталей
+            </div>
           </div>
 
           {/* Графики по месяцам */}
@@ -111,19 +133,30 @@ export default function MonthlyContactsChart() {
                     return (
                       <div
                         key={range}
-                        className={`${rangeColors[range as keyof typeof rangeColors]} flex items-center justify-center transition-all duration-500 relative ${isGreenZone ? 'cursor-pointer hover:brightness-110' : ''}`}
+                        className={`${rangeColors[range as keyof typeof rangeColors]} flex items-center justify-center transition-all duration-500 relative ${isGreenZone ? 'cursor-pointer hover:brightness-110 green-zone-segment' : ''}`}
                         style={{ width: `${percentage}%` }}
                         title={`${rangeLabels[range as keyof typeof rangeLabels]} контактов: ${count} дней`}
                         onMouseEnter={(e) => {
-                          if (isGreenZone && stat.days_21_plus && stat.days_21_plus.length > 0) {
+                          if (isGreenZone && stat.days_21_plus && stat.days_21_plus.length > 0 && !pinnedMonth) {
                             setHoveredMonth(stat.month);
                             const rect = e.currentTarget.getBoundingClientRect();
                             setTooltipPosition({ x: rect.left, y: rect.top });
                           }
                         }}
                         onMouseLeave={() => {
-                          if (isGreenZone) {
+                          if (isGreenZone && !pinnedMonth) {
                             setHoveredMonth(null);
+                          }
+                        }}
+                        onClick={() => {
+                          if (isGreenZone && stat.days_21_plus && stat.days_21_plus.length > 0) {
+                            if (pinnedMonth === stat.month) {
+                              setPinnedMonth(null);
+                              setHoveredMonth(null);
+                            } else {
+                              setPinnedMonth(stat.month);
+                              setHoveredMonth(stat.month);
+                            }
                           }
                         }}
                       >
@@ -136,31 +169,58 @@ export default function MonthlyContactsChart() {
                 </div>
                 
                 {/* Tooltip for green zone */}
-                {hoveredMonth === stat.month && stat.days_21_plus && stat.days_21_plus.length > 0 && (
-                  <div 
-                    className="absolute z-50 bg-white border-2 border-green-500 rounded-lg shadow-2xl p-3 mt-2 max-w-xs md:max-w-md"
-                    style={{ 
-                      left: '50%',
-                      transform: 'translateX(-50%)'
-                    }}
-                  >
-                    <div className="text-xs font-bold text-green-700 mb-2 flex items-center gap-1.5">
-                      <Icon name="TrendingUp" size={14} />
-                      Дни с 21+ контактами:
-                    </div>
-                    <div className="max-h-48 overflow-y-auto space-y-1">
-                      {stat.days_21_plus.map((day, idx) => (
-                        <div key={idx} className="text-[10px] md:text-xs text-gray-700 flex items-center justify-between gap-2 py-0.5">
-                          <span className="font-medium">{day.day}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-green-600 font-semibold">{day.contacts} контактов</span>
-                            <span className="text-gray-500">• {day.promoters} пром.</span>
+                {(hoveredMonth === stat.month || pinnedMonth === stat.month) && stat.days_21_plus && stat.days_21_plus.length > 0 && (() => {
+                  const totalContacts = stat.days_21_plus.reduce((sum, day) => sum + day.contacts, 0);
+                  const totalPromoters = stat.days_21_plus.reduce((sum, day) => sum + day.promoters, 0);
+                  const avgPerPromoter = totalPromoters > 0 ? (totalContacts / totalPromoters).toFixed(1) : '0';
+                  
+                  return (
+                    <div 
+                      className="absolute z-50 bg-white border-2 border-green-500 rounded-lg shadow-2xl p-3 mt-2 max-w-xs md:max-w-md tooltip-container"
+                      style={{ 
+                        left: '50%',
+                        transform: 'translateX(-50%)'
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="text-xs font-bold text-green-700 flex items-center gap-1.5">
+                          <Icon name="TrendingUp" size={14} />
+                          Дни с 21+ контактами:
+                        </div>
+                        <div className="flex flex-col items-end gap-0.5">
+                          <div className="text-[10px] md:text-xs font-semibold text-green-600">
+                            ⌀ {avgPerPromoter} к/п
+                          </div>
+                          <div className="text-[9px] text-gray-400">
+                            контактов/промоутер
                           </div>
                         </div>
-                      ))}
+                      </div>
+                      {pinnedMonth === stat.month && (
+                        <div className="text-[9px] text-gray-500 mb-2 flex items-center gap-1">
+                          <Icon name="Pin" size={10} />
+                          Закреплено • Кликните ещё раз для открепления
+                        </div>
+                      )}
+                      <div className="max-h-48 overflow-y-auto space-y-1">
+                        {stat.days_21_plus.map((day, idx) => {
+                          const dayAvg = day.promoters > 0 ? (day.contacts / day.promoters).toFixed(1) : '0';
+                          return (
+                            <div key={idx} className="text-[10px] md:text-xs text-gray-700 flex items-center justify-between gap-2 py-0.5">
+                              <span className="font-medium">{day.day}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-green-600 font-semibold">{day.contacts} к.</span>
+                                <span className="text-gray-500">• {day.promoters} п.</span>
+                                <span className="text-blue-600 text-[9px] font-medium">⌀{dayAvg}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             );
           })}

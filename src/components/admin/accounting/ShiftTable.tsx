@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
+import { Button } from '@/components/ui/button';
 import ShiftTableRow from './ShiftTableRow';
 import FilterableHeader from './FilterableHeader';
 import MultiSelectHeader from './MultiSelectHeader';
@@ -142,8 +143,122 @@ export default function ShiftTable({
       return sum + kms;
     }, 0);
 
+  const [scale, setScale] = useState(100);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isPinching, setIsPinching] = useState(false);
+  const initialDistanceRef = useRef<number>(0);
+  const initialScaleRef = useRef<number>(100);
+
+  const handleZoomIn = () => {
+    setScale(prev => Math.min(prev + 10, 300));
+  };
+
+  const handleZoomOut = () => {
+    setScale(prev => Math.max(prev - 10, 30));
+  };
+
+  const handleResetZoom = () => {
+    setScale(100);
+  };
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    const getDistance = (touches: TouchList) => {
+      const touch1 = touches[0];
+      const touch2 = touches[1];
+      const dx = touch2.clientX - touch1.clientX;
+      const dy = touch2.clientY - touch1.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        setIsPinching(true);
+        initialDistanceRef.current = getDistance(e.touches);
+        initialScaleRef.current = scale;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && isPinching) {
+        e.preventDefault();
+        const currentDistance = getDistance(e.touches);
+        const scaleDelta = (currentDistance / initialDistanceRef.current) - 1;
+        const newScale = Math.round(initialScaleRef.current * (1 + scaleDelta));
+        setScale(Math.max(30, Math.min(300, newScale)));
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        setIsPinching(false);
+      }
+    };
+
+    element.addEventListener('touchstart', handleTouchStart, { passive: false });
+    element.addEventListener('touchmove', handleTouchMove, { passive: false });
+    element.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      element.removeEventListener('touchstart', handleTouchStart);
+      element.removeEventListener('touchmove', handleTouchMove);
+      element.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [scale, isPinching]);
+
   return (
-    <div className="overflow-x-auto">
+    <div>
+      <div className="flex items-center justify-between gap-2 mb-3 bg-gray-50 p-2 rounded-lg">
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleZoomOut}
+            variant="outline"
+            size="sm"
+            disabled={scale <= 30}
+            className="h-8 w-8 p-0"
+          >
+            <Icon name="ZoomOut" size={16} />
+          </Button>
+          <Button
+            onClick={handleZoomIn}
+            variant="outline"
+            size="sm"
+            disabled={scale >= 300}
+            className="h-8 w-8 p-0"
+          >
+            <Icon name="ZoomIn" size={16} />
+          </Button>
+          <Button
+            onClick={handleResetZoom}
+            variant="outline"
+            size="sm"
+            className="h-8 px-3 text-xs"
+          >
+            {scale}%
+          </Button>
+        </div>
+        <div className="text-xs text-gray-500 hidden md:block">
+          Используйте жест двумя пальцами для масштабирования
+        </div>
+      </div>
+      <div 
+        ref={containerRef}
+        className="overflow-x-auto"
+        style={{
+          transformOrigin: 'top left',
+          touchAction: isPinching ? 'none' : 'auto'
+        }}
+      >
+        <div
+          style={{
+            transform: `scale(${scale / 100})`,
+            transformOrigin: 'top left',
+            transition: isPinching ? 'none' : 'transform 0.2s ease-out'
+          }}
+        >
       <table className="w-full text-xs md:text-sm border-collapse">
         <thead>
           <tr className="bg-gray-100 text-gray-700">
@@ -296,6 +411,8 @@ export default function ShiftTable({
           ))}
         </tbody>
       </table>
+        </div>
+      </div>
     </div>
   );
 }

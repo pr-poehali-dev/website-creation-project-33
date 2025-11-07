@@ -83,6 +83,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur.execute(query)
         rows = cur.fetchall()
         
+        # Получаем детальную информацию по дням с 21+ контактами
+        days_21_plus_query = '''
+            SELECT 
+                TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') as month,
+                TO_CHAR(DATE(created_at), 'DD.MM.YYYY') as day,
+                COUNT(*) as contacts,
+                COUNT(DISTINCT user_id) as promoters
+            FROM t_p24058207_website_creation_pro.leads_analytics
+            WHERE created_at >= '2024-03-01'
+                AND is_active = true
+            GROUP BY DATE_TRUNC('month', created_at), DATE(created_at)
+            HAVING COUNT(*) > 21
+            ORDER BY DATE(created_at)
+        '''
+        
+        cur.execute(days_21_plus_query)
+        days_21_plus_rows = cur.fetchall()
+        
+        # Группируем дни по месяцам
+        days_by_month: Dict[str, List[Dict[str, Any]]] = {}
+        for row in days_21_plus_rows:
+            month, day, contacts, promoters = row
+            if month not in days_by_month:
+                days_by_month[month] = []
+            days_by_month[month].append({
+                'day': day,
+                'contacts': int(contacts),
+                'promoters': int(promoters)
+            })
+        
         # Названия месяцев на русском
         month_names = {
             '01': 'Январь', '02': 'Февраль', '03': 'Март', '04': 'Апрель',
@@ -96,7 +126,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             month_num = month.split('-')[1]
             year = month.split('-')[0]
             
-            monthly_stats.append({
+            stat = {
                 'month': month,
                 'month_name': f'{month_names[month_num]} {year}',
                 'total_contacts': int(total_contacts) if total_contacts else 0,
@@ -108,7 +138,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     '16-20': int(range_16_20) if range_16_20 else 0,
                     '21+': int(range_21_plus) if range_21_plus else 0
                 }
-            })
+            }
+            
+            # Добавляем детальную информацию о днях с 21+ контактами
+            if month in days_by_month:
+                stat['days_21_plus'] = days_by_month[month]
+            
+            monthly_stats.append(stat)
         
         cur.close()
         

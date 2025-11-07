@@ -4,6 +4,12 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useMonthlyContacts } from '@/hooks/useAdminData';
 
+interface DayDetail {
+  day: string;
+  contacts: number;
+  promoters: number;
+}
+
 interface MonthlyStats {
   month: string;
   month_name: string;
@@ -16,12 +22,15 @@ interface MonthlyStats {
     '16-20': number;
     '21+': number;
   };
+  days_21_plus?: DayDetail[];
 }
 
 export default function MonthlyContactsChart() {
   const { data, isLoading } = useMonthlyContacts(true);
   const monthlyStats: MonthlyStats[] = data?.monthly_stats || [];
   const [showAll, setShowAll] = useState(false);
+  const [hoveredMonth, setHoveredMonth] = useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
   if (isLoading) {
     return (
@@ -83,7 +92,7 @@ export default function MonthlyContactsChart() {
             const totalDays = stat.total_days;
             
             return (
-              <div key={stat.month} className="space-y-2">
+              <div key={stat.month} className="space-y-2 relative">
                 <div className="flex items-center justify-between text-xs md:text-sm">
                   <span className="font-medium text-gray-700">{stat.month_name}</span>
                   <span className="text-gray-500 text-[10px] md:text-xs">
@@ -91,18 +100,32 @@ export default function MonthlyContactsChart() {
                   </span>
                 </div>
                 
-                <div className="flex h-8 md:h-10 rounded-lg overflow-hidden">
+                <div className="flex h-8 md:h-10 rounded-lg overflow-hidden relative">
                   {Object.entries(stat.ranges).map(([range, count]) => {
                     const percentage = totalDays > 0 ? (count / totalDays) * 100 : 0;
                     
                     if (count === 0) return null;
                     
+                    const isGreenZone = range === '21+';
+                    
                     return (
                       <div
                         key={range}
-                        className={`${rangeColors[range as keyof typeof rangeColors]} flex items-center justify-center transition-all duration-500`}
+                        className={`${rangeColors[range as keyof typeof rangeColors]} flex items-center justify-center transition-all duration-500 relative ${isGreenZone ? 'cursor-pointer hover:brightness-110' : ''}`}
                         style={{ width: `${percentage}%` }}
                         title={`${rangeLabels[range as keyof typeof rangeLabels]} контактов: ${count} дней`}
+                        onMouseEnter={(e) => {
+                          if (isGreenZone && stat.days_21_plus && stat.days_21_plus.length > 0) {
+                            setHoveredMonth(stat.month);
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setTooltipPosition({ x: rect.left, y: rect.top });
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          if (isGreenZone) {
+                            setHoveredMonth(null);
+                          }
+                        }}
                       >
                         <span className="text-white font-bold text-[10px] md:text-xs">
                           {count}
@@ -111,6 +134,33 @@ export default function MonthlyContactsChart() {
                     );
                   })}
                 </div>
+                
+                {/* Tooltip for green zone */}
+                {hoveredMonth === stat.month && stat.days_21_plus && stat.days_21_plus.length > 0 && (
+                  <div 
+                    className="absolute z-50 bg-white border-2 border-green-500 rounded-lg shadow-2xl p-3 mt-2 max-w-xs md:max-w-md"
+                    style={{ 
+                      left: '50%',
+                      transform: 'translateX(-50%)'
+                    }}
+                  >
+                    <div className="text-xs font-bold text-green-700 mb-2 flex items-center gap-1.5">
+                      <Icon name="TrendingUp" size={14} />
+                      Дни с 21+ контактами:
+                    </div>
+                    <div className="max-h-48 overflow-y-auto space-y-1">
+                      {stat.days_21_plus.map((day, idx) => (
+                        <div key={idx} className="text-[10px] md:text-xs text-gray-700 flex items-center justify-between gap-2 py-0.5">
+                          <span className="font-medium">{day.day}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-green-600 font-semibold">{day.contacts} контактов</span>
+                            <span className="text-gray-500">• {day.promoters} пром.</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

@@ -10,7 +10,7 @@ interface UsersRankingProps {
   userStats: UserStats[];
 }
 
-type RankingType = 'contacts' | 'shifts' | 'avg_per_shift';
+type RankingType = 'contacts' | 'shifts' | 'avg_per_shift' | 'max_contacts_per_shift';
 
 interface OrgStats {
   organization_name: string;
@@ -30,6 +30,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [showAllContacts, setShowAllContacts] = useState(false);
   const [showAllShifts, setShowAllShifts] = useState(false);
   const [showAllAvg, setShowAllAvg] = useState(false);
+  const [showAllMax, setShowAllMax] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedUserEmail, setExpandedUserEmail] = useState<string | null>(null);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, OrgStats[]>>({});
@@ -57,6 +58,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       return b.contacts - a.contacts;
     } else if (rankingType === 'shifts') {
       return (b.shifts_count || 0) - (a.shifts_count || 0);
+    } else if (rankingType === 'max_contacts_per_shift') {
+      return (b.max_contacts_per_shift || 0) - (a.max_contacts_per_shift || 0);
     } else {
       return (b.avg_per_shift || 0) - (a.avg_per_shift || 0);
     }
@@ -68,6 +71,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       return showAllContacts ? sortedUsers : sortedUsers.slice(0, 4);
     } else if (rankingType === 'shifts') {
       return showAllShifts ? sortedUsers : sortedUsers.slice(0, 4);
+    } else if (rankingType === 'max_contacts_per_shift') {
+      return showAllMax ? sortedUsers : sortedUsers.slice(0, 4);
     } else {
       return showAllAvg ? sortedUsers : sortedUsers.slice(0, 4);
     }
@@ -77,6 +82,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const isExpanded = (() => {
     if (rankingType === 'contacts') return showAllContacts;
     if (rankingType === 'shifts') return showAllShifts;
+    if (rankingType === 'max_contacts_per_shift') return showAllMax;
     return showAllAvg;
   })();
 
@@ -85,6 +91,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       setShowAllContacts(!showAllContacts);
     } else if (rankingType === 'shifts') {
       setShowAllShifts(!showAllShifts);
+    } else if (rankingType === 'max_contacts_per_shift') {
+      setShowAllMax(!showAllMax);
     } else {
       setShowAllAvg(!showAllAvg);
     }
@@ -93,6 +101,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const getRankingTitle = () => {
     if (rankingType === 'contacts') return 'по контактам';
     if (rankingType === 'shifts') return 'по сменам';
+    if (rankingType === 'max_contacts_per_shift') return 'по рекорду за смену';
     return 'по среднему за смену';
   };
 
@@ -169,7 +178,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   };
 
   const handleUserClick = async (email: string) => {
-    if (rankingType !== 'avg_per_shift' && rankingType !== 'shifts') return;
+    if (rankingType !== 'avg_per_shift' && rankingType !== 'shifts' && rankingType !== 'max_contacts_per_shift') return;
     
     if (expandedUserEmail === email) {
       setExpandedUserEmail(null);
@@ -178,6 +187,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       if (rankingType === 'avg_per_shift') {
         await fetchUserOrgStats(email);
       } else if (rankingType === 'shifts') {
+        await fetchUserShifts(email);
+      } else if (rankingType === 'max_contacts_per_shift') {
         await fetchUserShifts(email);
       }
     }
@@ -246,6 +257,18 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
             <Icon name="TrendingUp" size={14} className="mr-1.5" />
             Средний
           </Button>
+          <Button
+            onClick={() => setRankingType('max_contacts_per_shift')}
+            variant={rankingType === 'max_contacts_per_shift' ? 'default' : 'outline'}
+            size="sm"
+            className={`transition-all duration-300 ${rankingType === 'max_contacts_per_shift'
+              ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
+              : 'bg-gray-100 hover:bg-gray-100 text-orange-400 border-orange-400/30'
+            }`}
+          >
+            <Icon name="Award" size={14} className="mr-1.5" />
+            Рекорд
+          </Button>
         </div>
 
         <div className="space-y-4">
@@ -273,7 +296,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
               >
                 <div 
                   className={`p-3 md:p-4 flex items-center justify-between gap-2 ${
-                    (rankingType === 'avg_per_shift' || rankingType === 'shifts') ? 'cursor-pointer hover:bg-gray-50' : ''
+                    (rankingType === 'avg_per_shift' || rankingType === 'shifts' || rankingType === 'max_contacts_per_shift') ? 'cursor-pointer hover:bg-gray-50' : ''
                   }`}
                   onClick={() => handleUserClick(user.email)}
                 >
@@ -327,6 +350,12 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                             className="text-gray-400 ml-2"
                           />
                         </>
+                      )}
+                      {rankingType === 'max_contacts_per_shift' && (
+                        <div className="text-center">
+                          <div className="text-xs md:text-sm font-bold text-orange-600">{user.max_contacts_per_shift || 0}</div>
+                          <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">рекорд</div>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -402,35 +431,57 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
                   </div>
                 )}
                 
-                {/* Детализация по сменам (для shifts) */}
-                {rankingType === 'shifts' && isExpanded && (
+                {/* Детализация по сменам (для shifts и max_contacts_per_shift) */}
+                {(rankingType === 'shifts' || rankingType === 'max_contacts_per_shift') && isExpanded && (
                   <div className="border-t border-gray-200 mt-3 pt-3 px-3 md:px-4 pb-3">
-                    <div className="text-xs font-semibold text-gray-600 mb-2">Все смены:</div>
+                    <div className="text-xs font-semibold text-gray-600 mb-2">
+                      {rankingType === 'max_contacts_per_shift' ? 'Топ-3 смены по контактам:' : 'Все смены:'}
+                    </div>
                     {!userShifts[user.email] ? (
                       <div className="text-xs text-gray-500 italic">Загрузка...</div>
                     ) : userShifts[user.email].length === 0 ? (
                       <div className="text-xs text-gray-500 italic">Нет смен</div>
                     ) : (
                       <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {userShifts[user.email].map((shift, idx) => (
+                        {(rankingType === 'max_contacts_per_shift' 
+                          ? [...userShifts[user.email]].sort((a, b) => b.contacts - a.contacts).slice(0, 3)
+                          : userShifts[user.email]
+                        ).map((shift, idx) => (
                           <div 
                             key={idx}
-                            className="flex items-center justify-between bg-gray-50 rounded-lg p-2 text-xs"
+                            className={`flex items-center justify-between rounded-lg p-2 text-xs ${
+                              rankingType === 'max_contacts_per_shift' && idx === 0
+                                ? 'bg-orange-50 border-2 border-orange-300'
+                                : 'bg-gray-50'
+                            }`}
                           >
-                            <div className="flex-1 min-w-0 mr-2">
-                              <div className="font-medium text-gray-700 truncate">
-                                {shift.organization_name}
-                              </div>
-                              <div className="text-gray-500 text-[10px]">
-                                {new Date(shift.date).toLocaleDateString('ru-RU', { 
-                                  day: '2-digit', 
-                                  month: 'short',
-                                  year: 'numeric'
-                                })}
+                            <div className="flex items-center gap-2 flex-1 min-w-0 mr-2">
+                              {rankingType === 'max_contacts_per_shift' && idx < 3 && (
+                                <div className="flex-shrink-0 text-lg">
+                                  {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-gray-700 truncate">
+                                  {shift.organization_name}
+                                </div>
+                                <div className="text-gray-500 text-[10px]">
+                                  {new Date(shift.date).toLocaleDateString('ru-RU', { 
+                                    day: '2-digit', 
+                                    month: 'short',
+                                    year: 'numeric'
+                                  })}
+                                </div>
                               </div>
                             </div>
                             <div className="text-center flex-shrink-0">
-                              <div className="font-bold text-green-600">{shift.contacts}</div>
+                              <div className={`font-bold ${
+                                rankingType === 'max_contacts_per_shift' && idx === 0
+                                  ? 'text-orange-600 text-base'
+                                  : 'text-green-600'
+                              }`}>
+                                {shift.contacts}
+                              </div>
                               <div className="text-gray-500 text-[10px]">К</div>
                             </div>
                           </div>

@@ -35,6 +35,7 @@ export interface UserStats {
   duplicates: number;
   shifts_count?: number;
   avg_per_shift?: number;
+  max_contacts_per_shift?: number;
 }
 
 export interface DailyStats {

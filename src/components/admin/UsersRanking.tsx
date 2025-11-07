@@ -29,6 +29,10 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       return false;
     }
     
+    if (rankingType === 'max_contacts_per_shift' && user.email === 'ещё.2.дня.работы@archive.local') {
+      return false;
+    }
+    
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
     return (

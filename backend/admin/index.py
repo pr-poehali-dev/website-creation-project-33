@@ -171,20 +171,30 @@ def get_leads_stats() -> Dict[str, Any]:
                 
                 # Вычисляем смены для пользователя (дата + организация)
                 cur.execute("""
-                    SELECT l.created_at, l.organization_id
+                    SELECT l.created_at, l.organization_id, l.lead_type
                     FROM t_p24058207_website_creation_pro.leads_analytics l
                     WHERE l.user_id = %s AND l.is_active = true
                 """, (user_id,))
                 
                 shift_combinations = set()
+                shift_contacts = {}
                 for lead_row in cur.fetchall():
                     moscow_dt = get_moscow_time_from_utc(lead_row[0])
                     moscow_date = moscow_dt.date()
                     org_id = lead_row[1]
-                    shift_combinations.add((moscow_date, org_id))
+                    lead_type = lead_row[2]
+                    
+                    shift_key = (moscow_date, org_id)
+                    shift_combinations.add(shift_key)
+                    
+                    if lead_type == 'контакт':
+                        if shift_key not in shift_contacts:
+                            shift_contacts[shift_key] = 0
+                        shift_contacts[shift_key] += 1
                 
                 shifts = len(shift_combinations)
                 avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
+                max_contacts = max(shift_contacts.values()) if shift_contacts else 0
                 
                 user_stats.append({
                     'user_id': user_id,
@@ -194,7 +204,8 @@ def get_leads_stats() -> Dict[str, Any]:
                     'contacts': row[4],
                     'approaches': row[5],
                     'shifts_count': shifts,
-                    'avg_per_shift': avg_per_shift
+                    'avg_per_shift': avg_per_shift,
+                    'max_contacts_per_shift': max_contacts
                 })
             
             # Статистика за последние 30 дней (только от реальных пользователей)

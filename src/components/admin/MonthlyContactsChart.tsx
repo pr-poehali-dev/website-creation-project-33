@@ -33,6 +33,21 @@ export default function MonthlyContactsChart() {
   const [pinnedMonth, setPinnedMonth] = useState<string | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (pinnedMonth) {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.tooltip-container') && !target.closest('.green-zone-segment')) {
+          setPinnedMonth(null);
+          setHoveredMonth(null);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [pinnedMonth]);
+
   if (isLoading) {
     return (
       <Card className="bg-white border-gray-200 rounded-2xl">
@@ -65,21 +80,6 @@ export default function MonthlyContactsChart() {
   };
 
   const displayedStats = showAll ? monthlyStats : monthlyStats.slice(-2);
-
-  React.useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (pinnedMonth) {
-        const target = e.target as HTMLElement;
-        if (!target.closest('.tooltip-container') && !target.closest('.green-zone-segment')) {
-          setPinnedMonth(null);
-          setHoveredMonth(null);
-        }
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [pinnedMonth]);
 
   return (
     <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">

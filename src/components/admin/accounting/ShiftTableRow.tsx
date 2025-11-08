@@ -56,6 +56,8 @@ export default function ShiftTableRow({
   const netProfit = calculateNetProfit(shift);
   const kvv = calculateKVV(shift);
   const kms = calculateKMS(shift);
+  
+  const [localInvoiceDate, setLocalInvoiceDate] = useState(shift.invoice_date || '');
 
   return (
     <tr className="hover:bg-gray-50">
@@ -81,8 +83,13 @@ export default function ShiftTableRow({
           {(editingPayments[key]?.invoice_issued ?? shift.invoice_issued) && (
             <Input
               type="date"
-              value={shift.invoice_date || ''}
-              onChange={(e) => onInvoiceDateChange(shift, e.target.value || null)}
+              value={localInvoiceDate}
+              onChange={(e) => setLocalInvoiceDate(e.target.value)}
+              onBlur={(e) => {
+                if (e.target.value !== shift.invoice_date) {
+                  onInvoiceDateChange(shift, e.target.value || null);
+                }
+              }}
               className="w-28 h-7 text-xs border-gray-300"
               placeholder="Дата счета"
             />

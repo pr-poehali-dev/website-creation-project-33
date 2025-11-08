@@ -127,9 +127,63 @@ export default function DailyModal({
               <span className="text-sm sm:text-base">Загрузка статистики...</span>
             </div>
           ) : dailyUserStats.length > 0 ? (
-            <div className="space-y-2 sm:space-y-3">
+            <div className="space-y-4 sm:space-y-5">
+              {(() => {
+                const orgStats: Record<string, { contacts: number; approaches: number; total: number }> = {};
+                
+                dailyUserStats.forEach(user => {
+                  if (user.organizations) {
+                    user.organizations.forEach(org => {
+                      if (!orgStats[org.name]) {
+                        orgStats[org.name] = { contacts: 0, approaches: 0, total: 0 };
+                      }
+                      orgStats[org.name].contacts += org.contacts;
+                      orgStats[org.name].approaches += org.approaches;
+                      orgStats[org.name].total += org.total;
+                    });
+                  }
+                });
+
+                const orgList = Object.entries(orgStats)
+                  .map(([name, stats]) => ({ name, ...stats }))
+                  .sort((a, b) => b.total - a.total);
+
+                return orgList.length > 0 ? (
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4 border-2 border-blue-200">
+                    <div className="text-sm sm:text-base md:text-lg font-bold text-[#001f54] mb-3 flex items-center gap-2">
+                      <Icon name="Building2" size={20} className="text-[#001f54]" />
+                      Статистика по организациям
+                    </div>
+                    <div className="space-y-2">
+                      {orgList.map((org) => (
+                        <div key={org.name} className="bg-white rounded-lg p-2 sm:p-3 shadow-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="font-medium text-[#001f54] text-xs sm:text-sm truncate flex-1">
+                              {org.name}
+                            </div>
+                            <div className="flex gap-2 sm:gap-3 flex-shrink-0">
+                              <div className="text-center">
+                                <div className="text-xs sm:text-sm font-bold text-green-600">{org.contacts}</div>
+                                <div className="text-[9px] sm:text-[10px] text-gray-500">контакты</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs sm:text-sm font-bold text-orange-600">{org.approaches}</div>
+                                <div className="text-[9px] sm:text-[10px] text-gray-500">подходы</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null;
+              })()}
+
               <div className="space-y-3 sm:space-y-4">
-                <div className="text-sm sm:text-base md:text-lg font-bold text-[#001f54] mb-2 sm:mb-3">Сводка по пользователям</div>
+                <div className="text-sm sm:text-base md:text-lg font-bold text-[#001f54] mb-2 sm:mb-3 flex items-center gap-2">
+                  <Icon name="Users" size={20} className="text-[#001f54]" />
+                  Сводка по промоутерам
+                </div>
                 {dailyUserStats.map((user, index) => {
                   const userLeads = getUserLeads(user.name);
                   const isExpanded = expandedUser === user.name;

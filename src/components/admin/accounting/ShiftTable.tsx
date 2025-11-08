@@ -37,6 +37,7 @@ interface ShiftTableProps {
   onCommentChange: (key: string, value: string) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
   onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
+  onInvoiceDateChange: (shift: ShiftRecord, date: string | null) => void;
   onFilterChange: (key: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
   onOrganizationFilterChange: (values: string[]) => void;
   onPromoterFilterChange: (values: string[]) => void;
@@ -62,6 +63,7 @@ export default function ShiftTable({
   onCommentChange,
   onExpenseBlur,
   onPaymentToggle,
+  onInvoiceDateChange,
   onFilterChange,
   onOrganizationFilterChange,
   onPromoterFilterChange,
@@ -381,6 +383,7 @@ export default function ShiftTable({
               onCommentChange={onCommentChange}
               onExpenseBlur={onExpenseBlur}
               onPaymentToggle={onPaymentToggle}
+              onInvoiceDateChange={onInvoiceDateChange}
               onDelete={onDelete}
               onEdit={onEdit}
             />

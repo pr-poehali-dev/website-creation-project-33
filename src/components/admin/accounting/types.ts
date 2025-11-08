@@ -16,6 +16,7 @@ export interface ShiftRecord {
   paid_kvv: boolean;
   paid_kms: boolean;
   invoice_issued: boolean;
+  invoice_date: string | null;
 }
 
 export interface User {

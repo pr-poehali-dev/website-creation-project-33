@@ -23,7 +23,7 @@ export function useShiftActions(
     paid_kvv: boolean;
     paid_kms: boolean;
     invoice_issued: boolean;
-  }) => {
+  }, invoiceDate?: string | null) => {
     try {
       const response = await fetch(ADMIN_API, {
         method: 'POST',
@@ -43,6 +43,7 @@ export function useShiftActions(
           paid_kvv: payments?.paid_kvv ?? shift.paid_kvv,
           paid_kms: payments?.paid_kms ?? shift.paid_kms,
           invoice_issued: payments?.invoice_issued ?? shift.invoice_issued,
+          invoice_date: invoiceDate ?? shift.invoice_date ?? null,
         }),
       });
 
@@ -151,6 +152,15 @@ export function useShiftActions(
     };
     
     setEditingPayments({ ...editingPayments, [key]: newPayments });
+  };
+
+  const handleInvoiceDateChange = async (shift: ShiftRecord, date: string | null) => {
+    const key = getShiftKey(shift);
+    const expenseAmount = editingExpense[key] ?? shift.expense_amount ?? 0;
+    const expenseComment = editingComment[key] ?? shift.expense_comment ?? '';
+    const payments = editingPayments[key];
+    
+    await updateExpense(shift, expenseAmount, expenseComment, payments, date);
   };
 
   const saveAllPayments = async (shifts: ShiftRecord[]) => {
@@ -318,6 +328,7 @@ export function useShiftActions(
     handleExpenseBlur,
     deleteShift,
     handlePaymentToggle,
+    handleInvoiceDateChange,
     saveAllPayments,
     saveEditedShift,
     addManualShift

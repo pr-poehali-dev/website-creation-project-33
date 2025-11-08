@@ -33,6 +33,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     handleExpenseBlur,
     deleteShift,
     handlePaymentToggle,
+    handleInvoiceDateChange,
     saveAllPayments,
     saveEditedShift,
     addManualShift
@@ -259,6 +260,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             onCommentChange={(key, value) => setEditingComment({ ...editingComment, [key]: value })}
             onExpenseBlur={handleExpenseBlur}
             onPaymentToggle={handlePaymentToggle}
+            onInvoiceDateChange={handleInvoiceDateChange}
             onFilterChange={handleFilterChange}
             onOrganizationFilterChange={setOrganizationFilter}
             onPromoterFilterChange={setPromoterFilter}

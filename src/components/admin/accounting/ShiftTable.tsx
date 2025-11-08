@@ -351,6 +351,7 @@ export default function ShiftTable({
                 filterValue={filters.paid_to_worker}
                 onFilterChange={() => onFilterChange('paid_to_worker')}
               />
+              <div className="text-red-600 font-bold mt-1 text-[10px]">Долг: {unpaidSalary.toLocaleString('ru-RU')} ₽</div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
               <FilterableHeader 

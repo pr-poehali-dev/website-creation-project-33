@@ -25,6 +25,13 @@ export interface Lead {
   organization_name?: string;
 }
 
+export interface OrganizationStats {
+  name: string;
+  contacts: number;
+  approaches: number;
+  total: number;
+}
+
 export interface UserStats {
   user_id: number;
   name: string;
@@ -36,6 +43,7 @@ export interface UserStats {
   shifts_count?: number;
   avg_per_shift?: number;
   max_contacts_per_shift?: number;
+  organizations?: OrganizationStats[];
 }
 
 export interface DailyStats {

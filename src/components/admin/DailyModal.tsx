@@ -195,6 +195,33 @@ export default function DailyModal({
                             </div>
                           </div>
 
+                          {user.organizations && user.organizations.length > 0 && (
+                            <div className="border-t border-gray-200 pt-2 sm:pt-3">
+                              <div className="text-xs sm:text-sm font-semibold text-[#001f54] mb-2">Статистика по организациям</div>
+                              <div className="space-y-2">
+                                {user.organizations.map((org) => (
+                                  <div key={org.name} className="bg-gray-50 rounded-lg p-2 sm:p-3">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <div className="font-medium text-[#001f54] text-xs sm:text-sm truncate flex-1">
+                                        {org.name}
+                                      </div>
+                                      <div className="flex gap-2 sm:gap-3 flex-shrink-0">
+                                        <div className="text-center">
+                                          <div className="text-xs sm:text-sm font-bold text-green-600">{org.contacts}</div>
+                                          <div className="text-[9px] sm:text-[10px] text-gray-500">контакты</div>
+                                        </div>
+                                        <div className="text-center">
+                                          <div className="text-xs sm:text-sm font-bold text-orange-600">{org.approaches}</div>
+                                          <div className="text-[9px] sm:text-[10px] text-gray-500">подходы</div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           {userLeads.length > 0 && (
                         <div>
                           <div className="border-t border-gray-200 pt-2 sm:pt-3">

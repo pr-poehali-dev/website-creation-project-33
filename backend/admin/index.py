@@ -252,18 +252,19 @@ def get_leads_stats() -> Dict[str, Any]:
     }
 
 def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
-    """Получить статистику пользователей за конкретный день (московская дата)"""
+    """Получить статистику пользователей за конкретный день (московская дата) с группировкой по организациям"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Получаем все лиды и фильтруем по московской дате на Python стороне
+            # Получаем все лиды с организациями и фильтруем по московской дате на Python стороне
             cur.execute("""
-                SELECT u.id, u.name, u.email, l.created_at, l.lead_type
+                SELECT u.id, u.name, u.email, l.created_at, l.lead_type, l.organization_id, o.name as org_name
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id 
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
                 WHERE l.created_at IS NOT NULL AND l.is_active = true
             """)
             
-            # Группируем по пользователям для заданной московской даты
+            # Группируем по пользователям и организациям для заданной московской даты
             user_groups = {}
             for row in cur.fetchall():
                 moscow_dt = get_moscow_time_from_utc(row[3])
@@ -273,23 +274,67 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                     continue
                 
                 user_id = row[0]
+                org_id = row[5]
+                org_name = row[6] if row[6] else 'Не указана'
+                lead_type = row[4]
+                
                 if user_id not in user_groups:
                     user_groups[user_id] = {
                         'name': row[1],
                         'email': row[2],
                         'lead_count': 0,
                         'contacts': 0,
-                        'approaches': 0
+                        'approaches': 0,
+                        'organizations': {}
                     }
                 
                 user_groups[user_id]['lead_count'] += 1
-                if row[4] == 'контакт':
+                if lead_type == 'контакт':
                     user_groups[user_id]['contacts'] += 1
-                elif row[4] == 'подход':
+                elif lead_type == 'подход':
                     user_groups[user_id]['approaches'] += 1
+                
+                # Группируем по организациям
+                if org_name not in user_groups[user_id]['organizations']:
+                    user_groups[user_id]['organizations'][org_name] = {
+                        'contacts': 0,
+                        'approaches': 0,
+                        'total': 0
+                    }
+                
+                user_groups[user_id]['organizations'][org_name]['total'] += 1
+                if lead_type == 'контакт':
+                    user_groups[user_id]['organizations'][org_name]['contacts'] += 1
+                elif lead_type == 'подход':
+                    user_groups[user_id]['organizations'][org_name]['approaches'] += 1
             
             # Преобразуем в список и сортируем
-            user_stats = sorted(user_groups.values(), key=lambda x: x['lead_count'], reverse=True)
+            user_stats = []
+            for user_data in user_groups.values():
+                # Преобразуем словарь организаций в список
+                org_list = [
+                    {
+                        'name': org_name,
+                        'contacts': stats['contacts'],
+                        'approaches': stats['approaches'],
+                        'total': stats['total']
+                    }
+                    for org_name, stats in user_data['organizations'].items()
+                ]
+                # Сортируем организации по количеству контактов
+                org_list.sort(key=lambda x: x['total'], reverse=True)
+                
+                user_stats.append({
+                    'name': user_data['name'],
+                    'email': user_data['email'],
+                    'lead_count': user_data['lead_count'],
+                    'contacts': user_data['contacts'],
+                    'approaches': user_data['approaches'],
+                    'organizations': org_list
+                })
+            
+            # Сортируем пользователей по количеству лидов
+            user_stats.sort(key=lambda x: x['lead_count'], reverse=True)
             return user_stats
 
 def get_daily_detailed_leads(date: str) -> List[Dict[str, Any]]:

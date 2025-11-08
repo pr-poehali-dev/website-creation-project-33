@@ -120,10 +120,10 @@ export default function TCSection() {
                 Организация
               </th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Столбец 2
+                ТЦ
               </th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Столбец 3
+                Дата работы
               </th>
             </tr>
           </thead>

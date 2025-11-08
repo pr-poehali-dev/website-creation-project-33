@@ -145,6 +145,13 @@ export default function ShiftTable({
       return sum + kms;
     }, 0);
 
+  const expectedRevenue = shifts
+    .filter(shift => !shift.paid_by_organization)
+    .reduce((sum, shift) => {
+      const revenue = shift.contacts_count * shift.contact_rate;
+      return sum + revenue;
+    }, 0);
+
   const [scale, setScale] = useState(100);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPinching, setIsPinching] = useState(false);
@@ -344,6 +351,7 @@ export default function ShiftTable({
                 filterValue={filters.paid_by_organization}
                 onFilterChange={() => onFilterChange('paid_by_organization')}
               />
+              <div className="text-green-600 font-bold mt-1 text-[10px]">Ожидаем: {expectedRevenue.toLocaleString('ru-RU')} ₽</div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
               <FilterableHeader 

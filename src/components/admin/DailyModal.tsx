@@ -103,11 +103,13 @@ export default function DailyModal({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h3 className="text-base sm:text-xl md:text-2xl font-bold text-black truncate">
-                Статистика по пользователям
+                Статистика за {new Intl.DateTimeFormat('ru-RU', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                  timeZone: 'Europe/Moscow'
+                }).format(new Date(selectedDate))}
               </h3>
-              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
-                {formatMoscowDate(selectedDate)}
-              </p>
             </div>
             <Button
               onClick={onClose}

@@ -8,7 +8,7 @@ interface TCRow {
   column3: string;
 }
 
-const TC_STORAGE_KEY = 'tc_table_data_v2';
+const TC_STORAGE_KEY = 'tc_table_data_v3';
 
 const topOrganizations = [
   'ТОП (Академическая)',

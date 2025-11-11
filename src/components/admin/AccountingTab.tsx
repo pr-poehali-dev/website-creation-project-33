@@ -7,6 +7,7 @@ import ShiftTable from './accounting/ShiftTable';
 import AddShiftModal from './accounting/AddShiftModal';
 import EditShiftModal from './accounting/EditShiftModal';
 import AccountingHeader from './accounting/AccountingHeader';
+import KmsRevenueChart from './accounting/KmsRevenueChart';
 import { useAccountingData } from './accounting/useAccountingData';
 import { useShiftActions } from './accounting/useShiftActions';
 
@@ -208,15 +209,20 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   }
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl">
-      <AccountingHeader
-        onExport={handleExportToGoogleSheets}
-        onAdd={() => setShowAddModal(true)}
-        onRefresh={handleRefresh}
-        exporting={exporting}
-      />
-      <CardContent>
-        {hasUnsavedPayments && (
+    <>
+      <div className="mb-6">
+        <KmsRevenueChart shifts={filteredShifts} />
+      </div>
+      
+      <Card className="bg-white border-gray-200 rounded-2xl">
+        <AccountingHeader
+          onExport={handleExportToGoogleSheets}
+          onAdd={() => setShowAddModal(true)}
+          onRefresh={handleRefresh}
+          exporting={exporting}
+        />
+        <CardContent>
+          {hasUnsavedPayments && (
           <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Icon name="AlertCircle" size={20} className="text-amber-600" />
@@ -294,5 +300,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         organizations={organizations}
       />
     </Card>
+    </>
   );
 }

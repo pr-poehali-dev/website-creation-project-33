@@ -70,9 +70,9 @@ export default function ShiftTableRow({
         {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
       </td>
       <td className="border border-gray-300 p-1 md:p-2">{shift.organization}</td>
-      <td className="border border-gray-300 p-1 md:p-2">
-        <div className="flex gap-4 justify-center items-start">
-          <div className="flex flex-col gap-1 items-center min-w-[100px]">
+      <td className="border border-gray-300 p-2">
+        <div className="flex gap-2 justify-center items-start">
+          <div className="flex flex-col gap-1 items-center w-[110px]">
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_issued ?? shift.invoice_issued}
@@ -93,7 +93,8 @@ export default function ShiftTableRow({
               disabled={!(editingPayments[key]?.invoice_issued ?? shift.invoice_issued)}
             />
           </div>
-          <div className="flex flex-col gap-1 items-center min-w-[100px]">
+          <div className="w-px bg-gray-300 self-stretch"></div>
+          <div className="flex flex-col gap-1 items-center w-[110px]">
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_paid ?? shift.invoice_paid}

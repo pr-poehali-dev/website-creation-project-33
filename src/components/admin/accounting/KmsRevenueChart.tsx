@@ -77,6 +77,8 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
   }, [shifts, period]);
 
   const maxRevenue = Math.max(...chartData.map(d => d.revenue), 0);
+  const minRevenue = Math.min(...chartData.map(d => d.revenue), 0);
+  const revenueRange = maxRevenue - minRevenue;
   const totalRevenue = chartData.reduce((sum, d) => sum + d.revenue, 0);
 
   const formatCurrency = (value: number) => {
@@ -221,7 +223,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                 {/* Y-axis labels inside SVG */}
                 {[4, 3, 2, 1, 0].map(i => {
                   const y = 30 + ((4 - i) / 4) * 340;
-                  const value = Math.round((maxRevenue / 4) * i);
+                  const value = Math.round(minRevenue + (revenueRange / 4) * i);
                   return (
                     <text
                       key={`y-label-${i}`}
@@ -229,7 +231,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                       y={y + 5}
                       textAnchor="end"
                       fontSize="11"
-                      fill="#6b7280"
+                      fill={value < 0 ? "#dc2626" : "#6b7280"}
                       fontWeight="500"
                     >
                       {formatCurrency(value)}
@@ -237,15 +239,30 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                   );
                 })}
 
+                {/* Zero line (if there are negative values) */}
+                {minRevenue < 0 && (
+                  <line
+                    x1="60"
+                    y1={370 - ((-minRevenue / revenueRange) * 340)}
+                    x2="980"
+                    y2={370 - ((-minRevenue / revenueRange) * 340)}
+                    stroke="#dc2626"
+                    strokeWidth="1.5"
+                    strokeDasharray="5 5"
+                    opacity="0.6"
+                  />
+                )}
+
                 {/* Area under line */}
                 <path
                   d={(() => {
+                    const zeroY = 370 - ((-minRevenue / revenueRange) * 340);
                     const points = chartData.map((item, index) => {
                       const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
-                      const y = 370 - ((item.revenue / maxRevenue) * 340);
+                      const y = 370 - (((item.revenue - minRevenue) / revenueRange) * 340);
                       return `${x},${y}`;
                     });
-                    return `M 60,370 L ${points.join(' L ')} L 980,370 Z`;
+                    return `M 60,${zeroY} L ${points.join(' L ')} L 980,${zeroY} Z`;
                   })()}
                   fill="url(#areaGradient)"
                 />
@@ -254,7 +271,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                 <polyline
                   points={chartData.map((item, index) => {
                     const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
-                    const y = 370 - ((item.revenue / maxRevenue) * 340);
+                    const y = 370 - (((item.revenue - minRevenue) / revenueRange) * 340);
                     return `${x},${y}`;
                   }).join(' ')}
                   fill="none"
@@ -268,7 +285,8 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                 {/* Points */}
                 {chartData.map((item, index) => {
                   const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
-                  const y = 370 - ((item.revenue / maxRevenue) * 340);
+                  const y = 370 - (((item.revenue - minRevenue) / revenueRange) * 340);
+                  const isNegative = item.revenue < 0;
                   
                   return (
                     <g key={index} className="hover:opacity-100 opacity-90 transition-opacity">
@@ -276,7 +294,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                         cx={x}
                         cy={y}
                         r="6"
-                        fill="#10b981"
+                        fill={isNegative ? "#dc2626" : "#10b981"}
                         stroke="#fff"
                         strokeWidth="3"
                         filter="url(#glow)"
@@ -321,13 +339,18 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
 
             {/* Bottom info bar */}
             <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-4 justify-center text-xs">
-              {chartData.slice(0, 5).map((item, index) => (
-                <div key={index} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-100 shadow-sm">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-gray-600">{item.label}:</span>
-                  <span className="font-bold text-green-600">{formatCurrency(item.revenue)} ₽</span>
-                </div>
-              ))}
+              {chartData.slice(0, 5).map((item, index) => {
+                const isNegative = item.revenue < 0;
+                return (
+                  <div key={index} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-100 shadow-sm">
+                    <div className={`w-2 h-2 rounded-full ${isNegative ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                    <span className="text-gray-600">{item.label}:</span>
+                    <span className={`font-bold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
+                      {formatCurrency(item.revenue)} ₽
+                    </span>
+                  </div>
+                );
+              })}
               {chartData.length > 5 && (
                 <div className="flex items-center gap-1 text-gray-400">
                   <span>и ещё {chartData.length - 5} периодов</span>

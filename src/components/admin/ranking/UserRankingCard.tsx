@@ -37,7 +37,7 @@ export default function UserRankingCard({
     >
       <div 
         className={`p-3 md:p-4 flex items-center justify-between gap-2 ${
-          (rankingType === 'avg_per_shift' || rankingType === 'shifts' || rankingType === 'max_contacts_per_shift') ? 'cursor-pointer hover:bg-gray-50' : ''
+          (rankingType === 'avg_per_shift' || rankingType === 'shifts' || rankingType === 'max_contacts_per_shift' || rankingType === 'revenue') ? 'cursor-pointer hover:bg-gray-50' : ''
         }`}
         onClick={() => onUserClick(user.email)}
       >
@@ -99,10 +99,17 @@ export default function UserRankingCard({
               </div>
             )}
             {rankingType === 'revenue' && (
-              <div className="text-center">
-                <div className="text-xs md:text-sm font-bold text-yellow-600">{user.revenue || 0}₽</div>
-                <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">доход</div>
-              </div>
+              <>
+                <div className="text-center">
+                  <div className="text-xs md:text-sm font-bold text-yellow-600">{user.revenue || 0}₽</div>
+                  <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">доход</div>
+                </div>
+                <Icon 
+                  name="Eye" 
+                  size={16} 
+                  className="text-gray-400 ml-2"
+                />
+              </>
             )}
           </div>
         </div>

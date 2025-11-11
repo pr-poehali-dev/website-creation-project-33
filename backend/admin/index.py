@@ -845,6 +845,55 @@ def get_pending_users() -> List[Dict[str, Any]]:
                 })
             return pending_users
 
+def get_user_revenue_details(email: str) -> List[Dict[str, Any]]:
+    """Получить детализацию дохода пользователя по организациям"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id FROM t_p24058207_website_creation_pro.users 
+                WHERE email = %s
+            """, (email,))
+            user_row = cur.fetchone()
+            
+            if not user_row:
+                return []
+            
+            user_id = user_row[0]
+            
+            cur.execute("""
+                SELECT 
+                    o.name as organization_name,
+                    o.contact_rate,
+                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.user_id = %s AND l.is_active = true
+                GROUP BY o.id, o.name, o.contact_rate
+                HAVING COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) > 0
+                ORDER BY contacts DESC
+            """, (user_id,))
+            
+            org_revenues = []
+            for row in cur.fetchall():
+                org_name = row[0] if row[0] else 'Не указана'
+                rate = row[1] if row[1] else 0
+                contacts = row[2]
+                
+                revenue_before_tax = contacts * rate
+                tax = revenue_before_tax * 0.07
+                revenue_after_tax = revenue_before_tax * 0.93
+                
+                org_revenues.append({
+                    'organization_name': org_name,
+                    'contacts': contacts,
+                    'rate': rate,
+                    'revenue_before_tax': round(revenue_before_tax, 2),
+                    'tax': round(tax, 2),
+                    'revenue_after_tax': round(revenue_after_tax, 2)
+                })
+            
+            return org_revenues
+
 def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
     """Получить статистику пользователя по организациям"""
     with get_db_connection() as conn:
@@ -1475,6 +1524,23 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
+        
+        elif action == 'get_user_revenue':
+            email = body_data.get('email')
+            
+            if not email:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Email обязателен'})
+                }
+            
+            org_revenues = get_user_revenue_details(email)
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': True, 'org_revenues': org_revenues})
+            }
         
         elif action == 'get_user_org_stats':
             email = body_data.get('email')

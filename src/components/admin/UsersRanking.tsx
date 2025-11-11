@@ -8,6 +8,7 @@ import RankingFilters, { type RankingType } from './ranking/RankingFilters';
 import UserRankingCard from './ranking/UserRankingCard';
 import type { OrgStats } from './ranking/UserOrgDetails';
 import type { ShiftDetail } from './ranking/UserShiftDetails';
+import UserRevenueModal, { type OrgRevenue } from './ranking/UserRevenueModal';
 
 interface UsersRankingProps {
   userStats: UserStats[];
@@ -24,6 +25,12 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [expandedUserEmail, setExpandedUserEmail] = useState<string | null>(null);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, OrgStats[]>>({});
   const [userShifts, setUserShifts] = useState<Record<string, ShiftDetail[]>>({});
+  const [revenueModalOpen, setRevenueModalOpen] = useState(false);
+  const [selectedUserRevenue, setSelectedUserRevenue] = useState<{
+    userName: string;
+    orgRevenues: OrgRevenue[];
+    totalRevenue: number;
+  } | null>(null);
 
   const filteredUsers = userStats.filter(user => {
     if (rankingType === 'avg_per_shift' && (user.shifts_count || 0) <= 3) {
@@ -177,7 +184,49 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
     }
   };
 
+  const fetchUserRevenue = async (email: string, userName: string, totalRevenue: number) => {
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      const response = await fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': sessionToken || ''
+        },
+        body: JSON.stringify({
+          action: 'get_user_revenue',
+          email: email
+        })
+      });
+
+      const data = await response.json();
+      if (data.success && data.org_revenues) {
+        setSelectedUserRevenue({
+          userName,
+          orgRevenues: data.org_revenues,
+          totalRevenue
+        });
+        setRevenueModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching user revenue:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить данные по доходу',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const handleUserClick = async (email: string) => {
+    if (rankingType === 'revenue') {
+      const user = userStats.find(u => u.email === email);
+      if (user) {
+        await fetchUserRevenue(email, user.name, user.revenue || 0);
+      }
+      return;
+    }
+    
     if (rankingType !== 'avg_per_shift' && rankingType !== 'shifts' && rankingType !== 'max_contacts_per_shift') return;
     
     if (expandedUserEmail === email) {
@@ -259,6 +308,16 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
             </Button>
           )}
         </div>
+
+        {selectedUserRevenue && (
+          <UserRevenueModal
+            isOpen={revenueModalOpen}
+            onClose={() => setRevenueModalOpen(false)}
+            userName={selectedUserRevenue.userName}
+            orgRevenues={selectedUserRevenue.orgRevenues}
+            totalRevenue={selectedUserRevenue.totalRevenue}
+          />
+        )}
       </CardContent>
     </Card>
   );

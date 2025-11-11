@@ -179,31 +179,109 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
             <div className="text-sm">Нет данных за выбранный период</div>
           </div>
         ) : (
-          <div className="space-y-3">
-            {chartData.map((item, index) => {
-              const barWidth = maxRevenue > 0 ? (item.revenue / maxRevenue) * 100 : 0;
+          <div className="relative">
+            <div className="relative h-[300px] md:h-[400px] pl-12 pr-4">
+              <svg className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#fbbf24" />
+                    <stop offset="100%" stopColor="#f59e0b" />
+                  </linearGradient>
+                  <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.05" />
+                  </linearGradient>
+                </defs>
 
-              return (
-                <div key={index} className="group">
-                  <div className="flex items-center justify-between mb-1 text-sm">
-                    <span className="font-medium text-gray-700 min-w-[120px]">{item.label}</span>
-                    <span className="font-bold text-yellow-600">{formatCurrency(item.revenue)} ₽</span>
+                {/* Grid lines */}
+                {[0, 1, 2, 3, 4].map(i => {
+                  const yPercent = (i / 4) * 90 + 5;
+                  return (
+                    <line
+                      key={`grid-${i}`}
+                      x1="0"
+                      y1={`${yPercent}%`}
+                      x2="100%"
+                      y2={`${yPercent}%`}
+                      stroke="#e5e7eb"
+                      strokeWidth="1"
+                      strokeDasharray="4 4"
+                    />
+                  );
+                })}
+
+                {/* Area under line */}
+                <path
+                  d={(() => {
+                    const points = chartData.map((item, index) => {
+                      const xPercent = (index / (chartData.length - 1 || 1)) * 100;
+                      const yPercent = 95 - ((item.revenue / maxRevenue) * 90);
+                      return `${xPercent}% ${yPercent}%`;
+                    });
+                    return `M 0% 95% L ${points.join(' L ')} L 100% 95% Z`;
+                  })()}
+                  fill="url(#areaGradient)"
+                />
+
+                {/* Line */}
+                <polyline
+                  points={chartData.map((item, index) => {
+                    const xPercent = (index / (chartData.length - 1 || 1)) * 100;
+                    const yPercent = 95 - ((item.revenue / maxRevenue) * 90);
+                    return `${xPercent}% ${yPercent}%`;
+                  }).join(' ')}
+                  fill="none"
+                  stroke="url(#lineGradient)"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+
+                {/* Points */}
+                {chartData.map((item, index) => {
+                  const xPercent = (index / (chartData.length - 1 || 1)) * 100;
+                  const yPercent = 95 - ((item.revenue / maxRevenue) * 90);
+                  
+                  return (
+                    <g key={index}>
+                      <circle
+                        cx={`${xPercent}%`}
+                        cy={`${yPercent}%`}
+                        r="6"
+                        fill="#f59e0b"
+                        stroke="#fff"
+                        strokeWidth="2"
+                        className="hover:r-8 transition-all cursor-pointer"
+                      />
+                      <title>{`${item.label}: ${formatCurrency(item.revenue)} ₽`}</title>
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {/* Y-axis labels */}
+              <div className="absolute left-0 top-0 h-full flex flex-col justify-between py-2 text-xs text-gray-500 -ml-12 w-10">
+                {[4, 3, 2, 1, 0].map(i => (
+                  <div key={i} className="text-right">
+                    {formatCurrency(Math.round((maxRevenue / 4) * i))}
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-8 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full transition-all duration-500 ease-out flex items-center justify-end pr-3 group-hover:from-yellow-500 group-hover:to-amber-600"
-                      style={{ width: `${Math.max(barWidth, 2)}%` }}
-                    >
-                      {barWidth > 15 && (
-                        <span className="text-xs font-bold text-white drop-shadow">
-                          {formatCurrency(item.revenue)} ₽
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* X-axis labels */}
+            <div className="flex justify-between mt-4 px-12 text-xs text-gray-600 overflow-x-auto">
+              {chartData.filter((_, i) => {
+                if (chartData.length <= 10) return true;
+                const step = Math.ceil(chartData.length / 10);
+                return i % step === 0 || i === chartData.length - 1;
+              }).map((item, index) => (
+                <div key={index} className="text-center flex-shrink-0">
+                  <div className="font-medium">{item.label}</div>
+                  <div className="text-yellow-600 font-bold">{formatCurrency(item.revenue)} ₽</div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         )}
       </CardContent>

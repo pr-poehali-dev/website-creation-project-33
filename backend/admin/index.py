@@ -172,7 +172,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 
                 # Вычисляем смены и доход по организациям для пользователя
                 cur.execute("""
-                    SELECT l.created_at, l.organization_id, l.lead_type, o.contact_rate
+                    SELECT l.created_at, l.organization_id, l.lead_type, o.contact_rate, o.payment_type
                     FROM t_p24058207_website_creation_pro.leads_analytics l
                     LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
                     WHERE l.user_id = %s AND l.is_active = true
@@ -188,6 +188,7 @@ def get_leads_stats() -> Dict[str, Any]:
                     org_id = lead_row[1]
                     lead_type = lead_row[2]
                     contact_rate = lead_row[3] if lead_row[3] else 0
+                    payment_type = lead_row[4] if lead_row[4] else 'cash'
                     
                     shift_key = (moscow_date, org_id)
                     shift_combinations.add(shift_key)
@@ -198,7 +199,7 @@ def get_leads_stats() -> Dict[str, Any]:
                         shift_contacts[shift_key] += 1
                         
                         if org_id not in org_contacts:
-                            org_contacts[org_id] = {'count': 0, 'rate': contact_rate}
+                            org_contacts[org_id] = {'count': 0, 'rate': contact_rate, 'payment_type': payment_type}
                         org_contacts[org_id]['count'] += 1
                 
                 shifts = len(shift_combinations)
@@ -208,7 +209,10 @@ def get_leads_stats() -> Dict[str, Any]:
                 total_revenue = 0
                 for org_id, org_data in org_contacts.items():
                     org_revenue = org_data['count'] * org_data['rate']
-                    org_revenue_after_tax = org_revenue * 0.93
+                    if org_data['payment_type'] == 'cashless':
+                        org_revenue_after_tax = org_revenue * 0.93
+                    else:
+                        org_revenue_after_tax = org_revenue
                     total_revenue += org_revenue_after_tax
                 
                 revenue = round(total_revenue, 2)
@@ -864,11 +868,12 @@ def get_user_revenue_details(email: str) -> List[Dict[str, Any]]:
                 SELECT 
                     o.name as organization_name,
                     o.contact_rate,
+                    o.payment_type,
                     COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
                 WHERE l.user_id = %s AND l.is_active = true
-                GROUP BY o.id, o.name, o.contact_rate
+                GROUP BY o.id, o.name, o.contact_rate, o.payment_type
                 HAVING COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) > 0
                 ORDER BY contacts DESC
             """, (user_id,))
@@ -877,16 +882,23 @@ def get_user_revenue_details(email: str) -> List[Dict[str, Any]]:
             for row in cur.fetchall():
                 org_name = row[0] if row[0] else 'Не указана'
                 rate = row[1] if row[1] else 0
-                contacts = row[2]
+                payment_type = row[2] if row[2] else 'cash'
+                contacts = row[3]
                 
                 revenue_before_tax = contacts * rate
-                tax = revenue_before_tax * 0.07
-                revenue_after_tax = revenue_before_tax * 0.93
+                
+                if payment_type == 'cashless':
+                    tax = revenue_before_tax * 0.07
+                    revenue_after_tax = revenue_before_tax * 0.93
+                else:
+                    tax = 0
+                    revenue_after_tax = revenue_before_tax
                 
                 org_revenues.append({
                     'organization_name': org_name,
                     'contacts': contacts,
                     'rate': rate,
+                    'payment_type': payment_type,
                     'revenue_before_tax': round(revenue_before_tax, 2),
                     'tax': round(tax, 2),
                     'revenue_after_tax': round(revenue_after_tax, 2)

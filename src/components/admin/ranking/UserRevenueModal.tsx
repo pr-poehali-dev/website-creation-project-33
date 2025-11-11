@@ -11,6 +11,7 @@ export interface OrgRevenue {
   organization_name: string;
   contacts: number;
   rate: number;
+  payment_type: string;
   revenue_before_tax: number;
   tax: number;
   revenue_after_tax: number;
@@ -56,8 +57,17 @@ export default function UserRevenueModal({
                 >
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <div className="flex-1">
-                      <div className="font-bold text-gray-900 text-base mb-1">
-                        {org.organization_name}
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="font-bold text-gray-900 text-base">
+                          {org.organization_name}
+                        </div>
+                        <div className={`text-xs px-2 py-0.5 rounded-full ${
+                          org.payment_type === 'cash' 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {org.payment_type === 'cash' ? '💵 Наличка' : '💳 Безнал'}
+                        </div>
                       </div>
                       <div className="text-xs text-gray-600">
                         Контактов: {org.contacts} × Ставка: {org.rate}₽
@@ -67,30 +77,34 @@ export default function UserRevenueModal({
                       <div className="text-lg font-bold text-yellow-600">
                         {org.revenue_after_tax.toFixed(2)}₽
                       </div>
-                      <div className="text-xs text-gray-500">после налога</div>
+                      <div className="text-xs text-gray-500">
+                        {org.payment_type === 'cash' ? 'на руки' : 'после налога'}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 text-xs border-t pt-3 border-gray-100">
-                    <div className="text-center">
-                      <div className="text-gray-500 mb-1">До налога</div>
-                      <div className="font-semibold text-gray-700">
-                        {org.revenue_before_tax.toFixed(2)}₽
+                  {org.payment_type === 'cashless' && (
+                    <div className="grid grid-cols-3 gap-2 text-xs border-t pt-3 border-gray-100">
+                      <div className="text-center">
+                        <div className="text-gray-500 mb-1">До налога</div>
+                        <div className="font-semibold text-gray-700">
+                          {org.revenue_before_tax.toFixed(2)}₽
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-gray-500 mb-1">Налог 7%</div>
+                        <div className="font-semibold text-red-600">
+                          -{org.tax.toFixed(2)}₽
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-gray-500 mb-1">На руки</div>
+                        <div className="font-semibold text-green-600">
+                          {org.revenue_after_tax.toFixed(2)}₽
+                        </div>
                       </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-gray-500 mb-1">Налог 7%</div>
-                      <div className="font-semibold text-red-600">
-                        -{org.tax.toFixed(2)}₽
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-gray-500 mb-1">На руки</div>
-                      <div className="font-semibold text-green-600">
-                        {org.revenue_after_tax.toFixed(2)}₽
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               ))}
 

@@ -71,50 +71,48 @@ export default function ShiftTableRow({
       </td>
       <td className="border border-gray-300 p-1 md:p-2">{shift.organization}</td>
       <td className="border border-gray-300 p-1 md:p-2">
-        <div className="flex gap-2">
-          <div className="flex flex-col gap-1 items-center">
+        <div className="flex gap-4 justify-center items-start">
+          <div className="flex flex-col gap-1 items-center min-w-[100px]">
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_issued ?? shift.invoice_issued}
               onChange={() => onPaymentToggle(shift, 'invoice_issued')}
               className="w-5 h-5 cursor-pointer accent-green-600"
             />
-            {(editingPayments[key]?.invoice_issued ?? shift.invoice_issued) && (
-              <Input
-                type="date"
-                value={localInvoiceIssuedDate}
-                onChange={(e) => setLocalInvoiceIssuedDate(e.target.value)}
-                onBlur={(e) => {
-                  if (e.target.value !== shift.invoice_issued_date) {
-                    onInvoiceIssuedDateChange(shift, e.target.value || null);
-                  }
-                }}
-                className="w-28 h-7 text-xs border-gray-300"
-                placeholder="Дата"
-              />
-            )}
+            <Input
+              type="date"
+              value={localInvoiceIssuedDate}
+              onChange={(e) => setLocalInvoiceIssuedDate(e.target.value)}
+              onBlur={(e) => {
+                if (e.target.value !== shift.invoice_issued_date) {
+                  onInvoiceIssuedDateChange(shift, e.target.value || null);
+                }
+              }}
+              className="w-full h-7 text-xs border-gray-300"
+              placeholder="Дата"
+              disabled={!(editingPayments[key]?.invoice_issued ?? shift.invoice_issued)}
+            />
           </div>
-          <div className="flex flex-col gap-1 items-center">
+          <div className="flex flex-col gap-1 items-center min-w-[100px]">
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_paid ?? shift.invoice_paid}
               onChange={() => onPaymentToggle(shift, 'invoice_paid')}
               className="w-5 h-5 cursor-pointer accent-green-600"
             />
-            {(editingPayments[key]?.invoice_paid ?? shift.invoice_paid) && (
-              <Input
-                type="date"
-                value={localInvoicePaidDate}
-                onChange={(e) => setLocalInvoicePaidDate(e.target.value)}
-                onBlur={(e) => {
-                  if (e.target.value !== shift.invoice_paid_date) {
-                    onInvoicePaidDateChange(shift, e.target.value || null);
-                  }
-                }}
-                className="w-28 h-7 text-xs border-gray-300"
-                placeholder="Дата"
-              />
-            )}
+            <Input
+              type="date"
+              value={localInvoicePaidDate}
+              onChange={(e) => setLocalInvoicePaidDate(e.target.value)}
+              onBlur={(e) => {
+                if (e.target.value !== shift.invoice_paid_date) {
+                  onInvoicePaidDateChange(shift, e.target.value || null);
+                }
+              }}
+              className="w-full h-7 text-xs border-gray-300"
+              placeholder="Дата"
+              disabled={!(editingPayments[key]?.invoice_paid ?? shift.invoice_paid)}
+            />
           </div>
         </div>
       </td>

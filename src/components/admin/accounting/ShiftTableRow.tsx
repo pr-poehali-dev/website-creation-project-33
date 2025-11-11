@@ -70,16 +70,16 @@ export default function ShiftTableRow({
         {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
       </td>
       <td className="border border-gray-300 p-1 md:p-2">{shift.organization}</td>
-      <td className="border border-gray-300 p-2">
-        <div className="flex gap-2 justify-center items-start">
-          <div className="flex flex-col gap-1 items-center w-[110px]">
+      <td className="border border-gray-300 p-2 min-w-[260px]">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-2 items-center">
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_issued ?? shift.invoice_issued}
               onChange={() => onPaymentToggle(shift, 'invoice_issued')}
-              className="w-5 h-5 cursor-pointer accent-green-600"
+              className="w-5 h-5 cursor-pointer accent-green-600 flex-shrink-0"
             />
-            <Input
+            <input
               type="date"
               value={localInvoiceIssuedDate}
               onChange={(e) => setLocalInvoiceIssuedDate(e.target.value)}
@@ -88,20 +88,18 @@ export default function ShiftTableRow({
                   onInvoiceIssuedDateChange(shift, e.target.value || null);
                 }
               }}
-              className="w-full h-7 text-xs border-gray-300"
-              placeholder="Дата"
+              className="w-full h-8 text-xs border border-gray-300 rounded px-2 disabled:bg-gray-100 disabled:text-gray-400"
               disabled={!(editingPayments[key]?.invoice_issued ?? shift.invoice_issued)}
             />
           </div>
-          <div className="w-px bg-gray-300 self-stretch"></div>
-          <div className="flex flex-col gap-1 items-center w-[110px]">
+          <div className="flex flex-col gap-2 items-center border-l border-gray-300 pl-3">
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_paid ?? shift.invoice_paid}
               onChange={() => onPaymentToggle(shift, 'invoice_paid')}
-              className="w-5 h-5 cursor-pointer accent-green-600"
+              className="w-5 h-5 cursor-pointer accent-green-600 flex-shrink-0"
             />
-            <Input
+            <input
               type="date"
               value={localInvoicePaidDate}
               onChange={(e) => setLocalInvoicePaidDate(e.target.value)}
@@ -110,8 +108,7 @@ export default function ShiftTableRow({
                   onInvoicePaidDateChange(shift, e.target.value || null);
                 }
               }}
-              className="w-full h-7 text-xs border-gray-300"
-              placeholder="Дата"
+              className="w-full h-8 text-xs border border-gray-300 rounded px-2 disabled:bg-gray-100 disabled:text-gray-400"
               disabled={!(editingPayments[key]?.invoice_paid ?? shift.invoice_paid)}
             />
           </div>

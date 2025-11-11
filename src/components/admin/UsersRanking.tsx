@@ -34,7 +34,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       return false;
     }
     
-    if (rankingType === 'revenue' && (!user.rate || user.rate === 0)) {
+    if (rankingType === 'revenue' && (!user.revenue || user.revenue === 0)) {
       return false;
     }
     

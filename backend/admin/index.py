@@ -156,11 +156,10 @@ def get_leads_stats() -> Dict[str, Any]:
                 SELECT u.id, u.name, u.email,
                        COUNT(l.id) as lead_count,
                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
-                       u.rate
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
                 FROM t_p24058207_website_creation_pro.users u
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
-                GROUP BY u.id, u.name, u.email, u.rate
+                GROUP BY u.id, u.name, u.email
                 HAVING COUNT(l.id) > 0
                 ORDER BY lead_count DESC
             """)
@@ -170,22 +169,25 @@ def get_leads_stats() -> Dict[str, Any]:
                 user_id = row[0]
                 lead_count = row[3]
                 contacts_count = row[4]
-                rate = float(row[6]) if row[6] else 0
                 
-                # Вычисляем смены для пользователя (дата + организация)
+                # Вычисляем смены и доход по организациям для пользователя
                 cur.execute("""
-                    SELECT l.created_at, l.organization_id, l.lead_type
+                    SELECT l.created_at, l.organization_id, l.lead_type, o.contact_rate
                     FROM t_p24058207_website_creation_pro.leads_analytics l
+                    LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
                     WHERE l.user_id = %s AND l.is_active = true
                 """, (user_id,))
                 
                 shift_combinations = set()
                 shift_contacts = {}
+                org_contacts = {}
+                
                 for lead_row in cur.fetchall():
                     moscow_dt = get_moscow_time_from_utc(lead_row[0])
                     moscow_date = moscow_dt.date()
                     org_id = lead_row[1]
                     lead_type = lead_row[2]
+                    contact_rate = lead_row[3] if lead_row[3] else 0
                     
                     shift_key = (moscow_date, org_id)
                     shift_combinations.add(shift_key)
@@ -194,11 +196,22 @@ def get_leads_stats() -> Dict[str, Any]:
                         if shift_key not in shift_contacts:
                             shift_contacts[shift_key] = 0
                         shift_contacts[shift_key] += 1
+                        
+                        if org_id not in org_contacts:
+                            org_contacts[org_id] = {'count': 0, 'rate': contact_rate}
+                        org_contacts[org_id]['count'] += 1
                 
                 shifts = len(shift_combinations)
                 avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
                 max_contacts = max(shift_contacts.values()) if shift_contacts else 0
-                revenue = round(contacts_count * rate, 2)
+                
+                total_revenue = 0
+                for org_id, org_data in org_contacts.items():
+                    org_revenue = org_data['count'] * org_data['rate']
+                    org_revenue_after_tax = org_revenue * 0.93
+                    total_revenue += org_revenue_after_tax
+                
+                revenue = round(total_revenue, 2)
                 
                 user_stats.append({
                     'user_id': user_id,
@@ -210,7 +223,6 @@ def get_leads_stats() -> Dict[str, Any]:
                     'shifts_count': shifts,
                     'avg_per_shift': avg_per_shift,
                     'max_contacts_per_shift': max_contacts,
-                    'rate': rate,
                     'revenue': revenue
                 })
             

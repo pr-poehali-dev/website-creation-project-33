@@ -25,12 +25,14 @@ interface ShiftTableRowProps {
     paid_kvv: boolean;
     paid_kms: boolean;
     invoice_issued: boolean;
+    invoice_paid: boolean;
   }};
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
-  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
-  onInvoiceDateChange: (shift: ShiftRecord, date: string | null) => void;
+  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
+  onInvoiceIssuedDateChange: (shift: ShiftRecord, date: string | null) => void;
+  onInvoicePaidDateChange: (shift: ShiftRecord, date: string | null) => void;
   onDelete: (shift: ShiftRecord) => void;
   onEdit: (shift: ShiftRecord) => void;
 }
@@ -44,7 +46,8 @@ export default function ShiftTableRow({
   onCommentChange,
   onExpenseBlur,
   onPaymentToggle,
-  onInvoiceDateChange,
+  onInvoiceIssuedDateChange,
+  onInvoicePaidDateChange,
   onDelete,
   onEdit
 }: ShiftTableRowProps) {
@@ -57,7 +60,8 @@ export default function ShiftTableRow({
   const kvv = calculateKVV(shift);
   const kms = calculateKMS(shift);
   
-  const [localInvoiceDate, setLocalInvoiceDate] = useState(shift.invoice_date || '');
+  const [localInvoiceIssuedDate, setLocalInvoiceIssuedDate] = useState(shift.invoice_issued_date || '');
+  const [localInvoicePaidDate, setLocalInvoicePaidDate] = useState(shift.invoice_paid_date || '');
 
   return (
     <tr className="hover:bg-gray-50">
@@ -67,33 +71,51 @@ export default function ShiftTableRow({
       </td>
       <td className="border border-gray-300 p-1 md:p-2">{shift.organization}</td>
       <td className="border border-gray-300 p-1 md:p-2">
-        <div className="flex flex-col gap-1 items-center">
-          <select
-            value={(editingPayments[key]?.invoice_issued ?? shift.invoice_issued) ? 'yes' : 'no'}
-            onChange={() => onPaymentToggle(shift, 'invoice_issued')}
-            className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
-              (editingPayments[key]?.invoice_issued ?? shift.invoice_issued)
-                ? 'bg-green-100 text-green-800 border-green-300'
-                : 'bg-red-100 text-red-800 border-red-300'
-            }`}
-          >
-            <option value="no">Нет</option>
-            <option value="yes">Да</option>
-          </select>
-          {(editingPayments[key]?.invoice_issued ?? shift.invoice_issued) && (
-            <Input
-              type="date"
-              value={localInvoiceDate}
-              onChange={(e) => setLocalInvoiceDate(e.target.value)}
-              onBlur={(e) => {
-                if (e.target.value !== shift.invoice_date) {
-                  onInvoiceDateChange(shift, e.target.value || null);
-                }
-              }}
-              className="w-28 h-7 text-xs border-gray-300"
-              placeholder="Дата счета"
+        <div className="flex gap-2">
+          <div className="flex flex-col gap-1 items-center">
+            <input
+              type="checkbox"
+              checked={editingPayments[key]?.invoice_issued ?? shift.invoice_issued}
+              onChange={() => onPaymentToggle(shift, 'invoice_issued')}
+              className="w-5 h-5 cursor-pointer accent-green-600"
             />
-          )}
+            {(editingPayments[key]?.invoice_issued ?? shift.invoice_issued) && (
+              <Input
+                type="date"
+                value={localInvoiceIssuedDate}
+                onChange={(e) => setLocalInvoiceIssuedDate(e.target.value)}
+                onBlur={(e) => {
+                  if (e.target.value !== shift.invoice_issued_date) {
+                    onInvoiceIssuedDateChange(shift, e.target.value || null);
+                  }
+                }}
+                className="w-28 h-7 text-xs border-gray-300"
+                placeholder="Дата"
+              />
+            )}
+          </div>
+          <div className="flex flex-col gap-1 items-center">
+            <input
+              type="checkbox"
+              checked={editingPayments[key]?.invoice_paid ?? shift.invoice_paid}
+              onChange={() => onPaymentToggle(shift, 'invoice_paid')}
+              className="w-5 h-5 cursor-pointer accent-green-600"
+            />
+            {(editingPayments[key]?.invoice_paid ?? shift.invoice_paid) && (
+              <Input
+                type="date"
+                value={localInvoicePaidDate}
+                onChange={(e) => setLocalInvoicePaidDate(e.target.value)}
+                onBlur={(e) => {
+                  if (e.target.value !== shift.invoice_paid_date) {
+                    onInvoicePaidDateChange(shift, e.target.value || null);
+                  }
+                }}
+                className="w-28 h-7 text-xs border-gray-300"
+                placeholder="Дата"
+              />
+            )}
+          </div>
         </div>
       </td>
       <td className="border border-gray-300 p-1 md:p-2 text-right font-medium">{revenue.toLocaleString()} ₽</td>

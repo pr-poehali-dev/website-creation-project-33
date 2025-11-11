@@ -19,6 +19,7 @@ interface ShiftTableProps {
     paid_kvv: boolean;
     paid_kms: boolean;
     invoice_issued: boolean;
+    invoice_paid: boolean;
   }};
   filters: {
     paid_by_organization: boolean | null;
@@ -36,8 +37,9 @@ interface ShiftTableProps {
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
-  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
-  onInvoiceDateChange: (shift: ShiftRecord, date: string | null) => void;
+  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
+  onInvoiceIssuedDateChange: (shift: ShiftRecord, date: string | null) => void;
+  onInvoicePaidDateChange: (shift: ShiftRecord, date: string | null) => void;
   onFilterChange: (key: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
   onOrganizationFilterChange: (values: string[]) => void;
   onPromoterFilterChange: (values: string[]) => void;
@@ -63,7 +65,8 @@ export default function ShiftTable({
   onCommentChange,
   onExpenseBlur,
   onPaymentToggle,
-  onInvoiceDateChange,
+  onInvoiceIssuedDateChange,
+  onInvoicePaidDateChange,
   onFilterChange,
   onOrganizationFilterChange,
   onPromoterFilterChange,
@@ -289,11 +292,13 @@ export default function ShiftTable({
               />
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
-              <FilterableHeader 
-                label="Счёт" 
-                filterValue={filters.invoice_issued}
-                onFilterChange={() => onFilterChange('invoice_issued')}
-              />
+              <div className="flex flex-col">
+                <div className="border-b border-gray-300 pb-1 mb-1">Счёт</div>
+                <div className="flex gap-2 text-[10px] font-normal">
+                  <div className="flex-1 text-center">Выставлен</div>
+                  <div className="flex-1 text-center">Оплачен</div>
+                </div>
+              </div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-right whitespace-nowrap">
               <div>Сумма прихода</div>
@@ -392,7 +397,8 @@ export default function ShiftTable({
               onCommentChange={onCommentChange}
               onExpenseBlur={onExpenseBlur}
               onPaymentToggle={onPaymentToggle}
-              onInvoiceDateChange={onInvoiceDateChange}
+              onInvoiceIssuedDateChange={onInvoiceIssuedDateChange}
+              onInvoicePaidDateChange={onInvoicePaidDateChange}
               onDelete={onDelete}
               onEdit={onEdit}
             />

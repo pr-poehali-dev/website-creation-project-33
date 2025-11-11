@@ -450,7 +450,9 @@ def get_organization_stats() -> List[Dict[str, Any]]:
                     u.name as user_name,
                     o.name as organization_name,
                     o.id as organization_id,
-                    l.lead_type
+                    l.lead_type,
+                    o.contact_rate,
+                    o.payment_type
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
@@ -460,12 +462,23 @@ def get_organization_stats() -> List[Dict[str, Any]]:
             
             # Группируем по дате, пользователю и организации
             groups = {}
+            org_info = {}
+            
             for row in cur.fetchall():
                 moscow_dt = get_moscow_time_from_utc(row[0])
                 date_key = moscow_dt.date().isoformat()
                 user_name = row[1]
                 org_name = row[2] if row[2] else 'Не указана'
                 org_id = row[3] if row[3] else 0
+                contact_rate = row[5] if row[5] else 0
+                payment_type = row[6] if row[6] else 'cash'
+                
+                # Сохраняем информацию об организации
+                if org_id not in org_info:
+                    org_info[org_id] = {
+                        'contact_rate': contact_rate,
+                        'payment_type': payment_type
+                    }
                 
                 # Группируем по дате и организации для общей статистики
                 org_key = (date_key, org_name, org_id)
@@ -491,11 +504,15 @@ def get_organization_stats() -> List[Dict[str, Any]]:
                     for name, count in stats['users'].items()
                 ]
                 
+                org_data = org_info.get(org_id, {'contact_rate': 0, 'payment_type': 'cash'})
+                
                 org_stats.append({
                     'date': date_key,
                     'organization_name': org_name,
                     'organization_id': org_id,
                     'total_contacts': stats['total_contacts'],
+                    'contact_rate': org_data['contact_rate'],
+                    'payment_type': org_data['payment_type'],
                     'user_stats': user_stats_list
                 })
             

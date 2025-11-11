@@ -9,6 +9,8 @@ interface OrganizationStat {
   organization_name: string;
   organization_id: number;
   total_contacts: number;
+  contact_rate: number;
+  payment_type: string;
   user_stats: Array<{
     user_name: string;
     contacts: number;
@@ -150,6 +152,8 @@ export default function OrganizationStatsChart() {
       acc[item.organization_name] = {
         name: item.organization_name,
         total: 0,
+        contact_rate: item.contact_rate || 0,
+        payment_type: item.payment_type || 'cash',
         users: {}
       };
     }
@@ -164,7 +168,7 @@ export default function OrganizationStatsChart() {
     });
     
     return acc;
-  }, {} as Record<string, { name: string; total: number; users: Record<string, number> }>);
+  }, {} as Record<string, { name: string; total: number; contact_rate: number; payment_type: string; users: Record<string, number> }>);
 
   // Сортируем организации по количеству контактов
   const sortedOrgs = Object.values(orgTotals).sort((a, b) => b.total - a.total);
@@ -382,7 +386,21 @@ export default function OrganizationStatsChart() {
                       {org.name}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
+                    {org.contact_rate > 0 && (
+                      <div className="text-right">
+                        <div className="text-base md:text-lg font-bold text-yellow-600">
+                          {(() => {
+                            const revenue = org.total * org.contact_rate;
+                            const revenueAfterTax = org.payment_type === 'cashless' ? revenue * 0.93 : revenue;
+                            return Math.round(revenueAfterTax).toLocaleString('ru-RU');
+                          })()}₽
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {org.payment_type === 'cash' ? 'наличка' : 'безнал'}
+                        </div>
+                      </div>
+                    )}
                     <span className="text-lg md:text-xl font-bold text-[#001f54]">
                       {org.total}
                     </span>

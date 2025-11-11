@@ -19,6 +19,7 @@ interface ChartData {
 export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
   const [period, setPeriod] = useState<Period>('week');
   const [showAllPeriods, setShowAllPeriods] = useState(false);
+  const [zoom, setZoom] = useState(1);
 
   const calculateWorkerSalary = (contacts: number): number => {
     return contacts >= 10 ? contacts * 300 : contacts * 200;
@@ -104,10 +105,10 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       <CardHeader>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <CardTitle className="flex items-center gap-3 text-gray-900 text-xl">
-            <div className="p-2 rounded-lg bg-yellow-100">
-              <Icon name="TrendingUp" size={20} className="text-yellow-600" />
+            <div className="p-2 rounded-lg bg-green-100">
+              <Icon name="TrendingUp" size={20} className="text-green-600" />
             </div>
-            Доход КМС {getPeriodLabel()}
+            Доход {getPeriodLabel()}
           </CardTitle>
 
           <div className="flex flex-wrap gap-2">
@@ -116,7 +117,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               variant={period === 'day' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 ${period === 'day'
-                ? 'bg-yellow-600 hover:bg-yellow-700 text-white shadow-md'
+                ? 'bg-green-600 hover:bg-green-700 text-white shadow-md'
                 : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
               }`}
             >
@@ -164,17 +165,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       </CardHeader>
 
       <CardContent>
-        <div className="mb-6 p-3 md:p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-            <div className="flex items-center gap-2">
-              <Icon name="Wallet" size={20} className="text-green-600 md:w-6 md:h-6" />
-              <span className="text-sm md:text-base text-gray-700 font-medium">Общий доход за период:</span>
-            </div>
-            <div className="text-xl md:text-2xl font-bold text-green-600">
-              {formatCurrency(totalRevenue)} ₽
-            </div>
-          </div>
-        </div>
+
 
         {chartData.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
@@ -183,7 +174,42 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
           </div>
         ) : (
           <div className="relative bg-gradient-to-br from-gray-50 to-white rounded-xl p-3 md:p-6 border border-gray-100">
-            <div className="relative h-[280px] sm:h-[350px] md:h-[450px]">
+            <div className="flex items-center justify-end gap-2 mb-4">
+              <Button
+                onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
+                variant="outline"
+                size="sm"
+                disabled={zoom <= 0.5}
+                className="h-8 w-8 p-0"
+              >
+                <Icon name="ZoomOut" size={16} />
+              </Button>
+              <span className="text-xs text-gray-600 min-w-[60px] text-center">
+                {Math.round(zoom * 100)}%
+              </span>
+              <Button
+                onClick={() => setZoom(Math.min(3, zoom + 0.25))}
+                variant="outline"
+                size="sm"
+                disabled={zoom >= 3}
+                className="h-8 w-8 p-0"
+              >
+                <Icon name="ZoomIn" size={16} />
+              </Button>
+              {zoom !== 1 && (
+                <Button
+                  onClick={() => setZoom(1)}
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2 text-xs"
+                >
+                  <Icon name="RotateCcw" size={14} className="mr-1" />
+                  Сбросить
+                </Button>
+              )}
+            </div>
+            <div className="relative h-[280px] sm:h-[350px] md:h-[450px] overflow-x-auto overflow-y-hidden">
+              <div style={{ width: `${zoom * 100}%`, minWidth: '100%', height: '100%' }}>
               <svg className="w-full h-full" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet">
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -338,6 +364,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                   );
                 })}
               </svg>
+              </div>
             </div>
 
             {/* Bottom info bar */}

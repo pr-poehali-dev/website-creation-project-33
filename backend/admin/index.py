@@ -1447,7 +1447,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(ae.paid_kvv, false) as paid_kvv,
                             COALESCE(ae.paid_kms, false) as paid_kms,
                             COALESCE(ae.invoice_issued, false) as invoice_issued,
-                            ae.invoice_date
+                            ae.invoice_issued_date,
+                            COALESCE(ae.invoice_paid, false) as invoice_paid,
+                            ae.invoice_paid_date
                         FROM t_p24058207_website_creation_pro.work_shifts s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
@@ -1462,7 +1464,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             AND ae.organization_id = s.organization_id
                         GROUP BY s.shift_date, s.user_id, s.organization_id, o.name, o.id, 
                                  u.id, u.name, ae.id, ae.expense_amount, ae.expense_comment,
-                                 ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms, ae.invoice_issued, ae.invoice_date
+                                 ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms, 
+                                 ae.invoice_issued, ae.invoice_issued_date, ae.invoice_paid, ae.invoice_paid_date
                         ORDER BY s.shift_date DESC, u.name
                     """)
                     
@@ -1486,7 +1489,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'paid_kvv': bool(row[14]),
                             'paid_kms': bool(row[15]),
                             'invoice_issued': bool(row[16]),
-                            'invoice_date': row[17].isoformat() if row[17] else None
+                            'invoice_issued_date': row[17].isoformat() if row[17] else None,
+                            'invoice_paid': bool(row[18]),
+                            'invoice_paid_date': row[19].isoformat() if row[19] else None
                         })
             
             return {
@@ -1771,7 +1776,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             paid_kvv = body_data.get('paid_kvv', False)
             paid_kms = body_data.get('paid_kms', False)
             invoice_issued = body_data.get('invoice_issued', False)
-            invoice_date = body_data.get('invoice_date')
+            invoice_issued_date = body_data.get('invoice_issued_date')
+            invoice_paid = body_data.get('invoice_paid', False)
+            invoice_paid_date = body_data.get('invoice_paid_date')
             
             if not user_id or not work_date or not organization_id:
                 return {
@@ -1786,8 +1793,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         cur.execute("""
                             INSERT INTO t_p24058207_website_creation_pro.accounting_expenses 
                             (user_id, work_date, organization_id, expense_amount, expense_comment, 
-                             paid_by_organization, paid_to_worker, paid_kvv, paid_kms, invoice_issued, invoice_date, updated_at)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                             paid_by_organization, paid_to_worker, paid_kvv, paid_kms, invoice_issued, invoice_issued_date, 
+                             invoice_paid, invoice_paid_date, updated_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
                             ON CONFLICT (user_id, work_date, organization_id) 
                             DO UPDATE SET 
                                 expense_amount = EXCLUDED.expense_amount,
@@ -1797,10 +1805,13 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 paid_kvv = EXCLUDED.paid_kvv,
                                 paid_kms = EXCLUDED.paid_kms,
                                 invoice_issued = EXCLUDED.invoice_issued,
-                                invoice_date = EXCLUDED.invoice_date,
+                                invoice_issued_date = EXCLUDED.invoice_issued_date,
+                                invoice_paid = EXCLUDED.invoice_paid,
+                                invoice_paid_date = EXCLUDED.invoice_paid_date,
                                 updated_at = CURRENT_TIMESTAMP
                         """, (user_id, work_date, organization_id, expense_amount, expense_comment,
-                              paid_by_organization, paid_to_worker, paid_kvv, paid_kms, invoice_issued, invoice_date))
+                              paid_by_organization, paid_to_worker, paid_kvv, paid_kms, invoice_issued, invoice_issued_date,
+                              invoice_paid, invoice_paid_date))
                         conn.commit()
                         
                         return {

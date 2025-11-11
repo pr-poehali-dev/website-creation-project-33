@@ -179,34 +179,61 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
             <div className="text-sm">Нет данных за выбранный период</div>
           </div>
         ) : (
-          <div className="relative">
-            <div className="relative h-[300px] md:h-[400px] pl-12 pr-4">
-              <svg className="w-full h-full" viewBox="0 0 1000 400">
+          <div className="relative bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-100">
+            <div className="relative h-[350px] md:h-[450px]">
+              <svg className="w-full h-full" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet">
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#10b981" />
-                    <stop offset="100%" stopColor="#059669" />
+                    <stop offset="50%" stopColor="#059669" />
+                    <stop offset="100%" stopColor="#047857" />
                   </linearGradient>
                   <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#10b981" stopOpacity="0.05" />
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
                   </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
                 </defs>
 
                 {/* Grid lines */}
                 {[0, 1, 2, 3, 4].map(i => {
-                  const y = (i / 4) * 360 + 20;
+                  const y = 30 + (i / 4) * 340;
                   return (
                     <line
                       key={`grid-${i}`}
-                      x1="0"
+                      x1="60"
                       y1={y}
-                      x2="1000"
+                      x2="980"
                       y2={y}
                       stroke="#e5e7eb"
                       strokeWidth="1"
-                      strokeDasharray="4 4"
+                      opacity="0.5"
                     />
+                  );
+                })}
+
+                {/* Y-axis labels inside SVG */}
+                {[4, 3, 2, 1, 0].map(i => {
+                  const y = 30 + ((4 - i) / 4) * 340;
+                  const value = Math.round((maxRevenue / 4) * i);
+                  return (
+                    <text
+                      key={`y-label-${i}`}
+                      x="50"
+                      y={y + 5}
+                      textAnchor="end"
+                      fontSize="11"
+                      fill="#6b7280"
+                      fontWeight="500"
+                    >
+                      {formatCurrency(value)}
+                    </text>
                   );
                 })}
 
@@ -214,74 +241,98 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                 <path
                   d={(() => {
                     const points = chartData.map((item, index) => {
-                      const x = (index / (chartData.length - 1 || 1)) * 1000;
-                      const y = 380 - ((item.revenue / maxRevenue) * 360);
+                      const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
+                      const y = 370 - ((item.revenue / maxRevenue) * 340);
                       return `${x},${y}`;
                     });
-                    return `M 0,380 L ${points.join(' L ')} L 1000,380 Z`;
+                    return `M 60,370 L ${points.join(' L ')} L 980,370 Z`;
                   })()}
                   fill="url(#areaGradient)"
                 />
 
-                {/* Line */}
+                {/* Line with glow */}
                 <polyline
                   points={chartData.map((item, index) => {
-                    const x = (index / (chartData.length - 1 || 1)) * 1000;
-                    const y = 380 - ((item.revenue / maxRevenue) * 360);
+                    const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
+                    const y = 370 - ((item.revenue / maxRevenue) * 340);
                     return `${x},${y}`;
                   }).join(' ')}
                   fill="none"
                   stroke="url(#lineGradient)"
-                  strokeWidth="4"
+                  strokeWidth="3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  filter="url(#glow)"
                 />
 
                 {/* Points */}
                 {chartData.map((item, index) => {
-                  const x = (index / (chartData.length - 1 || 1)) * 1000;
-                  const y = 380 - ((item.revenue / maxRevenue) * 360);
+                  const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
+                  const y = 370 - ((item.revenue / maxRevenue) * 340);
                   
                   return (
-                    <g key={index}>
+                    <g key={index} className="hover:opacity-100 opacity-90 transition-opacity">
                       <circle
                         cx={x}
                         cy={y}
-                        r="7"
-                        fill="#059669"
+                        r="6"
+                        fill="#10b981"
                         stroke="#fff"
                         strokeWidth="3"
-                        className="transition-all cursor-pointer"
-                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+                        filter="url(#glow)"
+                      />
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="3"
+                        fill="#fff"
+                        opacity="0.8"
                       />
                       <title>{`${item.label}: ${formatCurrency(item.revenue)} ₽`}</title>
                     </g>
                   );
                 })}
-              </svg>
 
-              {/* Y-axis labels */}
-              <div className="absolute left-0 top-0 h-full flex flex-col justify-between py-2 text-xs text-gray-500 -ml-12 w-10">
-                {[4, 3, 2, 1, 0].map(i => (
-                  <div key={i} className="text-right">
-                    {formatCurrency(Math.round((maxRevenue / 4) * i))}
-                  </div>
-                ))}
-              </div>
+                {/* X-axis labels inside SVG */}
+                {chartData.filter((_, i) => {
+                  if (chartData.length <= 12) return true;
+                  const step = Math.ceil(chartData.length / 12);
+                  return i % step === 0 || i === chartData.length - 1;
+                }).map((item, idx) => {
+                  const index = chartData.indexOf(item);
+                  const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
+                  return (
+                    <g key={`x-label-${idx}`}>
+                      <text
+                        x={x}
+                        y="395"
+                        textAnchor="middle"
+                        fontSize="10"
+                        fill="#6b7280"
+                        fontWeight="500"
+                      >
+                        {item.label}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
             </div>
 
-            {/* X-axis labels */}
-            <div className="flex justify-between mt-4 px-12 text-xs text-gray-600 overflow-x-auto">
-              {chartData.filter((_, i) => {
-                if (chartData.length <= 10) return true;
-                const step = Math.ceil(chartData.length / 10);
-                return i % step === 0 || i === chartData.length - 1;
-              }).map((item, index) => (
-                <div key={index} className="text-center flex-shrink-0">
-                  <div className="font-medium">{item.label}</div>
-                  <div className="text-green-600 font-bold">{formatCurrency(item.revenue)} ₽</div>
+            {/* Bottom info bar */}
+            <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-4 justify-center text-xs">
+              {chartData.slice(0, 5).map((item, index) => (
+                <div key={index} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-100 shadow-sm">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span className="text-gray-600">{item.label}:</span>
+                  <span className="font-bold text-green-600">{formatCurrency(item.revenue)} ₽</span>
                 </div>
               ))}
+              {chartData.length > 5 && (
+                <div className="flex items-center gap-1 text-gray-400">
+                  <span>и ещё {chartData.length - 5} периодов</span>
+                </div>
+              )}
             </div>
           </div>
         )}

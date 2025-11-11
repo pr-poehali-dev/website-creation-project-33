@@ -14,6 +14,7 @@ export interface User {
   longitude?: number;
   location_city?: string;
   location_country?: string;
+  rate?: number;
 }
 
 export interface Lead {
@@ -43,6 +44,8 @@ export interface UserStats {
   shifts_count?: number;
   avg_per_shift?: number;
   max_contacts_per_shift?: number;
+  rate?: number;
+  revenue?: number;
   organizations?: OrganizationStats[];
 }
 

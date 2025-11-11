@@ -19,6 +19,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [showAllShifts, setShowAllShifts] = useState(false);
   const [showAllAvg, setShowAllAvg] = useState(false);
   const [showAllMax, setShowAllMax] = useState(false);
+  const [showAllRevenue, setShowAllRevenue] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedUserEmail, setExpandedUserEmail] = useState<string | null>(null);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, OrgStats[]>>({});
@@ -30,6 +31,10 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
     }
     
     if (rankingType === 'max_contacts_per_shift' && user.email === 'ещё.2.дня.работы@archive.local') {
+      return false;
+    }
+    
+    if (rankingType === 'revenue' && (!user.rate || user.rate === 0)) {
       return false;
     }
     
@@ -48,6 +53,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       return (b.shifts_count || 0) - (a.shifts_count || 0);
     } else if (rankingType === 'max_contacts_per_shift') {
       return (b.max_contacts_per_shift || 0) - (a.max_contacts_per_shift || 0);
+    } else if (rankingType === 'revenue') {
+      return (b.revenue || 0) - (a.revenue || 0);
     } else {
       return (b.avg_per_shift || 0) - (a.avg_per_shift || 0);
     }
@@ -60,6 +67,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       return showAllShifts ? sortedUsers : sortedUsers.slice(0, 4);
     } else if (rankingType === 'max_contacts_per_shift') {
       return showAllMax ? sortedUsers : sortedUsers.slice(0, 4);
+    } else if (rankingType === 'revenue') {
+      return showAllRevenue ? sortedUsers : sortedUsers.slice(0, 4);
     } else {
       return showAllAvg ? sortedUsers : sortedUsers.slice(0, 4);
     }
@@ -70,6 +79,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
     if (rankingType === 'contacts') return showAllContacts;
     if (rankingType === 'shifts') return showAllShifts;
     if (rankingType === 'max_contacts_per_shift') return showAllMax;
+    if (rankingType === 'revenue') return showAllRevenue;
     return showAllAvg;
   })();
 
@@ -80,6 +90,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
       setShowAllShifts(!showAllShifts);
     } else if (rankingType === 'max_contacts_per_shift') {
       setShowAllMax(!showAllMax);
+    } else if (rankingType === 'revenue') {
+      setShowAllRevenue(!showAllRevenue);
     } else {
       setShowAllAvg(!showAllAvg);
     }
@@ -89,6 +101,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
     if (rankingType === 'contacts') return 'по контактам';
     if (rankingType === 'shifts') return 'по сменам';
     if (rankingType === 'max_contacts_per_shift') return 'по рекорду за смену';
+    if (rankingType === 'revenue') return 'по доходу';
     return 'по среднему за смену';
   };
 

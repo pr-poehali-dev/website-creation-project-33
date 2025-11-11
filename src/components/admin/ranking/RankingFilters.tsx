@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
-export type RankingType = 'contacts' | 'shifts' | 'avg_per_shift' | 'max_contacts_per_shift';
+export type RankingType = 'contacts' | 'shifts' | 'avg_per_shift' | 'max_contacts_per_shift' | 'revenue';
 
 interface RankingFiltersProps {
   searchQuery: string;
@@ -81,6 +81,18 @@ export default function RankingFilters({
         >
           <Icon name="Award" size={14} className="mr-1.5" />
           Рекорд
+        </Button>
+        <Button
+          onClick={() => onRankingTypeChange('revenue')}
+          variant={rankingType === 'revenue' ? 'default' : 'outline'}
+          size="sm"
+          className={`transition-all duration-300 ${rankingType === 'revenue'
+            ? 'bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg'
+            : 'bg-gray-100 hover:bg-gray-100 text-yellow-600 border-yellow-600/30'
+          }`}
+        >
+          <Icon name="DollarSign" size={14} className="mr-1.5" />
+          Доход
         </Button>
       </div>
     </>

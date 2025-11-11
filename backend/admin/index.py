@@ -156,10 +156,11 @@ def get_leads_stats() -> Dict[str, Any]:
                 SELECT u.id, u.name, u.email,
                        COUNT(l.id) as lead_count,
                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
+                       u.rate
                 FROM t_p24058207_website_creation_pro.users u
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
-                GROUP BY u.id, u.name, u.email
+                GROUP BY u.id, u.name, u.email, u.rate
                 HAVING COUNT(l.id) > 0
                 ORDER BY lead_count DESC
             """)
@@ -168,6 +169,8 @@ def get_leads_stats() -> Dict[str, Any]:
             for row in cur.fetchall():
                 user_id = row[0]
                 lead_count = row[3]
+                contacts_count = row[4]
+                rate = float(row[6]) if row[6] else 0
                 
                 # Вычисляем смены для пользователя (дата + организация)
                 cur.execute("""
@@ -195,17 +198,20 @@ def get_leads_stats() -> Dict[str, Any]:
                 shifts = len(shift_combinations)
                 avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
                 max_contacts = max(shift_contacts.values()) if shift_contacts else 0
+                revenue = round(contacts_count * rate, 2)
                 
                 user_stats.append({
                     'user_id': user_id,
                     'name': row[1],
                     'email': row[2], 
                     'lead_count': lead_count,
-                    'contacts': row[4],
+                    'contacts': contacts_count,
                     'approaches': row[5],
                     'shifts_count': shifts,
                     'avg_per_shift': avg_per_shift,
-                    'max_contacts_per_shift': max_contacts
+                    'max_contacts_per_shift': max_contacts,
+                    'rate': rate,
+                    'revenue': revenue
                 })
             
             # Статистика за последние 30 дней (только от реальных пользователей)

@@ -98,6 +98,12 @@ export default function UserRankingCard({
                 <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">рекорд</div>
               </div>
             )}
+            {rankingType === 'revenue' && (
+              <div className="text-center">
+                <div className="text-xs md:text-sm font-bold text-yellow-600">{user.revenue || 0}₽</div>
+                <div className="text-[10px] md:text-xs text-gray-600 whitespace-nowrap">доход</div>
+              </div>
+            )}
           </div>
         </div>
       </div>

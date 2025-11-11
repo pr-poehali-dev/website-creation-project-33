@@ -161,13 +161,13 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       </CardHeader>
 
       <CardContent>
-        <div className="mb-6 p-4 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border-2 border-yellow-200">
+        <div className="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Icon name="Wallet" size={24} className="text-yellow-600" />
+              <Icon name="Wallet" size={24} className="text-green-600" />
               <span className="text-gray-700 font-medium">Общий доход за период:</span>
             </div>
-            <div className="text-2xl font-bold text-yellow-600">
+            <div className="text-2xl font-bold text-green-600">
               {formatCurrency(totalRevenue)} ₽
             </div>
           </div>
@@ -181,28 +181,28 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         ) : (
           <div className="relative">
             <div className="relative h-[300px] md:h-[400px] pl-12 pr-4">
-              <svg className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+              <svg className="w-full h-full" viewBox="0 0 1000 400">
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#fbbf24" />
-                    <stop offset="100%" stopColor="#f59e0b" />
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#059669" />
                   </linearGradient>
                   <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.05" />
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0.05" />
                   </linearGradient>
                 </defs>
 
                 {/* Grid lines */}
                 {[0, 1, 2, 3, 4].map(i => {
-                  const yPercent = (i / 4) * 90 + 5;
+                  const y = (i / 4) * 360 + 20;
                   return (
                     <line
                       key={`grid-${i}`}
                       x1="0"
-                      y1={`${yPercent}%`}
-                      x2="100%"
-                      y2={`${yPercent}%`}
+                      y1={y}
+                      x2="1000"
+                      y2={y}
                       stroke="#e5e7eb"
                       strokeWidth="1"
                       strokeDasharray="4 4"
@@ -214,11 +214,11 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                 <path
                   d={(() => {
                     const points = chartData.map((item, index) => {
-                      const xPercent = (index / (chartData.length - 1 || 1)) * 100;
-                      const yPercent = 95 - ((item.revenue / maxRevenue) * 90);
-                      return `${xPercent}% ${yPercent}%`;
+                      const x = (index / (chartData.length - 1 || 1)) * 1000;
+                      const y = 380 - ((item.revenue / maxRevenue) * 360);
+                      return `${x},${y}`;
                     });
-                    return `M 0% 95% L ${points.join(' L ')} L 100% 95% Z`;
+                    return `M 0,380 L ${points.join(' L ')} L 1000,380 Z`;
                   })()}
                   fill="url(#areaGradient)"
                 />
@@ -226,32 +226,33 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                 {/* Line */}
                 <polyline
                   points={chartData.map((item, index) => {
-                    const xPercent = (index / (chartData.length - 1 || 1)) * 100;
-                    const yPercent = 95 - ((item.revenue / maxRevenue) * 90);
-                    return `${xPercent}% ${yPercent}%`;
+                    const x = (index / (chartData.length - 1 || 1)) * 1000;
+                    const y = 380 - ((item.revenue / maxRevenue) * 360);
+                    return `${x},${y}`;
                   }).join(' ')}
                   fill="none"
                   stroke="url(#lineGradient)"
-                  strokeWidth="3"
+                  strokeWidth="4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
 
                 {/* Points */}
                 {chartData.map((item, index) => {
-                  const xPercent = (index / (chartData.length - 1 || 1)) * 100;
-                  const yPercent = 95 - ((item.revenue / maxRevenue) * 90);
+                  const x = (index / (chartData.length - 1 || 1)) * 1000;
+                  const y = 380 - ((item.revenue / maxRevenue) * 360);
                   
                   return (
                     <g key={index}>
                       <circle
-                        cx={`${xPercent}%`}
-                        cy={`${yPercent}%`}
-                        r="6"
-                        fill="#f59e0b"
+                        cx={x}
+                        cy={y}
+                        r="7"
+                        fill="#059669"
                         stroke="#fff"
-                        strokeWidth="2"
-                        className="hover:r-8 transition-all cursor-pointer"
+                        strokeWidth="3"
+                        className="transition-all cursor-pointer"
+                        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
                       />
                       <title>{`${item.label}: ${formatCurrency(item.revenue)} ₽`}</title>
                     </g>
@@ -278,7 +279,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               }).map((item, index) => (
                 <div key={index} className="text-center flex-shrink-0">
                   <div className="font-medium">{item.label}</div>
-                  <div className="text-yellow-600 font-bold">{formatCurrency(item.revenue)} ₽</div>
+                  <div className="text-green-600 font-bold">{formatCurrency(item.revenue)} ₽</div>
                 </div>
               ))}
             </div>

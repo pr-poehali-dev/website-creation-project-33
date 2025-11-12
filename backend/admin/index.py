@@ -1465,6 +1465,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             ON ae.user_id = s.user_id
                             AND ae.work_date = s.shift_date
                             AND ae.organization_id = s.organization_id
+                        WHERE s.shift_date >= '2025-03-01'
                         GROUP BY s.shift_date, s.user_id, s.organization_id, o.name, o.id, 
                                  u.id, u.name, ae.id, ae.expense_amount, ae.expense_comment,
                                  ae.paid_by_organization, ae.paid_to_worker, ae.paid_kvv, ae.paid_kms, 

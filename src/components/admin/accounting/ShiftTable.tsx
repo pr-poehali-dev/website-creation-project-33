@@ -164,6 +164,10 @@ export default function ShiftTable({
     setScale(100);
   };
 
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
@@ -201,16 +205,54 @@ export default function ShiftTable({
       }
     };
 
+    const handleMouseDown = (e: MouseEvent) => {
+      setIsDragging(true);
+      setStartX(e.pageX - element.offsetLeft);
+      setScrollLeft(element.scrollLeft);
+      element.style.cursor = 'grabbing';
+      element.style.userSelect = 'none';
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const x = e.pageX - element.offsetLeft;
+      const walk = (x - startX) * 2;
+      element.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      element.style.cursor = 'grab';
+      element.style.userSelect = '';
+    };
+
+    const handleMouseLeave = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        element.style.cursor = 'grab';
+        element.style.userSelect = '';
+      }
+    };
+
     element.addEventListener('touchstart', handleTouchStart, { passive: false });
     element.addEventListener('touchmove', handleTouchMove, { passive: false });
     element.addEventListener('touchend', handleTouchEnd);
+    element.addEventListener('mousedown', handleMouseDown);
+    element.addEventListener('mousemove', handleMouseMove);
+    element.addEventListener('mouseup', handleMouseUp);
+    element.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
       element.removeEventListener('touchstart', handleTouchStart);
       element.removeEventListener('touchmove', handleTouchMove);
       element.removeEventListener('touchend', handleTouchEnd);
+      element.removeEventListener('mousedown', handleMouseDown);
+      element.removeEventListener('mousemove', handleMouseMove);
+      element.removeEventListener('mouseup', handleMouseUp);
+      element.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [scale, isPinching]);
+  }, [scale, isPinching, isDragging, startX, scrollLeft]);
 
   return (
     <div>
@@ -243,23 +285,34 @@ export default function ShiftTable({
             {scale}%
           </Button>
         </div>
-        <div className="text-xs text-gray-500 hidden md:block">
-          Используйте жест двумя пальцами для масштабирования
+        <div className="text-xs text-gray-500 hidden md:block flex items-center gap-2">
+          <Icon name="Move" size={14} className="text-gray-400" />
+          Перетаскивайте мышью для прокрутки, жест двумя пальцами для масштабирования
         </div>
       </div>
+      
+      <div className="mb-2 flex items-center gap-2 text-xs text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
+        <Icon name="ArrowLeftRight" size={16} className="text-blue-500" />
+        <span>Таблицу можно прокручивать влево-вправо: используйте скроллбар внизу или перетаскивание мышью</span>
+      </div>
+
       <div 
         ref={containerRef}
-        className="overflow-x-auto"
+        className="overflow-x-auto overflow-y-visible border-2 border-gray-200 rounded-lg"
         style={{
           transformOrigin: 'top left',
-          touchAction: isPinching ? 'none' : 'auto'
+          touchAction: isPinching ? 'none' : 'auto',
+          cursor: isDragging ? 'grabbing' : 'grab',
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#3b82f6 #e5e7eb'
         }}
       >
         <div
           style={{
             transform: `scale(${scale / 100})`,
             transformOrigin: 'top left',
-            transition: isPinching ? 'none' : 'transform 0.2s ease-out'
+            transition: isPinching ? 'none' : 'transform 0.2s ease-out',
+            minWidth: 'max-content'
           }}
         >
       <table className="w-full text-xs md:text-sm border-collapse">

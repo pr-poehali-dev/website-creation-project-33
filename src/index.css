@@ -315,6 +315,31 @@
     scroll-behavior: smooth;
   }
 
+  /* Стилизация скроллбара для таблицы бух.учёта */
+  .overflow-x-auto::-webkit-scrollbar {
+    height: 12px;
+    background: #f1f5f9;
+  }
+
+  .overflow-x-auto::-webkit-scrollbar-track {
+    background: #e5e7eb;
+    border-radius: 6px;
+  }
+
+  .overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #3b82f6;
+    border-radius: 6px;
+    border: 2px solid #e5e7eb;
+  }
+
+  .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #2563eb;
+  }
+
+  .overflow-x-auto::-webkit-scrollbar-thumb:active {
+    background: #1d4ed8;
+  }
+
   /* iOS Safe Area Support */
   @supports (padding: max(0px)) {
     body {

@@ -312,10 +312,19 @@
   /* Smooth iOS Scrolling */
   * {
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* Smooth scroll для обычных элементов, кроме таблиц */
+  html {
     scroll-behavior: smooth;
   }
 
   /* Стилизация скроллбара для таблицы бух.учёта */
+  .overflow-x-auto {
+    scroll-behavior: auto !important;
+    -webkit-overflow-scrolling: auto !important;
+  }
+
   .overflow-x-auto::-webkit-scrollbar {
     height: 12px;
     background: #f1f5f9;

@@ -217,7 +217,7 @@ export default function ShiftTable({
       if (!isDragging) return;
       e.preventDefault();
       const x = e.pageX - element.offsetLeft;
-      const walk = (x - startX) * 2;
+      const walk = (x - startX) * 1.5;
       element.scrollLeft = scrollLeft - walk;
     };
 
@@ -290,11 +290,6 @@ export default function ShiftTable({
           Перетаскивайте мышью для прокрутки, жест двумя пальцами для масштабирования
         </div>
       </div>
-      
-      <div className="mb-2 flex items-center gap-2 text-xs text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
-        <Icon name="ArrowLeftRight" size={16} className="text-blue-500" />
-        <span>Таблицу можно прокручивать влево-вправо: используйте скроллбар внизу или перетаскивание мышью</span>
-      </div>
 
       <div 
         ref={containerRef}
@@ -304,7 +299,8 @@ export default function ShiftTable({
           touchAction: isPinching ? 'none' : 'auto',
           cursor: isDragging ? 'grabbing' : 'grab',
           scrollbarWidth: 'thin',
-          scrollbarColor: '#3b82f6 #e5e7eb'
+          scrollbarColor: '#3b82f6 #e5e7eb',
+          scrollBehavior: 'auto'
         }}
       >
         <div

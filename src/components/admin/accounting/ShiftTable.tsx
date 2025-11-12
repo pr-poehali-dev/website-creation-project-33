@@ -285,10 +285,7 @@ export default function ShiftTable({
             {scale}%
           </Button>
         </div>
-        <div className="text-xs text-gray-500 hidden md:block flex items-center gap-2">
-          <Icon name="Move" size={14} className="text-gray-400" />
-          Перетаскивайте мышью для прокрутки, жест двумя пальцами для масштабирования
-        </div>
+
       </div>
 
       <div 

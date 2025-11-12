@@ -84,16 +84,7 @@ export default function ShiftTable({
     );
   }
 
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
-
-  const shiftsForCurrentMonth = shifts.filter(shift => {
-    const shiftDate = new Date(shift.date);
-    return shiftDate.getMonth() === currentMonth && shiftDate.getFullYear() === currentYear;
-  });
-
-  const totalContacts = shiftsForCurrentMonth.reduce((sum, shift) => sum + (shift.contacts_count || 0), 0);
+  const totalContacts = shifts.reduce((sum, shift) => sum + (shift.contacts_count || 0), 0);
   
   const unpaidSalary = shifts
     .filter(shift => !shift.paid_to_worker)
@@ -102,16 +93,16 @@ export default function ShiftTable({
       return sum + salary;
     }, 0);
 
-  const totalRevenue = shiftsForCurrentMonth.reduce((sum, shift) => sum + (shift.contacts_count * shift.contact_rate), 0);
-  const totalTax = shiftsForCurrentMonth.reduce((sum, shift) => {
+  const totalRevenue = shifts.reduce((sum, shift) => sum + (shift.contacts_count * shift.contact_rate), 0);
+  const totalTax = shifts.reduce((sum, shift) => {
     if (shift.payment_type === 'cashless') {
       return sum + Math.round((shift.contacts_count * shift.contact_rate) * 0.07);
     }
     return sum;
   }, 0);
   const totalAfterTax = totalRevenue - totalTax;
-  const totalSalary = shiftsForCurrentMonth.reduce((sum, shift) => sum + calculateWorkerSalary(shift.contacts_count), 0);
-  const totalNetProfit = shiftsForCurrentMonth.reduce((sum, shift) => {
+  const totalSalary = shifts.reduce((sum, shift) => sum + calculateWorkerSalary(shift.contacts_count), 0);
+  const totalNetProfit = shifts.reduce((sum, shift) => {
     const revenue = shift.contacts_count * shift.contact_rate;
     const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
     const afterTax = revenue - tax;

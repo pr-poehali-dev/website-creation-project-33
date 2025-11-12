@@ -230,15 +230,21 @@ def get_leads_stats() -> Dict[str, Any]:
                     'revenue': revenue
                 })
             
-            # Статистика за последние 30 дней (только от реальных пользователей)
+            # Статистика за последние 3 месяца (полные месяцы)
             # Получаем все лиды и группируем по московской дате на Python стороне
+            moscow_now = get_moscow_time()
+            # Начало текущего месяца минус 2 месяца (итого 3 полных месяца)
+            start_of_period = moscow_now.replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=62)
+            start_of_period = start_of_period.replace(day=1)
+            start_of_period_utc = start_of_period.astimezone(pytz.UTC)
+            
             cur.execute("""
                 SELECT l.created_at, l.lead_type
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.created_at >= %s AND l.is_active = true
                 ORDER BY l.created_at DESC
-            """, (get_moscow_time() - timedelta(days=30),))
+            """, (start_of_period_utc,))
             
             # Группируем по московским датам
             daily_groups = {}

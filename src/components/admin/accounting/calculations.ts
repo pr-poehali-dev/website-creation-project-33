@@ -18,7 +18,13 @@ export const calculateAfterTax = (shift: ShiftRecord) => {
   return revenue - tax;
 };
 
-export const calculateWorkerSalary = (contactsCount: number) => {
+export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string) => {
+  // До 01.10.2025 все контакты по 200₽
+  if (shiftDate && new Date(shiftDate) < new Date('2025-10-01')) {
+    return contactsCount * 200;
+  }
+  
+  // С 01.10.2025 прогрессивная шкала: до 10 контактов - 200₽, от 10 - 300₽
   if (contactsCount >= 10) {
     return contactsCount * 300;
   }
@@ -27,7 +33,7 @@ export const calculateWorkerSalary = (contactsCount: number) => {
 
 export const calculateNetProfit = (shift: ShiftRecord) => {
   const afterTax = calculateAfterTax(shift);
-  const workerSalary = calculateWorkerSalary(shift.contacts_count);
+  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date);
   const expense = shift.expense_amount || 0;
   return afterTax - workerSalary - expense;
 };

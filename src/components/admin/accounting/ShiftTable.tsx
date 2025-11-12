@@ -89,7 +89,7 @@ export default function ShiftTable({
   const unpaidSalary = shifts
     .filter(shift => !shift.paid_to_worker)
     .reduce((sum, shift) => {
-      const salary = calculateWorkerSalary(shift.contacts_count);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date);
       return sum + salary;
     }, 0);
 
@@ -101,12 +101,12 @@ export default function ShiftTable({
     return sum;
   }, 0);
   const totalAfterTax = totalRevenue - totalTax;
-  const totalSalary = shifts.reduce((sum, shift) => sum + calculateWorkerSalary(shift.contacts_count), 0);
+  const totalSalary = shifts.reduce((sum, shift) => sum + calculateWorkerSalary(shift.contacts_count, shift.date), 0);
   const totalNetProfit = shifts.reduce((sum, shift) => {
     const revenue = shift.contacts_count * shift.contact_rate;
     const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
     const afterTax = revenue - tax;
-    const salary = calculateWorkerSalary(shift.contacts_count);
+    const salary = calculateWorkerSalary(shift.contacts_count, shift.date);
     const expense = shift.expense_amount || 0;
     return sum + (afterTax - salary - expense);
   }, 0);

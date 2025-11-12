@@ -21,7 +21,12 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
   const [showAllPeriods, setShowAllPeriods] = useState(false);
   const [zoom, setZoom] = useState(1);
 
-  const calculateWorkerSalary = (contacts: number): number => {
+  const calculateWorkerSalary = (contacts: number, shiftDate: string): number => {
+    // До 01.10.2025 все контакты по 200₽
+    if (new Date(shiftDate) < new Date('2025-10-01')) {
+      return contacts * 200;
+    }
+    // С 01.10.2025 прогрессивная шкала
     return contacts >= 10 ? contacts * 300 : contacts * 200;
   };
 
@@ -47,7 +52,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       const revenue = shift.contacts_count * shift.contact_rate;
       const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
       const afterTax = revenue - tax;
-      const salary = calculateWorkerSalary(shift.contacts_count);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date);
       const expense = shift.expense_amount || 0;
       const kmsShare = Math.round((afterTax - salary - expense) / 2);
 

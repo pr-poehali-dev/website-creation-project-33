@@ -32,7 +32,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     }, 0);
 
   const salaryAtKVV = shifts
-    .filter(shift => shift.salary_at_kvv)
+    .filter(shift => shift.salary_at_kvv && !shift.paid_to_worker)
     .reduce((sum, shift) => {
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date);
       return sum + salary;

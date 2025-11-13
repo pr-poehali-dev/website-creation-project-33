@@ -70,25 +70,6 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     const intercept = (sumY - slope * sumX) / n;
     
     const avgRevenue = recentData.reduce((sum, d) => sum + d.revenue, 0) / n;
-    const trendPercentage = Math.abs(slope) / (avgRevenue || 1) * 100;
-    
-    let trendText = '';
-    let trendIcon: 'TrendingUp' | 'TrendingDown' | 'Minus' = 'Minus';
-    let trendColor = 'text-gray-600';
-    
-    if (slope > 0 && trendPercentage > 5) {
-      trendText = 'Растущий тренд';
-      trendIcon = 'TrendingUp';
-      trendColor = 'text-green-600';
-    } else if (slope < 0 && trendPercentage > 5) {
-      trendText = 'Падающий тренд';
-      trendIcon = 'TrendingDown';
-      trendColor = 'text-red-600';
-    } else {
-      trendText = 'Стабильный уровень';
-      trendIcon = 'Minus';
-      trendColor = 'text-blue-600';
-    }
     
     const calculateMonthlyForecast = (targetMonth: number, targetYear: number) => {
       const monthStart = new Date(targetYear, targetMonth, 1);
@@ -236,6 +217,27 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     const changePerPeriod = (period === 'month' || period === 'week')
       ? Math.round(getCurrentPeriodForecast() - avgRevenue)
       : Math.round(slope);
+    
+    const trendValue = (period === 'month' || period === 'week') ? changePerPeriod : slope;
+    const trendPercentage = Math.abs(trendValue) / (avgRevenue || 1) * 100;
+    
+    let trendText = '';
+    let trendIcon: 'TrendingUp' | 'TrendingDown' | 'Minus' = 'Minus';
+    let trendColor = 'text-gray-600';
+    
+    if (trendValue > 0 && trendPercentage > 5) {
+      trendText = 'Растущий тренд';
+      trendIcon = 'TrendingUp';
+      trendColor = 'text-green-600';
+    } else if (trendValue < 0 && trendPercentage > 5) {
+      trendText = 'Падающий тренд';
+      trendIcon = 'TrendingDown';
+      trendColor = 'text-red-600';
+    } else {
+      trendText = 'Стабильный уровень';
+      trendIcon = 'Minus';
+      trendColor = 'text-blue-600';
+    }
     
     return {
       trendText,

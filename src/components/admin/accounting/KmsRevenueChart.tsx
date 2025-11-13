@@ -143,7 +143,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <CardTitle className="flex items-center gap-2 text-xl md:text-2xl text-gray-800">
             <Icon name="TrendingUp" size={24} className="text-green-600" />
-            Доход по неделям
+            Доход
           </CardTitle>
           
           <div className="flex flex-wrap gap-2">
@@ -283,11 +283,13 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               )}
             </div>
 
-            <TrendAnalysisBlock
-              trendAnalysis={trendAnalysis}
-              period={period}
-              formatCurrency={formatCurrency}
-            />
+            {(period === 'week' || period === 'month') && (
+              <TrendAnalysisBlock
+                trendAnalysis={trendAnalysis}
+                period={period}
+                formatCurrency={formatCurrency}
+              />
+            )}
           </div>
         )}
       </CardContent>

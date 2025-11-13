@@ -214,8 +214,8 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               )}
             </div>
             <div className="relative h-[280px] sm:h-[350px] md:h-[450px] overflow-x-auto overflow-y-hidden">
-              <div style={{ width: `${zoom * 100}%`, minWidth: '100%', height: '100%' }}>
-              <svg className="w-full h-full" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet">
+              <div style={{ width: `${Math.max(100, zoom * 100)}%`, minWidth: '100%', height: '100%' }}>
+              <svg className="w-full h-full" viewBox="0 0 1000 400" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#10b981" />

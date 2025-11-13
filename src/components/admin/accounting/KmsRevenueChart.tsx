@@ -154,6 +154,47 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
     const calculateMonthlyForecast = (targetMonth: number, targetYear: number) => {
       const monthStart = new Date(targetYear, targetMonth, 1);
       const monthEnd = new Date(targetYear, targetMonth + 1, 0);
+      const daysInMonth = monthEnd.getDate();
+      
+      if (period === 'month' || period === 'year') {
+        let existingRevenue = 0;
+        
+        chartData.forEach(item => {
+          const itemStart = new Date(item.startDate);
+          const itemEnd = new Date(item.endDate);
+          
+          if (itemEnd >= monthStart && itemStart <= monthEnd) {
+            existingRevenue += item.revenue;
+          }
+        });
+        
+        if (targetMonth < currentMonth || targetYear < currentYear) {
+          return Math.round(existingRevenue);
+        }
+        
+        if (targetMonth === currentMonth && targetYear === currentYear) {
+          const daysPassed = now.getDate();
+          
+          if (daysPassed === 0 || existingRevenue === 0) {
+            return Math.round(avgRevenue * (period === 'month' ? 1 : 12));
+          }
+          
+          const avgDailyRevenue = existingRevenue / daysPassed;
+          const projectedTotal = avgDailyRevenue * daysInMonth;
+          
+          return Math.round(projectedTotal);
+        }
+        
+        const periodsToForecast = period === 'month' ? 1 : 12;
+        let forecastSum = 0;
+        
+        for (let i = 0; i < periodsToForecast; i++) {
+          const forecastValue = intercept + slope * (n + i);
+          forecastSum += Math.max(0, forecastValue);
+        }
+        
+        return Math.round(forecastSum);
+      }
       
       let existingRevenue = 0;
       let periodsInMonth = 0;
@@ -181,7 +222,6 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
           return Math.round(existingRevenue);
         }
         
-        const daysInMonth = monthEnd.getDate();
         const daysCovered = Math.min(now.getDate(), lastPeriodEndDate.getDate());
         const daysRemaining = daysInMonth - daysCovered;
         
@@ -189,7 +229,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
           return Math.round(existingRevenue);
         }
         
-        const periodsPerDay = period === 'day' ? 1 : period === 'week' ? 1/7 : 1/30;
+        const periodsPerDay = period === 'day' ? 1 : 1/7;
         const remainingPeriods = Math.ceil(daysRemaining * periodsPerDay);
         
         let projectedRevenue = 0;
@@ -201,7 +241,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         return Math.round(existingRevenue + projectedRevenue);
       }
       
-      const periodsPerMonth = period === 'day' ? 30 : period === 'week' ? 4.33 : 1;
+      const periodsPerMonth = period === 'day' ? 30 : 4.33;
       const periodsToForecast = Math.ceil(periodsPerMonth);
       const monthsAhead = (targetYear - currentYear) * 12 + (targetMonth - currentMonth);
       

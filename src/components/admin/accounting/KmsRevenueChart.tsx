@@ -20,6 +20,8 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
   const [period, setPeriod] = useState<Period>('week');
   const [showAllPeriods, setShowAllPeriods] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [hoveredPoint, setHoveredPoint] = useState<{x: number; y: number; label: string; value: number} | null>(null);
+  const svgRef = React.useRef<SVGSVGElement>(null);
 
   const calculateWorkerSalary = (contacts: number, shiftDate: string): number => {
     // До 01.10.2025 все контакты по 200₽
@@ -214,7 +216,33 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               )}
             </div>
             <div className="relative h-[280px] sm:h-[350px] md:h-[450px] overflow-x-auto overflow-y-hidden">
-              <svg style={{ width: `${Math.max(100, zoom * 100)}%`, minWidth: '100%', height: '100%' }} viewBox="0 0 1000 400" preserveAspectRatio="xMidYMin meet">
+              <svg 
+                ref={svgRef}
+                style={{ width: `${Math.max(100, zoom * 100)}%`, minWidth: '100%', height: '100%' }} 
+                viewBox="0 0 1000 400" 
+                preserveAspectRatio="xMidYMin meet"
+                onMouseMove={(e) => {
+                  if (!svgRef.current) return;
+                  const rect = svgRef.current.getBoundingClientRect();
+                  const mouseX = ((e.clientX - rect.left) / rect.width) * 1000;
+                  
+                  if (mouseX < 60 || mouseX > 980) {
+                    setHoveredPoint(null);
+                    return;
+                  }
+                  
+                  const relativeX = (mouseX - 60) / 920;
+                  const closestIndex = Math.round(relativeX * (chartData.length - 1));
+                  
+                  if (closestIndex >= 0 && closestIndex < chartData.length) {
+                    const item = chartData[closestIndex];
+                    const x = 60 + (closestIndex / (chartData.length - 1 || 1)) * 920;
+                    const y = 370 - (((item.revenue - minRevenue) / revenueRange) * 340);
+                    setHoveredPoint({ x, y, label: item.label, value: item.revenue });
+                  }
+                }}
+                onMouseLeave={() => setHoveredPoint(null)}
+              >
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#10b981" />
@@ -314,34 +342,31 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                   filter="url(#glow)"
                 />
 
-                {/* Points */}
-                {chartData.map((item, index) => {
-                  const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
-                  const y = 370 - (((item.revenue - minRevenue) / revenueRange) * 340);
-                  const isNegative = item.revenue < 0;
-                  
-                  return (
-                    <g key={index} className="hover:opacity-100 opacity-90 transition-opacity">
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r="6"
-                        fill={isNegative ? "#dc2626" : "#10b981"}
-                        stroke="#fff"
-                        strokeWidth="3"
-                        filter="url(#glow)"
-                      />
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r="3"
-                        fill="#fff"
-                        opacity="0.8"
-                      />
-                      <title>{`${item.label}: ${formatCurrency(item.revenue)} ₽`}</title>
-                    </g>
-                  );
-                })}
+                {/* Hovered point highlight */}
+                {hoveredPoint && (
+                  <>
+                    {/* Vertical line */}
+                    <line
+                      x1={hoveredPoint.x}
+                      y1="30"
+                      x2={hoveredPoint.x}
+                      y2="370"
+                      stroke="#6b7280"
+                      strokeWidth="1"
+                      strokeDasharray="3 3"
+                      opacity="0.5"
+                    />
+                    {/* Point */}
+                    <circle
+                      cx={hoveredPoint.x}
+                      cy={hoveredPoint.y}
+                      r="5"
+                      fill={hoveredPoint.value >= 0 ? "#10b981" : "#dc2626"}
+                      stroke="#fff"
+                      strokeWidth="2"
+                    />
+                  </>
+                )}
 
                 {/* X-axis labels inside SVG */}
                 {chartData.filter((_, i) => {
@@ -368,6 +393,23 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                   );
                 })}
               </svg>
+              
+              {/* Tooltip */}
+              {hoveredPoint && (
+                <div 
+                  className="absolute pointer-events-none bg-white border border-gray-300 rounded-lg shadow-lg px-3 py-2 text-xs"
+                  style={{
+                    left: `${(hoveredPoint.x / 1000) * 100}%`,
+                    top: `${(hoveredPoint.y / 400) * 100}%`,
+                    transform: 'translate(-50%, -120%)'
+                  }}
+                >
+                  <div className="font-semibold text-gray-700">{hoveredPoint.label}</div>
+                  <div className={`font-bold ${hoveredPoint.value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(hoveredPoint.value)} ₽
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Bottom info bar */}

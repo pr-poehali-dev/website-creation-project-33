@@ -244,22 +244,10 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                 onMouseLeave={() => setHoveredPoint(null)}
               >
                 <defs>
-                  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#10b981" />
-                    <stop offset="50%" stopColor="#059669" />
-                    <stop offset="100%" stopColor="#047857" />
-                  </linearGradient>
                   <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.1" />
                     <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
                   </linearGradient>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                    <feMerge>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                  </filter>
                 </defs>
 
                 {/* Grid lines */}
@@ -327,7 +315,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                   fill="url(#areaGradient)"
                 />
 
-                {/* Line with glow */}
+                {/* Main line */}
                 <polyline
                   points={chartData.map((item, index) => {
                     const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
@@ -335,12 +323,30 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                     return `${x},${y}`;
                   }).join(' ')}
                   fill="none"
-                  stroke="url(#lineGradient)"
-                  strokeWidth="3"
+                  stroke={totalRevenue >= 0 ? "#10b981" : "#dc2626"}
+                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  filter="url(#glow)"
                 />
+
+                {/* Data points */}
+                {chartData.map((item, index) => {
+                  const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
+                  const y = 370 - (((item.revenue - minRevenue) / revenueRange) * 340);
+                  const isNegative = item.revenue < 0;
+                  
+                  return (
+                    <circle
+                      key={index}
+                      cx={x}
+                      cy={y}
+                      r="3"
+                      fill={isNegative ? "#dc2626" : "#10b981"}
+                      stroke="#fff"
+                      strokeWidth="1.5"
+                    />
+                  );
+                })}
 
                 {/* Hovered point highlight */}
                 {hoveredPoint && (

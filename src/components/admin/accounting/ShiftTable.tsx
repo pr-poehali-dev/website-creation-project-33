@@ -470,8 +470,8 @@ export default function ShiftTable({
                 filterValue={filters.paid_kvv}
                 onFilterChange={() => onFilterChange('paid_kvv')}
               />
-              <div className="text-red-600 font-bold mt-1 text-[10px]">Долг нал: {unpaidKVVCash.toLocaleString('ru-RU')} ₽</div>
-              <div className="text-red-600 font-bold mt-0.5 text-[10px]">Долг б/нал: {unpaidKVVCashless.toLocaleString('ru-RU')} ₽</div>
+              <div className="text-red-600 font-bold mt-1 text-[10px]">Долг б/нал: {unpaidKVVCashless.toLocaleString('ru-RU')} ₽</div>
+              <div className="text-red-600 font-bold mt-0.5 text-[10px]">Долг нал: {unpaidKVVCash.toLocaleString('ru-RU')} ₽</div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
               <FilterableHeader 
@@ -479,8 +479,8 @@ export default function ShiftTable({
                 filterValue={filters.paid_kms}
                 onFilterChange={() => onFilterChange('paid_kms')}
               />
-              <div className="text-red-600 font-bold mt-1 text-[10px]">Долг нал: {unpaidKMSCash.toLocaleString('ru-RU')} ₽</div>
-              <div className="text-red-600 font-bold mt-0.5 text-[10px]">Долг б/нал: {unpaidKMSCashless.toLocaleString('ru-RU')} ₽</div>
+              <div className="text-red-600 font-bold mt-1 text-[10px]">Долг б/нал: {unpaidKMSCashless.toLocaleString('ru-RU')} ₽</div>
+              <div className="text-red-600 font-bold mt-0.5 text-[10px]">Долг нал: {unpaidKMSCash.toLocaleString('ru-RU')} ₽</div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">Действия</th>
           </tr>

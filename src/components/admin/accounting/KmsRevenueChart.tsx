@@ -152,14 +152,23 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
     }
     
     const calculateMonthlyForecast = (targetMonth: number, targetYear: number) => {
+      const monthStart = new Date(targetYear, targetMonth, 1);
+      const monthEnd = new Date(targetYear, targetMonth + 1, 0);
+      
       let existingRevenue = 0;
       let periodsInMonth = 0;
+      let lastPeriodEndDate = monthStart;
       
       chartData.forEach(item => {
-        const itemDate = new Date(item.startDate);
-        if (itemDate.getMonth() === targetMonth && itemDate.getFullYear() === targetYear) {
+        const itemStart = new Date(item.startDate);
+        const itemEnd = new Date(item.endDate);
+        
+        if (itemEnd >= monthStart && itemStart <= monthEnd) {
           existingRevenue += item.revenue;
           periodsInMonth++;
+          if (itemEnd > lastPeriodEndDate) {
+            lastPeriodEndDate = itemEnd;
+          }
         }
       });
       
@@ -168,17 +177,22 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       }
       
       if (targetMonth === currentMonth && targetYear === currentYear) {
-        const totalPeriods = period === 'day' ? new Date(targetYear, targetMonth + 1, 0).getDate() 
-          : period === 'week' ? 4.33 
-          : 1;
-        
-        if (periodsInMonth >= totalPeriods * 0.8) {
+        if (lastPeriodEndDate >= monthEnd) {
           return Math.round(existingRevenue);
         }
         
-        const remainingPeriods = Math.ceil(totalPeriods - periodsInMonth);
-        let projectedRevenue = 0;
+        const daysInMonth = monthEnd.getDate();
+        const daysCovered = Math.min(now.getDate(), lastPeriodEndDate.getDate());
+        const daysRemaining = daysInMonth - daysCovered;
         
+        if (daysRemaining <= 0) {
+          return Math.round(existingRevenue);
+        }
+        
+        const periodsPerDay = period === 'day' ? 1 : period === 'week' ? 1/7 : 1/30;
+        const remainingPeriods = Math.ceil(daysRemaining * periodsPerDay);
+        
+        let projectedRevenue = 0;
         for (let i = 1; i <= remainingPeriods; i++) {
           const forecastValue = intercept + slope * (n + i - 1);
           projectedRevenue += Math.max(0, forecastValue);

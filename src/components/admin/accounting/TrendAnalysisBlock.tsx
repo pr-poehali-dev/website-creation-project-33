@@ -37,7 +37,7 @@ export default function TrendAnalysisBlock({ trendAnalysis, period, formatCurren
             )}
           </h4>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <div className={`grid grid-cols-1 ${period === 'month' ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-3 mt-3`}>
             <div className="bg-white rounded-lg p-3 shadow-sm">
               <div className="text-xs text-gray-600 mb-1">Средний доход</div>
               <div className="text-lg font-bold text-gray-900">{formatCurrency(trendAnalysis.avgRevenue)} ₽</div>
@@ -50,12 +50,14 @@ export default function TrendAnalysisBlock({ trendAnalysis, period, formatCurren
               </div>
             </div>
             
-            <div className="bg-white rounded-lg p-3 shadow-sm">
-              <div className="text-xs text-gray-600 mb-1">Прогноз на декабрь</div>
-              <div className={`text-lg font-bold ${trendAnalysis.decemberForecast >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {formatCurrency(trendAnalysis.decemberForecast)} ₽
+            {period !== 'month' && (
+              <div className="bg-white rounded-lg p-3 shadow-sm">
+                <div className="text-xs text-gray-600 mb-1">Прогноз на декабрь</div>
+                <div className={`text-lg font-bold ${trendAnalysis.decemberForecast >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(trendAnalysis.decemberForecast)} ₽
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

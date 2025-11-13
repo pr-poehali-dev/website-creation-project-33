@@ -72,32 +72,38 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
       const daysInMonth = monthEnd.getDate();
       
       if (period === 'month' || period === 'year') {
-        let existingRevenue = 0;
-        
-        chartData.forEach(item => {
-          const itemStart = new Date(item.startDate || item.date);
-          const itemEnd = new Date(item.endDate || item.date);
-          
-          if (itemEnd >= monthStart && itemStart <= monthEnd) {
-            existingRevenue += item.revenue;
-          }
-        });
-        
-        if (targetMonth < currentMonth || targetYear < currentYear) {
-          return Math.round(existingRevenue);
-        }
-        
         if (targetMonth === currentMonth && targetYear === currentYear) {
           const daysPassed = now.getDate();
           
-          if (daysPassed === 0 || existingRevenue === 0) {
+          if (daysPassed === 0) {
             return Math.round(avgRevenue * (period === 'month' ? 1 : 12));
           }
           
-          const avgDailyRevenue = existingRevenue / daysPassed;
+          const currentMonthRevenue = chartData
+            .filter(item => {
+              const itemDate = new Date(item.startDate || item.date);
+              return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear;
+            })
+            .reduce((sum, item) => sum + item.revenue, 0);
+          
+          if (currentMonthRevenue === 0) {
+            return Math.round(avgRevenue * (period === 'month' ? 1 : 12));
+          }
+          
+          const avgDailyRevenue = currentMonthRevenue / daysPassed;
           const projectedTotal = avgDailyRevenue * daysInMonth;
           
           return Math.round(projectedTotal);
+        }
+        
+        if (targetMonth < currentMonth || targetYear < currentYear) {
+          const pastRevenue = chartData
+            .filter(item => {
+              const itemDate = new Date(item.startDate || item.date);
+              return itemDate.getMonth() === targetMonth && itemDate.getFullYear() === targetYear;
+            })
+            .reduce((sum, item) => sum + item.revenue, 0);
+          return Math.round(pastRevenue);
         }
         
         const periodsToForecast = period === 'month' ? 1 : 12;

@@ -107,6 +107,63 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
     }
   };
 
+  const trendAnalysis = useMemo(() => {
+    if (chartData.length < 3) return null;
+
+    const recentDataCount = Math.min(Math.ceil(chartData.length / 3), 10);
+    const recentData = chartData.slice(-recentDataCount);
+    
+    const n = recentData.length;
+    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+    
+    recentData.forEach((item, i) => {
+      sumX += i;
+      sumY += item.revenue;
+      sumXY += i * item.revenue;
+      sumX2 += i * i;
+    });
+    
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+    
+    const avgRevenue = recentData.reduce((sum, d) => sum + d.revenue, 0) / n;
+    const trendPercentage = Math.abs(slope) / (avgRevenue || 1) * 100;
+    
+    let trendText = '';
+    let trendIcon: 'TrendingUp' | 'TrendingDown' | 'Minus' = 'Minus';
+    let trendColor = 'text-gray-600';
+    
+    if (slope > 0 && trendPercentage > 5) {
+      trendText = 'Растущий тренд';
+      trendIcon = 'TrendingUp';
+      trendColor = 'text-green-600';
+    } else if (slope < 0 && trendPercentage > 5) {
+      trendText = 'Падающий тренд';
+      trendIcon = 'TrendingDown';
+      trendColor = 'text-red-600';
+    } else {
+      trendText = 'Стабильный уровень';
+      trendIcon = 'Minus';
+      trendColor = 'text-blue-600';
+    }
+    
+    const lastValue = recentData[recentData.length - 1].revenue;
+    const novemberForecast = Math.round(intercept + slope * (n + 1));
+    const decemberForecast = Math.round(intercept + slope * (n + 2));
+    
+    return {
+      trendText,
+      trendIcon,
+      trendColor,
+      slope,
+      avgRevenue: Math.round(avgRevenue),
+      lastValue,
+      novemberForecast,
+      decemberForecast,
+      changePerPeriod: Math.round(slope)
+    };
+  }, [chartData]);
+
   return (
     <Card className="bg-white border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
       <CardHeader>
@@ -456,6 +513,48 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                 </div>
               )}
             </div>
+
+            {/* Trend Analysis */}
+            {trendAnalysis && (
+              <div className="mt-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-white shadow-sm">
+                    <Icon name={trendAnalysis.trendIcon} size={20} className={trendAnalysis.trendColor} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                      {trendAnalysis.trendText}
+                      {trendAnalysis.changePerPeriod !== 0 && (
+                        <span className={`text-sm font-normal ${trendAnalysis.trendColor}`}>
+                          ({trendAnalysis.changePerPeriod > 0 ? '+' : ''}{formatCurrency(trendAnalysis.changePerPeriod)} ₽/{period === 'day' ? 'день' : period === 'week' ? 'неделю' : period === 'month' ? 'месяц' : 'год'})
+                        </span>
+                      )}
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <div className="text-xs text-gray-600 mb-1">Средний доход</div>
+                        <div className="text-lg font-bold text-gray-900">{formatCurrency(trendAnalysis.avgRevenue)} ₽</div>
+                      </div>
+                      
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <div className="text-xs text-gray-600 mb-1">Прогноз на ноябрь</div>
+                        <div className={`text-lg font-bold ${trendAnalysis.novemberForecast >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatCurrency(trendAnalysis.novemberForecast)} ₽
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <div className="text-xs text-gray-600 mb-1">Прогноз на декабрь</div>
+                        <div className={`text-lg font-bold ${trendAnalysis.decemberForecast >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatCurrency(trendAnalysis.decemberForecast)} ₽
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

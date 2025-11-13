@@ -29,8 +29,15 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     
-    const recentDataCount = Math.min(Math.ceil(chartData.length / 3), 10);
-    const recentData = chartData.slice(-recentDataCount);
+    const completedMonthsData = period === 'month' 
+      ? chartData.filter(item => {
+          const itemDate = new Date(item.startDate || item.date);
+          return itemDate.getMonth() < currentMonth || itemDate.getFullYear() < currentYear;
+        })
+      : chartData;
+    
+    const recentDataCount = Math.min(Math.ceil(completedMonthsData.length / 3), 10);
+    const recentData = completedMonthsData.slice(-recentDataCount);
     
     const n = recentData.length;
     let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;

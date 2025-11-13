@@ -29,15 +29,32 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     
-    const completedMonthsData = period === 'month' 
+    const getCurrentWeekStart = () => {
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      const monday = new Date(today);
+      monday.setDate(today.getDate() + diff);
+      monday.setHours(0, 0, 0, 0);
+      return monday;
+    };
+    
+    const currentWeekStart = getCurrentWeekStart();
+    
+    const completedPeriodsData = period === 'month' 
       ? chartData.filter(item => {
           const itemDate = new Date(item.startDate || item.date);
           return itemDate.getMonth() < currentMonth || itemDate.getFullYear() < currentYear;
         })
+      : period === 'week'
+      ? chartData.filter(item => {
+          const itemDate = new Date(item.startDate || item.date);
+          return itemDate < currentWeekStart;
+        })
       : chartData;
     
-    const recentDataCount = Math.min(Math.ceil(completedMonthsData.length / 3), 10);
-    const recentData = completedMonthsData.slice(-recentDataCount);
+    const recentDataCount = Math.min(Math.ceil(completedPeriodsData.length / 3), 10);
+    const recentData = completedPeriodsData.slice(-recentDataCount);
     
     const n = recentData.length;
     let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
@@ -186,8 +203,29 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     const novemberForecast = calculateMonthlyForecast(10, 2025);
     const decemberForecast = calculateMonthlyForecast(11, 2025);
     
-    const changePerPeriod = period === 'month' 
-      ? Math.round(novemberForecast - avgRevenue)
+    const getCurrentPeriodForecast = () => {
+      if (period === 'month') return novemberForecast;
+      if (period === 'week') {
+        const currentWeekRevenue = chartData
+          .filter(item => {
+            const itemDate = new Date(item.startDate || item.date);
+            return itemDate >= currentWeekStart;
+          })
+          .reduce((sum, item) => sum + item.revenue, 0);
+        
+        const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
+        const daysRemaining = 7 - dayOfWeek;
+        
+        if (daysRemaining === 0) return currentWeekRevenue;
+        
+        const avgDailyRevenue = currentWeekRevenue / dayOfWeek;
+        return Math.round(currentWeekRevenue + avgDailyRevenue * daysRemaining);
+      }
+      return avgRevenue;
+    };
+    
+    const changePerPeriod = (period === 'month' || period === 'week')
+      ? Math.round(getCurrentPeriodForecast() - avgRevenue)
       : Math.round(slope);
     
     return {

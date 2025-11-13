@@ -193,8 +193,8 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         const remainingPeriods = Math.ceil(daysRemaining * periodsPerDay);
         
         let projectedRevenue = 0;
-        for (let i = 1; i <= remainingPeriods; i++) {
-          const forecastValue = intercept + slope * (n + i - 1);
+        for (let i = 0; i < remainingPeriods; i++) {
+          const forecastValue = intercept + slope * (n + i);
           projectedRevenue += Math.max(0, forecastValue);
         }
         
@@ -204,11 +204,11 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       const periodsPerMonth = period === 'day' ? 30 : period === 'week' ? 4.33 : 1;
       const periodsToForecast = Math.ceil(periodsPerMonth);
       const monthsAhead = (targetYear - currentYear) * 12 + (targetMonth - currentMonth);
-      const startPeriodIndex = n + (monthsAhead - 1) * periodsToForecast;
       
       let forecastSum = 0;
       for (let i = 0; i < periodsToForecast; i++) {
-        const forecastValue = intercept + slope * (startPeriodIndex + i);
+        const periodOffset = (monthsAhead - 1) * periodsToForecast + i;
+        const forecastValue = intercept + slope * (n + periodOffset);
         forecastSum += Math.max(0, forecastValue);
       }
       

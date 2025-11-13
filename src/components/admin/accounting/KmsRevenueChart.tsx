@@ -152,39 +152,53 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
     }
     
     const calculateMonthlyForecast = (targetMonth: number, targetYear: number) => {
-      let totalRevenue = 0;
+      let existingRevenue = 0;
+      let periodsInMonth = 0;
       
       chartData.forEach(item => {
         const itemDate = new Date(item.startDate);
         if (itemDate.getMonth() === targetMonth && itemDate.getFullYear() === targetYear) {
-          totalRevenue += item.revenue;
+          existingRevenue += item.revenue;
+          periodsInMonth++;
         }
       });
       
-      const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
-      const daysPassed = targetMonth === currentMonth && targetYear === currentYear 
-        ? now.getDate() 
-        : 0;
-      
-      if (targetMonth === currentMonth && targetYear === currentYear && daysPassed > 0) {
-        const avgDailyRevenue = totalRevenue / daysPassed;
-        const daysRemaining = daysInMonth - daysPassed;
-        const projectedRevenue = avgDailyRevenue * daysRemaining;
-        return Math.round(totalRevenue + projectedRevenue);
-      } else if (targetMonth > currentMonth || targetYear > currentYear) {
-        const periodsPerMonth = period === 'day' ? 30 : period === 'week' ? 4.33 : 1;
-        let forecastSum = 0;
-        const periodsToForecast = Math.ceil(periodsPerMonth);
-        
-        for (let i = 1; i <= periodsToForecast; i++) {
-          const forecastValue = intercept + slope * (n + i);
-          forecastSum += forecastValue;
-        }
-        
-        return Math.round(forecastSum);
+      if (targetMonth < currentMonth || targetYear < currentYear) {
+        return Math.round(existingRevenue);
       }
       
-      return Math.round(totalRevenue);
+      if (targetMonth === currentMonth && targetYear === currentYear) {
+        const totalPeriods = period === 'day' ? new Date(targetYear, targetMonth + 1, 0).getDate() 
+          : period === 'week' ? 4.33 
+          : 1;
+        
+        if (periodsInMonth >= totalPeriods * 0.8) {
+          return Math.round(existingRevenue);
+        }
+        
+        const remainingPeriods = Math.ceil(totalPeriods - periodsInMonth);
+        let projectedRevenue = 0;
+        
+        for (let i = 1; i <= remainingPeriods; i++) {
+          const forecastValue = intercept + slope * (n + i - 1);
+          projectedRevenue += Math.max(0, forecastValue);
+        }
+        
+        return Math.round(existingRevenue + projectedRevenue);
+      }
+      
+      const periodsPerMonth = period === 'day' ? 30 : period === 'week' ? 4.33 : 1;
+      const periodsToForecast = Math.ceil(periodsPerMonth);
+      const monthsAhead = (targetYear - currentYear) * 12 + (targetMonth - currentMonth);
+      const startPeriodIndex = n + (monthsAhead - 1) * periodsToForecast;
+      
+      let forecastSum = 0;
+      for (let i = 0; i < periodsToForecast; i++) {
+        const forecastValue = intercept + slope * (startPeriodIndex + i);
+        forecastSum += Math.max(0, forecastValue);
+      }
+      
+      return Math.round(forecastSum);
     };
     
     const novemberForecast = calculateMonthlyForecast(10, 2025);

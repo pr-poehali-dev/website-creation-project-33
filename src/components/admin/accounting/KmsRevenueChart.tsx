@@ -110,6 +110,10 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
   const trendAnalysis = useMemo(() => {
     if (chartData.length < 3) return null;
 
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
     const recentDataCount = Math.min(Math.ceil(chartData.length / 3), 10);
     const recentData = chartData.slice(-recentDataCount);
     
@@ -147,9 +151,44 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       trendColor = 'text-blue-600';
     }
     
-    const lastValue = recentData[recentData.length - 1].revenue;
-    const novemberForecast = Math.round(intercept + slope * (n + 1));
-    const decemberForecast = Math.round(intercept + slope * (n + 2));
+    const calculateMonthlyForecast = (targetMonth: number, targetYear: number) => {
+      let totalRevenue = 0;
+      
+      chartData.forEach(item => {
+        const itemDate = new Date(item.startDate);
+        if (itemDate.getMonth() === targetMonth && itemDate.getFullYear() === targetYear) {
+          totalRevenue += item.revenue;
+        }
+      });
+      
+      const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+      const daysPassed = targetMonth === currentMonth && targetYear === currentYear 
+        ? now.getDate() 
+        : 0;
+      
+      if (targetMonth === currentMonth && targetYear === currentYear && daysPassed > 0) {
+        const avgDailyRevenue = totalRevenue / daysPassed;
+        const daysRemaining = daysInMonth - daysPassed;
+        const projectedRevenue = avgDailyRevenue * daysRemaining;
+        return Math.round(totalRevenue + projectedRevenue);
+      } else if (targetMonth > currentMonth || targetYear > currentYear) {
+        const periodsPerMonth = period === 'day' ? 30 : period === 'week' ? 4.33 : 1;
+        let forecastSum = 0;
+        const periodsToForecast = Math.ceil(periodsPerMonth);
+        
+        for (let i = 1; i <= periodsToForecast; i++) {
+          const forecastValue = intercept + slope * (n + i);
+          forecastSum += forecastValue;
+        }
+        
+        return Math.round(forecastSum);
+      }
+      
+      return Math.round(totalRevenue);
+    };
+    
+    const novemberForecast = calculateMonthlyForecast(10, 2025);
+    const decemberForecast = calculateMonthlyForecast(11, 2025);
     
     return {
       trendText,
@@ -157,12 +196,11 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       trendColor,
       slope,
       avgRevenue: Math.round(avgRevenue),
-      lastValue,
       novemberForecast,
       decemberForecast,
       changePerPeriod: Math.round(slope)
     };
-  }, [chartData]);
+  }, [chartData, period]);
 
   return (
     <Card className="bg-white border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">

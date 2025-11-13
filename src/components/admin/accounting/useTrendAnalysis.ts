@@ -200,27 +200,36 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
       return Math.round(forecastSum);
     };
     
-    const novemberForecast = calculateMonthlyForecast(10, 2025);
+    const calculateCurrentWeekForecast = () => {
+      const currentWeekData = chartData.filter(item => {
+        const itemDate = new Date(item.startDate || item.date);
+        return itemDate >= currentWeekStart;
+      });
+      
+      if (currentWeekData.length === 0) return Math.round(avgRevenue);
+      
+      const currentWeekRevenue = currentWeekData.reduce((sum, item) => sum + item.revenue, 0);
+      const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
+      const daysPassed = dayOfWeek;
+      const daysRemaining = 7 - daysPassed;
+      
+      if (daysRemaining === 0 || daysPassed === 0) return currentWeekRevenue;
+      
+      const avgDailyRevenue = currentWeekRevenue / daysPassed;
+      const projectedTotal = currentWeekRevenue + avgDailyRevenue * daysRemaining;
+      
+      return Math.round(projectedTotal);
+    };
+    
+    const novemberForecast = period === 'week' 
+      ? calculateCurrentWeekForecast() 
+      : calculateMonthlyForecast(10, 2025);
+    
     const decemberForecast = calculateMonthlyForecast(11, 2025);
     
     const getCurrentPeriodForecast = () => {
       if (period === 'month') return novemberForecast;
-      if (period === 'week') {
-        const currentWeekRevenue = chartData
-          .filter(item => {
-            const itemDate = new Date(item.startDate || item.date);
-            return itemDate >= currentWeekStart;
-          })
-          .reduce((sum, item) => sum + item.revenue, 0);
-        
-        const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
-        const daysRemaining = 7 - dayOfWeek;
-        
-        if (daysRemaining === 0) return currentWeekRevenue;
-        
-        const avgDailyRevenue = currentWeekRevenue / dayOfWeek;
-        return Math.round(currentWeekRevenue + avgDailyRevenue * daysRemaining);
-      }
+      if (period === 'week') return novemberForecast;
       return avgRevenue;
     };
     

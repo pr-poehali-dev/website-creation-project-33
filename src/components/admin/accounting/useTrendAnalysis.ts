@@ -186,6 +186,10 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     const novemberForecast = calculateMonthlyForecast(10, 2025);
     const decemberForecast = calculateMonthlyForecast(11, 2025);
     
+    const changePerPeriod = period === 'month' 
+      ? Math.round(novemberForecast - avgRevenue)
+      : Math.round(slope);
+    
     return {
       trendText,
       trendIcon,
@@ -194,7 +198,7 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
       avgRevenue: Math.round(avgRevenue),
       novemberForecast,
       decemberForecast,
-      changePerPeriod: Math.round(slope)
+      changePerPeriod
     };
   }, [chartData, period]);
 }

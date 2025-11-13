@@ -13,6 +13,7 @@ export interface ShiftRecord {
   expense_comment: string;
   paid_by_organization: boolean;
   paid_to_worker: boolean;
+  salary_at_kvv: boolean;
   paid_kvv: boolean;
   paid_kms: boolean;
   invoice_issued: boolean;

@@ -22,6 +22,7 @@ interface ShiftTableRowProps {
   editingPayments: {[key: string]: {
     paid_by_organization: boolean;
     paid_to_worker: boolean;
+    salary_at_kvv: boolean;
     paid_kvv: boolean;
     paid_kms: boolean;
     invoice_issued: boolean;
@@ -30,7 +31,7 @@ interface ShiftTableRowProps {
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
-  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
+  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
   onInvoiceIssuedDateChange: (shift: ShiftRecord, date: string | null) => void;
   onInvoicePaidDateChange: (shift: ShiftRecord, date: string | null) => void;
   onDelete: (shift: ShiftRecord) => void;
@@ -171,18 +172,31 @@ export default function ShiftTableRow({
         </select>
       </td>
       <td className="border border-gray-300 p-1 md:p-2 text-center">
-        <select
-          value={(editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker) ? 'yes' : 'no'}
-          onChange={() => onPaymentToggle(shift, 'paid_to_worker')}
-          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
-            (editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker)
-              ? 'bg-green-100 text-green-800 border-green-300'
-              : 'bg-red-100 text-red-800 border-red-300'
-          }`}
-        >
-          <option value="no">Нет</option>
-          <option value="yes">Да</option>
-        </select>
+        <div className="flex flex-col gap-1">
+          <select
+            value={(editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker) ? 'yes' : 'no'}
+            onChange={() => onPaymentToggle(shift, 'paid_to_worker')}
+            className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+              (editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker)
+                ? 'bg-green-100 text-green-800 border-green-300'
+                : 'bg-red-100 text-red-800 border-red-300'
+            }`}
+          >
+            <option value="no">Нет</option>
+            <option value="yes">Да</option>
+          </select>
+          <button
+            onClick={() => onPaymentToggle(shift, 'salary_at_kvv')}
+            className={`w-16 h-6 text-xs border rounded px-1 font-medium transition-colors ${
+              (editingPayments[key]?.salary_at_kvv ?? shift.salary_at_kvv)
+                ? 'bg-yellow-200 text-yellow-900 border-yellow-400'
+                : 'bg-gray-100 text-gray-500 border-gray-300 hover:bg-gray-200'
+            }`}
+            title="У КВВ"
+          >
+            {(editingPayments[key]?.salary_at_kvv ?? shift.salary_at_kvv) ? '📦 КВВ' : 'КВВ'}
+          </button>
+        </div>
       </td>
       <td className="border border-gray-300 p-1 md:p-2 text-center">
         <select

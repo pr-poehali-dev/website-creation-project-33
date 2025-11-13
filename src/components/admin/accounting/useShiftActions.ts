@@ -12,6 +12,7 @@ export function useShiftActions(
   const [editingPayments, setEditingPayments] = useState<{[key: string]: {
     paid_by_organization: boolean;
     paid_to_worker: boolean;
+    salary_at_kvv: boolean;
     paid_kvv: boolean;
     paid_kms: boolean;
     invoice_issued: boolean;
@@ -20,6 +21,7 @@ export function useShiftActions(
   const updateExpense = async (shift: ShiftRecord, expenseAmount: number, expenseComment: string, payments?: {
     paid_by_organization: boolean;
     paid_to_worker: boolean;
+    salary_at_kvv: boolean;
     paid_kvv: boolean;
     paid_kms: boolean;
     invoice_issued: boolean;
@@ -40,6 +42,7 @@ export function useShiftActions(
           expense_comment: expenseComment,
           paid_by_organization: payments?.paid_by_organization ?? shift.paid_by_organization,
           paid_to_worker: payments?.paid_to_worker ?? shift.paid_to_worker,
+          salary_at_kvv: payments?.salary_at_kvv ?? shift.salary_at_kvv,
           paid_kvv: payments?.paid_kvv ?? shift.paid_kvv,
           paid_kms: payments?.paid_kms ?? shift.paid_kms,
           invoice_issued: payments?.invoice_issued ?? shift.invoice_issued,
@@ -138,11 +141,12 @@ export function useShiftActions(
     }
   };
 
-  const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => {
+  const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => {
     const key = getShiftKey(shift);
     const currentPayments = editingPayments[key] || {
       paid_by_organization: shift.paid_by_organization,
       paid_to_worker: shift.paid_to_worker,
+      salary_at_kvv: shift.salary_at_kvv,
       paid_kvv: shift.paid_kvv,
       paid_kms: shift.paid_kms,
       invoice_issued: shift.invoice_issued,
@@ -198,6 +202,7 @@ export function useShiftActions(
           expense_comment: expenseComment,
           paid_by_organization: payments.paid_by_organization,
           paid_to_worker: payments.paid_to_worker,
+          salary_at_kvv: payments.salary_at_kvv,
           paid_kvv: payments.paid_kvv,
           paid_kms: payments.paid_kms,
           invoice_issued: payments.invoice_issued,

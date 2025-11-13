@@ -16,6 +16,7 @@ interface ShiftTableProps {
   editingPayments: {[key: string]: {
     paid_by_organization: boolean;
     paid_to_worker: boolean;
+    salary_at_kvv: boolean;
     paid_kvv: boolean;
     paid_kms: boolean;
     invoice_issued: boolean;
@@ -37,7 +38,7 @@ interface ShiftTableProps {
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
-  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
+  onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
   onInvoiceIssuedDateChange: (shift: ShiftRecord, date: string | null) => void;
   onInvoicePaidDateChange: (shift: ShiftRecord, date: string | null) => void;
   onFilterChange: (key: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
@@ -88,6 +89,13 @@ export default function ShiftTable({
   
   const unpaidSalary = shifts
     .filter(shift => !shift.paid_to_worker)
+    .reduce((sum, shift) => {
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date);
+      return sum + salary;
+    }, 0);
+
+  const salaryAtKVV = shifts
+    .filter(shift => shift.salary_at_kvv)
     .reduce((sum, shift) => {
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date);
       return sum + salary;
@@ -402,6 +410,7 @@ export default function ShiftTable({
                 onFilterChange={() => onFilterChange('paid_to_worker')}
               />
               <div className="text-red-600 font-bold mt-1 text-[10px]">Долг: {unpaidSalary.toLocaleString('ru-RU')} ₽</div>
+              <div className="text-yellow-700 font-bold mt-1 text-[10px]">У КВВ: {salaryAtKVV.toLocaleString('ru-RU')} ₽</div>
             </th>
             <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
               <FilterableHeader 

@@ -22,6 +22,7 @@ export interface TableStatistics {
 }
 
 export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics {
+  console.log('🔵 Всего смен для расчета:', shifts.length);
   const totalContacts = shifts.reduce((sum, shift) => sum + (shift.contacts_count || 0), 0);
   
   const unpaidSalary = shifts
@@ -48,6 +49,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   });
   
   console.log('🟡 ДЕТАЛИ: Смены с галочкой "У КВВ":', salaryDetails);
+  console.table(salaryDetails);
   console.log('🟡 КОЛИЧЕСТВО смен с галочкой "У КВВ":', salaryDetails.length);
   
   const salaryAtKVV = salaryAtKVVShifts.reduce((sum, shift) => {

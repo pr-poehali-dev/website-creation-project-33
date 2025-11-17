@@ -18,7 +18,12 @@ export const calculateAfterTax = (shift: ShiftRecord) => {
   return revenue - tax;
 };
 
-export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string) => {
+export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string, organizationName?: string) => {
+  // Для организации "Администратор" зарплата всегда 0₽
+  if (organizationName === 'Администратор') {
+    return 0;
+  }
+  
   // До 01.10.2025 все контакты по 200₽
   if (shiftDate && new Date(shiftDate) < new Date('2025-10-01')) {
     return contactsCount * 200;
@@ -33,7 +38,7 @@ export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string)
 
 export const calculateNetProfit = (shift: ShiftRecord) => {
   const afterTax = calculateAfterTax(shift);
-  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date);
+  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
   const expense = shift.expense_amount || 0;
   return afterTax - workerSalary - expense;
 };

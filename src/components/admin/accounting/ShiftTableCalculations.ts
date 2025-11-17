@@ -22,7 +22,6 @@ export interface TableStatistics {
 }
 
 export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics {
-  console.log('🔵 Всего смен для расчета:', shifts.length);
   const totalContacts = shifts.reduce((sum, shift) => sum + (shift.contacts_count || 0), 0);
   
   const unpaidSalary = shifts
@@ -33,35 +32,13 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       return sum + salary;
     }, 0);
 
-  const salaryAtKVVShifts = shifts.filter(shift => shift.salary_at_kvv && shift.user_name !== 'Корректировка');
-  
-  const salaryDetails = salaryAtKVVShifts.map(s => {
-    const orgName = s.organization_name || s.organization;
-    const salary = calculateWorkerSalary(s.contacts_count, s.date, orgName);
-    return {
-      date: s.date,
-      user: s.user_name,
-      org: s.organization,
-      contacts: s.contacts_count,
-      salary: salary,
-      paid: s.paid_to_worker
-    };
-  });
-  
-  const salaryAtKVV = salaryAtKVVShifts.reduce((sum, shift) => {
-    const orgName = shift.organization_name || shift.organization;
-    const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
-    return sum + salary;
-  }, 0);
-  
-  if (salaryDetails.length > 0) {
-    console.group('🟡 ЗАРПЛАТА У КВВ');
-    console.log('📊 Количество смен:', salaryDetails.length);
-    console.table(salaryDetails);
-    console.log('💰 ИТОГО:', salaryAtKVV, '₽');
-    console.log('Ожидаемая сумма: Алина (5 × 200 = 1000₽) + Филипп (11 × 300 = 3300₽) = 4300₽');
-    console.groupEnd();
-  }
+  const salaryAtKVV = shifts
+    .filter(shift => shift.salary_at_kvv && shift.user_name !== 'Корректировка')
+    .reduce((sum, shift) => {
+      const orgName = shift.organization_name || shift.organization;
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      return sum + salary;
+    }, 0);
 
   const totalRevenue = shifts.reduce((sum, shift) => sum + calculateRevenue(shift), 0);
   const totalTax = shifts.reduce((sum, shift) => sum + calculateTax(shift), 0);

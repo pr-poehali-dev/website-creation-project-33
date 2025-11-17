@@ -2,13 +2,20 @@ import { ShiftRecord } from './types';
 
 export const calculateRevenue = (shift: ShiftRecord) => {
   // Для организации "Администратор" фиксированная сумма прихода 2968₽
-  if (shift.organization_name === 'Администратор') {
+  const orgName = shift.organization_name || shift.organization;
+  if (orgName === 'Администратор') {
     return 2968;
   }
   return shift.contacts_count * shift.contact_rate;
 };
 
 export const calculateTax = (shift: ShiftRecord) => {
+  // Для организации "Администратор" фиксированный налог 172₽
+  const orgName = shift.organization_name || shift.organization;
+  if (orgName === 'Администратор') {
+    return 172;
+  }
+  
   if (shift.payment_type === 'cashless') {
     const revenue = calculateRevenue(shift);
     return Math.round(revenue * 0.07);
@@ -42,7 +49,8 @@ export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string,
 
 export const calculateNetProfit = (shift: ShiftRecord) => {
   const afterTax = calculateAfterTax(shift);
-  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
+  const orgName = shift.organization_name || shift.organization;
+  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
   const expense = shift.expense_amount || 0;
   return afterTax - workerSalary - expense;
 };

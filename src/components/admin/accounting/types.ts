@@ -3,6 +3,7 @@ export interface ShiftRecord {
   start_time: string;
   end_time: string;
   organization: string;
+  organization_name?: string;
   organization_id: number;
   user_id: number;
   user_name: string;

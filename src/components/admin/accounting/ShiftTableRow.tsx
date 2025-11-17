@@ -56,7 +56,8 @@ export default function ShiftTableRow({
   const revenue = calculateRevenue(shift);
   const tax = calculateTax(shift);
   const afterTax = calculateAfterTax(shift);
-  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
+  const orgName = shift.organization_name || shift.organization;
+  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
   const netProfit = calculateNetProfit(shift);
   const kvv = calculateKVV(shift);
   const kms = calculateKMS(shift);

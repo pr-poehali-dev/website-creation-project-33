@@ -1,6 +1,10 @@
 import { ShiftRecord } from './types';
 
 export const calculateRevenue = (shift: ShiftRecord) => {
+  // Для организации "Администратор" фиксированная сумма прихода 2968₽
+  if (shift.organization_name === 'Администратор') {
+    return 2968;
+  }
   return shift.contacts_count * shift.contact_rate;
 };
 

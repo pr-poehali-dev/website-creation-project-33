@@ -1,5 +1,5 @@
 import { ShiftRecord } from './types';
-import { calculateWorkerSalary } from './calculations';
+import { calculateWorkerSalary, calculateRevenue, calculateTax } from './calculations';
 
 export interface TableStatistics {
   totalContacts: number;
@@ -38,13 +38,8 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       return sum + salary;
     }, 0);
 
-  const totalRevenue = shifts.reduce((sum, shift) => sum + (shift.contacts_count * shift.contact_rate), 0);
-  const totalTax = shifts.reduce((sum, shift) => {
-    if (shift.payment_type === 'cashless') {
-      return sum + Math.round((shift.contacts_count * shift.contact_rate) * 0.07);
-    }
-    return sum;
-  }, 0);
+  const totalRevenue = shifts.reduce((sum, shift) => sum + calculateRevenue(shift), 0);
+  const totalTax = shifts.reduce((sum, shift) => sum + calculateTax(shift), 0);
   const totalAfterTax = totalRevenue - totalTax;
   const totalSalary = shifts
     .filter(shift => shift.user_name !== 'Корректировка')
@@ -52,8 +47,8 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const totalNetProfit = shifts
     .filter(shift => shift.user_name !== 'Корректировка')
     .reduce((sum, shift) => {
-      const revenue = shift.contacts_count * shift.contact_rate;
-      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+      const revenue = calculateRevenue(shift);
+      const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
       const expense = shift.expense_amount || 0;
@@ -65,8 +60,8 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const unpaidKVV = shifts
     .filter(shift => !shift.paid_kvv)
     .reduce((sum, shift) => {
-      const revenue = shift.contacts_count * shift.contact_rate;
-      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+      const revenue = calculateRevenue(shift);
+      const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
       const expense = shift.expense_amount || 0;
@@ -78,8 +73,8 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const unpaidKVVCash = shifts
     .filter(shift => !shift.paid_kvv && shift.payment_type === 'cash')
     .reduce((sum, shift) => {
-      const revenue = shift.contacts_count * shift.contact_rate;
-      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+      const revenue = calculateRevenue(shift);
+      const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
       const expense = shift.expense_amount || 0;
@@ -91,8 +86,8 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const unpaidKVVCashless = shifts
     .filter(shift => !shift.paid_kvv && shift.payment_type === 'cashless')
     .reduce((sum, shift) => {
-      const revenue = shift.contacts_count * shift.contact_rate;
-      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+      const revenue = calculateRevenue(shift);
+      const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
       const expense = shift.expense_amount || 0;
@@ -104,8 +99,8 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const unpaidKMS = shifts
     .filter(shift => !shift.paid_kms)
     .reduce((sum, shift) => {
-      const revenue = shift.contacts_count * shift.contact_rate;
-      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+      const revenue = calculateRevenue(shift);
+      const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
       const expense = shift.expense_amount || 0;
@@ -117,8 +112,8 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const unpaidKMSCash = shifts
     .filter(shift => !shift.paid_kms && shift.payment_type === 'cash')
     .reduce((sum, shift) => {
-      const revenue = shift.contacts_count * shift.contact_rate;
-      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+      const revenue = calculateRevenue(shift);
+      const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
       const expense = shift.expense_amount || 0;
@@ -130,8 +125,8 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const unpaidKMSCashless = shifts
     .filter(shift => !shift.paid_kms && shift.payment_type === 'cashless')
     .reduce((sum, shift) => {
-      const revenue = shift.contacts_count * shift.contact_rate;
-      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+      const revenue = calculateRevenue(shift);
+      const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name);
       const expense = shift.expense_amount || 0;
@@ -143,7 +138,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const expectedRevenue = shifts
     .filter(shift => !shift.paid_by_organization)
     .reduce((sum, shift) => {
-      const revenue = shift.contacts_count * shift.contact_rate;
+      const revenue = calculateRevenue(shift);
       return sum + revenue;
     }, 0);
 

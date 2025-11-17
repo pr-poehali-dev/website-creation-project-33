@@ -19,9 +19,9 @@ export const calculateAfterTax = (shift: ShiftRecord) => {
 };
 
 export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string, organizationName?: string) => {
-  // Для организации "Администратор" зарплата всегда 0₽
+  // Для организации "Администратор" фиксированная зарплата 600₽ за смену
   if (organizationName === 'Администратор') {
-    return 0;
+    return 600;
   }
   
   // До 01.10.2025 все контакты по 200₽

@@ -1481,6 +1481,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'start_time': str(row[1]) if row[1] else None,
                             'end_time': str(row[2]) if row[2] else None,
                             'organization': row[3],
+                            'organization_name': row[3],
                             'organization_id': row[4],
                             'user_id': row[5],
                             'user_name': row[6],

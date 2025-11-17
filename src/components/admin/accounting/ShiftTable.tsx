@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useMemo } from 'react';
 import Icon from '@/components/ui/icon';
 import ShiftTableRow from './ShiftTableRow';
 import ShiftTableZoom from './ShiftTableZoom';
@@ -47,6 +47,8 @@ interface ShiftTableProps {
   onEdit: (shift: ShiftRecord) => void;
 }
 
+const MemoizedShiftTableRow = React.memo(ShiftTableRow);
+
 export default function ShiftTable({
   shifts,
   editingExpense,
@@ -73,6 +75,8 @@ export default function ShiftTable({
   onDelete,
   onEdit
 }: ShiftTableProps) {
+  const parentRef = useRef<HTMLDivElement>(null);
+
   if (shifts.length === 0) {
     return (
       <div className="text-center py-8 text-gray-600">
@@ -82,10 +86,10 @@ export default function ShiftTable({
     );
   }
 
-  const stats = calculateTableStatistics(shifts);
+  const stats = useMemo(() => calculateTableStatistics(shifts), [shifts]);
 
   return (
-    <ShiftTableZoom>
+    <ShiftTableZoom parentRef={parentRef}>
       <table className="w-full text-xs md:text-sm border-collapse">
         <ShiftTableHeader
           stats={stats}
@@ -104,8 +108,8 @@ export default function ShiftTable({
         />
         <tbody>
           {shifts.map((shift) => (
-            <ShiftTableRow
-              key={`${shift.user_id}-${shift.date}-${shift.start_time}`}
+            <MemoizedShiftTableRow
+              key={`${shift.user_id}-${shift.date}-${shift.start_time}-${shift.organization_id}`}
               shift={shift}
               editingExpense={editingExpense}
               editingComment={editingComment}

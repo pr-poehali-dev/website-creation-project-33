@@ -33,13 +33,22 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     }, 0);
 
   const salaryAtKVVShifts = shifts.filter(shift => shift.salary_at_kvv && shift.user_name !== 'Корректировка');
-  console.log('🟡 Смены с зарплатой у КВВ:', salaryAtKVVShifts.map(s => ({
-    date: s.date,
-    user: s.user_name,
-    org: s.organization,
-    contacts: s.contacts_count,
-    salary: calculateWorkerSalary(s.contacts_count, s.date, s.organization_name || s.organization)
-  })));
+  
+  const salaryDetails = salaryAtKVVShifts.map(s => {
+    const orgName = s.organization_name || s.organization;
+    const salary = calculateWorkerSalary(s.contacts_count, s.date, orgName);
+    return {
+      date: s.date,
+      user: s.user_name,
+      org: s.organization,
+      contacts: s.contacts_count,
+      salary: salary,
+      paid: s.paid_to_worker
+    };
+  });
+  
+  console.log('🟡 ДЕТАЛИ: Смены с галочкой "У КВВ":', salaryDetails);
+  console.log('🟡 КОЛИЧЕСТВО смен с галочкой "У КВВ":', salaryDetails.length);
   
   const salaryAtKVV = salaryAtKVVShifts.reduce((sum, shift) => {
     const orgName = shift.organization_name || shift.organization;
@@ -47,7 +56,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     return sum + salary;
   }, 0);
   
-  console.log('🟡 Итого зарплата у КВВ:', salaryAtKVV);
+  console.log('🟡 ИТОГО зарплата у КВВ:', salaryAtKVV, '₽');
 
   const totalRevenue = shifts.reduce((sum, shift) => sum + calculateRevenue(shift), 0);
   const totalTax = shifts.reduce((sum, shift) => sum + calculateTax(shift), 0);

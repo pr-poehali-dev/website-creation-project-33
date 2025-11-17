@@ -48,17 +48,20 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     };
   });
   
-  console.log('🟡 ДЕТАЛИ: Смены с галочкой "У КВВ":', salaryDetails);
-  console.table(salaryDetails);
-  console.log('🟡 КОЛИЧЕСТВО смен с галочкой "У КВВ":', salaryDetails.length);
-  
   const salaryAtKVV = salaryAtKVVShifts.reduce((sum, shift) => {
     const orgName = shift.organization_name || shift.organization;
     const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
     return sum + salary;
   }, 0);
   
-  console.log('🟡 ИТОГО зарплата у КВВ:', salaryAtKVV, '₽');
+  if (salaryDetails.length > 0) {
+    console.group('🟡 ЗАРПЛАТА У КВВ');
+    console.log('📊 Количество смен:', salaryDetails.length);
+    console.table(salaryDetails);
+    console.log('💰 ИТОГО:', salaryAtKVV, '₽');
+    console.log('Ожидаемая сумма: Алина (5 × 200 = 1000₽) + Филипп (11 × 300 = 3300₽) = 4300₽');
+    console.groupEnd();
+  }
 
   const totalRevenue = shifts.reduce((sum, shift) => sum + calculateRevenue(shift), 0);
   const totalTax = shifts.reduce((sum, shift) => sum + calculateTax(shift), 0);

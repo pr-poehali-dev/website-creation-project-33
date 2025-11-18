@@ -81,7 +81,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             service.spreadsheets().batchUpdate(spreadsheetId=sheet_id, body=request_body).execute()
         
         headers = [
-            'Дата', 'Время', 'Организация', 'Сумма прихода', 'Оплата', 'Налог 7%', 
+            'Дата', 'Время', 'Организация', 
+            'Счет выставлен', 'Дата выст.', 'Счет оплачен', 'Дата опл.',
+            'Сумма прихода', 'Оплата', 'Налог 7%', 
             'После налога', 'Промоутер', 'Контакты', 'Зарплата', 'Расход', 
             'Комментарий', 'Чистый остаток', 'КВВ', 'КМС',
             'Опл. орг.', 'Опл. испол.', 'Опл. КВВ', 'Опл. КМС'
@@ -115,6 +117,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 shift.get('date', ''),
                 time_str,
                 shift.get('organization', ''),
+                'Да' if shift.get('invoice_issued', False) else 'Нет',
+                shift.get('invoice_issued_date', ''),
+                'Да' if shift.get('invoice_paid', False) else 'Нет',
+                shift.get('invoice_paid_date', ''),
                 revenue,
                 f"{payment_icon} {rate}₽",
                 tax if tax > 0 else '',
@@ -133,6 +139,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Да' if shift.get('paid_kms', False) else 'Нет'
             ]
             values.append(row)
+        
+        total_revenue = sum(shift.get('contacts_count', 0) * shift.get('contact_rate', 0) for shift in shifts)
+        total_tax = sum(round((shift.get('contacts_count', 0) * shift.get('contact_rate', 0)) * 0.07) if shift.get('payment_type') == 'cashless' else 0 for shift in shifts)
+        total_after_tax = total_revenue - total_tax
+        total_contacts = sum(shift.get('contacts_count', 0) for shift in shifts)
+        total_salary = sum(shift.get('contacts_count', 0) * 300 if shift.get('contacts_count', 0) >= 10 else shift.get('contacts_count', 0) * 200 for shift in shifts)
+        total_expense = sum(shift.get('expense_amount', 0) for shift in shifts)
+        total_net = total_after_tax - total_salary - total_expense
+        total_kvv = round(total_net / 2)
+        total_kms = round(total_net / 2)
+        
+        totals_row = [
+            'ИТОГО:', '', '',
+            '', '', '', '',
+            total_revenue, '', total_tax,
+            total_after_tax, '', total_contacts, total_salary, total_expense,
+            '', total_net, total_kvv, total_kms,
+            '', '', '', ''
+        ]
+        values.append(totals_row)
         
         service.spreadsheets().values().clear(
             spreadsheetId=sheet_id,

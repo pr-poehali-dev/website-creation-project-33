@@ -56,11 +56,15 @@ export const calculateNetProfit = (shift: ShiftRecord) => {
 };
 
 export const calculateKVV = (shift: ShiftRecord) => {
-  return Math.round(calculateNetProfit(shift) / 2);
+  const baseKVV = Math.round(calculateNetProfit(shift) / 2);
+  const personalFundsKVV = (shift.personal_funds_by_kvv && shift.personal_funds_amount) ? shift.personal_funds_amount : 0;
+  return baseKVV + personalFundsKVV;
 };
 
 export const calculateKMS = (shift: ShiftRecord) => {
-  return Math.round(calculateNetProfit(shift) / 2);
+  const baseKMS = Math.round(calculateNetProfit(shift) / 2);
+  const personalFundsKMS = (shift.personal_funds_by_kms && shift.personal_funds_amount) ? shift.personal_funds_amount : 0;
+  return baseKMS + personalFundsKMS;
 };
 
 export const formatDate = (dateStr: string) => {

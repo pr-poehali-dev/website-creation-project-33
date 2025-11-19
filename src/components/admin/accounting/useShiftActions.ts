@@ -49,6 +49,9 @@ export function useShiftActions(
           invoice_issued_date: invoiceIssuedDate ?? shift.invoice_issued_date ?? null,
           invoice_paid: payments?.invoice_paid ?? shift.invoice_paid,
           invoice_paid_date: invoicePaidDate ?? shift.invoice_paid_date ?? null,
+          personal_funds_amount: shift.personal_funds_amount || 0,
+          personal_funds_by_kms: shift.personal_funds_by_kms || false,
+          personal_funds_by_kvv: shift.personal_funds_by_kvv || false,
         }),
       });
 

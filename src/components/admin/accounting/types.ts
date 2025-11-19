@@ -21,6 +21,9 @@ export interface ShiftRecord {
   invoice_issued_date: string | null;
   invoice_paid: boolean;
   invoice_paid_date: string | null;
+  personal_funds_amount: number;
+  personal_funds_by_kms: boolean;
+  personal_funds_by_kvv: boolean;
 }
 
 export interface User {

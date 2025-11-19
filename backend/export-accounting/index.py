@@ -84,8 +84,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'Дата', 'Время', 'Организация', 
             'Счет выставлен', 'Дата выст.', 'Счет оплачен', 'Дата опл.',
             'Сумма прихода', 'Оплата', 'Налог 7%', 
-            'После налога', 'Промоутер', 'Контакты', 'Зарплата', 'Расход', 
-            'Комментарий', 'Чистый остаток', 'КВВ', 'КМС',
+            'После налога', 'Промоутер', 'Контакты', 'Зарплата', 
+            'Внесение личных средств', 'Внёс КМС', 'Внёс КВВ',
+            'Расход', 'Комментарий', 'Чистый остаток', 'КВВ', 'КМС',
             'Опл. орг.', 'Опл. испол.', 'Опл. КВВ', 'Опл. КМС'
         ]
         
@@ -108,8 +109,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             expense = shift.get('expense_amount', 0)
             net_profit = after_tax - worker_salary - expense
             
-            kvv = round(net_profit / 2)
-            kms = round(net_profit / 2)
+            personal_funds_amount = shift.get('personal_funds_amount', 0)
+            personal_funds_by_kms = shift.get('personal_funds_by_kms', False)
+            personal_funds_by_kvv = shift.get('personal_funds_by_kvv', False)
+            
+            kvv = round(net_profit / 2) + (personal_funds_amount if personal_funds_by_kvv else 0)
+            kms = round(net_profit / 2) + (personal_funds_amount if personal_funds_by_kms else 0)
             
             payment_icon = '💵' if payment_type == 'cash' else '💳'
             
@@ -128,6 +133,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 shift.get('user_name', ''),
                 contacts,
                 worker_salary,
+                personal_funds_amount if personal_funds_amount > 0 else '',
+                'Да' if personal_funds_by_kms else '',
+                'Да' if personal_funds_by_kvv else '',
                 expense,
                 shift.get('expense_comment', ''),
                 net_profit,

@@ -131,6 +131,58 @@ export default function ShiftTableRow({
       <td className="border border-gray-300 p-1 md:p-2 text-right">{shift.contacts_count}</td>
       <td className="border border-gray-300 p-1 md:p-2 text-right font-medium text-orange-600">{workerSalary.toLocaleString()} ₽</td>
       <td className="border border-gray-300 p-1 md:p-2">
+        <div className="flex flex-col gap-1">
+          <Input
+            type="number"
+            value={shift.personal_funds_amount || 0}
+            onChange={(e) => {
+              const newShift = { ...shift, personal_funds_amount: parseInt(e.target.value) || 0 };
+              onExpenseBlur(newShift);
+            }}
+            placeholder="Сумма"
+            className="w-20 h-7 text-xs border-gray-300"
+          />
+          <div className="flex gap-1">
+            <button
+              onClick={() => {
+                const newShift = { 
+                  ...shift, 
+                  personal_funds_by_kms: !shift.personal_funds_by_kms,
+                  personal_funds_by_kvv: false
+                };
+                onExpenseBlur(newShift);
+              }}
+              className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
+                shift.personal_funds_by_kms
+                  ? 'bg-purple-100 text-purple-800 border-purple-300'
+                  : 'bg-gray-100 text-gray-500 border-gray-300 hover:bg-gray-200'
+              }`}
+              title="КМС"
+            >
+              КМС
+            </button>
+            <button
+              onClick={() => {
+                const newShift = { 
+                  ...shift, 
+                  personal_funds_by_kvv: !shift.personal_funds_by_kvv,
+                  personal_funds_by_kms: false
+                };
+                onExpenseBlur(newShift);
+              }}
+              className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
+                shift.personal_funds_by_kvv
+                  ? 'bg-blue-100 text-blue-800 border-blue-300'
+                  : 'bg-gray-100 text-gray-500 border-gray-300 hover:bg-gray-200'
+              }`}
+              title="КВВ"
+            >
+              КВВ
+            </button>
+          </div>
+        </div>
+      </td>
+      <td className="border border-gray-300 p-1 md:p-2">
         <Input
           type="number"
           value={editingExpense[key] ?? shift.expense_amount ?? 0}

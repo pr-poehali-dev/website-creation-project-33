@@ -139,6 +139,7 @@ export default function ShiftTableHeader({
             filterValue={filters.paid_to_worker}
             onFilterChange={() => onFilterChange('paid_to_worker')}
           />
+          <div className="text-green-600 font-bold mt-1 text-[10px]">Оплачено: {stats.paidSalary.toLocaleString('ru-RU')} ₽</div>
           <div className="text-red-600 font-bold mt-1 text-[10px]">Долг б/нал: {stats.unpaidSalaryCashless.toLocaleString('ru-RU')} ₽</div>
           <div className="text-red-600 font-bold mt-0.5 text-[10px]">Долг нал: {stats.unpaidSalaryCash.toLocaleString('ru-RU')} ₽</div>
           <div className="text-yellow-700 font-bold mt-1 text-[10px]">У КВВ: {stats.salaryAtKVV.toLocaleString('ru-RU')} ₽</div>

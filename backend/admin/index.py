@@ -200,17 +200,23 @@ def get_leads_stats() -> Dict[str, Any]:
                     u.id, u.name, u.email,
                     COUNT(DISTINCT sc.shift_date || '-' || sc.organization_id) as shifts_count,
                     SUM(sc.shift_contacts) as contacts,
-                    COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
-                    COUNT(l.id) as total_leads,
+                    (
+                        SELECT COUNT(*) 
+                        FROM t_p24058207_website_creation_pro.leads_analytics la
+                        WHERE la.user_id = u.id 
+                        AND la.lead_type = 'подход' 
+                        AND la.is_active = true
+                    ) as approaches,
+                    (
+                        SELECT COUNT(*) 
+                        FROM t_p24058207_website_creation_pro.leads_analytics la
+                        WHERE la.user_id = u.id 
+                        AND la.is_active = true
+                    ) as total_leads,
                     MAX(sc.shift_contacts) as max_contacts_per_shift,
                     COALESCE(ur.total_revenue, 0) as revenue
                 FROM t_p24058207_website_creation_pro.users u
                 JOIN shift_contacts sc ON u.id = sc.user_id
-                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
-                    ON l.user_id = sc.user_id 
-                    AND l.created_at::date = sc.shift_date
-                    AND l.organization_id = sc.organization_id
-                    AND l.is_active = true
                 LEFT JOIN user_revenue ur ON u.id = ur.user_id
                 GROUP BY u.id, u.name, u.email, ur.total_revenue
                 HAVING SUM(sc.shift_contacts) > 0

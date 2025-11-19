@@ -102,7 +102,9 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const expense = shift.expense_amount || 0;
       const netProfit = afterTax - salary - expense;
       const kvv = Math.round(netProfit / 2);
-      return sum + kvv;
+      // Добавляем личные средства КВВ к долгу по безналу
+      const personalFundsKVV = (shift.personal_funds_by_kvv && shift.personal_funds_amount) ? shift.personal_funds_amount : 0;
+      return sum + kvv + personalFundsKVV;
     }, 0);
 
   const unpaidKMS = shifts
@@ -130,7 +132,9 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const expense = shift.expense_amount || 0;
       const netProfit = afterTax - salary - expense;
       const kms = Math.round(netProfit / 2);
-      return sum + kms;
+      // Добавляем личные средства КМС к долгу по налу
+      const personalFundsKMS = (shift.personal_funds_by_kms && shift.personal_funds_amount) ? shift.personal_funds_amount : 0;
+      return sum + kms + personalFundsKMS;
     }, 0);
 
   const unpaidKMSCashless = shifts

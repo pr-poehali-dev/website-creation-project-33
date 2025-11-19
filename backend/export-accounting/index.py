@@ -113,8 +113,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             personal_funds_by_kms = shift.get('personal_funds_by_kms', False)
             personal_funds_by_kvv = shift.get('personal_funds_by_kvv', False)
             
-            kvv = round(net_profit / 2) + (personal_funds_amount if personal_funds_by_kvv else 0)
-            kms = round(net_profit / 2) + (personal_funds_amount if personal_funds_by_kms else 0)
+            # Личные средства НЕ добавляются к KVV/KMS, только к долгам
+            kvv = round(net_profit / 2)
+            kms = round(net_profit / 2)
             
             payment_icon = '💵' if payment_type == 'cash' else '💳'
             

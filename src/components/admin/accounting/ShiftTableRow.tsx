@@ -68,22 +68,16 @@ export default function ShiftTableRow({
   const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
   const netProfit = calculateNetProfit(shift);
   
-  // Используем данные из editingPersonalFunds для расчёта KVV/KMS
+  // Личные средства для отображения в UI
   const personalFunds = editingPersonalFunds[key] || {
     amount: shift.personal_funds_amount || 0,
     by_kms: shift.personal_funds_by_kms || false,
     by_kvv: shift.personal_funds_by_kvv || false
   };
   
-  const shiftWithPersonalFunds = {
-    ...shift,
-    personal_funds_amount: personalFunds.amount,
-    personal_funds_by_kms: personalFunds.by_kms,
-    personal_funds_by_kvv: personalFunds.by_kvv
-  };
-  
-  const kvv = calculateKVV(shiftWithPersonalFunds);
-  const kms = calculateKMS(shiftWithPersonalFunds);
+  // KVV/KMS рассчитываются БЕЗ личных средств (личные средства идут только в долги)
+  const kvv = calculateKVV(shift);
+  const kms = calculateKMS(shift);
   
   const [localInvoiceIssuedDate, setLocalInvoiceIssuedDate] = useState(shift.invoice_issued_date || '');
   const [localInvoicePaidDate, setLocalInvoicePaidDate] = useState(shift.invoice_paid_date || '');
@@ -162,6 +156,7 @@ export default function ShiftTableRow({
               const newAmount = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
               onPersonalFundsChange(key, newAmount, personalFunds.by_kms, personalFunds.by_kvv);
             }}
+            onBlur={() => onExpenseBlur(shift)}
             placeholder="Сумма"
             className="w-20 h-7 text-xs border-gray-300"
           />
@@ -170,6 +165,8 @@ export default function ShiftTableRow({
               onClick={() => {
                 const newByKms = !personalFunds.by_kms;
                 onPersonalFundsChange(key, personalFunds.amount, newByKms, newByKms ? false : personalFunds.by_kvv);
+                // Автосохранение после изменения
+                setTimeout(() => onExpenseBlur(shift), 0);
               }}
               className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
                 personalFunds.by_kms
@@ -184,6 +181,8 @@ export default function ShiftTableRow({
               onClick={() => {
                 const newByKvv = !personalFunds.by_kvv;
                 onPersonalFundsChange(key, personalFunds.amount, newByKvv ? false : personalFunds.by_kms, newByKvv);
+                // Автосохранение после изменения
+                setTimeout(() => onExpenseBlur(shift), 0);
               }}
               className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
                 personalFunds.by_kvv

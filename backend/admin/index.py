@@ -174,57 +174,77 @@ def get_leads_stats() -> Dict[str, Any]:
                 
                 avg_per_shift = round(lead_count / shifts_count) if shifts_count > 0 else 0
                 
-                # Вычисляем доход из смен
+                # Вычисляем доход и максимальные контакты за смену
                 cur.execute("""
                     SELECT 
-                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                        COALESCE(
-                            (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
-                             WHERE organization_id = s.organization_id 
-                             AND start_date <= s.shift_date 
-                             AND (end_date IS NULL OR end_date >= s.shift_date)
-                             ORDER BY start_date DESC LIMIT 1),
-                            o.contact_rate
-                        ) as rate,
-                        COALESCE(
-                            (SELECT payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods 
-                             WHERE organization_id = s.organization_id 
-                             AND start_date <= s.shift_date 
-                             AND (end_date IS NULL OR end_date >= s.shift_date)
-                             ORDER BY start_date DESC LIMIT 1),
-                            o.payment_type
-                        ) as payment_type,
-                        MAX(daily_contacts) as max_contacts
+                        s.organization_id,
+                        o.contact_rate,
+                        o.payment_type,
+                        s.shift_date
                     FROM t_p24058207_website_creation_pro.work_shifts s
                     JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
-                    LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
-                        ON l.user_id = s.user_id 
-                        AND l.created_at::date = s.shift_date
-                        AND l.organization_id = s.organization_id
-                        AND l.is_active = true
-                    LEFT JOIN LATERAL (
-                        SELECT COUNT(*) as daily_contacts
-                        FROM t_p24058207_website_creation_pro.leads_analytics
-                        WHERE user_id = s.user_id 
-                        AND created_at::date = s.shift_date
-                        AND organization_id = s.organization_id
-                        AND lead_type = 'контакт'
-                        AND is_active = true
-                    ) daily ON true
                     WHERE s.user_id = %s AND s.shift_date >= '2025-01-01'
-                    GROUP BY s.organization_id, o.contact_rate, o.payment_type
+                    ORDER BY s.shift_date
                 """, (user_id,))
                 
-                total_revenue = 0
+                shifts_data = cur.fetchall()
+                org_revenue_map = {}
                 max_contacts = 0
-                for org_row in cur.fetchall():
-                    org_contacts = org_row[0]
-                    rate = org_row[1] if org_row[1] else 0
-                    payment_type = org_row[2] if org_row[2] else 'cash'
-                    org_max = org_row[3] if org_row[3] else 0
+                
+                for shift_row in shifts_data:
+                    org_id = shift_row[0]
+                    base_rate = shift_row[1]
+                    base_payment_type = shift_row[2]
+                    shift_date = shift_row[3]
                     
-                    if org_max > max_contacts:
-                        max_contacts = org_max
+                    # Получаем актуальную ставку для даты
+                    cur.execute("""
+                        SELECT contact_rate, payment_type
+                        FROM t_p24058207_website_creation_pro.organization_rate_periods
+                        WHERE organization_id = %s 
+                        AND start_date <= %s 
+                        AND (end_date IS NULL OR end_date >= %s)
+                        ORDER BY start_date DESC LIMIT 1
+                    """, (org_id, shift_date, shift_date))
+                    
+                    period_row = cur.fetchone()
+                    if period_row:
+                        rate = period_row[0]
+                        payment_type = period_row[1]
+                    else:
+                        rate = base_rate if base_rate else 0
+                        payment_type = base_payment_type if base_payment_type else 'cash'
+                    
+                    # Считаем контакты за эту смену
+                    cur.execute("""
+                        SELECT COUNT(*)
+                        FROM t_p24058207_website_creation_pro.leads_analytics
+                        WHERE user_id = %s 
+                        AND created_at::date = %s
+                        AND organization_id = %s
+                        AND lead_type = 'контакт'
+                        AND is_active = true
+                    """, (user_id, shift_date, org_id))
+                    
+                    shift_contacts = cur.fetchone()[0]
+                    
+                    if shift_contacts > max_contacts:
+                        max_contacts = shift_contacts
+                    
+                    if org_id not in org_revenue_map:
+                        org_revenue_map[org_id] = {
+                            'contacts': 0,
+                            'rate': rate,
+                            'payment_type': payment_type
+                        }
+                    
+                    org_revenue_map[org_id]['contacts'] += shift_contacts
+                
+                total_revenue = 0
+                for org_id, org_data in org_revenue_map.items():
+                    org_contacts = org_data['contacts']
+                    rate = org_data['rate']
+                    payment_type = org_data['payment_type']
                     
                     org_revenue = org_contacts * rate
                     if payment_type == 'cashless':

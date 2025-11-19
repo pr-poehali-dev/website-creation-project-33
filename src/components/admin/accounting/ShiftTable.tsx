@@ -10,6 +10,11 @@ interface ShiftTableProps {
   shifts: ShiftRecord[];
   editingExpense: {[key: string]: number};
   editingComment: {[key: string]: string};
+  editingPersonalFunds: {[key: string]: {
+    amount: number;
+    by_kms: boolean;
+    by_kvv: boolean;
+  }};
   editingPayments: {[key: string]: {
     paid_by_organization: boolean;
     paid_to_worker: boolean;
@@ -34,6 +39,7 @@ interface ShiftTableProps {
   uniquePromoters: string[];
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
+  onPersonalFundsChange: (key: string, amount: number, by_kms: boolean, by_kvv: boolean) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
   onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
   onInvoiceIssuedDateChange: (shift: ShiftRecord, date: string | null) => void;
@@ -53,6 +59,7 @@ export default function ShiftTable({
   shifts,
   editingExpense,
   editingComment,
+  editingPersonalFunds,
   editingPayments,
   filters,
   organizationFilter,
@@ -63,6 +70,7 @@ export default function ShiftTable({
   uniquePromoters,
   onExpenseChange,
   onCommentChange,
+  onPersonalFundsChange,
   onExpenseBlur,
   onPaymentToggle,
   onInvoiceIssuedDateChange,
@@ -113,9 +121,11 @@ export default function ShiftTable({
               shift={shift}
               editingExpense={editingExpense}
               editingComment={editingComment}
+              editingPersonalFunds={editingPersonalFunds}
               editingPayments={editingPayments}
               onExpenseChange={onExpenseChange}
               onCommentChange={onCommentChange}
+              onPersonalFundsChange={onPersonalFundsChange}
               onExpenseBlur={onExpenseBlur}
               onPaymentToggle={onPaymentToggle}
               onInvoiceIssuedDateChange={onInvoiceIssuedDateChange}

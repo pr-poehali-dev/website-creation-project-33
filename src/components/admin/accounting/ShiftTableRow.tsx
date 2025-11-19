@@ -19,6 +19,11 @@ interface ShiftTableRowProps {
   shift: ShiftRecord;
   editingExpense: {[key: string]: number};
   editingComment: {[key: string]: string};
+  editingPersonalFunds: {[key: string]: {
+    amount: number;
+    by_kms: boolean;
+    by_kvv: boolean;
+  }};
   editingPayments: {[key: string]: {
     paid_by_organization: boolean;
     paid_to_worker: boolean;
@@ -30,6 +35,7 @@ interface ShiftTableRowProps {
   }};
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
+  onPersonalFundsChange: (key: string, amount: number, by_kms: boolean, by_kvv: boolean) => void;
   onExpenseBlur: (shift: ShiftRecord) => void;
   onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
   onInvoiceIssuedDateChange: (shift: ShiftRecord, date: string | null) => void;
@@ -42,9 +48,11 @@ export default function ShiftTableRow({
   shift,
   editingExpense,
   editingComment,
+  editingPersonalFunds,
   editingPayments,
   onExpenseChange,
   onCommentChange,
+  onPersonalFundsChange,
   onExpenseBlur,
   onPaymentToggle,
   onInvoiceIssuedDateChange,
@@ -59,8 +67,23 @@ export default function ShiftTableRow({
   const orgName = shift.organization_name || shift.organization;
   const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
   const netProfit = calculateNetProfit(shift);
-  const kvv = calculateKVV(shift);
-  const kms = calculateKMS(shift);
+  
+  // Используем данные из editingPersonalFunds для расчёта KVV/KMS
+  const personalFunds = editingPersonalFunds[key] || {
+    amount: shift.personal_funds_amount || 0,
+    by_kms: shift.personal_funds_by_kms || false,
+    by_kvv: shift.personal_funds_by_kvv || false
+  };
+  
+  const shiftWithPersonalFunds = {
+    ...shift,
+    personal_funds_amount: personalFunds.amount,
+    personal_funds_by_kms: personalFunds.by_kms,
+    personal_funds_by_kvv: personalFunds.by_kvv
+  };
+  
+  const kvv = calculateKVV(shiftWithPersonalFunds);
+  const kms = calculateKMS(shiftWithPersonalFunds);
   
   const [localInvoiceIssuedDate, setLocalInvoiceIssuedDate] = useState(shift.invoice_issued_date || '');
   const [localInvoicePaidDate, setLocalInvoicePaidDate] = useState(shift.invoice_paid_date || '');
@@ -134,10 +157,10 @@ export default function ShiftTableRow({
         <div className="flex flex-col gap-1">
           <Input
             type="number"
-            value={shift.personal_funds_amount || 0}
+            value={personalFunds.amount === 0 ? '' : personalFunds.amount}
             onChange={(e) => {
-              const newShift = { ...shift, personal_funds_amount: parseInt(e.target.value) || 0 };
-              onExpenseBlur(newShift);
+              const newAmount = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
+              onPersonalFundsChange(key, newAmount, personalFunds.by_kms, personalFunds.by_kvv);
             }}
             placeholder="Сумма"
             className="w-20 h-7 text-xs border-gray-300"
@@ -145,15 +168,11 @@ export default function ShiftTableRow({
           <div className="flex gap-1">
             <button
               onClick={() => {
-                const newShift = { 
-                  ...shift, 
-                  personal_funds_by_kms: !shift.personal_funds_by_kms,
-                  personal_funds_by_kvv: false
-                };
-                onExpenseBlur(newShift);
+                const newByKms = !personalFunds.by_kms;
+                onPersonalFundsChange(key, personalFunds.amount, newByKms, newByKms ? false : personalFunds.by_kvv);
               }}
               className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
-                shift.personal_funds_by_kms
+                personalFunds.by_kms
                   ? 'bg-purple-100 text-purple-800 border-purple-300'
                   : 'bg-gray-100 text-gray-500 border-gray-300 hover:bg-gray-200'
               }`}
@@ -163,15 +182,11 @@ export default function ShiftTableRow({
             </button>
             <button
               onClick={() => {
-                const newShift = { 
-                  ...shift, 
-                  personal_funds_by_kvv: !shift.personal_funds_by_kvv,
-                  personal_funds_by_kms: false
-                };
-                onExpenseBlur(newShift);
+                const newByKvv = !personalFunds.by_kvv;
+                onPersonalFundsChange(key, personalFunds.amount, newByKvv ? false : personalFunds.by_kms, newByKvv);
               }}
               className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
-                shift.personal_funds_by_kvv
+                personalFunds.by_kvv
                   ? 'bg-blue-100 text-blue-800 border-blue-300'
                   : 'bg-gray-100 text-gray-500 border-gray-300 hover:bg-gray-200'
               }`}

@@ -9,6 +9,11 @@ export function useShiftActions(
 ) {
   const [editingExpense, setEditingExpense] = useState<{[key: string]: number}>({});
   const [editingComment, setEditingComment] = useState<{[key: string]: string}>({});
+  const [editingPersonalFunds, setEditingPersonalFunds] = useState<{[key: string]: {
+    amount: number;
+    by_kms: boolean;
+    by_kvv: boolean;
+  }}>({});
   const [editingPayments, setEditingPayments] = useState<{[key: string]: {
     paid_by_organization: boolean;
     paid_to_worker: boolean;
@@ -84,9 +89,28 @@ export function useShiftActions(
     const expenseAmount = editingExpense[key] ?? shift.expense_amount;
     const expenseComment = editingComment[key] ?? shift.expense_comment;
     const payments = editingPayments[key];
+    const personalFunds = editingPersonalFunds[key];
     
-    if (expenseAmount !== shift.expense_amount || expenseComment !== shift.expense_comment || payments) {
-      updateExpense(shift, expenseAmount, expenseComment, payments);
+    // Обновляем shift с данными о личных средствах, если они есть
+    const updatedShift = personalFunds ? {
+      ...shift,
+      personal_funds_amount: personalFunds.amount,
+      personal_funds_by_kms: personalFunds.by_kms,
+      personal_funds_by_kvv: personalFunds.by_kvv
+    } : shift;
+    
+    const hasChanges = 
+      expenseAmount !== shift.expense_amount || 
+      expenseComment !== shift.expense_comment || 
+      payments ||
+      (personalFunds && (
+        personalFunds.amount !== shift.personal_funds_amount ||
+        personalFunds.by_kms !== shift.personal_funds_by_kms ||
+        personalFunds.by_kvv !== shift.personal_funds_by_kvv
+      ));
+    
+    if (hasChanges) {
+      updateExpense(updatedShift, expenseAmount, expenseComment, payments);
     }
   };
 
@@ -345,9 +369,11 @@ export function useShiftActions(
   return {
     editingExpense,
     editingComment,
+    editingPersonalFunds,
     editingPayments,
     setEditingExpense,
     setEditingComment,
+    setEditingPersonalFunds,
     handleExpenseBlur,
     deleteShift,
     handlePaymentToggle,

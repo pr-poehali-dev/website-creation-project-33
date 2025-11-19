@@ -28,9 +28,11 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const {
     editingExpense,
     editingComment,
+    editingPersonalFunds,
     editingPayments,
     setEditingExpense,
     setEditingComment,
+    setEditingPersonalFunds,
     handleExpenseBlur,
     deleteShift,
     handlePaymentToggle,
@@ -255,6 +257,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             shifts={filteredShifts}
             editingExpense={editingExpense}
             editingComment={editingComment}
+            editingPersonalFunds={editingPersonalFunds}
             editingPayments={editingPayments}
             filters={filters}
             organizationFilter={organizationFilter}
@@ -265,6 +268,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             uniquePromoters={uniquePromoters}
             onExpenseChange={(key, value) => setEditingExpense({ ...editingExpense, [key]: value })}
             onCommentChange={(key, value) => setEditingComment({ ...editingComment, [key]: value })}
+            onPersonalFundsChange={(key, amount, by_kms, by_kvv) => setEditingPersonalFunds({ ...editingPersonalFunds, [key]: { amount, by_kms, by_kvv } })}
             onExpenseBlur={handleExpenseBlur}
             onPaymentToggle={handlePaymentToggle}
             onInvoiceIssuedDateChange={handleInvoiceIssuedDateChange}

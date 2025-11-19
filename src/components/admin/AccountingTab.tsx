@@ -75,10 +75,21 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   });
 
   const handleExportToGoogleSheets = async () => {
+    if (filteredShifts.length === 0) {
+      toast({
+        title: 'Нет данных',
+        description: 'Нет смен для экспорта',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setExporting(true);
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
+      
+      console.log('📤 Экспортируем смены:', filteredShifts);
       
       const response = await fetch('https://functions.poehali.dev/e7ea8b8a-c7f4-4c24-84f4-436f40f76963', {
         method: 'POST',
@@ -87,7 +98,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           'X-Session-Token': getSessionToken() || ''
         },
         body: JSON.stringify({
-          shifts: shifts
+          shifts: filteredShifts
         }),
         signal: controller.signal
       });

@@ -4,6 +4,8 @@ import { calculateWorkerSalary, calculateRevenue, calculateTax } from './calcula
 export interface TableStatistics {
   totalContacts: number;
   unpaidSalary: number;
+  unpaidSalaryCash: number;
+  unpaidSalaryCashless: number;
   salaryAtKVV: number;
   totalRevenue: number;
   totalTax: number;
@@ -34,6 +36,22 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
 
   const salaryAtKVV = shifts
     .filter(shift => shift.salary_at_kvv && shift.user_name !== 'Корректировка')
+    .reduce((sum, shift) => {
+      const orgName = shift.organization_name || shift.organization;
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      return sum + salary;
+    }, 0);
+
+  const unpaidSalaryCash = shifts
+    .filter(shift => !shift.paid_to_worker && shift.payment_type === 'cash' && shift.user_name !== 'Корректировка')
+    .reduce((sum, shift) => {
+      const orgName = shift.organization_name || shift.organization;
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      return sum + salary;
+    }, 0);
+
+  const unpaidSalaryCashless = shifts
+    .filter(shift => !shift.paid_to_worker && shift.payment_type === 'cashless' && shift.user_name !== 'Корректировка')
     .reduce((sum, shift) => {
       const orgName = shift.organization_name || shift.organization;
       const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
@@ -161,6 +179,8 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   return {
     totalContacts,
     unpaidSalary,
+    unpaidSalaryCash,
+    unpaidSalaryCashless,
     salaryAtKVV,
     totalRevenue,
     totalTax,

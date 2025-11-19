@@ -145,22 +145,37 @@ def get_leads_stats() -> Dict[str, Any]:
             
             # Статистика по пользователям (из подтверждённых смен)
             cur.execute("""
+                WITH shift_contacts AS (
+                    SELECT 
+                        s.user_id,
+                        s.shift_date,
+                        s.organization_id,
+                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as shift_contacts
+                    FROM t_p24058207_website_creation_pro.work_shifts s
+                    LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
+                        ON l.user_id = s.user_id 
+                        AND l.created_at::date = s.shift_date
+                        AND l.organization_id = s.organization_id
+                        AND l.is_active = true
+                    WHERE s.shift_date >= '2025-01-01'
+                    GROUP BY s.user_id, s.shift_date, s.organization_id
+                )
                 SELECT 
                     u.id, u.name, u.email,
-                    COUNT(DISTINCT s.shift_date || '-' || s.organization_id) as shifts_count,
-                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                    COUNT(DISTINCT sc.shift_date || '-' || sc.organization_id) as shifts_count,
+                    SUM(sc.shift_contacts) as contacts,
                     COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
-                    COUNT(l.id) as total_leads
+                    COUNT(l.id) as total_leads,
+                    MAX(sc.shift_contacts) as max_contacts_per_shift
                 FROM t_p24058207_website_creation_pro.users u
-                JOIN t_p24058207_website_creation_pro.work_shifts s ON u.id = s.user_id
+                JOIN shift_contacts sc ON u.id = sc.user_id
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
-                    ON l.user_id = s.user_id 
-                    AND l.created_at::date = s.shift_date
-                    AND l.organization_id = s.organization_id
+                    ON l.user_id = sc.user_id 
+                    AND l.created_at::date = sc.shift_date
+                    AND l.organization_id = sc.organization_id
                     AND l.is_active = true
-                WHERE s.shift_date >= '2025-01-01'
                 GROUP BY u.id, u.name, u.email
-                HAVING COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) > 0
+                HAVING SUM(sc.shift_contacts) > 0
                 ORDER BY contacts DESC
             """)
             
@@ -171,6 +186,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 contacts_count = row[4]
                 approaches_count = row[5]
                 lead_count = row[6]
+                max_contacts = row[7] if row[7] else 0
                 
                 avg_per_shift = round(lead_count / shifts_count) if shifts_count > 0 else 0
                 
@@ -183,7 +199,7 @@ def get_leads_stats() -> Dict[str, Any]:
                     'approaches': approaches_count,
                     'shifts_count': shifts_count,
                     'avg_per_shift': avg_per_shift,
-                    'max_contacts_per_shift': 0,
+                    'max_contacts_per_shift': max_contacts,
                     'revenue': 0
                 })
             

@@ -121,101 +121,117 @@ def get_moscow_time_from_utc(utc_time):
     return utc_time.astimezone(MOSCOW_TZ)
 
 def get_leads_stats() -> Dict[str, Any]:
-    """Получить статистику по лидам из leads_analytics (AI классификация)"""
+    """Получить статистику по лидам из work_shifts (только подтверждённые смены)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Общая статистика (только от реальных пользователей)
+            # Контакты из подтверждённых смен (как в бухучёте)
             cur.execute("""
-                SELECT COUNT(*) 
-                FROM t_p24058207_website_creation_pro.leads_analytics l
-                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.is_active = true
+                SELECT COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
+                       COUNT(*) as total
+                FROM t_p24058207_website_creation_pro.work_shifts s
+                JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
+                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
+                    ON l.user_id = s.user_id 
+                    AND l.created_at::date = s.shift_date
+                    AND l.organization_id = s.organization_id
+                    AND l.is_active = true
+                WHERE s.shift_date >= '2025-01-01'
             """)
-            total_leads = cur.fetchone()[0]
+            row = cur.fetchone()
+            contacts = row[0] if row[0] else 0
+            approaches = row[1] if row[1] else 0
+            total_leads = row[2] if row[2] else 0
             
-            # Контакты
+            # Статистика по пользователям (из подтверждённых смен)
             cur.execute("""
-                SELECT COUNT(*) 
-                FROM t_p24058207_website_creation_pro.leads_analytics l
-                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'контакт' AND l.is_active = true
-            """)
-            contacts = cur.fetchone()[0]
-            
-            # Подходы
-            cur.execute("""
-                SELECT COUNT(*) 
-                FROM t_p24058207_website_creation_pro.leads_analytics l
-                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.lead_type = 'подход' AND l.is_active = true
-            """)
-            approaches = cur.fetchone()[0]
-            
-            # Статистика по пользователям
-            cur.execute("""
-                SELECT u.id, u.name, u.email,
-                       COUNT(l.id) as lead_count,
-                       COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches
+                SELECT 
+                    u.id, u.name, u.email,
+                    COUNT(DISTINCT s.shift_date || '-' || s.organization_id) as shifts_count,
+                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                    COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
+                    COUNT(l.id) as total_leads
                 FROM t_p24058207_website_creation_pro.users u
-                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
+                JOIN t_p24058207_website_creation_pro.work_shifts s ON u.id = s.user_id
+                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
+                    ON l.user_id = s.user_id 
+                    AND l.created_at::date = s.shift_date
+                    AND l.organization_id = s.organization_id
+                    AND l.is_active = true
+                WHERE s.shift_date >= '2025-01-01'
                 GROUP BY u.id, u.name, u.email
-                HAVING COUNT(l.id) > 0
-                ORDER BY lead_count DESC
+                HAVING COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) > 0
+                ORDER BY contacts DESC
             """)
             
             user_stats = []
             for row in cur.fetchall():
                 user_id = row[0]
-                lead_count = row[3]
+                shifts_count = row[3]
                 contacts_count = row[4]
+                approaches_count = row[5]
+                lead_count = row[6]
                 
-                # Вычисляем смены и доход по организациям для пользователя
+                avg_per_shift = round(lead_count / shifts_count) if shifts_count > 0 else 0
+                
+                # Вычисляем доход из смен
                 cur.execute("""
-                    SELECT l.created_at, l.organization_id, l.lead_type, o.contact_rate, o.payment_type
-                    FROM t_p24058207_website_creation_pro.leads_analytics l
-                    LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                    WHERE l.user_id = %s AND l.is_active = true
+                    SELECT 
+                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                        COALESCE(
+                            (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
+                             WHERE organization_id = s.organization_id 
+                             AND start_date <= s.shift_date 
+                             AND (end_date IS NULL OR end_date >= s.shift_date)
+                             ORDER BY start_date DESC LIMIT 1),
+                            o.contact_rate
+                        ) as rate,
+                        COALESCE(
+                            (SELECT payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods 
+                             WHERE organization_id = s.organization_id 
+                             AND start_date <= s.shift_date 
+                             AND (end_date IS NULL OR end_date >= s.shift_date)
+                             ORDER BY start_date DESC LIMIT 1),
+                            o.payment_type
+                        ) as payment_type,
+                        MAX(daily_contacts) as max_contacts
+                    FROM t_p24058207_website_creation_pro.work_shifts s
+                    JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
+                    LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
+                        ON l.user_id = s.user_id 
+                        AND l.created_at::date = s.shift_date
+                        AND l.organization_id = s.organization_id
+                        AND l.is_active = true
+                    LEFT JOIN LATERAL (
+                        SELECT COUNT(*) as daily_contacts
+                        FROM t_p24058207_website_creation_pro.leads_analytics
+                        WHERE user_id = s.user_id 
+                        AND created_at::date = s.shift_date
+                        AND organization_id = s.organization_id
+                        AND lead_type = 'контакт'
+                        AND is_active = true
+                    ) daily ON true
+                    WHERE s.user_id = %s AND s.shift_date >= '2025-01-01'
+                    GROUP BY s.organization_id, o.contact_rate, o.payment_type
                 """, (user_id,))
                 
-                shift_combinations = set()
-                shift_contacts = {}
-                org_contacts = {}
-                
-                for lead_row in cur.fetchall():
-                    moscow_dt = get_moscow_time_from_utc(lead_row[0])
-                    moscow_date = moscow_dt.date()
-                    org_id = lead_row[1]
-                    lead_type = lead_row[2]
-                    contact_rate = lead_row[3] if lead_row[3] else 0
-                    payment_type = lead_row[4] if lead_row[4] else 'cash'
-                    
-                    shift_key = (moscow_date, org_id)
-                    shift_combinations.add(shift_key)
-                    
-                    if lead_type == 'контакт':
-                        if shift_key not in shift_contacts:
-                            shift_contacts[shift_key] = 0
-                        shift_contacts[shift_key] += 1
-                        
-                        if org_id not in org_contacts:
-                            org_contacts[org_id] = {'count': 0, 'rate': contact_rate, 'payment_type': payment_type}
-                        org_contacts[org_id]['count'] += 1
-                
-                shifts = len(shift_combinations)
-                avg_per_shift = round(lead_count / shifts) if shifts > 0 else 0
-                max_contacts = max(shift_contacts.values()) if shift_contacts else 0
-                
                 total_revenue = 0
-                for org_id, org_data in org_contacts.items():
-                    org_revenue = org_data['count'] * org_data['rate']
-                    if org_data['payment_type'] == 'cashless':
+                max_contacts = 0
+                for org_row in cur.fetchall():
+                    org_contacts = org_row[0]
+                    rate = org_row[1] if org_row[1] else 0
+                    payment_type = org_row[2] if org_row[2] else 'cash'
+                    org_max = org_row[3] if org_row[3] else 0
+                    
+                    if org_max > max_contacts:
+                        max_contacts = org_max
+                    
+                    org_revenue = org_contacts * rate
+                    if payment_type == 'cashless':
                         org_revenue_after_tax = org_revenue * 0.93
                     else:
                         org_revenue_after_tax = org_revenue
                     total_revenue += org_revenue_after_tax
-                
-                revenue = round(total_revenue, 2)
                 
                 user_stats.append({
                     'user_id': user_id,
@@ -223,49 +239,38 @@ def get_leads_stats() -> Dict[str, Any]:
                     'email': row[2], 
                     'lead_count': lead_count,
                     'contacts': contacts_count,
-                    'approaches': row[5],
-                    'shifts_count': shifts,
+                    'approaches': approaches_count,
+                    'shifts_count': shifts_count,
                     'avg_per_shift': avg_per_shift,
                     'max_contacts_per_shift': max_contacts,
-                    'revenue': revenue
+                    'revenue': round(total_revenue, 2)
                 })
             
-            # Статистика с марта 2025 года
-            # Получаем все лиды и группируем по московской дате на Python стороне
-            march_2025_moscow = MOSCOW_TZ.localize(datetime(2025, 3, 1, 0, 0, 0))
-            march_2025_utc = march_2025_moscow.astimezone(pytz.UTC)
-            
+            # Статистика по дням (из подтверждённых смен)
             cur.execute("""
-                SELECT l.created_at, l.lead_type
-                FROM t_p24058207_website_creation_pro.leads_analytics l
-                JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
-                WHERE l.created_at >= %s AND l.is_active = true
-                ORDER BY l.created_at DESC
-            """, (march_2025_utc,))
+                SELECT 
+                    s.shift_date,
+                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
+                    COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
+                    COUNT(l.id) as total
+                FROM t_p24058207_website_creation_pro.work_shifts s
+                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
+                    ON l.user_id = s.user_id 
+                    AND l.created_at::date = s.shift_date
+                    AND l.organization_id = s.organization_id
+                    AND l.is_active = true
+                WHERE s.shift_date >= '2025-01-01'
+                GROUP BY s.shift_date
+                ORDER BY s.shift_date DESC
+            """)
             
-            # Группируем по московским датам
-            daily_groups = {}
-            for row in cur.fetchall():
-                moscow_dt = get_moscow_time_from_utc(row[0])
-                date_key = moscow_dt.date().isoformat()
-                
-                if date_key not in daily_groups:
-                    daily_groups[date_key] = {'count': 0, 'contacts': 0, 'approaches': 0}
-                
-                daily_groups[date_key]['count'] += 1
-                if row[1] == 'контакт':
-                    daily_groups[date_key]['contacts'] += 1
-                elif row[1] == 'подход':
-                    daily_groups[date_key]['approaches'] += 1
-            
-            # Преобразуем в список и сортируем
             daily_stats = []
-            for date_key, stats in sorted(daily_groups.items(), reverse=True):
+            for row in cur.fetchall():
                 daily_stats.append({
-                    'date': date_key,
-                    'count': stats['count'],
-                    'contacts': stats['contacts'],
-                    'approaches': stats['approaches']
+                    'date': row[0].isoformat(),
+                    'contacts': row[1],
+                    'approaches': row[2],
+                    'count': row[3]
                 })
     
     return {

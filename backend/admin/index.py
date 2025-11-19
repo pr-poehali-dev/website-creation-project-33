@@ -1124,7 +1124,27 @@ def approve_user(user_id: int, admin_id: int) -> bool:
 
 def reject_user(user_id: int) -> bool:
     """Отклонить заявку пользователя (удалить и заблокировать IP)"""
-    return delete_user(user_id)
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT registration_ip FROM t_p24058207_website_creation_pro.users WHERE id = %s", (user_id,))
+            row = cur.fetchone()
+            
+            if not row:
+                return False
+            
+            user_ip = row[0] if row else None
+            
+            if user_ip and user_ip != 'unknown':
+                cur.execute(
+                    "INSERT INTO t_p24058207_website_creation_pro.blocked_ips (ip_address, blocked_reason) VALUES (%s, %s) ON CONFLICT (ip_address) DO NOTHING",
+                    (user_ip, f'User ID {user_id} rejected by admin')
+                )
+            
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.user_sessions WHERE user_id = %s", (user_id,))
+            cur.execute("DELETE FROM t_p24058207_website_creation_pro.users WHERE id = %s AND is_admin = FALSE", (user_id,))
+            
+            conn.commit()
+            return True
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')

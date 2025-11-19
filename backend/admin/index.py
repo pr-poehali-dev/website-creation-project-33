@@ -143,7 +143,7 @@ def get_leads_stats() -> Dict[str, Any]:
             approaches = row[1] if row[1] else 0
             total_leads = row[2] if row[2] else 0
             
-            # Статистика по пользователям (из подтверждённых смен)
+            # Статистика по пользователям (из подтверждённых смен) с доходом
             cur.execute("""
                 WITH shift_contacts AS (
                     SELECT 
@@ -159,6 +159,42 @@ def get_leads_stats() -> Dict[str, Any]:
                         AND l.is_active = true
                     WHERE s.shift_date >= '2025-01-01'
                     GROUP BY s.user_id, s.shift_date, s.organization_id
+                ),
+                user_revenue AS (
+                    SELECT 
+                        l.user_id,
+                        SUM(
+                            CASE 
+                                WHEN COALESCE(
+                                    (SELECT payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods 
+                                     WHERE organization_id = o.id 
+                                     AND start_date <= l.created_at::date 
+                                     AND (end_date IS NULL OR end_date >= l.created_at::date)
+                                     ORDER BY start_date DESC LIMIT 1),
+                                    o.payment_type
+                                ) = 'cashless' 
+                                THEN COALESCE(
+                                    (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
+                                     WHERE organization_id = o.id 
+                                     AND start_date <= l.created_at::date 
+                                     AND (end_date IS NULL OR end_date >= l.created_at::date)
+                                     ORDER BY start_date DESC LIMIT 1),
+                                    o.contact_rate
+                                ) * 0.93
+                                ELSE COALESCE(
+                                    (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
+                                     WHERE organization_id = o.id 
+                                     AND start_date <= l.created_at::date 
+                                     AND (end_date IS NULL OR end_date >= l.created_at::date)
+                                     ORDER BY start_date DESC LIMIT 1),
+                                    o.contact_rate
+                                )
+                            END
+                        ) as total_revenue
+                    FROM t_p24058207_website_creation_pro.leads_analytics l
+                    LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                    WHERE l.lead_type = 'контакт' AND l.is_active = true
+                    GROUP BY l.user_id
                 )
                 SELECT 
                     u.id, u.name, u.email,
@@ -166,7 +202,8 @@ def get_leads_stats() -> Dict[str, Any]:
                     SUM(sc.shift_contacts) as contacts,
                     COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
                     COUNT(l.id) as total_leads,
-                    MAX(sc.shift_contacts) as max_contacts_per_shift
+                    MAX(sc.shift_contacts) as max_contacts_per_shift,
+                    COALESCE(ur.total_revenue, 0) as revenue
                 FROM t_p24058207_website_creation_pro.users u
                 JOIN shift_contacts sc ON u.id = sc.user_id
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
@@ -174,7 +211,8 @@ def get_leads_stats() -> Dict[str, Any]:
                     AND l.created_at::date = sc.shift_date
                     AND l.organization_id = sc.organization_id
                     AND l.is_active = true
-                GROUP BY u.id, u.name, u.email
+                LEFT JOIN user_revenue ur ON u.id = ur.user_id
+                GROUP BY u.id, u.name, u.email, ur.total_revenue
                 HAVING SUM(sc.shift_contacts) > 0
                 ORDER BY contacts DESC
             """)
@@ -187,6 +225,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 approaches_count = int(row[5]) if row[5] else 0
                 lead_count = int(row[6]) if row[6] else 0
                 max_contacts = int(row[7]) if row[7] else 0
+                revenue = int(row[8]) if row[8] else 0
                 
                 avg_per_shift = round(lead_count / shifts_count) if shifts_count > 0 else 0
                 
@@ -200,7 +239,7 @@ def get_leads_stats() -> Dict[str, Any]:
                     'shifts_count': shifts_count,
                     'avg_per_shift': avg_per_shift,
                     'max_contacts_per_shift': max_contacts,
-                    'revenue': 0
+                    'revenue': revenue
                 })
             
             # Статистика по дням (из подтверждённых смен)

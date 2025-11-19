@@ -182,11 +182,11 @@ def get_leads_stats() -> Dict[str, Any]:
             user_stats = []
             for row in cur.fetchall():
                 user_id = row[0]
-                shifts_count = row[3]
-                contacts_count = row[4]
-                approaches_count = row[5]
-                lead_count = row[6]
-                max_contacts = row[7] if row[7] else 0
+                shifts_count = int(row[3]) if row[3] else 0
+                contacts_count = int(row[4]) if row[4] else 0
+                approaches_count = int(row[5]) if row[5] else 0
+                lead_count = int(row[6]) if row[6] else 0
+                max_contacts = int(row[7]) if row[7] else 0
                 
                 avg_per_shift = round(lead_count / shifts_count) if shifts_count > 0 else 0
                 

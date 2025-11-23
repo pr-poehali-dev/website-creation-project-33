@@ -34,23 +34,23 @@ export default function FilterableHeader({ label, filterValue, onFilterChange }:
   };
 
   const getFilterColor = () => {
-    if (filterValue === null) return 'text-gray-400';
-    if (filterValue === true) return 'text-green-600';
-    return 'text-red-600';
+    if (filterValue === null) return 'text-slate-400';
+    if (filterValue === true) return 'text-emerald-400';
+    return 'text-red-400';
   };
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 hover:bg-gray-200 px-1 py-0.5 rounded transition-colors w-full justify-center"
+        className="flex items-center gap-1 hover:bg-slate-700/50 px-1 py-0.5 rounded transition-colors w-full justify-center"
       >
         <span>{label}</span>
         <Icon name={getFilterIcon()} size={14} className={getFilterColor()} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 min-w-[140px]">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-lg z-50 min-w-[140px]">
           <button
             onClick={() => {
               onFilterChange();
@@ -61,7 +61,7 @@ export default function FilterableHeader({ label, filterValue, onFilterChange }:
             <Icon 
               name={filterValue === null ? 'CheckCircle2' : 'Circle'} 
               size={16} 
-              className={filterValue === null ? 'text-blue-600' : 'text-gray-300'}
+              className={filterValue === null ? 'text-cyan-400' : 'text-slate-500'}
             />
             Все
           </button>
@@ -70,12 +70,12 @@ export default function FilterableHeader({ label, filterValue, onFilterChange }:
               if (filterValue !== true) onFilterChange();
               setIsOpen(false);
             }}
-            className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-xs"
+            className="w-full px-3 py-2 text-left hover:bg-slate-700/50 flex items-center gap-2 text-xs text-slate-200"
           >
             <Icon 
               name={filterValue === true ? 'CheckCircle2' : 'Circle'} 
               size={16} 
-              className={filterValue === true ? 'text-green-600' : 'text-gray-300'}
+              className={filterValue === true ? 'text-emerald-400' : 'text-slate-500'}
             />
             Да
           </button>
@@ -84,12 +84,12 @@ export default function FilterableHeader({ label, filterValue, onFilterChange }:
               if (filterValue !== false) onFilterChange();
               setIsOpen(false);
             }}
-            className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-xs border-t border-gray-200"
+            className="w-full px-3 py-2 text-left hover:bg-slate-700/50 flex items-center gap-2 text-xs border-t border-slate-700 text-slate-200"
           >
             <Icon 
               name={filterValue === false ? 'CheckCircle2' : 'Circle'} 
               size={16} 
-              className={filterValue === false ? 'text-red-600' : 'text-gray-300'}
+              className={filterValue === false ? 'text-red-400' : 'text-slate-500'}
             />
             Нет
           </button>

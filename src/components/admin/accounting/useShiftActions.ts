@@ -21,6 +21,11 @@ export function useShiftActions(
     paid_kvv: boolean;
     paid_kms: boolean;
     invoice_issued: boolean;
+    invoice_paid: boolean;
+  }}>({});
+  const [editingInvoiceDates, setEditingInvoiceDates] = useState<{[key: string]: {
+    invoice_issued_date?: string | null;
+    invoice_paid_date?: string | null;
   }}>({});
 
   const updateExpense = async (shift: ShiftRecord, expenseAmount: number, expenseComment: string, payments?: {
@@ -376,6 +381,8 @@ export function useShiftActions(
     setEditingExpense,
     setEditingComment,
     setEditingPersonalFunds,
+    setEditingPayments,
+    setEditingInvoiceDates,
     handleExpenseBlur,
     deleteShift,
     handlePaymentToggle,

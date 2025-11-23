@@ -49,7 +49,9 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         key = shift.date;
       } else if (period === 'week') {
         const weekStart = new Date(shiftDate);
-        weekStart.setDate(shiftDate.getDate() - shiftDate.getDay() + 1);
+        const day = weekStart.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        weekStart.setDate(shiftDate.getDate() + diff);
         key = weekStart.toISOString().split('T')[0];
         startDate = key;
         const weekEnd = new Date(weekStart);

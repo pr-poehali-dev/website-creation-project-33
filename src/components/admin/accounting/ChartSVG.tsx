@@ -200,7 +200,17 @@ export default function ChartSVG({
           if (chartData.length <= 7) return true;
           if (i === 0) return false;
           const step = Math.ceil(chartData.length / 7);
-          return i % step === 0 || i === chartData.length - 1;
+          const isStepMatch = i % step === 0;
+          const isLast = i === chartData.length - 1;
+          
+          if (isLast && chartData.length > 7) {
+            const prevStepIndex = Math.floor((chartData.length - 1) / step) * step;
+            if (chartData.length - 1 - prevStepIndex < step / 2) {
+              return false;
+            }
+          }
+          
+          return isStepMatch || isLast;
         }).map((item, idx, arr) => {
           const index = chartData.indexOf(item);
           const x = 60 + (index / (chartData.length - 1 || 1)) * 920;

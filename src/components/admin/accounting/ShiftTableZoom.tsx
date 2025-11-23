@@ -31,7 +31,7 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
             variant="outline"
             size="sm"
             disabled={scale <= 50}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 disabled:opacity-30"
           >
             <Icon name="ZoomOut" size={16} />
           </Button>
@@ -40,7 +40,7 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
             variant="outline"
             size="sm"
             disabled={scale >= 200}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 disabled:opacity-30"
           >
             <Icon name="ZoomIn" size={16} />
           </Button>
@@ -48,7 +48,7 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
             onClick={handleResetZoom}
             variant="outline"
             size="sm"
-            className="h-8 px-3 text-xs"
+            className="h-8 px-3 text-xs bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 font-semibold"
           >
             {scale}%
           </Button>
@@ -57,7 +57,7 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
 
       <div 
         ref={parentRef}
-        className="overflow-auto border-2 border-gray-200 rounded-lg"
+        className="overflow-auto border-2 border-slate-700/50 rounded-lg scrollbar-dark"
         style={{
           height: 'calc(100vh - 280px)',
           minHeight: '500px',

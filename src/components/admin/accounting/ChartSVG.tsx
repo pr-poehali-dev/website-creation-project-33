@@ -201,16 +201,18 @@ export default function ChartSVG({
           if (i === 0) return false;
           const step = Math.ceil(chartData.length / 7);
           return i % step === 0 || i === chartData.length - 1;
-        }).map((item, idx) => {
+        }).map((item, idx, arr) => {
           const index = chartData.indexOf(item);
           const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
+          const isLast = idx === arr.length - 1;
+          const textAnchor = isLast && chartData.length > 7 ? 'end' : 'middle';
           
           return (
             <g key={`x-label-${idx}`}>
               <text
                 x={x}
                 y="405"
-                textAnchor="middle"
+                textAnchor={textAnchor}
                 fontSize="11"
                 fill="#94a3b8"
                 fontWeight="400"

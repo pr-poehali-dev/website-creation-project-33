@@ -191,8 +191,11 @@ export default function ShiftTableRow({
       <td className="border border-gray-300 p-1 md:p-2">
         <Input
           type="number"
-          value={editingExpense[key] ?? shift.expense_amount ?? 0}
-          onChange={(e) => onExpenseChange(key, parseInt(e.target.value) || 0)}
+          value={(editingExpense[key] ?? shift.expense_amount ?? 0) === 0 ? '' : (editingExpense[key] ?? shift.expense_amount ?? 0)}
+          onChange={(e) => {
+            const newValue = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
+            onExpenseChange(key, newValue);
+          }}
           className="w-20 h-7 text-xs border-gray-300"
         />
       </td>

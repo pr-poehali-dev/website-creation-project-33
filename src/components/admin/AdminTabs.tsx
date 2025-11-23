@@ -100,7 +100,7 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
         <StatsTab enabled={activeTab === 'stats'} />
       </TabsContent>
 
-      <TabsContent value="accounting">
+      <TabsContent value="accounting" className="bg-gradient-to-br from-slate-950 to-slate-900 rounded-2xl p-6">
         <AccountingTab enabled={activeTab === 'accounting'} />
       </TabsContent>
 

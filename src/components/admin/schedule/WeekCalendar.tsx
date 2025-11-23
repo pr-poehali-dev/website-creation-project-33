@@ -13,7 +13,7 @@ export default function WeekCalendar({ weekDays }: WeekCalendarProps) {
             {day.dayName}
           </div>
           <div className="text-xs md:text-lg font-bold text-gray-900">
-            {new Date(day.date).getDate()}.10
+            {new Date(day.date).getDate()}.{(new Date(day.date).getMonth() + 1).toString().padStart(2, '0')}
           </div>
         </div>
       ))}

@@ -38,14 +38,14 @@ export default function TimeSlotCard({
   const hasMaxim = workers.some(w => isMaximKorelsky(w.first_name, w.last_name));
 
   return (
-    <div className={`${hasMaxim ? 'bg-purple-500/10 border-2 border-purple-500/50' : 'bg-emerald-500/10 border-2 border-emerald-500/50'} p-2 md:p-3 rounded-lg`}>
-      <div className="flex items-center justify-between mb-2">
-        <span className={`text-xs md:text-sm font-semibold ${hasMaxim ? 'text-purple-400' : 'text-emerald-400'}`}>
-          <Icon name="Clock" size={12} className={`${hasMaxim ? 'text-purple-400' : 'text-emerald-400'} inline mr-1 md:w-[14px] md:h-[14px]`} />
+    <div className={`${hasMaxim ? 'bg-purple-500/10 border border-purple-500/50 md:border-2' : 'bg-emerald-500/10 border border-emerald-500/50 md:border-2'} p-1.5 md:p-2 lg:p-3 rounded-lg`}>
+      <div className="flex items-center justify-between mb-1.5 md:mb-2">
+        <span className={`text-[10px] md:text-xs lg:text-sm font-semibold ${hasMaxim ? 'text-purple-400' : 'text-emerald-400'}`}>
+          <Icon name="Clock" size={10} className={`${hasMaxim ? 'text-purple-400' : 'text-emerald-400'} inline mr-0.5 md:mr-1 md:w-3 md:h-3 lg:w-[14px] lg:h-[14px]`} />
           {slot.label}
         </span>
-        <div className="flex items-center gap-2">
-          <Badge className={`text-xs ${hasMaxim ? 'bg-purple-600' : 'bg-emerald-600'}`}>
+        <div className="flex items-center gap-1 md:gap-2">
+          <Badge className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 ${hasMaxim ? 'bg-purple-600' : 'bg-emerald-600'}`}>
             {workers.length}
           </Badge>
           <button
@@ -53,13 +53,13 @@ export default function TimeSlotCard({
             className="text-emerald-400 hover:text-emerald-300"
             title="Добавить промоутера"
           >
-            <Icon name="Plus" size={16} />
+            <Icon name="Plus" size={14} className="md:w-4 md:h-4" />
           </button>
         </div>
       </div>
-      <div className="space-y-1">
+      <div className="space-y-0.5 md:space-y-1">
         {workers.length === 0 ? (
-          <p className="text-xs text-slate-500 italic">Нет промоутеров</p>
+          <p className="text-[10px] md:text-xs text-slate-500 italic">Нет промоутеров</p>
         ) : (
           workers.map(worker => {
             const workerName = `${worker.first_name} ${worker.last_name}`;

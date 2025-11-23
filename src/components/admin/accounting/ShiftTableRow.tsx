@@ -90,41 +90,41 @@ export default function ShiftTableRow({
   };
 
   return (
-    <tr className="hover:bg-slate-800/30 transition-colors">
+    <tr className="hover:bg-slate-800/30 transition-colors text-[10px] md:text-xs">
       <td className="border border-slate-700/50 p-1 md:p-2 whitespace-nowrap text-slate-200">{formatDate(shift.date)}</td>
       <td className="border border-slate-700/50 p-1 md:p-2 whitespace-nowrap text-slate-200">
         {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
       </td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-slate-200">{shift.organization}</td>
-      <td className="border border-slate-700/50 p-2 min-w-[260px]">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-2 items-center">
+      <td className="border border-slate-700/50 p-1 md:p-2 min-w-[180px] md:min-w-[260px]">
+        <div className="grid grid-cols-2 gap-1.5 md:gap-3">
+          <div className="flex flex-col gap-1 md:gap-2 items-center">
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_issued ?? shift.invoice_issued}
               onChange={() => onPaymentToggle(shift, 'invoice_issued')}
-              className="w-5 h-5 cursor-pointer accent-emerald-500 flex-shrink-0"
+              className="w-4 h-4 md:w-5 md:h-5 cursor-pointer accent-emerald-500 flex-shrink-0"
             />
             <input
               type="date"
               value={invoiceDates.invoice_issued_date || ''}
               onChange={(e) => onInvoiceIssuedDateChange(shift, e.target.value || null)}
-              className="w-full h-8 text-xs border border-slate-600 rounded px-2 bg-slate-800/50 text-slate-200 disabled:bg-slate-900/50 disabled:text-slate-500"
+              className="w-full h-6 md:h-8 text-[9px] md:text-xs border border-slate-600 rounded px-1 md:px-2 bg-slate-800/50 text-slate-200 disabled:bg-slate-900/50 disabled:text-slate-500"
               disabled={!(editingPayments[key]?.invoice_issued ?? shift.invoice_issued)}
             />
           </div>
-          <div className="flex flex-col gap-2 items-center border-l border-slate-700/50 pl-3">
+          <div className="flex flex-col gap-1 md:gap-2 items-center border-l border-slate-700/50 pl-1.5 md:pl-3">
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_paid ?? shift.invoice_paid}
               onChange={() => onPaymentToggle(shift, 'invoice_paid')}
-              className="w-5 h-5 cursor-pointer accent-emerald-500 flex-shrink-0"
+              className="w-4 h-4 md:w-5 md:h-5 cursor-pointer accent-emerald-500 flex-shrink-0"
             />
             <input
               type="date"
               value={invoiceDates.invoice_paid_date || ''}
               onChange={(e) => onInvoicePaidDateChange(shift, e.target.value || null)}
-              className="w-full h-8 text-xs border border-slate-600 rounded px-2 bg-slate-800/50 text-slate-200 disabled:bg-slate-900/50 disabled:text-slate-500"
+              className="w-full h-6 md:h-8 text-[9px] md:text-xs border border-slate-600 rounded px-1 md:px-2 bg-slate-800/50 text-slate-200 disabled:bg-slate-900/50 disabled:text-slate-500"
               disabled={!(editingPayments[key]?.invoice_paid ?? shift.invoice_paid)}
             />
           </div>
@@ -132,11 +132,11 @@ export default function ShiftTableRow({
       </td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-right font-medium text-emerald-400">{revenue.toLocaleString()} ₽</td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">
-        <div className="flex items-center justify-center gap-1">
-          <span className={`px-1.5 py-0.5 rounded text-[10px] ${shift.payment_type === 'cash' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-cyan-500/20 text-cyan-400'}`}>
+        <div className="flex items-center justify-center gap-0.5 md:gap-1">
+          <span className={`px-1 md:px-1.5 py-0.5 rounded text-[9px] md:text-[10px] ${shift.payment_type === 'cash' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-cyan-500/20 text-cyan-400'}`}>
             {shift.payment_type === 'cash' ? '💵' : '💳'}
           </span>
-          <span className="text-xs font-medium text-slate-200">{shift.contact_rate}₽</span>
+          <span className="text-[10px] md:text-xs font-medium text-slate-200">{shift.contact_rate}₽</span>
         </div>
       </td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-right text-red-400">{tax > 0 ? `${tax.toLocaleString()} ₽` : '—'}</td>
@@ -145,7 +145,7 @@ export default function ShiftTableRow({
       <td className="border border-slate-700/50 p-1 md:p-2 text-right text-slate-200">{shift.contacts_count}</td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-right font-medium text-orange-400">{workerSalary.toLocaleString()} ₽</td>
       <td className="border border-slate-700/50 p-1 md:p-2">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5 md:gap-1">
           <Input
             type="number"
             value={personalFunds.amount === 0 ? '' : personalFunds.amount}
@@ -154,15 +154,15 @@ export default function ShiftTableRow({
               onPersonalFundsChange(key, newAmount, personalFunds.by_kms, personalFunds.by_kvv);
             }}
             placeholder="Сумма"
-            className="w-20 h-7 text-xs border-slate-600 bg-slate-800/50 text-slate-200"
+            className="w-16 md:w-20 h-6 md:h-7 text-[10px] md:text-xs border-slate-600 bg-slate-800/50 text-slate-200"
           />
-          <div className="flex gap-1">
+          <div className="flex gap-0.5 md:gap-1">
             <button
               onClick={() => {
                 const newByKms = !personalFunds.by_kms;
                 onPersonalFundsChange(key, personalFunds.amount, newByKms, newByKms ? false : personalFunds.by_kvv);
               }}
-              className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
+              className={`flex-1 h-5 md:h-6 text-[9px] md:text-[10px] border rounded px-0.5 md:px-1 font-medium transition-colors ${
                 personalFunds.by_kms
                   ? 'bg-purple-500/20 text-purple-400 border-purple-500/50'
                   : 'bg-slate-700/50 text-slate-400 border-slate-600 hover:bg-slate-700'
@@ -176,7 +176,7 @@ export default function ShiftTableRow({
                 const newByKvv = !personalFunds.by_kvv;
                 onPersonalFundsChange(key, personalFunds.amount, newByKvv ? false : personalFunds.by_kms, newByKvv);
               }}
-              className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
+              className={`flex-1 h-5 md:h-6 text-[9px] md:text-[10px] border rounded px-0.5 md:px-1 font-medium transition-colors ${
                 personalFunds.by_kvv
                   ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50'
                   : 'bg-slate-700/50 text-slate-400 border-slate-600 hover:bg-slate-700'
@@ -196,7 +196,7 @@ export default function ShiftTableRow({
             const newValue = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
             onExpenseChange(key, newValue);
           }}
-          className="w-20 h-7 text-xs border-slate-600 bg-slate-800/50 text-slate-200"
+          className="w-16 md:w-20 h-6 md:h-7 text-[10px] md:text-xs border-slate-600 bg-slate-800/50 text-slate-200"
         />
       </td>
       <td className="border border-slate-700/50 p-1 md:p-2">
@@ -205,7 +205,7 @@ export default function ShiftTableRow({
           value={editingComment[key] ?? shift.expense_comment ?? ''}
           onChange={(e) => onCommentChange(key, e.target.value)}
           placeholder="Комментарий"
-          className="w-full min-w-[150px] h-7 text-xs border-slate-600 bg-slate-800/50 text-slate-200 placeholder:text-slate-500"
+          className="w-full min-w-[120px] md:min-w-[150px] h-6 md:h-7 text-[10px] md:text-xs border-slate-600 bg-slate-800/50 text-slate-200 placeholder:text-slate-500"
         />
       </td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-right font-bold bg-emerald-500/10 text-emerald-400">
@@ -221,7 +221,7 @@ export default function ShiftTableRow({
         <select
           value={(editingPayments[key]?.paid_by_organization ?? shift.paid_by_organization) ? 'yes' : 'no'}
           onChange={() => onPaymentToggle(shift, 'paid_by_organization')}
-          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+          className={`w-12 md:w-16 h-6 md:h-7 text-[10px] md:text-xs border rounded px-0.5 md:px-1 font-medium ${
             (editingPayments[key]?.paid_by_organization ?? shift.paid_by_organization)
               ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
               : 'bg-red-500/20 text-red-400 border-red-500/50'
@@ -232,11 +232,11 @@ export default function ShiftTableRow({
         </select>
       </td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5 md:gap-1">
           <select
             value={(editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker) ? 'yes' : 'no'}
             onChange={() => onPaymentToggle(shift, 'paid_to_worker')}
-            className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+            className={`w-12 md:w-16 h-6 md:h-7 text-[10px] md:text-xs border rounded px-0.5 md:px-1 font-medium ${
               (editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker)
                 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
                 : 'bg-red-500/20 text-red-400 border-red-500/50'
@@ -247,7 +247,7 @@ export default function ShiftTableRow({
           </select>
           <button
             onClick={() => onPaymentToggle(shift, 'salary_at_kvv')}
-            className={`w-16 h-6 text-xs border rounded px-1 font-medium transition-colors ${
+            className={`w-12 md:w-16 h-5 md:h-6 text-[9px] md:text-xs border rounded px-0.5 md:px-1 font-medium transition-colors ${
               (editingPayments[key]?.salary_at_kvv ?? shift.salary_at_kvv)
                 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50'
                 : 'bg-slate-700/50 text-slate-400 border-slate-600 hover:bg-slate-700'
@@ -262,7 +262,7 @@ export default function ShiftTableRow({
         <select
           value={(editingPayments[key]?.paid_kvv ?? shift.paid_kvv) ? 'yes' : 'no'}
           onChange={() => onPaymentToggle(shift, 'paid_kvv')}
-          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+          className={`w-12 md:w-16 h-6 md:h-7 text-[10px] md:text-xs border rounded px-0.5 md:px-1 font-medium ${
             (editingPayments[key]?.paid_kvv ?? shift.paid_kvv)
               ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
               : 'bg-red-500/20 text-red-400 border-red-500/50'
@@ -276,7 +276,7 @@ export default function ShiftTableRow({
         <select
           value={(editingPayments[key]?.paid_kms ?? shift.paid_kms) ? 'yes' : 'no'}
           onChange={() => onPaymentToggle(shift, 'paid_kms')}
-          className={`w-16 h-7 text-xs border rounded px-1 font-medium ${
+          className={`w-12 md:w-16 h-6 md:h-7 text-[10px] md:text-xs border rounded px-0.5 md:px-1 font-medium ${
             (editingPayments[key]?.paid_kms ?? shift.paid_kms)
               ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
               : 'bg-red-500/20 text-red-400 border-red-500/50'
@@ -287,20 +287,20 @@ export default function ShiftTableRow({
         </select>
       </td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center justify-center gap-0.5 md:gap-1">
           <button
             onClick={() => onEdit(shift)}
-            className="p-1 hover:bg-cyan-500/20 rounded transition-colors"
+            className="p-0.5 md:p-1 hover:bg-cyan-500/20 rounded transition-colors"
             title="Редактировать смену"
           >
-            <Icon name="Edit" size={16} className="text-cyan-400" />
+            <Icon name="Edit" size={14} className="text-cyan-400 md:w-4 md:h-4" />
           </button>
           <button
             onClick={() => onDelete(shift)}
-            className="p-1 hover:bg-red-500/20 rounded transition-colors"
+            className="p-0.5 md:p-1 hover:bg-red-500/20 rounded transition-colors"
             title="Удалить смену"
           >
-            <Icon name="Trash2" size={16} className="text-red-400" />
+            <Icon name="Trash2" size={14} className="text-red-400 md:w-4 md:h-4" />
           </button>
         </div>
       </td>

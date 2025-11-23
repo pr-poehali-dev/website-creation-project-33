@@ -235,10 +235,10 @@ export default function ScheduleAnalyticsTab() {
 
   if (loading) {
     return (
-      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
-        <CardContent className="p-8">
-          <div className="text-center text-slate-300 flex items-center justify-center gap-3">
-            <Icon name="Loader2" size={24} className="animate-spin text-cyan-400" />
+      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-xl md:rounded-2xl shadow-2xl">
+        <CardContent className="p-4 md:p-8">
+          <div className="text-center text-slate-300 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
+            <Icon name="Loader2" size={20} className="animate-spin text-cyan-400 md:w-6 md:h-6" />
             Загрузка данных...
           </div>
         </CardContent>
@@ -247,9 +247,9 @@ export default function ScheduleAnalyticsTab() {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
-        <CardContent className="p-6">
+    <div className="space-y-4 md:space-y-6">
+      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-xl md:rounded-2xl shadow-2xl">
+        <CardContent className="p-3 md:p-6">
           <ScheduleHeader
             view={view}
             setView={setView}

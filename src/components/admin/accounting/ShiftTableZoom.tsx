@@ -24,31 +24,31 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center mb-4 mt-6">
-        <div className="flex gap-2 items-center">
+      <div className="flex justify-between items-center mb-3 md:mb-4 mt-4 md:mt-6">
+        <div className="flex gap-1.5 md:gap-2 items-center">
           <Button
             onClick={handleZoomOut}
             variant="outline"
             size="sm"
             disabled={scale <= 50}
-            className="h-8 w-8 p-0 bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 disabled:opacity-30"
+            className="h-7 w-7 md:h-8 md:w-8 p-0 bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 disabled:opacity-30"
           >
-            <Icon name="ZoomOut" size={16} />
+            <Icon name="ZoomOut" size={14} className="md:w-4 md:h-4" />
           </Button>
           <Button
             onClick={handleZoomIn}
             variant="outline"
             size="sm"
             disabled={scale >= 200}
-            className="h-8 w-8 p-0 bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 disabled:opacity-30"
+            className="h-7 w-7 md:h-8 md:w-8 p-0 bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 disabled:opacity-30"
           >
-            <Icon name="ZoomIn" size={16} />
+            <Icon name="ZoomIn" size={14} className="md:w-4 md:h-4" />
           </Button>
           <Button
             onClick={handleResetZoom}
             variant="outline"
             size="sm"
-            className="h-8 px-3 text-xs bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 font-semibold"
+            className="h-7 px-2 md:h-8 md:px-3 text-[10px] md:text-xs bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 font-semibold"
           >
             {scale}%
           </Button>
@@ -57,10 +57,10 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
 
       <div 
         ref={parentRef}
-        className="overflow-auto border-2 border-slate-700/50 rounded-lg scrollbar-dark"
+        className="overflow-auto border border-slate-700/50 md:border-2 rounded-lg scrollbar-dark"
         style={{
-          height: 'calc(100vh - 280px)',
-          minHeight: '500px',
+          height: 'calc(100vh - 220px)',
+          minHeight: '400px',
           width: '100%'
         }}
       >

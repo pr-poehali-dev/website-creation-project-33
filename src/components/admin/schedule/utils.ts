@@ -25,7 +25,7 @@ export const getMondayOfWeek = (date: Date): Date => {
 
 export const getAllWeeksUntilEndOfYear = (): Week[] => {
   const weeks = [];
-  const startDate = new Date('2025-10-20');
+  const startDate = new Date('2025-11-17');
   const endOfYear = new Date('2025-12-31');
   
   let currentMonday = new Date(startDate);

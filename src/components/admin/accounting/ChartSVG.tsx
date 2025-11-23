@@ -151,12 +151,15 @@ export default function ChartSVG({
         }).map((item, idx) => {
           const index = chartData.indexOf(item);
           const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
+          const isFirst = index === 0;
+          const textAnchor = isFirst && chartData.length > 7 ? 'start' : 'middle';
+          
           return (
             <g key={`x-label-${idx}`}>
               <text
                 x={x}
                 y="395"
-                textAnchor="middle"
+                textAnchor={textAnchor}
                 fontSize="9"
                 fill="#6b7280"
                 fontWeight="500"

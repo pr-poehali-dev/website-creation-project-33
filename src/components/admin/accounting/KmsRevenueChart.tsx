@@ -36,7 +36,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
 
   const chartData = useMemo(() => {
     const dataMap = new Map<string, {revenue: number; startDate: string; endDate: string}>();
-    const cutoffDate = new Date('2025-03-18');
+    const cutoffDate = new Date('2025-03-15');
 
     shifts.forEach(shift => {
       if (new Date(shift.date) < cutoffDate) return;

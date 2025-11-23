@@ -38,19 +38,19 @@ export default function TimeSlotCard({
   const hasMaxim = workers.some(w => isMaximKorelsky(w.first_name, w.last_name));
 
   return (
-    <div className={`${hasMaxim ? 'bg-purple-50 border-2 border-purple-300' : 'bg-green-50 border-2 border-green-300'} p-2 md:p-3 rounded-lg`}>
+    <div className={`${hasMaxim ? 'bg-purple-500/10 border-2 border-purple-500/50' : 'bg-emerald-500/10 border-2 border-emerald-500/50'} p-2 md:p-3 rounded-lg`}>
       <div className="flex items-center justify-between mb-2">
-        <span className={`text-xs md:text-sm font-semibold ${hasMaxim ? 'text-purple-700' : 'text-green-700'}`}>
-          <Icon name="Clock" size={12} className={`${hasMaxim ? 'text-purple-600' : 'text-green-600'} inline mr-1 md:w-[14px] md:h-[14px]`} />
+        <span className={`text-xs md:text-sm font-semibold ${hasMaxim ? 'text-purple-400' : 'text-emerald-400'}`}>
+          <Icon name="Clock" size={12} className={`${hasMaxim ? 'text-purple-400' : 'text-emerald-400'} inline mr-1 md:w-[14px] md:h-[14px]`} />
           {slot.label}
         </span>
         <div className="flex items-center gap-2">
-          <Badge className={`text-xs ${hasMaxim ? 'bg-purple-600' : 'bg-green-600'}`}>
+          <Badge className={`text-xs ${hasMaxim ? 'bg-purple-600' : 'bg-emerald-600'}`}>
             {workers.length}
           </Badge>
           <button
             onClick={() => onAddSlot(dayDate, slot.time, slot.label)}
-            className="text-green-600 hover:text-green-700"
+            className="text-emerald-400 hover:text-emerald-300"
             title="Добавить промоутера"
           >
             <Icon name="Plus" size={16} />
@@ -59,7 +59,7 @@ export default function TimeSlotCard({
       </div>
       <div className="space-y-1">
         {workers.length === 0 ? (
-          <p className="text-xs text-gray-500 italic">Нет промоутеров</p>
+          <p className="text-xs text-slate-500 italic">Нет промоутеров</p>
         ) : (
           workers.map(worker => {
             const workerName = `${worker.first_name} ${worker.last_name}`;

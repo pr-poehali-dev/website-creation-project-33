@@ -41,30 +41,30 @@ export default function DayCard({
   const isSuccessful = stats && stats.expected > 0 && stats.actual >= stats.expected;
   
   return (
-    <Card className={`border-2 shadow-sm transition-all ${isSuccessful ? 'bg-green-50 border-green-500' : 'bg-white border-gray-200'}`}>
+    <Card className={`border-2 shadow-sm transition-all ${isSuccessful ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-slate-800/50 border-slate-700/50'}`}>
       <CardContent className="p-4">
         <div 
-          className={`flex items-center justify-between cursor-pointer -m-4 p-4 rounded-lg transition-colors ${isSuccessful ? 'hover:bg-green-100' : 'hover:bg-gray-50'}`}
+          className={`flex items-center justify-between cursor-pointer -m-4 p-4 rounded-lg transition-colors ${isSuccessful ? 'hover:bg-emerald-500/20' : 'hover:bg-slate-700/50'}`}
           onClick={() => onToggleDay(day.date)}
         >
           <div className="flex items-center gap-2">
-            <div className={`w-10 h-10 rounded-lg ${isSuccessful ? 'bg-green-500' : day.isWeekend ? 'bg-orange-500' : 'bg-blue-600'} text-white flex flex-col items-center justify-center font-bold text-xs`}>
+            <div className={`w-10 h-10 rounded-lg ${isSuccessful ? 'bg-emerald-500' : day.isWeekend ? 'bg-orange-500' : 'bg-cyan-600'} text-white flex flex-col items-center justify-center font-bold text-xs`}>
               <span>{day.dayName}</span>
               <span className="text-sm">{new Date(day.date).getDate()}</span>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">
+              <p className="font-semibold text-slate-100">
                 {day.dayNameFull}
               </p>
-              <p className="text-xs text-gray-500">{day.date}</p>
+              <p className="text-xs text-slate-400">{day.date}</p>
             </div>
             {stats && stats.expected > 0 && (
-              <span className={`text-xs ml-2 px-2 py-1 rounded ${isSuccessful ? 'bg-green-200 text-green-800' : 'text-gray-600 bg-gray-100'}`}>
+              <span className={`text-xs ml-2 px-2 py-1 rounded ${isSuccessful ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 bg-slate-700/50'}`}>
                 {stats.expected} / {stats.actual}
               </span>
             )}
             {isSuccessful && (
-              <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center ml-1 animate-in zoom-in-50 duration-500">
+              <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center ml-1 animate-in zoom-in-50 duration-500">
                 <Icon name="Check" size={16} className="text-white" />
               </div>
             )}
@@ -72,12 +72,12 @@ export default function DayCard({
           <Icon 
             name={isExpanded ? "ChevronUp" : "ChevronDown"} 
             size={20} 
-            className="text-gray-400"
+            className="text-slate-400"
           />
         </div>
 
         {isExpanded && (
-          <div className="mt-3 pt-3 border-t border-gray-200">
+          <div className="mt-3 pt-3 border-t border-slate-700/50">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
               {day.slots.map(slot => {
                 const workers = getUsersWorkingOnSlot(day.date, slot.time);

@@ -86,11 +86,11 @@ export default function WorkerCard({
       <div className="flex items-center justify-between group">
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] md:text-xs text-gray-700">
+            <span className="text-[10px] md:text-xs text-slate-200">
               • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
             </span>
             {avgContacts !== undefined && avgContacts !== null && (
-              <span className="text-[9px] md:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+              <span className="text-[9px] md:text-[10px] text-slate-400 bg-slate-700/50 px-1.5 py-0.5 rounded">
                 ~{avgContacts.toFixed(1)}
               </span>
             )}
@@ -98,7 +98,7 @@ export default function WorkerCard({
           {recommendedOrg && (
             <div className="flex items-center gap-2 ml-2">
               <span 
-                className="text-[9px] md:text-[10px] text-blue-600 cursor-pointer hover:underline"
+                className="text-[9px] md:text-[10px] text-cyan-400 cursor-pointer hover:underline"
                 onClick={() => setShowOrgStatsModal(true)}
               >
                 Рекомендация: {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)})` : ''}
@@ -109,7 +109,7 @@ export default function WorkerCard({
         <button
           onClick={() => onRemoveSlot(worker.user_id, workerName, dayDate, slotTime, slotLabel)}
           disabled={deletingSlot?.userId === worker.user_id && deletingSlot?.date === dayDate && deletingSlot?.slot === slotTime}
-          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 disabled:opacity-50"
+          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300 disabled:opacity-50"
           title="Удалить смену"
         >
           {deletingSlot?.userId === worker.user_id && deletingSlot?.date === dayDate && deletingSlot?.slot === slotTime ? (
@@ -132,7 +132,7 @@ export default function WorkerCard({
               onCommentBlur(workerName, dayDate, currentComment);
             }
           }}
-          className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-white border-gray-300"
+          className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200"
         />
         <button
           onClick={() => {
@@ -140,7 +140,7 @@ export default function WorkerCard({
             onCommentBlur(workerName, dayDate, currentComment);
           }}
           disabled={savingComment === commentKey}
-          className="px-2 py-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded text-[10px] md:text-xs h-6 md:h-7 flex items-center gap-1 whitespace-nowrap"
+          className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 text-white rounded text-[10px] md:text-xs h-6 md:h-7 flex items-center gap-1 whitespace-nowrap"
           title="Сохранить место работы"
         >
           {savingComment === commentKey ? (
@@ -150,15 +150,15 @@ export default function WorkerCard({
           )}
         </button>
         {currentComment && savingComment !== commentKey && (
-          <Icon name="MapPin" size={12} className="text-green-600 flex-shrink-0" />
+          <Icon name="MapPin" size={12} className="text-emerald-400 flex-shrink-0" />
         )}
         
         {showSuggestions && filteredLocations.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
             {filteredLocations.map((location, idx) => (
               <div
                 key={idx}
-                className="px-2 py-1 text-[10px] md:text-xs hover:bg-gray-100 cursor-pointer"
+                className="px-2 py-1 text-[10px] md:text-xs hover:bg-slate-700/50 cursor-pointer text-slate-200"
                 onMouseDown={(e) => {
                   e.preventDefault();
                   handleSuggestionClick(location);

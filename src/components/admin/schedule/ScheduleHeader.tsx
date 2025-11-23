@@ -22,15 +22,15 @@ export default function ScheduleHeader({
   return (
     <div className="flex flex-col gap-4 mb-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Icon name="Calendar" size={24} className="text-blue-600 md:w-7 md:h-7" />
+        <h2 className="text-xl md:text-2xl font-bold text-slate-100 flex items-center gap-2">
+          <Icon name="Calendar" size={24} className="text-cyan-400 md:w-7 md:h-7" />
           График работы отдела
         </h2>
         <div className="flex gap-2">
           <Button
             onClick={() => setView('team')}
             variant={view === 'team' ? 'default' : 'outline'}
-            className={`text-xs md:text-sm ${view === 'team' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white hover:bg-gray-50 border border-gray-300 text-gray-700'}`}
+            className={`text-xs md:text-sm ${view === 'team' ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : 'bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200'}`}
             size="sm"
           >
             <Icon name="Users" size={16} className="mr-1 md:mr-2" />
@@ -39,7 +39,7 @@ export default function ScheduleHeader({
           <Button
             onClick={() => setView('individual')}
             variant={view === 'individual' ? 'default' : 'outline'}
-            className={`text-xs md:text-sm ${view === 'individual' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white hover:bg-gray-50 border border-gray-300 text-gray-700'}`}
+            className={`text-xs md:text-sm ${view === 'individual' ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : 'bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200'}`}
             size="sm"
           >
             <Icon name="User" size={16} className="mr-1 md:mr-2" />
@@ -48,22 +48,22 @@ export default function ScheduleHeader({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 bg-gray-50 p-3 rounded-lg border-2 border-gray-200">
+      <div className="flex items-center justify-between gap-3 bg-slate-800/50 p-3 rounded-lg border-2 border-slate-700/50">
         <Button
           onClick={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
           disabled={currentWeekIndex === 0 || loading}
           variant="outline"
           size="sm"
-          className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 disabled:opacity-50"
+          className="bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200 disabled:opacity-30"
         >
           <Icon name="ChevronLeft" size={16} />
         </Button>
 
         <div className="text-center">
-          <p className="text-sm md:text-base font-semibold text-gray-900">
+          <p className="text-sm md:text-base font-semibold text-slate-100">
             {weeks[currentWeekIndex].label}
           </p>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-slate-400">
             Неделя {currentWeekIndex + 1} из {weeks.length}
           </p>
         </div>
@@ -73,7 +73,7 @@ export default function ScheduleHeader({
           disabled={currentWeekIndex === weeks.length - 1 || loading}
           variant="outline"
           size="sm"
-          className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 disabled:opacity-50"
+          className="bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200 disabled:opacity-30"
         >
           <Icon name="ChevronRight" size={16} />
         </Button>

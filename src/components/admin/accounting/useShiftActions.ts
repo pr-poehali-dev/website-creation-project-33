@@ -188,29 +188,40 @@ export function useShiftActions(
     setEditingPayments({ ...editingPayments, [key]: newPayments });
   };
 
-  const handleInvoiceIssuedDateChange = async (shift: ShiftRecord, date: string | null) => {
+  const handleInvoiceIssuedDateChange = (shift: ShiftRecord, date: string | null) => {
     const key = getShiftKey(shift);
-    const expenseAmount = editingExpense[key] ?? shift.expense_amount ?? 0;
-    const expenseComment = editingComment[key] ?? shift.expense_comment ?? '';
-    const payments = editingPayments[key];
+    const currentDates = editingInvoiceDates[key] || {
+      invoice_issued_date: shift.invoice_issued_date,
+      invoice_paid_date: shift.invoice_paid_date
+    };
     
-    await updateExpense(shift, expenseAmount, expenseComment, payments, date, shift.invoice_paid_date);
+    setEditingInvoiceDates({
+      ...editingInvoiceDates,
+      [key]: { ...currentDates, invoice_issued_date: date }
+    });
   };
 
-  const handleInvoicePaidDateChange = async (shift: ShiftRecord, date: string | null) => {
+  const handleInvoicePaidDateChange = (shift: ShiftRecord, date: string | null) => {
     const key = getShiftKey(shift);
-    const expenseAmount = editingExpense[key] ?? shift.expense_amount ?? 0;
-    const expenseComment = editingComment[key] ?? shift.expense_comment ?? '';
-    const payments = editingPayments[key];
+    const currentDates = editingInvoiceDates[key] || {
+      invoice_issued_date: shift.invoice_issued_date,
+      invoice_paid_date: shift.invoice_paid_date
+    };
     
-    await updateExpense(shift, expenseAmount, expenseComment, payments, shift.invoice_issued_date, date);
+    setEditingInvoiceDates({
+      ...editingInvoiceDates,
+      [key]: { ...currentDates, invoice_paid_date: date }
+    });
   };
 
   const saveAllPayments = async (shifts: ShiftRecord[]) => {
-    const updates = Object.entries(editingPayments).map(async ([key, payments]) => {
+    const allKeys = new Set([...Object.keys(editingPayments), ...Object.keys(editingInvoiceDates)]);
+    const updates = Array.from(allKeys).map(async (key) => {
       const shift = shifts.find(s => getShiftKey(s) === key);
       if (!shift) return;
       
+      const payments = editingPayments[key];
+      const dates = editingInvoiceDates[key];
       const expenseAmount = editingExpense[key] ?? shift.expense_amount ?? 0;
       const expenseComment = editingComment[key] ?? shift.expense_comment ?? '';
       
@@ -227,15 +238,15 @@ export function useShiftActions(
           organization_id: shift.organization_id,
           expense_amount: expenseAmount,
           expense_comment: expenseComment,
-          paid_by_organization: payments.paid_by_organization,
-          paid_to_worker: payments.paid_to_worker,
-          salary_at_kvv: payments.salary_at_kvv,
-          paid_kvv: payments.paid_kvv,
-          paid_kms: payments.paid_kms,
-          invoice_issued: payments.invoice_issued,
-          invoice_issued_date: shift.invoice_issued_date,
-          invoice_paid: payments.invoice_paid,
-          invoice_paid_date: shift.invoice_paid_date,
+          paid_by_organization: payments?.paid_by_organization ?? shift.paid_by_organization,
+          paid_to_worker: payments?.paid_to_worker ?? shift.paid_to_worker,
+          salary_at_kvv: payments?.salary_at_kvv ?? shift.salary_at_kvv,
+          paid_kvv: payments?.paid_kvv ?? shift.paid_kvv,
+          paid_kms: payments?.paid_kms ?? shift.paid_kms,
+          invoice_issued: payments?.invoice_issued ?? shift.invoice_issued,
+          invoice_issued_date: dates?.invoice_issued_date ?? shift.invoice_issued_date,
+          invoice_paid: payments?.invoice_paid ?? shift.invoice_paid,
+          invoice_paid_date: dates?.invoice_paid_date ?? shift.invoice_paid_date,
         }),
       });
     });
@@ -247,6 +258,7 @@ export function useShiftActions(
         description: 'Все изменения сохранены',
       });
       setEditingPayments({});
+      setEditingInvoiceDates({});
       loadAccountingData();
       return true;
     } catch (error) {
@@ -371,6 +383,7 @@ export function useShiftActions(
     editingComment,
     editingPersonalFunds,
     editingPayments,
+    editingInvoiceDates,
     setEditingExpense,
     setEditingComment,
     setEditingPersonalFunds,

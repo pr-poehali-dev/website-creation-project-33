@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { ShiftRecord } from './types';
@@ -33,6 +33,10 @@ interface ShiftTableRowProps {
     invoice_issued: boolean;
     invoice_paid: boolean;
   }};
+  editingInvoiceDates: {[key: string]: {
+    invoice_issued_date: string | null;
+    invoice_paid_date: string | null;
+  }};
   onExpenseChange: (key: string, value: number) => void;
   onCommentChange: (key: string, value: string) => void;
   onPersonalFundsChange: (key: string, amount: number, by_kms: boolean, by_kvv: boolean) => void;
@@ -50,6 +54,7 @@ export default function ShiftTableRow({
   editingComment,
   editingPersonalFunds,
   editingPayments,
+  editingInvoiceDates,
   onExpenseChange,
   onCommentChange,
   onPersonalFundsChange,
@@ -79,8 +84,10 @@ export default function ShiftTableRow({
   const kvv = calculateKVV(shift);
   const kms = calculateKMS(shift);
   
-  const [localInvoiceIssuedDate, setLocalInvoiceIssuedDate] = useState(shift.invoice_issued_date || '');
-  const [localInvoicePaidDate, setLocalInvoicePaidDate] = useState(shift.invoice_paid_date || '');
+  const invoiceDates = editingInvoiceDates[key] || {
+    invoice_issued_date: shift.invoice_issued_date,
+    invoice_paid_date: shift.invoice_paid_date
+  };
 
   return (
     <tr className="hover:bg-gray-50">
@@ -100,13 +107,8 @@ export default function ShiftTableRow({
             />
             <input
               type="date"
-              value={localInvoiceIssuedDate}
-              onChange={(e) => setLocalInvoiceIssuedDate(e.target.value)}
-              onBlur={(e) => {
-                if (e.target.value !== shift.invoice_issued_date) {
-                  onInvoiceIssuedDateChange(shift, e.target.value || null);
-                }
-              }}
+              value={invoiceDates.invoice_issued_date || ''}
+              onChange={(e) => onInvoiceIssuedDateChange(shift, e.target.value || null)}
               className="w-full h-8 text-xs border border-gray-300 rounded px-2 disabled:bg-gray-100 disabled:text-gray-400"
               disabled={!(editingPayments[key]?.invoice_issued ?? shift.invoice_issued)}
             />
@@ -120,13 +122,8 @@ export default function ShiftTableRow({
             />
             <input
               type="date"
-              value={localInvoicePaidDate}
-              onChange={(e) => setLocalInvoicePaidDate(e.target.value)}
-              onBlur={(e) => {
-                if (e.target.value !== shift.invoice_paid_date) {
-                  onInvoicePaidDateChange(shift, e.target.value || null);
-                }
-              }}
+              value={invoiceDates.invoice_paid_date || ''}
+              onChange={(e) => onInvoicePaidDateChange(shift, e.target.value || null)}
               className="w-full h-8 text-xs border border-gray-300 rounded px-2 disabled:bg-gray-100 disabled:text-gray-400"
               disabled={!(editingPayments[key]?.invoice_paid ?? shift.invoice_paid)}
             />

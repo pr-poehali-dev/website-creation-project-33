@@ -30,6 +30,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     editingComment,
     editingPersonalFunds,
     editingPayments,
+    editingInvoiceDates,
     setEditingExpense,
     setEditingComment,
     setEditingPersonalFunds,
@@ -178,7 +179,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     setSavingPayments(false);
   };
 
-  const hasUnsavedPayments = Object.keys(editingPayments).length > 0;
+  const hasUnsavedPayments = Object.keys(editingPayments).length > 0 || Object.keys(editingInvoiceDates).length > 0;
 
   const uniqueOrganizations = Array.from(new Set(shifts.map(s => s.organization))).sort();
   const uniquePromoters = Array.from(new Set(shifts.map(s => s.user_name))).sort();
@@ -270,6 +271,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             editingComment={editingComment}
             editingPersonalFunds={editingPersonalFunds}
             editingPayments={editingPayments}
+            editingInvoiceDates={editingInvoiceDates}
             filters={filters}
             organizationFilter={organizationFilter}
             promoterFilter={promoterFilter}

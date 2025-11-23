@@ -24,6 +24,10 @@ interface ShiftTableProps {
     invoice_issued: boolean;
     invoice_paid: boolean;
   }};
+  editingInvoiceDates: {[key: string]: {
+    invoice_issued_date: string | null;
+    invoice_paid_date: string | null;
+  }};
   filters: {
     paid_by_organization: boolean | null;
     paid_to_worker: boolean | null;
@@ -61,6 +65,7 @@ export default function ShiftTable({
   editingComment,
   editingPersonalFunds,
   editingPayments,
+  editingInvoiceDates,
   filters,
   organizationFilter,
   promoterFilter,
@@ -123,6 +128,7 @@ export default function ShiftTable({
               editingComment={editingComment}
               editingPersonalFunds={editingPersonalFunds}
               editingPayments={editingPayments}
+              editingInvoiceDates={editingInvoiceDates}
               onExpenseChange={onExpenseChange}
               onCommentChange={onCommentChange}
               onPersonalFundsChange={onPersonalFundsChange}

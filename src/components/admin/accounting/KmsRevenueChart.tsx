@@ -250,15 +250,15 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               formatCurrency={formatCurrency}
             />
 
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-slate-700/50">
               <div className="flex flex-wrap gap-2 md:gap-3 justify-start md:justify-center text-xs">
                 {(showAllPeriods ? chartData : chartData.slice(0, 5)).map((item, index) => {
                   const isNegative = item.revenue < 0;
                   return (
-                    <div key={index} className="flex items-center gap-1.5 md:gap-2 bg-white rounded-lg px-2 md:px-3 py-1.5 md:py-2 border border-gray-100 shadow-sm">
-                      <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${isNegative ? 'bg-red-500' : 'bg-green-500'}`}></div>
-                      <span className="text-gray-600 text-[10px] md:text-xs">{item.label}:</span>
-                      <span className={`font-bold text-[10px] md:text-xs ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
+                    <div key={index} className="flex items-center gap-1.5 md:gap-2 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-lg px-2 md:px-3 py-1.5 md:py-2 border border-slate-700/50 shadow-lg backdrop-blur-sm">
+                      <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${isNegative ? 'bg-red-400 shadow-lg shadow-red-500/50' : 'bg-emerald-400 shadow-lg shadow-emerald-500/50'}`}></div>
+                      <span className="text-slate-400 text-[10px] md:text-xs">{item.label}:</span>
+                      <span className={`font-bold text-[10px] md:text-xs ${isNegative ? 'text-red-400' : 'text-emerald-400'}`}>
                         {formatCurrency(item.revenue)} ₽
                       </span>
                     </div>
@@ -272,7 +272,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                     onClick={() => setShowAllPeriods(!showAllPeriods)}
                     variant="outline"
                     size="sm"
-                    className="text-xs md:text-sm"
+                    className="text-xs md:text-sm bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700/50"
                   >
                     <Icon 
                       name={showAllPeriods ? "ChevronUp" : "ChevronDown"} 

@@ -179,7 +179,12 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     setSavingPayments(false);
   };
 
-  const hasUnsavedPayments = Object.keys(editingPayments).length > 0 || Object.keys(editingInvoiceDates).length > 0;
+  const hasUnsavedPayments = 
+    Object.keys(editingPayments).length > 0 || 
+    Object.keys(editingInvoiceDates).length > 0 ||
+    Object.keys(editingExpense).length > 0 ||
+    Object.keys(editingComment).length > 0 ||
+    Object.keys(editingPersonalFunds).length > 0;
 
   const uniqueOrganizations = Array.from(new Set(shifts.map(s => s.organization))).sort();
   const uniquePromoters = Array.from(new Set(shifts.map(s => s.user_name))).sort();

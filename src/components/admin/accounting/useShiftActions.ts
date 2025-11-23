@@ -85,33 +85,8 @@ export function useShiftActions(
   };
 
   const handleExpenseBlur = (shift: ShiftRecord) => {
-    const key = getShiftKey(shift);
-    const expenseAmount = editingExpense[key] ?? shift.expense_amount;
-    const expenseComment = editingComment[key] ?? shift.expense_comment;
-    const payments = editingPayments[key];
-    const personalFunds = editingPersonalFunds[key];
-    
-    // Обновляем shift с данными о личных средствах, если они есть
-    const updatedShift = personalFunds ? {
-      ...shift,
-      personal_funds_amount: personalFunds.amount,
-      personal_funds_by_kms: personalFunds.by_kms,
-      personal_funds_by_kvv: personalFunds.by_kvv
-    } : shift;
-    
-    const hasChanges = 
-      expenseAmount !== shift.expense_amount || 
-      expenseComment !== shift.expense_comment || 
-      payments ||
-      (personalFunds && (
-        personalFunds.amount !== shift.personal_funds_amount ||
-        personalFunds.by_kms !== shift.personal_funds_by_kms ||
-        personalFunds.by_kvv !== shift.personal_funds_by_kvv
-      ));
-    
-    if (hasChanges) {
-      updateExpense(updatedShift, expenseAmount, expenseComment, payments);
-    }
+    // Больше не сохраняем автоматически - все изменения накапливаются в локальном состоянии
+    // и сохраняются только через saveAllPayments
   };
 
   const deleteShift = async (shift: ShiftRecord) => {
@@ -215,13 +190,21 @@ export function useShiftActions(
   };
 
   const saveAllPayments = async (shifts: ShiftRecord[]) => {
-    const allKeys = new Set([...Object.keys(editingPayments), ...Object.keys(editingInvoiceDates)]);
+    const allKeys = new Set([
+      ...Object.keys(editingPayments), 
+      ...Object.keys(editingInvoiceDates),
+      ...Object.keys(editingExpense),
+      ...Object.keys(editingComment),
+      ...Object.keys(editingPersonalFunds)
+    ]);
+    
     const updates = Array.from(allKeys).map(async (key) => {
       const shift = shifts.find(s => getShiftKey(s) === key);
       if (!shift) return;
       
       const payments = editingPayments[key];
       const dates = editingInvoiceDates[key];
+      const personalFunds = editingPersonalFunds[key];
       const expenseAmount = editingExpense[key] ?? shift.expense_amount ?? 0;
       const expenseComment = editingComment[key] ?? shift.expense_comment ?? '';
       
@@ -247,6 +230,9 @@ export function useShiftActions(
           invoice_issued_date: dates?.invoice_issued_date ?? shift.invoice_issued_date,
           invoice_paid: payments?.invoice_paid ?? shift.invoice_paid,
           invoice_paid_date: dates?.invoice_paid_date ?? shift.invoice_paid_date,
+          personal_funds_amount: personalFunds?.amount ?? shift.personal_funds_amount ?? 0,
+          personal_funds_by_kms: personalFunds?.by_kms ?? shift.personal_funds_by_kms ?? false,
+          personal_funds_by_kvv: personalFunds?.by_kvv ?? shift.personal_funds_by_kvv ?? false,
         }),
       });
     });
@@ -259,6 +245,9 @@ export function useShiftActions(
       });
       setEditingPayments({});
       setEditingInvoiceDates({});
+      setEditingExpense({});
+      setEditingComment({});
+      setEditingPersonalFunds({});
       loadAccountingData();
       return true;
     } catch (error) {

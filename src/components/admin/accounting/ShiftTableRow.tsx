@@ -153,7 +153,6 @@ export default function ShiftTableRow({
               const newAmount = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
               onPersonalFundsChange(key, newAmount, personalFunds.by_kms, personalFunds.by_kvv);
             }}
-            onBlur={() => onExpenseBlur(shift)}
             placeholder="Сумма"
             className="w-20 h-7 text-xs border-gray-300"
           />
@@ -162,8 +161,6 @@ export default function ShiftTableRow({
               onClick={() => {
                 const newByKms = !personalFunds.by_kms;
                 onPersonalFundsChange(key, personalFunds.amount, newByKms, newByKms ? false : personalFunds.by_kvv);
-                // Автосохранение после изменения
-                setTimeout(() => onExpenseBlur(shift), 0);
               }}
               className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
                 personalFunds.by_kms
@@ -178,8 +175,6 @@ export default function ShiftTableRow({
               onClick={() => {
                 const newByKvv = !personalFunds.by_kvv;
                 onPersonalFundsChange(key, personalFunds.amount, newByKvv ? false : personalFunds.by_kms, newByKvv);
-                // Автосохранение после изменения
-                setTimeout(() => onExpenseBlur(shift), 0);
               }}
               className={`flex-1 h-6 text-[10px] border rounded px-1 font-medium transition-colors ${
                 personalFunds.by_kvv
@@ -198,7 +193,6 @@ export default function ShiftTableRow({
           type="number"
           value={editingExpense[key] ?? shift.expense_amount ?? 0}
           onChange={(e) => onExpenseChange(key, parseInt(e.target.value) || 0)}
-          onBlur={() => onExpenseBlur(shift)}
           className="w-20 h-7 text-xs border-gray-300"
         />
       </td>
@@ -207,7 +201,6 @@ export default function ShiftTableRow({
           type="text"
           value={editingComment[key] ?? shift.expense_comment ?? ''}
           onChange={(e) => onCommentChange(key, e.target.value)}
-          onBlur={() => onExpenseBlur(shift)}
           placeholder="Комментарий"
           className="w-full min-w-[150px] h-7 text-xs border-gray-300"
         />

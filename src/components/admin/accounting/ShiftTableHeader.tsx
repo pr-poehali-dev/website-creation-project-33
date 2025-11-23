@@ -125,7 +125,7 @@ export default function ShiftTableHeader({
           <div>КМС</div>
           <div className="text-purple-400 font-bold mt-1">{stats.totalKMS.toLocaleString('ru-RU')} ₽</div>
         </th>
-        <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+        <th className="border border-slate-700/50 p-1 md:p-2 text-center whitespace-nowrap">
           <FilterableHeader 
             label="Опл. орг." 
             filterValue={filters.paid_by_organization}
@@ -133,7 +133,7 @@ export default function ShiftTableHeader({
           />
           <div className="text-emerald-400 font-bold mt-1 text-[10px]">Ожидаем: {stats.expectedRevenue.toLocaleString('ru-RU')} ₽</div>
         </th>
-        <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+        <th className="border border-slate-700/50 p-1 md:p-2 text-center whitespace-nowrap">
           <FilterableHeader 
             label="Опл. испол." 
             filterValue={filters.paid_to_worker}
@@ -144,7 +144,7 @@ export default function ShiftTableHeader({
           <div className="text-red-400 font-bold mt-0.5 text-[10px]">Долг нал: {stats.unpaidSalaryCash.toLocaleString('ru-RU')} ₽</div>
           <div className="text-yellow-400 font-bold mt-1 text-[10px]">У КВВ: {stats.salaryAtKVV.toLocaleString('ru-RU')} ₽</div>
         </th>
-        <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+        <th className="border border-slate-700/50 p-1 md:p-2 text-center whitespace-nowrap">
           <FilterableHeader 
             label="Опл. КВВ" 
             filterValue={filters.paid_kvv}
@@ -153,7 +153,7 @@ export default function ShiftTableHeader({
           <div className="text-red-400 font-bold mt-1 text-[10px]">Долг б/нал: {stats.unpaidKVVCashless.toLocaleString('ru-RU')} ₽</div>
           <div className="text-red-400 font-bold mt-0.5 text-[10px]">Долг нал: {stats.unpaidKVVCash.toLocaleString('ru-RU')} ₽</div>
         </th>
-        <th className="border border-gray-300 p-1 md:p-2 text-center whitespace-nowrap">
+        <th className="border border-slate-700/50 p-1 md:p-2 text-center whitespace-nowrap">
           <FilterableHeader 
             label="Опл. КМС" 
             filterValue={filters.paid_kms}

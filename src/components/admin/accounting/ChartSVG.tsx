@@ -161,15 +161,17 @@ export default function ChartSVG({
               const isHovered = hoveredPoint?.x === point.x && hoveredPoint?.y === point.y;
               
               return (
-                <g key={idx}>
+                <g 
+                  key={idx}
+                  onMouseEnter={() => onHoverPoint(point)}
+                  onMouseLeave={() => onHoverPoint(null)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <circle
                     cx={point.x}
                     cy={point.y}
                     r="20"
                     fill="transparent"
-                    onMouseEnter={() => onHoverPoint(point)}
-                    onMouseLeave={() => onHoverPoint(null)}
-                    style={{ cursor: 'pointer' }}
                   />
                   {isHovered && (
                     <>

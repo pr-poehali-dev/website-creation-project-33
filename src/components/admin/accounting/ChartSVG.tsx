@@ -71,7 +71,7 @@ export default function ChartSVG({
   ];
 
   return (
-    <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '450px', background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' }}>
+    <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '450px', background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' }}>
       <svg
         ref={svgRef}
         viewBox="0 0 1000 420"
@@ -84,19 +84,19 @@ export default function ChartSVG({
       >
         <defs>
           <linearGradient id="modernGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.1" />
+            <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.6" />
+            <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.05" />
           </linearGradient>
           
           <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#06b6d4" />
+            <stop offset="0%" stopColor="#22d3ee" />
             <stop offset="50%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#6366f1" />
           </linearGradient>
 
           <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
@@ -104,7 +104,7 @@ export default function ChartSVG({
           </filter>
 
           <filter id="dropShadow">
-            <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.4"/>
+            <feDropShadow dx="0" dy="3" stdDeviation="5" floodOpacity="0.5" floodColor="#22d3ee"/>
           </filter>
         </defs>
 
@@ -117,8 +117,8 @@ export default function ChartSVG({
             y2={70 + i * 70}
             stroke="#334155"
             strokeWidth="1"
-            strokeOpacity="0.3"
-            strokeDasharray="5 5"
+            strokeOpacity="0.2"
+            strokeDasharray="4 4"
           />
         ))}
 
@@ -133,7 +133,7 @@ export default function ChartSVG({
               textAnchor="end"
               fontSize="11"
               fill="#94a3b8"
-              fontWeight="500"
+              fontWeight="400"
             >
               {formatCurrency(value)}
             </text>
@@ -151,35 +151,46 @@ export default function ChartSVG({
               d={smoothPath}
               fill="none"
               stroke="url(#lineGradient)"
-              strokeWidth="3"
+              strokeWidth="4"
               strokeLinecap="round"
               strokeLinejoin="round"
               filter="url(#glow)"
             />
             
-            {points.map((point, idx) => (
-              <g key={idx}>
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r="8"
-                  fill="#1e293b"
-                  onMouseEnter={() => onHoverPoint(point)}
-                  onMouseLeave={() => onHoverPoint(null)}
-                  style={{ cursor: 'pointer' }}
-                />
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r="5"
-                  fill="white"
-                  onMouseEnter={() => onHoverPoint(point)}
-                  onMouseLeave={() => onHoverPoint(null)}
-                  style={{ cursor: 'pointer' }}
-                  filter="url(#dropShadow)"
-                />
-              </g>
-            ))}
+            {points.map((point, idx) => {
+              const isHovered = hoveredPoint?.x === point.x && hoveredPoint?.y === point.y;
+              
+              return (
+                <g key={idx}>
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r="20"
+                    fill="transparent"
+                    onMouseEnter={() => onHoverPoint(point)}
+                    onMouseLeave={() => onHoverPoint(null)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  {isHovered && (
+                    <>
+                      <circle
+                        cx={point.x}
+                        cy={point.y}
+                        r="10"
+                        fill="#0f172a"
+                      />
+                      <circle
+                        cx={point.x}
+                        cy={point.y}
+                        r="7"
+                        fill="white"
+                        filter="url(#dropShadow)"
+                      />
+                    </>
+                  )}
+                </g>
+              );
+            })}
           </>
         )}
 
@@ -200,7 +211,7 @@ export default function ChartSVG({
                 textAnchor="middle"
                 fontSize="11"
                 fill="#94a3b8"
-                fontWeight="500"
+                fontWeight="400"
               >
                 {item.label}
               </text>
@@ -211,17 +222,16 @@ export default function ChartSVG({
       
       {hoveredPoint && (
         <div 
-          className="absolute pointer-events-none rounded-lg shadow-2xl px-4 py-3 text-sm font-medium"
+          className="absolute pointer-events-none rounded-lg shadow-2xl px-4 py-2.5 text-sm font-semibold"
           style={{
             left: `${(hoveredPoint.x / 1000) * 100}%`,
             top: `${(hoveredPoint.y / 420) * 100}%`,
-            transform: 'translate(-50%, -130%)',
-            background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+            transform: 'translate(-50%, -140%)',
+            background: 'linear-gradient(135deg, #ec4899 0%, #a855f7 100%)',
             color: 'white',
-            border: '2px solid rgba(255, 255, 255, 0.3)'
+            boxShadow: '0 10px 25px rgba(236, 72, 153, 0.5)'
           }}
         >
-          <div className="text-xs opacity-90 mb-1">{hoveredPoint.label}</div>
           <div className="text-lg font-bold">
             {formatCurrency(hoveredPoint.value)}
           </div>

@@ -246,12 +246,12 @@ export default function TeamScheduleView({
 
       <div className="flex justify-end gap-6 py-4">
         <div className="text-right">
-          <div className="text-sm text-gray-600">План</div>
-          <div className="text-2xl font-bold text-blue-600">{weekTotals.expected}</div>
+          <div className="text-sm text-slate-400">План</div>
+          <div className="text-2xl font-bold text-cyan-400">{weekTotals.expected}</div>
         </div>
         <div className="text-right">
-          <div className="text-sm text-gray-600">Факт</div>
-          <div className="text-2xl font-bold text-green-600">{weekTotals.actual}</div>
+          <div className="text-sm text-slate-400">Факт</div>
+          <div className="text-2xl font-bold text-emerald-400">{weekTotals.actual}</div>
         </div>
       </div>
 

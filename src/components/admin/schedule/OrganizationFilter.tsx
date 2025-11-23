@@ -48,25 +48,25 @@ export default function OrganizationFilter({
   }
 
   return (
-    <Card className="bg-blue-50 border-2 border-blue-300">
+    <Card className="bg-cyan-500/10 border-2 border-cyan-500/50">
       <CardContent className="p-4">
         <div 
           className="flex items-center justify-between cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="flex items-center gap-2">
-            <Icon name="Building2" size={20} className="text-blue-600" />
-            <span className="font-semibold text-blue-900">
+            <Icon name="Building2" size={20} className="text-cyan-400" />
+            <span className="font-semibold text-slate-100">
               Организации для рекомендаций
             </span>
-            <span className="text-sm text-blue-700">
+            <span className="text-sm text-cyan-400">
               ({actualSelectedCount} из {sortedOrgs.length})
             </span>
           </div>
           <Icon 
             name={isExpanded ? "ChevronUp" : "ChevronDown"} 
             size={20} 
-            className="text-blue-600" 
+            className="text-cyan-400" 
           />
         </div>
 
@@ -80,7 +80,7 @@ export default function OrganizationFilter({
                 }}
                 variant="outline"
                 size="sm"
-                className="text-xs"
+                className="text-xs bg-slate-800/50 border-slate-600 text-slate-200 hover:bg-slate-700/50"
               >
                 <Icon name="CheckSquare" size={14} className="mr-1" />
                 Выбрать все
@@ -92,7 +92,7 @@ export default function OrganizationFilter({
                 }}
                 variant="outline"
                 size="sm"
-                className="text-xs"
+                className="text-xs bg-slate-800/50 border-slate-600 text-slate-200 hover:bg-slate-700/50"
               >
                 <Icon name="Square" size={14} className="mr-1" />
                 Снять все
@@ -104,7 +104,7 @@ export default function OrganizationFilter({
                 }}
                 disabled={isSaving}
                 size="sm"
-                className="text-xs bg-green-600 hover:bg-green-700 text-white"
+                className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 {isSaving ? (
                   <Icon name="Loader2" size={14} className="mr-1 animate-spin" />
@@ -123,7 +123,7 @@ export default function OrganizationFilter({
 
                 return (
                   <div key={org} className="space-y-1">
-                    <div className="p-2 rounded bg-white text-gray-700 hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div className="p-2 rounded bg-slate-800/50 text-slate-200 hover:bg-slate-700/50 transition-colors border border-slate-600">
                       <div className="flex items-center justify-between">
                         <div 
                           className="flex items-center gap-2 flex-1 cursor-pointer"
@@ -133,17 +133,17 @@ export default function OrganizationFilter({
                           }}
                         >
                           <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                            isSelected ? 'border-black bg-white' : 'border-gray-300 bg-white'
+                            isSelected ? 'border-emerald-500 bg-slate-800/50' : 'border-slate-600 bg-slate-800/50'
                           }`}>
                             {isSelected && (
-                              <Icon name="Check" size={12} className="text-black" />
+                              <Icon name="Check" size={12} className="text-emerald-400" />
                             )}
                           </div>
                           <span className="text-sm">{org}</span>
                         </div>
                         {isSelected && (
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-600">
+                            <span className="text-xs text-slate-400">
                               {currentLimit}x в неделю
                             </span>
                             <button
@@ -151,7 +151,7 @@ export default function OrganizationFilter({
                                 e.stopPropagation();
                                 setExpandedOrg(isOrgExpanded ? null : org);
                               }}
-                              className="p-1 hover:bg-gray-200 rounded"
+                              className="p-1 hover:bg-slate-700/50 rounded"
                             >
                               <Icon 
                                 name={isOrgExpanded ? "ChevronUp" : "ChevronDown"} 
@@ -164,9 +164,9 @@ export default function OrganizationFilter({
                     </div>
 
                     {isSelected && isOrgExpanded && (
-                      <div className="bg-white p-3 rounded border-2 border-blue-300 ml-6">
+                      <div className="bg-slate-800/50 p-3 rounded border-2 border-cyan-500/50 ml-6">
                         <div className="space-y-2">
-                          <p className="text-xs text-gray-600 mb-2">
+                          <p className="text-xs text-slate-400 mb-2">
                             Максимум использований в неделю:
                           </p>
                           <div className="flex gap-2 flex-wrap">
@@ -179,8 +179,8 @@ export default function OrganizationFilter({
                                 }}
                                 className={`px-3 py-1 rounded text-sm transition-colors ${
                                   currentLimit === limit
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    ? 'bg-cyan-600 text-white'
+                                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
                                 }`}
                               >
                                 {limit}x

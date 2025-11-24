@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { ChartDataPoint, UserStats } from './types';
 import { toMoscowTime } from '@/utils/date';
 
@@ -316,15 +316,28 @@ export default function LeadsChart({
               className="md:!ml-5"
             >
               <defs>
-                <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                {/* Градиенты для линий */}
+                <linearGradient id="greenLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#22c55e" />
                   <stop offset="50%" stopColor="#10b981" />
                   <stop offset="100%" stopColor="#059669" />
                 </linearGradient>
-                <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient id="orangeLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#fb923c" />
                   <stop offset="50%" stopColor="#f97316" />
                   <stop offset="100%" stopColor="#ea580c" />
+                </linearGradient>
+                
+                {/* Градиенты для заливки площади */}
+                <linearGradient id="greenAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#22c55e" stopOpacity={0.6} />
+                  <stop offset="50%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#059669" stopOpacity={0.05} />
+                </linearGradient>
+                <linearGradient id="orangeAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#fb923c" stopOpacity={0.6} />
+                  <stop offset="50%" stopColor="#f97316" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#ea580c" stopOpacity={0.05} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="#334155" strokeOpacity={0.25} vertical={false} />
@@ -386,29 +399,47 @@ export default function LeadsChart({
               />
               
               {showTotal && filterType === 'contacts' && (
-                <Line 
-                  type="monotone"
-                  dataKey="contacts" 
-                  stroke="#22c55e" 
-                  strokeWidth={4}
-                  dot={{ fill: '#22c55e', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
-                  activeDot={{ r: 8, fill: '#22c55e', stroke: '#22d3ee', strokeWidth: 3 }}
-                  name="Все контакты"
-                  connectNulls={true}
-                />
+                <>
+                  <Area
+                    type="monotone"
+                    dataKey="contacts"
+                    fill="url(#greenAreaGradient)"
+                    stroke="none"
+                    connectNulls={true}
+                  />
+                  <Line 
+                    type="monotone"
+                    dataKey="contacts" 
+                    stroke="#22c55e" 
+                    strokeWidth={4}
+                    dot={{ fill: '#22c55e', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
+                    activeDot={{ r: 8, fill: '#22c55e', stroke: '#22d3ee', strokeWidth: 3 }}
+                    name="Все контакты"
+                    connectNulls={true}
+                  />
+                </>
               )}
               
               {showTotal && filterType === 'approaches' && (
-                <Line 
-                  type="monotone"
-                  dataKey="approaches" 
-                  stroke="#fb923c" 
-                  strokeWidth={4}
-                  dot={{ fill: '#fb923c', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
-                  activeDot={{ r: 8, fill: '#fb923c', stroke: '#22d3ee', strokeWidth: 3 }}
-                  name="Все подходы"
-                  connectNulls={true}
-                />
+                <>
+                  <Area
+                    type="monotone"
+                    dataKey="approaches"
+                    fill="url(#orangeAreaGradient)"
+                    stroke="none"
+                    connectNulls={true}
+                  />
+                  <Line 
+                    type="monotone"
+                    dataKey="approaches" 
+                    stroke="#fb923c" 
+                    strokeWidth={4}
+                    dot={{ fill: '#fb923c', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
+                    activeDot={{ r: 8, fill: '#fb923c', stroke: '#22d3ee', strokeWidth: 3 }}
+                    name="Все подходы"
+                    connectNulls={true}
+                  />
+                </>
               )}
 
               {selectedUsers.length > 0 && selectedUsers.map((userName) => {

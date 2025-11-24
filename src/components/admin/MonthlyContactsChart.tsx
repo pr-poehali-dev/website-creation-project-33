@@ -203,7 +203,7 @@ export default function MonthlyContactsChart() {
                           Закреплено • Кликните ещё раз для открепления
                         </div>
                       )}
-                      <div className="max-h-48 overflow-y-auto space-y-1">
+                      <div className="max-h-48 overflow-y-auto space-y-1 scrollbar-thin scrollbar-track-slate-700 scrollbar-thumb-cyan-600 hover:scrollbar-thumb-cyan-500">
                         {stat.days_21_plus.map((day, idx) => {
                           const dayAvg = day.promoters > 0 ? (day.contacts / day.promoters).toFixed(1) : '0';
                           return (

@@ -318,14 +318,14 @@ export default function LeadsChart({
               <defs>
                 {/* Градиенты для линий */}
                 <linearGradient id="greenLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#22c55e" />
-                  <stop offset="50%" stopColor="#10b981" />
-                  <stop offset="100%" stopColor="#059669" />
+                  <stop offset="0%" stopColor="#22d3ee" />
+                  <stop offset="50%" stopColor="#3b82f6" />
+                  <stop offset="100%" stopColor="#6366f1" />
                 </linearGradient>
                 <linearGradient id="orangeLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#fb923c" />
-                  <stop offset="50%" stopColor="#f97316" />
-                  <stop offset="100%" stopColor="#ea580c" />
+                  <stop offset="0%" stopColor="#22d3ee" />
+                  <stop offset="50%" stopColor="#3b82f6" />
+                  <stop offset="100%" stopColor="#6366f1" />
                 </linearGradient>
                 
                 {/* Градиенты для заливки площади */}
@@ -402,8 +402,7 @@ export default function LeadsChart({
                 <Area
                   type="monotone"
                   dataKey="contacts"
-                  fill="#22d3ee"
-                  fillOpacity={0.6}
+                  fill="url(#greenAreaGradient)"
                   strokeWidth={0}
                 />
               )}
@@ -412,8 +411,7 @@ export default function LeadsChart({
                 <Area
                   type="monotone"
                   dataKey="approaches"
-                  fill="#22d3ee"
-                  fillOpacity={0.6}
+                  fill="url(#orangeAreaGradient)"
                   strokeWidth={0}
                 />
               )}
@@ -422,12 +420,14 @@ export default function LeadsChart({
                 <Line 
                   type="monotone"
                   dataKey="contacts" 
-                  stroke="#22c55e" 
+                  stroke="url(#greenLineGradient)" 
                   strokeWidth={4}
-                  dot={{ fill: '#22c55e', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
-                  activeDot={{ r: 8, fill: '#22c55e', stroke: '#22d3ee', strokeWidth: 3 }}
+                  dot={{ fill: '#22d3ee', r: 6, strokeWidth: 2, stroke: '#0f172a' }}
+                  activeDot={{ r: 8, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
                   name="Все контакты"
                   connectNulls={true}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               )}
               
@@ -435,12 +435,14 @@ export default function LeadsChart({
                 <Line 
                   type="monotone"
                   dataKey="approaches" 
-                  stroke="#fb923c" 
+                  stroke="url(#orangeLineGradient)" 
                   strokeWidth={4}
-                  dot={{ fill: '#fb923c', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
-                  activeDot={{ r: 8, fill: '#fb923c', stroke: '#22d3ee', strokeWidth: 3 }}
+                  dot={{ fill: '#22d3ee', r: 6, strokeWidth: 2, stroke: '#0f172a' }}
+                  activeDot={{ r: 8, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
                   name="Все подходы"
                   connectNulls={true}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               )}
 

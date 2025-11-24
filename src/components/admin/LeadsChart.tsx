@@ -303,7 +303,7 @@ export default function LeadsChart({
           </div>
         </div>
 
-        <div className="h-64 md:h-96 rounded-xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' }}>
+        <div className="h-64 md:h-96 rounded-lg overflow-hidden p-4" style={{ background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart 
               data={filteredChartData} 
@@ -327,14 +327,16 @@ export default function LeadsChart({
                   <stop offset="100%" stopColor="#ea580c" />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.3} />
+              <CartesianGrid stroke="#334155" strokeOpacity={0.25} vertical={false} />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }}
+                tick={{ fontSize: 11, fill: '#64748b', fontWeight: 600 }}
                 angle={-45}
                 textAnchor="end"
                 height={60}
                 stroke="#475569"
+                axisLine={{ stroke: '#475569', strokeWidth: 1 }}
+                tickLine={false}
                 className="md:text-xs"
                 tickFormatter={(date) => 
                   new Date(date).toLocaleDateString('ru-RU', { 
@@ -344,9 +346,9 @@ export default function LeadsChart({
                 }
               />
               <YAxis 
-                tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }}
+                tick={{ fontSize: 11, fill: '#64748b', fontWeight: 600 }}
                 stroke="#475569"
-                axisLine={false}
+                axisLine={{ stroke: '#475569', strokeWidth: 1 }}
                 tickLine={false}
                 className="md:text-xs"
               />
@@ -387,10 +389,10 @@ export default function LeadsChart({
                 <Line 
                   type="monotone"
                   dataKey="contacts" 
-                  stroke="url(#greenGradient)" 
-                  strokeWidth={3}
-                  dot={{ fill: '#22c55e', r: 5, strokeWidth: 2, stroke: '#0f172a' }}
-                  activeDot={{ r: 7, fill: '#22c55e', stroke: '#22d3ee', strokeWidth: 2 }}
+                  stroke="#22c55e" 
+                  strokeWidth={4}
+                  dot={{ fill: '#22c55e', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
+                  activeDot={{ r: 8, fill: '#22c55e', stroke: '#22d3ee', strokeWidth: 3 }}
                   name="Все контакты"
                   connectNulls={true}
                 />
@@ -400,10 +402,10 @@ export default function LeadsChart({
                 <Line 
                   type="monotone"
                   dataKey="approaches" 
-                  stroke="url(#orangeGradient)" 
-                  strokeWidth={3}
-                  dot={{ fill: '#fb923c', r: 5, strokeWidth: 2, stroke: '#0f172a' }}
-                  activeDot={{ r: 7, fill: '#fb923c', stroke: '#22d3ee', strokeWidth: 2 }}
+                  stroke="#fb923c" 
+                  strokeWidth={4}
+                  dot={{ fill: '#fb923c', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
+                  activeDot={{ r: 8, fill: '#fb923c', stroke: '#22d3ee', strokeWidth: 3 }}
                   name="Все подходы"
                   connectNulls={true}
                 />
@@ -420,9 +422,9 @@ export default function LeadsChart({
                     type="monotone"
                     dataKey={dataKey}
                     stroke={userColorMap[userName]}
-                    strokeWidth={2.5}
-                    dot={{ fill: userColorMap[userName], r: 4, strokeWidth: 2, stroke: '#0f172a' }}
-                    activeDot={{ r: 6, fill: userColorMap[userName], stroke: '#22d3ee', strokeWidth: 2 }}
+                    strokeWidth={3}
+                    dot={{ fill: userColorMap[userName], r: 5, strokeWidth: 2, stroke: '#0f172a' }}
+                    activeDot={{ r: 7, fill: userColorMap[userName], stroke: '#22d3ee', strokeWidth: 2 }}
                     name={userName}
                     connectNulls={true}
                   />

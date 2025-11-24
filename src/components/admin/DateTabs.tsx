@@ -32,10 +32,10 @@ export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDu
                 selectedDate === date
                   ? hasDuplicates
                     ? 'bg-red-600 text-white border-red-600 shadow-lg scale-105'
-                    : 'bg-[#001f54] text-white border-[#001f54] shadow-lg scale-105'
+                    : 'bg-cyan-600 text-white border-cyan-600 shadow-lg scale-105'
                   : hasDuplicates
-                    ? 'bg-red-50 text-red-700 border-red-500 hover:bg-red-100'
-                    : 'bg-white text-[#001f54] border-[#001f54]/20 hover:border-[#001f54]/40 hover:bg-[#001f54]/5'
+                    ? 'bg-red-900/20 text-red-400 border-red-600 hover:bg-red-900/30'
+                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600 hover:bg-slate-700'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -46,7 +46,7 @@ export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDu
                     ? 'bg-white/20 text-white border-white/30'
                     : hasDuplicates
                       ? 'bg-red-600 text-white border-red-700'
-                      : 'bg-[#001f54]/10 text-[#001f54] border-[#001f54]/20'
+                      : 'bg-slate-700 text-slate-300 border-slate-600'
                 }`}>
                   {leadsCount}
                 </Badge>

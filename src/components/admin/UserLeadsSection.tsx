@@ -26,8 +26,8 @@ export default function UserLeadsSection({
 }: UserLeadsSectionProps) {
   if (isLoading) {
     return (
-      <div className="border-2 border-[#001f54]/10 rounded-lg p-4 bg-[#001f54]/5">
-        <div className="flex items-center justify-center gap-2 text-[#001f54] font-medium">
+      <div className="border-2 border-slate-700 rounded-lg p-4 bg-slate-800/50">
+        <div className="flex items-center justify-center gap-2 text-slate-300 font-medium">
           <Icon name="Loader2" size={16} className="animate-spin" />
           Загрузка лидов...
         </div>
@@ -37,8 +37,8 @@ export default function UserLeadsSection({
 
   if (leads.length === 0) {
     return (
-      <div className="border-2 border-[#001f54]/10 rounded-lg p-4 bg-[#001f54]/5">
-        <div className="text-center text-[#001f54]/70">
+      <div className="border-2 border-slate-700 rounded-lg p-4 bg-slate-800/50">
+        <div className="text-center text-slate-400">
           <Icon name="MessageSquare" size={20} className="mx-auto mb-2 opacity-60 md:w-6 md:h-6" />
           <div className="text-sm md:text-base font-medium">У этого пользователя пока нет лидов</div>
         </div>

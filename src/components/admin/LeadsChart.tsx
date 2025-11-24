@@ -365,6 +365,12 @@ export default function LeadsChart({
                   }
                   return 0;
                 }}
+                formatter={(value, name, props) => {
+                  if (name === 'contacts' || name === 'approaches') {
+                    return null;
+                  }
+                  return [value, name];
+                }}
               />
               <Legend 
                 wrapperStyle={{ 

@@ -422,8 +422,8 @@ export default function LeadsChart({
                   dataKey="contacts" 
                   stroke="url(#greenLineGradient)" 
                   strokeWidth={4}
-                  dot={{ fill: '#22d3ee', r: 6, strokeWidth: 2, stroke: '#0f172a' }}
-                  activeDot={{ r: 8, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
+                  dot={false}
+                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
                   name="Все контакты"
                   connectNulls={true}
                   strokeLinecap="round"
@@ -437,8 +437,8 @@ export default function LeadsChart({
                   dataKey="approaches" 
                   stroke="url(#orangeLineGradient)" 
                   strokeWidth={4}
-                  dot={{ fill: '#22d3ee', r: 6, strokeWidth: 2, stroke: '#0f172a' }}
-                  activeDot={{ r: 8, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
+                  dot={false}
+                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
                   name="Все подходы"
                   connectNulls={true}
                   strokeLinecap="round"

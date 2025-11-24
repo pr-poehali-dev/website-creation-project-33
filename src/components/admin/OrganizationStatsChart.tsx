@@ -396,12 +396,12 @@ export default function OrganizationStatsChart() {
                             return Math.round(revenueAfterTax).toLocaleString('ru-RU');
                           })()}₽
                         </div>
-                        <div className="text-xs text-slate-400">
+                        <div className="text-xs text-green-400">
                           {org.payment_type === 'cash' ? 'наличка' : 'безнал'}
                         </div>
                       </div>
                     )}
-                    <span className="text-lg md:text-xl font-bold text-cyan-400">
+                    <span className="text-lg md:text-xl font-bold text-slate-100">
                       {org.total}
                     </span>
                     <Icon

@@ -413,13 +413,13 @@ export default function LeadsChart({
                 <Area
                   type="monotone"
                   dataKey="contacts"
-                  fill="#22d3ee"
-                  fillOpacity={0.3}
-                  stroke="none"
+                  fill="url(#greenAreaGradient)"
+                  stroke=""
                   strokeWidth={0}
                   connectNulls={true}
-                  isAnimationActive={true}
-                  baseValue={0}
+                  isAnimationActive={false}
+                  baseValue="dataMin"
+                  name=""
                 />
               )}
               
@@ -427,13 +427,13 @@ export default function LeadsChart({
                 <Area
                   type="monotone"
                   dataKey="approaches"
-                  fill="#22d3ee"
-                  fillOpacity={0.3}
-                  stroke="none"
+                  fill="url(#orangeAreaGradient)"
+                  stroke=""
                   strokeWidth={0}
                   connectNulls={true}
-                  isAnimationActive={true}
-                  baseValue={0}
+                  isAnimationActive={false}
+                  baseValue="dataMin"
+                  name=""
                 />
               )}
               

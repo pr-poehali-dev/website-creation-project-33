@@ -123,36 +123,7 @@ export default function UserCard({
                 <span className="font-medium text-slate-100 text-base md:text-lg truncate">{user.name}</span>
               )}
             </div>
-            <div className="text-sm text-slate-400 truncate">{user.email}</div>
-            <div className="flex items-center justify-between text-xs text-slate-500 gap-2">
-              <span className="truncate">
-                {user.is_online 
-                  ? 'Онлайн сейчас' 
-                  : `Был(а) онлайн: ${formatLastSeen(user.last_seen)}`
-                }
-              </span>
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                <Badge className={`px-1.5 py-0.5 text-xs font-medium ${
-                  user.is_online 
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                    : 'bg-slate-700 text-slate-400 border border-slate-600'
-                }`}>
-                  {user.lead_count}
-                </Badge>
-                {user.shifts_count && user.shifts_count > 0 && (
-                  <>
-                    <span className="text-slate-600">•</span>
-                    <Badge className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 text-xs font-medium">
-                      {user.shifts_count} см
-                    </Badge>
-                    <span className="text-slate-600">•</span>
-                    <Badge className="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1.5 py-0.5 text-xs font-medium">
-                      ~{user.avg_per_shift}
-                    </Badge>
-                  </>
-                )}
-              </div>
-            </div>
+
           </div>
         </div>
 
@@ -187,8 +158,7 @@ export default function UserCard({
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingQR}
-                  className="border-2 border-cyan-600 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 px-2 md:px-3 py-1 h-8 transition-all duration-300"
-                  variant="ghost"
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
                   title="Загрузить QR-код"
                 >
                   {uploadingQR ? (
@@ -214,8 +184,7 @@ export default function UserCard({
                   size="sm" 
                   onClick={onStartEdit}
                   disabled={user.is_admin}
-                  className="border-2 border-slate-600 text-slate-300 hover:bg-slate-700 px-2 md:px-3 py-1 h-8 transition-all duration-300"
-                  variant="ghost"
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
                 >
                   <Icon name="Edit" size={12} className="md:w-[14px] md:h-[14px]" />
                 </Button>
@@ -223,8 +192,7 @@ export default function UserCard({
                   <Button 
                     size="sm" 
                     onClick={onDeleteUser}
-                    className="border-2 border-red-600 bg-red-500/20 text-red-400 hover:bg-red-500/30 px-2 md:px-3 py-1 h-8 transition-all duration-300"
-                    variant="ghost"
+                    className="bg-red-600 hover:bg-red-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
                   >
                     <Icon name="Trash2" size={12} className="md:w-[14px] md:h-[14px]" />
                   </Button>

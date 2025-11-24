@@ -82,9 +82,9 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
 
   if (loading) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
+      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
         <CardContent className="p-4 md:p-8">
-          <div className="text-center text-gray-600 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
+          <div className="text-center text-slate-300 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
             <Icon name="Loader2" size={20} className="animate-spin md:w-6 md:h-6" />
             Загрузка статистики...
           </div>
@@ -95,9 +95,9 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
 
   if (!stats) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
+      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
         <CardContent className="p-4 md:p-8">
-          <div className="text-center text-gray-600">
+          <div className="text-center text-slate-300">
             <Icon name="AlertCircle" size={28} className="mx-auto mb-3 opacity-60 md:w-8 md:h-8" />
             <div className="text-base md:text-lg font-medium">Ошибка загрузки данных</div>
             <div className="text-xs md:text-sm">Попробуйте обновить страницу</div>

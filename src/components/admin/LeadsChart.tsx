@@ -112,11 +112,11 @@ export default function LeadsChart({
   }, {} as Record<string, string>);
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-3 md:pb-4">
-        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
-          <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-            <Icon name="TrendingUp" size={18} className="text-gray-900 md:w-5 md:h-5" />
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-slate-100 text-lg md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-slate-800">
+            <Icon name="TrendingUp" size={18} className="text-cyan-400 md:w-5 md:h-5" />
           </div>
           График лидов
         </CardTitle>
@@ -130,7 +130,7 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'contacts'
                 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-green-400 border-green-400/30'
+                : 'bg-slate-800 hover:bg-slate-700 text-green-400 border-green-400/30'
               }`}
             >
               Контакты
@@ -141,19 +141,19 @@ export default function LeadsChart({
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'approaches'
                 ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-orange-400 border-orange-400/30'
+                : 'bg-slate-800 hover:bg-slate-700 text-orange-400 border-orange-400/30'
               }`}
             >
               Подходы
             </Button>
-            <div className="h-4 md:h-6 w-px bg-gray-300 mx-0.5 md:mx-1" />
+            <div className="h-4 md:h-6 w-px bg-slate-600 mx-0.5 md:mx-1" />
             <Button
               onClick={() => setShowTotal(!showTotal)}
               variant={showTotal ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${showTotal
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               <Icon name={showTotal ? "Eye" : "EyeOff"} size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
@@ -163,14 +163,14 @@ export default function LeadsChart({
           </div>
 
           <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-            <span className="text-xs md:text-sm text-gray-600 font-medium">Период:</span>
+            <span className="text-xs md:text-sm text-slate-300 font-medium">Период:</span>
             <Button
               onClick={() => setTimeRange('week')}
               variant={timeRange === 'week' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'week'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               7д
@@ -180,8 +180,8 @@ export default function LeadsChart({
               variant={timeRange === 'twoWeeks' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'twoWeeks'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               14д
@@ -191,8 +191,8 @@ export default function LeadsChart({
               variant={timeRange === 'month' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'month'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               30д
@@ -202,8 +202,8 @@ export default function LeadsChart({
               variant={timeRange === 'year' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'year'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               Год
@@ -213,8 +213,8 @@ export default function LeadsChart({
               variant={timeRange === 'all' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'all'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               Всё
@@ -223,12 +223,12 @@ export default function LeadsChart({
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs md:text-sm text-gray-600 font-medium whitespace-nowrap">Пользователи:</span>
+              <span className="text-xs md:text-sm text-slate-300 font-medium whitespace-nowrap">Пользователи:</span>
               <Button
                 onClick={toggleAllUsers}
                 variant="outline"
                 size="sm"
-                className="glass-button bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
+                className="glass-button bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
               >
                 {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
               </Button>
@@ -236,7 +236,7 @@ export default function LeadsChart({
             
             <div className="relative" ref={dropdownRef}>
               <div className="relative">
-                <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <Input
                   type="text"
                   placeholder="Поиск промоутера..."
@@ -246,7 +246,7 @@ export default function LeadsChart({
                     setIsDropdownOpen(true);
                   }}
                   onFocus={() => setIsDropdownOpen(true)}
-                  className="pl-9 pr-9 bg-gray-100 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:border-gray-300 focus:ring-gray-200 h-9 text-sm"
+                  className="pl-9 pr-9 bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-slate-600 focus:ring-slate-600 h-9 text-sm"
                 />
                 {searchQuery && (
                   <button
@@ -254,7 +254,7 @@ export default function LeadsChart({
                       setSearchQuery('');
                       setIsDropdownOpen(false);
                     }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
                   >
                     <Icon name="X" size={14} />
                   </button>
@@ -262,18 +262,18 @@ export default function LeadsChart({
               </div>
 
               {isDropdownOpen && searchQuery && filteredUsers.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   {filteredUsers.map(user => (
                     <button
                       key={user.name}
                       onClick={() => handleUserSelect(user.name)}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${
-                        selectedUsers.includes(user.name) ? 'bg-gray-50' : ''
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-700 transition-colors flex items-center justify-between ${
+                        selectedUsers.includes(user.name) ? 'bg-slate-700' : ''
                       }`}
                     >
-                      <span className="text-gray-900">{user.name}</span>
+                      <span className="text-slate-100">{user.name}</span>
                       {selectedUsers.includes(user.name) && (
-                        <Icon name="Check" size={14} className="text-green-600" />
+                        <Icon name="Check" size={14} className="text-green-400" />
                       )}
                     </button>
                   ))}
@@ -290,7 +290,7 @@ export default function LeadsChart({
                     <button
                       key={userName}
                       onClick={() => toggleUser(userName)}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 transition-colors border"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border"
                       style={{ borderColor: userColorMap[userName] }}
                     >
                       <span>{userName}</span>
@@ -315,10 +315,10 @@ export default function LeadsChart({
               }}
               className="md:!ml-5"
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 10, fill: '#6b7280' }}
+                tick={{ fontSize: 10, fill: '#94a3b8' }}
                 angle={-45}
                 textAnchor="end"
                 height={60}
@@ -331,20 +331,20 @@ export default function LeadsChart({
                 }
               />
               <YAxis 
-                tick={{ fontSize: 10, fill: '#6b7280' }}
+                tick={{ fontSize: 10, fill: '#94a3b8' }}
                 axisLine={false}
                 tickLine={false}
                 className="md:text-xs"
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  border: '2px solid rgba(255, 255, 255, 0.2)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                  border: '2px solid rgba(100, 116, 139, 0.3)',
                   backdropFilter: 'blur(10px)',
-                  color: 'white',
+                  color: '#e2e8f0',
                   borderRadius: '12px',
                   padding: '12px',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3)'
                 }}
                 labelFormatter={(date) => 
                   new Date(date).toLocaleDateString('ru-RU', {

@@ -50,9 +50,9 @@ export default function MonthlyContactsChart() {
 
   if (isLoading) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
+      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
         <CardContent className="p-4 md:p-8">
-          <div className="text-center text-gray-600 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
+          <div className="text-center text-slate-300 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
             <Icon name="Loader2" size={20} className="animate-spin md:w-6 md:h-6" />
             Загрузка статистики по месяцам...
           </div>
@@ -82,11 +82,11 @@ export default function MonthlyContactsChart() {
   const displayedStats = showAll ? monthlyStats : monthlyStats.slice(-2);
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-base md:text-xl">
-          <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-            <Icon name="BarChart3" size={18} className="text-gray-900 md:w-5 md:h-5" />
+        <CardTitle className="flex items-center gap-2 md:gap-3 text-slate-100 text-base md:text-xl">
+          <div className="p-1.5 md:p-2 rounded-lg bg-slate-800">
+            <Icon name="BarChart3" size={18} className="text-cyan-400 md:w-5 md:h-5" />
           </div>
           Распределение дней по контактам
         </CardTitle>
@@ -99,11 +99,11 @@ export default function MonthlyContactsChart() {
               {Object.entries(rangeLabels).map(([key, label]) => (
                 <div key={key} className="flex items-center gap-1.5">
                   <div className={`w-3 h-3 rounded ${rangeColors[key as keyof typeof rangeColors]}`} />
-                  <span className="text-gray-700">{label} контактов</span>
+                  <span className="text-slate-300">{label} контактов</span>
                 </div>
               ))}
             </div>
-            <div className="text-[9px] md:text-xs text-gray-500 flex items-center gap-1">
+            <div className="text-[9px] md:text-xs text-slate-400 flex items-center gap-1">
               <Icon name="Info" size={12} />
               Кликните на зелёную зону для деталей
             </div>
@@ -116,8 +116,8 @@ export default function MonthlyContactsChart() {
             return (
               <div key={stat.month} className="space-y-2 relative">
                 <div className="flex items-center justify-between text-xs md:text-sm">
-                  <span className="font-medium text-gray-700">{stat.month_name}</span>
-                  <span className="text-gray-500 text-[10px] md:text-xs">
+                  <span className="font-medium text-slate-200">{stat.month_name}</span>
+                  <span className="text-slate-400 text-[10px] md:text-xs">
                     {stat.total_contacts} контактов / {totalDays} дней / {stat.total_users} промоутеров
                   </span>
                 </div>
@@ -176,7 +176,7 @@ export default function MonthlyContactsChart() {
                   
                   return (
                     <div 
-                      className="absolute z-50 bg-white border-2 border-green-500 rounded-lg shadow-2xl p-3 mt-2 max-w-xs md:max-w-md tooltip-container"
+                      className="absolute z-50 bg-slate-800 border-2 border-green-400 rounded-lg shadow-2xl p-3 mt-2 max-w-xs md:max-w-md tooltip-container"
                       style={{ 
                         left: '50%',
                         transform: 'translateX(-50%)'
@@ -184,21 +184,21 @@ export default function MonthlyContactsChart() {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
-                        <div className="text-xs font-bold text-green-700 flex items-center gap-1.5">
+                        <div className="text-xs font-bold text-green-400 flex items-center gap-1.5">
                           <Icon name="TrendingUp" size={14} />
                           Дни с 21+ контактами:
                         </div>
                         <div className="flex flex-col items-end gap-0.5">
-                          <div className="text-[10px] md:text-xs font-semibold text-green-600">
+                          <div className="text-[10px] md:text-xs font-semibold text-green-400">
                             ⌀ {avgPerPromoter} к/п
                           </div>
-                          <div className="text-[9px] text-gray-400">
+                          <div className="text-[9px] text-slate-400">
                             контактов/промоутер
                           </div>
                         </div>
                       </div>
                       {pinnedMonth === stat.month && (
-                        <div className="text-[9px] text-gray-500 mb-2 flex items-center gap-1">
+                        <div className="text-[9px] text-slate-400 mb-2 flex items-center gap-1">
                           <Icon name="Pin" size={10} />
                           Закреплено • Кликните ещё раз для открепления
                         </div>
@@ -207,12 +207,12 @@ export default function MonthlyContactsChart() {
                         {stat.days_21_plus.map((day, idx) => {
                           const dayAvg = day.promoters > 0 ? (day.contacts / day.promoters).toFixed(1) : '0';
                           return (
-                            <div key={idx} className="text-[10px] md:text-xs text-gray-700 flex items-center justify-between gap-2 py-0.5">
+                            <div key={idx} className="text-[10px] md:text-xs text-slate-200 flex items-center justify-between gap-2 py-0.5">
                               <span className="font-medium">{day.day}</span>
                               <div className="flex items-center gap-2">
-                                <span className="text-green-600 font-semibold">{day.contacts} к.</span>
-                                <span className="text-gray-500">• {day.promoters} п.</span>
-                                <span className="text-blue-600 text-[9px] font-medium">⌀{dayAvg}</span>
+                                <span className="text-green-400 font-semibold">{day.contacts} к.</span>
+                                <span className="text-slate-400">• {day.promoters} п.</span>
+                                <span className="text-cyan-400 text-[9px] font-medium">⌀{dayAvg}</span>
                               </div>
                             </div>
                           );
@@ -231,7 +231,7 @@ export default function MonthlyContactsChart() {
               <Button
                 variant="outline"
                 onClick={() => setShowAll(!showAll)}
-                className="text-sm"
+                className="text-sm bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
               >
                 <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} className="mr-2" />
                 {showAll ? 'Скрыть старые месяцы' : `Показать все месяцы (${monthlyStats.length - 2})`}

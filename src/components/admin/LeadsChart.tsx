@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
-import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { ChartDataPoint, UserStats } from './types';
 import { toMoscowTime } from '@/utils/date';
 
@@ -65,17 +65,6 @@ export default function LeadsChart({
   };
 
   const filteredChartData = getFilteredChartData();
-  
-  React.useEffect(() => {
-    console.log('📊 График данные:', {
-      showTotal,
-      filterType,
-      dataLength: filteredChartData.length,
-      firstItem: filteredChartData[0],
-      hasContacts: filteredChartData[0]?.contacts,
-      hasApproaches: filteredChartData[0]?.approaches
-    });
-  }, [showTotal, filterType, filteredChartData]);
 
   const toggleUser = (userName: string) => {
     const isSelected = selectedUsers.includes(userName);
@@ -316,7 +305,7 @@ export default function LeadsChart({
 
         <div className="h-64 md:h-96 rounded-lg overflow-hidden p-4" style={{ background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' }}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart 
+            <ComposedChart 
               data={filteredChartData} 
               margin={{ 
                 top: 20, 
@@ -474,7 +463,7 @@ export default function LeadsChart({
                   />
                 );
               })}
-            </LineChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       </CardContent>

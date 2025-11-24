@@ -74,30 +74,30 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setStatsSubView('rating')}
-            className={`px-4 py-2 rounded transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
               statsSubView === 'rating' 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
             }`}
           >
             Рейтинг
           </button>
           <button
             onClick={() => setStatsSubView('users')}
-            className={`px-4 py-2 rounded transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
               statsSubView === 'users' 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
             }`}
           >
             Пользователи
           </button>
           <button
             onClick={() => setStatsSubView('organizations')}
-            className={`px-4 py-2 rounded transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
               statsSubView === 'organizations' 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
             }`}
           >
             Организации

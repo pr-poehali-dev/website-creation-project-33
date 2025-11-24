@@ -269,7 +269,7 @@ export default function DailyModal({
                         <div>
                           <div className="border-t border-slate-700 pt-2 sm:pt-3">
                             <div className="text-xs sm:text-sm font-semibold text-slate-100 mb-2">Детали по лидам</div>
-                            <div className="space-y-1.5 sm:space-y-2">
+                            <div className="space-y-1.5 sm:space-y-2 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-track-slate-700 scrollbar-thumb-cyan-600 hover:scrollbar-thumb-cyan-500 pr-1">
                               {userLeads.map((lead, idx) => (
                                 <div 
                                   key={idx}

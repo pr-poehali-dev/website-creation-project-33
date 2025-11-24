@@ -125,29 +125,6 @@ export default function LeadsChart({
         <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
           <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
             <Button
-              onClick={() => onFilterTypeChange('contacts')}
-              variant={filterType === 'contacts' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'contacts'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              Контакты
-            </Button>
-            <Button
-              onClick={() => onFilterTypeChange('approaches')}
-              variant={filterType === 'approaches' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'approaches'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              Подходы
-            </Button>
-            <div className="h-4 md:h-6 w-px bg-slate-600 mx-0.5 md:mx-1" />
-            <Button
               onClick={() => setShowTotal(!showTotal)}
               variant={showTotal ? 'default' : 'outline'}
               size="sm"

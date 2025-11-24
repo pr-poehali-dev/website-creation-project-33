@@ -71,7 +71,6 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
           {visibleGroups.map((group) => {
             const isExpanded = expandedMonths.has(group.month);
             const totalContacts = group.days.reduce((sum, day) => sum + day.contacts, 0);
-            const totalApproaches = group.days.reduce((sum, day) => sum + day.approaches, 0);
             
             return (
               <div key={group.month} className="space-y-2">
@@ -89,15 +88,9 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
                       {group.monthLabel}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 md:gap-4">
-                    <div className="text-right">
-                      <div className="text-sm md:text-base font-bold text-green-400">{totalContacts}</div>
-                      <div className="text-[9px] md:text-[10px] text-slate-400">контакты</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm md:text-base font-bold text-orange-400">{totalApproaches}</div>
-                      <div className="text-[9px] md:text-[10px] text-slate-400">подходы</div>
-                    </div>
+                  <div className="text-right">
+                    <div className="text-sm md:text-base font-bold text-green-400">{totalContacts}</div>
+                    <div className="text-[9px] md:text-[10px] text-slate-400">контакты</div>
                   </div>
                 </button>
                 
@@ -127,10 +120,6 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
                         <div className="text-right">
                           <div className="text-base md:text-lg font-bold text-green-400 mb-0.5 md:mb-1">{day.contacts}</div>
                           <div className="text-[10px] md:text-xs text-slate-400">контакты</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-base md:text-lg font-bold text-orange-400 mb-0.5 md:mb-1">{day.approaches}</div>
-                          <div className="text-[10px] md:text-xs text-slate-400">подходы</div>
                         </div>
                         {day.count > 0 && (
                           <Icon name="ChevronRight" size={14} className="text-slate-500 ml-0 md:ml-1 md:w-4 md:h-4" />

@@ -44,33 +44,13 @@ export default function StatsOverview({ stats, onExportAll, exportingAll }: Stat
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="flex justify-center">
           {/* Контакты */}
-          <div className="text-center p-4 md:p-6 rounded-xl bg-slate-800/50 border-2 border-green-400/30 transition-all duration-300 hover:shadow-lg hover:scale-105">
-            <div className="text-2xl md:text-3xl font-bold text-green-400 mb-2">
+          <div className="text-center p-6 md:p-8 rounded-xl bg-slate-800/50 border-2 border-green-400/30 transition-all duration-300 hover:shadow-lg hover:scale-105 min-w-[200px]">
+            <div className="text-3xl md:text-4xl font-bold text-green-400 mb-2">
               {stats.contacts}
             </div>
-            <div className="text-slate-300 text-sm md:text-base font-medium">Контактов</div>
-          </div>
-
-          {/* Подходы */}
-          <div className="text-center p-4 md:p-6 rounded-xl bg-slate-800/50 border-2 border-orange-400/30 transition-all duration-300 hover:shadow-lg hover:scale-105">
-            <div className="text-2xl md:text-3xl font-bold text-orange-400 mb-2">
-              {stats.approaches}
-            </div>
-            <div className="text-slate-300 text-sm md:text-base font-medium">Подходов</div>
-          </div>
-        </div>
-
-        {/* Проценты */}
-        <div className="mt-4 md:mt-6 grid grid-cols-2 gap-3 md:gap-6">
-          <div className="flex items-center gap-2 text-slate-300 font-medium text-xs md:text-base">
-            <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-green-400 rounded-full shadow-sm"></div>
-            <span>Контакты: {stats.total_leads > 0 ? Math.round((stats.contacts / stats.total_leads) * 100) : 0}%</span>
-          </div>
-          <div className="flex items-center gap-2 text-slate-300 font-medium text-xs md:text-base">
-            <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-orange-400 rounded-full shadow-sm"></div>
-            <span>Подходы: {stats.total_leads > 0 ? Math.round((stats.approaches / stats.total_leads) * 100) : 0}%</span>
+            <div className="text-slate-300 text-base md:text-lg font-medium">Контактов</div>
           </div>
         </div>
       </CardContent>

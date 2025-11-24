@@ -66,14 +66,16 @@ export default function LeadsChart({
 
   const filteredChartData = getFilteredChartData();
   
-  console.log('📊 График данные:', {
-    showTotal,
-    filterType,
-    dataLength: filteredChartData.length,
-    firstItem: filteredChartData[0],
-    hasContacts: filteredChartData[0]?.contacts,
-    hasApproaches: filteredChartData[0]?.approaches
-  });
+  React.useEffect(() => {
+    console.log('📊 График данные:', {
+      showTotal,
+      filterType,
+      dataLength: filteredChartData.length,
+      firstItem: filteredChartData[0],
+      hasContacts: filteredChartData[0]?.contacts,
+      hasApproaches: filteredChartData[0]?.approaches
+    });
+  }, [showTotal, filterType, filteredChartData]);
 
   const toggleUser = (userName: string) => {
     const isSelected = selectedUsers.includes(userName);
@@ -411,11 +413,13 @@ export default function LeadsChart({
                 <Area
                   type="monotone"
                   dataKey="contacts"
-                  fill="url(#greenAreaGradient)"
-                  fillOpacity={1}
+                  fill="#22d3ee"
+                  fillOpacity={0.3}
                   stroke="none"
+                  strokeWidth={0}
                   connectNulls={true}
                   isAnimationActive={true}
+                  baseValue={0}
                 />
               )}
               
@@ -423,11 +427,13 @@ export default function LeadsChart({
                 <Area
                   type="monotone"
                   dataKey="approaches"
-                  fill="url(#orangeAreaGradient)"
-                  fillOpacity={1}
+                  fill="#22d3ee"
+                  fillOpacity={0.3}
                   stroke="none"
+                  strokeWidth={0}
                   connectNulls={true}
                   isAnimationActive={true}
+                  baseValue={0}
                 />
               )}
               

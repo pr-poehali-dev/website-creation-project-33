@@ -65,6 +65,15 @@ export default function LeadsChart({
   };
 
   const filteredChartData = getFilteredChartData();
+  
+  console.log('📊 График данные:', {
+    showTotal,
+    filterType,
+    dataLength: filteredChartData.length,
+    firstItem: filteredChartData[0],
+    hasContacts: filteredChartData[0]?.contacts,
+    hasApproaches: filteredChartData[0]?.approaches
+  });
 
   const toggleUser = (userName: string) => {
     const isSelected = selectedUsers.includes(userName);
@@ -330,14 +339,14 @@ export default function LeadsChart({
                 
                 {/* Градиенты для заливки площади */}
                 <linearGradient id="greenAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.6} />
-                  <stop offset="50%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#1e40af" stopOpacity={0.05} />
+                  <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.6" />
+                  <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#1e40af" stopOpacity="0.05" />
                 </linearGradient>
                 <linearGradient id="orangeAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.6} />
-                  <stop offset="50%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#1e40af" stopOpacity={0.05} />
+                  <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.6" />
+                  <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#1e40af" stopOpacity="0.05" />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="#334155" strokeOpacity={0.25} vertical={false} />
@@ -403,8 +412,10 @@ export default function LeadsChart({
                   type="monotone"
                   dataKey="contacts"
                   fill="url(#greenAreaGradient)"
+                  fillOpacity={1}
                   stroke="none"
                   connectNulls={true}
+                  isAnimationActive={true}
                 />
               )}
               
@@ -413,8 +424,10 @@ export default function LeadsChart({
                   type="monotone"
                   dataKey="approaches"
                   fill="url(#orangeAreaGradient)"
+                  fillOpacity={1}
                   stroke="none"
                   connectNulls={true}
+                  isAnimationActive={true}
                 />
               )}
               

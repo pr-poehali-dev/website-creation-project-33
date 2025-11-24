@@ -62,14 +62,14 @@ export default function UserRankingCard({
           <div className="flex justify-end gap-1.5 md:gap-2 text-xs">
             {rankingType === 'contacts' && (
               <div className="text-center">
-                <div className="text-xs md:text-sm font-bold text-green-400">К: {user.contacts}</div>
-                <div className="text-[10px] md:text-xs text-slate-400 whitespace-nowrap">контакт</div>
+                <div className="text-base md:text-lg font-bold text-green-400">{user.contacts}</div>
+                <div className="text-[10px] md:text-xs text-slate-400 whitespace-nowrap">контактов</div>
               </div>
             )}
             {rankingType === 'shifts' && (
               <>
                 <div className="text-center">
-                  <div className="text-xs md:text-sm font-bold text-blue-400">{user.shifts_count || 0}</div>
+                  <div className="text-base md:text-lg font-bold text-green-400">{user.shifts_count || 0}</div>
                   <div className="text-[10px] md:text-xs text-slate-400 whitespace-nowrap">смен</div>
                 </div>
                 <Icon 
@@ -82,7 +82,7 @@ export default function UserRankingCard({
             {rankingType === 'avg_per_shift' && (
               <>
                 <div className="text-center">
-                  <div className="text-xs md:text-sm font-bold text-purple-400">~{user.avg_per_shift || 0}</div>
+                  <div className="text-base md:text-lg font-bold text-green-400">~{user.avg_per_shift || 0}</div>
                   <div className="text-[10px] md:text-xs text-slate-400 whitespace-nowrap">за см</div>
                 </div>
                 <Icon 
@@ -94,14 +94,14 @@ export default function UserRankingCard({
             )}
             {rankingType === 'max_contacts_per_shift' && (
               <div className="text-center">
-                <div className="text-xs md:text-sm font-bold text-orange-400">{user.max_contacts_per_shift || 0}</div>
+                <div className="text-base md:text-lg font-bold text-green-400">{user.max_contacts_per_shift || 0}</div>
                 <div className="text-[10px] md:text-xs text-slate-400 whitespace-nowrap">рекорд</div>
               </div>
             )}
             {rankingType === 'revenue' && (
               <>
                 <div className="text-center">
-                  <div className="text-xs md:text-sm font-bold text-yellow-400">{user.revenue || 0}₽</div>
+                  <div className="text-base md:text-lg font-bold text-green-400">{user.revenue || 0}₽</div>
                   <div className="text-[10px] md:text-xs text-slate-400 whitespace-nowrap">доход</div>
                 </div>
                 <Icon 

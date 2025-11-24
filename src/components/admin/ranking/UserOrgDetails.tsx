@@ -5,6 +5,7 @@ export interface OrgStats {
   contacts: number;
   shifts: number;
   avg_per_shift: number;
+  payment_type?: 'cash' | 'cashless';
 }
 
 interface UserOrgDetailsProps {
@@ -25,13 +26,24 @@ export default function UserOrgDetails({ orgStats }: UserOrgDetailsProps) {
             className="flex items-center justify-between bg-slate-700/50 rounded-lg p-3 text-xs"
           >
             <div className="flex-1 min-w-0 mr-2">
-              <div className="font-medium text-slate-200 truncate">
-                {org.organization_name}
+              <div className="flex items-center gap-2">
+                <div className="font-medium text-slate-100 truncate">
+                  {org.organization_name}
+                </div>
+                {org.payment_type && (
+                  <div className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
+                    org.payment_type === 'cash' 
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                      : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  }`}>
+                    {org.payment_type === 'cash' ? '💵 Наличка' : '💳 Безнал'}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3 text-xs flex-shrink-0">
               <div className="text-center">
-                <div className="font-bold text-green-400">{org.contacts}</div>
+                <div className="font-bold text-slate-100">{org.contacts}</div>
                 <div className="text-slate-400">К</div>
               </div>
               <div className="text-center">
@@ -52,7 +64,7 @@ export default function UserOrgDetails({ orgStats }: UserOrgDetailsProps) {
           <div className="text-slate-100">Итого:</div>
           <div className="flex items-center gap-3 text-xs">
             <div className="text-center">
-              <div className="font-bold text-green-400">
+              <div className="font-bold text-slate-100">
                 {orgStats.reduce((sum, org) => sum + org.contacts, 0)}
               </div>
               <div className="text-slate-400">К</div>

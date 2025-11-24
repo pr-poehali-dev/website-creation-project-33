@@ -160,18 +160,18 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
         exportingAll={exportingAll}
       />
 
+      {/* Статистика за последние дни */}
+      <DailyStatsCard 
+        dailyStats={stats.daily_stats} 
+        onDayClick={handleDayClick}
+      />
+
       {/* Средние контакты по месяцам */}
       <MonthlyContactsChart />
 
       {/* Рейтинг пользователей */}
       <UsersRanking 
         userStats={stats.user_stats}
-      />
-
-      {/* Статистика за последние дни */}
-      <DailyStatsCard 
-        dailyStats={stats.daily_stats} 
-        onDayClick={handleDayClick}
       />
 
       {/* График с лидами */}

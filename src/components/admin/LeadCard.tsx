@@ -36,7 +36,9 @@ export default function LeadCard({ lead, isDuplicate, onDeleteLead }: LeadCardPr
   
   return (
     <div 
-      className="border-2 border-gray-200 rounded-lg p-3 md:p-4 shadow-md hover:shadow-lg transition-all duration-300 bg-white"
+      className={`border-2 rounded-lg p-3 md:p-4 shadow-md hover:shadow-lg transition-all duration-300 bg-slate-800/50 ${
+        isDuplicate ? 'border-red-600' : 'border-slate-700'
+      }`}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -45,16 +47,16 @@ export default function LeadCard({ lead, isDuplicate, onDeleteLead }: LeadCardPr
           </div>
           
           <div className="flex-1 min-w-0">
-            <div className="text-[#001f54] text-sm md:text-base font-medium mb-1">
+            <div className="text-slate-100 text-sm md:text-base font-medium mb-1">
               {formatMoscowTime(lead.created_at, 'datetime')}
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-full text-xs md:text-sm font-medium text-[#001f54]">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-700 rounded-full text-xs md:text-sm font-medium text-slate-200">
                 <Icon name={typeIcon} size={14} />
                 {lead.lead_type}
               </div>
               {lead.organization_name && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-xs md:text-sm font-medium text-blue-700">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-900/30 border border-cyan-600/30 rounded-full text-xs md:text-sm font-medium text-cyan-400">
                   <Icon name="Building2" size={14} />
                   {lead.organization_name}
                 </div>
@@ -67,7 +69,7 @@ export default function LeadCard({ lead, isDuplicate, onDeleteLead }: LeadCardPr
           variant="ghost"
           size="sm"
           onClick={onDeleteLead}
-          className="h-8 w-8 md:h-9 md:w-9 p-0 hover:bg-red-50 text-red-600 transition-all duration-300 flex-shrink-0"
+          className="h-8 w-8 md:h-9 md:w-9 p-0 hover:bg-red-900/30 text-red-400 transition-all duration-300 flex-shrink-0"
           title="Удалить метрики лида"
         >
           <Icon name="Trash2" size={16} />

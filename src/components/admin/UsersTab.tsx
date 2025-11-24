@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import UserCard from './UserCard';
-import UserLeadsSection from './UserLeadsSection';
+import UserLeadsModal from './UserLeadsModal';
 import { User, Lead } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
 import { useUsers, useUpdateUserName, useDeleteUser, useUserLeads, useDeleteLead, useDeleteLeadsByDate } from '@/hooks/useAdminData';
@@ -180,34 +180,19 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
           ) : (
             <>
               {displayedUsers.map((user) => (
-                <div key={user.id}>
-                  <UserCard
-                    user={user}
-                    isSelected={selectedUser?.id === user.id}
-                    isEditing={editingUser === user.id}
-                    editName={newName}
-                    onUserClick={() => handleUserClick(user)}
-                    onStartEdit={() => startEdit(user)}
-                    onCancelEdit={cancelEdit}
-                    onUpdateName={() => updateUserName(user.id, newName)}
-                    onDeleteUser={() => deleteUser(user.id)}
-                    onEditNameChange={setNewName}
-                  />
-
-                  {selectedUser?.id === user.id && (
-                    <div className="mt-4 ml-0 md:ml-8">
-                      <UserLeadsSection
-                        leads={userLeads}
-                        isLoading={leadsLoading}
-                        selectedDate={selectedDate}
-                        groupedLeads={groupedLeads}
-                        onDateSelect={setSelectedDate}
-                        onDeleteLead={deleteLead}
-                        onDeleteDate={deleteLeadsByDate}
-                      />
-                    </div>
-                  )}
-                </div>
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  isSelected={selectedUser?.id === user.id}
+                  isEditing={editingUser === user.id}
+                  editName={newName}
+                  onUserClick={() => handleUserClick(user)}
+                  onStartEdit={() => startEdit(user)}
+                  onCancelEdit={cancelEdit}
+                  onUpdateName={() => updateUserName(user.id, newName)}
+                  onDeleteUser={() => deleteUser(user.id)}
+                  onEditNameChange={setNewName}
+                />
               ))}
               {hasMoreUsers && !showAll && (
                 <button
@@ -231,6 +216,21 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
           )}
         </div>
       </CardContent>
+
+      <UserLeadsModal
+        userName={selectedUser?.name || null}
+        leads={userLeads}
+        isLoading={leadsLoading}
+        selectedDate={selectedDate}
+        groupedLeads={groupedLeads}
+        onDateSelect={setSelectedDate}
+        onDeleteLead={deleteLead}
+        onDeleteDate={deleteLeadsByDate}
+        onClose={() => {
+          setSelectedUser(null);
+          setSelectedDate(null);
+        }}
+      />
     </Card>
   );
 }

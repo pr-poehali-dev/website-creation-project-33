@@ -129,8 +129,8 @@ export default function LeadsChart({
               variant={filterType === 'contacts' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'contacts'
-                ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-green-400 border-green-400/30'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               Контакты
@@ -140,8 +140,8 @@ export default function LeadsChart({
               variant={filterType === 'approaches' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${filterType === 'approaches'
-                ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-orange-400 border-orange-400/30'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               Подходы

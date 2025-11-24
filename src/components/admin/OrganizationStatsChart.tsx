@@ -389,21 +389,24 @@ export default function OrganizationStatsChart() {
                   <div className="flex items-center gap-4">
                     {org.contact_rate > 0 && (
                       <div className="text-right">
-                        <div className="text-base md:text-lg font-bold text-yellow-400">
+                        <div className="text-base md:text-lg font-bold text-green-400">
                           {(() => {
                             const revenue = org.total * org.contact_rate;
                             const revenueAfterTax = org.payment_type === 'cashless' ? revenue * 0.93 : revenue;
                             return Math.round(revenueAfterTax).toLocaleString('ru-RU');
                           })()}₽
                         </div>
-                        <div className="text-xs text-green-400">
+                        <div className="text-xs text-slate-400">
                           {org.payment_type === 'cash' ? 'наличка' : 'безнал'}
                         </div>
                       </div>
                     )}
-                    <span className="text-lg md:text-xl font-bold text-slate-100">
-                      {org.total}
-                    </span>
+                    <div className="text-center">
+                      <div className="text-lg md:text-xl font-bold text-slate-100">
+                        {org.total}
+                      </div>
+                      <div className="text-xs text-slate-400">контактов</div>
+                    </div>
                     <Icon
                       name={isExpanded ? 'ChevronUp' : 'ChevronDown'}
                       size={20}

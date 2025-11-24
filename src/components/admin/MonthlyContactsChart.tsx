@@ -66,10 +66,10 @@ export default function MonthlyContactsChart() {
   }
 
   const rangeGradients = {
-    '0-10': 'linear-gradient(90deg, #334155 0%, #475569 100%)',
-    '11-15': 'linear-gradient(90deg, #475569 0%, #1d4ed8 50%, #2563eb 100%)',
-    '16-20': 'linear-gradient(90deg, #2563eb 0%, #3b82f6 50%, #0891b2 100%)',
-    '21+': 'linear-gradient(90deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%)'
+    '0-10': 'linear-gradient(90deg, #334155 0%, #3f4e62 50%, #475569 100%)',
+    '11-15': 'linear-gradient(90deg, #1e40af 0%, #2053c7 50%, #2563eb 100%)',
+    '16-20': 'linear-gradient(90deg, #2563eb 0%, #2b73ee 50%, #3b82f6 100%)',
+    '21+': 'linear-gradient(90deg, #0891b2 0%, #0fa6c2 50%, #16bdd5 100%)'
   };
 
   const rangeColors = {

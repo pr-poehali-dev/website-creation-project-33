@@ -212,7 +212,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
               {hasMoreUsers && !showAll && (
                 <button
                   onClick={() => setShowAll(true)}
-                  className="w-full mt-4 py-3 px-4 bg-gray-100 hover:bg-gray-100 text-gray-900 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                  className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
                 >
                   <Icon name="ChevronDown" size={20} />
                   Показать еще ({filteredUsers.length - 4})
@@ -221,7 +221,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
               {showAll && hasMoreUsers && (
                 <button
                   onClick={() => setShowAll(false)}
-                  className="w-full mt-4 py-3 px-4 bg-gray-100 hover:bg-gray-100 text-gray-900 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                  className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
                 >
                   <Icon name="ChevronUp" size={20} />
                   Свернуть

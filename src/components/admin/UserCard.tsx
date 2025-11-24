@@ -85,7 +85,7 @@ export default function UserCard({
 
   return (
     <div 
-      className="border-2 border-gray-200 rounded-xl p-3 md:p-4 hover:bg-gray-50 transition-all duration-300 cursor-pointer bg-white shadow-md hover:shadow-xl hover:scale-[1.01]"
+      className="border-2 border-slate-700 rounded-xl p-3 md:p-4 hover:bg-slate-800 transition-all duration-300 cursor-pointer bg-slate-800/50 shadow-md hover:shadow-xl hover:scale-[1.01]"
       onClick={onUserClick}
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -97,7 +97,7 @@ export default function UserCard({
               <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
             )}
             {user.is_admin && (
-              <Badge className="bg-blue-50 text-blue-600 border border-blue-200 px-1.5 py-0.5 text-xs shadow-sm">
+              <Badge className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-1.5 py-0.5 text-xs shadow-sm">
                 <Icon name="Shield" size={10} className="mr-1" />
                 <span className="hidden sm:inline">Админ</span>
                 <span className="sm:hidden">А</span>
@@ -111,7 +111,7 @@ export default function UserCard({
                 <Input
                   value={editName}
                   onChange={(e) => onEditNameChange(e.target.value)}
-                  className="w-full max-w-48 border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-200 text-sm md:text-base"
+                  className="w-full max-w-48 border-2 border-cyan-500 bg-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-200 text-sm md:text-base"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       onUpdateName();
@@ -120,11 +120,11 @@ export default function UserCard({
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
-                <span className="font-medium text-gray-900 text-base md:text-lg truncate">{user.name}</span>
+                <span className="font-medium text-slate-100 text-base md:text-lg truncate">{user.name}</span>
               )}
             </div>
-            <div className="text-sm text-gray-600 truncate">{user.email}</div>
-            <div className="flex items-center justify-between text-xs text-gray-500 gap-2">
+            <div className="text-sm text-slate-400 truncate">{user.email}</div>
+            <div className="flex items-center justify-between text-xs text-slate-500 gap-2">
               <span className="truncate">
                 {user.is_online 
                   ? 'Онлайн сейчас' 
@@ -134,19 +134,19 @@ export default function UserCard({
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <Badge className={`px-1.5 py-0.5 text-xs font-medium ${
                   user.is_online 
-                    ? 'bg-green-50 text-green-600 border border-green-200' 
-                    : 'bg-gray-100 text-gray-600 border border-gray-200'
+                    ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                    : 'bg-slate-700 text-slate-400 border border-slate-600'
                 }`}>
                   {user.lead_count}
                 </Badge>
                 {user.shifts_count && user.shifts_count > 0 && (
                   <>
-                    <span className="text-gray-400">•</span>
-                    <Badge className="bg-blue-50 text-blue-600 border border-blue-200 px-1.5 py-0.5 text-xs font-medium">
+                    <span className="text-slate-600">•</span>
+                    <Badge className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 text-xs font-medium">
                       {user.shifts_count} см
                     </Badge>
-                    <span className="text-gray-400">•</span>
-                    <Badge className="bg-purple-50 text-purple-600 border border-purple-200 px-1.5 py-0.5 text-xs font-medium">
+                    <span className="text-slate-600">•</span>
+                    <Badge className="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1.5 py-0.5 text-xs font-medium">
                       ~{user.avg_per_shift}
                     </Badge>
                   </>
@@ -158,7 +158,7 @@ export default function UserCard({
 
         <div className="flex items-center justify-between md:justify-end gap-2 flex-shrink-0">
           {isSelected && (
-            <Icon name="ChevronDown" size={16} className="text-gray-400 md:mr-2" />
+            <Icon name="ChevronDown" size={16} className="text-slate-500 md:mr-2" />
           )}
           
           <div className="flex gap-1 md:gap-2" onClick={(e) => e.stopPropagation()}>
@@ -168,14 +168,14 @@ export default function UserCard({
                   size="sm" 
                   onClick={onUpdateName}
                   disabled={!editName.trim()}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-2 md:px-3 py-1 h-8 shadow-md transition-all duration-300 hover:scale-105"
+                  className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-2 md:px-3 py-1 h-8 shadow-md transition-all duration-300 hover:scale-105"
                 >
                   <Icon name="Check" size={12} className="md:w-[14px] md:h-[14px]" />
                 </Button>
                 <Button 
                   size="sm" 
                   onClick={onCancelEdit}
-                  className="border-2 border-gray-300 text-gray-700 hover:bg-gray-100 px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                  className="border-2 border-slate-600 text-slate-300 hover:bg-slate-700 px-2 md:px-3 py-1 h-8 transition-all duration-300"
                   variant="ghost"
                 >
                   <Icon name="X" size={12} className="md:w-[14px] md:h-[14px]" />
@@ -187,7 +187,7 @@ export default function UserCard({
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingQR}
-                  className="border-2 border-blue-300 bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                  className="border-2 border-cyan-600 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 px-2 md:px-3 py-1 h-8 transition-all duration-300"
                   variant="ghost"
                   title="Загрузить QR-код"
                 >
@@ -214,7 +214,7 @@ export default function UserCard({
                   size="sm" 
                   onClick={onStartEdit}
                   disabled={user.is_admin}
-                  className="border-2 border-gray-300 text-gray-700 hover:bg-gray-100 px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                  className="border-2 border-slate-600 text-slate-300 hover:bg-slate-700 px-2 md:px-3 py-1 h-8 transition-all duration-300"
                   variant="ghost"
                 >
                   <Icon name="Edit" size={12} className="md:w-[14px] md:h-[14px]" />
@@ -223,7 +223,7 @@ export default function UserCard({
                   <Button 
                     size="sm" 
                     onClick={onDeleteUser}
-                    className="border-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100 px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                    className="border-2 border-red-600 bg-red-500/20 text-red-400 hover:bg-red-500/30 px-2 md:px-3 py-1 h-8 transition-all duration-300"
                     variant="ghost"
                   >
                     <Icon name="Trash2" size={12} className="md:w-[14px] md:h-[14px]" />

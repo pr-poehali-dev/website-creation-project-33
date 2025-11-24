@@ -304,7 +304,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                         <Button
                           onClick={() => updateOrganization(org.id)}
                           disabled={!editingName.trim() || updating}
-                          className="bg-green-600 hover:bg-green-700 text-white h-10 px-3"
+                          className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white h-10 px-3"
                           size="sm"
                         >
                           {updating ? (
@@ -326,27 +326,27 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                   ) : (
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-                        <div className="p-1.5 md:p-2 rounded-lg bg-blue-50 flex-shrink-0">
-                          <Icon name="Building2" size={16} className="text-blue-600 md:w-[18px] md:h-[18px]" />
+                        <div className="p-1.5 md:p-2 rounded-lg bg-cyan-500/20 flex-shrink-0">
+                          <Icon name="Building2" size={16} className="text-cyan-400 md:w-[18px] md:h-[18px]" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <div className="font-medium text-gray-900 text-sm md:text-lg truncate">{org.name}</div>
-                            <div className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] md:text-xs font-medium flex-shrink-0">
+                            <div className="font-medium text-slate-100 text-sm md:text-lg truncate">{org.name}</div>
+                            <div className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] md:text-xs font-medium flex-shrink-0">
                               {org.lead_count} {org.lead_count === 1 ? 'лид' : org.lead_count < 5 ? 'лида' : 'лидов'}
                             </div>
                             {org.contact_rate > 0 && (
-                              <div className="px-2 py-0.5 rounded-full bg-green-50 text-green-600 text-[10px] md:text-xs font-medium flex-shrink-0">
+                              <div className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 text-[10px] md:text-xs font-medium flex-shrink-0">
                                 {org.contact_rate} ₽/контакт
                               </div>
                             )}
                             {org.payment_type && (
-                              <div className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 text-[10px] md:text-xs font-medium flex-shrink-0">
+                              <div className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-[10px] md:text-xs font-medium flex-shrink-0">
                                 {org.payment_type === 'cash' ? '💵 Наличные' : '💳 Безнал'}
                               </div>
                             )}
                           </div>
-                          <div className="text-[10px] md:text-xs text-gray-500">
+                          <div className="text-[10px] md:text-xs text-slate-500">
                             Добавлено: {new Date(org.created_at).toLocaleDateString('ru-RU')}
                           </div>
                         </div>
@@ -354,7 +354,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                       <div className="flex items-center gap-1.5">
                         <Button
                           onClick={() => setPeriodsModalOrg({ id: org.id, name: org.name })}
-                          className="border-2 border-green-200 bg-green-50 text-green-600 hover:bg-green-100 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
+                          className="border-2 border-green-600 bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
                           variant="ghost"
                           size="sm"
                           title="Тарифные периоды"
@@ -363,7 +363,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                         </Button>
                         <Button
                           onClick={() => startEditing(org)}
-                          className="border-2 border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
+                          className="border-2 border-slate-600 text-slate-300 hover:bg-slate-700 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
                           variant="ghost"
                           size="sm"
                         >
@@ -371,7 +371,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                         </Button>
                         <Button
                           onClick={() => deleteOrganization(org.id, org.name)}
-                          className="border-2 border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
+                          className="border-2 border-red-600 bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
                           variant="ghost"
                           size="sm"
                         >
@@ -386,7 +386,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                 <div className="pt-2 md:pt-3">
                   <Button
                     onClick={() => setShowAll(!showAll)}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 transition-all duration-300 h-10 md:h-11 text-sm md:text-base font-medium"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 transition-all duration-300 h-10 md:h-11 text-sm md:text-base font-medium"
                   >
                     <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} className="mr-2 md:w-[18px] md:h-[18px]" />
                     {showAll ? `Скрыть` : `Показать все (${organizations.length})`}

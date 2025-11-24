@@ -244,11 +244,11 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   };
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-gray-900 text-xl">
-          <div className="p-2 rounded-lg bg-gray-100">
-            <Icon name="Trophy" size={20} className="text-gray-900" />
+        <CardTitle className="flex items-center gap-3 text-slate-100 text-xl">
+          <div className="p-2 rounded-lg bg-slate-800">
+            <Icon name="Trophy" size={20} className="text-cyan-400" />
           </div>
           Рейтинг пользователей ({getRankingTitle()})
         </CardTitle>
@@ -263,7 +263,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
 
         <div className="space-y-4">
           {displayUsers.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-slate-400">
               <Icon name="Search" size={32} className="mx-auto mb-2 opacity-50" />
               <div className="text-sm">Промоутеры не найдены</div>
             </div>
@@ -286,7 +286,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
             <Button
               onClick={toggleExpand}
               variant="outline"
-              className="w-full py-3 px-4 text-sm font-medium text-gray-900 hover:bg-gray-100 border-2 border-gray-200 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:border-gray-300 hover:shadow-md"
+              className="w-full py-3 px-4 text-sm font-medium text-slate-100 hover:bg-slate-800 border-2 border-slate-700 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:border-slate-600 hover:shadow-md"
             >
               <span>
                 {isExpanded 

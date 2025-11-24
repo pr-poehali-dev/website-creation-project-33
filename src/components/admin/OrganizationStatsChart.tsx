@@ -27,9 +27,9 @@ export default function OrganizationStatsChart() {
 
   if (isLoading) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
+      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
         <CardContent className="p-4 md:p-8">
-          <div className="text-center text-gray-600 flex items-center justify-center gap-2 text-sm">
+          <div className="text-center text-slate-300 flex items-center justify-center gap-2 text-sm">
             <Icon name="Loader2" size={20} className="animate-spin" />
             Загрузка статистики по организациям...
           </div>
@@ -196,12 +196,12 @@ export default function OrganizationStatsChart() {
   };
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-3 md:pb-4">
-        <CardTitle className="flex items-center justify-between gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
+        <CardTitle className="flex items-center justify-between gap-2 md:gap-3 text-slate-100 text-lg md:text-xl">
           <div className="flex items-center gap-2 md:gap-3">
-            <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-              <Icon name="Building2" size={18} className="text-gray-900 md:w-5 md:h-5" />
+            <div className="p-1.5 md:p-2 rounded-lg bg-slate-800">
+              <Icon name="Building2" size={18} className="text-cyan-400 md:w-5 md:h-5" />
             </div>
             Статистика по организациям
           </div>
@@ -209,7 +209,7 @@ export default function OrganizationStatsChart() {
             onClick={() => refetch()}
             variant="outline"
             size="sm"
-            className="bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-200"
+            className="bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
           >
             <Icon name="RefreshCw" size={14} className="md:w-4 md:h-4" />
           </Button>
@@ -218,7 +218,7 @@ export default function OrganizationStatsChart() {
       <CardContent>
         <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
           <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-            <span className="text-xs md:text-sm text-gray-600 font-medium">Период:</span>
+            <span className="text-xs md:text-sm text-slate-300 font-medium">Период:</span>
             <Button
               onClick={() => {
                 setTimeRange('week');
@@ -227,8 +227,8 @@ export default function OrganizationStatsChart() {
               variant={timeRange === 'week' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'week'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               Неделя
@@ -241,8 +241,8 @@ export default function OrganizationStatsChart() {
               variant={timeRange === 'month' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'month'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               Месяц
@@ -255,8 +255,8 @@ export default function OrganizationStatsChart() {
               variant={timeRange === 'year' ? 'default' : 'outline'}
               size="sm"
               className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'year'
-                ? 'bg-[#001f54] hover:bg-[#002b6b] text-white shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-100 text-gray-900 border-gray-200'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
             >
               Год
@@ -272,11 +272,11 @@ export default function OrganizationStatsChart() {
                   disabled={selectedWeekIndex >= availableWeeks.length - 1}
                   variant="outline"
                   size="sm"
-                  className="h-8"
+                  className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
                 >
                   <Icon name="ChevronLeft" size={16} />
                 </Button>
-                <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[180px] text-center">
+                <span className="text-xs md:text-sm text-slate-200 font-medium min-w-[180px] text-center">
                   {availableWeeks[selectedWeekIndex]?.label}
                 </span>
                 <Button
@@ -284,13 +284,13 @@ export default function OrganizationStatsChart() {
                   disabled={selectedWeekIndex <= 0}
                   variant="outline"
                   size="sm"
-                  className="h-8"
+                  className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
                 >
                   <Icon name="ChevronRight" size={16} />
                 </Button>
               </div>
               <div className="text-center">
-                <span className="text-sm font-semibold text-[#001f54]">
+                <span className="text-sm font-semibold text-cyan-400">
                   Всего за неделю: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
                 </span>
               </div>
@@ -306,11 +306,11 @@ export default function OrganizationStatsChart() {
                   disabled={selectedMonthIndex >= availableMonths.length - 1}
                   variant="outline"
                   size="sm"
-                  className="h-8"
+                  className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
                 >
                   <Icon name="ChevronLeft" size={16} />
                 </Button>
-                <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[180px] text-center">
+                <span className="text-xs md:text-sm text-slate-200 font-medium min-w-[180px] text-center">
                   {availableMonths[selectedMonthIndex]?.label}
                 </span>
                 <Button
@@ -318,13 +318,13 @@ export default function OrganizationStatsChart() {
                   disabled={selectedMonthIndex <= 0}
                   variant="outline"
                   size="sm"
-                  className="h-8"
+                  className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
                 >
                   <Icon name="ChevronRight" size={16} />
                 </Button>
               </div>
               <div className="text-center">
-                <span className="text-sm font-semibold text-[#001f54]">
+                <span className="text-sm font-semibold text-cyan-400">
                   Всего за месяц: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
                 </span>
               </div>
@@ -340,11 +340,11 @@ export default function OrganizationStatsChart() {
                   disabled={selectedYear >= availableYears[0]}
                   variant="outline"
                   size="sm"
-                  className="h-8"
+                  className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
                 >
                   <Icon name="ChevronLeft" size={16} />
                 </Button>
-                <span className="text-xs md:text-sm text-gray-700 font-medium min-w-[100px] text-center">
+                <span className="text-xs md:text-sm text-slate-200 font-medium min-w-[100px] text-center">
                   {selectedYear}
                 </span>
                 <Button
@@ -352,13 +352,13 @@ export default function OrganizationStatsChart() {
                   disabled={selectedYear <= availableYears[availableYears.length - 1]}
                   variant="outline"
                   size="sm"
-                  className="h-8"
+                  className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
                 >
                   <Icon name="ChevronRight" size={16} />
                 </Button>
               </div>
               <div className="text-center">
-                <span className="text-sm font-semibold text-[#001f54]">
+                <span className="text-sm font-semibold text-cyan-400">
                   Всего за год: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
                 </span>
               </div>
@@ -372,56 +372,56 @@ export default function OrganizationStatsChart() {
             const usersList = Object.entries(org.users).sort((a, b) => b[1] - a[1]);
             
             return (
-              <div key={org.name} className="border border-gray-200 rounded-lg overflow-hidden">
+              <div key={org.name} className="border border-slate-700 rounded-lg overflow-hidden bg-slate-800">
                 <button
                   onClick={() => setSelectedOrg(isExpanded ? null : org.name)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  className="w-full p-4 flex items-center justify-between hover:bg-slate-700/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: ORG_COLORS[org.name] || '#9ca3af' }}
                     />
-                    <span className="font-semibold text-sm md:text-base text-gray-900">
+                    <span className="font-semibold text-sm md:text-base text-slate-100">
                       {org.name}
                     </span>
                   </div>
                   <div className="flex items-center gap-4">
                     {org.contact_rate > 0 && (
                       <div className="text-right">
-                        <div className="text-base md:text-lg font-bold text-yellow-600">
+                        <div className="text-base md:text-lg font-bold text-yellow-400">
                           {(() => {
                             const revenue = org.total * org.contact_rate;
                             const revenueAfterTax = org.payment_type === 'cashless' ? revenue * 0.93 : revenue;
                             return Math.round(revenueAfterTax).toLocaleString('ru-RU');
                           })()}₽
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-slate-400">
                           {org.payment_type === 'cash' ? 'наличка' : 'безнал'}
                         </div>
                       </div>
                     )}
-                    <span className="text-lg md:text-xl font-bold text-[#001f54]">
+                    <span className="text-lg md:text-xl font-bold text-cyan-400">
                       {org.total}
                     </span>
                     <Icon
                       name={isExpanded ? 'ChevronUp' : 'ChevronDown'}
                       size={20}
-                      className="text-gray-400"
+                      className="text-slate-400"
                     />
                   </div>
                 </button>
 
                 {isExpanded && usersList.length > 0 && (
-                  <div className="border-t border-gray-200 bg-gray-50 p-4">
+                  <div className="border-t border-slate-700 bg-slate-700/50 p-4">
                     <div className="space-y-2">
                       {usersList.map(([userName, contacts]) => (
                         <div
                           key={userName}
-                          className="flex items-center justify-between py-2 px-3 bg-white rounded-lg"
+                          className="flex items-center justify-between py-2 px-3 bg-slate-800 rounded-lg"
                         >
-                          <span className="text-sm text-gray-700">{userName}</span>
-                          <span className="text-sm font-semibold text-gray-900">
+                          <span className="text-sm text-slate-200">{userName}</span>
+                          <span className="text-sm font-semibold text-slate-100">
                             {contacts} контакт{contacts === 1 ? '' : contacts < 5 ? 'а' : 'ов'}
                           </span>
                         </div>

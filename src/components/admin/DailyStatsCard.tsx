@@ -148,7 +148,7 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
           {hasMore && (
             <button
               onClick={() => setShowAll(!showAll)}
-              className="glass-button w-full py-3 px-4 text-sm font-medium text-slate-100 hover:bg-slate-800 border-2 border-slate-700 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:border-slate-600 hover:shadow-md"
+              className="glass-button w-full py-3 px-4 text-sm font-medium text-slate-100 bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:border-slate-600 hover:shadow-md"
             >
               <span>{showAll ? 'Скрыть' : `Показать ещё ${groupedByMonth.length - 1} ${groupedByMonth.length - 1 === 1 ? 'месяц' : 'месяца'}`}</span>
               <Icon 

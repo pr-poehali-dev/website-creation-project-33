@@ -303,25 +303,38 @@ export default function LeadsChart({
           </div>
         </div>
 
-        <div className="h-64 md:h-96">
+        <div className="h-64 md:h-96 rounded-xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart 
               data={filteredChartData} 
               margin={{ 
-                top: 10, 
-                right: 10, 
-                left: 0, 
+                top: 20, 
+                right: 20, 
+                left: 10, 
                 bottom: 60 
               }}
               className="md:!ml-5"
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+              <defs>
+                <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#22c55e" />
+                  <stop offset="50%" stopColor="#10b981" />
+                  <stop offset="100%" stopColor="#059669" />
+                </linearGradient>
+                <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#fb923c" />
+                  <stop offset="50%" stopColor="#f97316" />
+                  <stop offset="100%" stopColor="#ea580c" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.3} />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 10, fill: '#94a3b8' }}
+                tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }}
                 angle={-45}
                 textAnchor="end"
                 height={60}
+                stroke="#475569"
                 className="md:text-xs"
                 tickFormatter={(date) => 
                   new Date(date).toLocaleDateString('ru-RU', { 
@@ -331,20 +344,21 @@ export default function LeadsChart({
                 }
               />
               <YAxis 
-                tick={{ fontSize: 10, fill: '#94a3b8' }}
+                tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }}
+                stroke="#475569"
                 axisLine={false}
                 tickLine={false}
                 className="md:text-xs"
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                  border: '2px solid rgba(100, 116, 139, 0.3)',
-                  backdropFilter: 'blur(10px)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.98)',
+                  border: '2px solid rgba(34, 211, 238, 0.3)',
+                  backdropFilter: 'blur(16px)',
                   color: '#e2e8f0',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3)'
+                  borderRadius: '16px',
+                  padding: '16px',
+                  boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(34, 211, 238, 0.2)'
                 }}
                 labelFormatter={(date) => 
                   new Date(date).toLocaleDateString('ru-RU', {
@@ -363,20 +377,20 @@ export default function LeadsChart({
               <Legend 
                 wrapperStyle={{ 
                   paddingTop: '20px',
-                  fontSize: '14px'
+                  fontSize: '13px'
                 }}
                 iconType="circle"
-                formatter={(value) => <span style={{ color: '#000', fontWeight: '500' }}>{value}</span>}
+                formatter={(value) => <span style={{ color: '#94a3b8', fontWeight: '600' }}>{value}</span>}
               />
               
               {showTotal && filterType === 'contacts' && (
                 <Line 
                   type="monotone"
                   dataKey="contacts" 
-                  stroke="#16a34a" 
+                  stroke="url(#greenGradient)" 
                   strokeWidth={3}
-                  dot={{ fill: '#16a34a', r: 4 }}
-                  activeDot={{ r: 6 }}
+                  dot={{ fill: '#22c55e', r: 5, strokeWidth: 2, stroke: '#0f172a' }}
+                  activeDot={{ r: 7, fill: '#22c55e', stroke: '#22d3ee', strokeWidth: 2 }}
                   name="Все контакты"
                   connectNulls={true}
                 />
@@ -386,10 +400,10 @@ export default function LeadsChart({
                 <Line 
                   type="monotone"
                   dataKey="approaches" 
-                  stroke="#ea580c" 
+                  stroke="url(#orangeGradient)" 
                   strokeWidth={3}
-                  dot={{ fill: '#ea580c', r: 4 }}
-                  activeDot={{ r: 6 }}
+                  dot={{ fill: '#fb923c', r: 5, strokeWidth: 2, stroke: '#0f172a' }}
+                  activeDot={{ r: 7, fill: '#fb923c', stroke: '#22d3ee', strokeWidth: 2 }}
                   name="Все подходы"
                   connectNulls={true}
                 />
@@ -406,9 +420,9 @@ export default function LeadsChart({
                     type="monotone"
                     dataKey={dataKey}
                     stroke={userColorMap[userName]}
-                    strokeWidth={2}
-                    dot={{ fill: userColorMap[userName], r: 3 }}
-                    activeDot={{ r: 5 }}
+                    strokeWidth={2.5}
+                    dot={{ fill: userColorMap[userName], r: 4, strokeWidth: 2, stroke: '#0f172a' }}
+                    activeDot={{ r: 6, fill: userColorMap[userName], stroke: '#22d3ee', strokeWidth: 2 }}
                     name={userName}
                     connectNulls={true}
                   />

@@ -81,7 +81,7 @@ export default function DailyModal({
   }
 
   const getTypeColor = (type: string) => {
-    return type === 'контакт' ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50';
+    return type === 'контакт' ? 'text-green-400 bg-green-500/20 border-green-500/30' : 'text-orange-400 bg-orange-500/20 border-orange-500/30';
   };
 
   const getTypeIcon = (type: string) => {
@@ -97,12 +97,12 @@ export default function DailyModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
-      <div className="bg-white rounded-t-2xl sm:rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-3 sm:p-4 md:p-6">
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+      <div className="bg-slate-900 rounded-t-2xl sm:rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl border-2 border-slate-700">
+        <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-3 sm:p-4 md:p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <h3 className="text-base sm:text-xl md:text-2xl font-bold text-black truncate">
+              <h3 className="text-base sm:text-xl md:text-2xl font-bold text-slate-100 truncate">
                 Статистика за {new Intl.DateTimeFormat('ru-RU', {
                   day: 'numeric',
                   month: 'long',
@@ -115,7 +115,7 @@ export default function DailyModal({
               onClick={onClose}
               variant="ghost"
               size="sm"
-              className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-gray-100 flex-shrink-0"
+              className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-slate-700 text-slate-300 flex-shrink-0"
             >
               <Icon name="X" size={16} />
             </Button>
@@ -124,8 +124,8 @@ export default function DailyModal({
         
         <div className="p-3 sm:p-4 md:p-6 overflow-y-auto">
           {dailyLoading ? (
-            <div className="text-center text-gray-600 flex items-center justify-center gap-3 py-8">
-              <Icon name="Loader2" size={20} className="animate-spin sm:w-6 sm:h-6" />
+            <div className="text-center text-slate-300 flex items-center justify-center gap-3 py-8">
+              <Icon name="Loader2" size={20} className="animate-spin sm:w-6 sm:h-6 text-cyan-400" />
               <span className="text-sm sm:text-base">Загрузка статистики...</span>
             </div>
           ) : dailyUserStats.length > 0 ? (
@@ -151,26 +151,26 @@ export default function DailyModal({
                   .sort((a, b) => b.total - a.total);
 
                 return orgList.length > 0 ? (
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4 border-2 border-blue-200">
-                    <div className="text-sm sm:text-base md:text-lg font-bold text-[#001f54] mb-3 flex items-center gap-2">
-                      <Icon name="Building2" size={20} className="text-[#001f54]" />
+                  <div className="bg-slate-800/50 rounded-xl p-3 sm:p-4 border-2 border-slate-700">
+                    <div className="text-sm sm:text-base md:text-lg font-bold text-slate-100 mb-3 flex items-center gap-2">
+                      <Icon name="Building2" size={20} className="text-cyan-400" />
                       Статистика по организациям
                     </div>
                     <div className="space-y-2">
                       {orgList.map((org) => (
-                        <div key={org.name} className="bg-white rounded-lg p-2 sm:p-3 shadow-sm">
+                        <div key={org.name} className="bg-slate-900 border border-slate-700 rounded-lg p-2 sm:p-3 shadow-sm">
                           <div className="flex items-center justify-between gap-2">
-                            <div className="font-medium text-[#001f54] text-xs sm:text-sm truncate flex-1">
+                            <div className="font-medium text-slate-100 text-xs sm:text-sm truncate flex-1">
                               {org.name}
                             </div>
                             <div className="flex gap-2 sm:gap-3 flex-shrink-0">
                               <div className="text-center">
-                                <div className="text-xs sm:text-sm font-bold text-green-600">{org.contacts}</div>
-                                <div className="text-[9px] sm:text-[10px] text-gray-500">контакты</div>
+                                <div className="text-xs sm:text-sm font-bold text-green-400">{org.contacts}</div>
+                                <div className="text-[9px] sm:text-[10px] text-slate-400">контакты</div>
                               </div>
                               <div className="text-center">
-                                <div className="text-xs sm:text-sm font-bold text-orange-600">{org.approaches}</div>
-                                <div className="text-[9px] sm:text-[10px] text-gray-500">подходы</div>
+                                <div className="text-xs sm:text-sm font-bold text-orange-400">{org.approaches}</div>
+                                <div className="text-[9px] sm:text-[10px] text-slate-400">подходы</div>
                               </div>
                             </div>
                           </div>
@@ -182,8 +182,8 @@ export default function DailyModal({
               })()}
 
               <div className="space-y-3 sm:space-y-4">
-                <div className="text-sm sm:text-base md:text-lg font-bold text-[#001f54] mb-2 sm:mb-3 flex items-center gap-2">
-                  <Icon name="Users" size={20} className="text-[#001f54]" />
+                <div className="text-sm sm:text-base md:text-lg font-bold text-slate-100 mb-2 sm:mb-3 flex items-center gap-2">
+                  <Icon name="Users" size={20} className="text-cyan-400" />
                   Сводка по промоутерам
                 </div>
                 {dailyUserStats.map((user, index) => {
@@ -193,36 +193,36 @@ export default function DailyModal({
                   return (
                     <div 
                       key={user.email} 
-                      className="border-2 border-[#001f54]/10 rounded-xl bg-white shadow-sm overflow-hidden"
+                      className="border-2 border-slate-700 rounded-xl bg-slate-800/50 shadow-sm overflow-hidden"
                     >
                       <div 
                         onClick={() => toggleUser(user.name)}
-                        className="p-3 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="p-3 md:p-4 cursor-pointer hover:bg-slate-800 transition-colors"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-                            <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#001f54]/10 text-[#001f54] font-bold text-xs md:text-sm flex-shrink-0">
+                            <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-cyan-500/20 text-cyan-400 font-bold text-xs md:text-sm flex-shrink-0 border border-cyan-500/30">
                               {index + 1}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <div className="font-medium text-[#001f54] text-xs sm:text-sm md:text-base truncate">{user.name}</div>
+                              <div className="font-medium text-slate-100 text-xs sm:text-sm md:text-base truncate">{user.name}</div>
                             </div>
                           </div>
                           <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
                             <div className="flex gap-2 md:gap-3 text-xs">
                               <div className="text-center">
-                                <div className="text-sm md:text-base font-bold text-green-600">{user.contacts}</div>
-                                <div className="text-[10px] md:text-xs text-gray-500">контакты</div>
+                                <div className="text-sm md:text-base font-bold text-green-400">{user.contacts}</div>
+                                <div className="text-[10px] md:text-xs text-slate-400">контакты</div>
                               </div>
                               <div className="text-center">
-                                <div className="text-sm md:text-base font-bold text-orange-600">{user.approaches}</div>
-                                <div className="text-[10px] md:text-xs text-gray-500">подходы</div>
+                                <div className="text-sm md:text-base font-bold text-orange-400">{user.approaches}</div>
+                                <div className="text-[10px] md:text-xs text-slate-400">подходы</div>
                               </div>
                             </div>
                             <Icon 
                               name={isExpanded ? "ChevronUp" : "ChevronDown"} 
                               size={18} 
-                              className="text-[#001f54] md:w-5 md:h-5 flex-shrink-0"
+                              className="text-slate-400 md:w-5 md:h-5 flex-shrink-0"
                             />
                           </div>
                         </div>
@@ -230,8 +230,8 @@ export default function DailyModal({
 
                       {isExpanded && (
                         <div className="px-2 sm:px-3 md:px-4 pb-2 sm:pb-3 md:pb-4 pt-0 space-y-2 sm:space-y-3">
-                          <div className="border-t border-gray-200 pt-2 sm:pt-3">
-                            <div className="text-xs sm:text-sm font-semibold text-[#001f54] mb-2">Место работы</div>
+                          <div className="border-t border-slate-700 pt-2 sm:pt-3">
+                            <div className="text-xs sm:text-sm font-semibold text-slate-100 mb-2">Место работы</div>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="text"
@@ -239,36 +239,36 @@ export default function DailyModal({
                                 value={comments[user.name] || ''}
                                 onChange={(e) => setComments(prev => ({ ...prev, [user.name]: e.target.value }))}
                                 onBlur={(e) => saveComment(user.name, e.target.value)}
-                                className="flex-1 text-xs sm:text-sm"
+                                className="flex-1 text-xs sm:text-sm bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-cyan-500 focus:ring-cyan-500"
                                 disabled={savingComment === user.name}
                               />
                               {savingComment === user.name && (
-                                <Icon name="Loader2" size={16} className="animate-spin text-[#001f54] flex-shrink-0" />
+                                <Icon name="Loader2" size={16} className="animate-spin text-cyan-400 flex-shrink-0" />
                               )}
                               {!savingComment && comments[user.name] && (
-                                <Icon name="MapPin" size={16} className="text-green-600 flex-shrink-0" />
+                                <Icon name="MapPin" size={16} className="text-green-400 flex-shrink-0" />
                               )}
                             </div>
                           </div>
 
                           {user.organizations && user.organizations.length > 0 && (
-                            <div className="border-t border-gray-200 pt-2 sm:pt-3">
-                              <div className="text-xs sm:text-sm font-semibold text-[#001f54] mb-2">Статистика по организациям</div>
+                            <div className="border-t border-slate-700 pt-2 sm:pt-3">
+                              <div className="text-xs sm:text-sm font-semibold text-slate-100 mb-2">Статистика по организациям</div>
                               <div className="space-y-2">
                                 {user.organizations.map((org) => (
-                                  <div key={org.name} className="bg-gray-50 rounded-lg p-2 sm:p-3">
+                                  <div key={org.name} className="bg-slate-900 border border-slate-700 rounded-lg p-2 sm:p-3">
                                     <div className="flex items-center justify-between gap-2">
-                                      <div className="font-medium text-[#001f54] text-xs sm:text-sm truncate flex-1">
+                                      <div className="font-medium text-slate-100 text-xs sm:text-sm truncate flex-1">
                                         {org.name}
                                       </div>
                                       <div className="flex gap-2 sm:gap-3 flex-shrink-0">
                                         <div className="text-center">
-                                          <div className="text-xs sm:text-sm font-bold text-green-600">{org.contacts}</div>
-                                          <div className="text-[9px] sm:text-[10px] text-gray-500">контакты</div>
+                                          <div className="text-xs sm:text-sm font-bold text-green-400">{org.contacts}</div>
+                                          <div className="text-[9px] sm:text-[10px] text-slate-400">контакты</div>
                                         </div>
                                         <div className="text-center">
-                                          <div className="text-xs sm:text-sm font-bold text-orange-600">{org.approaches}</div>
-                                          <div className="text-[9px] sm:text-[10px] text-gray-500">подходы</div>
+                                          <div className="text-xs sm:text-sm font-bold text-orange-400">{org.approaches}</div>
+                                          <div className="text-[9px] sm:text-[10px] text-slate-400">подходы</div>
                                         </div>
                                       </div>
                                     </div>
@@ -280,34 +280,34 @@ export default function DailyModal({
 
                           {userLeads.length > 0 && (
                         <div>
-                          <div className="border-t border-gray-200 pt-2 sm:pt-3">
-                            <div className="text-xs sm:text-sm font-semibold text-[#001f54] mb-2">Детали по лидам</div>
+                          <div className="border-t border-slate-700 pt-2 sm:pt-3">
+                            <div className="text-xs sm:text-sm font-semibold text-slate-100 mb-2">Детали по лидам</div>
                             <div className="space-y-1.5 sm:space-y-2">
                               {userLeads.map((lead, idx) => (
                                 <div 
                                   key={idx}
-                                  className="border border-gray-200 rounded-lg p-2 sm:p-3 bg-gray-50"
+                                  className="border border-slate-700 rounded-lg p-2 sm:p-3 bg-slate-900"
                                 >
                                   <div className="flex items-start justify-between gap-2">
                                     <div className="flex items-start gap-2 flex-1 min-w-0">
                                       <Icon 
                                         name={getTypeIcon(lead.lead_type)} 
                                         size={14} 
-                                        className={`mt-0.5 flex-shrink-0 sm:w-4 sm:h-4 ${lead.lead_type === 'контакт' ? 'text-green-600' : 'text-orange-600'}`}
+                                        className={`mt-0.5 flex-shrink-0 sm:w-4 sm:h-4 ${lead.lead_type === 'контакт' ? 'text-green-400' : 'text-orange-400'}`}
                                       />
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                                          <Badge className={`text-[10px] sm:text-xs ${getTypeColor(lead.lead_type)}`}>
+                                          <Badge className={`text-[10px] sm:text-xs border ${getTypeColor(lead.lead_type)}`}>
                                             {lead.lead_type}
                                           </Badge>
-                                          <Badge className="text-[10px] sm:text-xs bg-[#001f54]/10 text-[#001f54] truncate max-w-[150px]">
+                                          <Badge className="text-[10px] sm:text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 truncate max-w-[150px]">
                                             <Icon name="Building2" size={8} className="mr-0.5 sm:mr-1 sm:w-[10px] sm:h-[10px] flex-shrink-0" />
                                             <span className="truncate">{lead.organization}</span>
                                           </Badge>
                                         </div>
                                       </div>
                                     </div>
-                                    <div className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
+                                    <div className="text-[10px] sm:text-xs text-slate-400 whitespace-nowrap flex-shrink-0">
                                       {new Date(lead.created_at).toLocaleTimeString('ru-RU', {
                                         hour: '2-digit',
                                         minute: '2-digit'
@@ -328,8 +328,8 @@ export default function DailyModal({
               </div>
             </div>
           ) : (
-            <div className="text-center text-gray-600 py-8">
-              <Icon name="Users" size={32} className="mx-auto mb-3 opacity-60" />
+            <div className="text-center text-slate-300 py-8">
+              <Icon name="Users" size={32} className="mx-auto mb-3 opacity-60 text-slate-500" />
               <div className="text-lg font-medium">Нет данных</div>
               <div className="text-sm">В этот день лиды не отправлялись</div>
             </div>

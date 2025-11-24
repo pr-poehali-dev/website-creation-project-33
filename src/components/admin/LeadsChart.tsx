@@ -399,47 +399,49 @@ export default function LeadsChart({
               />
               
               {showTotal && filterType === 'contacts' && (
-                <>
-                  <Area
-                    type="monotone"
-                    dataKey="contacts"
-                    fill="url(#greenAreaGradient)"
-                    stroke="none"
-                    connectNulls={true}
-                  />
-                  <Line 
-                    type="monotone"
-                    dataKey="contacts" 
-                    stroke="#22c55e" 
-                    strokeWidth={4}
-                    dot={{ fill: '#22c55e', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
-                    activeDot={{ r: 8, fill: '#22c55e', stroke: '#22d3ee', strokeWidth: 3 }}
-                    name="Все контакты"
-                    connectNulls={true}
-                  />
-                </>
+                <Area
+                  type="monotone"
+                  dataKey="contacts"
+                  fill="url(#greenAreaGradient)"
+                  stroke="none"
+                  connectNulls={true}
+                />
               )}
               
               {showTotal && filterType === 'approaches' && (
-                <>
-                  <Area
-                    type="monotone"
-                    dataKey="approaches"
-                    fill="url(#orangeAreaGradient)"
-                    stroke="none"
-                    connectNulls={true}
-                  />
-                  <Line 
-                    type="monotone"
-                    dataKey="approaches" 
-                    stroke="#fb923c" 
-                    strokeWidth={4}
-                    dot={{ fill: '#fb923c', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
-                    activeDot={{ r: 8, fill: '#fb923c', stroke: '#22d3ee', strokeWidth: 3 }}
-                    name="Все подходы"
-                    connectNulls={true}
-                  />
-                </>
+                <Area
+                  type="monotone"
+                  dataKey="approaches"
+                  fill="url(#orangeAreaGradient)"
+                  stroke="none"
+                  connectNulls={true}
+                />
+              )}
+              
+              {showTotal && filterType === 'contacts' && (
+                <Line 
+                  type="monotone"
+                  dataKey="contacts" 
+                  stroke="#22c55e" 
+                  strokeWidth={4}
+                  dot={{ fill: '#22c55e', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
+                  activeDot={{ r: 8, fill: '#22c55e', stroke: '#22d3ee', strokeWidth: 3 }}
+                  name="Все контакты"
+                  connectNulls={true}
+                />
+              )}
+              
+              {showTotal && filterType === 'approaches' && (
+                <Line 
+                  type="monotone"
+                  dataKey="approaches" 
+                  stroke="#fb923c" 
+                  strokeWidth={4}
+                  dot={{ fill: '#fb923c', r: 6, strokeWidth: 3, stroke: '#0f172a' }}
+                  activeDot={{ r: 8, fill: '#fb923c', stroke: '#22d3ee', strokeWidth: 3 }}
+                  name="Все подходы"
+                  connectNulls={true}
+                />
               )}
 
               {selectedUsers.length > 0 && selectedUsers.map((userName) => {

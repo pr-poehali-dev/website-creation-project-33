@@ -290,7 +290,7 @@ export default function OrganizationStatsChart() {
                 </Button>
               </div>
               <div className="text-center">
-                <span className="text-sm font-semibold text-cyan-400">
+                <span className="text-sm font-semibold text-slate-100">
                   Всего за неделю: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
                 </span>
               </div>
@@ -324,7 +324,7 @@ export default function OrganizationStatsChart() {
                 </Button>
               </div>
               <div className="text-center">
-                <span className="text-sm font-semibold text-cyan-400">
+                <span className="text-sm font-semibold text-slate-100">
                   Всего за месяц: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
                 </span>
               </div>
@@ -358,7 +358,7 @@ export default function OrganizationStatsChart() {
                 </Button>
               </div>
               <div className="text-center">
-                <span className="text-sm font-semibold text-cyan-400">
+                <span className="text-sm font-semibold text-slate-100">
                   Всего за год: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
                 </span>
               </div>

@@ -381,7 +381,7 @@ export default function LeadsChart({
                   dataKey="contacts"
                   fill="url(#greenAreaGradient)"
                   strokeWidth={0}
-                  name=""
+                  legendType="none"
                 />
               )}
               
@@ -391,7 +391,7 @@ export default function LeadsChart({
                   dataKey="approaches"
                   fill="url(#orangeAreaGradient)"
                   strokeWidth={0}
-                  name=""
+                  legendType="none"
                 />
               )}
               

@@ -378,10 +378,6 @@ export default function OrganizationStatsChart() {
                   className="w-full p-4 flex items-center justify-between hover:bg-slate-700/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: ORG_COLORS[org.name] || '#9ca3af' }}
-                    />
                     <span className="font-semibold text-sm md:text-base text-slate-100">
                       {org.name}
                     </span>

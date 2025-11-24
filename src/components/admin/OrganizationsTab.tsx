@@ -189,9 +189,9 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
 
   if (loading) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
+      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
         <CardContent className="p-8">
-          <div className="text-center text-gray-600 flex items-center justify-center gap-3">
+          <div className="text-center text-slate-300 flex items-center justify-center gap-3">
             <Icon name="Loader2" size={24} className="animate-spin" />
             Загрузка организаций...
           </div>
@@ -202,11 +202,11 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-              <Icon name="Building2" size={18} className="text-gray-900 md:w-5 md:h-5" />
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-slate-100 text-lg md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-slate-800">
+              <Icon name="Building2" size={18} className="text-cyan-400 md:w-5 md:h-5" />
             </div>
             Добавить организацию
           </CardTitle>
@@ -217,7 +217,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
               value={newOrgName}
               onChange={(e) => setNewOrgName(e.target.value)}
               placeholder="Название организации"
-              className="flex-1 border-2 border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-gray-300 focus:ring-gray-200 h-10 md:h-auto text-sm md:text-base"
+              className="flex-1 border-2 border-slate-700 bg-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-slate-600 focus:ring-slate-600 h-10 md:h-auto text-sm md:text-base"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   addOrganization();
@@ -227,7 +227,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
             <Button
               onClick={addOrganization}
               disabled={!newOrgName.trim() || adding}
-              className="glass-button bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-300 hover:scale-105 h-10 md:h-auto text-sm md:text-base"
+              className="glass-button bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg transition-all duration-300 hover:scale-105 h-10 md:h-auto text-sm md:text-base"
             >
               {adding ? (
                 <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
@@ -242,18 +242,18 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
         </CardContent>
       </Card>
 
-      <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-900 text-lg md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-gray-100">
-              <Icon name="List" size={18} className="text-gray-900 md:w-5 md:h-5" />
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-slate-100 text-lg md:text-xl">
+            <div className="p-1.5 md:p-2 rounded-lg bg-slate-800">
+              <Icon name="List" size={18} className="text-cyan-400 md:w-5 md:h-5" />
             </div>
             Список организаций ({organizations.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {organizations.length === 0 ? (
-            <div className="text-center py-8 text-gray-600">
+            <div className="text-center py-8 text-slate-400">
               <Icon name="Building2" size={32} className="mx-auto mb-3 opacity-30 md:w-12 md:h-12" />
               <p className="text-sm md:text-base">Организации не добавлены</p>
             </div>
@@ -262,7 +262,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
               {(showAll ? organizations : organizations.slice(0, 4)).map((org) => (
                 <div
                   key={org.id}
-                  className="border-2 border-gray-200 rounded-xl p-3 md:p-4 bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:border-gray-300"
+                  className="border-2 border-slate-700 rounded-xl p-3 md:p-4 bg-slate-800 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-slate-600"
                 >
                   {editingId === org.id ? (
                     <div className="space-y-2">
@@ -271,7 +271,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                           value={editingName}
                           onChange={(e) => setEditingName(e.target.value)}
                           placeholder="Название"
-                          className="flex-1 border-2 border-blue-300 bg-white text-gray-900 h-10 text-sm md:text-base"
+                          className="flex-1 border-2 border-cyan-500 bg-slate-700 text-slate-100 h-10 text-sm md:text-base"
                           autoFocus
                           onKeyPress={(e) => {
                             if (e.key === 'Enter') updateOrganization(org.id);
@@ -285,7 +285,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                           value={editingRate}
                           onChange={(e) => setEditingRate(e.target.value)}
                           placeholder="Ставка за контакт (₽)"
-                          className="flex-1 border-2 border-blue-300 bg-white text-gray-900 h-10 text-sm md:text-base"
+                          className="flex-1 border-2 border-cyan-500 bg-slate-700 text-slate-100 h-10 text-sm md:text-base"
                           onKeyPress={(e) => {
                             if (e.key === 'Enter') updateOrganization(org.id);
                             if (e.key === 'Escape') cancelEditing();
@@ -296,7 +296,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                         <select
                           value={editingPaymentType}
                           onChange={(e) => setEditingPaymentType(e.target.value as 'cash' | 'cashless')}
-                          className="flex-1 border-2 border-blue-300 bg-white text-gray-900 h-10 text-sm md:text-base rounded-md px-3"
+                          className="flex-1 border-2 border-cyan-500 bg-slate-700 text-slate-100 h-10 text-sm md:text-base rounded-md px-3"
                         >
                           <option value="cash">💵 Наличный расчет</option>
                           <option value="cashless">💳 Безналичный расчет</option>
@@ -315,7 +315,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                         </Button>
                         <Button
                           onClick={cancelEditing}
-                          className="border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-100 h-10 px-3"
+                          className="border-2 border-slate-600 bg-slate-700 text-slate-300 hover:bg-slate-600 h-10 px-3"
                           variant="ghost"
                           size="sm"
                         >

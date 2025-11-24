@@ -111,9 +111,9 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
 
   if (loading) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
+      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
         <CardContent className="p-8">
-          <div className="text-center text-gray-900 flex items-center justify-center gap-3 font-medium">
+          <div className="text-center text-slate-300 flex items-center justify-center gap-3 font-medium">
             <Icon name="Loader2" size={24} className="animate-spin" />
             Загрузка пользователей...
           </div>
@@ -135,16 +135,16 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const hasMoreUsers = filteredUsers.length > 4;
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+    <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-4">
-        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-gray-900 gap-3">
+        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-slate-100 gap-3">
           <span className="flex items-center gap-2 md:gap-3 text-lg md:text-xl">
-            <div className="p-2 rounded-lg bg-gray-100">
-              <Icon name="Users" size={18} className="text-gray-900 md:w-5 md:h-5" />
+            <div className="p-2 rounded-lg bg-slate-800">
+              <Icon name="Users" size={18} className="text-cyan-400 md:w-5 md:h-5" />
             </div>
             Пользователи ({users.length})
           </span>
-          <Badge className="bg-gray-100 text-green-400 border border-green-400/30 flex items-center gap-2 px-2 md:px-3 py-1 text-sm">
+          <Badge className="bg-slate-800 text-green-400 border border-green-400/30 flex items-center gap-2 px-2 md:px-3 py-1 text-sm">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             Онлайн: {onlineUsers}
           </Badge>
@@ -153,18 +153,18 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
       <CardContent className="pt-6">
         <div className="mb-6">
           <div className="relative">
-            <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <Input
               type="text"
               placeholder="Поиск по имени..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-100 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:border-gray-300 focus:ring-gray-200"
+              className="pl-10 bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-slate-600 focus:ring-slate-600"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
               >
                 <Icon name="X" size={16} />
               </button>
@@ -173,8 +173,8 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
         </div>
         <div className="space-y-4">
           {filteredUsers.length === 0 ? (
-            <div className="text-center py-8 text-gray-600">
-              <Icon name="SearchX" size={48} className="mx-auto mb-3 text-gray-300" />
+            <div className="text-center py-8 text-slate-400">
+              <Icon name="SearchX" size={48} className="mx-auto mb-3 text-slate-600" />
               <p>Пользователи не найдены</p>
             </div>
           ) : (

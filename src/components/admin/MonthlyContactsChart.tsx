@@ -65,13 +65,6 @@ export default function MonthlyContactsChart() {
     return null;
   }
 
-  const rangeGradients = {
-    '0-10': 'linear-gradient(90deg, #334155 0%, #3f4e62 50%, #475569 100%)',
-    '11-15': 'linear-gradient(90deg, #1e40af 0%, #2053c7 50%, #2563eb 100%)',
-    '16-20': 'linear-gradient(90deg, #2563eb 0%, #2b73ee 50%, #3b82f6 100%)',
-    '21+': 'linear-gradient(90deg, #0891b2 0%, #0fa6c2 50%, #16bdd5 100%)'
-  };
-
   const rangeColors = {
     '0-10': 'bg-slate-700',
     '11-15': 'bg-blue-700',
@@ -136,11 +129,8 @@ export default function MonthlyContactsChart() {
                     return (
                       <div
                         key={range}
-                        className={`flex items-center justify-center transition-all duration-500 relative ${isGreenZone ? 'cursor-pointer hover:brightness-110 green-zone-segment' : ''}`}
-                        style={{ 
-                          width: `${percentage}%`,
-                          background: rangeGradients[range as keyof typeof rangeGradients]
-                        }}
+                        className={`${rangeColors[range as keyof typeof rangeColors]} flex items-center justify-center transition-all duration-500 relative ${isGreenZone ? 'cursor-pointer hover:brightness-110 green-zone-segment' : ''}`}
+                        style={{ width: `${percentage}%` }}
                         title={`${rangeLabels[range as keyof typeof rangeLabels]} контактов: ${count} дней`}
                         onMouseEnter={(e) => {
                           if (isGreenZone && stat.days_21_plus && stat.days_21_plus.length > 0 && !pinnedMonth) {

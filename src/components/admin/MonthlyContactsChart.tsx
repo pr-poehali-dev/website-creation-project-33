@@ -103,10 +103,6 @@ export default function MonthlyContactsChart() {
                 </div>
               ))}
             </div>
-            <div className="text-[9px] md:text-xs text-slate-400 flex items-center gap-1">
-              <Icon name="Info" size={12} />
-              Кликните на зелёную зону для деталей
-            </div>
           </div>
 
           {/* Графики по месяцам */}

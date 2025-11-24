@@ -66,10 +66,10 @@ export default function MonthlyContactsChart() {
   }
 
   const rangeColors = {
-    '0-10': 'bg-slate-600',
-    '11-15': 'bg-blue-600',
-    '16-20': 'bg-cyan-500',
-    '21+': 'bg-cyan-400'
+    '0-10': 'bg-slate-700',
+    '11-15': 'bg-blue-700',
+    '16-20': 'bg-blue-600',
+    '21+': 'bg-cyan-600'
   };
 
   const rangeLabels = {
@@ -176,7 +176,7 @@ export default function MonthlyContactsChart() {
                   
                   return (
                     <div 
-                      className="absolute z-50 bg-slate-800 border-2 border-cyan-400 rounded-lg shadow-2xl p-3 mt-2 max-w-xs md:max-w-md tooltip-container"
+                      className="absolute z-50 bg-slate-800 border-2 border-cyan-600 rounded-lg shadow-2xl p-3 mt-2 max-w-xs md:max-w-md tooltip-container"
                       style={{ 
                         left: '50%',
                         transform: 'translateX(-50%)'
@@ -184,12 +184,12 @@ export default function MonthlyContactsChart() {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
-                        <div className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+                        <div className="text-xs font-bold text-cyan-500 flex items-center gap-1.5">
                           <Icon name="TrendingUp" size={14} />
                           Дни с 21+ контактами:
                         </div>
                         <div className="flex flex-col items-end gap-0.5">
-                          <div className="text-[10px] md:text-xs font-semibold text-cyan-400">
+                          <div className="text-[10px] md:text-xs font-semibold text-cyan-500">
                             ⌀ {avgPerPromoter} к/п
                           </div>
                           <div className="text-[9px] text-slate-400">
@@ -210,9 +210,9 @@ export default function MonthlyContactsChart() {
                             <div key={idx} className="text-[10px] md:text-xs text-slate-200 flex items-center justify-between gap-2 py-0.5">
                               <span className="font-medium">{day.day}</span>
                               <div className="flex items-center gap-2">
-                                <span className="text-cyan-400 font-semibold">{day.contacts} к.</span>
+                                <span className="text-cyan-500 font-semibold">{day.contacts} к.</span>
                                 <span className="text-slate-400">• {day.promoters} п.</span>
-                                <span className="text-blue-400 text-[9px] font-medium">⌀{dayAvg}</span>
+                                <span className="text-blue-500 text-[9px] font-medium">⌀{dayAvg}</span>
                               </div>
                             </div>
                           );

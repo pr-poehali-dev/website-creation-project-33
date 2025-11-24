@@ -39,8 +39,8 @@ export default function RankingFilters({
           variant={rankingType === 'contacts' ? 'default' : 'outline'}
           size="sm"
           className={`transition-all duration-300 ${rankingType === 'contacts'
-            ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-green-400 border-green-400/30'
+            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
         >
           <Icon name="UserCheck" size={14} className="mr-1.5" />
@@ -51,8 +51,8 @@ export default function RankingFilters({
           variant={rankingType === 'shifts' ? 'default' : 'outline'}
           size="sm"
           className={`transition-all duration-300 ${rankingType === 'shifts'
-            ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-blue-400 border-blue-400/30'
+            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
         >
           <Icon name="Calendar" size={14} className="mr-1.5" />
@@ -63,8 +63,8 @@ export default function RankingFilters({
           variant={rankingType === 'avg_per_shift' ? 'default' : 'outline'}
           size="sm"
           className={`transition-all duration-300 ${rankingType === 'avg_per_shift'
-            ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-purple-400 border-purple-400/30'
+            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
         >
           <Icon name="TrendingUp" size={14} className="mr-1.5" />
@@ -75,8 +75,8 @@ export default function RankingFilters({
           variant={rankingType === 'max_contacts_per_shift' ? 'default' : 'outline'}
           size="sm"
           className={`transition-all duration-300 ${rankingType === 'max_contacts_per_shift'
-            ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-orange-400 border-orange-400/30'
+            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
         >
           <Icon name="Award" size={14} className="mr-1.5" />
@@ -87,8 +87,8 @@ export default function RankingFilters({
           variant={rankingType === 'revenue' ? 'default' : 'outline'}
           size="sm"
           className={`transition-all duration-300 ${rankingType === 'revenue'
-            ? 'bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-yellow-600 border-yellow-600/30'
+            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
         >
           <Icon name="DollarSign" size={14} className="mr-1.5" />

@@ -175,28 +175,29 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       </div>
 
       <div
-        onClick={() => setCurrentView('analytics')}
-        className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-2"
-      >
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
-          <TodayWorkersCounter sessionToken={sessionToken} />
-        </div>
-        <div className="relative z-10">
-          <Icon name="TrendingUp" size={48} className="text-white mb-4 md:mb-6" />
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
-        </div>
-        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon name="TrendingUp" size={120} className="text-white" />
-        </div>
-      </div>
-
-      <div
         onClick={() => setCurrentView('stats')}
-        className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-3"
+        className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-2 md:order-3"
       >
         <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex gap-2">
           <MonthComparisonBadge sessionToken={sessionToken} />
           <TodayContactsCounter sessionToken={sessionToken} />
+        </div>
+        <div className="relative z-10">
+          <Icon name="BarChart3" size={48} className="text-white mb-4 md:mb-6" />
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Статистика</h2>
+          <p className="text-green-100 text-sm md:text-base">Пользователи, рейтинг, организации</p>
+        </div>
+        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
+          <Icon name="BarChart3" size={120} className="text-white" />
+        </div>
+      </div>
+
+      <div
+        onClick={() => setCurrentView('analytics')}
+        className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-3 md:order-6"
+      >
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
+          <TodayWorkersCounter sessionToken={sessionToken} />
         </div>
         <div className="relative z-10">
           <Icon name="TrendingUp" size={48} className="text-white mb-4 md:mb-6" />

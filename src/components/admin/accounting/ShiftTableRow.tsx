@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { ShiftRecord } from './types';
@@ -48,7 +48,7 @@ interface ShiftTableRowProps {
   onEdit: (shift: ShiftRecord) => void;
 }
 
-export default function ShiftTableRow({
+function ShiftTableRow({
   shift,
   editingExpense,
   editingComment,
@@ -65,7 +65,40 @@ export default function ShiftTableRow({
   onDelete,
   onEdit
 }: ShiftTableRowProps) {
-  const key = getShiftKey(shift);
+  const key = React.useMemo(() => getShiftKey(shift), [shift.user_id, shift.date, shift.start_time, shift.organization_id]);
+  
+  // Мемоизация обработчиков для предотвращения ререндера других строк
+  const handlePaymentToggleCallback = useCallback((field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => {
+    onPaymentToggle(shift, field);
+  }, [onPaymentToggle, shift]);
+  
+  const handleInvoiceIssuedChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onInvoiceIssuedDateChange(shift, e.target.value || null);
+  }, [onInvoiceIssuedDateChange, shift]);
+  
+  const handleInvoicePaidChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onInvoicePaidDateChange(shift, e.target.value || null);
+  }, [onInvoicePaidDateChange, shift]);
+  
+  const handleExpenseChangeCallback = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onExpenseChange(key, Number(e.target.value));
+  }, [onExpenseChange, key]);
+  
+  const handleCommentChangeCallback = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onCommentChange(key, e.target.value);
+  }, [onCommentChange, key]);
+  
+  const handleExpenseBlurCallback = useCallback(() => {
+    onExpenseBlur(shift);
+  }, [onExpenseBlur, shift]);
+  
+  const handleDeleteCallback = useCallback(() => {
+    onDelete(shift);
+  }, [onDelete, shift]);
+  
+  const handleEditCallback = useCallback(() => {
+    onEdit(shift);
+  }, [onEdit, shift]);
   const revenue = calculateRevenue(shift);
   const tax = calculateTax(shift);
   const afterTax = calculateAfterTax(shift);
@@ -102,13 +135,13 @@ export default function ShiftTableRow({
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_issued ?? shift.invoice_issued}
-              onChange={() => onPaymentToggle(shift, 'invoice_issued')}
+              onChange={() => handlePaymentToggleCallback('invoice_issued')}
               className="w-4 h-4 md:w-5 md:h-5 cursor-pointer accent-emerald-500 flex-shrink-0"
             />
             <input
               type="date"
               value={invoiceDates.invoice_issued_date || ''}
-              onChange={(e) => onInvoiceIssuedDateChange(shift, e.target.value || null)}
+              onChange={handleInvoiceIssuedChange}
               className="w-full h-6 md:h-8 text-[9px] md:text-xs border border-slate-600 rounded px-1 md:px-2 bg-slate-800/50 text-slate-200 disabled:bg-slate-900/50 disabled:text-slate-500"
               disabled={!(editingPayments[key]?.invoice_issued ?? shift.invoice_issued)}
             />
@@ -117,13 +150,13 @@ export default function ShiftTableRow({
             <input
               type="checkbox"
               checked={editingPayments[key]?.invoice_paid ?? shift.invoice_paid}
-              onChange={() => onPaymentToggle(shift, 'invoice_paid')}
+              onChange={() => handlePaymentToggleCallback('invoice_paid')}
               className="w-4 h-4 md:w-5 md:h-5 cursor-pointer accent-emerald-500 flex-shrink-0"
             />
             <input
               type="date"
               value={invoiceDates.invoice_paid_date || ''}
-              onChange={(e) => onInvoicePaidDateChange(shift, e.target.value || null)}
+              onChange={handleInvoicePaidChange}
               className="w-full h-6 md:h-8 text-[9px] md:text-xs border border-slate-600 rounded px-1 md:px-2 bg-slate-800/50 text-slate-200 disabled:bg-slate-900/50 disabled:text-slate-500"
               disabled={!(editingPayments[key]?.invoice_paid ?? shift.invoice_paid)}
             />
@@ -220,7 +253,7 @@ export default function ShiftTableRow({
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">
         <select
           value={(editingPayments[key]?.paid_by_organization ?? shift.paid_by_organization) ? 'yes' : 'no'}
-          onChange={() => onPaymentToggle(shift, 'paid_by_organization')}
+          onChange={() => handlePaymentToggleCallback('paid_by_organization')}
           className={`w-12 md:w-16 h-6 md:h-7 text-[10px] md:text-xs border rounded px-0.5 md:px-1 font-medium ${
             (editingPayments[key]?.paid_by_organization ?? shift.paid_by_organization)
               ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
@@ -235,7 +268,7 @@ export default function ShiftTableRow({
         <div className="flex flex-col gap-0.5 md:gap-1">
           <select
             value={(editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker) ? 'yes' : 'no'}
-            onChange={() => onPaymentToggle(shift, 'paid_to_worker')}
+            onChange={() => handlePaymentToggleCallback('paid_to_worker')}
             className={`w-12 md:w-16 h-6 md:h-7 text-[10px] md:text-xs border rounded px-0.5 md:px-1 font-medium ${
               (editingPayments[key]?.paid_to_worker ?? shift.paid_to_worker)
                 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
@@ -246,7 +279,7 @@ export default function ShiftTableRow({
             <option value="yes" className="bg-slate-800 text-slate-200">Да</option>
           </select>
           <button
-            onClick={() => onPaymentToggle(shift, 'salary_at_kvv')}
+            onClick={() => handlePaymentToggleCallback('salary_at_kvv')}
             className={`w-12 md:w-16 h-5 md:h-6 text-[9px] md:text-xs border rounded px-0.5 md:px-1 font-medium transition-colors ${
               (editingPayments[key]?.salary_at_kvv ?? shift.salary_at_kvv)
                 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50'
@@ -261,7 +294,7 @@ export default function ShiftTableRow({
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">
         <select
           value={(editingPayments[key]?.paid_kvv ?? shift.paid_kvv) ? 'yes' : 'no'}
-          onChange={() => onPaymentToggle(shift, 'paid_kvv')}
+          onChange={() => handlePaymentToggleCallback('paid_kvv')}
           className={`w-12 md:w-16 h-6 md:h-7 text-[10px] md:text-xs border rounded px-0.5 md:px-1 font-medium ${
             (editingPayments[key]?.paid_kvv ?? shift.paid_kvv)
               ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
@@ -275,7 +308,7 @@ export default function ShiftTableRow({
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">
         <select
           value={(editingPayments[key]?.paid_kms ?? shift.paid_kms) ? 'yes' : 'no'}
-          onChange={() => onPaymentToggle(shift, 'paid_kms')}
+          onChange={() => handlePaymentToggleCallback('paid_kms')}
           className={`w-12 md:w-16 h-6 md:h-7 text-[10px] md:text-xs border rounded px-0.5 md:px-1 font-medium ${
             (editingPayments[key]?.paid_kms ?? shift.paid_kms)
               ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
@@ -289,14 +322,14 @@ export default function ShiftTableRow({
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">
         <div className="flex items-center justify-center gap-0.5 md:gap-1">
           <button
-            onClick={() => onEdit(shift)}
+            onClick={handleEditCallback}
             className="p-0.5 md:p-1 hover:bg-cyan-500/20 rounded transition-colors"
             title="Редактировать смену"
           >
             <Icon name="Edit" size={14} className="text-cyan-400 md:w-4 md:h-4" />
           </button>
           <button
-            onClick={() => onDelete(shift)}
+            onClick={handleDeleteCallback}
             className="p-0.5 md:p-1 hover:bg-red-500/20 rounded transition-colors"
             title="Удалить смену"
           >
@@ -307,3 +340,20 @@ export default function ShiftTableRow({
     </tr>
   );
 }
+
+// Оптимизированное сравнение для React.memo
+export default React.memo(ShiftTableRow, (prevProps, nextProps) => {
+  const prevKey = getShiftKey(prevProps.shift);
+  const nextKey = getShiftKey(nextProps.shift);
+  
+  // Сравниваем только то, что может измениться для этой конкретной строки
+  return (
+    prevKey === nextKey &&
+    prevProps.editingExpense[prevKey] === nextProps.editingExpense[nextKey] &&
+    prevProps.editingComment[prevKey] === nextProps.editingComment[nextKey] &&
+    JSON.stringify(prevProps.editingPersonalFunds[prevKey]) === JSON.stringify(nextProps.editingPersonalFunds[nextKey]) &&
+    JSON.stringify(prevProps.editingPayments[prevKey]) === JSON.stringify(nextProps.editingPayments[nextKey]) &&
+    JSON.stringify(prevProps.editingInvoiceDates[prevKey]) === JSON.stringify(nextProps.editingInvoiceDates[nextKey]) &&
+    prevProps.shift === nextProps.shift
+  );
+});

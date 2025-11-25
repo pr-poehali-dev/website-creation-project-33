@@ -57,8 +57,6 @@ interface ShiftTableProps {
   onEdit: (shift: ShiftRecord) => void;
 }
 
-const MemoizedShiftTableRow = React.memo(ShiftTableRow);
-
 export default function ShiftTable({
   shifts,
   editingExpense,
@@ -121,7 +119,7 @@ export default function ShiftTable({
         />
         <tbody>
           {shifts.map((shift) => (
-            <MemoizedShiftTableRow
+            <ShiftTableRow
               key={`${shift.user_id}-${shift.date}-${shift.start_time}-${shift.organization_id}`}
               shift={shift}
               editingExpense={editingExpense}

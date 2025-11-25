@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { ShiftRecord, NewShiftData, ADMIN_API } from './types';
 import { getShiftKey } from './calculations';
@@ -148,51 +148,57 @@ export function useShiftActions(
     }
   };
 
-  const handlePaymentToggle = (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => {
+  const handlePaymentToggle = useCallback((shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => {
     const key = getShiftKey(shift);
-    const currentPayments = editingPayments[key] || {
-      paid_by_organization: shift.paid_by_organization,
-      paid_to_worker: shift.paid_to_worker,
-      salary_at_kvv: shift.salary_at_kvv,
-      paid_kvv: shift.paid_kvv,
-      paid_kms: shift.paid_kms,
-      invoice_issued: shift.invoice_issued,
-      invoice_paid: shift.invoice_paid
-    };
-    
-    const newPayments = {
-      ...currentPayments,
-      [field]: !currentPayments[field]
-    };
-    
-    setEditingPayments({ ...editingPayments, [key]: newPayments });
-  };
-
-  const handleInvoiceIssuedDateChange = (shift: ShiftRecord, date: string | null) => {
-    const key = getShiftKey(shift);
-    const currentDates = editingInvoiceDates[key] || {
-      invoice_issued_date: shift.invoice_issued_date,
-      invoice_paid_date: shift.invoice_paid_date
-    };
-    
-    setEditingInvoiceDates({
-      ...editingInvoiceDates,
-      [key]: { ...currentDates, invoice_issued_date: date }
+    setEditingPayments(prev => {
+      const currentPayments = prev[key] || {
+        paid_by_organization: shift.paid_by_organization,
+        paid_to_worker: shift.paid_to_worker,
+        salary_at_kvv: shift.salary_at_kvv,
+        paid_kvv: shift.paid_kvv,
+        paid_kms: shift.paid_kms,
+        invoice_issued: shift.invoice_issued,
+        invoice_paid: shift.invoice_paid
+      };
+      
+      const newPayments = {
+        ...currentPayments,
+        [field]: !currentPayments[field]
+      };
+      
+      return { ...prev, [key]: newPayments };
     });
-  };
+  }, []);
 
-  const handleInvoicePaidDateChange = (shift: ShiftRecord, date: string | null) => {
+  const handleInvoiceIssuedDateChange = useCallback((shift: ShiftRecord, date: string | null) => {
     const key = getShiftKey(shift);
-    const currentDates = editingInvoiceDates[key] || {
-      invoice_issued_date: shift.invoice_issued_date,
-      invoice_paid_date: shift.invoice_paid_date
-    };
-    
-    setEditingInvoiceDates({
-      ...editingInvoiceDates,
-      [key]: { ...currentDates, invoice_paid_date: date }
+    setEditingInvoiceDates(prev => {
+      const currentDates = prev[key] || {
+        invoice_issued_date: shift.invoice_issued_date,
+        invoice_paid_date: shift.invoice_paid_date
+      };
+      
+      return {
+        ...prev,
+        [key]: { ...currentDates, invoice_issued_date: date }
+      };
     });
-  };
+  }, []);
+
+  const handleInvoicePaidDateChange = useCallback((shift: ShiftRecord, date: string | null) => {
+    const key = getShiftKey(shift);
+    setEditingInvoiceDates(prev => {
+      const currentDates = prev[key] || {
+        invoice_issued_date: shift.invoice_issued_date,
+        invoice_paid_date: shift.invoice_paid_date
+      };
+      
+      return {
+        ...prev,
+        [key]: { ...currentDates, invoice_paid_date: date }
+      };
+    });
+  }, []);
 
   const saveAllPayments = async (shifts: ShiftRecord[]) => {
     const allKeys = new Set([

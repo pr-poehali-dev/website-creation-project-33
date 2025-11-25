@@ -163,7 +163,28 @@ function ShiftTableRow({
           </div>
         </div>
       </td>
-      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-medium text-white">{revenue.toLocaleString()} ₽</td>
+      <td className="border border-slate-700/50 p-1 md:p-2 text-right">
+        <div className="flex flex-col gap-0.5 md:gap-1 items-end">
+          <div className="font-medium text-white">
+            {revenue.toLocaleString()} ₽
+            {(shift.compensation_amount !== 0 || editingExpense[`${key}_compensation`] !== undefined) && (
+              <span className={`ml-1 text-[9px] ${(editingExpense[`${key}_compensation`] ?? shift.compensation_amount ?? 0) > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {(editingExpense[`${key}_compensation`] ?? shift.compensation_amount ?? 0) > 0 ? '↑' : '↓'}
+              </span>
+            )}
+          </div>
+          <Input
+            type="number"
+            value={(editingExpense[`${key}_compensation`] ?? shift.compensation_amount ?? 0) === 0 ? '' : (editingExpense[`${key}_compensation`] ?? shift.compensation_amount ?? 0)}
+            onChange={(e) => {
+              const newValue = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
+              onExpenseChange(`${key}_compensation`, newValue);
+            }}
+            placeholder="0"
+            className="w-20 md:w-24 h-6 md:h-7 text-[10px] md:text-xs border-slate-600 bg-slate-800/50 text-slate-200 placeholder:text-slate-500"
+          />
+        </div>
+      </td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">
         <div className="flex items-center justify-center gap-0.5 md:gap-1">
           <span className={`px-1 md:px-1.5 py-0.5 rounded text-[9px] md:text-[10px] ${shift.payment_type === 'cash' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-cyan-500/20 text-cyan-400'}`}>
@@ -350,6 +371,7 @@ export default React.memo(ShiftTableRow, (prevProps, nextProps) => {
   return (
     prevKey === nextKey &&
     prevProps.editingExpense[prevKey] === nextProps.editingExpense[nextKey] &&
+    prevProps.editingExpense[`${prevKey}_compensation`] === nextProps.editingExpense[`${nextKey}_compensation`] &&
     prevProps.editingComment[prevKey] === nextProps.editingComment[nextKey] &&
     JSON.stringify(prevProps.editingPersonalFunds[prevKey]) === JSON.stringify(nextProps.editingPersonalFunds[nextKey]) &&
     JSON.stringify(prevProps.editingPayments[prevKey]) === JSON.stringify(nextProps.editingPayments[nextKey]) &&

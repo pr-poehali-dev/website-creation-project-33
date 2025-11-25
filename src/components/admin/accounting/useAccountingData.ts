@@ -66,7 +66,12 @@ export function useAccountingData(enabled: boolean) {
       if (response.ok) {
         const data = await response.json();
         console.log('Accounting data received:', data.shifts?.[0]);
-        setShifts(data.shifts || []);
+        // Приводим данные к нужному типу, добавляя compensation_amount если его нет
+        const shiftsWithCompensation = (data.shifts || []).map((shift: any) => ({
+          ...shift,
+          compensation_amount: shift.compensation_amount || 0
+        }));
+        setShifts(shiftsWithCompensation);
       } else {
         toast({
           title: 'Ошибка',

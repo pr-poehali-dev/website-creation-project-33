@@ -73,6 +73,7 @@ export default function ShiftTableHeader({
         </th>
         <th className="border border-slate-700/50 p-1 md:p-2 text-right whitespace-nowrap">
           <div>Сумма прихода</div>
+          <div className="text-[8px] md:text-[9px] text-slate-400 mt-0.5">+ Компенсация</div>
           <div className="text-white font-bold mt-0.5 md:mt-1 text-[9px] md:text-xs">{stats.totalRevenue.toLocaleString('ru-RU')} ₽</div>
         </th>
         <th className="border border-slate-700/50 p-1 md:p-2 text-center whitespace-nowrap">

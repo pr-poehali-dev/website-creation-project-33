@@ -24,6 +24,7 @@ export interface ShiftRecord {
   personal_funds_amount: number;
   personal_funds_by_kms: boolean;
   personal_funds_by_kvv: boolean;
+  compensation_amount: number;
 }
 
 export interface User {

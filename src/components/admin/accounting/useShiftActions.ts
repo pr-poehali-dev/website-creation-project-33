@@ -62,6 +62,7 @@ export function useShiftActions(
           personal_funds_amount: shift.personal_funds_amount || 0,
           personal_funds_by_kms: shift.personal_funds_by_kms || false,
           personal_funds_by_kvv: shift.personal_funds_by_kvv || false,
+          compensation_amount: shift.compensation_amount || 0,
         }),
       });
 
@@ -218,6 +219,7 @@ export function useShiftActions(
       const personalFunds = editingPersonalFunds[key];
       const expenseAmount = editingExpense[key] ?? shift.expense_amount ?? 0;
       const expenseComment = editingComment[key] ?? shift.expense_comment ?? '';
+      const compensationAmount = editingExpense[`${key}_compensation`] ?? shift.compensation_amount ?? 0;
       
       return fetch(ADMIN_API, {
         method: 'POST',
@@ -244,6 +246,7 @@ export function useShiftActions(
           personal_funds_amount: personalFunds?.amount ?? shift.personal_funds_amount ?? 0,
           personal_funds_by_kms: personalFunds?.by_kms ?? shift.personal_funds_by_kms ?? false,
           personal_funds_by_kvv: personalFunds?.by_kvv ?? shift.personal_funds_by_kvv ?? false,
+          compensation_amount: compensationAmount,
         }),
       });
     });

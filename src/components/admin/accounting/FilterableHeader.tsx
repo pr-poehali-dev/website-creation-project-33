@@ -50,13 +50,13 @@ export default function FilterableHeader({ label, filterValue, onFilterChange }:
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-lg z-50 min-w-[140px]">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl z-50 min-w-[140px]">
           <button
             onClick={() => {
               onFilterChange();
               setIsOpen(false);
             }}
-            className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-xs"
+            className="w-full px-3 py-2 text-left hover:bg-slate-700/50 flex items-center gap-2 text-xs text-slate-200"
           >
             <Icon 
               name={filterValue === null ? 'CheckCircle2' : 'Circle'} 

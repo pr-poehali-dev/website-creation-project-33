@@ -57,7 +57,7 @@ export default function FilterableHeader({ label, filterValue, onFilterChange }:
         </button>
 
         {isOpen && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl z-50 min-w-[140px]">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl z-[1000] min-w-[140px]">
           <button
             onClick={() => {
               onFilterChange();

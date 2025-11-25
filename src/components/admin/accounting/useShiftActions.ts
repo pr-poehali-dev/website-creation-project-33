@@ -202,10 +202,16 @@ export function useShiftActions(
   }, []);
 
   const saveAllPayments = async (shifts: ShiftRecord[]) => {
+    // Извлекаем базовые ключи из ключей компенсации (убираем суффикс _compensation)
+    const compensationBaseKeys = Object.keys(editingExpense)
+      .filter(k => k.endsWith('_compensation'))
+      .map(k => k.replace('_compensation', ''));
+    
     const allKeys = new Set([
       ...Object.keys(editingPayments), 
       ...Object.keys(editingInvoiceDates),
-      ...Object.keys(editingExpense),
+      ...Object.keys(editingExpense).filter(k => !k.endsWith('_compensation')),
+      ...compensationBaseKeys,
       ...Object.keys(editingComment),
       ...Object.keys(editingPersonalFunds)
     ]);

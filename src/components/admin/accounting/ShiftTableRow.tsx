@@ -177,7 +177,7 @@ function ShiftTableRow({
             type="number"
             value={(editingExpense[`${key}_compensation`] ?? shift.compensation_amount ?? 0) === 0 ? '' : (editingExpense[`${key}_compensation`] ?? shift.compensation_amount ?? 0)}
             onChange={(e) => {
-              const newValue = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
+              const newValue = e.target.value === '' ? 0 : (parseInt(e.target.value) || 0);
               onExpenseChange(`${key}_compensation`, newValue);
             }}
             placeholder="0"

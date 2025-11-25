@@ -60,18 +60,18 @@ export default function DateFilterHeader({
       <div className="relative inline-block" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1 hover:text-blue-600 transition-all duration-200"
+          className="flex items-center gap-1 hover:bg-slate-700/50 px-1 py-0.5 rounded transition-colors w-full justify-center text-slate-200"
         >
           <span>{label}</span>
           <Icon 
             name={hasFilter ? "FilterX" : "Filter"} 
             size={14} 
-            className={hasFilter ? "text-blue-600" : "text-gray-400"}
+            className={hasFilter ? "text-cyan-400" : "text-slate-400"}
           />
         </button>
 
         {isOpen && (
-          <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-2 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl md:shadow-xl py-6 pl-6 pr-10 z-[1000] w-[85vw] max-w-[280px] md:w-auto md:min-w-[280px] animate-in zoom-in-95 duration-200 mx-4">
+          <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-2 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl md:shadow-xl py-6 pl-6 pr-10 z-[1000] w-[85vw] max-w-[280px] md:w-auto md:min-w-[280px] animate-in zoom-in-95 duration-200 mx-4 scrollbar-dark">
             <div className="space-y-5">
               <div className="text-center mb-4 md:hidden">
                 <div className="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-3"></div>

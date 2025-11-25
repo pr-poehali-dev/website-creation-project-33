@@ -48,26 +48,33 @@ export default function MultiSelectHeader({
   const hasFilter = selectedValues.length > 0 && selectedValues.length < options.length;
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 hover:bg-slate-700/50 px-1 py-0.5 rounded transition-colors w-full justify-center text-slate-200"
-      >
-        <span>{label}</span>
-        <Icon 
-          name={hasFilter ? 'Filter' : 'ChevronDown'} 
-          size={14} 
-          className={hasFilter ? 'text-cyan-400' : 'text-slate-400'}
-        />
-        {hasFilter && (
-          <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-cyan-500 text-white rounded-full">
-            {selectedValues.length}
-          </span>
-        )}
-      </button>
-
+    <>
       {isOpen && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] md:hidden animate-in fade-in duration-200" 
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-1 hover:bg-slate-700/50 px-1 py-0.5 rounded transition-colors w-full justify-center text-slate-200"
+        >
+          <span>{label}</span>
+          <Icon 
+            name={hasFilter ? 'Filter' : 'ChevronDown'} 
+            size={14} 
+            className={hasFilter ? 'text-cyan-400' : 'text-slate-400'}
+          />
+          {hasFilter && (
+            <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-cyan-500 text-white rounded-full">
+              {selectedValues.length}
+            </span>
+          )}
+        </button>
+
+        {isOpen && (
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl z-[1000] min-w-[180px] max-h-[300px] overflow-y-auto scrollbar-dark">
           <button
             onClick={() => {
               selectAll();
@@ -98,7 +105,8 @@ export default function MultiSelectHeader({
             </button>
           ))}
         </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }

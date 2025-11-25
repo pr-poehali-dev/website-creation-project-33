@@ -29,7 +29,7 @@ export default function AccountingHeader({
         <div className="flex gap-2">
           <button
             onClick={onFullscreen}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:from-purple-600 hover:to-indigo-600 transition-all shadow-lg"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
             title="Полноэкранный режим"
           >
             <Icon name="Maximize2" size={16} />
@@ -38,7 +38,7 @@ export default function AccountingHeader({
           <button
             onClick={onExport}
             disabled={exporting}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             title="Экспорт в Google Таблицы"
           >
             {exporting ? (
@@ -50,7 +50,7 @@ export default function AccountingHeader({
           </button>
           <button
             onClick={onAdd}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
             title="Добавить смену"
           >
             <Icon name="Plus" size={16} />
@@ -58,7 +58,7 @@ export default function AccountingHeader({
           </button>
           <button
             onClick={onRefresh}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all shadow-lg"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
             title="Обновить данные"
           >
             <Icon name="RefreshCw" size={16} />

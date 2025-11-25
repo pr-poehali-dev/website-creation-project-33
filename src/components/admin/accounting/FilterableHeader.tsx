@@ -40,16 +40,23 @@ export default function FilterableHeader({ label, filterValue, onFilterChange }:
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 hover:bg-slate-700/50 px-1 py-0.5 rounded transition-colors w-full justify-center"
-      >
-        <span>{label}</span>
-        <Icon name={getFilterIcon()} size={14} className={getFilterColor()} />
-      </button>
-
+    <>
       {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] md:hidden animate-in fade-in duration-200" 
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-1 hover:bg-slate-700/50 px-1 py-0.5 rounded transition-colors w-full justify-center"
+        >
+          <span>{label}</span>
+          <Icon name={getFilterIcon()} size={14} className={getFilterColor()} />
+        </button>
+
+        {isOpen && (
         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl z-50 min-w-[140px]">
           <button
             onClick={() => {
@@ -94,7 +101,8 @@ export default function FilterableHeader({ label, filterValue, onFilterChange }:
             Нет
           </button>
         </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }

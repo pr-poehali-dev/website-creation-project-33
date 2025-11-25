@@ -12,7 +12,7 @@ export function useAccountingData(enabled: boolean) {
 
   useEffect(() => {
     if (enabled) {
-      loadAccountingData(7);
+      loadAccountingData();
       loadUsers();
       loadOrganizations();
     }

@@ -34,10 +34,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg">Назад к плиткам</span>
+          <span className="text-lg font-medium">Назад</span>
         </button>
         <PendingUsers sessionToken={sessionToken} />
         <AllUsersWorkTime sessionToken={sessionToken} />
@@ -50,10 +50,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg">Назад к плиткам</span>
+          <span className="text-lg font-medium">Назад</span>
         </button>
         <AccountingTab enabled={true} />
       </div>
@@ -65,16 +65,16 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg">Назад к плиткам</span>
+          <span className="text-lg font-medium">Назад</span>
         </button>
         
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setStatsSubView('rating')}
-            className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
+            className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
               statsSubView === 'rating' 
                 ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
                 : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
@@ -84,7 +84,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
           </button>
           <button
             onClick={() => setStatsSubView('users')}
-            className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
+            className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
               statsSubView === 'users' 
                 ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
                 : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
@@ -94,7 +94,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
           </button>
           <button
             onClick={() => setStatsSubView('organizations')}
-            className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
+            className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
               statsSubView === 'organizations' 
                 ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
                 : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
@@ -116,10 +116,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg">Назад к плиткам</span>
+          <span className="text-lg font-medium">Назад</span>
         </button>
         <AdminChatTab />
       </div>
@@ -131,10 +131,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg">Назад к плиткам</span>
+          <span className="text-lg font-medium">Назад</span>
         </button>
         <ScheduleAnalyticsTab />
       </div>
@@ -146,10 +146,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg">Назад к плиткам</span>
+          <span className="text-lg font-medium">Назад</span>
         </button>
         <TasksTab />
       </div>
@@ -162,102 +162,105 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 mt-8">
       <div
         onClick={() => setCurrentView('requests')}
-        className="metro-tile bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-1"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-1 bg-gradient-to-br from-blue-600 to-blue-800 shadow-xl hover:shadow-2xl border border-blue-500/30"
       >
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl" />
         <div className="relative z-10">
-          <Icon name="UserCheck" size={48} className="text-white mb-4 md:mb-6" />
+          <div className="p-3 rounded-xl bg-blue-500/20 border border-blue-400/30 w-fit mb-4">
+            <Icon name="UserCheck" size={32} className="text-white" />
+          </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Заявки</h2>
           <p className="text-blue-100 text-sm md:text-base">Новые заявки и время работы</p>
-        </div>
-        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon name="UserCheck" size={120} className="text-white" />
-        </div>
-      </div>
-
-      <div
-        onClick={() => setCurrentView('stats')}
-        className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-2 md:order-3"
-      >
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex gap-2">
-          <MonthComparisonBadge sessionToken={sessionToken} />
-          <TodayContactsCounter sessionToken={sessionToken} />
-        </div>
-        <div className="relative z-10">
-          <Icon name="BarChart3" size={48} className="text-white mb-4 md:mb-6" />
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Статистика</h2>
-          <p className="text-green-100 text-sm md:text-base">Пользователи, рейтинг, организации</p>
-        </div>
-        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon name="BarChart3" size={120} className="text-white" />
-        </div>
-      </div>
-
-      <div
-        onClick={() => setCurrentView('analytics')}
-        className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-3 md:order-6"
-      >
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
-          <TodayWorkersCounter sessionToken={sessionToken} />
-        </div>
-        <div className="relative z-10">
-          <Icon name="TrendingUp" size={48} className="text-white mb-4 md:mb-6" />
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
-        </div>
-        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon name="TrendingUp" size={120} className="text-white" />
         </div>
       </div>
 
       <div
         onClick={() => setCurrentView('accounting')}
-        className="metro-tile bg-yellow-500 hover:bg-yellow-600 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-4 md:order-2"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-2 bg-gradient-to-br from-yellow-500 to-orange-600 shadow-xl hover:shadow-2xl border border-yellow-400/30"
       >
-        <AccountingStats sessionToken={sessionToken} />
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
+          <AccountingStats sessionToken={sessionToken} />
+        </div>
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-yellow-300/10 rounded-full blur-3xl" />
         <div className="relative z-10">
-          <Icon name="Calculator" size={48} className="text-white mb-4 md:mb-6" />
+          <div className="p-3 rounded-xl bg-yellow-400/20 border border-yellow-300/30 w-fit mb-4">
+            <Icon name="Calculator" size={32} className="text-white" />
+          </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Бух.учет</h2>
           <p className="text-yellow-100 text-sm md:text-base">Финансовый учет и отчетность</p>
-        </div>
-        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon name="Calculator" size={120} className="text-white" />
         </div>
       </div>
 
       <div
-        onClick={() => setCurrentView('tasks')}
-        className="metro-tile bg-indigo-600 hover:bg-indigo-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-5 md:order-4"
+        onClick={() => setCurrentView('stats')}
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-3 bg-gradient-to-br from-green-600 to-emerald-700 shadow-xl hover:shadow-2xl border border-green-500/30"
       >
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
-          <TodayTasksCounter />
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex gap-2">
+          <MonthComparisonBadge sessionToken={sessionToken} />
+          <TodayContactsCounter sessionToken={sessionToken} />
         </div>
+        <div className="absolute top-0 left-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl" />
         <div className="relative z-10">
-          <Icon name="ClipboardList" size={48} className="text-white mb-4 md:mb-6" />
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Задачи</h2>
-          <p className="text-indigo-100 text-sm md:text-base">Управление задачами и планами</p>
-        </div>
-        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon name="ClipboardList" size={120} className="text-white" />
+          <div className="p-3 rounded-xl bg-green-500/20 border border-green-400/30 w-fit mb-4">
+            <Icon name="BarChart3" size={32} className="text-white" />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Статистика</h2>
+          <p className="text-green-100 text-sm md:text-base">Пользователи, рейтинг, организации</p>
         </div>
       </div>
 
       <div
         onClick={() => setCurrentView('chat')}
-        className="metro-tile bg-orange-600 hover:bg-orange-700 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-none relative overflow-hidden group order-6 md:order-5"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-4 bg-gradient-to-br from-orange-500 to-red-600 shadow-xl hover:shadow-2xl border border-orange-400/30"
       >
+        {unreadCount > 0 && (
+          <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
+            <div className="bg-red-500 text-white px-3 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg border border-red-300/50">
+              {unreadCount}
+            </div>
+          </div>
+        )}
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-orange-300/10 rounded-full blur-3xl" />
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-4 md:mb-6">
-            <Icon name="MessageCircle" size={48} className="text-white" />
-            {unreadCount > 0 && (
-              <Badge className="bg-red-500 text-white text-lg px-3 py-1">
-                {unreadCount}
-              </Badge>
-            )}
+          <div className="p-3 rounded-xl bg-orange-400/20 border border-orange-300/30 w-fit mb-4">
+            <Icon name="MessageCircle" size={32} className="text-white" />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Чат</h2>
           <p className="text-orange-100 text-sm md:text-base">Общение с промоутерами</p>
         </div>
-        <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon name="MessageCircle" size={120} className="text-white" />
+      </div>
+
+      <div
+        onClick={() => setCurrentView('tasks')}
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-5 bg-gradient-to-br from-purple-600 to-indigo-700 shadow-xl hover:shadow-2xl border border-purple-500/30"
+      >
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
+          <TodayTasksCounter />
+        </div>
+        <div className="absolute top-0 left-0 w-40 h-40 bg-purple-400/10 rounded-full blur-3xl" />
+        <div className="relative z-10">
+          <div className="p-3 rounded-xl bg-purple-500/20 border border-purple-400/30 w-fit mb-4">
+            <Icon name="ClipboardList" size={32} className="text-white" />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Задачи</h2>
+          <p className="text-purple-100 text-sm md:text-base">Управление задачами и планами</p>
+        </div>
+      </div>
+
+      <div
+        onClick={() => setCurrentView('analytics')}
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-6 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl hover:shadow-2xl border border-indigo-500/30"
+      >
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
+          <TodayWorkersCounter sessionToken={sessionToken} />
+        </div>
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-indigo-400/10 rounded-full blur-3xl" />
+        <div className="relative z-10">
+          <div className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-400/30 w-fit mb-4">
+            <Icon name="TrendingUp" size={32} className="text-white" />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
+          <p className="text-indigo-100 text-sm md:text-base">Активация Windows</p>
         </div>
       </div>
     </div>

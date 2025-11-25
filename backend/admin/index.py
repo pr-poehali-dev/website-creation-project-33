@@ -1434,9 +1434,20 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             }
         
         elif action == 'get_accounting_data':
+            days_param = event.get('queryStringParameters', {}).get('days')
+            date_filter = ''
+            if days_param:
+                try:
+                    days = int(days_param)
+                    date_filter = f"AND s.shift_date >= CURRENT_DATE - INTERVAL '{days} days'"
+                except (ValueError, TypeError):
+                    date_filter = ''
+            else:
+                date_filter = "AND s.shift_date >= '2025-01-01'"
+            
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
-                    cur.execute("""
+                    query = f"""
                         SELECT 
                             s.shift_date,
                             (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
@@ -1496,14 +1507,15 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             ON ae.user_id = s.user_id
                             AND ae.work_date = s.shift_date
                             AND ae.organization_id = s.organization_id
-                        WHERE s.shift_date >= '2025-01-01'
+                        WHERE 1=1 {date_filter}
                         GROUP BY s.shift_date, s.user_id, s.organization_id, o.name, o.id, 
                                  u.id, u.name, ae.id, ae.expense_amount, ae.expense_comment,
                                  ae.paid_by_organization, ae.paid_to_worker, ae.salary_at_kvv, ae.paid_kvv, ae.paid_kms, 
                                  ae.invoice_issued, ae.invoice_issued_date, ae.invoice_paid, ae.invoice_paid_date,
                                  ae.personal_funds_amount, ae.personal_funds_by_kms, ae.personal_funds_by_kvv
                         ORDER BY s.shift_date DESC, u.name
-                    """)
+                    """
+                    cur.execute(query)
                     
                     shifts = []
                     for row in cur.fetchall():

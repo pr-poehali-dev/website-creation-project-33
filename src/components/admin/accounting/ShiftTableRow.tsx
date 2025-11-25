@@ -130,7 +130,7 @@ export default function ShiftTableRow({
           </div>
         </div>
       </td>
-      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-medium text-emerald-400">{revenue.toLocaleString()} ₽</td>
+      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-medium text-white">{revenue.toLocaleString()} ₽</td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">
         <div className="flex items-center justify-center gap-0.5 md:gap-1">
           <span className={`px-1 md:px-1.5 py-0.5 rounded text-[9px] md:text-[10px] ${shift.payment_type === 'cash' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-cyan-500/20 text-cyan-400'}`}>
@@ -139,11 +139,11 @@ export default function ShiftTableRow({
           <span className="text-[10px] md:text-xs font-medium text-slate-200">{shift.contact_rate}₽</span>
         </div>
       </td>
-      <td className="border border-slate-700/50 p-1 md:p-2 text-right text-red-400">{tax > 0 ? `${tax.toLocaleString()} ₽` : '—'}</td>
-      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-medium text-cyan-400">{afterTax.toLocaleString()} ₽</td>
+      <td className="border border-slate-700/50 p-1 md:p-2 text-right text-white">{tax > 0 ? `${tax.toLocaleString()} ₽` : '—'}</td>
+      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-medium text-white">{afterTax.toLocaleString()} ₽</td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-slate-200">{shift.user_name}</td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-right text-slate-200">{shift.contacts_count}</td>
-      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-medium text-orange-400">{workerSalary.toLocaleString()} ₽</td>
+      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-medium text-white">{workerSalary.toLocaleString()} ₽</td>
       <td className="border border-slate-700/50 p-1 md:p-2">
         <div className="flex flex-col gap-0.5 md:gap-1">
           <Input
@@ -208,13 +208,13 @@ export default function ShiftTableRow({
           className="w-full min-w-[120px] md:min-w-[150px] h-6 md:h-7 text-[10px] md:text-xs border-slate-600 bg-slate-800/50 text-slate-200 placeholder:text-slate-500"
         />
       </td>
-      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-bold bg-emerald-500/10 text-emerald-400">
+      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-bold bg-emerald-500/10 text-white">
         {netProfit.toLocaleString()} ₽
       </td>
-      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-bold bg-cyan-500/10 text-cyan-400">
+      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-bold bg-cyan-500/10 text-white">
         {kvv.toLocaleString()} ₽
       </td>
-      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-bold bg-purple-500/10 text-purple-400">
+      <td className="border border-slate-700/50 p-1 md:p-2 text-right font-bold bg-purple-500/10 text-white">
         {kms.toLocaleString()} ₽
       </td>
       <td className="border border-slate-700/50 p-1 md:p-2 text-center">

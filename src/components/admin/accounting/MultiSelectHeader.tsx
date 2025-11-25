@@ -51,34 +51,34 @@ export default function MultiSelectHeader({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 hover:bg-gray-200 px-1 py-0.5 rounded transition-colors w-full justify-center"
+        className="flex items-center gap-1 hover:bg-slate-700/50 px-1 py-0.5 rounded transition-colors w-full justify-center text-slate-200"
       >
         <span>{label}</span>
         <Icon 
           name={hasFilter ? 'Filter' : 'ChevronDown'} 
           size={14} 
-          className={hasFilter ? 'text-blue-600' : 'text-gray-400'}
+          className={hasFilter ? 'text-cyan-400' : 'text-slate-400'}
         />
         {hasFilter && (
-          <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded-full">
+          <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-cyan-500 text-white rounded-full">
             {selectedValues.length}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
           <button
             onClick={() => {
               selectAll();
               setIsOpen(false);
             }}
-            className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-xs border-b border-gray-200 sticky top-0 bg-white"
+            className="w-full px-3 py-2 text-left hover:bg-slate-700/50 flex items-center gap-2 text-xs border-b border-slate-700 sticky top-0 bg-slate-800 text-slate-200"
           >
             <Icon 
               name={selectedValues.length === 0 ? 'CheckCircle2' : 'Circle'} 
               size={16} 
-              className={selectedValues.length === 0 ? 'text-blue-600' : 'text-gray-300'}
+              className={selectedValues.length === 0 ? 'text-cyan-400' : 'text-slate-600'}
             />
             <span className="font-medium">Все ({options.length})</span>
           </button>
@@ -87,12 +87,12 @@ export default function MultiSelectHeader({
             <button
               key={option}
               onClick={() => toggleOption(option)}
-              className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-xs"
+              className="w-full px-3 py-2 text-left hover:bg-slate-700/50 flex items-center gap-2 text-xs text-slate-200"
             >
               <Icon 
                 name={selectedValues.includes(option) || selectedValues.length === 0 ? 'CheckCircle2' : 'Circle'} 
                 size={16} 
-                className={selectedValues.includes(option) || selectedValues.length === 0 ? 'text-blue-600' : 'text-gray-300'}
+                className={selectedValues.includes(option) || selectedValues.length === 0 ? 'text-cyan-400' : 'text-slate-600'}
               />
               {option}
             </button>

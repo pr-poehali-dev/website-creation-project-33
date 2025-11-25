@@ -7,6 +7,7 @@ import ShiftTable from './accounting/ShiftTable';
 import AddShiftModal from './accounting/AddShiftModal';
 import EditShiftModal from './accounting/EditShiftModal';
 import AccountingHeader from './accounting/AccountingHeader';
+import AccountingModal from './AccountingModal';
 import KmsRevenueChart from './accounting/KmsRevenueChart';
 import { useAccountingData } from './accounting/useAccountingData';
 import { useShiftActions } from './accounting/useShiftActions';
@@ -46,6 +47,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showFullscreen, setShowFullscreen] = useState(false);
   const [editingShift, setEditingShift] = useState<ShiftRecord | null>(null);
   const [exporting, setExporting] = useState(false);
   const [savingPayments, setSavingPayments] = useState(false);
@@ -239,6 +241,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           onExport={handleExportToGoogleSheets}
           onAdd={() => setShowAddModal(true)}
           onRefresh={handleRefresh}
+          onFullscreen={() => setShowFullscreen(true)}
           exporting={exporting}
         />
         <CardContent>
@@ -322,6 +325,44 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         shift={editingShift}
         users={users}
         organizations={organizations}
+      />
+
+      <AccountingModal
+        isOpen={showFullscreen}
+        onClose={() => setShowFullscreen(false)}
+        shifts={filteredShifts}
+        users={users}
+        organizations={organizations}
+        filters={filters}
+        organizationFilter={organizationFilter}
+        promoterFilter={promoterFilter}
+        paymentTypeFilter={paymentTypeFilter}
+        dateFilter={dateFilter}
+        uniqueOrganizations={uniqueOrganizations}
+        uniquePromoters={uniquePromoters}
+        activeFiltersCount={activeFiltersCount}
+        hasUnsavedPayments={hasUnsavedPayments}
+        savingPayments={savingPayments}
+        editingExpense={editingExpense}
+        editingComment={editingComment}
+        editingPersonalFunds={editingPersonalFunds}
+        editingPayments={editingPayments}
+        editingInvoiceDates={editingInvoiceDates}
+        onFilterChange={handleFilterChange}
+        onOrganizationFilterChange={setOrganizationFilter}
+        onPromoterFilterChange={setPromoterFilter}
+        onPaymentTypeFilterChange={setPaymentTypeFilter}
+        onDateFilterChange={(filter) => setDateFilter(filter)}
+        onSavePayments={handleSavePayments}
+        onEditShift={handleEditShift}
+        onDeleteShift={deleteShift}
+        onExpenseChange={(id, value) => setEditingExpense(prev => ({ ...prev, [id]: value }))}
+        onExpenseBlur={handleExpenseBlur}
+        onCommentChange={(id, value) => setEditingComment(prev => ({ ...prev, [id]: value }))}
+        onPersonalFundsChange={(id, value) => setEditingPersonalFunds(prev => ({ ...prev, [id]: value }))}
+        onPaymentToggle={handlePaymentToggle}
+        onInvoiceIssuedDateChange={handleInvoiceIssuedDateChange}
+        onInvoicePaidDateChange={handleInvoicePaidDateChange}
       />
     </Card>
     </>

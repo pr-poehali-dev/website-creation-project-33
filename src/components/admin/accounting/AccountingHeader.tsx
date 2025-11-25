@@ -6,13 +6,15 @@ interface AccountingHeaderProps {
   onExport: () => void;
   onAdd: () => void;
   onRefresh: () => void;
+  onFullscreen: () => void;
   exporting: boolean;
 }
 
 export default function AccountingHeader({ 
   onExport, 
   onAdd, 
-  onRefresh, 
+  onRefresh,
+  onFullscreen, 
   exporting 
 }: AccountingHeaderProps) {
   return (
@@ -25,6 +27,14 @@ export default function AccountingHeader({
           Бух.учет
         </CardTitle>
         <div className="flex gap-2">
+          <button
+            onClick={onFullscreen}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:from-purple-600 hover:to-indigo-600 transition-all shadow-lg"
+            title="Полноэкранный режим"
+          >
+            <Icon name="Maximize2" size={16} />
+            <span className="hidden md:inline">На весь экран</span>
+          </button>
           <button
             onClick={onExport}
             disabled={exporting}

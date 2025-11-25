@@ -12,7 +12,7 @@ export function useAccountingData(enabled: boolean) {
 
   useEffect(() => {
     if (enabled) {
-      loadAccountingData();
+      loadAccountingData(7);
       loadUsers();
       loadOrganizations();
     }
@@ -46,11 +46,16 @@ export function useAccountingData(enabled: boolean) {
     }
   };
 
-  const loadAccountingData = async () => {
+  const loadAccountingData = async (days?: number) => {
     setLoading(true);
     try {
+      const params = new URLSearchParams({ action: 'get_accounting_data' });
+      if (days !== undefined) {
+        params.append('days', days.toString());
+      }
+      
       const response = await fetch(
-        `${ADMIN_API}?action=get_accounting_data`,
+        `${ADMIN_API}?${params.toString()}`,
         {
           headers: {
             'X-Session-Token': getSessionToken() || '',

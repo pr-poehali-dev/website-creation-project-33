@@ -196,7 +196,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="text-sm text-slate-300">
             Общий доход {getPeriodLabel()}: 
-            <span className="ml-2 font-bold text-lg text-white">
+            <span className="ml-2 font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
               {formatCurrency(totalRevenue)} ₽
             </span>
           </div>

@@ -1724,25 +1724,42 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'body': json.dumps({'error': 'ID организации обязателен'})
                 }
             
-            with get_db_connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute(
-                        "DELETE FROM t_p24058207_website_creation_pro.organizations WHERE id = %s",
-                        (org_id,)
-                    )
-                    conn.commit()
-                    if cur.rowcount > 0:
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        # Проверяем существование организации
+                        cur.execute(
+                            "SELECT id, name FROM t_p24058207_website_creation_pro.organizations WHERE id = %s",
+                            (org_id,)
+                        )
+                        org = cur.fetchone()
+                        
+                        if not org:
+                            return {
+                                'statusCode': 404,
+                                'headers': headers,
+                                'body': json.dumps({'error': 'Организация не найдена'})
+                            }
+                        
+                        # Мягкое удаление через is_active
+                        cur.execute(
+                            "UPDATE t_p24058207_website_creation_pro.organizations SET is_active = false WHERE id = %s",
+                            (org_id,)
+                        )
+                        conn.commit()
+                        
                         return {
                             'statusCode': 200,
                             'headers': headers,
-                            'body': json.dumps({'success': True})
+                            'body': json.dumps({'success': True, 'message': f'Организация "{org[1]}" деактивирована'})
                         }
-                    else:
-                        return {
-                            'statusCode': 404,
-                            'headers': headers,
-                            'body': json.dumps({'error': 'Организация не найдена'})
-                        }
+            except Exception as e:
+                print(f"❌ Error deleting organization: {e}")
+                return {
+                    'statusCode': 500,
+                    'headers': headers,
+                    'body': json.dumps({'error': f'Ошибка удаления: {str(e)}'})
+                }
         
         elif action == 'update_organization':
             org_id = body_data.get('id')

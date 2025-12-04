@@ -101,10 +101,10 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         const date = new Date(key);
         label = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
       } else if (period === 'week') {
-        const date = new Date(key);
-        const endDate = new Date(date);
-        endDate.setDate(date.getDate() + 6);
-        label = `${date.getDate()}.${date.getMonth() + 1} - ${endDate.getDate()}.${endDate.getMonth() + 1}`;
+        // Используем сохранённые startDate и endDate из aggregation
+        const startD = new Date(value.startDate);
+        const endD = new Date(value.endDate);
+        label = `${startD.getDate()}.${startD.getMonth() + 1} - ${endD.getDate()}.${endD.getMonth() + 1}`;
       } else if (period === 'month') {
         const [year, month] = key.split('-');
         const date = new Date(parseInt(year), parseInt(month) - 1);

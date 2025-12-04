@@ -416,7 +416,8 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                     </div>
                   )}
                 </div>
-              )))})()}
+              ));
+              })()}
               {(() => {
                 const filteredOrgs = organizations.filter(org => 
                   org.name.toLowerCase().includes(searchQuery.toLowerCase())

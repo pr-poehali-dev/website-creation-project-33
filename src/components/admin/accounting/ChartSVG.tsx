@@ -198,17 +198,27 @@ export default function ChartSVG({
               />
             )}
             
-            {monthlyAvgPath && (
-              <path
-                d={monthlyAvgPath}
-                fill="none"
-                stroke="#f97316"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity="0.85"
-              />
-            )}
+            {monthlyAvgPoints.length > 1 && monthlyAvgPoints.map((point, idx) => {
+              if (idx === monthlyAvgPoints.length - 1) return null;
+              
+              const nextPoint = monthlyAvgPoints[idx + 1];
+              const isUptrend = nextPoint.y < point.y; // y уменьшается = график растёт
+              const segmentColor = isUptrend ? '#84cc16' : '#991b1b'; // салатовый : бордовый
+              
+              return (
+                <line
+                  key={idx}
+                  x1={point.x}
+                  y1={point.y}
+                  x2={nextPoint.x}
+                  y2={nextPoint.y}
+                  stroke={segmentColor}
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  opacity="0.85"
+                />
+              );
+            })}
             
             {points.map((point, idx) => {
               const isHovered = hoveredPoint?.x === point.x && hoveredPoint?.y === point.y;

@@ -35,6 +35,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
   const [editingPaymentType, setEditingPaymentType] = useState<'cash' | 'cashless'>('cash');
   const [updating, setUpdating] = useState(false);
   const [periodsModalOrg, setPeriodsModalOrg] = useState<{ id: number; name: string } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -248,10 +249,29 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
             <div className="p-1.5 md:p-2 rounded-lg bg-slate-800">
               <Icon name="List" size={18} className="text-cyan-400 md:w-5 md:h-5" />
             </div>
-            Список организаций ({organizations.length})
+            Список организаций ({organizations.filter(org => org.name.toLowerCase().includes(searchQuery.toLowerCase())).length})
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <div className="relative">
+              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Поиск организации..."
+                className="pl-10 border-2 border-slate-700 bg-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-cyan-500 focus:ring-cyan-500 h-10 md:h-11 text-sm md:text-base"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                >
+                  <Icon name="X" size={18} />
+                </button>
+              )}
+            </div>
+          </div>
           {organizations.length === 0 ? (
             <div className="text-center py-8 text-slate-400">
               <Icon name="Building2" size={32} className="mx-auto mb-3 opacity-30 md:w-12 md:h-12" />
@@ -259,7 +279,22 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
             </div>
           ) : (
             <div className="space-y-2 md:space-y-3">
-              {(showAll ? organizations : organizations.slice(0, 4)).map((org) => (
+              {(() => {
+                const filteredOrgs = organizations.filter(org => 
+                  org.name.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                const displayOrgs = showAll ? filteredOrgs : filteredOrgs.slice(0, 4);
+                
+                if (filteredOrgs.length === 0) {
+                  return (
+                    <div className="text-center py-8 text-slate-400">
+                      <Icon name="SearchX" size={32} className="mx-auto mb-3 opacity-30 md:w-12 md:h-12" />
+                      <p className="text-sm md:text-base">Организации не найдены</p>
+                    </div>
+                  );
+                }
+                
+                return displayOrgs.map((org) => (
                 <div
                   key={org.id}
                   className="border-2 border-slate-700 rounded-xl p-3 md:p-4 bg-slate-800 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-slate-600"
@@ -381,18 +416,23 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                     </div>
                   )}
                 </div>
-              ))}
-              {organizations.length > 4 && (
-                <div className="pt-2 md:pt-3">
-                  <Button
-                    onClick={() => setShowAll(!showAll)}
-                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 transition-all duration-300 h-10 md:h-11 text-sm md:text-base font-medium"
-                  >
-                    <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} className="mr-2 md:w-[18px] md:h-[18px]" />
-                    {showAll ? `Скрыть` : `Показать все (${organizations.length})`}
-                  </Button>
-                </div>
-              )}
+              )))})()}
+              {(() => {
+                const filteredOrgs = organizations.filter(org => 
+                  org.name.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                return filteredOrgs.length > 4 && (
+                  <div className="pt-2 md:pt-3">
+                    <Button
+                      onClick={() => setShowAll(!showAll)}
+                      className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 transition-all duration-300 h-10 md:h-11 text-sm md:text-base font-medium"
+                    >
+                      <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} className="mr-2 md:w-[18px] md:h-[18px]" />
+                      {showAll ? `Скрыть` : `Показать все (${filteredOrgs.length})`}
+                    </Button>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </CardContent>

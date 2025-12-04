@@ -466,7 +466,7 @@ def get_organization_stats() -> List[Dict[str, Any]]:
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE l.created_at >= %s AND l.lead_type = 'контакт' AND l.is_active = true
+                WHERE l.created_at >= %s AND l.lead_type = 'контакт' AND l.is_active = true AND (o.is_active = true OR o.id IS NULL)
                 ORDER BY l.created_at DESC
             """, (get_moscow_time() - timedelta(days=365),))
             
@@ -1229,6 +1229,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
                             ON o.id = l.organization_id 
                             AND l.is_active = true
+                        WHERE o.is_active = true
                         GROUP BY o.id, o.name, o.created_at, o.contact_rate, o.payment_type
                         ORDER BY o.name
                     """)

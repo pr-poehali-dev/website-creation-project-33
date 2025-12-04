@@ -140,6 +140,27 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
   const minRevenue = Math.min(...chartData.map(d => d.revenue), 0);
   const revenueRange = maxRevenue - minRevenue;
   const totalRevenue = chartData.reduce((sum, d) => sum + d.revenue, 0);
+  
+  // Среднее значение без текущей недели
+  const avgRevenueExcludingCurrent = useMemo(() => {
+    if (period !== 'week' || chartData.length === 0) return 0;
+    
+    // Находим текущую неделю
+    const today = new Date();
+    const currentDayOfWeek = today.getDay();
+    const daysToMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+    const currentWeekMonday = new Date(today);
+    currentWeekMonday.setDate(today.getDate() - daysToMonday);
+    const currentWeekKey = `${currentWeekMonday.getFullYear()}-${String(currentWeekMonday.getMonth() + 1).padStart(2, '0')}-${String(currentWeekMonday.getDate()).padStart(2, '0')}`;
+    
+    // Фильтруем недели без текущей
+    const weeksExcludingCurrent = chartData.filter(d => d.date !== currentWeekKey);
+    
+    if (weeksExcludingCurrent.length === 0) return 0;
+    
+    const sum = weeksExcludingCurrent.reduce((acc, d) => acc + d.revenue, 0);
+    return Math.round(sum / weeksExcludingCurrent.length);
+  }, [chartData, period]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('ru-RU', {
@@ -216,11 +237,21 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
 
       <CardContent className="p-4 md:p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50">
         <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="text-sm text-slate-300">
-            Общий доход {getPeriodLabel()}: 
-            <span className="ml-2 font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-              {formatCurrency(totalRevenue)} ₽
-            </span>
+          <div className="flex flex-col gap-1">
+            <div className="text-sm text-slate-300">
+              Общий доход {getPeriodLabel()}: 
+              <span className="ml-2 font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
+                {formatCurrency(totalRevenue)} ₽
+              </span>
+            </div>
+            {period === 'week' && avgRevenueExcludingCurrent > 0 && (
+              <div className="text-xs text-slate-400">
+                Среднее без текущей недели: 
+                <span className="ml-2 font-semibold text-slate-300">
+                  {formatCurrency(avgRevenueExcludingCurrent)} ₽
+                </span>
+              </div>
+            )}
           </div>
           
           <div className="flex gap-2">

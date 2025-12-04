@@ -50,21 +50,21 @@ export default function OrganizationStatsChart() {
     const weeks = [];
     const now = new Date();
     
-    // Находим ближайшее воскресенье (конец недели)
+    // Находим ближайший прошедший или текущий понедельник
     const currentDayOfWeek = now.getDay(); // 0 = воскресенье, 1 = понедельник, ..., 6 = суббота
-    const daysUntilSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek;
+    const daysSinceMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
     
-    const lastSunday = new Date(now);
-    lastSunday.setDate(now.getDate() + daysUntilSunday);
-    lastSunday.setHours(23, 59, 59, 999);
+    const thisMonday = new Date(now);
+    thisMonday.setDate(now.getDate() - daysSinceMonday);
+    thisMonday.setHours(0, 0, 0, 0);
     
     for (let i = 0; i < 12; i++) {
-      const weekEnd = new Date(lastSunday);
-      weekEnd.setDate(lastSunday.getDate() - (i * 7));
+      const weekStart = new Date(thisMonday);
+      weekStart.setDate(thisMonday.getDate() - (i * 7));
       
-      const weekStart = new Date(weekEnd);
-      weekStart.setDate(weekEnd.getDate() - 6);
-      weekStart.setHours(0, 0, 0, 0);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      weekEnd.setHours(23, 59, 59, 999);
       
       weeks.push({
         start: weekStart,

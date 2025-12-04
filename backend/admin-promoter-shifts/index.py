@@ -131,14 +131,13 @@ def calculate_date_range(time_range: str, params: Dict[str, str]) -> tuple:
     if time_range == 'week':
         week_index = int(params.get('week_index', 0))
         current_day_of_week = now.weekday()
-        days_until_sunday = 6 - current_day_of_week
         
-        last_sunday = now + timedelta(days=days_until_sunday)
-        last_sunday = last_sunday.replace(hour=23, minute=59, second=59)
+        this_monday = now - timedelta(days=current_day_of_week)
+        this_monday = this_monday.replace(hour=0, minute=0, second=0)
         
-        week_end = last_sunday - timedelta(weeks=week_index)
-        week_start = week_end - timedelta(days=6)
-        week_start = week_start.replace(hour=0, minute=0, second=0)
+        week_start = this_monday - timedelta(weeks=week_index)
+        week_end = week_start + timedelta(days=6)
+        week_end = week_end.replace(hour=23, minute=59, second=59)
         
         return week_start.date(), week_end.date()
     

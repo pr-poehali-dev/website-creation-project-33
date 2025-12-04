@@ -18,7 +18,6 @@ interface ChartSVGProps {
   hoveredPoint: {x: number; y: number; label: string; value: number} | null;
   formatCurrency: (value: number) => string;
   movingAverageData?: {date: string; avgRevenue: number}[];
-  monthlyMovingAverage?: {date: string; avgRevenue: number}[];
 }
 
 export default function ChartSVG({ 
@@ -30,8 +29,7 @@ export default function ChartSVG({
   onHoverPoint,
   hoveredPoint,
   formatCurrency,
-  movingAverageData = [],
-  monthlyMovingAverage = []
+  movingAverageData = []
 }: ChartSVGProps) {
   const svgRef = React.useRef<SVGSVGElement>(null);
 
@@ -76,18 +74,6 @@ export default function ChartSVG({
   
   const avgPath = avgPoints.length > 0 
     ? `M ${avgPoints.map(p => `${p.x} ${p.y}`).join(' L ')}` 
-    : '';
-  
-  // Вычисляем координаты для месячного среднего
-  const monthlyAvgPoints = monthlyMovingAverage.map((item, i) => {
-    const x = 60 + (i / (monthlyMovingAverage.length - 1 || 1)) * 920;
-    const normalizedValue = revenueRange > 0 ? (item.avgRevenue - minRevenue) / revenueRange : 0.5;
-    const y = 350 - normalizedValue * 280;
-    return { x, y };
-  });
-  
-  const monthlyAvgPath = monthlyAvgPoints.length > 0 
-    ? `M ${monthlyAvgPoints.map(p => `${p.x} ${p.y}`).join(' L ')}` 
     : '';
 
   const yAxisValues = [
@@ -197,28 +183,6 @@ export default function ChartSVG({
                 opacity="0.8"
               />
             )}
-            
-            {monthlyAvgPoints.length > 1 && monthlyAvgPoints.map((point, idx) => {
-              if (idx === monthlyAvgPoints.length - 1) return null;
-              
-              const nextPoint = monthlyAvgPoints[idx + 1];
-              const isUptrend = nextPoint.y < point.y; // y уменьшается = график растёт
-              const segmentColor = isUptrend ? '#84cc16' : '#991b1b'; // салатовый : бордовый
-              
-              return (
-                <line
-                  key={idx}
-                  x1={point.x}
-                  y1={point.y}
-                  x2={nextPoint.x}
-                  y2={nextPoint.y}
-                  stroke={segmentColor}
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  opacity="0.85"
-                />
-              );
-            })}
             
             {points.map((point, idx) => {
               const isHovered = hoveredPoint?.x === point.x && hoveredPoint?.y === point.y;

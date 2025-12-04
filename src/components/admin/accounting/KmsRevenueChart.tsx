@@ -122,7 +122,14 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       };
     });
 
-    return data.sort((a, b) => a.date.localeCompare(b.date));
+    const sortedData = data.sort((a, b) => a.date.localeCompare(b.date));
+    
+    // Показываем только первую неделю для отладки
+    if (period === 'week') {
+      return sortedData.slice(0, 1);
+    }
+    
+    return sortedData;
   }, [shifts, period]);
 
   const maxRevenue = Math.max(...chartData.map(d => d.revenue), 0);

@@ -48,9 +48,12 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       if (period === 'day') {
         key = shift.date;
       } else if (period === 'week') {
-        // Находим понедельник недели, к которой относится смена
-        const weekStart = new Date(shiftDate);
-        const dayOfWeek = weekStart.getDay();
+        // Работаем только с датой-строкой, без Date() для избежания timezone проблем
+        const [year, month, day] = shift.date.split('-').map(Number);
+        
+        // Вычисляем день недели для даты (алгоритм Зеллера, упрощённый)
+        const tempDate = new Date(year, month - 1, day);
+        const dayOfWeek = tempDate.getDay(); // 0=вс, 1=пн, ..., 6=сб
         
         console.log('WEEK CALC:', {
           originalDate: shift.date,
@@ -58,21 +61,23 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
           dayName: ['вс','пн','вт','ср','чт','пт','сб'][dayOfWeek]
         });
         
-        // Вычисляем сдвиг к понедельнику:
-        // Понедельник (1) -> 0 дней назад
-        // Вторник (2) -> 1 день назад  
-        // ...
-        // Суббота (6) -> 5 дней назад
-        // Воскресенье (0) -> 6 дней назад
+        // Сколько дней назад был понедельник?
         const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
         
-        weekStart.setDate(weekStart.getDate() - daysToMonday);
-        weekStart.setHours(0, 0, 0, 0);
-        key = weekStart.toISOString().split('T')[0];
-        startDate = key;
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 6);
-        endDate = weekEnd.toISOString().split('T')[0];
+        // Вычисляем дату понедельника вручную
+        const mondayDate = new Date(year, month - 1, day - daysToMonday);
+        const mondayYear = mondayDate.getFullYear();
+        const mondayMonth = String(mondayDate.getMonth() + 1).padStart(2, '0');
+        const mondayDay = String(mondayDate.getDate()).padStart(2, '0');
+        startDate = `${mondayYear}-${mondayMonth}-${mondayDay}`;
+        key = startDate;
+        
+        // Воскресенье = понедельник + 6 дней
+        const sundayDate = new Date(year, month - 1, day - daysToMonday + 6);
+        const sundayYear = sundayDate.getFullYear();
+        const sundayMonth = String(sundayDate.getMonth() + 1).padStart(2, '0');
+        const sundayDay = String(sundayDate.getDate()).padStart(2, '0');
+        endDate = `${sundayYear}-${sundayMonth}-${sundayDay}`;
         
         console.log('RESULT:', {startDate, endDate});
       } else if (period === 'month') {

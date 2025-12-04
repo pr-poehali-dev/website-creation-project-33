@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useOrganizationStats } from '@/hooks/useAdminData';
+import PromoterShiftsModal from './PromoterShiftsModal';
 
 interface OrganizationStat {
   date: string;
@@ -24,6 +25,8 @@ export default function OrganizationStatsChart() {
   const [selectedWeekIndex, setSelectedWeekIndex] = React.useState<number>(0);
   const [selectedMonthIndex, setSelectedMonthIndex] = React.useState<number>(0);
   const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [selectedPromoter, setSelectedPromoter] = React.useState<{ name: string; contacts: number } | null>(null);
 
   if (isLoading) {
     return (
@@ -415,15 +418,19 @@ export default function OrganizationStatsChart() {
                   <div className="border-t border-slate-700 bg-slate-700/50 p-4">
                     <div className="space-y-2">
                       {usersList.map(([userName, contacts]) => (
-                        <div
+                        <button
                           key={userName}
-                          className="flex items-center justify-between py-2 px-3 bg-slate-800 rounded-lg"
+                          onClick={() => {
+                            setSelectedPromoter({ name: userName, contacts });
+                            setModalOpen(true);
+                          }}
+                          className="w-full flex items-center justify-between py-2 px-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"
                         >
                           <span className="text-sm text-slate-200">{userName}</span>
                           <span className="text-sm font-semibold text-slate-100">
                             {contacts} контакт{contacts === 1 ? '' : contacts < 5 ? 'а' : 'ов'}
                           </span>
-                        </div>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -433,6 +440,23 @@ export default function OrganizationStatsChart() {
           })}
         </div>
       </CardContent>
+      
+      {selectedPromoter && selectedOrg && (
+        <PromoterShiftsModal
+          isOpen={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setSelectedPromoter(null);
+          }}
+          promoterName={selectedPromoter.name}
+          organizationName={selectedOrg}
+          totalContacts={selectedPromoter.contacts}
+          timeRange={timeRange}
+          selectedWeekIndex={selectedWeekIndex}
+          selectedMonthIndex={selectedMonthIndex}
+          selectedYear={selectedYear}
+        />
+      )}
     </Card>
   );
 }

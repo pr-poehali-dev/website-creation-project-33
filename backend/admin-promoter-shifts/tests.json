@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Get promoter shifts",
+      "method": "GET",
+      "path": "/?promoter_name=Тест&organization_name=Сотка&time_range=week",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "shifts": "array",
+        "promoter_name": "string",
+        "organization_name": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing parameters",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

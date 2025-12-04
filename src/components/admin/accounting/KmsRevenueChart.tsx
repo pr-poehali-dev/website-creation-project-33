@@ -48,15 +48,21 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
       if (period === 'day') {
         key = shift.date;
       } else if (period === 'week') {
+        // Находим понедельник недели, к которой относится смена
+        // getDay(): 0=вс, 1=пн, 2=вт, 3=ср, 4=чт, 5=пт, 6=сб
         const weekStart = new Date(shiftDate);
         const dayOfWeek = weekStart.getDay();
-        // Если воскресенье (0), переносим на следующий понедельник (+1 день)
-        // Иначе вычитаем дни до понедельника текущей недели
-        if (dayOfWeek === 0) {
-          weekStart.setDate(weekStart.getDate() + 1); // Воскресенье -> Понедельник
-        } else {
-          weekStart.setDate(weekStart.getDate() - (dayOfWeek - 1)); // К понедельнику текущей недели
-        }
+        
+        // Вычисляем сдвиг к понедельнику:
+        // Понедельник (1) -> 0 дней назад
+        // Вторник (2) -> 1 день назад  
+        // Среда (3) -> 2 дня назад
+        // ...
+        // Суббота (6) -> 5 дней назад
+        // Воскресенье (0) -> 6 дней назад (к понедельнику текущей недели)
+        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        
+        weekStart.setDate(weekStart.getDate() - daysToMonday);
         weekStart.setHours(0, 0, 0, 0);
         key = weekStart.toISOString().split('T')[0];
         startDate = key;

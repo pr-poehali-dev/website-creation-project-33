@@ -155,6 +155,45 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
     return result;
   }, [chartData, period]);
 
+  // Вычисляем месячное скользящее среднее для режима "дни"
+  const monthlyMovingAverage = useMemo(() => {
+    if (period !== 'day' || chartData.length === 0) return [];
+    
+    const result: {date: string; avgRevenue: number}[] = [];
+    
+    // Группируем данные по месяцам
+    const monthlyData = new Map<string, number[]>();
+    
+    chartData.forEach((item) => {
+      const date = new Date(item.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (!monthlyData.has(monthKey)) {
+        monthlyData.set(monthKey, []);
+      }
+      monthlyData.get(monthKey)!.push(item.revenue);
+    });
+    
+    // Для каждого дня вычисляем среднее по его месяцу
+    chartData.forEach((item) => {
+      const date = new Date(item.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthRevenues = monthlyData.get(monthKey) || [];
+      
+      // Среднее за месяц
+      const monthlyAvg = monthRevenues.length > 0
+        ? monthRevenues.reduce((sum, val) => sum + val, 0) / monthRevenues.length
+        : 0;
+      
+      result.push({
+        date: item.date,
+        avgRevenue: Math.round(monthlyAvg)
+      });
+    });
+    
+    return result;
+  }, [chartData, period]);
+
   const maxRevenue = Math.max(...chartData.map(d => d.revenue), 0);
   const minRevenue = Math.min(...chartData.map(d => d.revenue), 0);
   const revenueRange = maxRevenue - minRevenue;
@@ -290,6 +329,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               hoveredPoint={hoveredPoint}
               formatCurrency={formatCurrency}
               movingAverageData={movingAverageData}
+              monthlyMovingAverage={monthlyMovingAverage}
             />
 
             <div className="mt-4 pt-4 border-t border-slate-700/50">

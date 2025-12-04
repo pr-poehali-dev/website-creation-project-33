@@ -18,6 +18,7 @@ interface ChartSVGProps {
   hoveredPoint: {x: number; y: number; label: string; value: number} | null;
   formatCurrency: (value: number) => string;
   movingAverageData?: {date: string; avgRevenue: number}[];
+  monthlyMovingAverage?: {date: string; avgRevenue: number}[];
 }
 
 export default function ChartSVG({ 
@@ -29,7 +30,8 @@ export default function ChartSVG({
   onHoverPoint,
   hoveredPoint,
   formatCurrency,
-  movingAverageData = []
+  movingAverageData = [],
+  monthlyMovingAverage = []
 }: ChartSVGProps) {
   const svgRef = React.useRef<SVGSVGElement>(null);
 
@@ -74,6 +76,18 @@ export default function ChartSVG({
   
   const avgPath = avgPoints.length > 0 
     ? `M ${avgPoints.map(p => `${p.x} ${p.y}`).join(' L ')}` 
+    : '';
+  
+  // Вычисляем координаты для месячного среднего
+  const monthlyAvgPoints = monthlyMovingAverage.map((item, i) => {
+    const x = 60 + (i / (monthlyMovingAverage.length - 1 || 1)) * 920;
+    const normalizedValue = revenueRange > 0 ? (item.avgRevenue - minRevenue) / revenueRange : 0.5;
+    const y = 350 - normalizedValue * 280;
+    return { x, y };
+  });
+  
+  const monthlyAvgPath = monthlyAvgPoints.length > 0 
+    ? `M ${monthlyAvgPoints.map(p => `${p.x} ${p.y}`).join(' L ')}` 
     : '';
 
   const yAxisValues = [
@@ -181,6 +195,18 @@ export default function ChartSVG({
                 strokeLinejoin="round"
                 strokeDasharray="5 5"
                 opacity="0.8"
+              />
+            )}
+            
+            {monthlyAvgPath && (
+              <path
+                d={monthlyAvgPath}
+                fill="none"
+                stroke="#f97316"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity="0.85"
               />
             )}
             

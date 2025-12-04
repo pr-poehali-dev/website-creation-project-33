@@ -17,6 +17,7 @@ interface ChartSVGProps {
   onHoverPoint: (point: {x: number; y: number; label: string; value: number} | null) => void;
   hoveredPoint: {x: number; y: number; label: string; value: number} | null;
   formatCurrency: (value: number) => string;
+  movingAverageData?: {date: string; avgRevenue: number}[];
 }
 
 export default function ChartSVG({ 
@@ -27,7 +28,8 @@ export default function ChartSVG({
   zoom,
   onHoverPoint,
   hoveredPoint,
-  formatCurrency
+  formatCurrency,
+  movingAverageData = []
 }: ChartSVGProps) {
   const svgRef = React.useRef<SVGSVGElement>(null);
 
@@ -61,6 +63,18 @@ export default function ChartSVG({
 
   const smoothPath = createSmoothPath(points);
   const areaPath = `${smoothPath} L ${points[points.length - 1]?.x || 0} 370 L 60 370 Z`;
+  
+  // Вычисляем координаты для линии среднего
+  const avgPoints = movingAverageData.map((item, i) => {
+    const x = 60 + (i / (movingAverageData.length - 1 || 1)) * 920;
+    const normalizedValue = revenueRange > 0 ? (item.avgRevenue - minRevenue) / revenueRange : 0.5;
+    const y = 350 - normalizedValue * 280;
+    return { x, y };
+  });
+  
+  const avgPath = avgPoints.length > 0 
+    ? `M ${avgPoints.map(p => `${p.x} ${p.y}`).join(' L ')}` 
+    : '';
 
   const yAxisValues = [
     maxRevenue,
@@ -156,6 +170,19 @@ export default function ChartSVG({
               strokeLinejoin="round"
               filter="url(#glow)"
             />
+            
+            {avgPath && (
+              <path
+                d={avgPath}
+                fill="none"
+                stroke="#ef4444"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeDasharray="5 5"
+                opacity="0.8"
+              />
+            )}
             
             {points.map((point, idx) => {
               const isHovered = hoveredPoint?.x === point.x && hoveredPoint?.y === point.y;

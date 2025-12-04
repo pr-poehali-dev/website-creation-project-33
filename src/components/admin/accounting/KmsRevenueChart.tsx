@@ -136,6 +136,25 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
     return data.sort((a, b) => a.date.localeCompare(b.date));
   }, [shifts, period]);
 
+  // Вычисляем скользящее среднее для режима "дни"
+  const movingAverageData = useMemo(() => {
+    if (period !== 'day' || chartData.length === 0) return [];
+    
+    const result: {date: string; avgRevenue: number}[] = [];
+    let cumulativeSum = 0;
+    
+    chartData.forEach((item, index) => {
+      cumulativeSum += item.revenue;
+      const avgRevenue = cumulativeSum / (index + 1);
+      result.push({
+        date: item.date,
+        avgRevenue: Math.round(avgRevenue)
+      });
+    });
+    
+    return result;
+  }, [chartData, period]);
+
   const maxRevenue = Math.max(...chartData.map(d => d.revenue), 0);
   const minRevenue = Math.min(...chartData.map(d => d.revenue), 0);
   const revenueRange = maxRevenue - minRevenue;
@@ -270,6 +289,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               onHoverPoint={setHoveredPoint}
               hoveredPoint={hoveredPoint}
               formatCurrency={formatCurrency}
+              movingAverageData={movingAverageData}
             />
 
             <div className="mt-4 pt-4 border-t border-slate-700/50">

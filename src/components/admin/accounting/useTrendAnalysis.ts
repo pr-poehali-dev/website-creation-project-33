@@ -70,6 +70,7 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     const intercept = (sumY - slope * sumX) / n;
     
     // Средний доход: все завершенные недели (без текущей)
+    // Средний доход: для месяцев и недель - только завершённые периоды (без текущего)
     const avgRevenue = completedPeriodsData.length > 0
       ? Math.round(completedPeriodsData.reduce((sum, d) => sum + d.revenue, 0) / completedPeriodsData.length)
       : 0;
@@ -81,16 +82,24 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
       
       if (period === 'month' || period === 'year') {
         if (targetMonth === currentMonth && targetYear === currentYear) {
-          const daysPassed = now.getDate();
+          // Вчерашний день (сегодня не учитываем)
+          const yesterday = new Date(now);
+          yesterday.setDate(yesterday.getDate() - 1);
+          yesterday.setHours(23, 59, 59, 999);
           
-          if (daysPassed === 0) {
+          const daysPassed = yesterday.getDate(); // Количество дней до вчера включительно
+          
+          if (daysPassed <= 0) {
             return Math.round(avgRevenue * (period === 'month' ? 1 : 12));
           }
           
+          // Доход с 1-го числа по вчера (сегодня не учитываем)
           const currentMonthRevenue = chartData
             .filter(item => {
-              const itemDate = new Date(item.startDate || item.date);
-              return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear;
+              const itemDate = new Date(item.date);
+              return itemDate.getMonth() === currentMonth 
+                && itemDate.getFullYear() === currentYear
+                && itemDate <= yesterday;
             })
             .reduce((sum, item) => sum + item.revenue, 0);
           
@@ -98,7 +107,9 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
             return Math.round(avgRevenue * (period === 'month' ? 1 : 12));
           }
           
+          // Среднее за день (с 1-го по вчера)
           const avgDailyRevenue = currentMonthRevenue / daysPassed;
+          // Прогноз на весь месяц
           const projectedTotal = avgDailyRevenue * daysInMonth;
           
           return Math.round(projectedTotal);

@@ -185,24 +185,29 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     };
     
     const calculateCurrentWeekForecast = () => {
-      // Находим все смены текущей недели
+      // Вчерашний день (не включаем сегодня)
+      const yesterday = new Date(now);
+      yesterday.setHours(23, 59, 59, 999);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      // Находим все смены текущей недели (с понедельника по вчера включительно)
       const currentWeekShifts = chartData.filter(item => {
         const itemDate = new Date(item.date);
-        return itemDate >= currentWeekStart && itemDate <= now;
+        return itemDate >= currentWeekStart && itemDate <= yesterday;
       });
       
       if (currentWeekShifts.length === 0) return Math.round(avgRevenue);
       
-      // Текущий доход за прошедшие дни текущей недели
+      // Доход с понедельника по вчера
       const currentWeekRevenue = currentWeekShifts.reduce((sum, item) => sum + item.revenue, 0);
       
-      // Вычисляем, сколько дней прошло с понедельника (включая сегодня)
+      // Вычисляем, сколько дней прошло с понедельника (до вчера включительно)
       const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
-      const daysPassed = dayOfWeek; // 1=пн, 2=вт, ..., 7=вс
+      const daysPassed = dayOfWeek - 1; // Сегодня не считаем
       
-      if (daysPassed === 0) return Math.round(avgRevenue);
+      if (daysPassed <= 0) return Math.round(avgRevenue);
       
-      // Среднее за день в текущей неделе
+      // Среднее за день (пн-вчера)
       const avgDailyRevenue = currentWeekRevenue / daysPassed;
       
       // Прогноз на всю неделю: среднее * 7 дней

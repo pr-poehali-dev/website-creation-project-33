@@ -40,7 +40,7 @@ export default function PromoterShiftsModal({
       setLoading(true);
       try {
         const sessionToken = localStorage.getItem('session_token');
-        const baseUrl = 'https://functions.poehali.dev/api/admin-promoter-shifts';
+        const baseUrl = 'https://functions.poehali.dev/783b5180-a779-4e63-8d30-d32b0f2e0656';
         
         const params = new URLSearchParams({
           promoter_name: promoterName,

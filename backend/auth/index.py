@@ -90,7 +90,7 @@ def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
                 SELECT u.id, u.email, u.name, u.is_admin 
                 FROM t_p24058207_website_creation_pro.users u 
                 JOIN t_p24058207_website_creation_pro.user_sessions s ON u.id = s.user_id 
-                WHERE s.session_token = %s AND s.expires_at > %s
+                WHERE s.session_token = %s AND s.expires_at > %s AND u.is_active = TRUE
             """, (session_token, get_moscow_time()))
             
             row = cur.fetchone()
@@ -207,7 +207,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(
-                        "SELECT id, password_hash, name, is_admin, is_approved FROM t_p24058207_website_creation_pro.users WHERE email = %s",
+                        "SELECT id, password_hash, name, is_admin, is_approved, is_active FROM t_p24058207_website_creation_pro.users WHERE email = %s",
                         (email,)
                     )
                     row = cur.fetchone()
@@ -219,7 +219,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
             
-            user_id, password_hash, name, is_admin, is_approved = row
+            user_id, password_hash, name, is_admin, is_approved, is_active = row
+            
+            # Проверка: деактивирован ли пользователь
+            if not is_active:
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Ваш аккаунт деактивирован. Обратитесь к администратору.'})
+                }
             
             # Special case for admin with simple password
             if email == 'admin@gmail.com' and password == 'admin':

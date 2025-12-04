@@ -157,7 +157,8 @@ export default function OrganizationStatsChart() {
         total: 0,
         contact_rate: item.contact_rate || 0,
         payment_type: item.payment_type || 'cash',
-        users: {}
+        users: {},
+        userShifts: {}
       };
     }
     acc[item.organization_name].total += item.total_contacts;
@@ -166,12 +167,16 @@ export default function OrganizationStatsChart() {
     item.user_stats.forEach(userStat => {
       if (!acc[item.organization_name].users[userStat.user_name]) {
         acc[item.organization_name].users[userStat.user_name] = 0;
+        acc[item.organization_name].userShifts[userStat.user_name] = 0;
       }
       acc[item.organization_name].users[userStat.user_name] += userStat.contacts;
+      if (userStat.contacts > 0) {
+        acc[item.organization_name].userShifts[userStat.user_name] += 1;
+      }
     });
     
     return acc;
-  }, {} as Record<string, { name: string; total: number; contact_rate: number; payment_type: string; users: Record<string, number> }>);
+  }, {} as Record<string, { name: string; total: number; contact_rate: number; payment_type: string; users: Record<string, number>; userShifts: Record<string, number> }>);
 
   // Сортируем организации по количеству контактов
   const sortedOrgs = Object.values(orgTotals).sort((a, b) => b.total - a.total);
@@ -372,7 +377,14 @@ export default function OrganizationStatsChart() {
         <div className="space-y-4">
           {sortedOrgs.map(org => {
             const isExpanded = selectedOrg === org.name;
-            const usersList = Object.entries(org.users).sort((a, b) => b[1] - a[1]);
+            // Сортируем промоутеров по среднему значению (убывание)
+            const usersList = Object.entries(org.users)
+              .map(([userName, contacts]) => {
+                const shifts = org.userShifts[userName] || 1;
+                const average = Math.round(contacts / shifts);
+                return { userName, contacts, average };
+              })
+              .sort((a, b) => b.average - a.average);
             
             return (
               <div key={org.name} className="border border-slate-700 rounded-lg overflow-hidden bg-slate-800">
@@ -417,19 +429,29 @@ export default function OrganizationStatsChart() {
                 {isExpanded && usersList.length > 0 && (
                   <div className="border-t border-slate-700 bg-slate-700/50 p-4">
                     <div className="space-y-2">
-                      {usersList.map(([userName, contacts]) => (
+                      {usersList.map((user) => (
                         <button
-                          key={userName}
+                          key={user.userName}
                           onClick={() => {
-                            setSelectedPromoter({ name: userName, contacts });
+                            setSelectedPromoter({ name: user.userName, contacts: user.contacts });
                             setModalOpen(true);
                           }}
                           className="w-full flex items-center justify-between py-2 px-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"
                         >
-                          <span className="text-sm text-slate-200">{userName}</span>
-                          <span className="text-sm font-semibold text-slate-100">
-                            {contacts} контакт{contacts === 1 ? '' : contacts < 5 ? 'а' : 'ов'}
-                          </span>
+                          <span className="text-sm text-slate-200">{user.userName}</span>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <div className="text-sm font-semibold text-slate-100">
+                                {user.contacts} контакт{user.contacts === 1 ? '' : user.contacts < 5 ? 'а' : 'ов'}
+                              </div>
+                            </div>
+                            <div className="text-right min-w-[80px]">
+                              <div className="text-sm font-bold text-cyan-400">
+                                ср. {user.average}
+                              </div>
+                              <div className="text-xs text-slate-400">за смену</div>
+                            </div>
+                          </div>
                         </button>
                       ))}
                     </div>

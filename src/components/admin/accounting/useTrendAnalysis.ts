@@ -227,9 +227,11 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
       return Math.round(projectedTotal);
     };
     
+    // Для недель - прогноз на текущую неделю
+    // Для месяцев - прогноз на текущий месяц (не на ноябрь!)
     const novemberForecast = period === 'week' 
       ? calculateCurrentWeekForecast() 
-      : calculateMonthlyForecast(10, 2025);
+      : calculateMonthlyForecast(currentMonth, currentYear);
     
     const decemberForecast = calculateMonthlyForecast(11, 2025);
     

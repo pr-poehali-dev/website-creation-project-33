@@ -45,7 +45,7 @@ export default function TrendAnalysisBlock({ trendAnalysis, period, formatCurren
             
             <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-lg p-3 shadow-lg border border-slate-700/50">
               <div className="text-xs text-slate-400 mb-1">
-                {period === 'week' ? 'Прогноз на неделю' : 'Прогноз на ноябрь'}
+                {period === 'week' ? 'Прогноз на неделю' : `Прогноз на ${new Date().toLocaleDateString('ru-RU', { month: 'long' })}`}
               </div>
               <div className="text-lg font-bold text-white">
                 {formatCurrency(trendAnalysis.novemberForecast)} ₽

@@ -69,7 +69,10 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
     
-    const avgRevenue = recentData.reduce((sum, d) => sum + d.revenue, 0) / n;
+    // Средний доход: все завершенные недели (без текущей)
+    const avgRevenue = completedPeriodsData.length > 0
+      ? Math.round(completedPeriodsData.reduce((sum, d) => sum + d.revenue, 0) / completedPeriodsData.length)
+      : 0;
     
     const calculateMonthlyForecast = (targetMonth: number, targetYear: number) => {
       const monthStart = new Date(targetYear, targetMonth, 1);
@@ -182,22 +185,28 @@ export function useTrendAnalysis(chartData: ChartData[], period: Period): TrendA
     };
     
     const calculateCurrentWeekForecast = () => {
-      const currentWeekData = chartData.filter(item => {
-        const itemDate = new Date(item.startDate || item.date);
-        return itemDate >= currentWeekStart;
+      // Находим все смены текущей недели
+      const currentWeekShifts = chartData.filter(item => {
+        const itemDate = new Date(item.date);
+        return itemDate >= currentWeekStart && itemDate <= now;
       });
       
-      if (currentWeekData.length === 0) return Math.round(avgRevenue);
+      if (currentWeekShifts.length === 0) return Math.round(avgRevenue);
       
-      const currentWeekRevenue = currentWeekData.reduce((sum, item) => sum + item.revenue, 0);
+      // Текущий доход за прошедшие дни текущей недели
+      const currentWeekRevenue = currentWeekShifts.reduce((sum, item) => sum + item.revenue, 0);
+      
+      // Вычисляем, сколько дней прошло с понедельника (включая сегодня)
       const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
-      const daysPassed = dayOfWeek;
-      const daysRemaining = 7 - daysPassed;
+      const daysPassed = dayOfWeek; // 1=пн, 2=вт, ..., 7=вс
       
-      if (daysRemaining === 0 || daysPassed === 0) return currentWeekRevenue;
+      if (daysPassed === 0) return Math.round(avgRevenue);
       
+      // Среднее за день в текущей неделе
       const avgDailyRevenue = currentWeekRevenue / daysPassed;
-      const projectedTotal = currentWeekRevenue + avgDailyRevenue * daysRemaining;
+      
+      // Прогноз на всю неделю: среднее * 7 дней
+      const projectedTotal = avgDailyRevenue * 7;
       
       return Math.round(projectedTotal);
     };

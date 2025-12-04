@@ -178,8 +178,16 @@ export default function OrganizationStatsChart() {
     return acc;
   }, {} as Record<string, { name: string; total: number; contact_rate: number; payment_type: string; users: Record<string, number>; userShifts: Record<string, number> }>);
 
-  // Сортируем организации по количеству контактов
-  const sortedOrgs = Object.values(orgTotals).sort((a, b) => b.total - a.total);
+  // Сортируем организации по доходу (убывание)
+  const sortedOrgs = Object.values(orgTotals).sort((a, b) => {
+    const revenueA = a.contact_rate > 0 
+      ? (a.payment_type === 'cashless' ? a.total * a.contact_rate * 0.93 : a.total * a.contact_rate)
+      : 0;
+    const revenueB = b.contact_rate > 0 
+      ? (b.payment_type === 'cashless' ? b.total * b.contact_rate * 0.93 : b.total * b.contact_rate)
+      : 0;
+    return revenueB - revenueA;
+  });
 
   const ORG_COLORS: Record<string, string> = {
     'Сотка': '#10b981',

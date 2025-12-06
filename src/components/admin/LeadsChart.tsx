@@ -98,22 +98,35 @@ export default function LeadsChart({
       }
 
       if (!grouped[key]) {
+        const userFields: Record<string, number> = {};
+        userStats.forEach(u => {
+          userFields[`${u.name}_contacts`] = 0;
+          userFields[`${u.name}_approaches`] = 0;
+        });
+        
         grouped[key] = {
           date: key,
           displayDate: groupBy === 'week' ? getWeekLabel(key) : groupBy === 'month' ? getMonthLabel(key) : key,
           total: 0,
           contacts: 0,
           approaches: 0,
-          ...Object.fromEntries(userStats.map(u => [u.name, 0]))
+          ...userFields
         };
       }
 
       grouped[key].total += item.total || 0;
       grouped[key].contacts += item.contacts || 0;
       grouped[key].approaches += item.approaches || 0;
+      
       userStats.forEach(user => {
-        if (item[user.name]) {
-          grouped[key][user.name] += item[user.name];
+        const contactsKey = `${user.name}_contacts`;
+        const approachesKey = `${user.name}_approaches`;
+        
+        if (item[contactsKey] !== undefined) {
+          grouped[key][contactsKey] += item[contactsKey];
+        }
+        if (item[approachesKey] !== undefined) {
+          grouped[key][approachesKey] += item[approachesKey];
         }
       });
     });

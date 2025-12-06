@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { ChartDataPoint, UserStats } from './types';
+import { ChartDataPoint, UserStats, ADMIN_API } from './types';
 import { toMoscowTime } from '@/utils/date';
+import PeriodDetailModal from './PeriodDetailModal';
 
 interface LeadsChartProps {
   chartData: ChartDataPoint[];
@@ -28,6 +29,9 @@ export default function LeadsChart({
   const [groupBy, setGroupBy] = React.useState<'day' | 'week' | 'month' | 'year'>('day');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [selectedPeriod, setSelectedPeriod] = React.useState<{period: string, displayLabel: string} | null>(null);
+  const [periodLeads, setPeriodLeads] = React.useState<any[]>([]);
+  const [loadingPeriod, setLoadingPeriod] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -135,6 +139,85 @@ export default function LeadsChart({
   };
 
   const filteredChartData = getFilteredChartData();
+
+  const fetchPeriodDetails = async (period: string, displayLabel: string) => {
+    setLoadingPeriod(true);
+    setSelectedPeriod({ period, displayLabel });
+    setPeriodLeads([]);
+
+    try {
+      const sessionToken = localStorage.getItem('session_token');
+      
+      let dates: string[] = [];
+      
+      if (groupBy === 'day') {
+        dates = [period];
+      } else if (groupBy === 'week') {
+        const [year, week] = period.split('-W');
+        const jan4 = new Date(parseInt(year), 0, 4);
+        const monday = new Date(jan4);
+        monday.setDate(jan4.getDate() - (jan4.getDay() || 7) + 1 + (parseInt(week) - 1) * 7);
+        
+        for (let i = 0; i < 7; i++) {
+          const day = new Date(monday);
+          day.setDate(monday.getDate() + i);
+          dates.push(day.toISOString().split('T')[0]);
+        }
+      } else if (groupBy === 'month') {
+        const [year, month] = period.split('-');
+        const daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+          dates.push(`${year}-${month}-${String(day).padStart(2, '0')}`);
+        }
+      } else if (groupBy === 'year') {
+        const year = parseInt(period);
+        for (let month = 1; month <= 12; month++) {
+          const daysInMonth = new Date(year, month, 0).getDate();
+          for (let day = 1; day <= daysInMonth; day++) {
+            dates.push(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+          }
+        }
+      }
+
+      const allLeads: any[] = [];
+      
+      for (const date of dates) {
+        const response = await fetch(`${ADMIN_API}?action=daily_user_stats&date=${date}`, {
+          headers: {
+            'X-Session-Token': sessionToken || '',
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.detailed_leads && data.detailed_leads.length > 0) {
+            allLeads.push(...data.detailed_leads);
+          }
+        }
+      }
+      
+      setPeriodLeads(allLeads);
+    } catch (error) {
+      console.error('Error fetching period details:', error);
+    } finally {
+      setLoadingPeriod(false);
+    }
+  };
+
+  const handleChartClick = (data: any) => {
+    if (data && data.activePayload && data.activePayload[0]) {
+      const payload = data.activePayload[0].payload;
+      const period = payload.date;
+      const displayLabel = payload.displayDate || new Date(period).toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+      
+      fetchPeriodDetails(period, displayLabel);
+    }
+  };
 
   const toggleUser = (userName: string) => {
     const isSelected = selectedUsers.includes(userName);
@@ -358,6 +441,7 @@ export default function LeadsChart({
                 bottom: 60 
               }}
               className="md:!ml-5"
+              onClick={handleChartClick}
             >
               <defs>
                 {/* Градиенты для линий */}
@@ -529,6 +613,15 @@ export default function LeadsChart({
           </ResponsiveContainer>
         </div>
       </CardContent>
+
+      <PeriodDetailModal
+        isOpen={!!selectedPeriod}
+        onClose={() => setSelectedPeriod(null)}
+        period={selectedPeriod?.period || ''}
+        displayLabel={selectedPeriod?.displayLabel || ''}
+        detailedLeads={periodLeads}
+        loading={loadingPeriod}
+      />
     </Card>
   );
 }

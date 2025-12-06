@@ -205,9 +205,16 @@ export default function LeadsChart({
     }
   };
 
-  const handleChartClick = (data: any) => {
-    if (data && data.activePayload && data.activePayload[0]) {
-      const payload = data.activePayload[0].payload;
+  const handleChartClick = (data: any, event?: any) => {
+    let payload = null;
+    
+    if (data && data.payload) {
+      payload = data.payload;
+    } else if (data && data.activePayload && data.activePayload[0]) {
+      payload = data.activePayload[0].payload;
+    }
+    
+    if (payload && payload.date) {
       const period = payload.date;
       const displayLabel = payload.displayDate || new Date(period).toLocaleDateString('ru-RU', {
         day: 'numeric',
@@ -441,7 +448,6 @@ export default function LeadsChart({
                 bottom: 60 
               }}
               className="md:!ml-5"
-              onClick={handleChartClick}
             >
               <defs>
                 {/* Градиенты для линий */}
@@ -566,8 +572,8 @@ export default function LeadsChart({
                   dataKey="contacts" 
                   stroke="url(#greenLineGradient)" 
                   strokeWidth={4}
-                  dot={false}
-                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
+                  dot={{ r: 4, fill: '#22d3ee', cursor: 'pointer' }}
+                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3, cursor: 'pointer', onClick: handleChartClick }}
                   name="Все контакты"
                   connectNulls={true}
                   strokeLinecap="round"
@@ -581,8 +587,8 @@ export default function LeadsChart({
                   dataKey="approaches" 
                   stroke="url(#orangeLineGradient)" 
                   strokeWidth={4}
-                  dot={false}
-                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
+                  dot={{ r: 4, fill: '#22d3ee', cursor: 'pointer' }}
+                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3, cursor: 'pointer', onClick: handleChartClick }}
                   name="Все подходы"
                   connectNulls={true}
                   strokeLinecap="round"
@@ -602,8 +608,8 @@ export default function LeadsChart({
                     dataKey={dataKey}
                     stroke={userColorMap[userName]}
                     strokeWidth={3}
-                    dot={{ fill: userColorMap[userName], r: 5, strokeWidth: 2, stroke: '#0f172a' }}
-                    activeDot={{ r: 7, fill: userColorMap[userName], stroke: '#22d3ee', strokeWidth: 2 }}
+                    dot={{ fill: userColorMap[userName], r: 5, strokeWidth: 2, stroke: '#0f172a', cursor: 'pointer' }}
+                    activeDot={{ r: 7, fill: userColorMap[userName], stroke: '#22d3ee', strokeWidth: 2, cursor: 'pointer', onClick: handleChartClick }}
                     name={userName}
                     connectNulls={true}
                   />

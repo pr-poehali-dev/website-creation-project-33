@@ -8,13 +8,13 @@ interface TimeSlotCardProps {
   slot: { label: string; time: string };
   workers: UserSchedule[];
   dayDate: string;
-  workComments: Record<string, Record<string, string>>;
+  workComments: Record<string, Record<string, {location?: string, flyers?: string}>>;
   savingComment: string | null;
   allLocations: string[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
   recommendedLocations: Record<string, Record<string, string>>;
-  onCommentChange: (userName: string, date: string, comment: string) => void;
-  onCommentBlur: (userName: string, date: string, comment: string) => void;
+  onCommentChange: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
+  onCommentBlur: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;

@@ -78,14 +78,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cursor.execute("""
-                SELECT user_name, location_comment
+                SELECT user_name, location_comment, flyers_comment
                 FROM work_location_comments
-                WHERE work_date = %s AND location_comment IS NOT NULL AND location_comment != ''
+                WHERE work_date = %s
             """, (work_date,))
             
             comments = {}
             for row in cursor.fetchall():
-                comments[row[0]] = row[1]
+                user_data = {}
+                if row[1]:  # location_comment
+                    user_data['location'] = row[1]
+                if row[2]:  # flyers_comment
+                    user_data['flyers'] = row[2]
+                if user_data:  # Only add if at least one field exists
+                    comments[row[0]] = user_data
             
             cursor.close()
             conn.close()
@@ -104,6 +110,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             user_name = body_data.get('user_name')
             work_date = body_data.get('work_date')
             location_comment = body_data.get('location_comment', '').strip()
+            flyers_comment = body_data.get('flyers_comment', '').strip()
             
             if not user_name or not work_date:
                 conn.close()
@@ -129,13 +136,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 """, (location_comment,))
             
             cursor.execute("""
-                INSERT INTO work_location_comments (user_name, work_date, location_comment, updated_at)
-                VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+                INSERT INTO work_location_comments (user_name, work_date, location_comment, flyers_comment, updated_at)
+                VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)
                 ON CONFLICT (user_name, work_date)
                 DO UPDATE SET 
                     location_comment = EXCLUDED.location_comment,
+                    flyers_comment = EXCLUDED.flyers_comment,
                     updated_at = CURRENT_TIMESTAMP
-            """, (user_name, work_date, location_comment))
+            """, (user_name, work_date, location_comment, flyers_comment))
             
             conn.commit()
             cursor.close()

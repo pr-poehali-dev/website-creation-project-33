@@ -10,14 +10,14 @@ interface WorkerCardProps {
   dayDate: string;
   slotTime: string;
   slotLabel: string;
-  workComments: Record<string, Record<string, string>>;
+  workComments: Record<string, Record<string, {location?: string, flyers?: string}>>;
   savingComment: string | null;
   allLocations: string[];
   recommendedOrg: string;
   orgAvg?: number;
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
-  onCommentChange: (userName: string, date: string, comment: string) => void;
-  onCommentBlur: (userName: string, date: string, comment: string) => void;
+  onCommentChange: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
+  onCommentBlur: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
 }
@@ -48,12 +48,14 @@ export default function WorkerCard({
   const avgContacts = worker.avg_per_shift || 0;
   const workerName = `${worker.first_name} ${worker.last_name}`;
   const commentKey = `${workerName}-${dayDate}`;
-  const currentComment = workComments[dayDate]?.[workerName] || '';
+  const commentData = workComments[dayDate]?.[workerName] || {};
+  const currentLocation = commentData.location || '';
+  const currentFlyers = commentData.flyers || '';
 
 
 
-  const handleInputChange = (value: string) => {
-    onCommentChange(workerName, dayDate, value);
+  const handleLocationChange = (value: string) => {
+    onCommentChange(workerName, dayDate, 'location', value);
     
     if (value.length > 0) {
       const filtered = allLocations.filter(loc => 
@@ -66,17 +68,14 @@ export default function WorkerCard({
     }
   };
 
-  const handleSuggestionClick = (location: string) => {
-    onCommentChange(workerName, dayDate, location);
-    setShowSuggestions(false);
-    onCommentBlur(workerName, dayDate, location);
+  const handleFlyersChange = (value: string) => {
+    onCommentChange(workerName, dayDate, 'flyers', value);
   };
 
-  const handleBlur = () => {
-    setTimeout(() => {
-      setShowSuggestions(false);
-    }, 200);
-    onCommentBlur(workerName, dayDate, currentComment);
+  const handleSuggestionClick = (location: string) => {
+    onCommentChange(workerName, dayDate, 'location', location);
+    setShowSuggestions(false);
+    onCommentBlur(workerName, dayDate, 'location', location);
   };
 
 
@@ -119,56 +118,80 @@ export default function WorkerCard({
           )}
         </button>
       </div>
-      <div className="relative flex items-center gap-1 ml-2">
-        <Input
-          type="text"
-          placeholder="Место работы"
-          value={currentComment}
-          onChange={(e) => handleInputChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              setShowSuggestions(false);
-              onCommentBlur(workerName, dayDate, currentComment);
-            }
-          }}
-          className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200"
-        />
+      <div className="space-y-1 ml-2">
+        <div className="relative flex items-center gap-1">
+          <Input
+            type="text"
+            placeholder="Место работы"
+            value={currentLocation}
+            onChange={(e) => handleLocationChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                setShowSuggestions(false);
+              }
+            }}
+            className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200"
+          />
+          {currentLocation && savingComment !== commentKey && (
+            <Icon name="MapPin" size={12} className="text-emerald-400 flex-shrink-0" />
+          )}
+        
+          {showSuggestions && filteredLocations.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+              {filteredLocations.map((location, idx) => (
+                <div
+                  key={idx}
+                  className="px-2 py-1 text-[10px] md:text-xs hover:bg-slate-700/50 cursor-pointer text-slate-200"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSuggestionClick(location);
+                  }}
+                >
+                  {location}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-1">
+          <Input
+            type="text"
+            placeholder="Листовки"
+            value={currentFlyers}
+            onChange={(e) => handleFlyersChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+              }
+            }}
+            className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200"
+          />
+          {currentFlyers && savingComment !== commentKey && (
+            <Icon name="FileText" size={12} className="text-cyan-400 flex-shrink-0" />
+          )}
+        </div>
+        
         <button
           onClick={() => {
             setShowSuggestions(false);
-            onCommentBlur(workerName, dayDate, currentComment);
+            onCommentBlur(workerName, dayDate, 'location', currentLocation);
+            onCommentBlur(workerName, dayDate, 'flyers', currentFlyers);
           }}
           disabled={savingComment === commentKey}
-          className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 text-white rounded text-[10px] md:text-xs h-6 md:h-7 flex items-center gap-1 whitespace-nowrap"
-          title="Сохранить место работы"
+          className="w-full px-2 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 text-white rounded text-[10px] md:text-xs h-6 md:h-7 flex items-center justify-center gap-1"
+          title="Сохранить"
         >
           {savingComment === commentKey ? (
             <Icon name="Loader2" size={12} className="animate-spin" />
           ) : (
-            <Icon name="Check" size={12} />
+            <>
+              <Icon name="Check" size={12} />
+              <span>Сохранить</span>
+            </>
           )}
         </button>
-        {currentComment && savingComment !== commentKey && (
-          <Icon name="MapPin" size={12} className="text-emerald-400 flex-shrink-0" />
-        )}
-        
-        {showSuggestions && filteredLocations.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
-            {filteredLocations.map((location, idx) => (
-              <div
-                key={idx}
-                className="px-2 py-1 text-[10px] md:text-xs hover:bg-slate-700/50 cursor-pointer text-slate-200"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  handleSuggestionClick(location);
-                }}
-              >
-                {location}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
       
       {showOrgStatsModal && (

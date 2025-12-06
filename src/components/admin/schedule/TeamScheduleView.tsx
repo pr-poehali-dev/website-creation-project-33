@@ -182,8 +182,8 @@ export default function TeamScheduleView({
     });
   };
 
-  const handleCommentBlur = (userName: string, date: string, comment: string) => {
-    saveComment(userName, date, comment);
+  const handleCommentBlur = (userName: string, date: string, field: 'location' | 'flyers', value: string) => {
+    saveComment(userName, date, field, value);
   };
 
   const handleAddSlotClick = (date: string, slotTime: string, slotLabel: string) => {

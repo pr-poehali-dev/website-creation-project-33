@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { DaySchedule, UserSchedule } from './types';
 
 export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule[], orgLimits?: Map<string, number>) {
-  const [workComments, setWorkComments] = useState<Record<string, Record<string, string>>>({});
+  const [workComments, setWorkComments] = useState<Record<string, Record<string, {location?: string, flyers?: string}>>>({});
   const [savingComment, setSavingComment] = useState<string | null>(null);
   const [allLocations, setAllLocations] = useState<string[]>([]);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, Array<{organization_name: string, avg_per_shift: number}>>>({});
@@ -187,10 +187,17 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     setWorkComments(comments);
   };
 
-  const saveComment = async (userName: string, date: string, comment: string) => {
+  const saveComment = async (userName: string, date: string, field: 'location' | 'flyers', value: string) => {
     const key = `${userName}-${date}`;
-    console.log(`💾 Сохранение места работы: ${userName} | ${date} | "${comment}"`);
+    console.log(`💾 Сохранение данных: ${userName} | ${date} | ${field}: "${value}"`);
     setSavingComment(key);
+    
+    const currentData = workComments[date]?.[userName] || {};
+    const updatedData = {
+      location_comment: field === 'location' ? value : (currentData.location || ''),
+      flyers_comment: field === 'flyers' ? value : (currentData.flyers || '')
+    };
+    
     try {
       const response = await fetch(
         'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2',
@@ -200,39 +207,48 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           body: JSON.stringify({
             user_name: userName,
             work_date: date,
-            location_comment: comment
+            ...updatedData
           })
         }
       );
       
       if (response.ok) {
         const result = await response.json();
-        console.log(`✅ Место работы сохранено:`, result);
+        console.log(`✅ Данные сохранены:`, result);
         setWorkComments(prev => ({
           ...prev,
           [date]: {
             ...prev[date],
-            [userName]: comment
+            [userName]: {
+              location: updatedData.location_comment,
+              flyers: updatedData.flyers_comment
+            }
           }
         }));
       } else {
         console.error(`❌ Ошибка сохранения: ${response.status}`, await response.text());
       }
     } catch (error) {
-      console.error('❌ Ошибка сохранения места работы:', error);
+      console.error('❌ Ошибка сохранения данных:', error);
     } finally {
       setSavingComment(null);
     }
   };
 
-  const updateComment = (userName: string, date: string, comment: string) => {
-    setWorkComments(prev => ({
-      ...prev,
-      [date]: {
-        ...prev[date],
-        [userName]: comment
-      }
-    }));
+  const updateComment = (userName: string, date: string, field: 'location' | 'flyers', value: string) => {
+    setWorkComments(prev => {
+      const currentData = prev[date]?.[userName] || {};
+      return {
+        ...prev,
+        [date]: {
+          ...prev[date],
+          [userName]: {
+            ...currentData,
+            [field]: value
+          }
+        }
+      };
+    });
   };
 
   return {

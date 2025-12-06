@@ -29,7 +29,7 @@ export default function DailyModal({
   onClose 
 }: DailyModalProps) {
   const [expandedUser, setExpandedUser] = React.useState<string | null>(null);
-  const [comments, setComments] = React.useState<Record<string, string>>({});
+  const [comments, setComments] = React.useState<Record<string, {location?: string, flyers?: string}>>({});
   const [savingComment, setSavingComment] = React.useState<string | null>(null);
   const [leadsModalUser, setLeadsModalUser] = React.useState<string | null>(null);
 
@@ -51,8 +51,15 @@ export default function DailyModal({
     }
   };
 
-  const saveComment = async (userName: string, comment: string) => {
+  const saveComment = async (userName: string, field: 'location' | 'flyers', value: string) => {
     setSavingComment(userName);
+    
+    const currentData = comments[userName] || {};
+    const updatedData = {
+      location_comment: field === 'location' ? value : (currentData.location || ''),
+      flyers_comment: field === 'flyers' ? value : (currentData.flyers || '')
+    };
+    
     try {
       const response = await fetch(
         'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2',
@@ -62,13 +69,19 @@ export default function DailyModal({
           body: JSON.stringify({
             user_name: userName,
             work_date: selectedDate,
-            location_comment: comment
+            ...updatedData
           })
         }
       );
       
       if (response.ok) {
-        setComments(prev => ({ ...prev, [userName]: comment }));
+        setComments(prev => ({ 
+          ...prev, 
+          [userName]: {
+            location: updatedData.location_comment,
+            flyers: updatedData.flyers_comment
+          }
+        }));
       }
     } catch (error) {
       console.error('Error saving comment:', error);
@@ -222,24 +235,59 @@ export default function DailyModal({
 
                       {isExpanded && (
                         <div className="px-2 sm:px-3 md:px-4 pb-2 sm:pb-3 md:pb-4 pt-0 space-y-2 sm:space-y-3">
-                          <div className="border-t border-slate-700 pt-2 sm:pt-3">
-                            <div className="text-xs sm:text-sm font-semibold text-slate-100 mb-2">Место работы</div>
-                            <div className="flex items-center gap-2">
-                              <Input
-                                type="text"
-                                placeholder=""
-                                value={comments[user.name] || ''}
-                                onChange={(e) => setComments(prev => ({ ...prev, [user.name]: e.target.value }))}
-                                onBlur={(e) => saveComment(user.name, e.target.value)}
-                                className="flex-1 text-xs sm:text-sm bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-cyan-500 focus:ring-cyan-500"
-                                disabled={savingComment === user.name}
-                              />
-                              {savingComment === user.name && (
-                                <Icon name="Loader2" size={16} className="animate-spin text-cyan-400 flex-shrink-0" />
-                              )}
-                              {!savingComment && comments[user.name] && (
-                                <Icon name="MapPin" size={16} className="text-green-400 flex-shrink-0" />
-                              )}
+                          <div className="border-t border-slate-700 pt-2 sm:pt-3 space-y-2">
+                            <div>
+                              <div className="text-xs sm:text-sm font-semibold text-slate-100 mb-2">Место работы</div>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="text"
+                                  placeholder="Место работы"
+                                  value={comments[user.name]?.location || ''}
+                                  onChange={(e) => setComments(prev => ({ 
+                                    ...prev, 
+                                    [user.name]: { 
+                                      ...prev[user.name], 
+                                      location: e.target.value 
+                                    }
+                                  }))}
+                                  onBlur={(e) => saveComment(user.name, 'location', e.target.value)}
+                                  className="flex-1 text-xs sm:text-sm bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-cyan-500 focus:ring-cyan-500"
+                                  disabled={savingComment === user.name}
+                                />
+                                {savingComment === user.name && (
+                                  <Icon name="Loader2" size={16} className="animate-spin text-cyan-400 flex-shrink-0" />
+                                )}
+                                {!savingComment && comments[user.name]?.location && (
+                                  <Icon name="MapPin" size={16} className="text-green-400 flex-shrink-0" />
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <div className="text-xs sm:text-sm font-semibold text-slate-100 mb-2">Листовки</div>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="text"
+                                  placeholder="Листовки"
+                                  value={comments[user.name]?.flyers || ''}
+                                  onChange={(e) => setComments(prev => ({ 
+                                    ...prev, 
+                                    [user.name]: { 
+                                      ...prev[user.name], 
+                                      flyers: e.target.value 
+                                    }
+                                  }))}
+                                  onBlur={(e) => saveComment(user.name, 'flyers', e.target.value)}
+                                  className="flex-1 text-xs sm:text-sm bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-cyan-500 focus:ring-cyan-500"
+                                  disabled={savingComment === user.name}
+                                />
+                                {savingComment === user.name && (
+                                  <Icon name="Loader2" size={16} className="animate-spin text-cyan-400 flex-shrink-0" />
+                                )}
+                                {!savingComment && comments[user.name]?.flyers && (
+                                  <Icon name="FileText" size={16} className="text-cyan-400 flex-shrink-0" />
+                                )}
+                              </div>
                             </div>
                           </div>
 

@@ -99,11 +99,15 @@ export default function LeadsChart({
           date: key,
           displayDate: groupBy === 'week' ? getWeekLabel(key) : groupBy === 'month' ? getMonthLabel(key) : key,
           total: 0,
+          contacts: 0,
+          approaches: 0,
           ...Object.fromEntries(userStats.map(u => [u.name, 0]))
         };
       }
 
       grouped[key].total += item.total || 0;
+      grouped[key].contacts += item.contacts || 0;
+      grouped[key].approaches += item.approaches || 0;
       userStats.forEach(user => {
         if (item[user.name]) {
           grouped[key][user.name] += item[user.name];

@@ -359,34 +359,97 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-                        <div className="p-1.5 md:p-2 rounded-lg bg-cyan-500/20 flex-shrink-0">
-                          <Icon name="Building2" size={16} className="text-cyan-400 md:w-[18px] md:h-[18px]" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <div className="font-medium text-slate-100 text-sm md:text-lg truncate">{org.name}</div>
-                            <div className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] md:text-xs font-medium flex-shrink-0">
-                              {org.lead_count} {org.lead_count === 1 ? 'лид' : org.lead_count < 5 ? 'лида' : 'лидов'}
+                    <>
+                      {/* Mobile View */}
+                      <div className="md:hidden space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div className="p-1.5 rounded-lg bg-cyan-500/20 flex-shrink-0">
+                              <Icon name="Building2" size={14} className="text-cyan-400" />
                             </div>
-                            {org.contact_rate > 0 && (
-                              <div className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 text-[10px] md:text-xs font-medium flex-shrink-0">
-                                {org.contact_rate} ₽/контакт
-                              </div>
-                            )}
-                            {org.payment_type && (
-                              <div className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-[10px] md:text-xs font-medium flex-shrink-0">
-                                {org.payment_type === 'cash' ? '💵 Наличные' : '💳 Безнал'}
-                              </div>
-                            )}
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-slate-100 text-sm leading-tight break-words">{org.name}</div>
+                            </div>
                           </div>
-                          <div className="text-[10px] md:text-xs text-slate-500">
-                            Добавлено: {new Date(org.created_at).toLocaleDateString('ru-RU')}
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Button
+                              onClick={() => setPeriodsModalOrg({ id: org.id, name: org.name })}
+                              className="border border-green-600 bg-green-500/20 text-green-400 hover:bg-green-500/30 h-7 w-7 p-0"
+                              variant="ghost"
+                              size="sm"
+                              title="Периоды ставок"
+                            >
+                              <Icon name="Calendar" size={12} />
+                            </Button>
+                            <Button
+                              onClick={() => startEditing(org)}
+                              className="border border-cyan-600 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 h-7 w-7 p-0"
+                              variant="ghost"
+                              size="sm"
+                              title="Редактировать"
+                            >
+                              <Icon name="Pencil" size={12} />
+                            </Button>
+                            <Button
+                              onClick={() => deleteOrganization(org.id, org.name)}
+                              className="border border-red-600 bg-red-500/20 text-red-400 hover:bg-red-500/30 h-7 w-7 p-0"
+                              variant="ghost"
+                              size="sm"
+                              title="Удалить"
+                            >
+                              <Icon name="Trash2" size={12} />
+                            </Button>
                           </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 pl-9">
+                          <div className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] font-medium">
+                            {org.lead_count} {org.lead_count === 1 ? 'лид' : org.lead_count < 5 ? 'лида' : 'лидов'}
+                          </div>
+                          {org.contact_rate > 0 && (
+                            <div className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 text-[10px] font-medium">
+                              {org.contact_rate}₽
+                            </div>
+                          )}
+                          {org.payment_type && (
+                            <div className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-[10px] font-medium">
+                              {org.payment_type === 'cash' ? '💵' : '💳'}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-slate-500 pl-9">
+                          {new Date(org.created_at).toLocaleDateString('ru-RU')}
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5">
+
+                      {/* Desktop View */}
+                      <div className="hidden md:flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="p-2 rounded-lg bg-cyan-500/20 flex-shrink-0">
+                            <Icon name="Building2" size={18} className="text-cyan-400" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div className="font-medium text-slate-100 text-lg truncate">{org.name}</div>
+                              <div className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-medium flex-shrink-0">
+                                {org.lead_count} {org.lead_count === 1 ? 'лид' : org.lead_count < 5 ? 'лида' : 'лидов'}
+                              </div>
+                              {org.contact_rate > 0 && (
+                                <div className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-medium flex-shrink-0">
+                                  {org.contact_rate} ₽/контакт
+                                </div>
+                              )}
+                              {org.payment_type && (
+                                <div className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-medium flex-shrink-0">
+                                  {org.payment_type === 'cash' ? '💵 Наличные' : '💳 Безнал'}
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              Добавлено: {new Date(org.created_at).toLocaleDateString('ru-RU')}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
                         <Button
                           onClick={() => setPeriodsModalOrg({ id: org.id, name: org.name })}
                           className="border-2 border-green-600 bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-all duration-300 flex-shrink-0 h-8 w-8 p-0 md:h-9 md:w-9"
@@ -412,8 +475,9 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                         >
                           <Icon name="Trash2" size={12} className="md:w-[14px] md:h-[14px]" />
                         </Button>
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
                 </div>
               ));

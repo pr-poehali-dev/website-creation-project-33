@@ -226,6 +226,26 @@ export default function LeadsChart({
     }
   };
 
+  const CustomDot = (props: any) => {
+    const { cx, cy, payload, fill, r, stroke, strokeWidth } = props;
+    
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={r || 4}
+        fill={fill || '#22d3ee'}
+        stroke={stroke || '#0f172a'}
+        strokeWidth={strokeWidth || 2}
+        style={{ cursor: 'pointer' }}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleChartClick({ payload });
+        }}
+      />
+    );
+  };
+
   const toggleUser = (userName: string) => {
     const isSelected = selectedUsers.includes(userName);
     if (isSelected) {
@@ -572,8 +592,8 @@ export default function LeadsChart({
                   dataKey="contacts" 
                   stroke="url(#greenLineGradient)" 
                   strokeWidth={4}
-                  dot={{ r: 4, fill: '#22d3ee', cursor: 'pointer' }}
-                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3, cursor: 'pointer', onClick: handleChartClick }}
+                  dot={<CustomDot fill="#22d3ee" r={4} />}
+                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
                   name="Все контакты"
                   connectNulls={true}
                   strokeLinecap="round"
@@ -587,8 +607,8 @@ export default function LeadsChart({
                   dataKey="approaches" 
                   stroke="url(#orangeLineGradient)" 
                   strokeWidth={4}
-                  dot={{ r: 4, fill: '#22d3ee', cursor: 'pointer' }}
-                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3, cursor: 'pointer', onClick: handleChartClick }}
+                  dot={<CustomDot fill="#22d3ee" r={4} />}
+                  activeDot={{ r: 7, fill: 'white', stroke: '#22d3ee', strokeWidth: 3 }}
                   name="Все подходы"
                   connectNulls={true}
                   strokeLinecap="round"
@@ -608,8 +628,8 @@ export default function LeadsChart({
                     dataKey={dataKey}
                     stroke={userColorMap[userName]}
                     strokeWidth={3}
-                    dot={{ fill: userColorMap[userName], r: 5, strokeWidth: 2, stroke: '#0f172a', cursor: 'pointer' }}
-                    activeDot={{ r: 7, fill: userColorMap[userName], stroke: '#22d3ee', strokeWidth: 2, cursor: 'pointer', onClick: handleChartClick }}
+                    dot={<CustomDot fill={userColorMap[userName]} r={5} stroke="#0f172a" strokeWidth={2} />}
+                    activeDot={{ r: 7, fill: userColorMap[userName], stroke: '#22d3ee', strokeWidth: 2 }}
                     name={userName}
                     connectNulls={true}
                   />

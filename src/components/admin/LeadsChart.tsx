@@ -26,6 +26,7 @@ export default function LeadsChart({
 }: LeadsChartProps) {
   const [showTotal, setShowTotal] = React.useState(true);
   const [groupBy, setGroupBy] = React.useState<'day' | 'week' | 'month' | 'year'>('day');
+  const [timeRange, setTimeRange] = React.useState('30d');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [selectedPeriod, setSelectedPeriod] = React.useState<{period: string, displayLabel: string} | null>(null);
@@ -36,7 +37,8 @@ export default function LeadsChart({
   const { getFilteredChartData, fetchPeriodDetails, userColorMap } = useChartData(
     chartData,
     userStats,
-    groupBy
+    groupBy,
+    timeRange
   );
 
   React.useEffect(() => {
@@ -153,6 +155,8 @@ export default function LeadsChart({
           setShowTotal={setShowTotal}
           groupBy={groupBy}
           setGroupBy={setGroupBy}
+          timeRange={timeRange}
+          setTimeRange={setTimeRange}
           selectedUsers={selectedUsers}
           userStats={userStats}
           searchQuery={searchQuery}

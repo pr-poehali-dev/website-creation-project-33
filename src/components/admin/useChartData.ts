@@ -17,7 +17,8 @@ export const USER_COLORS = [
 export function useChartData(
   chartData: ChartDataPoint[],
   userStats: UserStats[],
-  groupBy: 'day' | 'week' | 'month' | 'year'
+  groupBy: 'day' | 'week' | 'month' | 'year',
+  timeRange: string
 ) {
   const getWeekKey = (date: Date) => {
     const d = new Date(date);
@@ -52,14 +53,53 @@ export function useChartData(
     return `${monthNames[parseInt(month) - 1]} ${year}`;
   };
 
+  const filterByTimeRange = (data: ChartDataPoint[]) => {
+    if (timeRange === 'all') {
+      return data;
+    }
+
+    const now = new Date();
+    const cutoffDate = new Date();
+
+    switch (timeRange) {
+      case '7d':
+        cutoffDate.setDate(now.getDate() - 7);
+        break;
+      case '14d':
+        cutoffDate.setDate(now.getDate() - 14);
+        break;
+      case '30d':
+        cutoffDate.setDate(now.getDate() - 30);
+        break;
+      case '90d':
+        cutoffDate.setDate(now.getDate() - 90);
+        break;
+      case '6m':
+        cutoffDate.setMonth(now.getMonth() - 6);
+        break;
+      case '1y':
+        cutoffDate.setFullYear(now.getFullYear() - 1);
+        break;
+      default:
+        return data;
+    }
+
+    return data.filter(item => {
+      const itemDate = new Date(item.date);
+      return itemDate >= cutoffDate;
+    });
+  };
+
   const getFilteredChartData = () => {
+    const timeFilteredData = filterByTimeRange(chartData);
+
     if (groupBy === 'day') {
-      return chartData;
+      return timeFilteredData;
     }
 
     const grouped: Record<string, any> = {};
     
-    chartData.forEach(item => {
+    timeFilteredData.forEach(item => {
       const date = new Date(toMoscowTime(item.date));
       let key: string;
       

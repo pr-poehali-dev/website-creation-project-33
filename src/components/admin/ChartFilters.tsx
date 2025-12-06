@@ -9,6 +9,8 @@ interface ChartFiltersProps {
   setShowTotal: (show: boolean) => void;
   groupBy: 'day' | 'week' | 'month' | 'year';
   setGroupBy: (groupBy: 'day' | 'week' | 'month' | 'year') => void;
+  timeRange: string;
+  setTimeRange: (range: string) => void;
   selectedUsers: string[];
   userStats: UserStats[];
   searchQuery: string;
@@ -26,6 +28,8 @@ export default function ChartFilters({
   setShowTotal,
   groupBy,
   setGroupBy,
+  timeRange,
+  setTimeRange,
   selectedUsers,
   userStats,
   searchQuery,
@@ -200,6 +204,89 @@ export default function ChartFilters({
             })}
           </div>
         )}
+
+        <div className="space-y-2 pt-2 border-t border-slate-700">
+          <span className="text-xs md:text-sm text-slate-300 font-medium block">Период отображения:</span>
+          <div className="flex flex-wrap gap-1.5 md:gap-2">
+            <Button
+              onClick={() => setTimeRange('7d')}
+              variant={timeRange === '7d' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs h-8 ${timeRange === '7d'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              7 дней
+            </Button>
+            <Button
+              onClick={() => setTimeRange('14d')}
+              variant={timeRange === '14d' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs h-8 ${timeRange === '14d'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              14 дней
+            </Button>
+            <Button
+              onClick={() => setTimeRange('30d')}
+              variant={timeRange === '30d' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs h-8 ${timeRange === '30d'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              30 дней
+            </Button>
+            <Button
+              onClick={() => setTimeRange('90d')}
+              variant={timeRange === '90d' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs h-8 ${timeRange === '90d'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              90 дней
+            </Button>
+            <Button
+              onClick={() => setTimeRange('6m')}
+              variant={timeRange === '6m' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs h-8 ${timeRange === '6m'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              6 месяцев
+            </Button>
+            <Button
+              onClick={() => setTimeRange('1y')}
+              variant={timeRange === '1y' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs h-8 ${timeRange === '1y'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              1 год
+            </Button>
+            <Button
+              onClick={() => setTimeRange('all')}
+              variant={timeRange === 'all' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs h-8 ${timeRange === 'all'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              Всё время
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

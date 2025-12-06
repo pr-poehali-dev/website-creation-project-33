@@ -237,23 +237,35 @@ export default function LeadsChart({
     const { cx, cy, payload, fill, r, stroke, strokeWidth } = props;
     
     return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={r || 4}
-        fill={fill || '#22d3ee'}
-        stroke={stroke || '#0f172a'}
-        strokeWidth={strokeWidth || 2}
+      <g
         style={{ cursor: 'pointer' }}
         onClick={(e) => {
           e.stopPropagation();
           console.log('Dot clicked!', payload);
           handleChartClick({ payload });
         }}
-        onMouseEnter={(e) => {
-          console.log('Mouse enter dot');
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          console.log('Pointer down on dot!', payload);
+          handleChartClick({ payload });
         }}
-      />
+      >
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r || 4}
+          fill={fill || '#22d3ee'}
+          stroke={stroke || '#0f172a'}
+          strokeWidth={strokeWidth || 2}
+        />
+        <circle
+          cx={cx}
+          cy={cy}
+          r={(r || 4) + 8}
+          fill="transparent"
+          stroke="none"
+        />
+      </g>
     );
   };
 
@@ -479,6 +491,12 @@ export default function LeadsChart({
                 bottom: 60 
               }}
               className="md:!ml-5"
+              onClick={(data) => {
+                console.log('ComposedChart onClick:', data);
+                if (data && data.activePayload && data.activePayload[0]) {
+                  handleChartClick(data);
+                }
+              }}
             >
               <defs>
                 {/* Градиенты для линий */}
@@ -543,15 +561,11 @@ export default function LeadsChart({
                   borderRadius: '16px',
                   padding: '16px',
                   boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(34, 211, 238, 0.2)',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  pointerEvents: 'auto'
                 }}
                 cursor={{ stroke: '#22d3ee', strokeWidth: 2, strokeDasharray: '5 5' }}
-                onClick={(data: any) => {
-                  console.log('Tooltip clicked:', data);
-                  if (data && data.activePayload && data.activePayload[0]) {
-                    handleChartClick(data);
-                  }
-                }}
+                wrapperStyle={{ pointerEvents: 'auto' }}
                 labelFormatter={(value) => {
                   if (groupBy === 'day') {
                     return new Date(value).toLocaleDateString('ru-RU', {

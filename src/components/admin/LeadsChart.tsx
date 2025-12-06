@@ -26,6 +26,7 @@ export default function LeadsChart({
 }: LeadsChartProps) {
   const [showTotal, setShowTotal] = React.useState(true);
   const [timeRange, setTimeRange] = React.useState<'week' | 'twoWeeks' | 'month' | 'year' | 'all'>('week');
+  const [groupBy, setGroupBy] = React.useState<'day' | 'week' | 'month' | 'year'>('day');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
@@ -45,23 +46,90 @@ export default function LeadsChart({
     return null;
   }
 
+  const getWeekKey = (date: Date) => {
+    const year = date.getFullYear();
+    const firstDayOfYear = new Date(year, 0, 1);
+    const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+    const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+    return `${year}-W${String(weekNumber).padStart(2, '0')}`;
+  };
+
+  const getMonthKey = (date: Date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  };
+
+  const getYearKey = (date: Date) => {
+    return `${date.getFullYear()}`;
+  };
+
+  const getWeekLabel = (weekKey: string) => {
+    const [year, week] = weekKey.split('-W');
+    const firstDay = new Date(parseInt(year), 0, 1 + (parseInt(week) - 1) * 7);
+    const lastDay = new Date(firstDay);
+    lastDay.setDate(lastDay.getDate() + 6);
+    return `${String(firstDay.getDate()).padStart(2, '0')}.${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}.${String(lastDay.getMonth() + 1).padStart(2, '0')}`;
+  };
+
+  const getMonthLabel = (monthKey: string) => {
+    const [year, month] = monthKey.split('-');
+    const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+    return `${monthNames[parseInt(month) - 1]} ${year}`;
+  };
+
   const getFilteredChartData = () => {
-    if (timeRange === 'all') {
-      return chartData;
+    let filtered = chartData;
+    
+    if (timeRange !== 'all') {
+      const now = new Date();
+      const daysToSubtract = {
+        week: 7,
+        twoWeeks: 14,
+        month: 30,
+        year: 365,
+      }[timeRange];
+
+      const cutoffDate = new Date(now);
+      cutoffDate.setDate(cutoffDate.getDate() - daysToSubtract);
+
+      filtered = chartData.filter(item => new Date(toMoscowTime(item.date)) >= cutoffDate);
     }
 
-    const now = new Date();
-    const daysToSubtract = {
-      week: 7,
-      twoWeeks: 14,
-      month: 30,
-      year: 365,
-    }[timeRange];
+    if (groupBy === 'day') {
+      return filtered;
+    }
 
-    const cutoffDate = new Date(now);
-    cutoffDate.setDate(cutoffDate.getDate() - daysToSubtract);
+    const grouped: Record<string, any> = {};
+    
+    filtered.forEach(item => {
+      const date = new Date(toMoscowTime(item.date));
+      let key: string;
+      
+      if (groupBy === 'week') {
+        key = getWeekKey(date);
+      } else if (groupBy === 'month') {
+        key = getMonthKey(date);
+      } else {
+        key = getYearKey(date);
+      }
 
-    return chartData.filter(item => new Date(toMoscowTime(item.date)) >= cutoffDate);
+      if (!grouped[key]) {
+        grouped[key] = {
+          date: key,
+          displayDate: groupBy === 'week' ? getWeekLabel(key) : groupBy === 'month' ? getMonthLabel(key) : key,
+          total: 0,
+          ...Object.fromEntries(userStats.map(u => [u.name, 0]))
+        };
+      }
+
+      grouped[key].total += item.total || 0;
+      userStats.forEach(user => {
+        if (item[user.name]) {
+          grouped[key][user.name] += item[user.name];
+        }
+      });
+    });
+
+    return Object.values(grouped).sort((a, b) => a.date.localeCompare(b.date));
   };
 
   const filteredChartData = getFilteredChartData();
@@ -136,6 +204,62 @@ export default function LeadsChart({
               <Icon name={showTotal ? "Eye" : "EyeOff"} size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
               <span className="hidden sm:inline">Общая линия</span>
               <span className="sm:hidden">Общая</span>
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
+            <span className="text-xs md:text-sm text-slate-300 font-medium">Группировка:</span>
+            <Button
+              onClick={() => setGroupBy('day')}
+              variant={groupBy === 'day' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${groupBy === 'day'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              <Icon name="Calendar" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
+              <span className="hidden sm:inline">По дням</span>
+              <span className="sm:hidden">Дни</span>
+            </Button>
+            <Button
+              onClick={() => setGroupBy('week')}
+              variant={groupBy === 'week' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${groupBy === 'week'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              <Icon name="CalendarRange" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
+              <span className="hidden sm:inline">По неделям</span>
+              <span className="sm:hidden">Нед</span>
+            </Button>
+            <Button
+              onClick={() => setGroupBy('month')}
+              variant={groupBy === 'month' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${groupBy === 'month'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              <Icon name="CalendarDays" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
+              <span className="hidden sm:inline">По месяцам</span>
+              <span className="sm:hidden">Мес</span>
+            </Button>
+            <Button
+              onClick={() => setGroupBy('year')}
+              variant={groupBy === 'year' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${groupBy === 'year'
+                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              <Icon name="CalendarClock" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
+              <span className="hidden sm:inline">По годам</span>
+              <span className="sm:hidden">Годы</span>
             </Button>
           </div>
 
@@ -328,12 +452,16 @@ export default function LeadsChart({
                 axisLine={{ stroke: '#475569', strokeWidth: 1 }}
                 tickLine={false}
                 className="md:text-xs"
-                tickFormatter={(date) => 
-                  new Date(date).toLocaleDateString('ru-RU', { 
-                    day: 'numeric', 
-                    month: 'short' 
-                  })
-                }
+                tickFormatter={(value) => {
+                  if (groupBy === 'day') {
+                    return new Date(value).toLocaleDateString('ru-RU', { 
+                      day: 'numeric', 
+                      month: 'short' 
+                    });
+                  }
+                  const item = filteredChartData.find((d: any) => d.date === value);
+                  return item?.displayDate || value;
+                }}
               />
               <YAxis 
                 tick={{ fontSize: 11, fill: '#64748b', fontWeight: 600 }}
@@ -352,13 +480,17 @@ export default function LeadsChart({
                   padding: '16px',
                   boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(34, 211, 238, 0.2)'
                 }}
-                labelFormatter={(date) => 
-                  new Date(date).toLocaleDateString('ru-RU', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })
-                }
+                labelFormatter={(value) => {
+                  if (groupBy === 'day') {
+                    return new Date(value).toLocaleDateString('ru-RU', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    });
+                  }
+                  const item = filteredChartData.find((d: any) => d.date === value);
+                  return item?.displayDate || value;
+                }}
                 itemSorter={(item) => {
                   if (item.name === 'Контакты' || item.name === 'Подходы') {
                     return -1;

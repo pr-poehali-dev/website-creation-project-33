@@ -141,6 +141,7 @@ export default function LeadsChart({
   const filteredChartData = getFilteredChartData();
 
   const fetchPeriodDetails = async (period: string, displayLabel: string) => {
+    console.log('fetchPeriodDetails called:', period, displayLabel);
     setLoadingPeriod(true);
     setSelectedPeriod({ period, displayLabel });
     setPeriodLeads([]);
@@ -206,6 +207,7 @@ export default function LeadsChart({
   };
 
   const handleChartClick = (data: any, event?: any) => {
+    console.log('handleChartClick called with:', data);
     let payload = null;
     
     if (data && data.payload) {
@@ -213,6 +215,8 @@ export default function LeadsChart({
     } else if (data && data.activePayload && data.activePayload[0]) {
       payload = data.activePayload[0].payload;
     }
+    
+    console.log('Extracted payload:', payload);
     
     if (payload && payload.date) {
       const period = payload.date;
@@ -222,7 +226,10 @@ export default function LeadsChart({
         year: 'numeric'
       });
       
+      console.log('Calling fetchPeriodDetails with:', period, displayLabel);
       fetchPeriodDetails(period, displayLabel);
+    } else {
+      console.log('No valid payload or date found');
     }
   };
 
@@ -240,7 +247,11 @@ export default function LeadsChart({
         style={{ cursor: 'pointer' }}
         onClick={(e) => {
           e.stopPropagation();
+          console.log('Dot clicked!', payload);
           handleChartClick({ payload });
+        }}
+        onMouseEnter={(e) => {
+          console.log('Mouse enter dot');
         }}
       />
     );
@@ -531,7 +542,15 @@ export default function LeadsChart({
                   color: '#e2e8f0',
                   borderRadius: '16px',
                   padding: '16px',
-                  boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(34, 211, 238, 0.2)'
+                  boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(34, 211, 238, 0.2)',
+                  cursor: 'pointer'
+                }}
+                cursor={{ stroke: '#22d3ee', strokeWidth: 2, strokeDasharray: '5 5' }}
+                onClick={(data: any) => {
+                  console.log('Tooltip clicked:', data);
+                  if (data && data.activePayload && data.activePayload[0]) {
+                    handleChartClick(data);
+                  }
                 }}
                 labelFormatter={(value) => {
                   if (groupBy === 'day') {

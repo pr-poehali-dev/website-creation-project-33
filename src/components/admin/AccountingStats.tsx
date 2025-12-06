@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import Icon from '@/components/ui/icon';
+import { ShiftRecord } from './accounting/types';
+import { calculateTableStatistics } from './accounting/ShiftTableCalculations';
 
 interface AccountingStatsProps {
   sessionToken: string;
@@ -11,14 +13,6 @@ interface EarningsData {
   month: number;
   dayBeforeYesterday: number;
   previousMonth: number;
-}
-
-interface ShiftRecord {
-  date: string;
-  contacts_count: number;
-  contact_rate: number;
-  payment_type: 'cash' | 'cashless';
-  expense_amount: number;
 }
 
 export default function AccountingStats({ sessionToken }: AccountingStatsProps) {
@@ -34,15 +28,6 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
   useEffect(() => {
     loadEarnings();
   }, [sessionToken]);
-
-  const calculateWorkerSalary = (contacts: number, shiftDate: string): number => {
-    // До 01.10.2025 все контакты по 200₽
-    if (new Date(shiftDate) < new Date('2025-10-01')) {
-      return contacts * 200;
-    }
-    // С 01.10.2025 прогрессивная шкала
-    return contacts >= 10 ? contacts * 300 : contacts * 200;
-  };
 
   const loadEarnings = async () => {
     try {
@@ -71,36 +56,16 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
         const dayBeforeYesterdayStr = dayBeforeYesterday.toISOString().split('T')[0];
         
-        console.log('📅 Вычисленные даты:', {
-          today: todayStr,
-          yesterday: yesterdayStr,
-          dayBeforeYesterday: dayBeforeYesterdayStr,
-          totalShifts: shifts.length,
-          allDates: shifts.map(s => s.date).slice(0, 10)
-        });
-        
         const currentMonth = todayDate.getMonth();
         const currentYear = todayDate.getFullYear();
         
         const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
         const prevMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
         
-        let todayTotal = 0;
-        let yesterdayTotal = 0;
-        let monthTotal = 0;
-        let dayBeforeYesterdayTotal = 0;
-        let previousMonthTotal = 0;
-        
+        // Фильтруем смены по датам
         const todayShifts = shifts.filter(s => s.date === todayStr);
         const yesterdayShifts = shifts.filter(s => s.date === yesterdayStr);
         const dayBeforeYesterdayShifts = shifts.filter(s => s.date === dayBeforeYesterdayStr);
-        
-        console.log('🔍 Найденные смены:', {
-          todayShifts: todayShifts.length,
-          yesterdayShifts: yesterdayShifts.length,
-          todayShiftsData: todayShifts.slice(0, 3),
-          yesterdayShiftsData: yesterdayShifts.slice(0, 3)
-        });
         const monthShifts = shifts.filter(s => {
           const shiftDate = new Date(s.date);
           return shiftDate.getMonth() === currentMonth && shiftDate.getFullYear() === currentYear;
@@ -110,23 +75,12 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
           return shiftDate.getMonth() === prevMonth && shiftDate.getFullYear() === prevMonthYear;
         });
         
-        const calculateTotalKMS = (shiftList: ShiftRecord[]) => {
-          const totalNetProfit = shiftList.reduce((sum, shift) => {
-            const revenue = shift.contacts_count * shift.contact_rate;
-            const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
-            const afterTax = revenue - tax;
-            const salary = calculateWorkerSalary(shift.contacts_count, shift.date);
-            const expense = shift.expense_amount || 0;
-            return sum + (afterTax - salary - expense);
-          }, 0);
-          return Math.round(totalNetProfit / 2);
-        };
-        
-        todayTotal = calculateTotalKMS(todayShifts);
-        yesterdayTotal = calculateTotalKMS(yesterdayShifts);
-        monthTotal = calculateTotalKMS(monthShifts);
-        dayBeforeYesterdayTotal = calculateTotalKMS(dayBeforeYesterdayShifts);
-        previousMonthTotal = calculateTotalKMS(previousMonthShifts);
+        // Используем calculateTableStatistics для получения totalKMS
+        const todayTotal = calculateTableStatistics(todayShifts).totalKMS;
+        const yesterdayTotal = calculateTableStatistics(yesterdayShifts).totalKMS;
+        const monthTotal = calculateTableStatistics(monthShifts).totalKMS;
+        const dayBeforeYesterdayTotal = calculateTableStatistics(dayBeforeYesterdayShifts).totalKMS;
+        let previousMonthTotal = calculateTableStatistics(previousMonthShifts).totalKMS;
         
         if (previousMonthTotal === 0 && currentMonth === 9 && currentYear === 2025) {
           previousMonthTotal = 34167;

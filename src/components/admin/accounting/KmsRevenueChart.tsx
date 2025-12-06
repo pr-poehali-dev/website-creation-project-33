@@ -6,6 +6,7 @@ import { ShiftRecord } from './types';
 import { useTrendAnalysis } from './useTrendAnalysis';
 import ChartSVG from './ChartSVG';
 import TrendAnalysisBlock from './TrendAnalysisBlock';
+import { calculateTableStatistics } from './ShiftTableCalculations';
 
 interface KmsRevenueChartProps {
   shifts: ShiftRecord[];
@@ -27,15 +28,8 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
   const [zoom, setZoom] = useState(1);
   const [hoveredPoint, setHoveredPoint] = useState<{x: number; y: number; label: string; value: number} | null>(null);
 
-  const calculateWorkerSalary = (contacts: number, shiftDate: string): number => {
-    if (new Date(shiftDate) < new Date('2025-10-01')) {
-      return contacts * 200;
-    }
-    return contacts >= 10 ? contacts * 300 : contacts * 200;
-  };
-
   const chartData = useMemo(() => {
-    const dataMap = new Map<string, {revenue: number; startDate: string; endDate: string}>();
+    const dataMap = new Map<string, {shifts: ShiftRecord[]; startDate: string; endDate: string}>();
     const cutoffDate = new Date('2025-03-15');
 
     shifts.forEach(shift => {
@@ -55,12 +49,6 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         const tempDate = new Date(year, month - 1, day);
         const dayOfWeek = tempDate.getDay(); // 0=вс, 1=пн, ..., 6=сб
         
-        console.log('WEEK CALC:', {
-          originalDate: shift.date,
-          dayOfWeek,
-          dayName: ['вс','пн','вт','ср','чт','пт','сб'][dayOfWeek]
-        });
-        
         // Сколько дней назад был понедельник?
         const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
         
@@ -78,8 +66,6 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         const sundayMonth = String(sundayDate.getMonth() + 1).padStart(2, '0');
         const sundayDay = String(sundayDate.getDate()).padStart(2, '0');
         endDate = `${sundayYear}-${sundayMonth}-${sundayDay}`;
-        
-        console.log('RESULT:', {startDate, endDate});
       } else if (period === 'month') {
         key = `${shiftDate.getFullYear()}-${String(shiftDate.getMonth() + 1).padStart(2, '0')}`;
         startDate = `${key}-01`;
@@ -91,16 +77,9 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         endDate = `${key}-12-31`;
       }
 
-      const revenue = shift.contacts_count * shift.contact_rate;
-      const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
-      const afterTax = revenue - tax;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date);
-      const expense = shift.expense_amount || 0;
-      const kmsShare = Math.round((afterTax - salary - expense) / 2);
-
       const existing = dataMap.get(key);
       dataMap.set(key, {
-        revenue: (existing?.revenue || 0) + kmsShare,
+        shifts: [...(existing?.shifts || []), shift],
         startDate: existing?.startDate || startDate,
         endDate: existing?.endDate || endDate
       });
@@ -124,9 +103,12 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         label = key;
       }
 
+      // Используем calculateTableStatistics для точного расчета КМС
+      const revenue = calculateTableStatistics(value.shifts).totalKMS;
+
       return { 
         label, 
-        revenue: value.revenue, 
+        revenue, 
         date: key,
         startDate: value.startDate,
         endDate: value.endDate

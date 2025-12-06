@@ -25,7 +25,6 @@ export default function LeadsChart({
   onUsersChange 
 }: LeadsChartProps) {
   const [showTotal, setShowTotal] = React.useState(true);
-  const [timeRange, setTimeRange] = React.useState<'week' | 'twoWeeks' | 'month' | 'year' | 'all'>('week');
   const [groupBy, setGroupBy] = React.useState<'day' | 'week' | 'month' | 'year'>('day');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
@@ -77,30 +76,13 @@ export default function LeadsChart({
   };
 
   const getFilteredChartData = () => {
-    let filtered = chartData;
-    
-    if (timeRange !== 'all') {
-      const now = new Date();
-      const daysToSubtract = {
-        week: 7,
-        twoWeeks: 14,
-        month: 30,
-        year: 365,
-      }[timeRange];
-
-      const cutoffDate = new Date(now);
-      cutoffDate.setDate(cutoffDate.getDate() - daysToSubtract);
-
-      filtered = chartData.filter(item => new Date(toMoscowTime(item.date)) >= cutoffDate);
-    }
-
     if (groupBy === 'day') {
-      return filtered;
+      return chartData;
     }
 
     const grouped: Record<string, any> = {};
     
-    filtered.forEach(item => {
+    chartData.forEach(item => {
       const date = new Date(toMoscowTime(item.date));
       let key: string;
       
@@ -260,65 +242,6 @@ export default function LeadsChart({
               <Icon name="CalendarClock" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
               <span className="hidden sm:inline">По годам</span>
               <span className="sm:hidden">Годы</span>
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-            <span className="text-xs md:text-sm text-slate-300 font-medium">Период:</span>
-            <Button
-              onClick={() => setTimeRange('week')}
-              variant={timeRange === 'week' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'week'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              7д
-            </Button>
-            <Button
-              onClick={() => setTimeRange('twoWeeks')}
-              variant={timeRange === 'twoWeeks' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'twoWeeks'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              14д
-            </Button>
-            <Button
-              onClick={() => setTimeRange('month')}
-              variant={timeRange === 'month' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'month'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              30д
-            </Button>
-            <Button
-              onClick={() => setTimeRange('year')}
-              variant={timeRange === 'year' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'year'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              Год
-            </Button>
-            <Button
-              onClick={() => setTimeRange('all')}
-              variant={timeRange === 'all' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'all'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              Всё
             </Button>
           </div>
 

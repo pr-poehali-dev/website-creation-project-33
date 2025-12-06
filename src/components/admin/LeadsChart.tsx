@@ -46,11 +46,12 @@ export default function LeadsChart({
   }
 
   const getWeekKey = (date: Date) => {
-    const year = date.getFullYear();
-    const firstDayOfYear = new Date(year, 0, 1);
-    const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
-    const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-    return `${year}-W${String(weekNumber).padStart(2, '0')}`;
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    const yearStart = new Date(d.getFullYear(), 0, 1);
+    const weekNumber = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+    return `${d.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
   };
 
   const getMonthKey = (date: Date) => {
@@ -63,10 +64,12 @@ export default function LeadsChart({
 
   const getWeekLabel = (weekKey: string) => {
     const [year, week] = weekKey.split('-W');
-    const firstDay = new Date(parseInt(year), 0, 1 + (parseInt(week) - 1) * 7);
-    const lastDay = new Date(firstDay);
-    lastDay.setDate(lastDay.getDate() + 6);
-    return `${String(firstDay.getDate()).padStart(2, '0')}.${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}.${String(lastDay.getMonth() + 1).padStart(2, '0')}`;
+    const jan4 = new Date(parseInt(year), 0, 4);
+    const monday = new Date(jan4);
+    monday.setDate(jan4.getDate() - (jan4.getDay() || 7) + 1 + (parseInt(week) - 1) * 7);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    return `${String(monday.getDate()).padStart(2, '0')}.${String(monday.getMonth() + 1).padStart(2, '0')}-${String(sunday.getDate()).padStart(2, '0')}.${String(sunday.getMonth() + 1).padStart(2, '0')}`;
   };
 
   const getMonthLabel = (monthKey: string) => {

@@ -9,6 +9,7 @@ interface ScheduleHeaderProps {
   setCurrentWeekIndex: (index: number) => void;
   weeks: Week[];
   loading: boolean;
+  onOpenAddShift?: () => void;
 }
 
 export default function ScheduleHeader({
@@ -17,7 +18,8 @@ export default function ScheduleHeader({
   currentWeekIndex,
   setCurrentWeekIndex,
   weeks,
-  loading
+  loading,
+  onOpenAddShift
 }: ScheduleHeaderProps) {
   return (
     <div className="flex flex-col gap-4 mb-6">
@@ -45,6 +47,16 @@ export default function ScheduleHeader({
             <Icon name="User" size={16} className="mr-1 md:mr-2" />
             Индивидуально
           </Button>
+          {onOpenAddShift && (
+            <Button
+              onClick={onOpenAddShift}
+              className="bg-green-600 hover:bg-green-700 text-white text-xs md:text-sm"
+              size="sm"
+            >
+              <Icon name="CalendarPlus" size={16} className="mr-1 md:mr-2" />
+              Добавить смену
+            </Button>
+          )}
         </div>
       </div>
 

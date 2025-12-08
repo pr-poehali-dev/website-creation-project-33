@@ -1824,8 +1824,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 }
             
             try:
-                from datetime import datetime, timedelta
-                
                 # Определяем понедельник как начало недели
                 date_obj = datetime.strptime(work_date, '%Y-%m-%d').date()
                 # weekday(): Mon=0, Tue=1, ..., Sun=6

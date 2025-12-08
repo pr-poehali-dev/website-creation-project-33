@@ -15,6 +15,8 @@ interface LeadsChartProps {
   userStats: UserStats[];
   onFilterTypeChange: (type: 'contacts' | 'approaches') => void;
   onUsersChange: (users: string[]) => void;
+  selectedOrganizations: number[];
+  onOrganizationsChange: (orgIds: number[]) => void;
 }
 
 export default function LeadsChart({ 
@@ -23,7 +25,9 @@ export default function LeadsChart({
   filterType, 
   userStats,
   onFilterTypeChange, 
-  onUsersChange 
+  onUsersChange,
+  selectedOrganizations,
+  onOrganizationsChange
 }: LeadsChartProps) {
   const [showTotal, setShowTotal] = React.useState(true);
   const [groupBy, setGroupBy] = React.useState<'day' | 'week' | 'month' | 'year'>('day');
@@ -40,7 +44,8 @@ export default function LeadsChart({
     chartData,
     userStats,
     groupBy,
-    timeRange
+    timeRange,
+    selectedOrganizations
   );
 
   React.useEffect(() => {
@@ -170,6 +175,8 @@ export default function LeadsChart({
           toggleAllUsers={toggleAllUsers}
           userColorMap={userColorMap}
           onOpenAddShift={() => setAddShiftModalOpen(true)}
+          selectedOrganizations={selectedOrganizations}
+          onOrganizationsChange={onOrganizationsChange}
         />
 
         <ChartVisualization

@@ -28,6 +28,7 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [filterType, setFilterType] = useState<'contacts' | 'approaches'>('contacts');
+  const [selectedOrganizations, setSelectedOrganizations] = useState<number[]>([]);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
@@ -182,6 +183,8 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
         userStats={stats.user_stats}
         onFilterTypeChange={setFilterType}
         onUsersChange={setSelectedUsers}
+        selectedOrganizations={selectedOrganizations}
+        onOrganizationsChange={setSelectedOrganizations}
       />
 
       {/* Статистика по организациям */}

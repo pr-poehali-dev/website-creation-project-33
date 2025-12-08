@@ -405,11 +405,11 @@ def get_daily_detailed_leads(date: str) -> List[Dict[str, Any]]:
             return leads
 
 def get_chart_data() -> List[Dict[str, Any]]:
-    """Получить детальные данные для графика по дням и пользователям (московские даты)"""
+    """Получить детальные данные для графика по дням и пользователям (московские даты) с организациями"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT l.created_at, u.name, l.lead_type
+                SELECT l.created_at, u.name, l.lead_type, l.organization_id
                 FROM t_p24058207_website_creation_pro.leads_analytics l
                 JOIN t_p24058207_website_creation_pro.users u ON l.user_id = u.id
                 WHERE l.created_at >= %s AND l.is_active = true
@@ -423,16 +423,20 @@ def get_chart_data() -> List[Dict[str, Any]]:
                 date_key = moscow_dt.date().isoformat()
                 user_name = row[1]
                 lead_type = row[2]
+                org_id = row[3]
                 
                 key = (date_key, user_name)
                 if key not in groups:
-                    groups[key] = {'total_leads': 0, 'contacts': 0, 'approaches': 0}
+                    groups[key] = {'total_leads': 0, 'contacts': 0, 'approaches': 0, 'organizations': set()}
                 
                 groups[key]['total_leads'] += 1
                 if lead_type == 'контакт':
                     groups[key]['contacts'] += 1
                 elif lead_type == 'подход':
                     groups[key]['approaches'] += 1
+                
+                if org_id:
+                    groups[key]['organizations'].add(org_id)
             
             # Преобразуем в список
             chart_data = []
@@ -442,7 +446,8 @@ def get_chart_data() -> List[Dict[str, Any]]:
                     'user_name': user_name,
                     'total_leads': stats['total_leads'],
                     'contacts': stats['contacts'],
-                    'approaches': stats['approaches']
+                    'approaches': stats['approaches'],
+                    'organization_ids': list(stats['organizations'])
                 })
             
             # Сортируем по дате и имени

@@ -56,7 +56,8 @@ export interface DailyStats {
 
 export interface ChartDataPoint {
   date: string;
-  [key: string]: string | number;
+  organization_ids?: number[];
+  [key: string]: string | number | number[] | undefined;
 }
 
 export interface DailyUserStats {

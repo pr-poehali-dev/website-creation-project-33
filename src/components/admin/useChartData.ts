@@ -18,7 +18,8 @@ export function useChartData(
   chartData: ChartDataPoint[],
   userStats: UserStats[],
   groupBy: 'day' | 'week' | 'month' | 'year',
-  timeRange: string
+  timeRange: string,
+  selectedOrganizations: number[]
 ) {
   const getWeekKey = (date: Date) => {
     const d = new Date(date);
@@ -91,7 +92,16 @@ export function useChartData(
   };
 
   const getFilteredChartData = () => {
-    const timeFilteredData = filterByTimeRange(chartData);
+    let timeFilteredData = filterByTimeRange(chartData);
+
+    // Фильтруем по организациям если выбраны
+    if (selectedOrganizations.length > 0) {
+      timeFilteredData = timeFilteredData.filter(item => {
+        // Проверяем есть ли пересечение между выбранными организациями и организациями лида
+        const itemOrgs = (item as any).organization_ids || [];
+        return itemOrgs.some((orgId: number) => selectedOrganizations.includes(orgId));
+      });
+    }
 
     if (groupBy === 'day') {
       return timeFilteredData;

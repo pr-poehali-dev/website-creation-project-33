@@ -30,14 +30,13 @@ export default function AddShiftModal({
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
   const [shiftDate, setShiftDate] = useState('');
-  const [shiftStart, setShiftStart] = useState('12:00');
-  const [shiftEnd, setShiftEnd] = useState('16:00');
+  const [timeSlot, setTimeSlot] = useState('12:00-16:00');
   const [adding, setAdding] = useState(false);
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
   const handleSubmit = async () => {
-    if (!selectedUserId || !selectedOrgId || !shiftDate) {
+    if (!selectedUserId || !selectedOrgId || !shiftDate || !timeSlot) {
       toast({
         title: 'Ошибка',
         description: 'Заполните все поля',
@@ -55,12 +54,11 @@ export default function AddShiftModal({
           'X-Session-Token': getSessionToken() || '',
         },
         body: JSON.stringify({
-          action: 'add_shift',
+          action: 'add_schedule_slot',
           user_id: selectedUserId,
           organization_id: selectedOrgId,
-          shift_date: shiftDate,
-          shift_start: `${shiftDate}T${shiftStart}:00`,
-          shift_end: `${shiftDate}T${shiftEnd}:00`,
+          work_date: shiftDate,
+          time_slot: timeSlot,
         }),
       });
 
@@ -96,8 +94,7 @@ export default function AddShiftModal({
     setSelectedUserId(null);
     setSelectedOrgId(null);
     setShiftDate('');
-    setShiftStart('12:00');
-    setShiftEnd('16:00');
+    setTimeSlot('12:00-16:00');
   };
 
   const handleClose = () => {
@@ -158,25 +155,19 @@ export default function AddShiftModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm text-slate-300 mb-2 block">Начало</label>
-              <Input
-                type="time"
-                value={shiftStart}
-                onChange={(e) => setShiftStart(e.target.value)}
-                className="border-2 border-slate-700 bg-slate-800 text-slate-100 focus:border-cyan-600 focus:ring-cyan-600"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-slate-300 mb-2 block">Конец</label>
-              <Input
-                type="time"
-                value={shiftEnd}
-                onChange={(e) => setShiftEnd(e.target.value)}
-                className="border-2 border-slate-700 bg-slate-800 text-slate-100 focus:border-cyan-600 focus:ring-cyan-600"
-              />
-            </div>
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Время смены</label>
+            <select
+              value={timeSlot}
+              onChange={(e) => setTimeSlot(e.target.value)}
+              className="w-full border-2 border-slate-700 bg-slate-800 text-slate-100 rounded-md px-3 py-2 text-sm focus:border-cyan-600 focus:ring-cyan-600"
+            >
+              <option value="12:00-16:00">12:00-16:00</option>
+              <option value="16:00-20:00">16:00-20:00</option>
+              <option value="09:00-12:00">09:00-12:00</option>
+              <option value="09:00-13:00">09:00-13:00</option>
+              <option value="13:00-17:00">13:00-17:00</option>
+            </select>
           </div>
 
           <div className="flex gap-2 pt-2">

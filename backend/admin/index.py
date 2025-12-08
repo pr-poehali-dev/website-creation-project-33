@@ -1809,15 +1809,14 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'body': json.dumps({'error': f'Ошибка обновления: {str(e)}'})
                 }
         
-        elif action == 'add_shift':
-            print(f'✅ Processing add_shift')
+        elif action == 'add_schedule_slot':
+            print(f'✅ Processing add_schedule_slot')
             user_id = body_data.get('user_id')
             organization_id = body_data.get('organization_id')
-            shift_date = body_data.get('shift_date')
-            shift_start = body_data.get('shift_start')
-            shift_end = body_data.get('shift_end')
+            work_date = body_data.get('work_date')
+            time_slot = body_data.get('time_slot')
             
-            if not all([user_id, organization_id, shift_date, shift_start, shift_end]):
+            if not all([user_id, organization_id, work_date, time_slot]):
                 return {
                     'statusCode': 400,
                     'headers': headers,
@@ -1825,22 +1824,50 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 }
             
             try:
+                from datetime import datetime, timedelta
+                
+                # Определяем понедельник недели для этой даты
+                date_obj = datetime.strptime(work_date, '%Y-%m-%d').date()
+                week_start = date_obj - timedelta(days=date_obj.weekday())
+                
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
+                        # Получаем текущий schedule или создаём пустой
                         cur.execute("""
-                            INSERT INTO t_p24058207_website_creation_pro.work_shifts 
-                            (user_id, organization_id, shift_date, shift_start, shift_end, created_at, updated_at)
-                            VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
-                        """, (user_id, organization_id, shift_date, shift_start, shift_end))
+                            SELECT schedule_data FROM t_p24058207_website_creation_pro.user_schedules
+                            WHERE user_id = %s AND week_start_date = %s
+                        """, (user_id, week_start))
+                        
+                        row = cur.fetchone()
+                        if row:
+                            schedule = json.loads(row[0]) if row[0] else {}
+                        else:
+                            schedule = {}
+                        
+                        # Добавляем слот в график
+                        if work_date not in schedule:
+                            schedule[work_date] = {}
+                        schedule[work_date][time_slot] = organization_id
+                        
+                        # Сохраняем обновлённый график
+                        cur.execute("""
+                            INSERT INTO t_p24058207_website_creation_pro.user_schedules 
+                            (user_id, week_start_date, schedule_data, created_at, updated_at)
+                            VALUES (%s, %s, %s, NOW(), NOW())
+                            ON CONFLICT (user_id, week_start_date) 
+                            DO UPDATE SET 
+                                schedule_data = EXCLUDED.schedule_data,
+                                updated_at = NOW()
+                        """, (user_id, week_start, json.dumps(schedule)))
                         conn.commit()
                         
                         return {
                             'statusCode': 200,
                             'headers': headers,
-                            'body': json.dumps({'success': True, 'message': 'Смена добавлена'})
+                            'body': json.dumps({'success': True, 'message': 'Смена добавлена в график'})
                         }
             except Exception as e:
-                print(f'❌ Error adding shift: {e}')
+                print(f'❌ Error adding schedule slot: {e}')
                 return {
                     'statusCode': 500,
                     'headers': headers,

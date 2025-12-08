@@ -27,6 +27,7 @@ export default function OrganizationStatsChart() {
   const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
   const [modalOpen, setModalOpen] = React.useState(false);
   const [selectedPromoter, setSelectedPromoter] = React.useState<{ name: string; contacts: number } | null>(null);
+  const [sortBy, setSortBy] = React.useState<'revenue' | 'contacts' | 'average'>('revenue');
 
   if (isLoading) {
     return (
@@ -178,15 +179,31 @@ export default function OrganizationStatsChart() {
     return acc;
   }, {} as Record<string, { name: string; total: number; contact_rate: number; payment_type: string; users: Record<string, number>; userShifts: Record<string, number> }>);
 
-  // Сортируем организации по доходу (убывание)
+  // Сортируем организации по выбранному критерию
   const sortedOrgs = Object.values(orgTotals).sort((a, b) => {
-    const revenueA = a.contact_rate > 0 
-      ? (a.payment_type === 'cashless' ? a.total * a.contact_rate * 0.93 : a.total * a.contact_rate)
-      : 0;
-    const revenueB = b.contact_rate > 0 
-      ? (b.payment_type === 'cashless' ? b.total * b.contact_rate * 0.93 : b.total * b.contact_rate)
-      : 0;
-    return revenueB - revenueA;
+    if (sortBy === 'revenue') {
+      const revenueA = a.contact_rate > 0 
+        ? (a.payment_type === 'cashless' ? a.total * a.contact_rate * 0.93 : a.total * a.contact_rate)
+        : 0;
+      const revenueB = b.contact_rate > 0 
+        ? (b.payment_type === 'cashless' ? b.total * b.contact_rate * 0.93 : b.total * b.contact_rate)
+        : 0;
+      return revenueB - revenueA;
+    }
+    
+    if (sortBy === 'contacts') {
+      return b.total - a.total;
+    }
+    
+    if (sortBy === 'average') {
+      const promotersCountA = Object.keys(a.users).length;
+      const promotersCountB = Object.keys(b.users).length;
+      const avgA = promotersCountA > 0 ? a.total / promotersCountA : 0;
+      const avgB = promotersCountB > 0 ? b.total / promotersCountB : 0;
+      return avgB - avgA;
+    }
+    
+    return 0;
   });
 
   const ORG_COLORS: Record<string, string> = {
@@ -233,6 +250,43 @@ export default function OrganizationStatsChart() {
       </CardHeader>
       <CardContent>
         <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
+          <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
+            <span className="text-xs md:text-sm text-slate-300 font-medium">Сортировка:</span>
+            <Button
+              onClick={() => setSortBy('revenue')}
+              variant={sortBy === 'revenue' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${sortBy === 'revenue'
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              По доходу
+            </Button>
+            <Button
+              onClick={() => setSortBy('contacts')}
+              variant={sortBy === 'contacts' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${sortBy === 'contacts'
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              По контактам
+            </Button>
+            <Button
+              onClick={() => setSortBy('average')}
+              variant={sortBy === 'average' ? 'default' : 'outline'}
+              size="sm"
+              className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${sortBy === 'average'
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              По среднему
+            </Button>
+          </div>
+          
           <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
             <span className="text-xs md:text-sm text-slate-300 font-medium">Период:</span>
             <Button
@@ -405,7 +459,7 @@ export default function OrganizationStatsChart() {
                       {org.name}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 md:gap-4">
                     {org.contact_rate > 0 && (
                       <div className="text-right">
                         <div className="text-base md:text-lg font-bold text-green-400">
@@ -420,6 +474,12 @@ export default function OrganizationStatsChart() {
                         </div>
                       </div>
                     )}
+                    <div className="text-center">
+                      <div className="text-base md:text-lg font-bold text-cyan-400">
+                        {Math.round(org.total / Object.keys(org.users).length)}
+                      </div>
+                      <div className="text-xs text-slate-400">средний</div>
+                    </div>
                     <div className="text-center">
                       <div className="text-lg md:text-xl font-bold text-slate-100">
                         {org.total}
@@ -447,11 +507,18 @@ export default function OrganizationStatsChart() {
                           className="w-full flex items-center justify-between py-2 px-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"
                         >
                           <span className="text-sm text-slate-200">{user.userName}</span>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-3 md:gap-4">
+                            <div className="text-right">
+                              <div className="text-sm font-semibold text-cyan-400">
+                                {user.average}
+                              </div>
+                              <div className="text-xs text-slate-400">средний</div>
+                            </div>
                             <div className="text-right">
                               <div className="text-sm font-semibold text-slate-100">
-                                {user.contacts} контакт{user.contacts === 1 ? '' : user.contacts < 5 ? 'а' : 'ов'}
+                                {user.contacts}
                               </div>
+                              <div className="text-xs text-slate-400">контактов</div>
                             </div>
                             <div className="text-right min-w-[80px]">
                               <div className="text-sm font-bold text-cyan-400">

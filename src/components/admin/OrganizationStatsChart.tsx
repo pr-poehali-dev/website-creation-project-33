@@ -196,10 +196,24 @@ export default function OrganizationStatsChart() {
     }
     
     if (sortBy === 'average') {
-      const promotersCountA = Object.keys(a.users).length;
-      const promotersCountB = Object.keys(b.users).length;
-      const avgA = promotersCountA > 0 ? a.total / promotersCountA : 0;
-      const avgB = promotersCountB > 0 ? b.total / promotersCountB : 0;
+      // Считаем средний показатель как сумма всех средних промоутеров / количество промоутеров
+      const usersA = Object.entries(a.users);
+      const usersB = Object.entries(b.users);
+      
+      const avgA = usersA.length > 0 
+        ? usersA.reduce((sum, [userName, contacts]) => {
+            const shifts = a.userShifts[userName] || 1;
+            return sum + (contacts / shifts);
+          }, 0) / usersA.length
+        : 0;
+      
+      const avgB = usersB.length > 0 
+        ? usersB.reduce((sum, [userName, contacts]) => {
+            const shifts = b.userShifts[userName] || 1;
+            return sum + (contacts / shifts);
+          }, 0) / usersB.length
+        : 0;
+      
       return avgB - avgA;
     }
     
@@ -476,7 +490,16 @@ export default function OrganizationStatsChart() {
                     )}
                     <div className="text-center">
                       <div className="text-base md:text-lg font-bold text-cyan-400">
-                        {Math.round(org.total / Object.keys(org.users).length)}
+                        {(() => {
+                          const users = Object.entries(org.users);
+                          const avgPerPromoter = users.length > 0 
+                            ? users.reduce((sum, [userName, contacts]) => {
+                                const shifts = org.userShifts[userName] || 1;
+                                return sum + (contacts / shifts);
+                              }, 0) / users.length
+                            : 0;
+                          return Math.round(avgPerPromoter);
+                        })()}
                       </div>
                       <div className="text-xs text-slate-400">средний</div>
                     </div>

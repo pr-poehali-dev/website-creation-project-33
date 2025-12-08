@@ -1836,26 +1836,29 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     with conn.cursor() as cur:
                         # Получаем текущий schedule или создаём пустой
                         cur.execute("""
-                            SELECT schedule_data FROM t_p24058207_website_creation_pro.user_schedules
+                            SELECT schedule_data FROM t_p24058207_website_creation_pro.promoter_schedules
                             WHERE user_id = %s AND week_start_date = %s
                         """, (user_id, week_start))
                         
                         row = cur.fetchone()
                         if row:
-                            schedule = json.loads(row[0]) if row[0] else {}
+                            schedule = row[0] if row[0] else {}
                         else:
                             schedule = {}
                         
                         # Добавляем слот в график
                         if work_date not in schedule:
                             schedule[work_date] = {}
-                        schedule[work_date][time_slot] = organization_id
+                        
+                        # Конвертируем time_slot в slotN формат
+                        slot_key = 'slot1' if time_slot in ['12:00-16:00', '11:00-15:00', '09:00-12:00', '09:00-13:00'] else 'slot2'
+                        schedule[work_date][slot_key] = True
                         
                         # Сохраняем обновлённый график
                         cur.execute("""
-                            INSERT INTO t_p24058207_website_creation_pro.user_schedules 
-                            (user_id, week_start_date, schedule_data, created_at, updated_at)
-                            VALUES (%s, %s, %s, NOW(), NOW())
+                            INSERT INTO t_p24058207_website_creation_pro.promoter_schedules 
+                            (user_id, week_start_date, schedule_data, updated_at)
+                            VALUES (%s, %s, %s, NOW())
                             ON CONFLICT (user_id, week_start_date) 
                             DO UPDATE SET 
                                 schedule_data = EXCLUDED.schedule_data,

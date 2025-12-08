@@ -1812,30 +1812,39 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
         elif action == 'add_shift':
             print(f'✅ Processing add_shift')
             user_id = body_data.get('user_id')
-            work_date = body_data.get('work_date')
-            start_time = body_data.get('start_time')
-            end_time = body_data.get('end_time')
+            organization_id = body_data.get('organization_id')
+            shift_date = body_data.get('shift_date')
+            shift_start = body_data.get('shift_start')
+            shift_end = body_data.get('shift_end')
             
-            if not all([user_id, work_date, start_time, end_time]):
+            if not all([user_id, organization_id, shift_date, shift_start, shift_end]):
                 return {
                     'statusCode': 400,
                     'headers': headers,
                     'body': json.dumps({'error': 'Все поля обязательны'})
                 }
             
-            success = add_manual_shift(user_id, work_date, start_time, end_time)
-            print(f'✅ add_manual_shift result: {success}')
-            if success:
-                return {
-                    'statusCode': 200,
-                    'headers': headers,
-                    'body': json.dumps({'success': True})
-                }
-            else:
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("""
+                            INSERT INTO t_p24058207_website_creation_pro.work_shifts 
+                            (user_id, organization_id, shift_date, shift_start, shift_end, created_at, updated_at)
+                            VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
+                        """, (user_id, organization_id, shift_date, shift_start, shift_end))
+                        conn.commit()
+                        
+                        return {
+                            'statusCode': 200,
+                            'headers': headers,
+                            'body': json.dumps({'success': True, 'message': 'Смена добавлена'})
+                        }
+            except Exception as e:
+                print(f'❌ Error adding shift: {e}')
                 return {
                     'statusCode': 500,
                     'headers': headers,
-                    'body': json.dumps({'error': 'Ошибка при добавлении смены'})
+                    'body': json.dumps({'error': f'Ошибка при добавлении смены: {str(e)}'})
                 }
         
         elif action == 'update_accounting_expense':

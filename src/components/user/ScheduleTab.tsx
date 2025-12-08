@@ -19,6 +19,14 @@ interface DaySchedule {
   slots: TimeSlot[];
 }
 
+interface WorkShift {
+  date: string;
+  start_time: string;
+  end_time: string;
+  organization_name: string;
+  organization_id: number;
+}
+
 const getMoscowDate = (): Date => {
   const now = new Date();
   const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
@@ -84,6 +92,7 @@ export default function ScheduleTab() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [workComments, setWorkComments] = useState<Record<string, {location?: string, flyers?: string}>>({});
+  const [workShifts, setWorkShifts] = useState<WorkShift[]>([]);
 
   useEffect(() => {
     initializeSchedule();
@@ -127,7 +136,7 @@ export default function ScheduleTab() {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2?user_id=${user.id}&week_start=${weeks[currentWeekIndex].start}`,
+        `https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2?user_id=${user.id}&week_start=${weeks[currentWeekIndex].start}&get_shifts=true`,
         {
           headers: {
             'X-Session-Token': localStorage.getItem('session_token') || '',
@@ -139,6 +148,9 @@ export default function ScheduleTab() {
         const data = await response.json();
         if (data.schedule) {
           updateScheduleFromData(data.schedule);
+        }
+        if (data.work_shifts) {
+          setWorkShifts(data.work_shifts);
         }
       }
     } catch (error) {
@@ -351,6 +363,28 @@ export default function ScheduleTab() {
                         </Button>
                       ))}
                     </div>
+
+                    {workShifts.filter(shift => shift.date === day.date).length > 0 && (
+                      <div className="mt-2 space-y-2">
+                        {workShifts.filter(shift => shift.date === day.date).map((shift, idx) => (
+                          <div key={idx} className="flex items-center gap-2 bg-green-50 border-2 border-green-300 rounded-lg p-2.5">
+                            <Icon name="Briefcase" size={16} className="text-green-600 flex-shrink-0" />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge className="bg-green-600 text-white text-[10px] px-2 py-0.5">
+                                  От админа
+                                </Badge>
+                                <span className="text-xs font-bold text-green-900">{shift.organization_name}</span>
+                              </div>
+                              <p className="text-[10px] text-green-700 mt-0.5">
+                                <Icon name="Clock" size={10} className="inline mr-1" />
+                                {new Date(shift.start_time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })} - {new Date(shift.end_time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                     {workComments[day.date] && day.slots.some(slot => slot.selected) && (
                       <div className="mt-2 space-y-2">

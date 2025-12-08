@@ -6,6 +6,7 @@ import PeriodDetailModal from './PeriodDetailModal';
 import ChartFilters from './ChartFilters';
 import ChartVisualization from './ChartVisualization';
 import { useChartData } from './useChartData';
+import AddShiftModal from './AddShiftModal';
 
 interface LeadsChartProps {
   chartData: ChartDataPoint[];
@@ -32,6 +33,7 @@ export default function LeadsChart({
   const [selectedPeriod, setSelectedPeriod] = React.useState<{period: string, displayLabel: string} | null>(null);
   const [periodLeads, setPeriodLeads] = React.useState<any[]>([]);
   const [loadingPeriod, setLoadingPeriod] = React.useState(false);
+  const [addShiftModalOpen, setAddShiftModalOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const { getFilteredChartData, fetchPeriodDetails, userColorMap } = useChartData(
@@ -167,6 +169,7 @@ export default function LeadsChart({
           toggleUser={toggleUser}
           toggleAllUsers={toggleAllUsers}
           userColorMap={userColorMap}
+          onOpenAddShift={() => setAddShiftModalOpen(true)}
         />
 
         <ChartVisualization
@@ -188,6 +191,12 @@ export default function LeadsChart({
         displayLabel={selectedPeriod?.displayLabel || ''}
         detailedLeads={periodLeads}
         loading={loadingPeriod}
+      />
+
+      <AddShiftModal
+        isOpen={addShiftModalOpen}
+        onClose={() => setAddShiftModalOpen(false)}
+        userStats={userStats.map(u => ({ name: u.name, id: u.id }))}
       />
     </Card>
   );

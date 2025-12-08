@@ -40,6 +40,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         params = event.get('queryStringParameters', {})
         user_id = params.get('user_id')
         week_start = params.get('week_start')  # format: YYYY-MM-DD
+        get_shifts = params.get('get_shifts', 'false').lower() == 'true'
         
         if not user_id:
             return {
@@ -50,6 +51,38 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         conn = get_db_connection()
         cur = conn.cursor()
+        
+        # Get work shifts from admin if requested
+        work_shifts = []
+        if get_shifts:
+            if week_start:
+                # Get shifts for specific week (7 days from week_start)
+                week_end_date = (datetime.strptime(week_start, '%Y-%m-%d') + timedelta(days=6)).strftime('%Y-%m-%d')
+                cur.execute("""
+                    SELECT ws.shift_date, ws.shift_start, ws.shift_end, o.name, o.id
+                    FROM t_p24058207_website_creation_pro.work_shifts ws
+                    JOIN t_p24058207_website_creation_pro.organizations o ON ws.organization_id = o.id
+                    WHERE ws.user_id = %s AND ws.shift_date >= %s AND ws.shift_date <= %s
+                    ORDER BY ws.shift_date, ws.shift_start
+                """, (int(user_id), week_start, week_end_date))
+            else:
+                # Get all future shifts
+                cur.execute("""
+                    SELECT ws.shift_date, ws.shift_start, ws.shift_end, o.name, o.id
+                    FROM t_p24058207_website_creation_pro.work_shifts ws
+                    JOIN t_p24058207_website_creation_pro.organizations o ON ws.organization_id = o.id
+                    WHERE ws.user_id = %s AND ws.shift_date >= CURRENT_DATE
+                    ORDER BY ws.shift_date, ws.shift_start
+                """, (int(user_id),))
+            
+            for shift_row in cur.fetchall():
+                work_shifts.append({
+                    'date': shift_row[0].isoformat() if shift_row[0] else None,
+                    'start_time': shift_row[1].isoformat() if shift_row[1] else None,
+                    'end_time': shift_row[2].isoformat() if shift_row[2] else None,
+                    'organization_name': shift_row[3],
+                    'organization_id': shift_row[4]
+                })
         
         if week_start:
             # Get specific week
@@ -74,14 +107,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'headers': headers,
                 'body': json.dumps({
                     'schedule': row[0],
-                    'week_start_date': row[1].isoformat()
+                    'week_start_date': row[1].isoformat(),
+                    'work_shifts': work_shifts
                 })
             }
         else:
             return {
                 'statusCode': 200,
                 'headers': headers,
-                'body': json.dumps({'schedule': None})
+                'body': json.dumps({'schedule': None, 'work_shifts': work_shifts})
             }
     
     # POST - save/update schedule

@@ -21,6 +21,7 @@ interface ChartFiltersProps {
   toggleUser: (userName: string) => void;
   toggleAllUsers: () => void;
   userColorMap: Record<string, string>;
+  onOpenAddShift?: () => void;
 }
 
 export default function ChartFilters({
@@ -39,7 +40,8 @@ export default function ChartFilters({
   dropdownRef,
   toggleUser,
   toggleAllUsers,
-  userColorMap
+  userColorMap,
+  onOpenAddShift
 }: ChartFiltersProps) {
   const filteredUsers = userStats.filter(user =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -136,6 +138,17 @@ export default function ChartFilters({
           >
             {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
           </Button>
+          {onOpenAddShift && (
+            <Button
+              onClick={onOpenAddShift}
+              variant="outline"
+              size="sm"
+              className="glass-button bg-cyan-600 hover:bg-cyan-700 text-white border-cyan-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
+            >
+              <Icon name="CalendarPlus" size={14} className="mr-1.5" />
+              Добавить смену
+            </Button>
+          )}
         </div>
         
         <div className="relative" ref={dropdownRef}>

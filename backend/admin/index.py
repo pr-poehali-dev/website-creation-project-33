@@ -1826,9 +1826,11 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             try:
                 from datetime import datetime, timedelta
                 
-                # Определяем понедельник недели для этой даты
+                # Определяем воскресенье как начало недели (как на фронтенде)
                 date_obj = datetime.strptime(work_date, '%Y-%m-%d').date()
-                week_start = date_obj - timedelta(days=date_obj.weekday())
+                # weekday(): Mon=0, Sun=6, поэтому для воскресенья (6) вычитаем 6, для понедельника (0) вычитаем 0+1=1 и т.д.
+                days_since_sunday = (date_obj.weekday() + 1) % 7
+                week_start = date_obj - timedelta(days=days_since_sunday)
                 
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:

@@ -57,7 +57,8 @@ export interface DailyStats {
 export interface ChartDataPoint {
   date: string;
   organization_ids?: number[];
-  [key: string]: string | number | number[] | undefined;
+  user_orgs?: Record<string, number[]>;  // Привязка промоутеров к организациям
+  [key: string]: string | number | number[] | Record<string, number[]> | undefined;
 }
 
 export interface DailyUserStats {

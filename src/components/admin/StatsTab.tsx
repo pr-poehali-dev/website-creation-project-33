@@ -39,7 +39,7 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
     const dateGroups = rawData.reduce((acc, item) => {
       const date = item.date;
       if (!acc[date]) {
-        acc[date] = { date, total: 0, contacts: 0, approaches: 0 };
+        acc[date] = { date, total: 0, contacts: 0, approaches: 0, organization_ids: [], user_orgs: {} };
       }
       
       acc[date].total += item.total_leads;
@@ -49,6 +49,19 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
       acc[date][`${item.user_name}_contacts`] = item.contacts;
       acc[date][`${item.user_name}_approaches`] = item.approaches;
       
+      // Сохраняем привязку организаций к пользователю
+      if (item.organization_ids && Array.isArray(item.organization_ids) && item.organization_ids.length > 0) {
+        acc[date].user_orgs[item.user_name] = item.organization_ids;
+        
+        // Также добавляем в общий список организаций
+        const existingIds = acc[date].organization_ids as number[];
+        item.organization_ids.forEach((orgId: number) => {
+          if (!existingIds.includes(orgId)) {
+            existingIds.push(orgId);
+          }
+        });
+      }
+      
       return acc;
     }, {} as Record<string, any>);
 
@@ -57,6 +70,7 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
+    console.log('📊 Подготовленные данные графика:', chartArray.slice(0, 3));
     setChartData(chartArray as ChartDataPoint[]);
     
     // Изначально не выбираем никаких пользователей - только общая статистика

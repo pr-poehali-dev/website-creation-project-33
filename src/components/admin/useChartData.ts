@@ -96,11 +96,53 @@ export function useChartData(
 
     // Фильтруем по организациям если выбраны
     if (selectedOrganizations.length > 0) {
-      timeFilteredData = timeFilteredData.filter(item => {
-        // Проверяем есть ли пересечение между выбранными организациями и организациями лида
-        const itemOrgs = (item as any).organization_ids || [];
-        return itemOrgs.some((orgId: number) => selectedOrganizations.includes(orgId));
-      });
+      console.log('🔍 Фильтр по организациям:', selectedOrganizations);
+      console.log('📦 Данные до фильтра:', timeFilteredData.slice(0, 2));
+      
+      timeFilteredData = timeFilteredData.map(item => {
+        const userOrgs = (item as any).user_orgs || {};
+        const newItem: any = {
+          date: item.date,
+          total: 0,
+          contacts: 0,
+          approaches: 0,
+          organization_ids: item.organization_ids,
+          user_orgs: item.user_orgs
+        };
+        
+        // Для каждого пользователя проверяем, работал ли он в выбранных организациях
+        userStats.forEach(user => {
+          const userName = user.name;
+          const userOrgIds = userOrgs[userName] || [];
+          
+          // Проверяем есть ли пересечение между организациями пользователя и выбранными
+          const hasMatch = userOrgIds.some((orgId: number) => selectedOrganizations.includes(orgId));
+          
+          if (hasMatch) {
+            // Если пользователь работал в выбранной организации, копируем его данные
+            const contactsKey = `${userName}_contacts`;
+            const approachesKey = `${userName}_approaches`;
+            const totalKey = `${userName}_total`;
+            
+            newItem[contactsKey] = (item as any)[contactsKey] || 0;
+            newItem[approachesKey] = (item as any)[approachesKey] || 0;
+            newItem[totalKey] = (item as any)[totalKey] || 0;
+            
+            newItem.total += newItem[totalKey];
+            newItem.contacts += newItem[contactsKey];
+            newItem.approaches += newItem[approachesKey];
+          } else {
+            // Если пользователь не работал в выбранной организации, ставим 0
+            newItem[`${userName}_contacts`] = 0;
+            newItem[`${userName}_approaches`] = 0;
+            newItem[`${userName}_total`] = 0;
+          }
+        });
+        
+        return newItem;
+      }).filter(item => item.total > 0);  // Убираем дни без данных
+      
+      console.log('✅ Данные после фильтра:', timeFilteredData.slice(0, 2));
     }
 
     if (groupBy === 'day') {

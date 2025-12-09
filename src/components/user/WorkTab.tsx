@@ -196,16 +196,16 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   };
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-6 md:space-y-8 px-4 md:px-0">
       {/* Кнопка записи звука */}
-      <div className="flex justify-center">
+      <div className="flex justify-center py-8 md:py-12">
         <button
           onClick={startRecording}
           disabled={isRecording}
-          className="audio-record-button"
+          className="audio-record-button shadow-lg hover:shadow-xl"
           style={{
-            width: '80px',
-            height: '80px',
+            width: '100px',
+            height: '100px',
             borderRadius: '50%',
             backgroundColor: '#001f54',
             border: 'none',
@@ -230,8 +230,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           }}
         >
           <svg 
-            width="32" 
-            height="32" 
+            width="40" 
+            height="40" 
             viewBox="0 0 24 24" 
             fill="white"
             xmlns="http://www.w3.org/2000/svg"
@@ -247,17 +247,17 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           cancelNotebook();
         }
       }}>
-        <DialogContent className="max-w-2xl bg-white">
+        <DialogContent className="max-w-2xl bg-white mx-4">
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <div className="p-2 rounded-lg bg-blue-500/10">
                 <Icon name="NotebookPen" size={20} className="text-blue-500" />
               </div>
-              <h2 className="text-xl font-bold text-black">Блокнот</h2>
+              <h2 className="text-lg md:text-xl font-bold text-black">Блокнот</h2>
               {isRecording && (
                 <div className="flex items-center gap-2 ml-auto">
                   <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-red-600 font-medium">Идёт запись...</span>
+                  <span className="text-xs md:text-sm text-red-600 font-medium">Идёт запись...</span>
                 </div>
               )}
             </div>
@@ -266,15 +266,15 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Имя родителя, имя ребенка, возраст ребенка"
-              className="min-h-[250px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300"
+              className="min-h-[200px] md:min-h-[250px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300 text-base"
             />
           </div>
 
-          <DialogFooter className="flex gap-2 sm:gap-2">
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
             <Button
               onClick={cancelNotebook}
               variant="outline"
-              className="border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="border-gray-300 text-gray-700 hover:bg-gray-100 w-full sm:w-auto"
               disabled={isLoading}
             >
               <Icon name="X" size={18} />
@@ -283,7 +283,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             <Button
               onClick={handleSendToTelegram}
               disabled={isLoading}
-              className="bg-[#0088cc] hover:bg-[#006699] text-white flex items-center gap-2"
+              className="bg-[#0088cc] hover:bg-[#006699] text-white flex items-center gap-2 w-full sm:w-auto justify-center"
             >
               {isLoading ? (
                 <>
@@ -302,15 +302,15 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       </Dialog>
 
       {/* Кнопка завершить смену */}
-      <Button 
-        onClick={() => setEndShiftPhotoOpen(true)}
-        size="lg"
-        variant="outline"
-        className="w-full border-2 border-blue-500 text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg transition-all duration-300 text-base md:text-lg h-12 md:h-14 font-semibold"
-      >
-        <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
-        Завершить смену
-      </Button>
+      <div className="flex justify-center">
+        <button
+          onClick={() => setEndShiftPhotoOpen(true)}
+          className="px-8 py-4 md:px-10 md:py-5 bg-white text-[#001f54] border-2 border-[#001f54] rounded-full font-semibold text-base md:text-lg hover:bg-[#001f54] hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-3"
+        >
+          <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
+          Завершить смену
+        </button>
+      </div>
 
       <PhotoCapture
         open={endShiftPhotoOpen}

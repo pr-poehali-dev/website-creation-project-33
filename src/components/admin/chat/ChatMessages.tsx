@@ -38,7 +38,7 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
               >
                 {!msg.is_from_admin && (
                   <p className="text-xs font-semibold mb-1 text-blue-400">
-                    {selectedUser.name}
+                    {msg.user_name || selectedUser.name}
                   </p>
                 )}
                 {msg.media_type === 'audio' && msg.media_url && (
@@ -86,7 +86,7 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
             <div className="flex justify-start">
               <div className="max-w-[85%] md:max-w-[80%] rounded-lg px-3 py-2 md:px-4 md:py-2 bg-gray-100 text-gray-900">
                 <p className="text-xs font-semibold mb-1 text-blue-600">
-                  {selectedUser.name}
+                  {selectedUser.id === -1 ? 'Кто-то печатает...' : selectedUser.name}
                 </p>
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />

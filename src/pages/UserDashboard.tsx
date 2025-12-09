@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChatUnread } from '@/hooks/useChatUnread';
-import ChatDialog from '@/components/chat/ChatDialog';
+import ChatTabs from '@/components/chat/ChatTabs';
 import AIHelper from '@/components/chat/AIHelper';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
@@ -154,7 +154,7 @@ export default function UserDashboard() {
           </div>
         </div>
 
-        <ChatDialog 
+        <ChatTabs 
           open={chatOpen} 
           onOpenChange={setChatOpen}
           organizationId={selectedOrganization}

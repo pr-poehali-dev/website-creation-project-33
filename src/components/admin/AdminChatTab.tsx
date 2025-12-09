@@ -37,7 +37,16 @@ export default function AdminChatTab() {
 
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.users || []);
+        // Добавляем "Группа" в начало списка
+        const groupChat: UserChat = {
+          id: -1,
+          name: '👥 Групповой чат',
+          unread_count: 0,
+          last_message: null,
+          last_message_at: null,
+          is_typing: false
+        };
+        setUsers([groupChat, ...(data.users || [])]);
       }
     } catch (error) {
       console.error('Load users error:', error);
@@ -49,7 +58,11 @@ export default function AdminChatTab() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${CHAT_API_URL}?user_id=${userId}`, {
+      const url = userId === -1 
+        ? `${CHAT_API_URL}?is_group=true` 
+        : `${CHAT_API_URL}?user_id=${userId}`;
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'X-User-Id': user.id.toString(),
@@ -128,18 +141,25 @@ export default function AdminChatTab() {
         }
       }
 
+      const bodyData: any = {
+        message: newMessage.trim(),
+        media_data,
+        media_type,
+      };
+
+      if (selectedUser.id === -1) {
+        bodyData.is_group = true;
+      } else {
+        bodyData.user_id = selectedUser.id;
+      }
+
       const response = await fetch(CHAT_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-User-Id': user.id.toString(),
         },
-        body: JSON.stringify({
-          message: newMessage.trim(),
-          user_id: selectedUser.id,
-          media_data,
-          media_type,
-        }),
+        body: JSON.stringify(bodyData),
       });
 
       if (response.ok) {
@@ -245,6 +265,12 @@ export default function AdminChatTab() {
 
   const clearChat = async () => {
     if (!user || !selectedUser) return;
+    
+    // Запретить очистку группового чата
+    if (selectedUser.id === -1) {
+      alert('Нельзя очистить групповой чат');
+      return;
+    }
     
     if (!confirm(`Удалить всю историю чата с ${selectedUser.name}?`)) {
       return;

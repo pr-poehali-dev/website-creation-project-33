@@ -247,22 +247,22 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           cancelNotebook();
         }
       }}>
-        <DialogContent className="max-w-2xl bg-gradient-to-br from-blue-50 to-white mx-4 border-2 border-blue-100 shadow-2xl">
+        <DialogContent className="max-w-2xl bg-white mx-4 border-0 shadow-2xl">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+                <div className="p-2.5 rounded-xl bg-blue-500 shadow-lg">
                   <Icon name="NotebookPen" size={22} className="text-white" />
                 </div>
-                <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Блокнот</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-blue-500">Блокнот</h2>
               </div>
               {isRecording && (
-                <div className="flex items-center gap-1.5 px-3 py-2 bg-white/80 rounded-full shadow-md">
-                  <div className="w-1 bg-gradient-to-t from-blue-400 to-blue-600 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
-                  <div className="w-1 bg-gradient-to-t from-blue-400 to-blue-600 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
-                  <div className="w-1 bg-gradient-to-t from-blue-400 to-blue-600 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
-                  <div className="w-1 bg-gradient-to-t from-blue-400 to-blue-600 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
-                  <div className="w-1 bg-gradient-to-t from-blue-400 to-blue-600 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+                <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-full">
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
                 </div>
               )}
             </div>
@@ -271,7 +271,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Имя родителя, имя ребенка, возраст ребенка"
-              className="min-h-[200px] md:min-h-[250px] bg-white/80 backdrop-blur-sm border-2 border-blue-200 text-gray-900 placeholder:text-gray-400 resize-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all duration-300 text-base rounded-xl shadow-sm"
+              className="min-h-[200px] md:min-h-[250px] bg-white border-2 border-blue-500 text-gray-900 placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 text-base rounded-xl"
             />
           </div>
 
@@ -279,7 +279,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             <Button
               onClick={cancelNotebook}
               variant="outline"
-              className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 w-full sm:w-auto rounded-xl font-medium transition-all duration-300 shadow-sm"
+              className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 w-full sm:w-auto rounded-xl font-medium transition-all duration-300"
               disabled={isLoading}
             >
               <Icon name="X" size={18} />
@@ -288,7 +288,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             <Button
               onClick={handleSendToTelegram}
               disabled={isLoading}
-              className="bg-gradient-to-r from-[#0088cc] to-[#0099dd] hover:from-[#006699] hover:to-[#0088cc] text-white flex items-center gap-2 w-full sm:w-auto justify-center rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-[#0088cc] hover:bg-[#006699] text-white flex items-center gap-2 w-full sm:w-auto justify-center rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
             >
               {isLoading ? (
                 <>

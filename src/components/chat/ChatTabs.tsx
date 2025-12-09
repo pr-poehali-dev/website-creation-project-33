@@ -672,6 +672,13 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl h-[650px] flex flex-col p-0">
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute right-4 top-4 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground md:hidden"
+        >
+          <Icon name="X" size={20} className="text-gray-700" />
+          <span className="sr-only">Закрыть</span>
+        </button>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
           <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
             <TabsTrigger value="personal" className="gap-2">

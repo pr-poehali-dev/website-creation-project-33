@@ -20,9 +20,10 @@ interface WorkTabProps {
   onChangeOrganization: () => void;
   todayContactsCount: number;
   onContactAdded?: () => void;
+  onShiftEnd?: () => void;
 }
 
-export default function WorkTab({ selectedOrganizationId, organizationName, onChangeOrganization, todayContactsCount, onContactAdded }: WorkTabProps) {
+export default function WorkTab({ selectedOrganizationId, organizationName, onChangeOrganization, todayContactsCount, onContactAdded, onShiftEnd }: WorkTabProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [notes, setNotes] = useState(() => {
@@ -333,7 +334,10 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       <DayResultsDialog
         open={dayResultsOpen}
         contactsCount={todayContactsCount}
-        onClose={() => setDayResultsOpen(false)}
+        onClose={() => {
+          setDayResultsOpen(false);
+          onShiftEnd?.();
+        }}
       />
     </div>
   );

@@ -272,6 +272,7 @@ export default function UserDashboard() {
               onChangeOrganization={handleChangeOrganization}
               todayContactsCount={todayContacts}
               onContactAdded={() => contactsCounterRef.current?.refresh()}
+              onShiftEnd={handleChangeOrganization}
             />
           </div>
         )}

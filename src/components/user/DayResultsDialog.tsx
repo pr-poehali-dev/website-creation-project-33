@@ -42,8 +42,6 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
       return {
         text: 'Ты можешь лучше!',
         icon: 'ThumbsUp',
-        color: 'text-yellow-600',
-        bgColor: 'bg-yellow-50',
         emoji: '💪'
       };
     }
@@ -51,16 +49,12 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
       return {
         text: 'Ты молодец!',
         icon: 'Award',
-        color: 'text-green-600',
-        bgColor: 'bg-green-50',
         emoji: '🎯'
       };
     }
     return {
       text: 'Ты чемпион!',
       icon: 'Trophy',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
       emoji: '🏆'
     };
   };
@@ -69,26 +63,35 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md p-8">
-        <div className="flex flex-col items-center gap-6 text-center">
-          <div className={`w-24 h-24 rounded-full ${result.bgColor} flex items-center justify-center`}>
-            <Icon name={result.icon as any} size={48} className={result.color} />
+      <DialogContent className="max-w-md !border-0 shadow-2xl rounded-2xl bg-white mx-4">
+        <div className="flex flex-col items-center gap-6 text-center py-4">
+          {/* Иконка с анимацией */}
+          <div className="relative">
+            <div className="w-20 h-20 rounded-xl bg-blue-500 flex items-center justify-center shadow-lg animate-bounce">
+              <Icon name={result.icon as any} size={40} className="text-white" />
+            </div>
+            {/* Волнистые линии вокруг иконки */}
+            <div className="absolute -top-2 -left-2 w-24 h-24 border-2 border-blue-300 rounded-xl animate-ping opacity-20"></div>
           </div>
 
+          {/* Заголовок */}
           <div className="space-y-2">
             <h2 className="text-3xl font-bold text-[#001f54]">
               {result.emoji} {result.text}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-500 text-sm">
               Результаты за сегодня
             </p>
           </div>
 
-          <div className={`${result.bgColor} rounded-2xl p-6 w-full`}>
-            <div className="flex items-center justify-center gap-3">
-              <Icon name="Users" size={32} className={result.color} />
+          {/* Счетчик контактов */}
+          <div className="bg-blue-50 rounded-xl p-6 w-full border-2 border-blue-200">
+            <div className="flex items-center justify-center gap-4">
+              <div className="p-2 rounded-lg bg-blue-500">
+                <Icon name="Users" size={28} className="text-white" />
+              </div>
               <div className="text-left">
-                <div className={`text-5xl font-bold ${result.color}`}>
+                <div className="text-5xl font-bold text-blue-600 animate-pulse">
                   {contactsCount}
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
@@ -98,7 +101,8 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          {/* Таймер */}
+          <div className="flex items-center gap-2 text-sm text-gray-400">
             <Icon name="Clock" size={16} />
             <span>Переход через {countdown} сек</span>
           </div>

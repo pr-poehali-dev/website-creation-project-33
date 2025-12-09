@@ -230,15 +230,13 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             }
           }}
         >
-          <svg 
-            width="40" 
-            height="40" 
-            viewBox="0 0 24 24" 
-            fill="white"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-          </svg>
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '16px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
+            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '26px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
+            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '20px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
+            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '30px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
+            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '18px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+          </div>
         </button>
       </div>
 

@@ -9,14 +9,20 @@ export function useChatUnread() {
   
   if (user.is_admin) {
     const users = data.users || [];
-    return users.reduce(
+    const personalUnread = users.reduce(
       (sum: number, userChat: any) => sum + (userChat.unread_count || 0),
       0
     );
+    const groupUnread = data.group_unread_count || 0;
+    return personalUnread + groupUnread;
   } else {
     const messages = data.messages || [];
-    return messages.filter(
+    const personalUnread = messages.filter(
       (msg: any) => msg.is_from_admin && !msg.is_read
     ).length;
+    
+    // Для пользователя нужно дополнительно проверить групповые непрочитанные
+    // Это будет загружаться отдельно в ChatTabs
+    return personalUnread;
   }
 }

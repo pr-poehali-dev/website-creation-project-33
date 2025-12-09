@@ -52,6 +52,7 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
   const [groupIsSending, setGroupIsSending] = useState(false);
   const [groupSelectedFile, setGroupSelectedFile] = useState<File | null>(null);
   const [groupPreviewUrl, setGroupPreviewUrl] = useState<string | null>(null);
+  const [groupUnreadCount, setGroupUnreadCount] = useState(0);
   const groupScrollRef = useRef<HTMLDivElement>(null);
   const groupFileInputRef = useRef<HTMLInputElement>(null);
   const groupTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -206,6 +207,7 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
       if (response.ok) {
         const data = await response.json();
         setGroupMessages(data.messages || []);
+        setGroupUnreadCount(data.unread_count || 0);
       }
     } catch (error) {
       console.error('Load group messages error:', error);
@@ -676,9 +678,14 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
               <Icon name="User" size={16} />
               Личный чат
             </TabsTrigger>
-            <TabsTrigger value="group" className="gap-2">
+            <TabsTrigger value="group" className="gap-2 relative">
               <Icon name="Users" size={16} />
               Группа
+              {groupUnreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                  {groupUnreadCount}
+                </span>
+              )}
             </TabsTrigger>
           </TabsList>
 

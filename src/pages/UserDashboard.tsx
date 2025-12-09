@@ -16,6 +16,7 @@ import ContactsCounter, { ContactsStats, ContactsCounterRef } from '@/components
 export default function UserDashboard() {
   const { user, logout } = useAuth();
   const unreadCount = useChatUnread();
+  const [groupUnreadCount, setGroupUnreadCount] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
   const [aiHelperOpen, setAiHelperOpen] = useState(false);
   const [organizationName, setOrganizationName] = useState<string>('');
@@ -40,6 +41,32 @@ export default function UserDashboard() {
       setOrganizationName('');
     }
   }, [selectedOrganization]);
+
+  // Загрузка счетчика непрочитанных групповых сообщений
+  const fetchGroupUnread = async () => {
+    if (!user) return;
+    try {
+      const response = await fetch('https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c?is_group=true', {
+        headers: {
+          'X-User-Id': user.id.toString(),
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setGroupUnreadCount(data.unread_count || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching group unread count:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (!user || !selectedOrganization) return;
+
+    fetchGroupUnread();
+    const interval = setInterval(fetchGroupUnread, 5000);
+    return () => clearInterval(interval);
+  }, [user, selectedOrganization]);
 
   const fetchOrganizationName = async () => {
     try {
@@ -113,9 +140,9 @@ export default function UserDashboard() {
                     size="sm"
                   >
                     <Icon name="MessageCircle" size={18} />
-                    {unreadCount > 0 && (
+                    {(unreadCount + groupUnreadCount) > 0 && (
                       <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-xs px-1">
-                        {unreadCount}
+                        {unreadCount + groupUnreadCount}
                       </Badge>
                     )}
                   </Button>

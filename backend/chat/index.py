@@ -127,22 +127,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         u.id,
                         u.name,
                         u.email,
-                        COALESCE(COUNT(CASE WHEN cm.is_read = FALSE AND cm.is_from_admin = FALSE THEN 1 END), 0) as unread_count,
+                        COALESCE(COUNT(CASE WHEN cm.is_read = FALSE AND cm.is_from_admin = FALSE AND cm.is_group = FALSE THEN 1 END), 0) as unread_count,
                         MAX(cm.created_at) as last_message_time,
                         COALESCE(COUNT(cm.id), 0) as total_messages
                     FROM t_p24058207_website_creation_pro.users u
-                    LEFT JOIN t_p24058207_website_creation_pro.chat_messages cm ON u.id = cm.user_id
+                    LEFT JOIN t_p24058207_website_creation_pro.chat_messages cm ON u.id = cm.user_id AND cm.is_group = FALSE
                     WHERE u.is_admin = FALSE AND u.is_active = TRUE
                     GROUP BY u.id, u.name, u.email
                     ORDER BY MAX(cm.created_at) DESC NULLS LAST, u.name ASC
                 """)
                 
                 users_list = cursor.fetchall()
+                
+                # Подсчет непрочитанных групповых сообщений для админа
+                cursor.execute("""
+                    SELECT COUNT(*) as group_unread_count
+                    FROM t_p24058207_website_creation_pro.chat_messages
+                    WHERE is_group = TRUE AND is_from_admin = FALSE AND is_read = FALSE
+                """)
+                group_unread = cursor.fetchone()
+                
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
-                        'users': [dict(row) for row in users_list]
+                        'users': [dict(row) for row in users_list],
+                        'group_unread_count': group_unread['group_unread_count'] if group_unread else 0
                     }, default=str)
                 }
             else:
@@ -163,6 +173,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     
                     messages = cursor.fetchall()
                     
+                    # Подсчет непрочитанных групповых сообщений (не от текущего пользователя)
+                    cursor.execute("""
+                        SELECT COUNT(*) as unread_count
+                        FROM t_p24058207_website_creation_pro.chat_messages
+                        WHERE is_group = TRUE AND is_read = FALSE AND user_id != %s
+                    """, (user_id,))
+                    unread_row = cursor.fetchone()
+                    group_unread_count = unread_row['unread_count'] if unread_row else 0
+                    
                     # Отмечаем групповые сообщения как прочитанные
                     if mark_read:
                         cursor.execute("""
@@ -176,7 +195,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({
-                            'messages': [dict(row) for row in messages]
+                            'messages': [dict(row) for row in messages],
+                            'unread_count': group_unread_count
                         }, default=str)
                     }
                 else:

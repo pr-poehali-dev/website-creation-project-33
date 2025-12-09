@@ -37,11 +37,11 @@ export default function AdminChatTab() {
 
       if (response.ok) {
         const data = await response.json();
-        // Добавляем "Группа" в начало списка
+        // Добавляем "Группа" в начало списка с количеством непрочитанных
         const groupChat: UserChat = {
           id: -1,
           name: '👥 Групповой чат',
-          unread_count: 0,
+          unread_count: data.group_unread_count || 0,
           last_message: null,
           last_message_at: null,
           is_typing: false
@@ -298,11 +298,21 @@ export default function AdminChatTab() {
 
   useEffect(() => {
     loadUsers();
+    // Периодическое обновление списка пользователей для обновления счетчиков
+    const interval = setInterval(() => {
+      loadUsers();
+    }, 5000);
+    return () => clearInterval(interval);
   }, [user]);
 
   useEffect(() => {
     if (selectedUser) {
       loadMessages(selectedUser.id);
+      // Периодическое обновление сообщений
+      const interval = setInterval(() => {
+        loadMessages(selectedUser.id);
+      }, 3000);
+      return () => clearInterval(interval);
     }
   }, [selectedUser, user]);
 

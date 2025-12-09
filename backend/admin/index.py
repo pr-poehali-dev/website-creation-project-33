@@ -248,32 +248,40 @@ def get_leads_stats() -> Dict[str, Any]:
                     'revenue': revenue
                 })
             
-            # Статистика по дням (из подтверждённых смен)
+            # Статистика по дням - загружаем все лиды и группируем по московской дате
             cur.execute("""
-                SELECT 
-                    s.shift_date,
-                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                    COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
-                    COUNT(l.id) as total
-                FROM t_p24058207_website_creation_pro.work_shifts s
-                LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
-                    ON l.user_id = s.user_id 
-                    AND l.created_at::date = s.shift_date
-                    AND l.organization_id = s.organization_id
-                    AND l.is_active = true
-                WHERE s.shift_date >= '2025-01-01'
-                GROUP BY s.shift_date
-                ORDER BY s.shift_date DESC
+                SELECT created_at, lead_type
+                FROM t_p24058207_website_creation_pro.leads_analytics
+                WHERE created_at >= '2025-01-01' AND is_active = true
+                ORDER BY created_at DESC
             """)
             
-            daily_stats = []
+            # Группируем по московской дате
+            daily_groups = {}
             for row in cur.fetchall():
+                moscow_dt = get_moscow_time_from_utc(row[0])
+                date_key = moscow_dt.date().isoformat()
+                
+                if date_key not in daily_groups:
+                    daily_groups[date_key] = {'contacts': 0, 'approaches': 0, 'total': 0}
+                
+                daily_groups[date_key]['total'] += 1
+                if row[1] == 'контакт':
+                    daily_groups[date_key]['contacts'] += 1
+                elif row[1] == 'подход':
+                    daily_groups[date_key]['approaches'] += 1
+            
+            # Преобразуем в список и сортируем
+            daily_stats = []
+            for date_key, stats in daily_groups.items():
                 daily_stats.append({
-                    'date': row[0].isoformat(),
-                    'contacts': row[1],
-                    'approaches': row[2],
-                    'count': row[3]
+                    'date': date_key,
+                    'contacts': stats['contacts'],
+                    'approaches': stats['approaches'],
+                    'count': stats['total']
                 })
+            
+            daily_stats.sort(key=lambda x: x['date'], reverse=True)
     
     return {
         'total_leads': total_leads,

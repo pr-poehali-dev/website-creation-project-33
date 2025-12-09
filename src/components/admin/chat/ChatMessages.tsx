@@ -2,6 +2,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { formatMoscowTime } from '@/utils/timeFormat';
 import { Message, UserChat } from './types';
+import AnimatedMessage from '../../../components/chat/AnimatedMessage';
 
 interface ChatMessagesProps {
   messages: Message[];
@@ -62,7 +63,11 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
                     <source src={msg.media_url} type="video/mp4" />
                   </video>
                 )}
-                {msg.message && <p className="text-sm md:text-sm whitespace-pre-wrap break-words">{msg.message}</p>}
+                {msg.message && (
+                  <p className="text-sm md:text-sm whitespace-pre-wrap break-words">
+                    <AnimatedMessage text={msg.message} />
+                  </p>
+                )}
                 <div className="flex items-center gap-2 mt-1">
                   <p
                     className={`text-[10px] md:text-xs ${

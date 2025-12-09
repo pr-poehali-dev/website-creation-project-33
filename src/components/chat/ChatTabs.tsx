@@ -8,6 +8,8 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { formatMoscowTime } from '@/utils/timeFormat';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import AnimatedMessage from './AnimatedMessage';
 
 interface Message {
   id: number;
@@ -60,6 +62,12 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
   // Recording state (shared)
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  
+  // Emoji picker state
+  const [showPersonalEmojiPicker, setShowPersonalEmojiPicker] = useState(false);
+  const [showGroupEmojiPicker, setShowGroupEmojiPicker] = useState(false);
+  const personalEmojiPickerRef = useRef<HTMLDivElement>(null);
+  const groupEmojiPickerRef = useRef<HTMLDivElement>(null);
 
   // Personal chat functions
   const loadPersonalMessages = async (markAsRead = false) => {
@@ -503,6 +511,36 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
     };
   }, []);
 
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (personalEmojiPickerRef.current && !personalEmojiPickerRef.current.contains(event.target as Node)) {
+        setShowPersonalEmojiPicker(false);
+      }
+      if (groupEmojiPickerRef.current && !groupEmojiPickerRef.current.contains(event.target as Node)) {
+        setShowGroupEmojiPicker(false);
+      }
+    };
+
+    if (showPersonalEmojiPicker || showGroupEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPersonalEmojiPicker, showGroupEmojiPicker]);
+
+  const handlePersonalEmojiClick = (emojiData: EmojiClickData) => {
+    setPersonalNewMessage(personalNewMessage + emojiData.emoji);
+    handlePersonalTyping();
+  };
+
+  const handleGroupEmojiClick = (emojiData: EmojiClickData) => {
+    setGroupNewMessage(groupNewMessage + emojiData.emoji);
+    handleGroupTyping();
+  };
+
   const renderMessages = (messages: Message[], scrollRef: React.RefObject<HTMLDivElement>, isLoading: boolean, isGroup: boolean) => {
     if (isLoading && messages.length === 0) {
       return (
@@ -548,7 +586,11 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
                 </div>
               )}
               
-              {msg.message && <div className="whitespace-pre-wrap break-words">{msg.message}</div>}
+              {msg.message && (
+                <div className="whitespace-pre-wrap break-words">
+                  <AnimatedMessage text={msg.message} />
+                </div>
+              )}
               
               <div className={`text-xs mt-1 ${msg.user_id === user?.id ? 'text-blue-100' : 'text-gray-500'}`}>
                 {formatMoscowTime(msg.created_at)}
@@ -607,7 +649,7 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
           </div>
         )}
 
-        <div className="p-4 border-t bg-white">
+        <div className="p-4 border-t bg-white relative">
           <div className="flex gap-2">
             <input
               ref={fileInputRef}
@@ -616,6 +658,21 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
               className="hidden"
               onChange={handleFileSelect}
             />
+            
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => {
+                if (isGroup) {
+                  setShowGroupEmojiPicker(!showGroupEmojiPicker);
+                } else {
+                  setShowPersonalEmojiPicker(!showPersonalEmojiPicker);
+                }
+              }}
+              disabled={isSending}
+            >
+              <Icon name="Smile" size={20} />
+            </Button>
             
             <Button
               size="icon"
@@ -664,6 +721,20 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
               )}
             </Button>
           </div>
+          
+          {/* Emoji Picker */}
+          {((isGroup && showGroupEmojiPicker) || (!isGroup && showPersonalEmojiPicker)) && (
+            <div 
+              ref={isGroup ? groupEmojiPickerRef : personalEmojiPickerRef} 
+              className="absolute bottom-20 left-4 z-50 shadow-2xl rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200"
+            >
+              <EmojiPicker 
+                onEmojiClick={isGroup ? handleGroupEmojiClick : handlePersonalEmojiClick} 
+                width={300} 
+                height={400} 
+              />
+            </div>
+          )}
         </div>
       </>
     );

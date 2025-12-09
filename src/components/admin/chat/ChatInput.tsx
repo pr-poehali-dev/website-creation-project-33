@@ -1,6 +1,8 @@
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 
 interface ChatInputProps {
   newMessage: string;
@@ -35,6 +37,29 @@ export default function ChatInput({
   onKeyPress,
   onTyping,
 }: ChatInputProps) {
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setNewMessage(newMessage + emojiData.emoji);
+    onTyping();
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
   return (
     <div className="p-4 border-t border-gray-200 bg-gray-50">
       {(selectedFile || previewUrl) && (
@@ -85,6 +110,15 @@ export default function ChatInput({
           
           <div className="absolute right-2 bottom-2 flex items-center gap-1">
             <Button
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              variant="ghost"
+              size="icon"
+              disabled={isSending || isRecording}
+              className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+            >
+              <Icon name="Smile" size={18} />
+            </Button>
+            <Button
               onClick={() => fileInputRef.current?.click()}
               variant="ghost"
               size="icon"
@@ -103,6 +137,12 @@ export default function ChatInput({
               <Icon name="Mic" size={18} className={isRecording ? 'text-red-600' : ''} />
             </Button>
           </div>
+          
+          {showEmojiPicker && (
+            <div ref={emojiPickerRef} className="absolute bottom-16 right-2 z-50 shadow-2xl rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
+              <EmojiPicker onEmojiClick={handleEmojiClick} width={320} height={400} />
+            </div>
+          )}
         </div>
         
         <Button

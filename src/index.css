@@ -70,6 +70,29 @@
   }
 }
 
+@keyframes emoji-bounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes emoji-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -206,6 +229,17 @@
 
   .fade-in {
     animation: fade-in 0.8s ease-out;
+  }
+
+  .emoji-animate {
+    display: inline-block;
+    animation: emoji-bounce 0.5s ease-in-out;
+  }
+
+  .emoji-hover:hover {
+    display: inline-block;
+    animation: emoji-wiggle 0.5s ease-in-out;
+    cursor: default;
   }
 
   .glass-effect {

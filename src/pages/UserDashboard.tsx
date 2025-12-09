@@ -94,13 +94,13 @@ export default function UserDashboard() {
               <div className="w-12 h-12 rounded-full bg-white border-2 border-[#001f54] overflow-hidden flex items-center justify-center p-2 shadow-lg flex-shrink-0">
                 <img 
                   src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
-                  alt="IMPERIA PROMO"
+                  alt="ИМПЕРИЯ"
                   className="w-full h-full object-contain"
                 />
               </div>
               <div className="min-w-0 flex-1">
                 <h1 className="text-sm md:text-xl font-bold text-[#001f54] leading-tight">
-                  IMPERIA<br/>PROMO
+                  ИМПЕРИЯ
                 </h1>
               </div>
             </div>

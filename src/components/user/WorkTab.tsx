@@ -198,45 +198,42 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Кнопка записи звука */}
-      <Card className="bg-slate-900 border-slate-700 shadow-xl slide-up hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden">
-        <div className="flex flex-col items-center gap-6 p-8 md:p-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-100">Контроль качества</h2>
+      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300 p-8">
+        <div className="flex flex-col items-center gap-6">
+          <h2 className="text-2xl font-bold text-black">Контроль качества</h2>
           <button
             onClick={startRecording}
             disabled={isRecording}
-            className="audio-record-button relative group"
+            className="audio-record-button"
             style={{
-              width: '90px',
-              height: '90px',
+              width: '80px',
+              height: '80px',
               borderRadius: '50%',
               backgroundColor: '#001f54',
-              border: '3px solid rgba(59, 130, 246, 0.3)',
+              border: 'none',
               cursor: isRecording ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.3s ease',
               opacity: isRecording ? 0.5 : 1,
-              boxShadow: '0 10px 40px rgba(59, 130, 246, 0.3)',
             }}
             onMouseEnter={(e) => {
               if (!isRecording) {
                 e.currentTarget.style.backgroundColor = '#003580';
-                e.currentTarget.style.transform = 'scale(1.1)';
-                e.currentTarget.style.boxShadow = '0 15px 50px rgba(59, 130, 246, 0.5)';
+                e.currentTarget.style.transform = 'scale(1.05)';
               }
             }}
             onMouseLeave={(e) => {
               if (!isRecording) {
                 e.currentTarget.style.backgroundColor = '#001f54';
                 e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 10px 40px rgba(59, 130, 246, 0.3)';
               }
             }}
           >
             <svg 
-              width="36" 
-              height="36" 
+              width="32" 
+              height="32" 
               viewBox="0 0 24 24" 
               fill="white"
               xmlns="http://www.w3.org/2000/svg"
@@ -253,17 +250,17 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           cancelNotebook();
         }
       }}>
-        <DialogContent className="max-w-2xl bg-slate-900 border-slate-700 text-slate-100">
+        <DialogContent className="max-w-2xl bg-white">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/20">
-                <Icon name="NotebookPen" size={20} className="text-blue-400" />
+              <div className="p-2 rounded-lg bg-blue-500/10">
+                <Icon name="NotebookPen" size={20} className="text-blue-500" />
               </div>
-              <h2 className="text-xl font-bold text-slate-100">Блокнот</h2>
+              <h2 className="text-xl font-bold text-black">Блокнот</h2>
               {isRecording && (
                 <div className="flex items-center gap-2 ml-auto">
                   <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-red-400 font-medium">Идёт запись...</span>
+                  <span className="text-sm text-red-600 font-medium">Идёт запись...</span>
                 </div>
               )}
             </div>
@@ -272,7 +269,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Имя родителя, имя ребенка, возраст ребенка"
-              className="min-h-[250px] bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300"
+              className="min-h-[250px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300"
             />
           </div>
 
@@ -280,7 +277,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             <Button
               onClick={cancelNotebook}
               variant="outline"
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="border-gray-300 text-gray-700 hover:bg-gray-100"
               disabled={isLoading}
             >
               <Icon name="X" size={18} />
@@ -308,15 +305,15 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       </Dialog>
 
       {/* Динамо + Счётчик */}
-      <Card className="bg-slate-900 border-slate-700 shadow-xl slide-up hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 md:p-5 text-white flex items-center justify-between">
+      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300 overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-white/20">
               <Icon name="Building2" size={20} />
             </div>
             <div>
-              <div className="text-xs md:text-sm opacity-90">Организация</div>
-              <div className="text-base md:text-lg font-bold">
+              <div className="text-sm opacity-90">Организация</div>
+              <div className="text-lg font-bold">
                 {organizationName || 'Не выбрана'}
               </div>
             </div>
@@ -328,14 +325,13 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             className="bg-white/20 hover:bg-white/30 text-white border-0"
           >
             <Icon name="RefreshCw" size={16} />
-            <span className="hidden md:inline ml-2">Сменить</span>
           </Button>
         </div>
-        <div className="p-6 md:p-8 text-center bg-slate-800/50">
-          <div className="text-5xl md:text-6xl font-bold text-blue-400 mb-2">
+        <div className="p-6 text-center">
+          <div className="text-5xl font-bold text-blue-600 mb-2">
             {todayContactsCount}
           </div>
-          <div className="text-slate-400 text-sm md:text-base">контактов сегодня</div>
+          <div className="text-gray-600">контактов сегодня</div>
         </div>
       </Card>
 
@@ -344,7 +340,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         <Button 
           onClick={() => setDayResultsOpen(true)}
           size="lg"
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-base md:text-lg h-12 md:h-14 font-semibold rounded-xl"
+          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-base md:text-lg h-12 md:h-14 font-semibold"
         >
           <Icon name="BarChart3" size={20} className="md:w-6 md:h-6" />
           Результаты за день
@@ -354,7 +350,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           onClick={() => setEndShiftPhotoOpen(true)}
           size="lg"
           variant="outline"
-          className="w-full border-2 border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 shadow-md hover:shadow-lg transition-all duration-300 text-base md:text-lg h-12 md:h-14 font-semibold rounded-xl"
+          className="w-full border-2 border-blue-500 text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg transition-all duration-300 text-base md:text-lg h-12 md:h-14 font-semibold"
         >
           <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
           Завершить смену

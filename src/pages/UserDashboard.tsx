@@ -78,14 +78,20 @@ export default function UserDashboard() {
 
   return (
     <div 
-      className="min-h-screen p-3 md:p-6 bg-slate-950"
+      className="min-h-screen p-3 md:p-6"
+      style={{
+        backgroundImage: backgroundImage || 'linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
     >
       <div className="max-w-6xl mx-auto">
         {/* Шапка */}
         <div className="mb-3 md:mb-4 slide-up">
           <div className="flex justify-between items-start md:items-center gap-2">
             <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-              <div className="w-12 h-12 rounded-full bg-slate-800 border-2 border-slate-700 overflow-hidden flex items-center justify-center p-2 shadow-lg flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-white border-2 border-[#001f54] overflow-hidden flex items-center justify-center p-2 shadow-lg flex-shrink-0">
                 <img 
                   src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
                   alt="IMPERIA PROMO"
@@ -93,7 +99,7 @@ export default function UserDashboard() {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-sm md:text-xl font-bold text-slate-100 leading-tight">
+                <h1 className="text-sm md:text-xl font-bold text-[#001f54] leading-tight">
                   IMPERIA<br/>PROMO
                 </h1>
               </div>
@@ -103,7 +109,7 @@ export default function UserDashboard() {
                 <>
                   <Button 
                     onClick={() => setChatOpen(true)} 
-                    className="bg-slate-800 hover:bg-slate-700 text-slate-100 transition-all duration-300 shadow-lg relative h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 border border-slate-700"
+                    className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg relative h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
                     size="sm"
                   >
                     <Icon name="MessageCircle" size={18} />
@@ -115,7 +121,8 @@ export default function UserDashboard() {
                   </Button>
                   <Button 
                     onClick={handleChangeOrganization}
-                    className="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 transition-all duration-300 h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
+                    className="border-2 border-[#001f54]/20 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300 h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
+                    variant="ghost"
                     size="sm"
                   >
                     <Icon name="RefreshCw" size={18} />
@@ -131,14 +138,14 @@ export default function UserDashboard() {
               </Button>
               <Button 
                 onClick={() => setCurrentView('schedule')} 
-                className="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
                 size="sm"
               >
                 <Icon name="Calendar" size={18} />
               </Button>
               <Button 
                 onClick={logout} 
-                className="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
                 size="sm"
               >
                 <Icon name="LogOut" size={18} />
@@ -166,7 +173,7 @@ export default function UserDashboard() {
           <>
             {organizationName && (
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
-                <Badge className="bg-blue-500/20 text-blue-400 border border-blue-500/30 text-sm md:text-base px-3 py-1.5">
+                <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1.5">
                   <Icon name="Building2" size={14} className="mr-1.5" />
                   {organizationName}
                 </Badge>
@@ -174,65 +181,67 @@ export default function UserDashboard() {
               </div>
             )}
             
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-6">
               <div
                 onClick={() => setCurrentView('work')}
-                className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-8 md:p-10 rounded-2xl relative overflow-hidden group min-h-[200px] bg-gradient-to-br from-blue-500 to-blue-600 shadow-xl hover:shadow-2xl"
+                className="metro-tile bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
               >
                 <div className="relative z-10">
-                  <Icon name="Briefcase" size={64} className="text-white mb-6" />
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Работа</h2>
-                  <p className="text-blue-100 text-lg">Лиды и контакты</p>
+                  <Icon name="Briefcase" size={56} className="text-white mb-5" />
+                  <h2 className="text-3xl font-bold text-white mb-2">Работа</h2>
+                  <p className="text-blue-100 text-base">Лиды и контакты</p>
                 </div>
-                <div className="absolute bottom-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="Briefcase" size={160} className="text-white" />
+                <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <Icon name="Briefcase" size={140} className="text-white" />
                 </div>
               </div>
 
               <div
                 onClick={() => setCurrentView('schedule')}
-                className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-8 md:p-10 rounded-2xl relative overflow-hidden group min-h-[200px] bg-gradient-to-br from-green-500 to-green-600 shadow-xl hover:shadow-2xl"
+                className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
               >
                 <div className="relative z-10">
-                  <Icon name="Calendar" size={64} className="text-white mb-6" />
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">График</h2>
-                  <p className="text-green-100 text-lg">Расписание смен</p>
+                  <Icon name="Calendar" size={56} className="text-white mb-5" />
+                  <h2 className="text-3xl font-bold text-white mb-2">График</h2>
+                  <p className="text-green-100 text-base">Расписание смен</p>
                 </div>
-                <div className="absolute bottom-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="Calendar" size={160} className="text-white" />
+                <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <Icon name="Calendar" size={140} className="text-white" />
                 </div>
               </div>
 
               <div
                 onClick={() => setCurrentView('training')}
-                className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-8 md:p-10 rounded-2xl relative overflow-hidden group min-h-[200px] bg-gradient-to-br from-purple-500 to-purple-600 shadow-xl hover:shadow-2xl"
+                className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
               >
                 <div className="relative z-10">
-                  <Icon name="GraduationCap" size={64} className="text-white mb-6" />
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Обучение</h2>
-                  <p className="text-purple-100 text-lg">Материалы и тесты</p>
+                  <Icon name="GraduationCap" size={56} className="text-white mb-5" />
+                  <h2 className="text-3xl font-bold text-white mb-2">Обучение</h2>
+                  <p className="text-purple-100 text-base">Материалы и тесты</p>
                 </div>
-                <div className="absolute bottom-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="GraduationCap" size={160} className="text-white" />
+                <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <Icon name="GraduationCap" size={140} className="text-white" />
                 </div>
               </div>
 
               <div
                 onClick={() => setChatOpen(true)}
-                className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-8 md:p-10 rounded-2xl relative overflow-hidden group min-h-[200px] bg-gradient-to-br from-orange-500 to-orange-600 shadow-xl hover:shadow-2xl"
+                className="metro-tile bg-orange-600 hover:bg-orange-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
               >
                 <div className="relative z-10">
-                  <Icon name="MessageCircle" size={64} className="text-white mb-6" />
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Чат</h2>
-                  <p className="text-orange-100 text-lg">Связь с администратором</p>
-                  {unreadCount > 0 && (
-                    <Badge className="absolute top-6 right-6 h-10 min-w-[40px] bg-white/30 hover:bg-white/30 text-white text-xl px-3 shadow-lg backdrop-blur-sm">
-                      {unreadCount}
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-3 mb-5">
+                    <Icon name="MessageCircle" size={56} className="text-white" />
+                    {unreadCount > 0 && (
+                      <Badge className="bg-red-500 text-white text-lg px-3 py-1">
+                        {unreadCount}
+                      </Badge>
+                    )}
+                  </div>
+                  <h2 className="text-3xl font-bold text-white mb-2">Чат</h2>
+                  <p className="text-orange-100 text-base">Связь с администратором</p>
                 </div>
-                <div className="absolute bottom-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="MessageCircle" size={160} className="text-white" />
+                <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <Icon name="MessageCircle" size={120} className="text-white" />
                 </div>
               </div>
             </div>
@@ -243,7 +252,7 @@ export default function UserDashboard() {
           <div className="space-y-4">
             <button
               onClick={() => setCurrentView('tiles')}
-              className="flex items-center gap-2 text-slate-300 hover:text-blue-400 transition-colors mb-4"
+              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
             >
               <Icon name="ArrowLeft" size={20} />
               <span className="text-lg">Назад</span>

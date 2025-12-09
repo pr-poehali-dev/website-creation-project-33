@@ -695,7 +695,6 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
               )}
             </TabsTrigger>
           </TabsList>
-          </div>
 
           <TabsContent value="personal" className="flex-1 m-0 flex flex-col data-[state=inactive]:hidden">
             <ScrollArea className="flex-1 px-4">

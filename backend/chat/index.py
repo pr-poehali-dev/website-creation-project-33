@@ -61,24 +61,45 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Получение сообщений
             query_params = event.get('queryStringParameters') or {}
             target_user_id = query_params.get('user_id')
+            is_group = query_params.get('is_group') == 'true'
             
-            if is_admin and target_user_id:
-                # Админ получает сообщения конкретного пользователя
+            if is_admin and is_group:
+                # Админ получает все групповые сообщения
                 cursor.execute("""
                     SELECT cm.*, u.name as user_name
                     FROM t_p24058207_website_creation_pro.chat_messages cm
                     JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
-                    WHERE cm.user_id = %s
+                    WHERE cm.is_group = TRUE
+                    ORDER BY cm.created_at ASC
+                """)
+                
+                messages = cursor.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'messages': [dict(row) for row in messages]
+                    }, default=str)
+                }
+            
+            elif is_admin and target_user_id:
+                # Админ получает сообщения конкретного пользователя (личные, не групповые)
+                cursor.execute("""
+                    SELECT cm.*, u.name as user_name
+                    FROM t_p24058207_website_creation_pro.chat_messages cm
+                    JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
+                    WHERE cm.user_id = %s AND cm.is_group = FALSE
                     ORDER BY cm.created_at ASC
                 """, (target_user_id,))
                 
                 messages = cursor.fetchall()
                 
-                # Отмечаем сообщения от пользователя как прочитанные
+                # Отмечаем сообщения от пользователя как прочитанные (только личные, не групповые)
                 cursor.execute("""
                     UPDATE t_p24058207_website_creation_pro.chat_messages 
                     SET is_read = TRUE 
-                    WHERE user_id = %s AND is_from_admin = FALSE AND is_read = FALSE
+                    WHERE user_id = %s AND is_from_admin = FALSE AND is_read = FALSE AND is_group = FALSE
                 """, (target_user_id,))
                 conn.commit()
                 
@@ -125,51 +146,83 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }, default=str)
                 }
             else:
-                # Обычный пользователь получает свои сообщения
+                # Обычный пользователь получает сообщения
                 query_params = event.get('queryStringParameters') or {}
                 mark_read = query_params.get('mark_read') == 'true'
+                is_group = query_params.get('is_group') == 'true'
                 
-                cursor.execute("""
-                    SELECT cm.*, u.name as user_name
-                    FROM t_p24058207_website_creation_pro.chat_messages cm
-                    JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
-                    WHERE cm.user_id = %s
-                    ORDER BY cm.created_at ASC
-                """, (user_id,))
-                
-                messages = cursor.fetchall()
-                
-                # Отмечаем сообщения от админа как прочитанные только если явно запросили
-                if mark_read:
+                if is_group:
+                    # Пользователь получает все групповые сообщения
                     cursor.execute("""
-                        UPDATE t_p24058207_website_creation_pro.chat_messages 
-                        SET is_read = TRUE 
-                        WHERE user_id = %s AND is_from_admin = TRUE AND is_read = FALSE
+                        SELECT cm.*, u.name as user_name
+                        FROM t_p24058207_website_creation_pro.chat_messages cm
+                        JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
+                        WHERE cm.is_group = TRUE
+                        ORDER BY cm.created_at ASC
+                    """)
+                    
+                    messages = cursor.fetchall()
+                    
+                    # Отмечаем групповые сообщения как прочитанные
+                    if mark_read:
+                        cursor.execute("""
+                            UPDATE t_p24058207_website_creation_pro.chat_messages 
+                            SET is_read = TRUE 
+                            WHERE is_group = TRUE AND is_read = FALSE AND user_id != %s
+                        """, (user_id,))
+                        conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({
+                            'messages': [dict(row) for row in messages]
+                        }, default=str)
+                    }
+                else:
+                    # Пользователь получает свои личные сообщения (не групповые)
+                    cursor.execute("""
+                        SELECT cm.*, u.name as user_name
+                        FROM t_p24058207_website_creation_pro.chat_messages cm
+                        JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
+                        WHERE cm.user_id = %s AND cm.is_group = FALSE
+                        ORDER BY cm.created_at ASC
                     """, (user_id,))
-                    conn.commit()
                 
-                # Получаем статус печатает для админа (user_id = 1 - админ)
-                cursor.execute("""
-                    SELECT is_typing FROM t_p24058207_website_creation_pro.typing_status 
-                    WHERE user_id = 1
-                """)
-                typing_row = cursor.fetchone()
-                admin_typing = typing_row['is_typing'] if typing_row else False
-                
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({
-                        'messages': [dict(row) for row in messages],
-                        'is_typing': admin_typing
-                    }, default=str)
-                }
+                    messages = cursor.fetchall()
+                    
+                    # Отмечаем сообщения от админа как прочитанные только если явно запросили
+                    if mark_read:
+                        cursor.execute("""
+                            UPDATE t_p24058207_website_creation_pro.chat_messages 
+                            SET is_read = TRUE 
+                            WHERE user_id = %s AND is_from_admin = TRUE AND is_read = FALSE AND is_group = FALSE
+                        """, (user_id,))
+                        conn.commit()
+                    
+                    # Получаем статус печатает для админа (user_id = 1 - админ)
+                    cursor.execute("""
+                        SELECT is_typing FROM t_p24058207_website_creation_pro.typing_status 
+                        WHERE user_id = 1
+                    """)
+                    typing_row = cursor.fetchone()
+                    admin_typing = typing_row['is_typing'] if typing_row else False
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({
+                            'messages': [dict(row) for row in messages],
+                            'is_typing': admin_typing
+                        }, default=str)
+                    }
         
         elif method == 'POST':
             # Отправка сообщения (с поддержкой медиафайлов через base64)
             body_data = json.loads(event.get('body', '{}'))
             message = body_data.get('message', '').strip()
             target_user_id = body_data.get('user_id')  # Только для админа
+            is_group = body_data.get('is_group', False)  # Групповое сообщение
             media_type = body_data.get('media_type')  # audio, image, video
             media_data = body_data.get('media_data')  # base64 encoded
             
@@ -191,18 +244,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 elif media_type == 'video':
                     media_url = f'data:video/mp4;base64,{media_data}'
             
-            if is_admin and target_user_id:
-                # Админ отправляет сообщение пользователю
+            if is_admin and is_group:
+                # Админ отправляет групповое сообщение (сохраняем как сообщение от админа с is_group=TRUE)
+                # user_id=1 для админа, но это групповое сообщение
                 cursor.execute("""
-                    INSERT INTO t_p24058207_website_creation_pro.chat_messages (user_id, message, is_from_admin, media_type, media_url)
-                    VALUES (%s, %s, TRUE, %s, %s)
+                    INSERT INTO t_p24058207_website_creation_pro.chat_messages (user_id, message, is_from_admin, media_type, media_url, is_group)
+                    VALUES (1, %s, TRUE, %s, %s, TRUE)
+                    RETURNING id, created_at
+                """, (message or '', media_type, media_url))
+            elif is_admin and target_user_id:
+                # Админ отправляет личное сообщение пользователю
+                cursor.execute("""
+                    INSERT INTO t_p24058207_website_creation_pro.chat_messages (user_id, message, is_from_admin, media_type, media_url, is_group)
+                    VALUES (%s, %s, TRUE, %s, %s, FALSE)
                     RETURNING id, created_at
                 """, (target_user_id, message or '', media_type, media_url))
-            else:
-                # Пользователь отправляет сообщение админу
+            elif is_group:
+                # Пользователь отправляет групповое сообщение
                 cursor.execute("""
-                    INSERT INTO t_p24058207_website_creation_pro.chat_messages (user_id, message, is_from_admin, media_type, media_url)
-                    VALUES (%s, %s, FALSE, %s, %s)
+                    INSERT INTO t_p24058207_website_creation_pro.chat_messages (user_id, message, is_from_admin, media_type, media_url, is_group)
+                    VALUES (%s, %s, FALSE, %s, %s, TRUE)
+                    RETURNING id, created_at
+                """, (user_id, message or '', media_type, media_url))
+            else:
+                # Пользователь отправляет личное сообщение админу
+                cursor.execute("""
+                    INSERT INTO t_p24058207_website_creation_pro.chat_messages (user_id, message, is_from_admin, media_type, media_url, is_group)
+                    VALUES (%s, %s, FALSE, %s, %s, FALSE)
                     RETURNING id, created_at
                 """, (user_id, message or '', media_type, media_url))
             

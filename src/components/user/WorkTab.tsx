@@ -304,58 +304,16 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         </DialogContent>
       </Dialog>
 
-      {/* Динамо + Счётчик */}
-      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-white/20">
-              <Icon name="Building2" size={20} />
-            </div>
-            <div>
-              <div className="text-sm opacity-90">Организация</div>
-              <div className="text-lg font-bold">
-                {organizationName || 'Не выбрана'}
-              </div>
-            </div>
-          </div>
-          <Button
-            onClick={onChangeOrganization}
-            variant="secondary"
-            size="sm"
-            className="bg-white/20 hover:bg-white/30 text-white border-0"
-          >
-            <Icon name="RefreshCw" size={16} />
-          </Button>
-        </div>
-        <div className="p-6 text-center">
-          <div className="text-5xl font-bold text-blue-600 mb-2">
-            {todayContactsCount}
-          </div>
-          <div className="text-gray-600">контактов сегодня</div>
-        </div>
-      </Card>
-
-      {/* Telegram и Завершить смену */}
-      <div className="space-y-3">
-        <Button 
-          onClick={() => setDayResultsOpen(true)}
-          size="lg"
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-base md:text-lg h-12 md:h-14 font-semibold"
-        >
-          <Icon name="BarChart3" size={20} className="md:w-6 md:h-6" />
-          Результаты за день
-        </Button>
-
-        <Button 
-          onClick={() => setEndShiftPhotoOpen(true)}
-          size="lg"
-          variant="outline"
-          className="w-full border-2 border-blue-500 text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg transition-all duration-300 text-base md:text-lg h-12 md:h-14 font-semibold"
-        >
-          <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
-          Завершить смену
-        </Button>
-      </div>
+      {/* Кнопка завершить смену */}
+      <Button 
+        onClick={() => setEndShiftPhotoOpen(true)}
+        size="lg"
+        variant="outline"
+        className="w-full border-2 border-blue-500 text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg transition-all duration-300 text-base md:text-lg h-12 md:h-14 font-semibold"
+      >
+        <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
+        Завершить смену
+      </Button>
 
       <PhotoCapture
         open={endShiftPhotoOpen}
@@ -390,6 +348,11 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             
             console.log('✅ Photo sent successfully, closing modal');
             setEndShiftPhotoOpen(false);
+            
+            // Показываем результаты за день после успешной отправки фото
+            setTimeout(() => {
+              setDayResultsOpen(true);
+            }, 300);
           } catch (error) {
             console.error('❌ Error sending photo:', error);
             toast({

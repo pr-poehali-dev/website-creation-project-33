@@ -72,11 +72,11 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         console.log('🎤 Audio recorded, blob size:', blob.size);
         setAudioBlob(blob);
         stream.getTracks().forEach(track => track.stop());
-        setNotebookModalOpen(true);
       };
 
       mediaRecorder.start();
       setIsRecording(true);
+      setNotebookModalOpen(true);
     } catch (error) {
       toast({ 
         title: 'Ошибка доступа к микрофону',
@@ -94,6 +94,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   };
 
   const cancelNotebook = () => {
+    stopRecording();
     setNotebookModalOpen(false);
     setAudioBlob(null);
     setNotes('');
@@ -166,107 +167,75 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300 p-8">
         <div className="flex flex-col items-center gap-6">
           <h2 className="text-2xl font-bold text-black">Контроль качества</h2>
-          <div className="flex items-center gap-4">
-            {!isRecording ? (
-              <button
-                onClick={startRecording}
-                className="audio-record-button"
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '50%',
-                  backgroundColor: '#001f54',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.3s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#003580';
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#001f54';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              >
-                <svg 
-                  width="32" 
-                  height="32" 
-                  viewBox="0 0 24 24" 
-                  fill="white"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                </svg>
-              </button>
-            ) : (
-              <div className="relative">
-                <style>{`
-                  @keyframes rotate {
-                    from {
-                      transform: rotate(0deg);
-                    }
-                    to {
-                      transform: rotate(360deg);
-                    }
-                  }
-                  .rotate-animation {
-                    animation: rotate 2s linear infinite;
-                  }
-                `}</style>
-                <button
-                  onClick={stopRecording}
-                  className="audio-record-button rotate-animation"
-                  style={{
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: '50%',
-                    backgroundColor: '#dc2626',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <svg 
-                    width="32" 
-                    height="32" 
-                    viewBox="0 0 24 24" 
-                    fill="white"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                  </svg>
-                </button>
-              </div>
-            )}
-          </div>
-          {isRecording && (
-            <p className="text-sm text-red-600 font-medium animate-pulse">Идёт запись...</p>
-          )}
+          <button
+            onClick={startRecording}
+            disabled={isRecording}
+            className="audio-record-button"
+            style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              backgroundColor: '#001f54',
+              border: 'none',
+              cursor: isRecording ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.3s ease',
+              opacity: isRecording ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!isRecording) {
+                e.currentTarget.style.backgroundColor = '#003580';
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isRecording) {
+                e.currentTarget.style.backgroundColor = '#001f54';
+                e.currentTarget.style.transform = 'scale(1)';
+              }
+            }}
+          >
+            <svg 
+              width="32" 
+              height="32" 
+              viewBox="0 0 24 24" 
+              fill="white"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+            </svg>
+          </button>
         </div>
       </Card>
 
       {/* Модальное окно с блокнотом */}
-      <Dialog open={notebookModalOpen} onOpenChange={setNotebookModalOpen}>
+      <Dialog open={notebookModalOpen} onOpenChange={(open) => {
+        if (!open) {
+          cancelNotebook();
+        }
+      }}>
         <DialogContent className="max-w-2xl bg-white">
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-blue-500/10">
                 <Icon name="NotebookPen" size={20} className="text-blue-500" />
               </div>
               <h2 className="text-xl font-bold text-black">Блокнот</h2>
+              {isRecording && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-red-600 font-medium">Идёт запись...</span>
+                </div>
+              )}
             </div>
             
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Имя родителя, имя ребенка, возраст ребенка"
-              className="min-h-[200px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300"
+              className="min-h-[250px] bg-white border-gray-200 text-black placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-300"
             />
           </div>
 
@@ -281,7 +250,14 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               Отменить
             </Button>
             <Button
-              onClick={sendToTelegram}
+              onClick={() => {
+                stopRecording();
+                if (audioBlob) {
+                  sendToTelegram();
+                } else {
+                  setTimeout(() => sendToTelegram(), 500);
+                }
+              }}
               disabled={isLoading}
               className="bg-[#0088cc] hover:bg-[#006699] text-white flex items-center gap-2"
             >

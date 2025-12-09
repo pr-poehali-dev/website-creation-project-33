@@ -65,6 +65,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if is_admin and is_group:
                 # Админ получает все групповые сообщения
+                mark_read = query_params.get('mark_read') == 'true'
+                
                 cursor.execute("""
                     SELECT cm.*, u.name as user_name
                     FROM t_p24058207_website_creation_pro.chat_messages cm
@@ -74,6 +76,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 """)
                 
                 messages = cursor.fetchall()
+                
+                # Если mark_read=true, отмечаем групповые сообщения как прочитанные админом
+                if mark_read:
+                    cursor.execute("""
+                        UPDATE t_p24058207_website_creation_pro.chat_messages 
+                        SET is_read = TRUE 
+                        WHERE is_group = TRUE AND is_from_admin = FALSE AND is_read = FALSE
+                    """)
+                    conn.commit()
                 
                 return {
                     'statusCode': 200,

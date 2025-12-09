@@ -260,7 +260,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
             <Icon name="TrendingUp" size={32} className="text-white" />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
-          <p className="text-indigo-100 text-sm md:text-base">Активация Windows</p>
+          <p className="text-indigo-100 text-sm md:text-base">Расписание смен</p>
         </div>
       </div>
     </div>

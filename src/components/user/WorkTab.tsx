@@ -198,51 +198,48 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Кнопка записи звука */}
-      <Card className="bg-white border-blue-500/20 shadow-xl slide-up hover:shadow-2xl transition-all duration-300 p-8">
-        <div className="flex flex-col items-center gap-6">
-          <h2 className="text-2xl font-bold text-black">Контроль качества</h2>
-          <button
-            onClick={startRecording}
-            disabled={isRecording}
-            className="audio-record-button"
-            style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              backgroundColor: '#001f54',
-              border: 'none',
-              cursor: isRecording ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.3s ease',
-              opacity: isRecording ? 0.5 : 1,
-            }}
-            onMouseEnter={(e) => {
-              if (!isRecording) {
-                e.currentTarget.style.backgroundColor = '#003580';
-                e.currentTarget.style.transform = 'scale(1.05)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isRecording) {
-                e.currentTarget.style.backgroundColor = '#001f54';
-                e.currentTarget.style.transform = 'scale(1)';
-              }
-            }}
+      <div className="flex justify-center">
+        <button
+          onClick={startRecording}
+          disabled={isRecording}
+          className="audio-record-button"
+          style={{
+            width: '80px',
+            height: '80px',
+            borderRadius: '50%',
+            backgroundColor: '#001f54',
+            border: 'none',
+            cursor: isRecording ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.3s ease',
+            opacity: isRecording ? 0.5 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (!isRecording) {
+              e.currentTarget.style.backgroundColor = '#003580';
+              e.currentTarget.style.transform = 'scale(1.05)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isRecording) {
+              e.currentTarget.style.backgroundColor = '#001f54';
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          }}
+        >
+          <svg 
+            width="32" 
+            height="32" 
+            viewBox="0 0 24 24" 
+            fill="white"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <svg 
-              width="32" 
-              height="32" 
-              viewBox="0 0 24 24" 
-              fill="white"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-            </svg>
-          </button>
-        </div>
-      </Card>
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+          </svg>
+        </button>
+      </div>
 
       {/* Модальное окно с блокнотом */}
       <Dialog open={notebookModalOpen} onOpenChange={(open) => {

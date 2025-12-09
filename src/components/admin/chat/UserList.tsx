@@ -45,11 +45,11 @@ export default function UserList({ users, selectedUser, onSelectUser }: UserList
                         <p className="text-[10px] md:text-xs text-gray-500 mt-1">
                           {formatChatListTime(userChat.last_message_time)}
                         </p>
-                      ) : (
+                      ) : userChat.id !== -1 ? (
                         <p className="text-[10px] md:text-xs text-gray-500 mt-1 italic">
                           Нет сообщений
                         </p>
-                      )}
+                      ) : null}
                     </div>
                     {userChat.unread_count > 0 && (
                       <Badge className="ml-2 bg-red-500 hover:bg-red-600 shrink-0 text-xs h-5 min-w-[20px] px-1.5">

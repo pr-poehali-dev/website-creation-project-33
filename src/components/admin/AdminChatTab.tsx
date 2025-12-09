@@ -53,14 +53,18 @@ export default function AdminChatTab() {
     }
   };
 
-  const loadMessages = async (userId: number) => {
+  const loadMessages = async (userId: number, markAsRead = false) => {
     if (!user) return;
 
     setIsLoading(true);
     try {
-      const url = userId === -1 
+      let url = userId === -1 
         ? `${CHAT_API_URL}?is_group=true` 
         : `${CHAT_API_URL}?user_id=${userId}`;
+      
+      if (markAsRead) {
+        url += '&mark_read=true';
+      }
       
       const response = await fetch(url, {
         method: 'GET',
@@ -73,6 +77,15 @@ export default function AdminChatTab() {
         const data = await response.json();
         setMessages(data.messages || []);
         setUserTyping(data.is_typing || false);
+        
+        // Обновляем счетчик непрочитанных для группового чата
+        if (markAsRead && userId === -1) {
+          setUsers(prevUsers => 
+            prevUsers.map(u => 
+              u.id === -1 ? { ...u, unread_count: 0 } : u
+            )
+          );
+        }
       }
     } catch (error) {
       console.error('Load messages error:', error);
@@ -307,10 +320,10 @@ export default function AdminChatTab() {
 
   useEffect(() => {
     if (selectedUser) {
-      loadMessages(selectedUser.id);
+      loadMessages(selectedUser.id, true);
       // Периодическое обновление сообщений
       const interval = setInterval(() => {
-        loadMessages(selectedUser.id);
+        loadMessages(selectedUser.id, false);
       }, 3000);
       return () => clearInterval(interval);
     }

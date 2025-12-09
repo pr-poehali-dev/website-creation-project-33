@@ -255,9 +255,12 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               </div>
               <h2 className="text-lg md:text-xl font-bold text-black">Блокнот</h2>
               {isRecording && (
-                <div className="flex items-center gap-2 ml-auto">
-                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs md:text-sm text-red-600 font-medium">Идёт запись...</span>
+                <div className="flex items-center gap-1 ml-auto">
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '12px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '20px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '24px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
+                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
                 </div>
               )}
             </div>

@@ -247,14 +247,11 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           cancelNotebook();
         }
       }}>
-        <DialogContent className="max-w-2xl bg-white mx-4 border-0 shadow-2xl">
+        <DialogContent className="max-w-2xl bg-white mx-4 !border-0 shadow-2xl rounded-2xl">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-blue-500 shadow-lg">
-                  <Icon name="NotebookPen" size={22} className="text-white" />
-                </div>
-                <h2 className="text-xl md:text-2xl font-bold text-blue-500">Блокнот</h2>
+              <div className="p-2.5 rounded-xl bg-blue-500 shadow-lg">
+                <Icon name="NotebookPen" size={22} className="text-white" />
               </div>
               {isRecording && (
                 <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-full">

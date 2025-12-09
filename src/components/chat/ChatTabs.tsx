@@ -672,15 +672,16 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl h-[650px] flex flex-col p-0">
-        <button
-          onClick={() => onOpenChange(false)}
-          className="absolute right-3 top-3 z-50 p-1 hover:opacity-70 transition-opacity focus:outline-none md:hidden"
-        >
-          <Icon name="X" size={20} className="text-gray-600" />
-          <span className="sr-only">Закрыть</span>
-        </button>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
+          <div className="relative">
+            <button
+              onClick={() => onOpenChange(false)}
+              className="absolute right-2 -top-12 z-50 p-1 hover:opacity-70 transition-opacity focus:outline-none md:hidden"
+            >
+              <Icon name="X" size={22} className="text-gray-700" />
+              <span className="sr-only">Закрыть</span>
+            </button>
+            <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
             <TabsTrigger value="personal" className="gap-2">
               <Icon name="User" size={16} />
               Личный чат
@@ -695,6 +696,7 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
               )}
             </TabsTrigger>
           </TabsList>
+          </div>
 
           <TabsContent value="personal" className="flex-1 m-0 flex flex-col data-[state=inactive]:hidden">
             <ScrollArea className="flex-1 px-4">

@@ -260,7 +260,7 @@ export default function UserDashboard() {
               </button>
               {organizationName && (
                 <div className="flex items-center gap-3">
-                  <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1">
+                  <Badge className="bg-[#001f54]/10 text-[#001f54] border-0 text-sm md:text-base px-3 py-1">
                     <Icon name="Building2" size={14} className="mr-1.5" />
                     {organizationName}
                   </Badge>

@@ -269,7 +269,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Имя родителя, имя ребенка, возраст ребенка"
-              className="min-h-[200px] md:min-h-[250px] bg-white border-2 border-blue-500 text-gray-900 placeholder:text-gray-400 resize-none focus:border-blue-500 focus:ring-0 focus:outline-none transition-all duration-300 text-base rounded-xl"
+              className="min-h-[200px] md:min-h-[250px] bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 resize-none focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-base rounded-xl"
+              style={{ outline: 'none', boxShadow: 'none' }}
             />
           </div>
 

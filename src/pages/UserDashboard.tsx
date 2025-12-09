@@ -136,7 +136,7 @@ export default function UserDashboard() {
                 <>
                   <Button 
                     onClick={() => setChatOpen(true)} 
-                    className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg relative h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
+                    className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg relative h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                     size="sm"
                   >
                     <Icon name="MessageCircle" size={18} />
@@ -148,7 +148,7 @@ export default function UserDashboard() {
                   </Button>
                   <Button 
                     onClick={handleChangeOrganization}
-                    className="border-2 border-[#001f54]/20 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300 h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
+                    className="border-0 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300 h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 focus-visible:ring-0 focus-visible:ring-offset-0"
                     variant="ghost"
                     size="sm"
                   >
@@ -158,21 +158,21 @@ export default function UserDashboard() {
               )}
               <Button 
                 onClick={() => setAiHelperOpen(true)} 
-                className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 font-bold text-sm"
+                className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 font-bold text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                 size="sm"
               >
                 AI
               </Button>
               <Button 
                 onClick={() => setCurrentView('schedule')} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                 size="sm"
               >
                 <Icon name="Calendar" size={18} />
               </Button>
               <Button 
                 onClick={logout} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3"
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                 size="sm"
               >
                 <Icon name="LogOut" size={18} />
@@ -277,19 +277,19 @@ export default function UserDashboard() {
 
         {currentView === 'work' && (
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <div className="flex justify-between items-center gap-3 mb-4">
               <button
                 onClick={() => setCurrentView('tiles')}
-                className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+                className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors flex-shrink-0"
               >
                 <Icon name="ArrowLeft" size={20} />
                 <span className="text-lg">Назад</span>
               </button>
               {organizationName && (
-                <div className="flex items-center gap-3">
-                  <Badge className="bg-[#001f54]/10 text-[#001f54] !border-0 focus:ring-0 focus:ring-offset-0 text-sm md:text-base px-3 py-1">
-                    <Icon name="Building2" size={14} className="mr-1.5" />
-                    {organizationName}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Badge className="bg-[#001f54]/10 text-[#001f54] border-0 text-sm px-2 py-1 max-w-[140px] truncate">
+                    <Icon name="Building2" size={14} className="mr-1 flex-shrink-0" />
+                    <span className="truncate">{organizationName}</span>
                   </Badge>
                   <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => setTodayContacts(stats.today_contacts)} />
                 </div>

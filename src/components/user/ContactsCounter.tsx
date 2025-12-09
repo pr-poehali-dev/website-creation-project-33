@@ -36,7 +36,7 @@ const ContactsCounter = forwardRef<ContactsCounterRef, ContactsCounterProps>(({ 
   }
 
   return (
-    <span className="text-sm text-[#001f54]/70 font-medium">
+    <span className="text-sm text-[#001f54]/70 font-medium whitespace-nowrap">
       {stats.today_contacts}/{stats.total_contacts}
     </span>
   );

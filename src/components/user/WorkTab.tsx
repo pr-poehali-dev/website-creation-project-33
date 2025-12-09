@@ -316,50 +316,17 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
       <PhotoCapture
         open={endShiftPhotoOpen}
-        onClose={() => {
-          console.log('🔵 PhotoCapture onClose called');
-          setEndShiftPhotoOpen(false);
-        }}
-        onPhotoTaken={async (photoFile) => {
-          console.log('📸 Photo taken, size:', photoFile.size);
+        onOpenChange={setEndShiftPhotoOpen}
+        type="end"
+        organizationId={selectedOrganizationId || 0}
+        onSuccess={(contactsCount) => {
+          console.log('✅ Photo sent successfully');
+          queryClient.invalidateQueries({ queryKey: ['user-stats'] });
           
-          try {
-            const formData = new FormData();
-            formData.append('photo', photoFile);
-            formData.append('user_id', user?.id?.toString() || '');
-            formData.append('organization_id', selectedOrganizationId?.toString() || '');
-
-            const response = await fetch('https://functions.poehali.dev/b0be5279-ea87-4088-b93c-8d93cd0c49cb', {
-              method: 'POST',
-              body: formData
-            });
-
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-
-            toast({
-              title: 'Смена завершена',
-              description: 'Фото отправлено успешно'
-            });
-
-            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
-            
-            console.log('✅ Photo sent successfully, closing modal');
-            setEndShiftPhotoOpen(false);
-            
-            // Показываем результаты за день после успешной отправки фото
-            setTimeout(() => {
-              setDayResultsOpen(true);
-            }, 300);
-          } catch (error) {
-            console.error('❌ Error sending photo:', error);
-            toast({
-              title: 'Ошибка',
-              description: 'Не удалось отправить фото',
-              variant: 'destructive'
-            });
-          }
+          // Показываем результаты за день после успешной отправки фото
+          setTimeout(() => {
+            setDayResultsOpen(true);
+          }, 300);
         }}
       />
 

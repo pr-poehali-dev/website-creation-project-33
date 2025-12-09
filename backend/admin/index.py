@@ -1532,35 +1532,44 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     """
                     cur.execute(query)
                     
+                    
                     shifts = []
                     for row in cur.fetchall():
+                        shift_date = row[0]
+                        user_id = row[5]
+                        org_id = row[4]
+                        
+                        # Подсчитываем контакты из сгруппированных данных
+                        key = (user_id, org_id, shift_date)
+                        contacts_count = leads_by_shift.get(key, {}).get('contacts', 0)
+                        
                         shifts.append({
-                            'date': row[0].isoformat() if row[0] else None,
+                            'date': shift_date.isoformat() if shift_date else None,
                             'start_time': str(row[1]) if row[1] else None,
                             'end_time': str(row[2]) if row[2] else None,
                             'organization': row[3],
                             'organization_name': row[3],
-                            'organization_id': row[4],
-                            'user_id': row[5],
+                            'organization_id': org_id,
+                            'user_id': user_id,
                             'user_name': row[6],
-                            'contacts_count': int(row[7]),
-                            'contact_rate': int(row[8]) if row[8] else 0,
-                            'payment_type': row[9] if row[9] else 'cash',
-                            'expense_amount': int(row[10]) if row[10] else 0,
-                            'expense_comment': row[11] if row[11] else '',
-                            'paid_by_organization': bool(row[12]),
-                            'paid_to_worker': bool(row[13]),
-                            'salary_at_kvv': bool(row[14]),
-                            'paid_kvv': bool(row[15]),
-                            'paid_kms': bool(row[16]),
-                            'invoice_issued': bool(row[17]),
-                            'invoice_issued_date': row[18].isoformat() if row[18] else None,
-                            'invoice_paid': bool(row[19]),
-                            'invoice_paid_date': row[20].isoformat() if row[20] else None,
-                            'personal_funds_amount': int(row[21]) if row[21] else 0,
-                            'personal_funds_by_kms': bool(row[22]),
-                            'personal_funds_by_kvv': bool(row[23]),
-                            'compensation_amount': int(row[24]) if row[24] else 0
+                            'contacts_count': contacts_count,
+                            'contact_rate': int(row[7]) if row[7] else 0,
+                            'payment_type': row[8] if row[8] else 'cash',
+                            'expense_amount': int(row[9]) if row[9] else 0,
+                            'expense_comment': row[10] if row[10] else '',
+                            'paid_by_organization': bool(row[11]),
+                            'paid_to_worker': bool(row[12]),
+                            'salary_at_kvv': bool(row[13]),
+                            'paid_kvv': bool(row[14]),
+                            'paid_kms': bool(row[15]),
+                            'invoice_issued': bool(row[16]),
+                            'invoice_issued_date': row[17].isoformat() if row[17] else None,
+                            'invoice_paid': bool(row[18]),
+                            'invoice_paid_date': row[19].isoformat() if row[19] else None,
+                            'personal_funds_amount': int(row[20]) if row[20] else 0,
+                            'personal_funds_by_kms': bool(row[21]),
+                            'personal_funds_by_kvv': bool(row[22]),
+                            'compensation_amount': int(row[23]) if row[23] else 0
                         })
             
             return {

@@ -332,6 +332,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
       <DayResultsDialog
         open={dayResultsOpen}
+        contactsCount={todayContactsCount}
         onClose={() => setDayResultsOpen(false)}
       />
     </div>

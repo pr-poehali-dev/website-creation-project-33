@@ -38,7 +38,7 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
   }, [open]);
 
   const getMessage = () => {
-    if (contactsCount < 10) {
+    if (contactsCount < 15) {
       return {
         text: 'Ты можешь лучше!',
         icon: 'ThumbsUp',
@@ -47,7 +47,7 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
         emoji: '💪'
       };
     }
-    if (contactsCount <= 15) {
+    if (contactsCount < 25) {
       return {
         text: 'Ты молодец!',
         icon: 'Award',

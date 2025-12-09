@@ -148,7 +148,7 @@ export default function UserDashboard() {
                   </Button>
                   <Button 
                     onClick={handleChangeOrganization}
-                    className="border-0 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300 h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="hidden md:flex border-0 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300 h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 focus-visible:ring-0 focus-visible:ring-offset-0"
                     variant="ghost"
                     size="sm"
                   >
@@ -158,7 +158,7 @@ export default function UserDashboard() {
               )}
               <Button 
                 onClick={() => setAiHelperOpen(true)} 
-                className="bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 font-bold text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="hidden md:flex bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 font-bold text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                 size="sm"
               >
                 AI

@@ -246,14 +246,14 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           cancelNotebook();
         }
       }}>
-        <DialogContent className="max-w-2xl bg-white mx-4 !border-0 shadow-2xl rounded-2xl">
-          <div className="space-y-6">
+        <DialogContent className="max-w-2xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-white !border-0 shadow-2xl rounded-2xl p-4 sm:p-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="flex items-center justify-between">
-              <div className="p-2.5 rounded-xl bg-blue-500 shadow-lg">
-                <Icon name="NotebookPen" size={22} className="text-white" />
+              <div className="p-2 sm:p-2.5 rounded-xl bg-blue-500 shadow-lg">
+                <Icon name="NotebookPen" size={20} className="text-white sm:w-[22px] sm:h-[22px]" />
               </div>
               {isRecording && (
-                <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-full">
+                <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-full">
                   <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
                   <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
                   <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
@@ -267,35 +267,35 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Имя родителя, имя ребенка, возраст ребенка"
-              className="min-h-[200px] md:min-h-[250px] bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 resize-none focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-base rounded-xl"
+              className="min-h-[180px] sm:min-h-[200px] md:min-h-[250px] bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 resize-none focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl"
               style={{ outline: 'none', boxShadow: 'none' }}
             />
           </div>
 
-          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2 mt-4">
             <Button
               onClick={cancelNotebook}
               variant="outline"
-              className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 w-full sm:w-auto rounded-xl font-medium transition-all duration-300"
+              className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 w-full sm:w-auto rounded-xl font-medium transition-all duration-300 text-sm sm:text-base h-10 sm:h-auto"
               disabled={isLoading}
             >
-              <Icon name="X" size={18} />
-              Отменить
+              <Icon name="X" size={16} className="sm:w-[18px] sm:h-[18px]" />
+              <span className="ml-1">Отменить</span>
             </Button>
             <Button
               onClick={handleSendToTelegram}
               disabled={isLoading}
-              className="bg-[#0088cc] hover:bg-[#006699] text-white flex items-center gap-2 w-full sm:w-auto justify-center rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-[#0088cc] hover:bg-[#006699] text-white flex items-center gap-2 w-full sm:w-auto justify-center rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base h-10 sm:h-auto"
             >
               {isLoading ? (
                 <>
-                  <Icon name="Loader2" size={18} className="animate-spin" />
-                  Отправка...
+                  <Icon name="Loader2" size={16} className="animate-spin sm:w-[18px] sm:h-[18px]" />
+                  <span>Отправка...</span>
                 </>
               ) : (
                 <>
-                  <Icon name="Send" size={18} />
-                  Отправить в Telegram
+                  <Icon name="Send" size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  <span>Отправить в Telegram</span>
                 </>
               )}
             </Button>

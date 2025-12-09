@@ -101,17 +101,44 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     localStorage.removeItem('notepad_draft');
   };
 
-  const sendToTelegram = async () => {
+  const handleSendToTelegram = async () => {
+    setIsLoading(true);
+
+    // Останавливаем запись, если она ещё идёт
+    if (isRecording && mediaRecorderRef.current) {
+      stopRecording();
+      
+      // Ждём пока аудио обработается (используем промис)
+      await new Promise<void>((resolve) => {
+        const checkAudioBlob = setInterval(() => {
+          if (audioBlob) {
+            clearInterval(checkAudioBlob);
+            resolve();
+          }
+        }, 100);
+        
+        // Таймаут на 3 секунды максимум
+        setTimeout(() => {
+          clearInterval(checkAudioBlob);
+          resolve();
+        }, 3000);
+      });
+    }
+
+    // Ждём ещё немного если audioBlob всё ещё null
+    if (!audioBlob) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
     if (!audioBlob) {
       toast({
         title: 'Ошибка',
-        description: 'Необходимо записать аудио перед отправкой',
+        description: 'Не удалось записать аудио. Попробуйте снова.',
         variant: 'destructive'
       });
+      setIsLoading(false);
       return;
     }
-
-    setIsLoading(true);
     
     try {
       const reader = new FileReader();
@@ -250,14 +277,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               Отменить
             </Button>
             <Button
-              onClick={() => {
-                stopRecording();
-                if (audioBlob) {
-                  sendToTelegram();
-                } else {
-                  setTimeout(() => sendToTelegram(), 500);
-                }
-              }}
+              onClick={handleSendToTelegram}
               disabled={isLoading}
               className="bg-[#0088cc] hover:bg-[#006699] text-white flex items-center gap-2"
             >

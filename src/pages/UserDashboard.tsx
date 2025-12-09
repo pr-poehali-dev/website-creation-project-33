@@ -251,23 +251,21 @@ export default function UserDashboard() {
         {currentView === 'work' && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setCurrentView('tiles')}
-                  className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  <Icon name="ArrowLeft" size={20} />
-                  <span className="text-lg">Назад</span>
-                </button>
-                {organizationName && (
+              <button
+                onClick={() => setCurrentView('tiles')}
+                className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+              >
+                <Icon name="ArrowLeft" size={20} />
+                <span className="text-lg">Назад</span>
+              </button>
+              {organizationName && (
+                <div className="flex items-center gap-3">
                   <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1">
                     <Icon name="Building2" size={14} className="mr-1.5" />
                     {organizationName}
                   </Badge>
-                )}
-              </div>
-              {organizationName && (
-                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => setTodayContacts(stats.today_contacts)} />
+                  <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => setTodayContacts(stats.today_contacts)} />
+                </div>
               )}
             </div>
             <WorkTab 

@@ -104,43 +104,50 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const handleSendToTelegram = async () => {
     setIsLoading(true);
 
-    // Останавливаем запись, если она ещё идёт
-    if (isRecording && mediaRecorderRef.current) {
-      stopRecording();
-      
-      // Ждём пока аудио обработается (используем промис)
-      await new Promise<void>((resolve) => {
-        const checkAudioBlob = setInterval(() => {
-          if (audioBlob) {
-            clearInterval(checkAudioBlob);
-            resolve();
-          }
-        }, 100);
-        
-        // Таймаут на 3 секунды максимум
-        setTimeout(() => {
-          clearInterval(checkAudioBlob);
-          resolve();
-        }, 3000);
-      });
-    }
-
-    // Ждём ещё немного если audioBlob всё ещё null
-    if (!audioBlob) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-
-    if (!audioBlob) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось записать аудио. Попробуйте снова.',
-        variant: 'destructive'
-      });
-      setIsLoading(false);
-      return;
-    }
-    
     try {
+      let finalAudioBlob = audioBlob;
+
+      // Если запись ещё идёт, останавливаем и ждём результат
+      if (isRecording && mediaRecorderRef.current) {
+        console.log('🎤 Stopping recording...');
+        
+        // Создаём промис который разрешится когда получим blob
+        const audioBlobPromise = new Promise<Blob>((resolve, reject) => {
+          const originalOnstop = mediaRecorderRef.current!.onstop;
+          
+          mediaRecorderRef.current!.onstop = () => {
+            const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+            console.log('🎤 Audio recorded in handleSend, blob size:', blob.size);
+            
+            const stream = mediaRecorderRef.current?.stream;
+            stream?.getTracks().forEach(track => track.stop());
+            
+            resolve(blob);
+          };
+
+          // Таймаут на 5 секунд
+          setTimeout(() => reject(new Error('Recording timeout')), 5000);
+        });
+
+        mediaRecorderRef.current.stop();
+        setIsRecording(false);
+        
+        finalAudioBlob = await audioBlobPromise;
+        setAudioBlob(finalAudioBlob);
+      }
+
+      if (!finalAudioBlob) {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось записать аудио. Попробуйте снова.',
+          variant: 'destructive'
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('📤 Sending audio blob, size:', finalAudioBlob.size);
+      
       const reader = new FileReader();
       const audioData = await new Promise<string>((resolve, reject) => {
         reader.onloadend = () => {
@@ -149,7 +156,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           resolve(base64);
         };
         reader.onerror = () => reject(new Error('Failed to read audio'));
-        reader.readAsDataURL(audioBlob);
+        reader.readAsDataURL(finalAudioBlob);
       });
 
       fetch('https://functions.poehali.dev/ecd9eaa3-7399-4f8b-8219-529b81f87b6a', {
@@ -179,8 +186,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     } catch (error) {
       console.error('Send error:', error);
       toast({ 
-        title: 'Ошибка отправки',
-        description: 'Не удалось отправить данные. Попробуйте снова.',
+        title: 'Ошибка',
+        description: 'Не удалось записать аудио. Попробуйте снова.',
         variant: 'destructive'
       });
     } finally {

@@ -63,27 +63,34 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
     };
 
     if (chartMode === 'day') {
-      // Последние 14 дней
-      for (let i = 13; i >= 0; i--) {
+      // Последние 30 дней (каждый день отдельно)
+      for (let i = 29; i >= 0; i--) {
         const date = new Date(now);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
         const dayShifts = shiftsByDate[dateStr] || [];
         
         data.push({
-          label: date.getDate().toString(),
+          label: `${date.getDate()}.${String(date.getMonth() + 1).padStart(2, '0')}`,
           total: getTotalUniqueOrgs(dayShifts),
           selected: hasSelectedOrg(dayShifts),
           date: dateStr
         });
       }
     } else if (chartMode === 'week') {
-      // Последние 12 недель
+      // Последние 12 недель (каждая неделя отдельно, пн-вс)
       for (let i = 11; i >= 0; i--) {
-        const weekEnd = new Date(now);
-        weekEnd.setDate(weekEnd.getDate() - i * 7);
-        const weekStart = new Date(weekEnd);
-        weekStart.setDate(weekStart.getDate() - 6);
+        const refDate = new Date(now);
+        refDate.setDate(refDate.getDate() - i * 7);
+        
+        // Находим понедельник текущей недели
+        const day = refDate.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        const weekStart = new Date(refDate);
+        weekStart.setDate(refDate.getDate() + diff);
+        
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
         
         const weekShifts: Shift[] = [];
         for (let d = new Date(weekStart); d <= weekEnd; d.setDate(d.getDate() + 1)) {
@@ -92,14 +99,14 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         }
         
         data.push({
-          label: `${weekStart.getDate()}/${weekStart.getMonth() + 1}`,
+          label: `${weekStart.getDate()}.${String(weekStart.getMonth() + 1).padStart(2, '0')}-${weekEnd.getDate()}.${String(weekEnd.getMonth() + 1).padStart(2, '0')}`,
           total: getTotalUniqueOrgs(weekShifts),
           selected: hasSelectedOrg(weekShifts),
           date: weekStart.toISOString().split('T')[0]
         });
       }
     } else if (chartMode === 'month') {
-      // Последние 12 месяцев
+      // Последние 12 месяцев (каждый месяц отдельно)
       for (let i = 11; i >= 0; i--) {
         const monthDate = new Date(now);
         monthDate.setMonth(monthDate.getMonth() - i);
@@ -112,14 +119,14 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         });
         
         data.push({
-          label: monthDate.toLocaleDateString('ru-RU', { month: 'short' }),
+          label: monthDate.toLocaleDateString('ru-RU', { month: 'short', year: '2-digit' }),
           total: getTotalUniqueOrgs(monthShifts),
           selected: hasSelectedOrg(monthShifts),
           date: `${year}-${String(month + 1).padStart(2, '0')}-01`
         });
       }
     } else if (chartMode === 'year') {
-      // Последние 5 лет
+      // Последние 5 лет (каждый год отдельно)
       for (let i = 4; i >= 0; i--) {
         const year = now.getFullYear() - i;
         

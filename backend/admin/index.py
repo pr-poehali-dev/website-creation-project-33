@@ -143,24 +143,76 @@ def get_leads_stats() -> Dict[str, Any]:
             approaches = row[1] if row[1] else 0
             total_leads = row[2] if row[2] else 0
             
-            # Статистика по пользователям (из подтверждённых смен) с доходом
+            # Получаем все смены
             cur.execute("""
-                WITH shift_contacts AS (
-                    SELECT 
-                        s.user_id,
-                        s.shift_date,
-                        s.organization_id,
-                        COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as shift_contacts
-                    FROM t_p24058207_website_creation_pro.work_shifts s
-                    LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
-                        ON l.user_id = s.user_id 
-                        AND l.created_at::date = s.shift_date
-                        AND l.organization_id = s.organization_id
-                        AND l.is_active = true
-                    WHERE s.shift_date >= '2025-01-01'
-                    GROUP BY s.user_id, s.shift_date, s.organization_id
-                ),
-                user_revenue AS (
+                SELECT 
+                    user_id,
+                    shift_date,
+                    organization_id
+                FROM t_p24058207_website_creation_pro.work_shifts
+                WHERE shift_date >= '2025-01-01'
+            """)
+            shifts_data = cur.fetchall()
+            
+            # Получаем все лиды для подсчёта
+            cur.execute("""
+                SELECT 
+                    user_id,
+                    organization_id,
+                    created_at,
+                    lead_type
+                FROM t_p24058207_website_creation_pro.leads_analytics
+                WHERE is_active = true AND created_at >= '2024-12-31 21:00:00'
+            """)
+            leads_data = cur.fetchall()
+            
+            # Подсчитываем контакты по сменам с конвертацией в московское время
+            shift_contacts_map = {}
+            for lead_row in leads_data:
+                user_id = lead_row[0]
+                org_id = lead_row[1]
+                created_at_utc = lead_row[2]
+                lead_type = lead_row[3]
+                
+                if created_at_utc.tzinfo is None:
+                    created_at_utc = created_at_utc.replace(tzinfo=pytz.UTC)
+                created_at_moscow = created_at_utc.astimezone(MOSCOW_TZ)
+                shift_date = created_at_moscow.date()
+                
+                key = (user_id, shift_date, org_id)
+                if key not in shift_contacts_map:
+                    shift_contacts_map[key] = 0
+                
+                if lead_type == 'контакт':
+                    shift_contacts_map[key] += 1
+            
+            # Группируем данные по пользователям
+            user_data_map = {}
+            for shift_row in shifts_data:
+                user_id = shift_row[0]
+                shift_date = shift_row[1]
+                org_id = shift_row[2]
+                
+                if user_id not in user_data_map:
+                    user_data_map[user_id] = {
+                        'shifts': set(),
+                        'contacts': 0,
+                        'max_contacts': 0,
+                        'shift_contacts_list': []
+                    }
+                
+                user_data_map[user_id]['shifts'].add((shift_date, org_id))
+                
+                key = (user_id, shift_date, org_id)
+                shift_contacts_count = shift_contacts_map.get(key, 0)
+                user_data_map[user_id]['contacts'] += shift_contacts_count
+                user_data_map[user_id]['shift_contacts_list'].append(shift_contacts_count)
+                if shift_contacts_count > user_data_map[user_id]['max_contacts']:
+                    user_data_map[user_id]['max_contacts'] = shift_contacts_count
+            
+            # Получаем дополнительные данные: имена, email, подходы, доход
+            cur.execute("""
+                WITH user_revenue AS (
                     SELECT 
                         l.user_id,
                         SUM(
@@ -198,40 +250,33 @@ def get_leads_stats() -> Dict[str, Any]:
                 )
                 SELECT 
                     u.id, u.name, u.email,
-                    COUNT(DISTINCT sc.shift_date || '-' || sc.organization_id) as shifts_count,
-                    SUM(sc.shift_contacts) as contacts,
-                    (
-                        SELECT COUNT(*) 
-                        FROM t_p24058207_website_creation_pro.leads_analytics la
-                        WHERE la.user_id = u.id 
-                        AND la.lead_type = 'подход' 
-                        AND la.is_active = true
-                    ) as approaches,
-                    (
-                        SELECT COUNT(*) 
-                        FROM t_p24058207_website_creation_pro.leads_analytics la
-                        WHERE la.user_id = u.id 
-                        AND la.is_active = true
-                    ) as total_leads,
-                    MAX(sc.shift_contacts) as max_contacts_per_shift,
+                    (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la
+                     WHERE la.user_id = u.id AND la.lead_type = 'подход' AND la.is_active = true) as approaches,
+                    (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la
+                     WHERE la.user_id = u.id AND la.is_active = true) as total_leads,
                     COALESCE(ur.total_revenue, 0) as revenue
                 FROM t_p24058207_website_creation_pro.users u
-                JOIN shift_contacts sc ON u.id = sc.user_id
                 LEFT JOIN user_revenue ur ON u.id = ur.user_id
-                GROUP BY u.id, u.name, u.email, ur.total_revenue
-                HAVING SUM(sc.shift_contacts) > 0
-                ORDER BY contacts DESC
+                WHERE u.is_active = true
             """)
             
             user_stats = []
             for row in cur.fetchall():
                 user_id = row[0]
-                shifts_count = int(row[3]) if row[3] else 0
-                contacts_count = int(row[4]) if row[4] else 0
-                approaches_count = int(row[5]) if row[5] else 0
-                lead_count = int(row[6]) if row[6] else 0
-                max_contacts = int(row[7]) if row[7] else 0
-                revenue = int(row[8]) if row[8] else 0
+                
+                if user_id not in user_data_map:
+                    continue
+                
+                user_data = user_data_map[user_id]
+                shifts_count = len(user_data['shifts'])
+                contacts_count = user_data['contacts']
+                
+                if contacts_count == 0:
+                    continue
+                
+                approaches_count = int(row[3]) if row[3] else 0
+                lead_count = int(row[4]) if row[4] else 0
+                revenue = int(row[5]) if row[5] else 0
                 
                 avg_per_shift = round(lead_count / shifts_count) if shifts_count > 0 else 0
                 
@@ -244,9 +289,11 @@ def get_leads_stats() -> Dict[str, Any]:
                     'approaches': approaches_count,
                     'shifts_count': shifts_count,
                     'avg_per_shift': avg_per_shift,
-                    'max_contacts_per_shift': max_contacts,
+                    'max_contacts_per_shift': user_data['max_contacts'],
                     'revenue': revenue
                 })
+            
+            user_stats.sort(key=lambda x: x['contacts'], reverse=True)
             
             # Статистика по дням - загружаем все лиды и группируем по московской дате
             cur.execute("""

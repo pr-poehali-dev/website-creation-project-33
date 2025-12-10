@@ -271,7 +271,8 @@ def get_leads_stats() -> Dict[str, Any]:
                 shifts_count = len(user_data['shifts'])
                 contacts_count = user_data['contacts']
                 
-                if contacts_count == 0:
+                # Показываем пользователей, у которых есть хотя бы одна смена
+                if shifts_count == 0:
                     continue
                 
                 approaches_count = int(row[3]) if row[3] else 0

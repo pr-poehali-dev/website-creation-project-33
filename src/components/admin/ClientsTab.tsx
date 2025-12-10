@@ -182,8 +182,10 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
               <button
                 key={mode}
                 onClick={() => {
-                  setCurrentDate(new Date());
-                  setViewMode(mode);
+                  if (viewMode !== mode) {
+                    setCurrentDate(new Date());
+                    setTimeout(() => setViewMode(mode), 0);
+                  }
                 }}
                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   viewMode === mode

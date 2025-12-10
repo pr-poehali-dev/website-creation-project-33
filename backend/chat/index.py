@@ -374,20 +374,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             query_params = event.get('queryStringParameters') or {}
             target_user_id = query_params.get('user_id')
+            is_group = query_params.get('is_group') == 'true'
             
-            if not target_user_id:
+            if is_group:
+                # Удаляем все групповые сообщения
+                cursor.execute("""
+                    DELETE FROM t_p24058207_website_creation_pro.chat_messages WHERE is_group = TRUE
+                """)
+            elif target_user_id:
+                # Удаляем ВСЕ сообщения конкретного пользователя (только личные)
+                cursor.execute("""
+                    DELETE FROM t_p24058207_website_creation_pro.chat_messages WHERE user_id = %s AND is_group = FALSE
+                """, (target_user_id,))
+            else:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'user_id is required'})
+                    'body': json.dumps({'error': 'user_id or is_group is required'})
                 }
-            
-            # Удаляем ВСЕ сообщения пользователя НАВСЕГДА (включая медиа base64)
-            # Аудио/фото/видео хранятся как base64 в media_url
-            # После DELETE они исчезают из БД физически и навсегда
-            cursor.execute("""
-                DELETE FROM t_p24058207_website_creation_pro.chat_messages WHERE user_id = %s
-            """, (target_user_id,))
             
             deleted_count = cursor.rowcount
             conn.commit()

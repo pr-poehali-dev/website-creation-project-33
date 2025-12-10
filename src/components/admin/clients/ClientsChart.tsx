@@ -24,8 +24,8 @@ interface Shift {
 
 type ChartMode = 'day' | 'week' | 'month' | 'year';
 type DayPeriod = 7 | 30 | 60 | 90 | 365;
-type WeekPeriod = 1 | 2 | 3 | 6 | 12;
-type MonthPeriod = 3 | 6 | 12 | 24 | 36;
+type WeekPeriod = 7 | 30 | 60 | 90 | 365;
+type MonthPeriod = 7 | 30 | 60 | 90 | 365;
 type YearPeriod = 1 | 2 | 3 | 5 | 10;
 
 interface ClientsChartProps {
@@ -36,8 +36,8 @@ interface ClientsChartProps {
 export default function ClientsChart({ organizations, shifts }: ClientsChartProps) {
   const [chartMode, setChartMode] = useState<ChartMode>('month');
   const [dayPeriod, setDayPeriod] = useState<DayPeriod>(30);
-  const [weekPeriod, setWeekPeriod] = useState<WeekPeriod>(12);
-  const [monthPeriod, setMonthPeriod] = useState<MonthPeriod>(12);
+  const [weekPeriod, setWeekPeriod] = useState<WeekPeriod>(30);
+  const [monthPeriod, setMonthPeriod] = useState<MonthPeriod>(30);
   const [yearPeriod, setYearPeriod] = useState<YearPeriod>(5);
   const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<{
@@ -230,7 +230,7 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
             
             {chartMode === 'week' && (
               <div className="flex flex-wrap gap-2">
-                {([1, 2, 3, 6, 12] as WeekPeriod[]).map((period) => (
+                {([7, 30, 60, 90, 365] as WeekPeriod[]).map((period) => (
                   <button
                     key={period}
                     onClick={() => setWeekPeriod(period)}
@@ -240,7 +240,7 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
                         : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
                     }`}
                   >
-                    {period} {period === 1 ? 'нед.' : period < 5 ? 'нед.' : 'нед.'}
+                    {period} дн.
                   </button>
                 ))}
               </div>
@@ -248,7 +248,7 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
             
             {chartMode === 'month' && (
               <div className="flex flex-wrap gap-2">
-                {([3, 6, 12, 24, 36] as MonthPeriod[]).map((period) => (
+                {([7, 30, 60, 90, 365] as MonthPeriod[]).map((period) => (
                   <button
                     key={period}
                     onClick={() => setMonthPeriod(period)}
@@ -258,7 +258,7 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
                         : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
                     }`}
                   >
-                    {period} мес.
+                    {period} дн.
                   </button>
                 ))}
               </div>

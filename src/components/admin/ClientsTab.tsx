@@ -72,7 +72,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
 
   const getDateRange = () => {
     const start = new Date(currentDate);
-    const end = new Date(currentDate);
+    let end = new Date(currentDate);
 
     switch (viewMode) {
       case 'day':

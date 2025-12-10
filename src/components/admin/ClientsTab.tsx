@@ -183,7 +183,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
     return { bg: 'bg-red-50 border-red-200', text: 'text-red-600' };
   };
   
-  const calculate13DaysStats = () => {
+  const calculate14DaysStats = () => {
     const allOrgs = organizations;
     const topOrgs = organizations.filter(org => org.name.includes('ТОП'));
     const kiberoneOrgs = organizations.filter(org => org.name.includes('KIBERONE'));
@@ -191,7 +191,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
     const countRecent = (orgs: Organization[]) => {
       return orgs.filter(org => {
         if (!org.days_since_last_shift) return false;
-        return org.days_since_last_shift <= 13;
+        return org.days_since_last_shift <= 14;
       }).length;
     };
     
@@ -214,7 +214,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
     };
   };
   
-  const stats13Days = calculate13DaysStats();
+  const stats14Days = calculate14DaysStats();
 
   const shiftsGroupedByOrg = shifts.reduce((acc, shift) => {
     if (!acc[shift.organization_id]) {
@@ -241,15 +241,16 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Планирование выходов</h2>
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-              <div>
-                <span className="font-medium">ВСЕ:</span> {stats13Days.all.percent}% ({stats13Days.all.recent} из {stats13Days.all.total})
+            <div className="flex flex-wrap gap-4 text-sm">
+              <span className="text-gray-500 italic">За последние 14 дней:</span>
+              <div className="text-gray-700">
+                <span className="font-medium">ВСЕ:</span> {stats14Days.all.percent}% ({stats14Days.all.recent} из {stats14Days.all.total})
               </div>
-              <div>
-                <span className="font-medium">ТОП:</span> {stats13Days.top.percent}% ({stats13Days.top.recent} из {stats13Days.top.total})
+              <div className="text-gray-700">
+                <span className="font-medium">ТОП:</span> {stats14Days.top.percent}% ({stats14Days.top.recent} из {stats14Days.top.total})
               </div>
-              <div>
-                <span className="font-medium">KIBERONE:</span> {stats13Days.kiberone.percent}% ({stats13Days.kiberone.recent} из {stats13Days.kiberone.total})
+              <div className="text-gray-700">
+                <span className="font-medium">KIBERONE:</span> {stats14Days.kiberone.percent}% ({stats14Days.kiberone.recent} из {stats14Days.kiberone.total})
               </div>
             </div>
           </div>

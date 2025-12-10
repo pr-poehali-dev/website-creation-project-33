@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { formatMoscowTime } from '@/utils/timeFormat';
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import AnimatedMessage from './AnimatedMessage';
+import ProfileModal from '@/components/user/ProfileModal';
 
 interface Message {
   id: number;
@@ -68,6 +69,9 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
   const [showGroupEmojiPicker, setShowGroupEmojiPicker] = useState(false);
   const personalEmojiPickerRef = useRef<HTMLDivElement>(null);
   const groupEmojiPickerRef = useRef<HTMLDivElement>(null);
+  
+  // Profile modal state
+  const [profileOpen, setProfileOpen] = useState(false);
 
   // Personal chat functions
   const loadPersonalMessages = async (markAsRead = false) => {
@@ -751,21 +755,32 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
           <span className="sr-only">Закрыть</span>
         </button>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
-            <TabsTrigger value="personal" className="gap-2">
-              <Icon name="User" size={16} />
-              Личный чат
-            </TabsTrigger>
-            <TabsTrigger value="group" className="gap-2 relative">
-              <Icon name="Users" size={16} />
-              Группа
-              {groupUnreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
-                  {groupUnreadCount}
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center border-b">
+            <TabsList className="grid flex-1 grid-cols-2 rounded-none border-0">
+              <TabsTrigger value="personal" className="gap-2">
+                <Icon name="User" size={16} />
+                Личный чат
+              </TabsTrigger>
+              <TabsTrigger value="group" className="gap-2 relative">
+                <Icon name="Users" size={16} />
+                Группа
+                {groupUnreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                    {groupUnreadCount}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
+            <Button
+              onClick={() => setProfileOpen(true)}
+              variant="ghost"
+              size="sm"
+              className="mr-2 gap-1"
+            >
+              <Icon name="UserCircle" size={18} />
+              <span className="hidden sm:inline">Профиль</span>
+            </Button>
+          </div>
 
           <TabsContent value="personal" className="flex-1 m-0 flex flex-col data-[state=inactive]:hidden">
             <ScrollArea className="flex-1 px-4">
@@ -819,6 +834,7 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
           </TabsContent>
         </Tabs>
       </DialogContent>
+      <ProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
     </Dialog>
   );
 }

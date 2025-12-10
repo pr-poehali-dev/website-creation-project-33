@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { formatMoscowTime } from '@/utils/timeFormat';
+import ProfileModal from '@/components/user/ProfileModal';
 
 interface Message {
   id: number;
@@ -41,6 +42,7 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const loadMessages = async (markAsRead = false) => {
     if (!user) return;
@@ -283,12 +285,23 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] h-[600px] flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2 text-[#001f54]">
-            <div className="p-2 rounded-lg bg-[#001f54]/10">
-              <Icon name="MessageCircle" size={20} className="text-[#001f54]" />
-            </div>
-            Чат с администратором
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2 text-[#001f54]">
+              <div className="p-2 rounded-lg bg-[#001f54]/10">
+                <Icon name="MessageCircle" size={20} className="text-[#001f54]" />
+              </div>
+              Чат с администратором
+            </DialogTitle>
+            <Button
+              onClick={() => setProfileOpen(true)}
+              variant="ghost"
+              size="sm"
+              className="gap-1"
+            >
+              <Icon name="UserCircle" size={18} />
+              <span className="hidden sm:inline">Профиль</span>
+            </Button>
+          </div>
         </DialogHeader>
 
         <ScrollArea className="flex-1 px-6">
@@ -468,6 +481,7 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
           </div>
         </div>
       </DialogContent>
+      <ProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
     </Dialog>
   );
 }

@@ -177,10 +177,10 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   );
   
   const getDaysColor = (days: number | null) => {
-    if (days === null) return 'bg-gray-50 border-gray-200';
-    if (days <= 6) return 'bg-green-50 border-green-200';
-    if (days <= 13) return 'bg-yellow-50 border-yellow-200';
-    return 'bg-red-50 border-red-200';
+    if (days === null) return { bg: 'bg-gray-50 border-gray-200', text: 'text-gray-600' };
+    if (days <= 6) return { bg: 'bg-green-50 border-green-200', text: 'text-green-700' };
+    if (days <= 13) return { bg: 'bg-yellow-50 border-yellow-200', text: 'text-yellow-700' };
+    return { bg: 'bg-red-50 border-red-200', text: 'text-red-600' };
   };
 
   const shiftsGroupedByOrg = shifts.reduce((acc, shift) => {
@@ -339,34 +339,32 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
           </div>
           
           <div className="space-y-3 max-h-[600px] overflow-y-auto">
-            {organizationsWithoutShifts.map((org) => (
-              <div 
-                key={org.id} 
-                className={`border rounded-lg p-4 transition-colors ${getDaysColor(org.days_since_last_shift)}`}
-              >
-                <div className="font-medium text-gray-900 mb-2">{org.name}</div>
-                {org.last_shift_date ? (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Icon name="Clock" size={14} className="text-gray-400" />
-                    <span className="text-gray-600">
-                      Последний выход: {new Date(org.last_shift_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </span>
-                    {org.days_since_last_shift !== null && (
-                      <>
-                        <span className="text-gray-400">•</span>
-                        <span className={`font-medium ${
-                          org.days_since_last_shift > 30 ? 'text-red-600' : 
-                          org.days_since_last_shift > 14 ? 'text-orange-600' : 
-                          'text-gray-600'
-                        }`}>
-                          {org.days_since_last_shift} {
-                            org.days_since_last_shift === 1 ? 'день' :
-                            org.days_since_last_shift < 5 ? 'дня' : 'дней'
-                          } назад
-                        </span>
-                      </>
-                    )}
-                  </div>
+            {organizationsWithoutShifts.map((org) => {
+              const colorScheme = getDaysColor(org.days_since_last_shift);
+              return (
+                <div 
+                  key={org.id} 
+                  className={`border rounded-lg p-4 transition-colors ${colorScheme.bg}`}
+                >
+                  <div className="font-medium text-gray-900 mb-2">{org.name}</div>
+                  {org.last_shift_date ? (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Icon name="Clock" size={14} className="text-gray-400" />
+                      <span className="text-gray-600">
+                        Последний выход: {new Date(org.last_shift_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                      {org.days_since_last_shift !== null && (
+                        <>
+                          <span className="text-gray-400">•</span>
+                          <span className={`font-medium ${colorScheme.text}`}>
+                            {org.days_since_last_shift} {
+                              org.days_since_last_shift === 1 ? 'день' :
+                              org.days_since_last_shift < 5 ? 'дня' : 'дней'
+                            } назад
+                          </span>
+                        </>
+                      )}
+                    </div>
                 ) : (
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <Icon name="Info" size={14} />
@@ -374,7 +372,8 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
                   </div>
                 )}
               </div>
-            ))}
+            );
+            })}
             {organizationsWithoutShifts.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 <Icon name="CheckCircle" size={48} className="mx-auto mb-2 text-gray-300" />

@@ -35,10 +35,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      loadData();
-    }, 0);
-    return () => clearTimeout(timer);
+    loadData();
   }, [currentDate, viewMode]);
 
   const loadData = async () => {
@@ -189,8 +186,9 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
               <button
                 key={mode}
                 onClick={() => {
+                  const now = new Date();
+                  setCurrentDate(now);
                   setViewMode(mode);
-                  setCurrentDate(new Date());
                 }}
                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   viewMode === mode

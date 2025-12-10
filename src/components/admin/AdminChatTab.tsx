@@ -40,7 +40,7 @@ export default function AdminChatTab() {
         // Добавляем "Группа" в начало списка с количеством непрочитанных
         const groupChat: UserChat = {
           id: -1,
-          name: '👥 Групповой чат',
+          name: 'Групповой чат',
           unread_count: data.group_unread_count || 0,
           last_message: null,
           last_message_at: null,
@@ -279,19 +279,19 @@ export default function AdminChatTab() {
   const clearChat = async () => {
     if (!user || !selectedUser) return;
     
-    // Запретить очистку группового чата
-    if (selectedUser.id === -1) {
-      alert('Нельзя очистить групповой чат');
-      return;
-    }
+    const chatName = selectedUser.id === -1 ? 'весь групповой чат' : `всю историю чата с ${selectedUser.name}`;
     
-    if (!confirm(`Удалить всю историю чата с ${selectedUser.name}?`)) {
+    if (!confirm(`Удалить ${chatName}?`)) {
       return;
     }
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`${CHAT_API_URL}?user_id=${selectedUser.id}`, {
+      const url = selectedUser.id === -1 
+        ? `${CHAT_API_URL}?is_group=true` 
+        : `${CHAT_API_URL}?user_id=${selectedUser.id}`;
+      
+      const response = await fetch(url, {
         method: 'DELETE',
         headers: {
           'X-User-Id': user.id.toString(),

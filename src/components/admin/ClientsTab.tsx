@@ -71,45 +71,51 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   };
 
   const getDateRange = () => {
-    console.log('🔍 getDateRange вызван с currentDate:', currentDate.toISOString(), 'viewMode:', viewMode);
-    const start = new Date(currentDate);
-    let end = new Date(currentDate);
-    console.log('📅 start создан:', start.toISOString(), 'end создан:', end.toISOString());
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const date = currentDate.getDate();
+    
+    let startDate: string;
+    let endDate: string;
 
     switch (viewMode) {
       case 'day':
-        start.setHours(0, 0, 0, 0);
-        end.setHours(23, 59, 59, 999);
+        startDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+        endDate = startDate;
         break;
+        
       case 'week':
+        const start = new Date(year, month, date);
         const day = start.getDay();
-        const diff = start.getDate() - day + (day === 0 ? -6 : 1);
-        start.setDate(diff);
-        start.setHours(0, 0, 0, 0);
-        end.setDate(start.getDate() + 6);
-        end.setHours(23, 59, 59, 999);
+        const diff = date - day + (day === 0 ? -6 : 1);
+        const weekStart = new Date(year, month, diff);
+        const weekEnd = new Date(year, month, diff + 6);
+        
+        startDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+        endDate = `${weekEnd.getFullYear()}-${String(weekEnd.getMonth() + 1).padStart(2, '0')}-${String(weekEnd.getDate()).padStart(2, '0')}`;
         break;
+        
       case 'month':
-        console.log('📆 До изменений start:', start);
-        start.setDate(1);
-        start.setHours(0, 0, 0, 0);
-        console.log('📆 После start.setDate(1):', start);
-        end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-        console.log('📆 Создан end:', end, 'год:', start.getFullYear(), 'месяц+1:', start.getMonth() + 1);
-        end.setHours(23, 59, 59, 999);
+        const monthStart = new Date(year, month, 1);
+        const monthEnd = new Date(year, month + 1, 0);
+        
+        startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+        endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(monthEnd.getDate()).padStart(2, '0')}`;
+        console.log('📆 Месяц:', { year, month: month + 1, startDate, endDate });
         break;
+        
       case 'year':
-        start.setMonth(0, 1);
-        start.setHours(0, 0, 0, 0);
-        end.setMonth(11, 31);
-        end.setHours(23, 59, 59, 999);
+        startDate = `${year}-01-01`;
+        endDate = `${year}-12-31`;
         break;
+        
+      default:
+        startDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+        endDate = startDate;
     }
 
-    return {
-      startDate: start.toISOString().split('T')[0],
-      endDate: end.toISOString().split('T')[0]
-    };
+    console.log('📅 Диапазон дат:', { viewMode, startDate, endDate });
+    return { startDate, endDate };
   };
 
   const navigateDate = (direction: 'prev' | 'next') => {

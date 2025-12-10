@@ -352,7 +352,9 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
       const audioChunks: Blob[] = [];
 
       recorder.ondataavailable = (e) => {
-        audioChunks.push(e.data);
+        if (e.data && e.data.size > 0) {
+          audioChunks.push(e.data);
+        }
       };
 
       recorder.onstop = () => {
@@ -370,7 +372,8 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
         stream.getTracks().forEach(track => track.stop());
       };
 
-      recorder.start();
+      // Для iOS важно указать timeslice для регулярной отдачи данных
+      recorder.start(100);
       setMediaRecorder(recorder);
       setIsRecording(true);
     } catch (error) {

@@ -63,44 +63,46 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   if (currentView === 'stats') {
     return (
       <div className="space-y-4">
-        <button
-          onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
-        >
-          <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg font-medium">Назад</span>
-        </button>
-        
-        <div className="flex gap-2 mb-6">
+        <div className="flex justify-between items-center gap-2 mb-6">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setStatsSubView('rating')}
+              className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
+                statsSubView === 'rating' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                  : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
+              }`}
+            >
+              Рейтинг
+            </button>
+            <button
+              onClick={() => setStatsSubView('users')}
+              className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
+                statsSubView === 'users' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                  : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
+              }`}
+            >
+              Пользователи
+            </button>
+            <button
+              onClick={() => setStatsSubView('organizations')}
+              className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
+                statsSubView === 'organizations' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                  : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
+              }`}
+            >
+              Организации
+            </button>
+          </div>
+          
           <button
-            onClick={() => setStatsSubView('rating')}
-            className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
-              statsSubView === 'rating' 
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
-                : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
-            }`}
+            onClick={() => setCurrentView('tiles')}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
           >
-            Рейтинг
-          </button>
-          <button
-            onClick={() => setStatsSubView('users')}
-            className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
-              statsSubView === 'users' 
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
-                : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
-            }`}
-          >
-            Пользователи
-          </button>
-          <button
-            onClick={() => setStatsSubView('organizations')}
-            className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
-              statsSubView === 'organizations' 
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
-                : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
-            }`}
-          >
-            Организации
+            <Icon name="ArrowLeft" size={20} />
+            <span className="text-lg font-medium">Назад</span>
           </button>
         </div>
 

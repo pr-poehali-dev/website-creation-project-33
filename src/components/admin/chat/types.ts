@@ -8,6 +8,7 @@ export interface Message {
   is_read: boolean;
   created_at: string;
   user_name?: string;
+  user_avatar?: string | null;
 }
 
 export interface UserChat {

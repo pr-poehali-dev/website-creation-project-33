@@ -3,6 +3,7 @@ import Icon from '@/components/ui/icon';
 import { formatMoscowTime } from '@/utils/timeFormat';
 import { Message, UserChat } from './types';
 import AnimatedMessage from '../../../components/chat/AnimatedMessage';
+import UserAvatar from '@/components/chat/UserAvatar';
 
 interface ChatMessagesProps {
   messages: Message[];
@@ -30,6 +31,14 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
               key={msg.id}
               className={`flex ${msg.is_from_admin ? 'justify-end' : 'justify-start'}`}
             >
+              {!msg.is_from_admin && selectedUser.id === -1 && (
+                <UserAvatar 
+                  name={msg.user_name || selectedUser.name} 
+                  avatarUrl={msg.user_avatar}
+                  size={32}
+                  className="mt-1 mr-2 shrink-0"
+                />
+              )}
               <div
                 className={`max-w-[85%] md:max-w-[80%] rounded-lg px-3 py-2 md:px-4 md:py-2 ${
                   msg.is_from_admin
@@ -37,8 +46,8 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
                     : 'bg-gray-100 text-gray-900'
                 }`}
               >
-                {!msg.is_from_admin && (
-                  <p className="text-xs font-semibold mb-1 text-blue-400">
+                {!msg.is_from_admin && selectedUser.id === -1 && (
+                  <p className="text-xs font-semibold mb-1 text-blue-600">
                     {msg.user_name || selectedUser.name}
                   </p>
                 )}

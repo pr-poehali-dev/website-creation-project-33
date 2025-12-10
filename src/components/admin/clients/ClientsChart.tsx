@@ -23,6 +23,7 @@ interface Shift {
 }
 
 type ChartMode = 'day' | 'week' | 'month' | 'year';
+type DayPeriod = 7 | 30 | 60 | 90 | 365;
 
 interface ClientsChartProps {
   organizations: Organization[];
@@ -31,6 +32,7 @@ interface ClientsChartProps {
 
 export default function ClientsChart({ organizations, shifts }: ClientsChartProps) {
   const [chartMode, setChartMode] = useState<ChartMode>('month');
+  const [dayPeriod, setDayPeriod] = useState<DayPeriod>(30);
   const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<{
     x: number;
@@ -63,8 +65,8 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
     };
 
     if (chartMode === 'day') {
-      // Последние 30 дней (каждый день отдельно)
-      for (let i = 29; i >= 0; i--) {
+      // Последние N дней (каждый день отдельно)
+      for (let i = dayPeriod - 1; i >= 0; i--) {
         const date = new Date(now);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
@@ -145,7 +147,7 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
     }
 
     return data;
-  }, [shifts, chartMode, selectedOrgId]);
+  }, [shifts, chartMode, dayPeriod, selectedOrgId]);
 
   const maxValue = useMemo(() => {
     return Math.max(...chartData.map(d => d.total), 1);
@@ -170,23 +172,43 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
             </p>
           </div>
           
-          <div className="flex flex-wrap gap-2">
-            {(['day', 'week', 'month', 'year'] as ChartMode[]).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setChartMode(mode)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  chartMode === mode
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border border-slate-600'
-                }`}
-              >
-                {mode === 'day' && 'Дни'}
-                {mode === 'week' && 'Недели'}
-                {mode === 'month' && 'Месяцы'}
-                {mode === 'year' && 'Годы'}
-              </button>
-            ))}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap gap-2">
+              {(['day', 'week', 'month', 'year'] as ChartMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setChartMode(mode)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    chartMode === mode
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
+                      : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border border-slate-600'
+                  }`}
+                >
+                  {mode === 'day' && 'Дни'}
+                  {mode === 'week' && 'Недели'}
+                  {mode === 'month' && 'Месяцы'}
+                  {mode === 'year' && 'Годы'}
+                </button>
+              ))}
+            </div>
+            
+            {chartMode === 'day' && (
+              <div className="flex flex-wrap gap-2">
+                {([7, 30, 60, 90, 365] as DayPeriod[]).map((period) => (
+                  <button
+                    key={period}
+                    onClick={() => setDayPeriod(period)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                      dayPeriod === period
+                        ? 'bg-cyan-500 text-white shadow-md'
+                        : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
+                    }`}
+                  >
+                    {period} дн.
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         

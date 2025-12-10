@@ -182,6 +182,39 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
     if (days <= 13) return { bg: 'bg-yellow-50 border-yellow-200', text: 'text-yellow-700' };
     return { bg: 'bg-red-50 border-red-200', text: 'text-red-600' };
   };
+  
+  const calculate13DaysStats = () => {
+    const allOrgs = organizations;
+    const topOrgs = organizations.filter(org => org.name.includes('ТОП'));
+    const kiberoneOrgs = organizations.filter(org => org.name.includes('KIBERONE'));
+    
+    const countRecent = (orgs: Organization[]) => {
+      return orgs.filter(org => {
+        if (!org.days_since_last_shift) return false;
+        return org.days_since_last_shift <= 13;
+      }).length;
+    };
+    
+    const allTotal = allOrgs.length;
+    const allRecent = countRecent(allOrgs);
+    const allPercent = allTotal > 0 ? Math.round((allRecent / allTotal) * 100) : 0;
+    
+    const topTotal = topOrgs.length;
+    const topRecent = countRecent(topOrgs);
+    const topPercent = topTotal > 0 ? Math.round((topRecent / topTotal) * 100) : 0;
+    
+    const kiberoneTotal = kiberoneOrgs.length;
+    const kiberoneRecent = countRecent(kiberoneOrgs);
+    const kiberonePercent = kiberoneTotal > 0 ? Math.round((kiberoneRecent / kiberoneTotal) * 100) : 0;
+    
+    return {
+      all: { total: allTotal, recent: allRecent, percent: allPercent },
+      top: { total: topTotal, recent: topRecent, percent: topPercent },
+      kiberone: { total: kiberoneTotal, recent: kiberoneRecent, percent: kiberonePercent }
+    };
+  };
+  
+  const stats13Days = calculate13DaysStats();
 
   const shiftsGroupedByOrg = shifts.reduce((acc, shift) => {
     if (!acc[shift.organization_id]) {
@@ -205,8 +238,21 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Планирование выходов</h2>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Планирование выходов</h2>
+            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+              <div>
+                <span className="font-medium">ВСЕ:</span> {stats13Days.all.percent}% ({stats13Days.all.recent} из {stats13Days.all.total})
+              </div>
+              <div>
+                <span className="font-medium">ТОП:</span> {stats13Days.top.percent}% ({stats13Days.top.recent} из {stats13Days.top.total})
+              </div>
+              <div>
+                <span className="font-medium">KIBERONE:</span> {stats13Days.kiberone.percent}% ({stats13Days.kiberone.recent} из {stats13Days.kiberone.total})
+              </div>
+            </div>
+          </div>
           
           <div className="flex flex-wrap gap-2">
             {(['day', 'week', 'month', 'year'] as ViewMode[]).map((mode) => (

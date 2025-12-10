@@ -71,9 +71,10 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   };
 
   const getDateRange = () => {
-    console.log('🔍 getDateRange вызван с currentDate:', currentDate, 'viewMode:', viewMode);
+    console.log('🔍 getDateRange вызван с currentDate:', currentDate.toISOString(), 'viewMode:', viewMode);
     const start = new Date(currentDate);
     let end = new Date(currentDate);
+    console.log('📅 start создан:', start.toISOString(), 'end создан:', end.toISOString());
 
     switch (viewMode) {
       case 'day':

@@ -40,7 +40,7 @@ export default function AdminChatTab() {
         // Добавляем "Группа" в начало списка с количеством непрочитанных
         const groupChat: UserChat = {
           id: -1,
-          name: 'Групповой чат',
+          name: 'Империя Промо',
           unread_count: data.group_unread_count || 0,
           last_message: null,
           last_message_at: null,

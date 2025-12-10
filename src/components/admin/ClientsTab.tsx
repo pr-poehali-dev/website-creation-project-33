@@ -35,7 +35,10 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
+    const timer = setTimeout(() => {
+      loadData();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [currentDate, viewMode]);
 
   const loadData = async () => {
@@ -71,6 +74,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   };
 
   const getDateRange = () => {
+    console.log('🔍 getDateRange вызван с currentDate:', currentDate, 'viewMode:', viewMode);
     const start = new Date(currentDate);
     let end = new Date(currentDate);
 
@@ -88,9 +92,12 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
         end.setHours(23, 59, 59, 999);
         break;
       case 'month':
+        console.log('📆 До изменений start:', start);
         start.setDate(1);
         start.setHours(0, 0, 0, 0);
+        console.log('📆 После start.setDate(1):', start);
         end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+        console.log('📆 Создан end:', end, 'год:', start.getFullYear(), 'месяц+1:', start.getMonth() + 1);
         end.setHours(23, 59, 59, 999);
         break;
       case 'year':
@@ -182,10 +189,8 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
               <button
                 key={mode}
                 onClick={() => {
-                  if (viewMode !== mode) {
-                    setCurrentDate(new Date());
-                    setTimeout(() => setViewMode(mode), 0);
-                  }
+                  setViewMode(mode);
+                  setCurrentDate(new Date());
                 }}
                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   viewMode === mode

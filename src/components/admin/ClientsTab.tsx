@@ -42,6 +42,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
     setLoading(true);
     try {
       const { startDate, endDate } = getDateRange();
+      console.log('📅 Загрузка данных:', { viewMode, startDate, endDate });
       
       const response = await fetch(
         `https://functions.poehali.dev/ea6877bc-65c9-4dc3-bafd-dfa003d3948e?start_date=${startDate}&end_date=${endDate}`,
@@ -55,6 +56,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
       if (!response.ok) throw new Error('Failed to load data');
 
       const data = await response.json();
+      console.log('✅ Получено организаций:', data.organizations?.length, 'смен:', data.shifts?.length);
       setOrganizations(data.organizations || []);
       setShifts(data.shifts || []);
     } catch (error) {
@@ -88,7 +90,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
       case 'month':
         start.setDate(1);
         start.setHours(0, 0, 0, 0);
-        end.setMonth(end.getMonth() + 1, 0);
+        end.setMonth(start.getMonth() + 1, 0);
         end.setHours(23, 59, 59, 999);
         break;
       case 'year':
@@ -179,7 +181,10 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
             {(['day', 'week', 'month', 'year'] as ViewMode[]).map((mode) => (
               <button
                 key={mode}
-                onClick={() => setViewMode(mode)}
+                onClick={() => {
+                  setCurrentDate(new Date());
+                  setViewMode(mode);
+                }}
                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   viewMode === mode
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'

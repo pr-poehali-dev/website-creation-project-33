@@ -1,16 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { formatMoscowTime } from '@/utils/timeFormat';
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
-import AnimatedMessage from './AnimatedMessage';
+import { EmojiClickData } from 'emoji-picker-react';
 import ProfileModal from '@/components/user/ProfileModal';
+import ChatMessagesList from './tabs/ChatMessagesList';
+import ChatInput from './tabs/ChatInput';
 
 interface Message {
   id: number;
@@ -545,219 +544,6 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
     handleGroupTyping();
   };
 
-  const renderMessages = (messages: Message[], scrollRef: React.RefObject<HTMLDivElement>, isLoading: boolean, isGroup: boolean) => {
-    if (isLoading && messages.length === 0) {
-      return (
-        <div className="flex justify-center py-8">
-          <Icon name="Loader2" className="animate-spin" size={24} />
-        </div>
-      );
-    }
-
-    if (messages.length === 0) {
-      return (
-        <div className="text-center text-gray-500 py-8">
-          Сообщений пока нет
-        </div>
-      );
-    }
-
-    return (
-      <>
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${msg.user_id === user?.id ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className={`max-w-[70%] ${msg.user_id === user?.id ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'} rounded-lg p-3`}>
-              {isGroup && msg.user_id !== user?.id && (
-                <div className="text-xs font-semibold mb-1 opacity-70">
-                  {msg.is_from_admin ? 'Администратор' : msg.user_name}
-                </div>
-              )}
-              
-              {msg.media_url && (
-                <div className="mb-2">
-                  {msg.media_type === 'image' && (
-                    <img src={msg.media_url} alt="Image" className="max-w-full rounded" />
-                  )}
-                  {msg.media_type === 'video' && (
-                    <video src={msg.media_url} controls className="max-w-full rounded" />
-                  )}
-                  {msg.media_type === 'audio' && (
-                    <audio src={msg.media_url} controls className="w-full" />
-                  )}
-                </div>
-              )}
-              
-              {msg.message && (
-                <div className="whitespace-pre-wrap break-words">
-                  <AnimatedMessage text={msg.message} />
-                </div>
-              )}
-              
-              <div className={`flex items-center gap-2 text-xs mt-1 ${msg.user_id === user?.id ? 'text-blue-100' : 'text-gray-500'}`}>
-                <span>{formatMoscowTime(msg.created_at)}</span>
-                {msg.user_id === user?.id && (
-                  <span className={`relative inline-flex items-center ${
-                    msg.is_read ? 'opacity-70' : 'opacity-50'
-                  }`}>
-                    {msg.is_read ? (
-                      <>
-                        <span className="relative">✓</span>
-                        <span className="absolute left-[3px]">✓</span>
-                      </>
-                    ) : (
-                      '✓'
-                    )}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-        <div ref={scrollRef} />
-      </>
-    );
-  };
-
-  const renderChatInput = (
-    newMessage: string,
-    setNewMessage: (msg: string) => void,
-    handleTyping: () => void,
-    sendMessage: () => void,
-    isSending: boolean,
-    selectedFile: File | null,
-    previewUrl: string | null,
-    fileInputRef: React.RefObject<HTMLInputElement>,
-    handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void,
-    cancelFile: () => void,
-    isGroup: boolean
-  ) => {
-    return (
-      <>
-        {previewUrl && (
-          <div className="px-4 py-2 border-t bg-gray-50">
-            <div className="relative inline-block">
-              {selectedFile?.type.startsWith('image/') && (
-                <img src={previewUrl} alt="Preview" className="max-h-20 rounded" />
-              )}
-              {selectedFile?.type.startsWith('video/') && (
-                <video src={previewUrl} className="max-h-20 rounded" />
-              )}
-              <Button
-                size="sm"
-                variant="destructive"
-                className="absolute -top-2 -right-2"
-                onClick={cancelFile}
-              >
-                <Icon name="X" size={16} />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {selectedFile && selectedFile.type.startsWith('audio/') && (
-          <div className="px-4 py-2 border-t bg-gray-50 flex items-center gap-2">
-            <Icon name="Mic" size={16} />
-            <span className="text-sm">Голосовое сообщение готово</span>
-            <Button size="sm" variant="ghost" onClick={cancelFile}>
-              <Icon name="X" size={16} />
-            </Button>
-          </div>
-        )}
-
-        <div className="p-4 border-t bg-white relative">
-          <div className="flex gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,video/*"
-              className="hidden"
-              onChange={handleFileSelect}
-            />
-            
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => {
-                if (isGroup) {
-                  setShowGroupEmojiPicker(!showGroupEmojiPicker);
-                } else {
-                  setShowPersonalEmojiPicker(!showPersonalEmojiPicker);
-                }
-              }}
-              disabled={isSending}
-            >
-              <Icon name="Smile" size={20} />
-            </Button>
-            
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isSending || selectedFile !== null}
-            >
-              <Icon name="Paperclip" size={20} />
-            </Button>
-
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={isRecording ? stopRecording : () => startRecording(isGroup)}
-              disabled={isSending || selectedFile !== null}
-              className={isRecording ? 'text-red-500' : ''}
-            >
-              <Icon name="Mic" size={20} />
-            </Button>
-
-            <Textarea
-              value={newMessage}
-              onChange={(e) => {
-                setNewMessage(e.target.value);
-                handleTyping();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-              placeholder="Написать сообщение..."
-              className="min-h-[40px] max-h-[120px] resize-none"
-              disabled={isSending}
-            />
-
-            <Button
-              onClick={sendMessage}
-              disabled={isSending || (!newMessage.trim() && !selectedFile)}
-            >
-              {isSending ? (
-                <Icon name="Loader2" className="animate-spin" size={20} />
-              ) : (
-                <Icon name="Send" size={20} />
-              )}
-            </Button>
-          </div>
-          
-          {/* Emoji Picker */}
-          {((isGroup && showGroupEmojiPicker) || (!isGroup && showPersonalEmojiPicker)) && (
-            <div 
-              ref={isGroup ? groupEmojiPickerRef : personalEmojiPickerRef} 
-              className="absolute bottom-20 left-4 z-50 shadow-2xl rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200"
-            >
-              <EmojiPicker 
-                onEmojiClick={isGroup ? handleGroupEmojiClick : handlePersonalEmojiClick} 
-                width={300} 
-                height={400} 
-              />
-            </div>
-          )}
-        </div>
-      </>
-    );
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl h-[650px] flex flex-col p-0 pt-10 md:pt-0">
@@ -799,7 +585,13 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
           <TabsContent value="personal" className="flex-1 m-0 flex flex-col data-[state=inactive]:hidden">
             <ScrollArea className="flex-1 px-4">
               <div className="space-y-4 py-4">
-                {renderMessages(personalMessages, personalScrollRef, personalIsLoading, false)}
+                <ChatMessagesList
+                  messages={personalMessages}
+                  scrollRef={personalScrollRef}
+                  isLoading={personalIsLoading}
+                  isGroup={false}
+                  currentUserId={user?.id}
+                />
                 {personalAdminTyping && (
                   <div className="flex justify-start">
                     <div className="bg-gray-100 rounded-lg px-4 py-2 text-sm text-gray-600">
@@ -810,41 +602,61 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
               </div>
             </ScrollArea>
 
-            {renderChatInput(
-              personalNewMessage,
-              setPersonalNewMessage,
-              handlePersonalTyping,
-              sendPersonalMessage,
-              personalIsSending,
-              personalSelectedFile,
-              personalPreviewUrl,
-              personalFileInputRef,
-              handlePersonalFileSelect,
-              cancelPersonalFile,
-              false
-            )}
+            <ChatInput
+              newMessage={personalNewMessage}
+              setNewMessage={setPersonalNewMessage}
+              handleTyping={handlePersonalTyping}
+              sendMessage={sendPersonalMessage}
+              isSending={personalIsSending}
+              selectedFile={personalSelectedFile}
+              previewUrl={personalPreviewUrl}
+              fileInputRef={personalFileInputRef}
+              handleFileSelect={handlePersonalFileSelect}
+              cancelFile={cancelPersonalFile}
+              isGroup={false}
+              isRecording={isRecording}
+              startRecording={() => startRecording(false)}
+              stopRecording={stopRecording}
+              showEmojiPicker={showPersonalEmojiPicker}
+              setShowEmojiPicker={setShowPersonalEmojiPicker}
+              emojiPickerRef={personalEmojiPickerRef}
+              handleEmojiClick={handlePersonalEmojiClick}
+            />
           </TabsContent>
 
           <TabsContent value="group" className="flex-1 m-0 flex flex-col data-[state=inactive]:hidden">
             <ScrollArea className="flex-1 px-4">
               <div className="space-y-4 py-4">
-                {renderMessages(groupMessages, groupScrollRef, groupIsLoading, true)}
+                <ChatMessagesList
+                  messages={groupMessages}
+                  scrollRef={groupScrollRef}
+                  isLoading={groupIsLoading}
+                  isGroup={true}
+                  currentUserId={user?.id}
+                />
               </div>
             </ScrollArea>
 
-            {renderChatInput(
-              groupNewMessage,
-              setGroupNewMessage,
-              handleGroupTyping,
-              sendGroupMessage,
-              groupIsSending,
-              groupSelectedFile,
-              groupPreviewUrl,
-              groupFileInputRef,
-              handleGroupFileSelect,
-              cancelGroupFile,
-              true
-            )}
+            <ChatInput
+              newMessage={groupNewMessage}
+              setNewMessage={setGroupNewMessage}
+              handleTyping={handleGroupTyping}
+              sendMessage={sendGroupMessage}
+              isSending={groupIsSending}
+              selectedFile={groupSelectedFile}
+              previewUrl={groupPreviewUrl}
+              fileInputRef={groupFileInputRef}
+              handleFileSelect={handleGroupFileSelect}
+              cancelFile={cancelGroupFile}
+              isGroup={true}
+              isRecording={isRecording}
+              startRecording={() => startRecording(true)}
+              stopRecording={stopRecording}
+              showEmojiPicker={showGroupEmojiPicker}
+              setShowEmojiPicker={setShowGroupEmojiPicker}
+              emojiPickerRef={groupEmojiPickerRef}
+              handleEmojiClick={handleGroupEmojiClick}
+            />
           </TabsContent>
         </Tabs>
       </DialogContent>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import ClientsChart from './clients/ClientsChart';
 
 interface ClientsTabProps {
   sessionToken: string;
@@ -314,6 +315,9 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
           </button>
         </div>
       </div>
+
+      {/* График динамики */}
+      <ClientsChart organizations={organizations} shifts={shifts} />
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

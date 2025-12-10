@@ -183,7 +183,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
     return { bg: 'bg-red-50 border-red-200', text: 'text-red-600' };
   };
   
-  const calculate14DaysStats = () => {
+  const calculateStats = (days: number) => {
     const allOrgs = organizations;
     const topOrgs = organizations.filter(org => org.name.includes('ТОП'));
     const kiberoneOrgs = organizations.filter(org => org.name.includes('KIBERONE'));
@@ -191,7 +191,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
     const countRecent = (orgs: Organization[]) => {
       return orgs.filter(org => {
         if (!org.days_since_last_shift) return false;
-        return org.days_since_last_shift <= 14;
+        return org.days_since_last_shift <= days;
       }).length;
     };
     
@@ -214,7 +214,8 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
     };
   };
   
-  const stats14Days = calculate14DaysStats();
+  const stats14Days = calculateStats(14);
+  const stats30Days = calculateStats(30);
 
   const shiftsGroupedByOrg = shifts.reduce((acc, shift) => {
     if (!acc[shift.organization_id]) {
@@ -240,8 +241,9 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Планирование выходов</h2>
-            <div className="flex flex-wrap gap-4 text-sm">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Планирование выходов</h2>
+            
+            <div className="flex flex-wrap gap-4 text-sm mb-2">
               <span className="text-gray-500 italic">За последние 14 дней:</span>
               <div className="text-gray-700">
                 <span className="font-medium">ВСЕ:</span> {stats14Days.all.percent}% ({stats14Days.all.recent} из {stats14Days.all.total})
@@ -251,6 +253,19 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
               </div>
               <div className="text-gray-700">
                 <span className="font-medium">KIBERONE:</span> {stats14Days.kiberone.percent}% ({stats14Days.kiberone.recent} из {stats14Days.kiberone.total})
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-4 text-sm">
+              <span className="text-gray-500 italic">За последние 30 дней:</span>
+              <div className="text-gray-700">
+                <span className="font-medium">ВСЕ:</span> {stats30Days.all.percent}% ({stats30Days.all.recent} из {stats30Days.all.total})
+              </div>
+              <div className="text-gray-700">
+                <span className="font-medium">ТОП:</span> {stats30Days.top.percent}% ({stats30Days.top.recent} из {stats30Days.top.total})
+              </div>
+              <div className="text-gray-700">
+                <span className="font-medium">KIBERONE:</span> {stats30Days.kiberone.percent}% ({stats30Days.kiberone.recent} из {stats30Days.kiberone.total})
               </div>
             </div>
           </div>

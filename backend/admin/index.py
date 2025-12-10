@@ -1478,7 +1478,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             o.id as organization_id,
                             u.id as user_id,
                             u.name as user_name,
-                            COUNT(CASE WHEN l.lead_type = '\u043a\u043e\u043d\u0442\u0430\u043a\u0442' THEN 1 END) as contacts_count,
                             COALESCE(
                                 (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
                                  WHERE organization_id = o.id 
@@ -1513,28 +1512,52 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         FROM t_p24058207_website_creation_pro.work_shifts s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
-                        LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
-                            ON l.user_id = s.user_id 
-                            AND l.created_at::date = s.shift_date
-                            AND l.organization_id = s.organization_id
-                            AND l.is_active = true
                         LEFT JOIN t_p24058207_website_creation_pro.accounting_expenses ae
                             ON ae.user_id = s.user_id
                             AND ae.work_date = s.shift_date
                             AND ae.organization_id = s.organization_id
                         WHERE 1=1 {date_filter}
-                        GROUP BY s.shift_date, s.user_id, s.organization_id, o.name, o.id, 
-                                 u.id, u.name, ae.id, ae.expense_amount, ae.expense_comment,
-                                 ae.paid_by_organization, ae.paid_to_worker, ae.salary_at_kvv, ae.paid_kvv, ae.paid_kms, 
-                                 ae.invoice_issued, ae.invoice_issued_date, ae.invoice_paid, ae.invoice_paid_date,
-                                 ae.personal_funds_amount, ae.personal_funds_by_kms, ae.personal_funds_by_kvv, ae.compensation_amount
                         ORDER BY s.shift_date DESC, u.name
                     """
                     cur.execute(query)
+                    shifts_rows = cur.fetchall()
                     
+                    # Получаем лиды для подсчёта контактов на Python-стороне
+                    leads_query = """
+                        SELECT 
+                            user_id,
+                            organization_id,
+                            created_at,
+                            lead_type
+                        FROM t_p24058207_website_creation_pro.leads_analytics
+                        WHERE is_active = true
+                    """
+                    cur.execute(leads_query)
+                    leads_data = cur.fetchall()
+                    
+                    # Группируем лиды по user_id, organization_id и дате (московское время)
+                    leads_by_shift = {}
+                    for lead_row in leads_data:
+                        user_id = lead_row[0]
+                        org_id = lead_row[1]
+                        created_at_utc = lead_row[2]
+                        lead_type = lead_row[3]
+                        
+                        # Конвертируем UTC в московское время
+                        if created_at_utc.tzinfo is None:
+                            created_at_utc = created_at_utc.replace(tzinfo=pytz.UTC)
+                        created_at_moscow = created_at_utc.astimezone(MOSCOW_TZ)
+                        shift_date = created_at_moscow.date()
+                        
+                        key = (user_id, org_id, shift_date)
+                        if key not in leads_by_shift:
+                            leads_by_shift[key] = {'contacts': 0}
+                        
+                        if lead_type == 'контакт':
+                            leads_by_shift[key]['contacts'] += 1
                     
                     shifts = []
-                    for row in cur.fetchall():
+                    for row in shifts_rows:
                         shift_date = row[0]
                         user_id = row[5]
                         org_id = row[4]
@@ -1556,20 +1579,20 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'contact_rate': int(row[7]) if row[7] else 0,
                             'payment_type': row[8] if row[8] else 'cash',
                             'expense_amount': int(row[9]) if row[9] else 0,
-                            'expense_comment': row[10] if row[10] else '',
-                            'paid_by_organization': bool(row[11]),
-                            'paid_to_worker': bool(row[12]),
-                            'salary_at_kvv': bool(row[13]),
-                            'paid_kvv': bool(row[14]),
-                            'paid_kms': bool(row[15]),
-                            'invoice_issued': bool(row[16]),
-                            'invoice_issued_date': row[17].isoformat() if row[17] else None,
-                            'invoice_paid': bool(row[18]),
-                            'invoice_paid_date': row[19].isoformat() if row[19] else None,
-                            'personal_funds_amount': int(row[20]) if row[20] else 0,
-                            'personal_funds_by_kms': bool(row[21]),
-                            'personal_funds_by_kvv': bool(row[22]),
-                            'compensation_amount': int(row[23]) if row[23] else 0
+                            'expense_comment': row[9] if row[9] else '',
+                            'paid_by_organization': bool(row[10]),
+                            'paid_to_worker': bool(row[11]),
+                            'salary_at_kvv': bool(row[12]),
+                            'paid_kvv': bool(row[13]),
+                            'paid_kms': bool(row[14]),
+                            'invoice_issued': bool(row[15]),
+                            'invoice_issued_date': row[16].isoformat() if row[16] else None,
+                            'invoice_paid': bool(row[17]),
+                            'invoice_paid_date': row[18].isoformat() if row[18] else None,
+                            'personal_funds_amount': int(row[19]) if row[19] else 0,
+                            'personal_funds_by_kms': bool(row[20]),
+                            'personal_funds_by_kvv': bool(row[21]),
+                            'compensation_amount': int(row[22]) if row[22] else 0
                         })
             
             return {

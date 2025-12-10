@@ -596,8 +596,22 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
                 </div>
               )}
               
-              <div className={`text-xs mt-1 ${msg.user_id === user?.id ? 'text-blue-100' : 'text-gray-500'}`}>
-                {formatMoscowTime(msg.created_at)}
+              <div className={`flex items-center gap-2 text-xs mt-1 ${msg.user_id === user?.id ? 'text-blue-100' : 'text-gray-500'}`}>
+                <span>{formatMoscowTime(msg.created_at)}</span>
+                {msg.user_id === user?.id && (
+                  <span className={`relative inline-flex items-center ${
+                    msg.is_read ? 'opacity-70' : 'opacity-50'
+                  }`}>
+                    {msg.is_read ? (
+                      <>
+                        <span className="relative">✓</span>
+                        <span className="absolute left-[3px]">✓</span>
+                      </>
+                    ) : (
+                      '✓'
+                    )}
+                  </span>
+                )}
               </div>
             </div>
           </div>

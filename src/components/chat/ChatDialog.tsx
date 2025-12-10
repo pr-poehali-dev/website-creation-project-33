@@ -368,10 +368,17 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                         {formatMoscowTime(msg.created_at)}
                       </p>
                       {!msg.is_from_admin && (
-                        <span className={`text-xs ${
+                        <span className={`relative inline-flex items-center text-xs ${
                           msg.is_read ? 'text-white/70' : 'text-white/50'
                         }`}>
-                          {msg.is_read ? '✓✓' : '✓'}
+                          {msg.is_read ? (
+                            <>
+                              <span className="relative">✓</span>
+                              <span className="absolute left-[3px]">✓</span>
+                            </>
+                          ) : (
+                            '✓'
+                          )}
                         </span>
                       )}
                     </div>

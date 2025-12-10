@@ -86,10 +86,17 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
                     {formatMoscowTime(msg.created_at)}
                   </p>
                   {msg.is_from_admin && (
-                    <span className={`text-[10px] md:text-xs ${
+                    <span className={`relative inline-flex items-center text-[10px] md:text-xs ${
                       msg.is_read ? 'text-white/70' : 'text-white/50'
                     }`}>
-                      {msg.is_read ? '✓✓' : '✓'}
+                      {msg.is_read ? (
+                        <>
+                          <span className="relative">✓</span>
+                          <span className="absolute left-[3px]">✓</span>
+                        </>
+                      ) : (
+                        '✓'
+                      )}
                     </span>
                   )}
                 </div>

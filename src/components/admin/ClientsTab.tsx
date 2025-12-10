@@ -27,12 +27,15 @@ interface Shift {
   shift_end: string;
 }
 
+type OrgFilter = 'ALL' | 'TOP' | 'KIBERONE';
+
 export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('week');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
+  const [orgFilter, setOrgFilter] = useState<OrgFilter>('TOP');
 
   useEffect(() => {
     loadData();
@@ -161,7 +164,24 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   };
 
   const organizationsWithShifts = organizations.filter(org => org.has_shift_in_period);
-  const organizationsWithoutShifts = organizations.filter(org => !org.has_shift_in_period);
+  
+  const filterOrganizations = (orgs: Organization[]) => {
+    if (orgFilter === 'ALL') return orgs;
+    if (orgFilter === 'TOP') return orgs.filter(org => org.name.includes('ТОП'));
+    if (orgFilter === 'KIBERONE') return orgs.filter(org => org.name.includes('KIBERONE'));
+    return orgs;
+  };
+  
+  const organizationsWithoutShifts = filterOrganizations(
+    organizations.filter(org => !org.has_shift_in_period)
+  );
+  
+  const getDaysColor = (days: number | null) => {
+    if (days === null) return 'bg-gray-50 border-gray-200';
+    if (days <= 6) return 'bg-green-50 border-green-200';
+    if (days <= 13) return 'bg-yellow-50 border-yellow-200';
+    return 'bg-red-50 border-red-200';
+  };
 
   const shiftsGroupedByOrg = shifts.reduce((acc, shift) => {
     if (!acc[shift.organization_id]) {
@@ -273,19 +293,57 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <Icon name="AlertCircle" size={24} className="text-red-600" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <Icon name="AlertCircle" size={24} className="text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Не было выходов</h3>
+                <p className="text-sm text-gray-600">{organizationsWithoutShifts.length} организаций</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">Не было выходов</h3>
-              <p className="text-sm text-gray-600">{organizationsWithoutShifts.length} организаций</p>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={() => setOrgFilter('ALL')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  orgFilter === 'ALL'
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                ВСЕ
+              </button>
+              <button
+                onClick={() => setOrgFilter('TOP')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  orgFilter === 'TOP'
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                ТОП
+              </button>
+              <button
+                onClick={() => setOrgFilter('KIBERONE')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  orgFilter === 'KIBERONE'
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                KIBERONE
+              </button>
             </div>
           </div>
           
           <div className="space-y-3 max-h-[600px] overflow-y-auto">
             {organizationsWithoutShifts.map((org) => (
-              <div key={org.id} className="border border-gray-200 rounded-lg p-4 hover:border-red-400 transition-colors">
+              <div 
+                key={org.id} 
+                className={`border rounded-lg p-4 transition-colors ${getDaysColor(org.days_since_last_shift)}`}
+              >
                 <div className="font-medium text-gray-900 mb-2">{org.name}</div>
                 {org.last_shift_date ? (
                   <div className="flex items-center gap-2 text-sm">

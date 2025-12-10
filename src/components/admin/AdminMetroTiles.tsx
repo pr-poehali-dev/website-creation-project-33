@@ -64,6 +64,14 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     return (
       <div className="space-y-4">
         <div className="flex justify-between items-center gap-2 mb-6">
+          <button
+            onClick={() => setCurrentView('tiles')}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-medium bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50"
+          >
+            <Icon name="ArrowLeft" size={16} />
+            <span>Назад</span>
+          </button>
+          
           <div className="flex gap-2">
             <button
               onClick={() => setStatsSubView('rating')}
@@ -96,14 +104,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
               Организации
             </button>
           </div>
-          
-          <button
-            onClick={() => setCurrentView('tiles')}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
-          >
-            <Icon name="ArrowLeft" size={20} />
-            <span className="text-lg font-medium">Назад</span>
-          </button>
         </div>
 
         {statsSubView === 'users' && <UsersTab enabled={true} />}

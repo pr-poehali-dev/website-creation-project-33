@@ -35,12 +35,47 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [shifts, setShifts] = useState<Shift[]>([]);
+  const [allShifts, setAllShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
   const [orgFilter, setOrgFilter] = useState<OrgFilter>('TOP');
 
   useEffect(() => {
     loadData();
   }, [currentDate, viewMode]);
+  
+  useEffect(() => {
+    loadAllShiftsForChart();
+  }, []);
+
+  const loadAllShiftsForChart = async () => {
+    try {
+      const now = new Date();
+      const past = new Date(now);
+      past.setFullYear(past.getFullYear() - 1);
+      
+      const startDate = `${past.getFullYear()}-${String(past.getMonth() + 1).padStart(2, '0')}-${String(past.getDate()).padStart(2, '0')}`;
+      const endDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      
+      console.log('📊 Загрузка данных для графика:', { startDate, endDate });
+      
+      const response = await fetch(
+        `https://functions.poehali.dev/ea6877bc-65c9-4dc3-bafd-dfa003d3948e?start_date=${startDate}&end_date=${endDate}`,
+        {
+          headers: {
+            'X-Session-Token': sessionToken
+          }
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to load chart data');
+
+      const data = await response.json();
+      console.log('✅ Загружено смен для графика:', data.shifts?.length);
+      setAllShifts(data.shifts || []);
+    } catch (error) {
+      console.error('Ошибка загрузки данных для графика:', error);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -317,7 +352,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
       </div>
 
       {/* График динамики */}
-      <ClientsChart organizations={organizations} shifts={shifts} />
+      <ClientsChart organizations={organizations} shifts={allShifts} />
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

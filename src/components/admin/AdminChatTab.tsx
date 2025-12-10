@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Message, UserChat, CHAT_API_URL } from './chat/types';
+import { Message, UserChat, CHAT_API_URL, MAX_FILE_SIZE, MAX_RECORDING_TIME } from './chat/types';
 import UserList from './chat/UserList';
 import ChatWindow from './chat/ChatWindow';
 import { Button } from '@/components/ui/button';
@@ -252,8 +252,8 @@ export default function AdminChatTab() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 1 * 1024 * 1024) {
-      alert('Максимальный размер файла 1 МБ (ограничение base64)');
+    if (file.size > MAX_FILE_SIZE) {
+      alert(`Максимальный размер файла ${MAX_FILE_SIZE / 1024 / 1024} МБ`);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }

@@ -22,3 +22,5 @@ export interface UserChat {
 }
 
 export const CHAT_API_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 МБ
+export const MAX_RECORDING_TIME = 120; // 120 секунд (2 минуты)

@@ -16,6 +16,7 @@ interface ChatInputProps {
   cancelFile: () => void;
   isGroup: boolean;
   isRecording: boolean;
+  recordingTime?: number;
   startRecording: () => void;
   stopRecording: () => void;
   showEmojiPicker: boolean;
@@ -37,6 +38,7 @@ export default function ChatInput({
   cancelFile,
   isGroup,
   isRecording,
+  recordingTime = 0,
   startRecording,
   stopRecording,
   showEmojiPicker,
@@ -44,6 +46,11 @@ export default function ChatInput({
   emojiPickerRef,
   handleEmojiClick,
 }: ChatInputProps) {
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
   return (
     <>
       {previewUrl && (
@@ -77,6 +84,18 @@ export default function ChatInput({
         </div>
       )}
 
+      {isRecording && (
+        <div className="px-4 py-2 border-t bg-red-50 flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
+            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+            <span className="text-sm font-medium text-red-600">
+              Идет запись: {formatTime(recordingTime)}
+            </span>
+          </div>
+          <span className="text-xs text-gray-500">макс. 2 мин</span>
+        </div>
+      )}
+
       <div className="p-4 border-t bg-white relative">
         <div className="flex gap-2">
           <input
@@ -91,7 +110,7 @@ export default function ChatInput({
             size="icon"
             variant="ghost"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            disabled={isSending}
+            disabled={isSending || isRecording}
           >
             <Icon name="Smile" size={20} />
           </Button>
@@ -100,7 +119,7 @@ export default function ChatInput({
             size="icon"
             variant="ghost"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isSending || selectedFile !== null}
+            disabled={isSending || selectedFile !== null || isRecording}
           >
             <Icon name="Paperclip" size={20} />
           </Button>
@@ -110,7 +129,7 @@ export default function ChatInput({
             variant="ghost"
             onClick={isRecording ? stopRecording : startRecording}
             disabled={isSending || selectedFile !== null}
-            className={isRecording ? 'text-red-500' : ''}
+            className={isRecording ? 'text-red-500 bg-red-100' : ''}
           >
             <Icon name="Mic" size={20} />
           </Button>

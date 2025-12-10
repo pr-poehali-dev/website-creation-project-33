@@ -30,6 +30,8 @@ interface ChatTabsProps {
 }
 
 const CHAT_API_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 МБ
+const MAX_RECORDING_TIME = 120; // 120 секунд (2 минуты)
 
 export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTabsProps) {
   const { user } = useAuth();
@@ -62,6 +64,9 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
   // Recording state (shared)
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Emoji picker state
   const [showPersonalEmojiPicker, setShowPersonalEmojiPicker] = useState(false);
@@ -358,8 +363,31 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
       };
 
       recorder.onstop = () => {
+        // Очистка таймеров
+        if (recordingTimerRef.current) {
+          clearInterval(recordingTimerRef.current);
+          recordingTimerRef.current = null;
+        }
+        if (recordingTimeoutRef.current) {
+          clearTimeout(recordingTimeoutRef.current);
+          recordingTimeoutRef.current = null;
+        }
+        setRecordingTime(0);
+
         const mimeType = recorder.mimeType || 'audio/webm';
         const audioBlob = new Blob(audioChunks, { type: mimeType });
+        
+        // Проверка размера файла
+        if (audioBlob.size > MAX_FILE_SIZE) {
+          toast({
+            title: 'Файл слишком большой',
+            description: `Максимальный размер: ${MAX_FILE_SIZE / 1024 / 1024} МБ`,
+            variant: 'destructive',
+          });
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+
         const extension = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('ogg') ? 'ogg' : 'webm';
         const file = new File([audioBlob], `voice.${extension}`, { type: mimeType });
         
@@ -376,6 +404,26 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
       recorder.start(100);
       setMediaRecorder(recorder);
       setIsRecording(true);
+      setRecordingTime(0);
+
+      // Таймер для отображения времени записи
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+
+      // Автоматическая остановка через 2 минуты
+      recordingTimeoutRef.current = setTimeout(() => {
+        if (recorder.state === 'recording') {
+          recorder.stop();
+          setIsRecording(false);
+          setMediaRecorder(null);
+          toast({
+            title: 'Запись остановлена',
+            description: 'Достигнут лимит 2 минуты',
+          });
+        }
+      }, MAX_RECORDING_TIME * 1000);
+
     } catch (error) {
       console.error('Recording error:', error);
       toast({
@@ -431,10 +479,10 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 1 * 1024 * 1024) {
+    if (file.size > MAX_FILE_SIZE) {
       toast({
         title: 'Ошибка',
-        description: 'Максимальный размер файла 1 МБ',
+        description: `Максимальный размер файла ${MAX_FILE_SIZE / 1024 / 1024} МБ`,
         variant: 'destructive',
       });
       if (groupFileInputRef.current) {
@@ -512,10 +560,19 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
       if (groupTypingTimeoutRef.current) {
         clearTimeout(groupTypingTimeoutRef.current);
       }
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+      if (recordingTimeoutRef.current) {
+        clearTimeout(recordingTimeoutRef.current);
+      }
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
       updatePersonalTypingStatus(false);
       updateGroupTypingStatus(false);
     };
-  }, []);
+  }, [mediaRecorder]);
 
   // Close emoji picker when clicking outside
   useEffect(() => {
@@ -618,6 +675,7 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
               cancelFile={cancelPersonalFile}
               isGroup={false}
               isRecording={isRecording}
+              recordingTime={recordingTime}
               startRecording={() => startRecording(false)}
               stopRecording={stopRecording}
               showEmojiPicker={showPersonalEmojiPicker}
@@ -653,6 +711,7 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
               cancelFile={cancelGroupFile}
               isGroup={true}
               isRecording={isRecording}
+              recordingTime={recordingTime}
               startRecording={() => startRecording(true)}
               stopRecording={stopRecording}
               showEmojiPicker={showGroupEmojiPicker}

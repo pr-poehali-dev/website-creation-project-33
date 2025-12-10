@@ -27,6 +27,8 @@ interface ChatDialogProps {
 }
 
 const CHAT_API_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 МБ
+const MAX_RECORDING_TIME = 120; // 120 секунд (2 минуты)
 
 export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
   const { user } = useAuth();
@@ -231,11 +233,11 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Ограничение 1 МБ для base64 (чтобы влезло в JSON)
-    if (file.size > 1 * 1024 * 1024) {
+    // Ограничение для base64 (чтобы влезло в JSON)
+    if (file.size > MAX_FILE_SIZE) {
       toast({
         title: 'Файл слишком большой',
-        description: 'Максимальный размер файла 1 МБ',
+        description: `Максимальный размер файла ${MAX_FILE_SIZE / 1024 / 1024} МБ`,
         variant: 'destructive',
       });
       if (fileInputRef.current) {

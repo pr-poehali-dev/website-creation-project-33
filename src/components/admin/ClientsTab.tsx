@@ -88,8 +88,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
       case 'month':
         start.setDate(1);
         start.setHours(0, 0, 0, 0);
-        end.setMonth(start.getMonth() + 1);
-        end.setDate(0);
+        end.setMonth(end.getMonth() + 1, 0);
         end.setHours(23, 59, 59, 999);
         break;
       case 'year':

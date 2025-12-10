@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get current avatar without auth",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Upload avatar without image",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Session-Token": "test-token"
+      },
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

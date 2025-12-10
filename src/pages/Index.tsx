@@ -8,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import ChatDialog from '@/components/chat/ChatDialog';
 import { useChatUnread } from '@/hooks/useChatUnread';
+import ProfileModal from '@/components/user/ProfileModal';
 
 export default function Index() {
   const { user, logout } = useAuth();
@@ -20,6 +21,7 @@ export default function Index() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -216,6 +218,13 @@ export default function Index() {
             </div>
             <div className="flex gap-2">
               <Button 
+                onClick={() => setProfileOpen(true)} 
+                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105"
+                size="sm"
+              >
+                <Icon name="User" size={16} />
+              </Button>
+              <Button 
                 onClick={() => setChatOpen(true)} 
                 className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105 relative"
                 size="sm"
@@ -257,6 +266,13 @@ export default function Index() {
             </div>
           </div>
           <div className="flex gap-3">
+            <Button 
+              onClick={() => setProfileOpen(true)} 
+              className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105"
+            >
+              <Icon name="User" size={16} className="mr-2" />
+              Профиль
+            </Button>
             <Button 
               onClick={() => setChatOpen(true)} 
               className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 relative"
@@ -404,6 +420,7 @@ export default function Index() {
       </div>
 
       <ChatDialog open={chatOpen} onOpenChange={setChatOpen} />
+      <ProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 }

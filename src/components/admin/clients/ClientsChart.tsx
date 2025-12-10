@@ -23,7 +23,6 @@ interface Shift {
 }
 
 type ChartMode = 'day' | 'week' | 'month' | 'year';
-type OrgFilter = 'ALL' | 'TOP' | 'KIBERONE';
 
 interface ClientsChartProps {
   organizations: Organization[];
@@ -32,25 +31,18 @@ interface ClientsChartProps {
 
 export default function ClientsChart({ organizations, shifts }: ClientsChartProps) {
   const [chartMode, setChartMode] = useState<ChartMode>('month');
-  const [orgFilter, setOrgFilter] = useState<OrgFilter>('ALL');
+  const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<{
     x: number;
     y: number;
     label: string;
-    value: number;
+    total: number;
+    selected?: number;
   } | null>(null);
 
   const chartData = useMemo(() => {
     const now = new Date();
-    const data: { label: string; value: number; date: string }[] = [];
-
-    // Фильтр по категориям
-    const filterShifts = (shiftsArray: Shift[]) => {
-      if (orgFilter === 'ALL') return shiftsArray;
-      if (orgFilter === 'TOP') return shiftsArray.filter(s => s.organization_name.includes('ТОП'));
-      if (orgFilter === 'KIBERONE') return shiftsArray.filter(s => s.organization_name.includes('KIBERONE'));
-      return shiftsArray;
-    };
+    const data: { label: string; total: number; selected: number; date: string }[] = [];
 
     // Группируем смены по датам
     const shiftsByDate = shifts.reduce((acc, shift) => {
@@ -60,10 +52,14 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
       return acc;
     }, {} as Record<string, Shift[]>);
 
-    const getUniqueOrgs = (shiftsArray: Shift[]) => {
-      const filtered = filterShifts(shiftsArray);
-      const uniqueOrgIds = new Set(filtered.map(s => s.organization_id));
+    const getTotalUniqueOrgs = (shiftsArray: Shift[]) => {
+      const uniqueOrgIds = new Set(shiftsArray.map(s => s.organization_id));
       return uniqueOrgIds.size;
+    };
+    
+    const hasSelectedOrg = (shiftsArray: Shift[]) => {
+      if (!selectedOrgId) return 0;
+      return shiftsArray.some(s => s.organization_id === selectedOrgId) ? 1 : 0;
     };
 
     if (chartMode === 'day') {
@@ -76,7 +72,8 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         
         data.push({
           label: date.getDate().toString(),
-          value: getUniqueOrgs(dayShifts),
+          total: getTotalUniqueOrgs(dayShifts),
+          selected: hasSelectedOrg(dayShifts),
           date: dateStr
         });
       }
@@ -96,7 +93,8 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         
         data.push({
           label: `${weekStart.getDate()}/${weekStart.getMonth() + 1}`,
-          value: getUniqueOrgs(weekShifts),
+          total: getTotalUniqueOrgs(weekShifts),
+          selected: hasSelectedOrg(weekShifts),
           date: weekStart.toISOString().split('T')[0]
         });
       }
@@ -115,7 +113,8 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         
         data.push({
           label: monthDate.toLocaleDateString('ru-RU', { month: 'short' }),
-          value: getUniqueOrgs(monthShifts),
+          total: getTotalUniqueOrgs(monthShifts),
+          selected: hasSelectedOrg(monthShifts),
           date: `${year}-${String(month + 1).padStart(2, '0')}-01`
         });
       }
@@ -131,18 +130,22 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         
         data.push({
           label: year.toString(),
-          value: getUniqueOrgs(yearShifts),
+          total: getTotalUniqueOrgs(yearShifts),
+          selected: hasSelectedOrg(yearShifts),
           date: `${year}-01-01`
         });
       }
     }
 
     return data;
-  }, [shifts, chartMode, orgFilter]);
+  }, [shifts, chartMode, selectedOrgId]);
 
   const maxValue = useMemo(() => {
-    return Math.max(...chartData.map(d => d.value), 1);
+    return Math.max(...chartData.map(d => d.total), 1);
   }, [chartData]);
+  
+  const selectedOrg = organizations.find(org => org.id === selectedOrgId);
+  const activeOrgs = organizations.filter(org => org.is_active !== false);
 
   const minValue = 0;
   const valueRange = maxValue - minValue;
@@ -180,38 +183,41 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
           </div>
         </div>
         
-        {/* Фильтрация */}
-        <div className="flex flex-wrap gap-3 mt-4">
-          <button
-            onClick={() => setOrgFilter('ALL')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              orgFilter === 'ALL'
-                ? 'bg-cyan-500 text-white shadow-lg'
-                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border border-slate-600'
-            }`}
-          >
-            ВСЕ
-          </button>
-          <button
-            onClick={() => setOrgFilter('TOP')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              orgFilter === 'TOP'
-                ? 'bg-cyan-500 text-white shadow-lg'
-                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border border-slate-600'
-            }`}
-          >
-            ТОП
-          </button>
-          <button
-            onClick={() => setOrgFilter('KIBERONE')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              orgFilter === 'KIBERONE'
-                ? 'bg-cyan-500 text-white shadow-lg'
-                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border border-slate-600'
-            }`}
-          >
-            KIBERONE
-          </button>
+        {/* Выбор организации */}
+        <div className="mt-4">
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-slate-300">Отслеживать организацию:</label>
+            <select
+              value={selectedOrgId || ''}
+              onChange={(e) => setSelectedOrgId(e.target.value ? Number(e.target.value) : null)}
+              className="bg-slate-700/50 text-slate-200 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="">Не выбрано</option>
+              {activeOrgs.map(org => (
+                <option key={org.id} value={org.id}>{org.name}</option>
+              ))}
+            </select>
+            {selectedOrg && (
+              <button
+                onClick={() => setSelectedOrgId(null)}
+                className="text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                <Icon name="X" size={18} />
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-4 mt-3">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-cyan-500"></div>
+              <span className="text-xs text-slate-400">Все организации</span>
+            </div>
+            {selectedOrg && (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-pink-500"></div>
+                <span className="text-xs text-slate-400">{selectedOrg.name}</span>
+              </div>
+            )}
+          </div>
         </div>
       </CardHeader>
       
@@ -223,6 +229,7 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
           valueRange={valueRange}
           onHoverPoint={setHoveredPoint}
           hoveredPoint={hoveredPoint}
+          hasSelectedOrg={selectedOrgId !== null}
         />
       </CardContent>
     </Card>

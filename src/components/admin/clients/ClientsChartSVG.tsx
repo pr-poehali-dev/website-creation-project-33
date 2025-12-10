@@ -2,9 +2,8 @@ import React from 'react';
 
 interface ChartData {
   label: string;
-  all: number;
-  top: number;
-  kiberone: number;
+  total: number;
+  selected: number;
   date: string;
 }
 
@@ -13,8 +12,9 @@ interface ClientsChartSVGProps {
   maxValue: number;
   minValue: number;
   valueRange: number;
-  onHoverPoint: (point: {x: number; y: number; label: string; all: number; top: number; kiberone: number} | null) => void;
-  hoveredPoint: {x: number; y: number; label: string; all: number; top: number; kiberone: number} | null;
+  onHoverPoint: (point: {x: number; y: number; label: string; total: number; selected?: number} | null) => void;
+  hoveredPoint: {x: number; y: number; label: string; total: number; selected?: number} | null;
+  hasSelectedOrg: boolean;
 }
 
 export default function ClientsChartSVG({ 
@@ -23,24 +23,26 @@ export default function ClientsChartSVG({
   minValue, 
   valueRange,
   onHoverPoint,
-  hoveredPoint
+  hoveredPoint,
+  hasSelectedOrg
 }: ClientsChartSVGProps) {
   const svgRef = React.useRef<SVGSVGElement>(null);
 
-  const createPoints = (dataKey: 'all' | 'top' | 'kiberone') => {
-    return chartData.map((item, i) => {
-      const x = 60 + (i / (chartData.length - 1 || 1)) * 920;
-      const normalizedValue = valueRange > 0 ? (item[dataKey] - minValue) / valueRange : 0.5;
-      const y = 350 - normalizedValue * 280;
-      return { x, y, label: item.label, value: item[dataKey] };
-    });
-  };
+  const totalPoints = chartData.map((item, i) => {
+    const x = 60 + (i / (chartData.length - 1 || 1)) * 920;
+    const normalizedValue = valueRange > 0 ? (item.total - minValue) / valueRange : 0.5;
+    const y = 350 - normalizedValue * 280;
+    return { x, y, label: item.label, value: item.total };
+  });
 
-  const allPoints = createPoints('all');
-  const topPoints = createPoints('top');
-  const kiberonePoints = createPoints('kiberone');
+  const selectedPoints = hasSelectedOrg ? chartData.map((item, i) => {
+    const x = 60 + (i / (chartData.length - 1 || 1)) * 920;
+    const normalizedValue = valueRange > 0 ? (item.selected - minValue) / valueRange : 0;
+    const y = 350 - normalizedValue * 280;
+    return { x, y, label: item.label, value: item.selected };
+  }) : [];
 
-  const createSmoothPath = (pts: typeof allPoints) => {
+  const createSmoothPath = (pts: typeof totalPoints) => {
     if (pts.length === 0) return '';
     if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
     
@@ -61,9 +63,8 @@ export default function ClientsChartSVG({
     return path;
   };
 
-  const allPath = createSmoothPath(allPoints);
-  const topPath = createSmoothPath(topPoints);
-  const kiberonePath = createSmoothPath(kiberonePoints);
+  const totalPath = createSmoothPath(totalPoints);
+  const selectedPath = hasSelectedOrg ? createSmoothPath(selectedPoints) : '';
 
   const yAxisValues = [
     maxValue,
@@ -81,18 +82,6 @@ export default function ClientsChartSVG({
         className="w-full h-full"
       >
         <defs>
-          <linearGradient id="allGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.3"/>
-            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.05"/>
-          </linearGradient>
-          <linearGradient id="topGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3"/>
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.05"/>
-          </linearGradient>
-          <linearGradient id="kiberoneGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.3"/>
-            <stop offset="100%" stopColor="#6366f1" stopOpacity="0.05"/>
-          </linearGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
             <feMerge>
@@ -102,7 +91,6 @@ export default function ClientsChartSVG({
           </filter>
         </defs>
 
-        {/* Сетка */}
         {yAxisValues.map((val, i) => (
           <g key={i}>
             <line
@@ -127,7 +115,6 @@ export default function ClientsChartSVG({
           </g>
         ))}
 
-        {/* X-axis labels */}
         {chartData.map((item, i) => {
           const x = 60 + (i / (chartData.length - 1 || 1)) * 920;
           return (
@@ -144,37 +131,27 @@ export default function ClientsChartSVG({
           );
         })}
 
-        {/* Линия ВСЕ (cyan) */}
         <path
-          d={allPath}
+          d={totalPath}
           fill="none"
           stroke="#06b6d4"
           strokeWidth="3"
           filter="url(#glow)"
         />
         
-        {/* Линия ТОП (blue) */}
-        <path
-          d={topPath}
-          fill="none"
-          stroke="#3b82f6"
-          strokeWidth="3"
-          filter="url(#glow)"
-        />
-        
-        {/* Линия KIBERONE (indigo) */}
-        <path
-          d={kiberonePath}
-          fill="none"
-          stroke="#6366f1"
-          strokeWidth="3"
-          filter="url(#glow)"
-        />
+        {hasSelectedOrg && (
+          <path
+            d={selectedPath}
+            fill="none"
+            stroke="#ec4899"
+            strokeWidth="3"
+            filter="url(#glow)"
+          />
+        )}
 
-        {/* Точки на графике */}
-        {allPoints.map((point, i) => (
+        {totalPoints.map((point, i) => (
           <circle
-            key={`all-${i}`}
+            key={`total-${i}`}
             cx={point.x}
             cy={point.y}
             r="5"
@@ -186,83 +163,57 @@ export default function ClientsChartSVG({
               x: point.x,
               y: point.y,
               label: chartData[i].label,
-              all: chartData[i].all,
-              top: chartData[i].top,
-              kiberone: chartData[i].kiberone
+              total: chartData[i].total,
+              selected: hasSelectedOrg ? chartData[i].selected : undefined
             })}
             onMouseLeave={() => onHoverPoint(null)}
           />
         ))}
         
-        {topPoints.map((point, i) => (
+        {hasSelectedOrg && selectedPoints.map((point, i) => (
           <circle
-            key={`top-${i}`}
+            key={`selected-${i}`}
             cx={point.x}
             cy={point.y}
             r="5"
-            fill="#3b82f6"
-            stroke="#1e40af"
+            fill="#ec4899"
+            stroke="#be185d"
             strokeWidth="2"
             style={{ cursor: 'pointer' }}
             onMouseEnter={() => onHoverPoint({
               x: point.x,
               y: point.y,
               label: chartData[i].label,
-              all: chartData[i].all,
-              top: chartData[i].top,
-              kiberone: chartData[i].kiberone
-            })}
-            onMouseLeave={() => onHoverPoint(null)}
-          />
-        ))}
-        
-        {kiberonePoints.map((point, i) => (
-          <circle
-            key={`kiberone-${i}`}
-            cx={point.x}
-            cy={point.y}
-            r="5"
-            fill="#6366f1"
-            stroke="#4338ca"
-            strokeWidth="2"
-            style={{ cursor: 'pointer' }}
-            onMouseEnter={() => onHoverPoint({
-              x: point.x,
-              y: point.y,
-              label: chartData[i].label,
-              all: chartData[i].all,
-              top: chartData[i].top,
-              kiberone: chartData[i].kiberone
+              total: chartData[i].total,
+              selected: chartData[i].selected
             })}
             onMouseLeave={() => onHoverPoint(null)}
           />
         ))}
 
-        {/* Tooltip при hover */}
         {hoveredPoint && (
           <g>
             <rect
-              x={hoveredPoint.x - 80}
-              y={hoveredPoint.y - 90}
-              width="160"
-              height="80"
+              x={hoveredPoint.x - 70}
+              y={hoveredPoint.y - 75}
+              width="140"
+              height={hasSelectedOrg ? 70 : 55}
               rx="8"
               fill="#1e293b"
               stroke="#334155"
               strokeWidth="2"
             />
-            <text x={hoveredPoint.x} y={hoveredPoint.y - 65} fill="#e2e8f0" fontSize="12" textAnchor="middle" fontWeight="bold">
+            <text x={hoveredPoint.x} y={hoveredPoint.y - 50} fill="#e2e8f0" fontSize="12" textAnchor="middle" fontWeight="bold">
               {hoveredPoint.label}
             </text>
-            <text x={hoveredPoint.x} y={hoveredPoint.y - 45} fill="#06b6d4" fontSize="11" textAnchor="middle">
-              ВСЕ: {hoveredPoint.all}
+            <text x={hoveredPoint.x} y={hoveredPoint.y - 30} fill="#06b6d4" fontSize="11" textAnchor="middle">
+              Всего: {hoveredPoint.total}
             </text>
-            <text x={hoveredPoint.x} y={hoveredPoint.y - 30} fill="#3b82f6" fontSize="11" textAnchor="middle">
-              ТОП: {hoveredPoint.top}
-            </text>
-            <text x={hoveredPoint.x} y={hoveredPoint.y - 15} fill="#6366f1" fontSize="11" textAnchor="middle">
-              KIBERONE: {hoveredPoint.kiberone}
-            </text>
+            {hasSelectedOrg && hoveredPoint.selected !== undefined && (
+              <text x={hoveredPoint.x} y={hoveredPoint.y - 12} fill="#ec4899" fontSize="11" textAnchor="middle">
+                Выбрано: {hoveredPoint.selected > 0 ? 'Да' : 'Нет'}
+              </text>
+            )}
           </g>
         )}
       </svg>

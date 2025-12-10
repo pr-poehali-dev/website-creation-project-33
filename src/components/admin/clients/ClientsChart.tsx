@@ -24,6 +24,9 @@ interface Shift {
 
 type ChartMode = 'day' | 'week' | 'month' | 'year';
 type DayPeriod = 7 | 30 | 60 | 90 | 365;
+type WeekPeriod = 1 | 2 | 3 | 6 | 12;
+type MonthPeriod = 3 | 6 | 12 | 24 | 36;
+type YearPeriod = 1 | 2 | 3 | 5 | 10;
 
 interface ClientsChartProps {
   organizations: Organization[];
@@ -33,6 +36,9 @@ interface ClientsChartProps {
 export default function ClientsChart({ organizations, shifts }: ClientsChartProps) {
   const [chartMode, setChartMode] = useState<ChartMode>('month');
   const [dayPeriod, setDayPeriod] = useState<DayPeriod>(30);
+  const [weekPeriod, setWeekPeriod] = useState<WeekPeriod>(12);
+  const [monthPeriod, setMonthPeriod] = useState<MonthPeriod>(12);
+  const [yearPeriod, setYearPeriod] = useState<YearPeriod>(5);
   const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<{
     x: number;
@@ -72,6 +78,9 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         const dateStr = date.toISOString().split('T')[0];
         const dayShifts = shiftsByDate[dateStr] || [];
         
+        // Пропускаем дни без организаций
+        if (getTotalUniqueOrgs(dayShifts) === 0) continue;
+        
         data.push({
           label: `${date.getDate()}.${String(date.getMonth() + 1).padStart(2, '0')}`,
           total: getTotalUniqueOrgs(dayShifts),
@@ -80,8 +89,8 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         });
       }
     } else if (chartMode === 'week') {
-      // Последние 12 недель (каждая неделя отдельно, пн-вс)
-      for (let i = 11; i >= 0; i--) {
+      // Последние N недель (каждая неделя отдельно, пн-вс)
+      for (let i = weekPeriod - 1; i >= 0; i--) {
         const refDate = new Date(now);
         refDate.setDate(refDate.getDate() - i * 7);
         
@@ -100,6 +109,9 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
           weekShifts.push(...(shiftsByDate[dateStr] || []));
         }
         
+        // Пропускаем недели без организаций
+        if (getTotalUniqueOrgs(weekShifts) === 0) continue;
+        
         data.push({
           label: `${weekStart.getDate()}.${String(weekStart.getMonth() + 1).padStart(2, '0')}-${weekEnd.getDate()}.${String(weekEnd.getMonth() + 1).padStart(2, '0')}`,
           total: getTotalUniqueOrgs(weekShifts),
@@ -108,8 +120,8 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         });
       }
     } else if (chartMode === 'month') {
-      // Последние 12 месяцев (каждый месяц отдельно)
-      for (let i = 11; i >= 0; i--) {
+      // Последние N месяцев (каждый месяц отдельно)
+      for (let i = monthPeriod - 1; i >= 0; i--) {
         const monthDate = new Date(now);
         monthDate.setMonth(monthDate.getMonth() - i);
         const year = monthDate.getFullYear();
@@ -120,6 +132,9 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
           return shiftDate.getFullYear() === year && shiftDate.getMonth() === month;
         });
         
+        // Пропускаем месяцы без организаций
+        if (getTotalUniqueOrgs(monthShifts) === 0) continue;
+        
         data.push({
           label: monthDate.toLocaleDateString('ru-RU', { month: 'short', year: '2-digit' }),
           total: getTotalUniqueOrgs(monthShifts),
@@ -128,14 +143,17 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         });
       }
     } else if (chartMode === 'year') {
-      // Последние 5 лет (каждый год отдельно)
-      for (let i = 4; i >= 0; i--) {
+      // Последние N лет (каждый год отдельно)
+      for (let i = yearPeriod - 1; i >= 0; i--) {
         const year = now.getFullYear() - i;
         
         const yearShifts = shifts.filter(shift => {
           const shiftDate = new Date(shift.shift_date);
           return shiftDate.getFullYear() === year;
         });
+        
+        // Пропускаем годы без организаций
+        if (getTotalUniqueOrgs(yearShifts) === 0) continue;
         
         data.push({
           label: year.toString(),
@@ -147,7 +165,7 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
     }
 
     return data;
-  }, [shifts, chartMode, dayPeriod, selectedOrgId]);
+  }, [shifts, chartMode, dayPeriod, weekPeriod, monthPeriod, yearPeriod, selectedOrgId]);
 
   const maxValue = useMemo(() => {
     return Math.max(...chartData.map(d => d.total), 1);
@@ -205,6 +223,60 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
                     }`}
                   >
                     {period} дн.
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {chartMode === 'week' && (
+              <div className="flex flex-wrap gap-2">
+                {([1, 2, 3, 6, 12] as WeekPeriod[]).map((period) => (
+                  <button
+                    key={period}
+                    onClick={() => setWeekPeriod(period)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                      weekPeriod === period
+                        ? 'bg-cyan-500 text-white shadow-md'
+                        : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
+                    }`}
+                  >
+                    {period} {period === 1 ? 'нед.' : period < 5 ? 'нед.' : 'нед.'}
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {chartMode === 'month' && (
+              <div className="flex flex-wrap gap-2">
+                {([3, 6, 12, 24, 36] as MonthPeriod[]).map((period) => (
+                  <button
+                    key={period}
+                    onClick={() => setMonthPeriod(period)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                      monthPeriod === period
+                        ? 'bg-cyan-500 text-white shadow-md'
+                        : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
+                    }`}
+                  >
+                    {period} мес.
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {chartMode === 'year' && (
+              <div className="flex flex-wrap gap-2">
+                {([1, 2, 3, 5, 10] as YearPeriod[]).map((period) => (
+                  <button
+                    key={period}
+                    onClick={() => setYearPeriod(period)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                      yearPeriod === period
+                        ? 'bg-cyan-500 text-white shadow-md'
+                        : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
+                    }`}
+                  >
+                    {period} {period === 1 ? 'год' : period < 5 ? 'года' : 'лет'}
                   </button>
                 ))}
               </div>

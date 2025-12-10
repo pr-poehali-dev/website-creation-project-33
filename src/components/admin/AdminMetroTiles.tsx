@@ -13,8 +13,7 @@ import MonthComparisonBadge from './MonthComparisonBadge';
 import AccountingTab from './AccountingTab';
 import AccountingStats from './AccountingStats';
 import TodayWorkersCounter from './TodayWorkersCounter';
-import TasksTab from './TasksTab';
-import TodayTasksCounter from './TodayTasksCounter';
+import ClientsTab from './ClientsTab';
 
 
 interface AdminMetroTilesProps {
@@ -22,7 +21,7 @@ interface AdminMetroTilesProps {
   sessionToken: string;
 }
 
-type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'tasks';
+type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients';
 type StatsSubView = 'users' | 'rating' | 'organizations';
 
 export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetroTilesProps) {
@@ -143,7 +142,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     );
   }
 
-  if (currentView === 'tasks') {
+  if (currentView === 'clients') {
     return (
       <div className="space-y-4">
         <button
@@ -153,7 +152,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
           <Icon name="ArrowLeft" size={20} />
           <span className="text-lg font-medium">Назад</span>
         </button>
-        <TasksTab />
+        <ClientsTab sessionToken={sessionToken} />
       </div>
     );
   }
@@ -233,19 +232,16 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       </div>
 
       <div
-        onClick={() => setCurrentView('tasks')}
+        onClick={() => setCurrentView('clients')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-5 bg-gradient-to-br from-purple-600 to-indigo-700 shadow-xl hover:shadow-2xl border border-purple-500/30"
       >
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
-          <TodayTasksCounter />
-        </div>
         <div className="absolute top-0 left-0 w-40 h-40 bg-purple-400/10 rounded-full blur-3xl" />
         <div className="relative z-10">
           <div className="p-3 rounded-xl bg-purple-500/20 border border-purple-400/30 w-fit mb-4">
-            <Icon name="ClipboardList" size={32} className="text-white" />
+            <Icon name="Building2" size={32} className="text-white" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Задачи</h2>
-          <p className="text-purple-100 text-sm md:text-base">Управление задачами и планами</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Заказчики</h2>
+          <p className="text-purple-100 text-sm md:text-base">Планирование выходов к организациям</p>
         </div>
       </div>
 

@@ -22,6 +22,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   const [showAllMax, setShowAllMax] = useState(false);
   const [showAllRevenue, setShowAllRevenue] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showOnlyActive, setShowOnlyActive] = useState(true);
   const [expandedUserEmail, setExpandedUserEmail] = useState<string | null>(null);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, OrgStats[]>>({});
   const [userShifts, setUserShifts] = useState<Record<string, ShiftDetail[]>>({});
@@ -33,6 +34,10 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   } | null>(null);
 
   const filteredUsers = userStats.filter(user => {
+    if (showOnlyActive && user.is_active === false) {
+      return false;
+    }
+    
     if (rankingType === 'avg_per_shift' && (user.shifts_count || 0) <= 3) {
       return false;
     }
@@ -259,6 +264,8 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
           onSearchChange={setSearchQuery}
           rankingType={rankingType}
           onRankingTypeChange={setRankingType}
+          showOnlyActive={showOnlyActive}
+          onShowOnlyActiveChange={setShowOnlyActive}
         />
 
         <div className="space-y-4">

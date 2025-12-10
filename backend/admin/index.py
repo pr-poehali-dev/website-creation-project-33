@@ -254,10 +254,10 @@ def get_leads_stats() -> Dict[str, Any]:
                      WHERE la.user_id = u.id AND la.lead_type = 'подход' AND la.is_active = true) as approaches,
                     (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la
                      WHERE la.user_id = u.id AND la.is_active = true) as total_leads,
-                    COALESCE(ur.total_revenue, 0) as revenue
+                    COALESCE(ur.total_revenue, 0) as revenue,
+                    u.is_active
                 FROM t_p24058207_website_creation_pro.users u
                 LEFT JOIN user_revenue ur ON u.id = ur.user_id
-                WHERE u.is_active = true
             """)
             
             user_stats = []
@@ -278,6 +278,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 approaches_count = int(row[3]) if row[3] else 0
                 lead_count = int(row[4]) if row[4] else 0
                 revenue = int(row[5]) if row[5] else 0
+                is_active = bool(row[6])
                 
                 avg_per_shift = round(lead_count / shifts_count) if shifts_count > 0 else 0
                 
@@ -291,7 +292,8 @@ def get_leads_stats() -> Dict[str, Any]:
                     'shifts_count': shifts_count,
                     'avg_per_shift': avg_per_shift,
                     'max_contacts_per_shift': user_data['max_contacts'],
-                    'revenue': revenue
+                    'revenue': revenue,
+                    'is_active': is_active
                 })
             
             user_stats.sort(key=lambda x: x['contacts'], reverse=True)

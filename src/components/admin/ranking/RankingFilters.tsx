@@ -10,13 +10,17 @@ interface RankingFiltersProps {
   onSearchChange: (query: string) => void;
   rankingType: RankingType;
   onRankingTypeChange: (type: RankingType) => void;
+  showOnlyActive: boolean;
+  onShowOnlyActiveChange: (showOnlyActive: boolean) => void;
 }
 
 export default function RankingFilters({
   searchQuery,
   onSearchChange,
   rankingType,
-  onRankingTypeChange
+  onRankingTypeChange,
+  showOnlyActive,
+  onShowOnlyActiveChange
 }: RankingFiltersProps) {
   return (
     <>
@@ -33,7 +37,7 @@ export default function RankingFilters({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-4">
         <Button
           onClick={() => onRankingTypeChange('contacts')}
           variant={rankingType === 'contacts' ? 'default' : 'outline'}
@@ -93,6 +97,33 @@ export default function RankingFilters({
         >
           <Icon name="DollarSign" size={14} className="mr-1.5" />
           Доход
+        </Button>
+      </div>
+
+      <div className="flex items-center gap-2 mb-6 px-3 py-2 bg-slate-800 rounded-lg border border-slate-700">
+        <Icon name="Users" size={16} className="text-slate-400" />
+        <span className="text-sm text-slate-300 mr-auto">Показывать:</span>
+        <Button
+          onClick={() => onShowOnlyActiveChange(true)}
+          variant={showOnlyActive ? 'default' : 'ghost'}
+          size="sm"
+          className={`transition-all duration-300 h-8 ${showOnlyActive
+            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-md'
+            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'
+          }`}
+        >
+          Активные
+        </Button>
+        <Button
+          onClick={() => onShowOnlyActiveChange(false)}
+          variant={!showOnlyActive ? 'default' : 'ghost'}
+          size="sm"
+          className={`transition-all duration-300 h-8 ${!showOnlyActive
+            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-md'
+            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'
+          }`}
+        >
+          Все
         </Button>
       </div>
     </>

@@ -44,6 +44,7 @@ export interface UserStats {
   avg_per_shift?: number;
   max_contacts_per_shift?: number;
   revenue?: number;
+  is_active?: boolean;
   organizations?: OrganizationStats[];
 }
 

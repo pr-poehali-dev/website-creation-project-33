@@ -7,9 +7,17 @@ interface User {
   is_admin: boolean;
 }
 
+interface LoginResult {
+  success: boolean;
+  requires_2fa?: boolean;
+  user_id?: number;
+  error?: string;
+}
+
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<LoginResult>;
+  verify2FA: (userId: number, code: string) => Promise<boolean>;
   register: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
@@ -66,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<LoginResult> => {
     try {
       const response = await fetch(API_BASE, {
         method: 'POST',
@@ -80,15 +88,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
+        // Проверяем, требуется ли 2FA
+        if (data.requires_2fa) {
+          return {
+            success: false,
+            requires_2fa: true,
+            user_id: data.user_id,
+          };
+        }
+
+        // Обычный вход без 2FA
         setSessionToken(data.session_token);
         setUser(data.user);
-        return true;
+        return { success: true };
+      }
+
+      return { 
+        success: false, 
+        error: data.error || 'Ошибка входа'
+      };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { 
+        success: false, 
+        error: 'Ошибка подключения'
+      };
+    }
+  };
+
+  const verify2FA = async (userId: number, code: string): Promise<boolean> => {
+    try {
+      const response = await fetch(API_BASE, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'verify_2fa',
+          user_id: userId,
+          code,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setSessionToken(data.session_token);
+          setUser(data.user);
+          return true;
+        }
       }
       return false;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('2FA verification error:', error);
       return false;
     }
   };
@@ -140,6 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     login,
+    verify2FA,
     register,
     logout,
     loading,

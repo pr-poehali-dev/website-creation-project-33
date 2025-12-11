@@ -191,10 +191,16 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         }
         
         if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
-          console.log(`🔍 [${userName}] [${day.date}] ПОЛНАЯ статистика из stats:`, stats[userName]);
-          console.log(`🔍 [${userName}] [${day.date}] userStats после фильтрации:`, userStats);
-          console.log(`🔍 [${userName}] [${day.date}] totalOrgUsageThisWeek:`, totalOrgUsageThisWeek);
-          console.log(`🔍 [${userName}] [${day.date}] orgLimits size:`, orgLimits?.size);
+          console.log(`
+🔍🔍🔍 ДЕТАЛЬНЫЙ ЛОГ ДЛЯ СУРКОВА 12.12 🔍🔍🔍
+ПОЛНАЯ статистика (${stats[userName]?.length || 0} орг):`, 
+            stats[userName]?.map(s => `${s.organization_name}: ${s.avg_per_shift}`) || []
+          );
+          console.log(`После фильтрации (${userStats.length} орг):`, 
+            userStats.map(s => `${s.organization_name}: ${s.avg_per_shift}`)
+          );
+          console.log(`Использовано на неделе:`, totalOrgUsageThisWeek);
+          console.log(`orgLimits:`, orgLimits ? Object.fromEntries(orgLimits) : 'НЕТ');
         }
         
         // Ищем лучшую организацию, которая НЕ была использована на предыдущих днях
@@ -215,6 +221,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         }
         
         recommendations[userName][day.date] = recommendedOrg;
+        
+        if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+          console.log(`✅ ВЫБРАНО ДЛЯ СУРКОВА: "${recommendedOrg}"`);
+        }
       });
     });
     

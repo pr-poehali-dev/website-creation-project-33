@@ -17,7 +17,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   const loadAllLocations = async () => {
     try {
       const response = await fetch(
-        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_all_organizations',
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_organizations',
         {
           headers: {
             'X-Session-Token': localStorage.getItem('session_token') || '',
@@ -28,8 +28,9 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       if (response.ok) {
         const data = await response.json();
         if (data.organizations && Array.isArray(data.organizations)) {
-          setAllLocations(data.organizations.sort());
-          console.log(`✅ Загружено ${data.organizations.length} организаций для списка`);
+          const orgNames = data.organizations.map((org: any) => org.name).sort();
+          setAllLocations(orgNames);
+          console.log(`✅ Загружено ${orgNames.length} организаций для списка`);
         }
       }
     } catch (error) {

@@ -126,63 +126,87 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   };
 
   const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>) => {
-    const userOrgUsageCount: Record<string, Record<string, number>> = {};
-    const orgUsageCount: Record<string, number> = {};
     const recommendations: Record<string, Record<string, string>> = {};
     
+    // Инициализация структуры рекомендаций
     schedules.forEach(user => {
       const userName = `${user.first_name} ${user.last_name}`;
-      userOrgUsageCount[userName] = {};
       recommendations[userName] = {};
     });
     
+    // Подсчёт фактических выборов организаций на текущей неделе
+    const userOrgUsageThisWeek: Record<string, Record<string, number>> = {};
+    
+    weekDays.forEach(day => {
+      schedules.forEach(user => {
+        const userName = `${user.first_name} ${user.last_name}`;
+        const daySchedule = user.schedule[day.date];
+        
+        if (!daySchedule) return;
+        
+        const hasAnySlot = Object.keys(daySchedule).some(slotTime => daySchedule[slotTime] === true);
+        if (!hasAnySlot) return;
+        
+        // Читаем выбранную организацию из workComments
+        const selectedOrg = workComments[day.date]?.[userName]?.organization;
+        if (selectedOrg) {
+          if (!userOrgUsageThisWeek[userName]) {
+            userOrgUsageThisWeek[userName] = {};
+          }
+          userOrgUsageThisWeek[userName][selectedOrg] = (userOrgUsageThisWeek[userName][selectedOrg] || 0) + 1;
+        }
+      });
+    });
+    
+    console.log('📊 Использование организаций на неделе:', userOrgUsageThisWeek);
+    
+    // Расчёт рекомендаций на основе текущей недели
     weekDays.forEach(day => {
       schedules.forEach(user => {
         const userName = `${user.first_name} ${user.last_name}`;
         let userStats = stats[userName] || [];
         
+        // Фильтрация по orgLimits (если заданы)
         if (orgLimits && orgLimits.size > 0) {
           userStats = userStats.filter(stat => orgLimits.has(stat.organization_name));
         }
         
         const daySchedule = user.schedule[day.date];
-        if (!daySchedule) {
-          return;
-        }
+        if (!daySchedule) return;
         
         const hasAnySlot = Object.keys(daySchedule).some(slotTime => daySchedule[slotTime] === true);
-        if (!hasAnySlot) {
+        if (!hasAnySlot) return;
+        
+        // Если организация уже выбрана — не перезаписываем рекомендацию
+        const currentOrg = workComments[day.date]?.[userName]?.organization;
+        if (currentOrg) {
+          recommendations[userName][day.date] = currentOrg;
           return;
         }
         
-        if (userStats.length === 0) {
-          console.log(`⚠️ Нет статистики для ${userName}`);
-        }
-        
+        // Ищем лучшую организацию с учётом недельного использования
         let recommendedOrg = '';
         for (const orgStat of userStats) {
           const orgName = orgStat.organization_name;
           const maxUses = orgLimits?.get(orgName) || 1;
-          const userOrgUses = userOrgUsageCount[userName][orgName] || 0;
-          const totalOrgUses = orgUsageCount[orgName] || 0;
+          const userOrgUses = userOrgUsageThisWeek[userName]?.[orgName] || 0;
           
-          if (userOrgUses < maxUses && totalOrgUses < maxUses) {
+          if (userOrgUses < maxUses) {
             recommendedOrg = orgName;
-            userOrgUsageCount[userName][orgName] = userOrgUses + 1;
-            orgUsageCount[orgName] = totalOrgUses + 1;
+            // Временно помечаем как "использованную" для следующих дней
+            if (!userOrgUsageThisWeek[userName]) {
+              userOrgUsageThisWeek[userName] = {};
+            }
+            userOrgUsageThisWeek[userName][orgName] = userOrgUses + 1;
             break;
           }
-        }
-        
-        if (!recommendedOrg && userStats.length > 0) {
-          console.log(`⚠️ Все организации для ${userName} уже использованы. Доступно: ${userStats.length}`);
         }
         
         recommendations[userName][day.date] = recommendedOrg;
       });
     });
     
-    console.log('🎯 Рассчитанные рекомендации:', recommendations);
+    console.log('🎯 Рекомендации на основе недельных выборов:', recommendations);
     setRecommendedLocations(recommendations);
   };
 
@@ -294,7 +318,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       calculateRecommendations(userOrgStats);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orgLimits, userOrgStats, weekDays, schedules]);
+  }, [orgLimits, userOrgStats, weekDays, schedules, workComments]);
 
   return {
     workComments,

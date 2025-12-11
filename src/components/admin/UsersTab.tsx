@@ -255,40 +255,40 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
     </Card>
 
     {inactiveUsers.length > 0 && (
-      <Card className=\"bg-slate-900 border-red-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300 mt-6\">
-        <CardHeader className=\"pb-4\">
-          <CardTitle className=\"flex flex-col sm:flex-row items-start sm:items-center justify-between text-slate-100 gap-3\">
-            <span className=\"flex items-center gap-2 md:gap-3 text-lg md:text-xl\">
-              <div className=\"p-2 rounded-lg bg-slate-800\">
-                <Icon name=\"UserX\" size={18} className=\"text-red-400 md:w-5 md:h-5\" />
+      <Card className="bg-slate-900 border-red-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300 mt-6">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-slate-100 gap-3">
+            <span className="flex items-center gap-2 md:gap-3 text-lg md:text-xl">
+              <div className="p-2 rounded-lg bg-slate-800">
+                <Icon name="UserX" size={18} className="text-red-400 md:w-5 md:h-5" />
               </div>
               Деактивированные пользователи ({inactiveUsers.length})
             </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className=\"pt-6\">
-          <div className=\"space-y-4\">
+        <CardContent className="pt-6">
+          <div className="space-y-4">
             {filteredInactiveUsers.map((user) => (
-              <div key={user.id} className=\"bg-slate-800/50 border border-red-700/30 rounded-xl p-4\">
-                <div className=\"flex justify-between items-start mb-2\">
-                  <div className=\"flex-1\">
-                    <h3 className=\"text-slate-100 font-semibold text-lg\">{user.name}</h3>
-                    <p className=\"text-slate-400 text-sm\">{user.email}</p>
+              <div key={user.id} className="bg-slate-800/50 border border-red-700/30 rounded-xl p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex-1">
+                    <h3 className="text-slate-100 font-semibold text-lg">{user.name}</h3>
+                    <p className="text-slate-400 text-sm">{user.email}</p>
                     {user.registration_ip && (
-                      <p className=\"text-slate-500 text-xs mt-1\">IP: {user.registration_ip}</p>
+                      <p className="text-slate-500 text-xs mt-1">IP: {user.registration_ip}</p>
                     )}
                   </div>
-                  <div className=\"flex gap-2\">
+                  <div className="flex gap-2">
                     <button
                       onClick={() => activateUser(user.id)}
-                      className=\"px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm\"
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm"
                     >
-                      <Icon name=\"UserCheck\" size={16} />
+                      <Icon name="UserCheck" size={16} />
                       Активировать
                     </button>
                   </div>
                 </div>
-                <div className=\"flex gap-4 text-sm text-slate-400 mt-3\">
+                <div className="flex gap-4 text-sm text-slate-400 mt-3">
                   <div>Лидов: {user.lead_count}</div>
                   <div>Смен: {user.shifts_count || 0}</div>
                   {user.last_shift_date && <div>Последняя смена: {user.last_shift_date}</div>}

@@ -159,6 +159,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           // Организация уже выбрана — сохраняем и учитываем
           recommendations[userName][day.date] = currentOrg;
           orgsUsedToday.add(currentOrg);
+          
+          if (currentOrg === 'ТОП (Ногинск)') {
+            console.log(`🔴 ТОП (Ногинск) найден! День: ${day.date}, Промоутер: ${userName}`);
+          }
         }
       });
       

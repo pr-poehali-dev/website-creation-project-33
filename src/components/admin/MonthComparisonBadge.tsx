@@ -52,7 +52,7 @@ export default function MonthComparisonBadge({ sessionToken }: MonthComparisonBa
   const monthLabel = `${prevMonth}/${currentMonth}`.toUpperCase();
 
   return (
-    <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all min-w-[70px] md:min-w-[90px]">
+    <div className="inline-block bg-gradient-to-br from-emerald-500 to-green-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all">
       <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">
         {monthLabel}
       </div>

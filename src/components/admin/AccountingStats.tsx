@@ -129,7 +129,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
 
   return (
     <div className="flex flex-wrap gap-1.5 md:gap-2">
-      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all min-w-[70px] md:min-w-[90px]">
+      <div className="inline-block bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all">
         <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">Вчера</div>
         <div className="text-sm md:text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.yesterday)} ₽
@@ -146,7 +146,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         </div>
       </div>
       
-      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all min-w-[70px] md:min-w-[90px]">
+      <div className="inline-block bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all">
         <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">Сегодня</div>
         <div className="text-sm md:text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.today)} ₽
@@ -163,7 +163,7 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         </div>
       </div>
       
-      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all min-w-[70px] md:min-w-[90px]">
+      <div className="inline-block bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all">
         <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">За месяц</div>
         <div className="text-sm md:text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.month)} ₽

@@ -15,9 +15,12 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   const [recommendedLocations, setRecommendedLocations] = useState<Record<string, Record<string, string>>>({});
 
   useEffect(() => {
-    loadWorkComments();
-    loadAllLocations();
-    loadUserOrgStats();
+    const loadData = async () => {
+      await loadAllLocations();
+      await loadWorkComments();
+      await loadUserOrgStats();
+    };
+    loadData();
   }, [weekDays, schedules]);
 
   useEffect(() => {

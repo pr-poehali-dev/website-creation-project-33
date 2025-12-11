@@ -53,6 +53,8 @@ export default function WorkerCard({
   const [showAllOrgs, setShowAllOrgs] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  console.log(`🔍 WorkerCard allLocations (${worker.first_name}):`, allLocations.length, allLocations.slice(0, 3));
+
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const avgContacts = worker.avg_per_shift || 0;
   const workerName = `${worker.first_name} ${worker.last_name}`;

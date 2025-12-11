@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -33,13 +33,36 @@ export default function OrganizationFilter({
 }: OrganizationFilterProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
+  const [allOrganizations, setAllOrganizations] = useState<string[]>([]);
   
-  const allOrgs = new Set<string>();
-  Object.values(userOrgStats).forEach(stats => {
-    stats.forEach(stat => allOrgs.add(stat.organization_name));
-  });
+  useEffect(() => {
+    loadAllOrganizations();
+  }, []);
   
-  const sortedOrgs = Array.from(allOrgs).sort();
+  const loadAllOrganizations = async () => {
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_all_organizations',
+        {
+          headers: {
+            'X-Session-Token': localStorage.getItem('session_token') || '',
+          }
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.organizations && Array.isArray(data.organizations)) {
+          setAllOrganizations(data.organizations.sort());
+          console.log(`✅ Загружено ${data.organizations.length} организаций из БД`);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Ошибка загрузки организаций:', error);
+    }
+  };
+  
+  const sortedOrgs = allOrganizations;
   
   const actualSelectedCount = sortedOrgs.filter(org => orgLimits.has(org)).length;
 

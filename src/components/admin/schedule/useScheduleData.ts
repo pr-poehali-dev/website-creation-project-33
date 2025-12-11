@@ -188,6 +188,11 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           userStats = userStats.filter(stat => orgLimits.has(stat.organization_name));
         }
         
+        if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+          console.log(`🔍 [${userName}] [${day.date}] userStats после фильтрации:`, userStats);
+          console.log(`🔍 [${userName}] [${day.date}] totalOrgUsageThisWeek:`, totalOrgUsageThisWeek);
+        }
+        
         // Ищем лучшую организацию, которая НЕ была использована на предыдущих днях
         let recommendedOrg = '';
         
@@ -199,7 +204,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           // Проверяем: организация не превысила лимит использования на неделе
           if (totalOrgUses < maxUses) {
             recommendedOrg = orgName;
-            // НЕ увеличиваем счётчик здесь - только реальные выборы администратора учитываются!
+            // Помечаем как использованную для текущего дня
+            totalOrgUsageThisWeek[orgName] = totalOrgUses + 1;
             break;
           }
         }

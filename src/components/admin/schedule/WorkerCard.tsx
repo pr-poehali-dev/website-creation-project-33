@@ -49,10 +49,13 @@ export default function WorkerCard({
   const workerName = `${worker.first_name} ${worker.last_name}`;
   const commentKey = `${workerName}-${dayDate}`;
   
-  // Debug: показываем, если есть рекомендация
-  if (recommendedOrg) {
-    console.log(`✅ Рекомендация для ${workerName} на ${dayDate}: ${recommendedOrg}`, { orgAvg, orgStats });
-  }
+  console.log(`🔍 WorkerCard для ${workerName} на ${dayDate}:`, { 
+    recommendedOrg: recommendedOrg || '(пусто)', 
+    orgAvg, 
+    hasOrgStats: orgStats?.length > 0,
+    statsCount: orgStats?.length || 0
+  });
+  
   const commentData = workComments[dayDate]?.[workerName] || {};
   const currentLocation = commentData.location || '';
   const currentFlyers = commentData.flyers || '';

@@ -192,15 +192,15 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         
         if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
           console.log(`
-🔍🔍🔍 ДЕТАЛЬНЫЙ ЛОГ ДЛЯ СУРКОВА 12.12 🔍🔍🔍
-ПОЛНАЯ статистика (${stats[userName]?.length || 0} орг):`, 
-            stats[userName]?.map(s => `${s.organization_name}: ${s.avg_per_shift}`) || []
-          );
-          console.log(`После фильтрации (${userStats.length} орг):`, 
-            userStats.map(s => `${s.organization_name}: ${s.avg_per_shift}`)
-          );
-          console.log(`Использовано на неделе:`, totalOrgUsageThisWeek);
-          console.log(`orgLimits:`, orgLimits ? Object.fromEntries(orgLimits) : 'НЕТ');
+🔍🔍🔍 ДЕТАЛЬНЫЙ ЛОГ ДЛЯ СУРКОВА 12.12 🔍🔍🔍`);
+          console.log(`1️⃣ ПОЛНАЯ статистика (${stats[userName]?.length || 0} орг) - ОТСОРТИРОВАНА:`);
+          stats[userName]?.forEach((s, i) => console.log(`   ${i+1}. ${s.organization_name}: ${s.avg_per_shift}`));
+          
+          console.log(`2️⃣ После фильтрации (${userStats.length} орг):`);
+          userStats.forEach((s, i) => console.log(`   ${i+1}. ${s.organization_name}: ${s.avg_per_shift}`));
+          
+          console.log(`3️⃣ Использовано на неделе:`, totalOrgUsageThisWeek);
+          console.log(`4️⃣ orgLimits:`, orgLimits ? Object.fromEntries(orgLimits) : 'НЕТ');
         }
         
         // Ищем лучшую организацию, которая НЕ была использована на предыдущих днях

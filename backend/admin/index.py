@@ -714,6 +714,7 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
     """Получить данные о времени работы всех промоутеров"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+            # Сначала получаем все смены
             cur.execute("""
                 SELECT 
                     sv.user_id,
@@ -728,8 +729,24 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                 ORDER BY sv.work_date DESC, u.name
             """)
             
+            shifts_rows = cur.fetchall()
+            
+            # Затем получаем ВСЕ лиды одним запросом и группируем в памяти
+            cur.execute("""
+                SELECT user_id, DATE(created_at) as lead_date, organization_id, COUNT(*) as count
+                FROM t_p24058207_website_creation_pro.leads_analytics
+                WHERE is_active = true
+                GROUP BY user_id, DATE(created_at), organization_id
+            """)
+            
+            # Создаем словарь для быстрого поиска количества лидов
+            leads_map = {}
+            for lead_row in cur.fetchall():
+                key = (lead_row[0], lead_row[1], lead_row[2])  # (user_id, date, org_id)
+                leads_map[key] = lead_row[3]
+            
             work_time_data = []
-            for row in cur.fetchall():
+            for row in shifts_rows:
                 user_id = row[0]
                 user_name = row[1]
                 work_date = row[2]
@@ -763,12 +780,8 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                     end_time_str = '—'
                     hours_worked = 'Смена не закрыта' if shift_start else 'Нет данных'
                 
-                cur.execute(
-                    "SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = %s AND DATE(created_at) = %s AND organization_id = %s",
-                    (user_id, work_date, organization_id)
-                )
-                leads_count_result = cur.fetchone()
-                leads_count = leads_count_result[0] if leads_count_result else 0
+                # Получаем количество лидов из предзагруженных данных
+                leads_count = leads_map.get((user_id, work_date, organization_id), 0)
                 
                 date_str = work_date.strftime('%d.%m.%Y') if hasattr(work_date, 'strftime') else str(work_date)
                 
@@ -781,8 +794,6 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                     'hours_worked': hours_worked,
                     'leads_count': leads_count
                 })
-                
-                print(f'📅 Work time record: user_id={user_id}, work_date={work_date}, formatted={date_str}, start={start_time_str}')
             
             return work_time_data
 

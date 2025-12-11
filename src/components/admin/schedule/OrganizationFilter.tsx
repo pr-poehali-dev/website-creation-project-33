@@ -66,7 +66,7 @@ export default function OrganizationFilter({
   
   const actualSelectedCount = sortedOrgs.filter(org => orgLimits.has(org)).length;
 
-  if (sortedOrgs.length === 0) {
+  if (sortedOrgs.length === 0 && Object.keys(userOrgStats).length === 0) {
     return null;
   }
 

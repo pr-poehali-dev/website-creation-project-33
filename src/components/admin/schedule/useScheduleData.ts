@@ -134,13 +134,53 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       recommendations[userName] = {};
     });
     
-    // Счётчик использования организаций (накапливается по мере прохода по дням)
-    const userOrgUsageThisWeek: Record<string, Record<string, number>> = {};
+    // Счётчик ОБЩЕГО использования организаций по всем промоутерам (накапливается по дням)
+    const totalOrgUsageThisWeek: Record<string, number> = {};
     
-    // Проходим по дням ПОСЛЕДОВАТЕЛЬНО (важно для учёта предыдущих дней)
+    // Проходим по дням ПОСЛЕДОВАТЕЛЬНО
     weekDays.forEach(day => {
+      // Сначала собираем все выбранные организации на этот день
+      const orgsUsedToday = new Set<string>();
+      
       schedules.forEach(user => {
         const userName = `${user.first_name} ${user.last_name}`;
+        const daySchedule = user.schedule[day.date];
+        
+        if (!daySchedule) return;
+        
+        const hasAnySlot = Object.keys(daySchedule).some(slotTime => daySchedule[slotTime] === true);
+        if (!hasAnySlot) return;
+        
+        const currentOrg = workComments[day.date]?.[userName]?.organization;
+        
+        if (currentOrg) {
+          // Организация уже выбрана — сохраняем и учитываем
+          recommendations[userName][day.date] = currentOrg;
+          orgsUsedToday.add(currentOrg);
+        }
+      });
+      
+      // Обновляем общий счётчик использования организаций
+      orgsUsedToday.forEach(org => {
+        totalOrgUsageThisWeek[org] = (totalOrgUsageThisWeek[org] || 0) + 1;
+      });
+      
+      // Теперь для промоутеров БЕЗ выбранной организации рассчитываем рекомендацию
+      schedules.forEach(user => {
+        const userName = `${user.first_name} ${user.last_name}`;
+        const daySchedule = user.schedule[day.date];
+        
+        if (!daySchedule) return;
+        
+        const hasAnySlot = Object.keys(daySchedule).some(slotTime => daySchedule[slotTime] === true);
+        if (!hasAnySlot) return;
+        
+        const currentOrg = workComments[day.date]?.[userName]?.organization;
+        
+        // Если организация уже выбрана — пропускаем
+        if (currentOrg) return;
+        
+        // Получаем статистику промоутера
         let userStats = stats[userName] || [];
         
         // Фильтрация по orgLimits (если заданы)
@@ -148,49 +188,29 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           userStats = userStats.filter(stat => orgLimits.has(stat.organization_name));
         }
         
-        const daySchedule = user.schedule[day.date];
-        if (!daySchedule) return;
+        // Ищем лучшую организацию, которая НЕ была использована на предыдущих днях
+        let recommendedOrg = '';
         
-        const hasAnySlot = Object.keys(daySchedule).some(slotTime => daySchedule[slotTime] === true);
-        if (!hasAnySlot) return;
-        
-        // Проверяем, выбрана ли уже организация администратором
-        const currentOrg = workComments[day.date]?.[userName]?.organization;
-        
-        if (currentOrg) {
-          // Организация выбрана — сохраняем как рекомендацию и учитываем в счётчике
-          recommendations[userName][day.date] = currentOrg;
+        for (const orgStat of userStats) {
+          const orgName = orgStat.organization_name;
+          const maxUses = orgLimits?.get(orgName) || 1;
+          const totalOrgUses = totalOrgUsageThisWeek[orgName] || 0;
           
-          if (!userOrgUsageThisWeek[userName]) {
-            userOrgUsageThisWeek[userName] = {};
+          // Проверяем: организация не превысила лимит использования на неделе
+          if (totalOrgUses < maxUses) {
+            recommendedOrg = orgName;
+            // Помечаем как использованную для текущего дня
+            totalOrgUsageThisWeek[orgName] = totalOrgUses + 1;
+            break;
           }
-          userOrgUsageThisWeek[userName][currentOrg] = (userOrgUsageThisWeek[userName][currentOrg] || 0) + 1;
-        } else {
-          // Организация НЕ выбрана — рассчитываем рекомендацию на основе предыдущих дней
-          let recommendedOrg = '';
-          
-          for (const orgStat of userStats) {
-            const orgName = orgStat.organization_name;
-            const maxUses = orgLimits?.get(orgName) || 1;
-            const userOrgUses = userOrgUsageThisWeek[userName]?.[orgName] || 0;
-            
-            if (userOrgUses < maxUses) {
-              recommendedOrg = orgName;
-              // Временно помечаем как "использованную" для следующих дней
-              if (!userOrgUsageThisWeek[userName]) {
-                userOrgUsageThisWeek[userName] = {};
-              }
-              userOrgUsageThisWeek[userName][orgName] = userOrgUses + 1;
-              break;
-            }
-          }
-          
-          recommendations[userName][day.date] = recommendedOrg;
         }
+        
+        recommendations[userName][day.date] = recommendedOrg;
       });
     });
     
-    console.log('🎯 Рекомендации на основе последовательного анализа дней:', recommendations);
+    console.log('📊 Общее использование организаций на неделе:', totalOrgUsageThisWeek);
+    console.log('🎯 Рекомендации:', recommendations);
     setRecommendedLocations(recommendations);
   };
 

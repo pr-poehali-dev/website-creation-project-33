@@ -36,6 +36,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   };
 
   const loadUserOrgStats = async () => {
+    console.log('🔎 Начинаем загрузку статистики. schedules:', schedules);
     if (schedules.length === 0) return;
     
     const stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>> = {};

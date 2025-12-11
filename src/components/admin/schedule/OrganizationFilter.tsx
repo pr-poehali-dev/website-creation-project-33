@@ -39,6 +39,17 @@ export default function OrganizationFilter({
     loadAllOrganizations();
   }, []);
   
+  useEffect(() => {
+    if (allOrganizations.length === 0 && Object.keys(userOrgStats).length > 0) {
+      const orgsFromStats = new Set<string>();
+      Object.values(userOrgStats).forEach(stats => {
+        stats.forEach(stat => orgsFromStats.add(stat.organization_name));
+      });
+      setAllOrganizations(Array.from(orgsFromStats).sort());
+      console.log(`ℹ️ Использую ${orgsFromStats.size} организаций из userOrgStats (fallback)`);
+    }
+  }, [userOrgStats, allOrganizations.length]);
+  
   const loadAllOrganizations = async () => {
     try {
       const response = await fetch(
@@ -52,14 +63,17 @@ export default function OrganizationFilter({
       
       if (response.ok) {
         const data = await response.json();
-        if (data.organizations && Array.isArray(data.organizations)) {
+        if (data.organizations && Array.isArray(data.organizations) && data.organizations.length > 0) {
           setAllOrganizations(data.organizations.sort());
-          console.log(`✅ Загружено ${data.organizations.length} организаций из БД`);
+          console.log(`✅ Загружено ${data.organizations.length} организаций из API`);
+          return;
         }
       }
     } catch (error) {
-      console.error('❌ Ошибка загрузки организаций:', error);
+      console.error('❌ Ошибка загрузки организаций из API:', error);
     }
+    
+    console.log('⚠️ API не вернул организации, ожидаю userOrgStats для fallback');
   };
   
   const sortedOrgs = allOrganizations;

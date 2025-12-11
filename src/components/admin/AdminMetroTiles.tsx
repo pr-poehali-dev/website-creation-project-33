@@ -163,7 +163,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-8">
       <div
         onClick={() => setCurrentView('requests')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-6 rounded-2xl relative overflow-hidden group order-1 bg-gradient-to-br from-blue-600 to-blue-800 shadow-xl hover:shadow-2xl border border-blue-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-1 bg-gradient-to-br from-blue-600 to-blue-800 shadow-xl hover:shadow-2xl border border-blue-500/30"
       >
         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl" />
         <div className="relative z-10">
@@ -177,7 +177,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('accounting')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-6 rounded-2xl relative overflow-hidden group order-2 bg-gradient-to-br from-yellow-500 to-orange-600 shadow-xl hover:shadow-2xl border border-yellow-400/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-2 bg-gradient-to-br from-yellow-500 to-orange-600 shadow-xl hover:shadow-2xl border border-yellow-400/30"
       >
         <div className="absolute bottom-0 left-0 w-40 h-40 bg-yellow-300/10 rounded-full blur-3xl" />
         <div className="relative z-10 flex flex-col h-full">
@@ -194,7 +194,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('stats')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-6 rounded-2xl relative overflow-hidden group order-3 bg-gradient-to-br from-green-600 to-emerald-700 shadow-xl hover:shadow-2xl border border-green-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-3 bg-gradient-to-br from-green-600 to-emerald-700 shadow-xl hover:shadow-2xl border border-green-500/30"
       >
         <div className="absolute top-0 left-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl" />
         <div className="relative z-10 flex flex-col h-full">
@@ -212,7 +212,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('chat')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-6 rounded-2xl relative overflow-hidden group order-4 bg-gradient-to-br from-orange-500 to-red-600 shadow-xl hover:shadow-2xl border border-orange-400/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-4 bg-gradient-to-br from-orange-500 to-red-600 shadow-xl hover:shadow-2xl border border-orange-400/30"
       >
         {unreadCount > 0 && (
           <div className="absolute top-2 right-2 md:top-3 md:right-3 z-20">
@@ -233,7 +233,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('clients')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-6 rounded-2xl relative overflow-hidden group order-5 bg-gradient-to-br from-purple-600 to-indigo-700 shadow-xl hover:shadow-2xl border border-purple-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-5 bg-gradient-to-br from-purple-600 to-indigo-700 shadow-xl hover:shadow-2xl border border-purple-500/30"
       >
         <div className="absolute top-0 left-0 w-40 h-40 bg-purple-400/10 rounded-full blur-3xl" />
         <div className="relative z-10">
@@ -247,7 +247,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('analytics')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-6 rounded-2xl relative overflow-hidden group order-6 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl hover:shadow-2xl border border-indigo-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-6 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl hover:shadow-2xl border border-indigo-500/30"
       >
         <div className="absolute bottom-0 right-0 w-32 h-32 bg-indigo-400/10 rounded-full blur-3xl" />
         <div className="relative z-10 flex flex-col h-full">

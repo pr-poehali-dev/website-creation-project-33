@@ -47,8 +47,8 @@ def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
                 }
     return None
 
-def get_all_users() -> List[Dict[str, Any]]:
-    """Получить всех пользователей с информацией об онлайн статусе и количеством лидов"""
+def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
+    """Получить пользователей с информацией об онлайн статусе и количеством лидов"""
     online_threshold = get_moscow_time() - timedelta(minutes=5)
     
     with get_db_connection() as conn:
@@ -57,13 +57,14 @@ def get_all_users() -> List[Dict[str, Any]]:
                 SELECT u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at,
                        CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online,
                        COUNT(l.id) as lead_count,
-                       u.latitude, u.longitude, u.location_city, u.location_country
+                       u.latitude, u.longitude, u.location_city, u.location_country,
+                       u.registration_ip, u.is_active
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
-                WHERE u.is_active = TRUE
-                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country
+                WHERE u.is_active = %s
+                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country, u.registration_ip, u.is_active
                 ORDER BY u.created_at DESC
-            """, (online_threshold,))
+            """, (online_threshold, is_active))
             
             users = []
             for row in cur.fetchall():
@@ -79,7 +80,9 @@ def get_all_users() -> List[Dict[str, Any]]:
                     'latitude': row[8],
                     'longitude': row[9],
                     'location_city': row[10],
-                    'location_country': row[11]
+                    'location_country': row[11],
+                    'registration_ip': row[12],
+                    'is_active': row[13]
                 })
             
             # Вычисляем смены для каждого пользователя отдельным запросом
@@ -818,6 +821,28 @@ def delete_user(user_id: int) -> bool:
             conn.commit()
             return cur.rowcount > 0
 
+def activate_user(user_id: int) -> bool:
+    """Активировать пользователя (is_active=true) и разблокировать IP"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT registration_ip FROM t_p24058207_website_creation_pro.users WHERE id = %s", (user_id,))
+            row = cur.fetchone()
+            user_ip = row[0] if row else None
+            
+            if user_ip and user_ip != 'unknown':
+                cur.execute(
+                    "DELETE FROM t_p24058207_website_creation_pro.blocked_ips WHERE ip_address = %s",
+                    (user_ip,)
+                )
+            
+            cur.execute(
+                "UPDATE t_p24058207_website_creation_pro.users SET is_active = TRUE WHERE id = %s AND is_admin = FALSE",
+                (user_id,)
+            )
+            
+            conn.commit()
+            return cur.rowcount > 0
+
 def delete_lead(lead_id: int) -> bool:
     """Удалить метрику лида (полный лид остаётся в Telegram!)"""
     with get_db_connection() as conn:
@@ -1321,11 +1346,15 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             }
         
         if action == 'users':
-            users = get_all_users()
+            active_users = get_all_users(is_active=True)
+            inactive_users = get_all_users(is_active=False)
             return {
                 'statusCode': 200,
                 'headers': headers,
-                'body': json.dumps({'users': users})
+                'body': json.dumps({
+                    'active_users': active_users,
+                    'inactive_users': inactive_users
+                })
             }
         
         elif action == 'stats':
@@ -1678,6 +1707,30 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'statusCode': 200,
                     'headers': headers,
                     'body': json.dumps({'success': True, 'message': 'Пользователь одобрен'})
+                }
+            else:
+                return {
+                    'statusCode': 404,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Пользователь не найден'})
+                }
+        
+        elif action == 'activate_user':
+            user_id = body_data.get('user_id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'ID пользователя обязателен'})
+                }
+            
+            success = activate_user(user_id)
+            if success:
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'success': True, 'message': 'Пользователь активирован'})
                 }
             else:
                 return {

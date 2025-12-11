@@ -14,6 +14,8 @@ export interface User {
   longitude?: number;
   location_city?: string;
   location_country?: string;
+  registration_ip?: string;
+  is_active?: boolean;
 }
 
 export interface Lead {

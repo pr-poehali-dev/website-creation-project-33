@@ -123,7 +123,9 @@ export default function UserCard({
                 <span className="font-medium text-slate-100 text-base md:text-lg truncate">{user.name}</span>
               )}
             </div>
-
+            {user.registration_ip && (
+              <p className="text-slate-500 text-xs">IP: {user.registration_ip}</p>
+            )}
           </div>
         </div>
 

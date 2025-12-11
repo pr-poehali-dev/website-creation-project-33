@@ -17,7 +17,10 @@ export function useUsers(enabled = true) {
       });
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
-      return data.users;
+      return {
+        active: data.active_users || [],
+        inactive: data.inactive_users || []
+      };
     },
     enabled,
   });
@@ -224,6 +227,31 @@ export function useDeleteUser() {
         }),
       });
       if (!response.ok) throw new Error('Failed to delete user');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
+
+export function useActivateUser() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (userId: number) => {
+      const response = await fetch(ADMIN_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken(),
+        },
+        body: JSON.stringify({
+          action: 'activate_user',
+          user_id: userId,
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to activate user');
       return response.json();
     },
     onSuccess: () => {

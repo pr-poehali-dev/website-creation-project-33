@@ -97,6 +97,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         }
       }
       
+      console.log('📊 Загружена статистика по организациям:', stats);
       setUserOrgStats(stats);
       calculateRecommendations(stats);
     } catch (error) {
@@ -161,6 +162,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       });
     });
     
+    console.log('🎯 Рассчитанные рекомендации:', recommendations);
     setRecommendedLocations(recommendations);
   };
 

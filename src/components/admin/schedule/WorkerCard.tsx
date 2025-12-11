@@ -48,6 +48,11 @@ export default function WorkerCard({
   const avgContacts = worker.avg_per_shift || 0;
   const workerName = `${worker.first_name} ${worker.last_name}`;
   const commentKey = `${workerName}-${dayDate}`;
+  
+  // Debug: показываем, если есть рекомендация
+  if (recommendedOrg) {
+    console.log(`✅ Рекомендация для ${workerName} на ${dayDate}: ${recommendedOrg}`, { orgAvg, orgStats });
+  }
   const commentData = workComments[dayDate]?.[workerName] || {};
   const currentLocation = commentData.location || '';
   const currentFlyers = commentData.flyers || '';

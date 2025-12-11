@@ -28,8 +28,10 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { data: userLeads = [], isLoading: leadsLoading } = useUserLeads(selectedUser?.id || null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
+  const [showAllActive, setShowAllActive] = useState(false);
+  const [showAllInactive, setShowAllInactive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [inactiveSearchQuery, setInactiveSearchQuery] = useState('');
 
 
 
@@ -143,16 +145,19 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
     .filter(user => 
       user.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .sort((a, b) => b.lead_count - a.lead_count);
+    .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
   
   const filteredInactiveUsers = inactiveUsers
     .filter(user => 
-      user.name.toLowerCase().includes(searchQuery.toLowerCase())
+      user.name.toLowerCase().includes(inactiveSearchQuery.toLowerCase())
     )
-    .sort((a, b) => b.lead_count - a.lead_count);
+    .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
   
-  const displayedActiveUsers = showAll ? filteredActiveUsers : filteredActiveUsers.slice(0, 4);
+  const displayedActiveUsers = showAllActive ? filteredActiveUsers : filteredActiveUsers.slice(0, 4);
   const hasMoreActiveUsers = filteredActiveUsers.length > 4;
+  
+  const displayedInactiveUsers = showAllInactive ? filteredInactiveUsers : filteredInactiveUsers.slice(0, 4);
+  const hasMoreInactiveUsers = filteredInactiveUsers.length > 4;
 
   return (
     <>
@@ -215,19 +220,19 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
                   onEditNameChange={setNewName}
                 />
               ))}
-              {hasMoreActiveUsers && !showAll && (
+              {hasMoreActiveUsers && !showAllActive && (
                 <button
-                  onClick={() => setShowAll(true)}
+                  onClick={() => setShowAllActive(true)}
                   className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
                 >
                   <Icon name="ChevronDown" size={20} />
                   Показать еще ({filteredActiveUsers.length - 4})
                 </button>
               )}
-              {showAll && hasMoreActiveUsers && (
+              {showAllActive && hasMoreActiveUsers && (
                 <button
-                  onClick={() => setShowAll(false)}
-                  className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                  onClick={() => setShowAllActive(false)}
+                  className="w-full mt-4 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium border border-slate-700"
                 >
                   <Icon name="ChevronUp" size={20} />
                   Свернуть
@@ -267,8 +272,35 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
+          <div className="mb-6">
+            <div className="relative">
+              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Input
+                type="text"
+                placeholder="Поиск по имени..."
+                value={inactiveSearchQuery}
+                onChange={(e) => setInactiveSearchQuery(e.target.value)}
+                className="pl-10 bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-slate-600 focus:ring-slate-600"
+              />
+              {inactiveSearchQuery && (
+                <button
+                  onClick={() => setInactiveSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                >
+                  <Icon name="X" size={16} />
+                </button>
+              )}
+            </div>
+          </div>
           <div className="space-y-4">
-            {filteredInactiveUsers.map((user) => (
+            {filteredInactiveUsers.length === 0 ? (
+              <div className="text-center py-8 text-slate-400">
+                <Icon name="SearchX" size={48} className="mx-auto mb-3 text-slate-600" />
+                <p>Пользователи не найдены</p>
+              </div>
+            ) : (
+              <>
+            {displayedInactiveUsers.map((user) => (
               <div key={user.id} className="bg-slate-800/50 border border-red-700/30 rounded-xl p-4">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1">
@@ -295,6 +327,26 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
                 </div>
               </div>
             ))}
+            {hasMoreInactiveUsers && !showAllInactive && (
+              <button
+                onClick={() => setShowAllInactive(true)}
+                className="w-full mt-4 py-3 px-4 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+              >
+                <Icon name="ChevronDown" size={20} />
+                Показать еще ({filteredInactiveUsers.length - 4})
+              </button>
+            )}
+            {showAllInactive && hasMoreInactiveUsers && (
+              <button
+                onClick={() => setShowAllInactive(false)}
+                className="w-full mt-4 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 font-medium border border-slate-700"
+              >
+                <Icon name="ChevronUp" size={20} />
+                Свернуть
+              </button>
+            )}
+            </>
+            )}
           </div>
         </CardContent>
       </Card>

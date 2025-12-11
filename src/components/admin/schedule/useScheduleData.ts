@@ -189,8 +189,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         }
         
         if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+          console.log(`🔍 [${userName}] [${day.date}] ПОЛНАЯ статистика из stats:`, stats[userName]);
           console.log(`🔍 [${userName}] [${day.date}] userStats после фильтрации:`, userStats);
           console.log(`🔍 [${userName}] [${day.date}] totalOrgUsageThisWeek:`, totalOrgUsageThisWeek);
+          console.log(`🔍 [${userName}] [${day.date}] orgLimits size:`, orgLimits?.size);
         }
         
         // Ищем лучшую организацию, которая НЕ была использована на предыдущих днях

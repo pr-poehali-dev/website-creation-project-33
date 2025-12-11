@@ -33,10 +33,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg font-medium">Назад</span>
+          <span className="text-base md:text-lg font-medium">Назад</span>
         </button>
         <PendingUsers sessionToken={sessionToken} />
         <AllUsersWorkTime sessionToken={sessionToken} />
@@ -49,10 +49,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg font-medium">Назад</span>
+          <span className="text-base md:text-lg font-medium">Назад</span>
         </button>
         <AccountingTab enabled={true} />
       </div>
@@ -62,19 +62,19 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   if (currentView === 'stats') {
     return (
       <div className="space-y-4">
-        <div className="flex justify-between items-center gap-2 mb-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-2 mb-6">
           <button
             onClick={() => setCurrentView('tiles')}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-medium bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50"
+            className="flex items-center justify-center md:justify-start gap-2 px-4 py-2 rounded-xl transition-all text-sm font-medium bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50 w-full md:w-auto"
           >
             <Icon name="ArrowLeft" size={16} />
             <span>Назад</span>
           </button>
           
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setStatsSubView('rating')}
-              className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
+              className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
                 statsSubView === 'rating' 
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
                   : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
@@ -84,7 +84,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
             </button>
             <button
               onClick={() => setStatsSubView('users')}
-              className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
+              className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
                 statsSubView === 'users' 
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
                   : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
@@ -94,7 +94,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
             </button>
             <button
               onClick={() => setStatsSubView('organizations')}
-              className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
+              className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
                 statsSubView === 'organizations' 
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
                   : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
@@ -117,10 +117,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg font-medium">Назад</span>
+          <span className="text-base md:text-lg font-medium">Назад</span>
         </button>
         <AdminChatTab />
       </div>
@@ -132,10 +132,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg font-medium">Назад</span>
+          <span className="text-base md:text-lg font-medium">Назад</span>
         </button>
         <ScheduleAnalyticsTab />
       </div>
@@ -147,10 +147,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       <div className="space-y-4">
         <button
           onClick={() => setCurrentView('tiles')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
         >
           <Icon name="ArrowLeft" size={20} />
-          <span className="text-lg font-medium">Назад</span>
+          <span className="text-base md:text-lg font-medium">Назад</span>
         </button>
         <ClientsTab sessionToken={sessionToken} />
       </div>
@@ -179,16 +179,16 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         onClick={() => setCurrentView('accounting')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-2 bg-gradient-to-br from-yellow-500 to-orange-600 shadow-xl hover:shadow-2xl border border-yellow-400/30"
       >
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
-          <AccountingStats sessionToken={sessionToken} />
-        </div>
         <div className="absolute bottom-0 left-0 w-40 h-40 bg-yellow-300/10 rounded-full blur-3xl" />
-        <div className="relative z-10">
+        <div className="relative z-10 flex flex-col h-full">
           <div className="p-3 rounded-xl bg-yellow-400/20 border border-yellow-300/30 w-fit mb-4">
             <Icon name="Calculator" size={32} className="text-white" />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Бух.учет</h2>
-          <p className="text-yellow-100 text-sm md:text-base">Финансовый учет и отчетность</p>
+          <p className="text-yellow-100 text-sm md:text-base mb-4">Финансовый учет и отчетность</p>
+          <div className="mt-auto pt-4">
+            <AccountingStats sessionToken={sessionToken} />
+          </div>
         </div>
       </div>
 
@@ -196,17 +196,17 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         onClick={() => setCurrentView('stats')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-3 bg-gradient-to-br from-green-600 to-emerald-700 shadow-xl hover:shadow-2xl border border-green-500/30"
       >
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex gap-2">
-          <MonthComparisonBadge sessionToken={sessionToken} />
-          <TodayContactsCounter sessionToken={sessionToken} />
-        </div>
         <div className="absolute top-0 left-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl" />
-        <div className="relative z-10">
+        <div className="relative z-10 flex flex-col h-full">
           <div className="p-3 rounded-xl bg-green-500/20 border border-green-400/30 w-fit mb-4">
             <Icon name="BarChart3" size={32} className="text-white" />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Статистика</h2>
-          <p className="text-green-100 text-sm md:text-base">Пользователи, рейтинг, организации</p>
+          <p className="text-green-100 text-sm md:text-base mb-4">Пользователи, рейтинг, организации</p>
+          <div className="mt-auto pt-4 flex flex-wrap gap-2">
+            <MonthComparisonBadge sessionToken={sessionToken} />
+            <TodayContactsCounter sessionToken={sessionToken} />
+          </div>
         </div>
       </div>
 
@@ -249,16 +249,16 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         onClick={() => setCurrentView('analytics')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-6 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl hover:shadow-2xl border border-indigo-500/30"
       >
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
-          <TodayWorkersCounter sessionToken={sessionToken} />
-        </div>
         <div className="absolute bottom-0 right-0 w-32 h-32 bg-indigo-400/10 rounded-full blur-3xl" />
-        <div className="relative z-10">
+        <div className="relative z-10 flex flex-col h-full">
           <div className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-400/30 w-fit mb-4">
             <Icon name="TrendingUp" size={32} className="text-white" />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
-          <p className="text-indigo-100 text-sm md:text-base">Расписание смен</p>
+          <p className="text-indigo-100 text-sm md:text-base mb-4">Расписание смен</p>
+          <div className="mt-auto pt-4">
+            <TodayWorkersCounter sessionToken={sessionToken} />
+          </div>
         </div>
       </div>
     </div>

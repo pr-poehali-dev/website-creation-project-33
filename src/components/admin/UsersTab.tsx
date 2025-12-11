@@ -307,13 +307,14 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
                     <h3 className="text-slate-100 font-semibold text-lg">{user.name}</h3>
                     <p className="text-slate-400 text-sm">{user.email}</p>
                     {user.registration_ip && (
-                      <p className="text-slate-500 text-xs mt-1">IP: {user.registration_ip}</p>
+                      <p className="text-red-400 text-xs mt-1 font-medium">IP заблокирован: {user.registration_ip}</p>
                     )}
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => activateUser(user.id)}
                       className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm"
+                      title="Активировать пользователя и разблокировать его IP"
                     >
                       <Icon name="UserCheck" size={16} />
                       Активировать

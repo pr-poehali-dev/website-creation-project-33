@@ -60,8 +60,8 @@ export default function MonthComparisonBadge({ sessionToken }: MonthComparisonBa
         {isPositive ? '+' : ''}{difference}
       </div>
       <div className="flex items-center gap-0.5 text-[8px] md:text-[10px]">
-        <Icon name={icon} size={10} className={`md:w-[14px] md:h-[14px] ${isPositive ? 'text-green-300' : 'text-red-400'}`} />
-        <span className={isPositive ? 'text-green-300' : 'text-red-400'}>
+        <Icon name={icon} size={10} className={`md:w-[14px] md:h-[14px] ${isPositive ? 'text-green-300' : 'text-red-600'}`} />
+        <span className={isPositive ? 'text-green-300' : 'text-red-600'}>
           {percentageChange > 0 ? '+' : ''}{percentageChange}%
         </span>
       </div>

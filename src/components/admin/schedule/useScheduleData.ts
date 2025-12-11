@@ -14,21 +14,6 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   const [userOrgStats, setUserOrgStats] = useState<Record<string, Array<{organization_name: string, avg_per_shift: number}>>>({});
   const [recommendedLocations, setRecommendedLocations] = useState<Record<string, Record<string, string>>>({});
 
-  useEffect(() => {
-    const loadData = async () => {
-      await loadAllLocations();
-      await loadWorkComments();
-      await loadUserOrgStats();
-    };
-    loadData();
-  }, [weekDays, schedules]);
-
-  useEffect(() => {
-    if (Object.keys(userOrgStats).length > 0) {
-      calculateRecommendations(userOrgStats);
-    }
-  }, [orgLimits, userOrgStats, weekDays, schedules]);
-
   const loadAllLocations = async () => {
     try {
       const response = await fetch(
@@ -284,6 +269,23 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       };
     });
   };
+
+  useEffect(() => {
+    const loadData = async () => {
+      await loadAllLocations();
+      await loadWorkComments();
+      await loadUserOrgStats();
+    };
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weekDays, schedules]);
+
+  useEffect(() => {
+    if (Object.keys(userOrgStats).length > 0) {
+      calculateRecommendations(userOrgStats);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orgLimits, userOrgStats, weekDays, schedules]);
 
   return {
     workComments,

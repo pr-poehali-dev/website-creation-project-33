@@ -17,6 +17,8 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const { data: usersData, isLoading: loading } = useUsers(enabled);
   const activeUsers = usersData?.active || [];
   const inactiveUsers = usersData?.inactive || [];
+  
+  console.log('👤 Active users with IP:', activeUsers.map(u => ({ name: u.name, ip: u.registration_ip })));
   const updateUserNameMutation = useUpdateUserName();
   const deleteUserMutation = useDeleteUser();
   const activateUserMutation = useActivateUser();

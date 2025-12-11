@@ -151,7 +151,7 @@ export default function WorkerCard({
           {currentOrganization && selectedOrgAvg > 0 && (
             <div className="flex flex-col gap-0.5 ml-2 mt-0.5">
               <span className="text-[9px] md:text-[10px] text-amber-400">
-                Средний результат: ~{selectedOrgAvg.toFixed(1)} контактов
+                Выбрано: {currentOrganization} (~{selectedOrgAvg.toFixed(1)} контактов)
               </span>
               {expectedRevenue > 0 && (
                 <span className="text-[9px] md:text-[10px] text-emerald-400">

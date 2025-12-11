@@ -23,6 +23,39 @@ def get_moscow_time():
 
 def get_client_ip(event: Dict[str, Any]) -> str:
     """Извлечь IP адрес клиента из события"""
+    # Сначала пробуем получить из заголовков (реальный IP клиента через прокси)
+    headers = event.get('headers', {})
+    
+    # X-Forwarded-For может содержать цепочку IP: "client, proxy1, proxy2"
+    x_forwarded_for = (
+        headers.get('X-Forwarded-For') or 
+        headers.get('x-forwarded-for') or
+        headers.get('X-FORWARDED-FOR')
+    )
+    if x_forwarded_for:
+        # Берем первый IP из цепочки (это и есть реальный клиент)
+        client_ip = x_forwarded_for.split(',')[0].strip()
+        if client_ip:
+            return client_ip
+    
+    # X-Real-IP
+    x_real_ip = (
+        headers.get('X-Real-IP') or 
+        headers.get('x-real-ip') or
+        headers.get('X-REAL-IP')
+    )
+    if x_real_ip:
+        return x_real_ip.strip()
+    
+    # CF-Connecting-IP (Cloudflare)
+    cf_ip = (
+        headers.get('CF-Connecting-IP') or 
+        headers.get('cf-connecting-ip')
+    )
+    if cf_ip:
+        return cf_ip.strip()
+    
+    # Если не нашли в заголовках, берем из requestContext (это будет IP прокси)
     request_context = event.get('requestContext', {})
     identity = request_context.get('identity', {})
     return identity.get('sourceIp', 'unknown')
@@ -153,6 +186,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             client_ip = get_client_ip(event)
+            print(f'🌐 Registration IP: {client_ip}, Headers: {event.get("headers", {})}')
             
             # Временно отключено: проверка блокировки IP
             # if is_ip_blocked(client_ip):

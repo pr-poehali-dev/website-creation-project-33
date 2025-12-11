@@ -41,30 +41,30 @@ export default function OrganizationStatsList({
           <div key={org.name} className="border border-slate-700 rounded-lg overflow-hidden bg-slate-800">
             <button
               onClick={() => setSelectedOrg(isExpanded ? null : org.name)}
-              className="w-full p-4 flex items-center justify-between hover:bg-slate-700/50 transition-colors"
+              className="w-full p-3 md:p-4 flex items-center justify-between hover:bg-slate-700/50 transition-colors"
             >
-              <div className="flex items-center gap-3">
-                <span className="font-semibold text-sm md:text-base text-slate-100">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+                <span className="font-semibold text-xs md:text-base text-slate-100 truncate">
                   {org.name}
                 </span>
               </div>
-              <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex items-center gap-1.5 md:gap-4 flex-shrink-0">
                 {org.contact_rate > 0 && (
-                  <div className="text-right">
-                    <div className="text-base md:text-lg font-bold text-green-400">
+                  <div className="text-right min-w-[60px] md:min-w-[80px]">
+                    <div className="text-sm md:text-lg font-bold text-green-400">
                       {(() => {
                         const revenue = org.total * org.contact_rate;
                         const revenueAfterTax = org.payment_type === 'cashless' ? revenue * 0.93 : revenue;
                         return Math.round(revenueAfterTax).toLocaleString('ru-RU');
                       })()}₽
                     </div>
-                    <div className="text-xs text-slate-400">
+                    <div className="text-[10px] md:text-xs text-slate-400">
                       {org.payment_type === 'cash' ? 'наличка' : 'безнал'}
                     </div>
                   </div>
                 )}
-                <div className="text-center">
-                  <div className="text-base md:text-lg font-bold text-cyan-400">
+                <div className="text-center min-w-[45px] md:min-w-[60px]">
+                  <div className="text-sm md:text-lg font-bold text-cyan-400">
                     {(() => {
                       const users = Object.entries(org.users);
                       const avgPerPromoter = users.length > 0 
@@ -76,18 +76,20 @@ export default function OrganizationStatsList({
                       return Math.round(avgPerPromoter);
                     })()}
                   </div>
-                  <div className="text-xs text-slate-400">средний</div>
+                  <div className="text-[10px] md:text-xs text-slate-400 hidden sm:block">средний</div>
+                  <div className="text-[10px] md:text-xs text-slate-400 sm:hidden">сред</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg md:text-xl font-bold text-slate-100">
+                <div className="text-center min-w-[40px] md:min-w-[60px]">
+                  <div className="text-base md:text-xl font-bold text-slate-100">
                     {org.total}
                   </div>
-                  <div className="text-xs text-slate-400">контактов</div>
+                  <div className="text-[10px] md:text-xs text-slate-400 hidden sm:block">контактов</div>
+                  <div className="text-[10px] md:text-xs text-slate-400 sm:hidden">конт</div>
                 </div>
                 <Icon
                   name={isExpanded ? 'ChevronUp' : 'ChevronDown'}
-                  size={20}
-                  className="text-slate-400"
+                  size={16}
+                  className="text-slate-400 md:w-5 md:h-5"
                 />
               </div>
             </button>

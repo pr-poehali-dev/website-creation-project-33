@@ -179,24 +179,24 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
 
   return (
     <Card className="shadow-2xl border-slate-700 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl">
-      <CardHeader className="bg-gradient-to-r from-slate-800/80 to-slate-900/80 border-b border-slate-700/50 pb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <CardHeader className="bg-gradient-to-r from-slate-800/80 to-slate-900/80 border-b border-slate-700/50 pb-4 md:pb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 md:gap-4">
           <div>
-            <h3 className="text-2xl font-bold text-slate-100 mb-2">
+            <h3 className="text-lg md:text-2xl font-bold text-slate-100 mb-1 md:mb-2">
               Динамика задействованных организаций
             </h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-xs md:text-sm text-slate-400">
               Отслеживание активности организаций по категориям
             </p>
           </div>
           
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-2 md:gap-3">
+            <div className="flex flex-wrap gap-1.5 md:gap-2">
               {(['day', 'week', 'month', 'year'] as ChartMode[]).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setChartMode(mode)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  className={`px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
                     chartMode === mode
                       ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
                       : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border border-slate-600'
@@ -211,12 +211,12 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
             </div>
             
             {chartMode === 'day' && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 md:gap-2">
                 {([7, 30, 60, 90, 365] as DayPeriod[]).map((period) => (
                   <button
                     key={period}
                     onClick={() => setDayPeriod(period)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-xs md:text-sm font-medium transition-all ${
                       dayPeriod === period
                         ? 'bg-cyan-500 text-white shadow-md'
                         : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
@@ -229,12 +229,12 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
             )}
             
             {chartMode === 'week' && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 md:gap-2">
                 {([7, 30, 60, 90, 365] as WeekPeriod[]).map((period) => (
                   <button
                     key={period}
                     onClick={() => setWeekPeriod(period)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-xs md:text-sm font-medium transition-all ${
                       weekPeriod === period
                         ? 'bg-cyan-500 text-white shadow-md'
                         : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
@@ -247,12 +247,12 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
             )}
             
             {chartMode === 'month' && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 md:gap-2">
                 {([7, 30, 60, 90, 365] as MonthPeriod[]).map((period) => (
                   <button
                     key={period}
                     onClick={() => setMonthPeriod(period)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-xs md:text-sm font-medium transition-all ${
                       monthPeriod === period
                         ? 'bg-cyan-500 text-white shadow-md'
                         : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
@@ -265,12 +265,12 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
             )}
             
             {chartMode === 'year' && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 md:gap-2">
                 {([1, 2, 3, 5, 10] as YearPeriod[]).map((period) => (
                   <button
                     key={period}
                     onClick={() => setYearPeriod(period)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-xs md:text-sm font-medium transition-all ${
                       yearPeriod === period
                         ? 'bg-cyan-500 text-white shadow-md'
                         : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50 border border-slate-600'
@@ -285,27 +285,29 @@ export default function ClientsChart({ organizations, shifts }: ClientsChartProp
         </div>
         
         {/* Выбор организации */}
-        <div className="mt-4">
-          <div className="flex items-center gap-3">
-            <label className="text-sm text-slate-300">Отслеживать организацию:</label>
-            <select
-              value={selectedOrgId || ''}
-              onChange={(e) => setSelectedOrgId(e.target.value ? Number(e.target.value) : null)}
-              className="bg-slate-700/50 text-slate-200 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            >
-              <option value="">Не выбрано</option>
-              {activeOrgs.map(org => (
-                <option key={org.id} value={org.id}>{org.name}</option>
-              ))}
-            </select>
-            {selectedOrg && (
-              <button
-                onClick={() => setSelectedOrgId(null)}
-                className="text-slate-400 hover:text-slate-200 transition-colors"
+        <div className="mt-3 md:mt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 md:gap-3">
+            <label className="text-xs md:text-sm text-slate-300 whitespace-nowrap">Отслеживать организацию:</label>
+            <div className="flex items-center gap-2 flex-1">
+              <select
+                value={selectedOrgId || ''}
+                onChange={(e) => setSelectedOrgId(e.target.value ? Number(e.target.value) : null)}
+                className="bg-slate-700/50 text-slate-200 border border-slate-600 rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 flex-1 min-w-0"
               >
-                <Icon name="X" size={18} />
-              </button>
-            )}
+                <option value="">Не выбрано</option>
+                {activeOrgs.map(org => (
+                  <option key={org.id} value={org.id}>{org.name}</option>
+                ))}
+              </select>
+              {selectedOrg && (
+                <button
+                  onClick={() => setSelectedOrgId(null)}
+                  className="text-slate-400 hover:text-slate-200 transition-colors flex-shrink-0"
+                >
+                  <Icon name="X" size={16} className="md:w-[18px] md:h-[18px]" />
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex flex-wrap gap-4 mt-3">
             <div className="flex items-center gap-2">

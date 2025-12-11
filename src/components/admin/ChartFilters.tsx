@@ -125,7 +125,7 @@ export default function ChartFilters({
           onClick={() => setShowTotal(!showTotal)}
           variant={showTotal ? 'default' : 'outline'}
           size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${showTotal
+          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${showTotal
             ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
             : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
@@ -137,12 +137,12 @@ export default function ChartFilters({
       </div>
 
       <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-        <span className="text-xs md:text-sm text-slate-300 font-medium">Группировка:</span>
+        <span className="text-xs md:text-sm text-slate-300 font-medium whitespace-nowrap">Группировка:</span>
         <Button
           onClick={() => setGroupBy('day')}
           variant={groupBy === 'day' ? 'default' : 'outline'}
           size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${groupBy === 'day'
+          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${groupBy === 'day'
             ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
             : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
@@ -155,7 +155,7 @@ export default function ChartFilters({
           onClick={() => setGroupBy('week')}
           variant={groupBy === 'week' ? 'default' : 'outline'}
           size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${groupBy === 'week'
+          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${groupBy === 'week'
             ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
             : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
@@ -168,7 +168,7 @@ export default function ChartFilters({
           onClick={() => setGroupBy('month')}
           variant={groupBy === 'month' ? 'default' : 'outline'}
           size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${groupBy === 'month'
+          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${groupBy === 'month'
             ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
             : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
@@ -181,7 +181,7 @@ export default function ChartFilters({
           onClick={() => setGroupBy('year')}
           variant={groupBy === 'year' ? 'default' : 'outline'}
           size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${groupBy === 'year'
+          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${groupBy === 'year'
             ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
             : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
           }`}
@@ -193,13 +193,13 @@ export default function ChartFilters({
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs md:text-sm text-slate-300 font-medium whitespace-nowrap">Организации:</span>
           <Button
             onClick={toggleAllOrganizations}
             variant="outline"
             size="sm"
-            className="glass-button bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
+            className="glass-button bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
           >
             {selectedOrganizations.length === organizations.length ? 'Снять все' : 'Выбрать все'}
           </Button>
@@ -274,13 +274,13 @@ export default function ChartFilters({
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs md:text-sm text-slate-300 font-medium whitespace-nowrap">Пользователи:</span>
           <Button
             onClick={toggleAllUsers}
             variant="outline"
             size="sm"
-            className="glass-button bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
+            className="glass-button bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
           >
             {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
           </Button>
@@ -289,10 +289,11 @@ export default function ChartFilters({
               onClick={onOpenAddShift}
               variant="outline"
               size="sm"
-              className="glass-button bg-cyan-600 hover:bg-cyan-700 text-white border-cyan-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9"
+              className="glass-button bg-cyan-600 hover:bg-cyan-700 text-white border-cyan-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
             >
-              <Icon name="CalendarPlus" size={14} className="mr-1.5" />
-              Добавить смену
+              <Icon name="CalendarPlus" size={14} className="mr-1 md:mr-1.5" />
+              <span className="hidden sm:inline">Добавить смену</span>
+              <span className="sm:hidden">Смена</span>
             </Button>
           )}
         </div>

@@ -163,30 +163,30 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 mt-8">
       <div
         onClick={() => setCurrentView('requests')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-1 bg-gradient-to-br from-blue-600 to-blue-800 shadow-xl hover:shadow-2xl border border-blue-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-8 rounded-2xl relative overflow-hidden group order-1 bg-gradient-to-br from-blue-600 to-blue-800 shadow-xl hover:shadow-2xl border border-blue-500/30"
       >
         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl" />
         <div className="relative z-10">
-          <div className="p-3 rounded-xl bg-blue-500/20 border border-blue-400/30 w-fit mb-4">
-            <Icon name="UserCheck" size={32} className="text-white" />
+          <div className="p-2 md:p-3 rounded-xl bg-blue-500/20 border border-blue-400/30 w-fit mb-3 md:mb-4">
+            <Icon name="UserCheck" size={24} className="text-white md:w-8 md:h-8" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Заявки</h2>
-          <p className="text-blue-100 text-sm md:text-base">Новые заявки и время работы</p>
+          <h2 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">Заявки</h2>
+          <p className="text-blue-100 text-xs md:text-base">Новые заявки и время работы</p>
         </div>
       </div>
 
       <div
         onClick={() => setCurrentView('accounting')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-2 bg-gradient-to-br from-yellow-500 to-orange-600 shadow-xl hover:shadow-2xl border border-yellow-400/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-8 rounded-2xl relative overflow-hidden group order-2 bg-gradient-to-br from-yellow-500 to-orange-600 shadow-xl hover:shadow-2xl border border-yellow-400/30"
       >
         <div className="absolute bottom-0 left-0 w-40 h-40 bg-yellow-300/10 rounded-full blur-3xl" />
         <div className="relative z-10 flex flex-col h-full">
-          <div className="p-3 rounded-xl bg-yellow-400/20 border border-yellow-300/30 w-fit mb-4">
-            <Icon name="Calculator" size={32} className="text-white" />
+          <div className="p-2 md:p-3 rounded-xl bg-yellow-400/20 border border-yellow-300/30 w-fit mb-3 md:mb-4">
+            <Icon name="Calculator" size={24} className="text-white md:w-8 md:h-8" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Бух.учет</h2>
-          <p className="text-yellow-100 text-sm md:text-base mb-4">Финансовый учет и отчетность</p>
-          <div className="mt-auto pt-4">
+          <h2 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">Бух.учет</h2>
+          <p className="text-yellow-100 text-xs md:text-base mb-3 md:mb-4">Финансовый учет и отчетность</p>
+          <div className="mt-auto pt-2 md:pt-4">
             <AccountingStats sessionToken={sessionToken} />
           </div>
         </div>
@@ -194,16 +194,16 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('stats')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-3 bg-gradient-to-br from-green-600 to-emerald-700 shadow-xl hover:shadow-2xl border border-green-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-8 rounded-2xl relative overflow-hidden group order-3 bg-gradient-to-br from-green-600 to-emerald-700 shadow-xl hover:shadow-2xl border border-green-500/30"
       >
         <div className="absolute top-0 left-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl" />
         <div className="relative z-10 flex flex-col h-full">
-          <div className="p-3 rounded-xl bg-green-500/20 border border-green-400/30 w-fit mb-4">
-            <Icon name="BarChart3" size={32} className="text-white" />
+          <div className="p-2 md:p-3 rounded-xl bg-green-500/20 border border-green-400/30 w-fit mb-3 md:mb-4">
+            <Icon name="BarChart3" size={24} className="text-white md:w-8 md:h-8" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Статистика</h2>
-          <p className="text-green-100 text-sm md:text-base mb-4">Пользователи, рейтинг, организации</p>
-          <div className="mt-auto pt-4 flex flex-wrap gap-2">
+          <h2 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">Статистика</h2>
+          <p className="text-green-100 text-xs md:text-base mb-3 md:mb-4">Пользователи, рейтинг, организации</p>
+          <div className="mt-auto pt-2 md:pt-4 flex flex-wrap gap-1.5 md:gap-2">
             <MonthComparisonBadge sessionToken={sessionToken} />
             <TodayContactsCounter sessionToken={sessionToken} />
           </div>
@@ -212,51 +212,51 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('chat')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-4 bg-gradient-to-br from-orange-500 to-red-600 shadow-xl hover:shadow-2xl border border-orange-400/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-8 rounded-2xl relative overflow-hidden group order-4 bg-gradient-to-br from-orange-500 to-red-600 shadow-xl hover:shadow-2xl border border-orange-400/30"
       >
         {unreadCount > 0 && (
           <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
-            <div className="bg-red-500 text-white px-3 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg border border-red-300/50">
+            <div className="bg-red-500 text-white px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg border border-red-300/50">
               {unreadCount}
             </div>
           </div>
         )}
         <div className="absolute bottom-0 right-0 w-32 h-32 bg-orange-300/10 rounded-full blur-3xl" />
         <div className="relative z-10">
-          <div className="p-3 rounded-xl bg-orange-400/20 border border-orange-300/30 w-fit mb-4">
-            <Icon name="MessageCircle" size={32} className="text-white" />
+          <div className="p-2 md:p-3 rounded-xl bg-orange-400/20 border border-orange-300/30 w-fit mb-3 md:mb-4">
+            <Icon name="MessageCircle" size={24} className="text-white md:w-8 md:h-8" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Чат</h2>
-          <p className="text-orange-100 text-sm md:text-base">Общение с промоутерами</p>
+          <h2 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">Чат</h2>
+          <p className="text-orange-100 text-xs md:text-base">Общение с промоутерами</p>
         </div>
       </div>
 
       <div
         onClick={() => setCurrentView('clients')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-5 bg-gradient-to-br from-purple-600 to-indigo-700 shadow-xl hover:shadow-2xl border border-purple-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-8 rounded-2xl relative overflow-hidden group order-5 bg-gradient-to-br from-purple-600 to-indigo-700 shadow-xl hover:shadow-2xl border border-purple-500/30"
       >
         <div className="absolute top-0 left-0 w-40 h-40 bg-purple-400/10 rounded-full blur-3xl" />
         <div className="relative z-10">
-          <div className="p-3 rounded-xl bg-purple-500/20 border border-purple-400/30 w-fit mb-4">
-            <Icon name="Building2" size={32} className="text-white" />
+          <div className="p-2 md:p-3 rounded-xl bg-purple-500/20 border border-purple-400/30 w-fit mb-3 md:mb-4">
+            <Icon name="Building2" size={24} className="text-white md:w-8 md:h-8" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Заказчики</h2>
-          <p className="text-purple-100 text-sm md:text-base">Планирование выходов к организациям</p>
+          <h2 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">Заказчики</h2>
+          <p className="text-purple-100 text-xs md:text-base">Планирование выходов к организациям</p>
         </div>
       </div>
 
       <div
         onClick={() => setCurrentView('analytics')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group order-6 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl hover:shadow-2xl border border-indigo-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-4 md:p-8 rounded-2xl relative overflow-hidden group order-6 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl hover:shadow-2xl border border-indigo-500/30"
       >
         <div className="absolute bottom-0 right-0 w-32 h-32 bg-indigo-400/10 rounded-full blur-3xl" />
         <div className="relative z-10 flex flex-col h-full">
-          <div className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-400/30 w-fit mb-4">
-            <Icon name="TrendingUp" size={32} className="text-white" />
+          <div className="p-2 md:p-3 rounded-xl bg-indigo-500/20 border border-indigo-400/30 w-fit mb-3 md:mb-4">
+            <Icon name="TrendingUp" size={24} className="text-white md:w-8 md:h-8" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">График</h2>
-          <p className="text-indigo-100 text-sm md:text-base mb-4">Расписание смен</p>
-          <div className="mt-auto pt-4">
+          <h2 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">График</h2>
+          <p className="text-indigo-100 text-xs md:text-base mb-3 md:mb-4">Расписание смен</p>
+          <div className="mt-auto pt-2 md:pt-4">
             <TodayWorkersCounter sessionToken={sessionToken} />
           </div>
         </div>

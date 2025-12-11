@@ -134,13 +134,13 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         <div className="text-sm md:text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.yesterday)} ₽
         </div>
-        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px] text-white/60">
+        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px]">
           <Icon 
             name={yesterdayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
             size={10} 
-            className={`md:w-[14px] md:h-[14px]`}
+            className={`md:w-[14px] md:h-[14px] ${yesterdayChange.isPositive ? 'text-green-300' : 'text-red-300'}`}
           />
-          <span>
+          <span className={yesterdayChange.isPositive ? 'text-green-300' : 'text-red-300'}>
             {yesterdayChange.isPositive ? '+' : ''}{yesterdayChange.percent}%
           </span>
         </div>
@@ -151,13 +151,13 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         <div className="text-sm md:text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.today)} ₽
         </div>
-        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px] text-white/60">
+        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px]">
           <Icon 
             name={todayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
             size={10} 
-            className={`md:w-[14px] md:h-[14px]`}
+            className={`md:w-[14px] md:h-[14px] ${todayChange.isPositive ? 'text-green-300' : 'text-red-300'}`}
           />
-          <span>
+          <span className={todayChange.isPositive ? 'text-green-300' : 'text-red-300'}>
             {todayChange.isPositive ? '+' : ''}{todayChange.percent}%
           </span>
         </div>
@@ -168,13 +168,13 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         <div className="text-sm md:text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.month)} ₽
         </div>
-        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px] text-white/60">
+        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px]">
           <Icon 
             name={monthChange.isPositive ? "TrendingUp" : "TrendingDown"} 
             size={10} 
-            className={`md:w-[14px] md:h-[14px]`}
+            className={`md:w-[14px] md:h-[14px] ${monthChange.isPositive ? 'text-green-300' : 'text-red-300'}`}
           />
-          <span>
+          <span className={monthChange.isPositive ? 'text-green-300' : 'text-red-300'}>
             {monthChange.isPositive ? '+' : ''}{monthChange.percent}%
           </span>
         </div>

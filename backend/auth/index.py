@@ -286,15 +286,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             session_token = create_session(user_id)
             update_last_seen(user_id)
             
-            # Update location if provided
-            if latitude is not None and longitude is not None:
-                with get_db_connection() as conn:
-                    with conn.cursor() as cur:
+            # Обновляем IP адрес при каждом логине (для исправления старых записей)
+            client_ip = get_client_ip(event)
+            
+            # Update location and IP if provided
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    if latitude is not None and longitude is not None:
                         cur.execute(
-                            "UPDATE t_p24058207_website_creation_pro.users SET latitude = %s, longitude = %s, location_updated_at = %s WHERE id = %s",
-                            (latitude, longitude, get_moscow_time(), user_id)
+                            "UPDATE t_p24058207_website_creation_pro.users SET latitude = %s, longitude = %s, location_updated_at = %s, registration_ip = %s WHERE id = %s",
+                            (latitude, longitude, get_moscow_time(), client_ip, user_id)
                         )
-                        conn.commit()
+                    else:
+                        # Обновляем только IP, если геолокация не передана
+                        cur.execute(
+                            "UPDATE t_p24058207_website_creation_pro.users SET registration_ip = %s WHERE id = %s",
+                            (client_ip, user_id)
+                        )
+                    conn.commit()
+            
+            print(f'🔄 Updated IP for user {user_id}: {client_ip}')
             
             return {
                 'statusCode': 200,

@@ -2129,13 +2129,34 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             try:
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
+                        # Получаем имя пользователя для удаления комментариев
+                        cur.execute("""
+                            SELECT name FROM t_p24058207_website_creation_pro.users 
+                            WHERE id = %s
+                        """, (user_id,))
+                        user_row = cur.fetchone()
+                        user_name = user_row[0] if user_row else None
+                        
+                        # Удаляем смену из work_shifts
                         cur.execute("""
                             DELETE FROM t_p24058207_website_creation_pro.work_shifts 
                             WHERE user_id = %s AND shift_date = %s AND organization_id = %s
                         """, (user_id, work_date, organization_id))
+                        
+                        deleted_shifts = cur.rowcount
+                        
+                        # Удаляем комментарии о месте работы, если смена была удалена
+                        if deleted_shifts > 0 and user_name:
+                            print(f'🗑️ Удаление комментариев для {user_name} на {work_date}')
+                            cur.execute("""
+                                DELETE FROM work_location_comments 
+                                WHERE user_name = %s AND work_date = %s
+                            """, (user_name, work_date))
+                            print(f'✅ Удалено {cur.rowcount} комментариев')
+                        
                         conn.commit()
                         
-                        if cur.rowcount > 0:
+                        if deleted_shifts > 0:
                             return {
                                 'statusCode': 200,
                                 'headers': headers,
@@ -2148,6 +2169,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 'body': json.dumps({'error': 'Смена не найдена'})
                             }
             except Exception as e:
+                print(f'❌ Ошибка удаления смены: {e}')
+                import traceback
+                traceback.print_exc()
                 return {
                     'statusCode': 400,
                     'headers': headers,

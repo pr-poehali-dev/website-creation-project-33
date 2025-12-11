@@ -53,9 +53,15 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         }
       );
       
-      if (!usersResponse.ok) return;
+      if (!usersResponse.ok) {
+        console.log('❌ Ошибка загрузки пользователей:', usersResponse.status);
+        return;
+      }
       
       const usersData = await usersResponse.json();
+      console.log('📦 Данные пользователей из API:', usersData);
+      console.log('📋 Список users:', usersData.users);
+      
       const userEmailMap = new Map(
         usersData.users?.map((u: any) => [`${u.name}`, u.email]) || []
       );

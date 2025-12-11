@@ -37,6 +37,7 @@ export default function TeamScheduleView({
     workComments,
     savingComment,
     allLocations,
+    allOrganizations,
     userOrgStats,
     recommendedLocations,
     saveComment,
@@ -232,6 +233,7 @@ export default function TeamScheduleView({
             workComments={workComments}
             savingComment={savingComment}
             allLocations={allLocations}
+            allOrganizations={allOrganizations}
             userOrgStats={userOrgStats}
             recommendedLocations={recommendedLocations}
             onToggleDay={toggleDay}

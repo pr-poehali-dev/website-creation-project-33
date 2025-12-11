@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DaySchedule, UserSchedule } from './types';
+import { DaySchedule, UserSchedule, OrganizationData } from './types';
 
 export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule[], orgLimits?: Map<string, number>) {
   const [workComments, setWorkComments] = useState<Record<string, Record<string, {
@@ -11,6 +11,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   }>>>({});
   const [savingComment, setSavingComment] = useState<string | null>(null);
   const [allLocations, setAllLocations] = useState<string[]>([]);
+  const [allOrganizations, setAllOrganizations] = useState<OrganizationData[]>([]);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, Array<{organization_name: string, avg_per_shift: number}>>>({});
   const [recommendedLocations, setRecommendedLocations] = useState<Record<string, Record<string, string>>>({});
 
@@ -28,7 +29,14 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       if (response.ok) {
         const data = await response.json();
         if (data.organizations && Array.isArray(data.organizations)) {
-          const orgNames = data.organizations.map((org: any) => org.name).sort();
+          const orgsData: OrganizationData[] = data.organizations.map((org: any) => ({
+            id: org.id,
+            name: org.name,
+            contact_rate: org.contact_rate || 0,
+            payment_type: org.payment_type || 'cash'
+          }));
+          setAllOrganizations(orgsData);
+          const orgNames = orgsData.map(org => org.name).sort();
           setAllLocations(orgNames);
           console.log(`✅ Загружено ${orgNames.length} организаций для списка`);
         }
@@ -292,6 +300,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     workComments,
     savingComment,
     allLocations,
+    allOrganizations,
     userOrgStats,
     recommendedLocations,
     saveComment,

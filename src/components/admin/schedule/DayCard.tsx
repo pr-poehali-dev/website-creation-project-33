@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import { DaySchedule, UserSchedule, DeleteSlotState, DayStats } from './types';
+import { DaySchedule, UserSchedule, DeleteSlotState, DayStats, OrganizationData } from './types';
 import TimeSlotCard from './TimeSlotCard';
 
 interface DayCardProps {
@@ -11,6 +11,7 @@ interface DayCardProps {
   workComments: Record<string, Record<string, {location?: string, flyers?: string}>>;
   savingComment: string | null;
   allLocations: string[];
+  allOrganizations: OrganizationData[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
   recommendedLocations: Record<string, Record<string, string>>;
   onToggleDay: (date: string) => void;
@@ -29,6 +30,7 @@ export default function DayCard({
   workComments,
   savingComment,
   allLocations,
+  allOrganizations,
   userOrgStats,
   recommendedLocations,
   onToggleDay,
@@ -91,6 +93,7 @@ export default function DayCard({
                     workComments={workComments}
                     savingComment={savingComment}
                     allLocations={allLocations}
+                    allOrganizations={allOrganizations}
                     userOrgStats={userOrgStats}
                     recommendedLocations={recommendedLocations}
                     onCommentChange={onCommentChange}

@@ -44,3 +44,10 @@ export interface ConfirmDeleteState {
   slot: string;
   slotLabel: string;
 }
+
+export interface OrganizationData {
+  id: number;
+  name: string;
+  contact_rate: number;
+  payment_type: 'cash' | 'cashless';
+}

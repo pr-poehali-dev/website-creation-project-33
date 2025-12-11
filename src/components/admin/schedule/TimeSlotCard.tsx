@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { UserSchedule, DeleteSlotState } from './types';
+import { UserSchedule, DeleteSlotState, OrganizationData } from './types';
 import { isMaximKorelsky } from './utils';
 import WorkerCard from './WorkerCard';
 
@@ -11,6 +11,7 @@ interface TimeSlotCardProps {
   workComments: Record<string, Record<string, {location?: string, flyers?: string}>>;
   savingComment: string | null;
   allLocations: string[];
+  allOrganizations: OrganizationData[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
   recommendedLocations: Record<string, Record<string, string>>;
   onCommentChange: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
@@ -27,6 +28,7 @@ export default function TimeSlotCard({
   workComments,
   savingComment,
   allLocations,
+  allOrganizations,
   userOrgStats,
   recommendedLocations,
   onCommentChange,
@@ -77,6 +79,7 @@ export default function TimeSlotCard({
                 workComments={workComments}
                 savingComment={savingComment}
                 allLocations={allLocations}
+                allOrganizations={allOrganizations}
                 recommendedOrg={recommendedOrg}
                 orgAvg={orgAvg}
                 orgStats={orgStats}

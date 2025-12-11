@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
-import { UserSchedule, DeleteSlotState } from './types';
+import { UserSchedule, DeleteSlotState, OrganizationData } from './types';
 import { isMaximKorelsky } from './utils';
 import OrgStatsModal from './OrgStatsModal';
 
@@ -20,6 +20,7 @@ interface WorkerCardProps {
   }>>;
   savingComment: string | null;
   allLocations: string[];
+  allOrganizations: OrganizationData[];
   recommendedOrg: string;
   orgAvg?: number;
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
@@ -39,6 +40,7 @@ export default function WorkerCard({
   workComments,
   savingComment,
   allLocations,
+  allOrganizations,
   recommendedOrg,
   orgAvg,
   orgStats,
@@ -102,6 +104,26 @@ export default function WorkerCard({
     onCommentBlur(workerName, dayDate, 'flyers', currentFlyers);
   };
 
+  // Расчёт среднего результата промоутера в выбранной организации
+  const selectedOrgStats = currentOrganization 
+    ? orgStats.find(o => o.organization_name === currentOrganization)
+    : null;
+  const selectedOrgAvg = selectedOrgStats?.avg_per_shift || 0;
+
+  // Расчёт предполагаемого дохода КВВ/КМС
+  const selectedOrgData = currentOrganization
+    ? allOrganizations.find(o => o.name === currentOrganization)
+    : null;
+  
+  let expectedRevenue = 0;
+  if (selectedOrgData && selectedOrgAvg > 0) {
+    const rate = selectedOrgData.contact_rate;
+    const revenue = selectedOrgAvg * rate;
+    expectedRevenue = selectedOrgData.payment_type === 'cashless' 
+      ? revenue * 0.93  // Вычитаем 7% налога для безнала
+      : revenue;
+  }
+
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between group">
@@ -117,13 +139,25 @@ export default function WorkerCard({
             )}
           </div>
           {recommendedOrg && (
-            <div className="flex items-center gap-2 ml-2">
+            <div className="flex flex-col gap-0.5 ml-2">
               <span 
                 className="text-[9px] md:text-[10px] text-cyan-400 cursor-pointer hover:underline"
                 onClick={() => setShowOrgStatsModal(true)}
               >
                 Рекомендация: {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)})` : ''}
               </span>
+            </div>
+          )}
+          {currentOrganization && selectedOrgAvg > 0 && (
+            <div className="flex flex-col gap-0.5 ml-2 mt-0.5">
+              <span className="text-[9px] md:text-[10px] text-amber-400">
+                Средний результат: ~{selectedOrgAvg.toFixed(1)} контактов
+              </span>
+              {expectedRevenue > 0 && (
+                <span className="text-[9px] md:text-[10px] text-emerald-400">
+                  Ожидаемый доход: ~{Math.round(expectedRevenue)} ₽
+                </span>
+              )}
             </div>
           )}
         </div>

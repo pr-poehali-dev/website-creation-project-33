@@ -16,7 +16,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
@@ -169,6 +169,74 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Access-Control-Allow-Origin': '*'
                 },
                 'body': json.dumps({'success': True, 'message': 'Comment saved'})
+            }
+        
+        elif method == 'DELETE':
+            params = event.get('queryStringParameters', {})
+            cleanup = params.get('cleanup')
+            
+            cursor = conn.cursor()
+            
+            # Массовая очистка "мусорных" комментариев
+            if cleanup == 'orphaned':
+                cursor.execute("""
+                    DELETE FROM work_location_comments wlc
+                    WHERE NOT EXISTS (
+                        SELECT 1 
+                        FROM t_p24058207_website_creation_pro.work_shifts ws
+                        JOIN t_p24058207_website_creation_pro.users u ON ws.user_id = u.id
+                        WHERE LOWER(u.name) = LOWER(wlc.user_name) 
+                        AND ws.shift_date = wlc.work_date
+                    )
+                """)
+                
+                deleted_count = cursor.rowcount
+                conn.commit()
+                cursor.close()
+                conn.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'success': True, 'deleted': deleted_count})
+                }
+            
+            # Удаление конкретного комментария
+            user_name = params.get('user_name')
+            work_date = params.get('work_date')
+            
+            if not user_name or not work_date:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'user_name and work_date required'})
+                }
+            
+            cursor.execute("""
+                DELETE FROM work_location_comments 
+                WHERE LOWER(user_name) = LOWER(%s) AND work_date = %s
+            """, (user_name, work_date))
+            
+            deleted_count = cursor.rowcount
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'success': True, 'deleted': deleted_count})
             }
         
         else:

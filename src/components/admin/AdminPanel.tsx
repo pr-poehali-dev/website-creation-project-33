@@ -10,6 +10,7 @@ export default function AdminPanel() {
   const { logout, user } = useAuth();
   const unreadCount = useChatUnread();
   const [resetting, setResetting] = useState(false);
+  const [cleaningComments, setCleaningComments] = useState(false);
 
   const openGoogleSheets = () => {
     const sheetId = 'https://docs.google.com/spreadsheets/d/1fH4lgqreRPBoHQadU8Srw7L3bPgT5xa3zyz2idfpptM/edit';
@@ -51,6 +52,37 @@ export default function AdminPanel() {
     }
   };
 
+  const cleanupOrphanedComments = async () => {
+    if (!confirm('Удалить все комментарии без соответствующих смен? Это действие нельзя отменить.')) {
+      return;
+    }
+
+    setCleaningComments(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2?cleanup=orphaned', {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast({
+          title: 'Успешно!',
+          description: `Удалено ${data.deleted} комментариев без смен`
+        });
+      } else {
+        throw new Error('Failed to cleanup');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось очистить комментарии',
+        variant: 'destructive'
+      });
+    } finally {
+      setCleaningComments(false);
+    }
+  };
+
   if (!user?.is_admin) {
     return <AdminAccessDenied onLogout={logout} />;
   }
@@ -58,7 +90,14 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-white p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
-        <AdminHeader onLogout={logout} onOpenGoogleSheets={openGoogleSheets} onResetApproaches={resetApproaches} resetting={resetting} />
+        <AdminHeader 
+          onLogout={logout} 
+          onOpenGoogleSheets={openGoogleSheets} 
+          onResetApproaches={resetApproaches} 
+          resetting={resetting}
+          onCleanupOrphanedComments={cleanupOrphanedComments}
+          cleaningComments={cleaningComments}
+        />
         <AdminMetroTiles 
           unreadCount={unreadCount} 
           sessionToken={localStorage.getItem('session_token') || ''} 

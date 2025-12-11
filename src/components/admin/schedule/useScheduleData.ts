@@ -139,6 +139,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     
     // Проходим по дням ПОСЛЕДОВАТЕЛЬНО
     weekDays.forEach(day => {
+      console.log(`📅 Обрабатываем день: ${day.date} (${day.dayName})`);
+      
       // Сначала собираем все выбранные организации на этот день
       const orgsUsedToday = new Set<string>();
       

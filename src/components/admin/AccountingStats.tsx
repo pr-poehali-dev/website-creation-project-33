@@ -129,60 +129,54 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
 
   return (
     <div className="flex flex-wrap gap-1.5 md:gap-2">
-      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all">
-        <div className="flex items-center justify-between mb-0.5">
-          <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">Вчера</div>
-          <div className="flex items-center gap-0.5">
-            <Icon 
-              name={yesterdayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
-              size={10} 
-              className={`md:w-[14px] md:h-[14px] ${yesterdayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}`}
-            />
-            <span className={`text-[8px] md:text-[10px] font-extrabold ${yesterdayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
-              {yesterdayChange.percent}%
-            </span>
-          </div>
+      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all min-w-[70px] md:min-w-[90px]">
+        <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">Вчера</div>
+        <div className="text-sm md:text-lg font-bold text-white leading-tight">
+          {formatCurrency(earnings.yesterday)} ₽
         </div>
-        <div className="text-sm md:text-lg font-bold text-white leading-tight whitespace-nowrap">
-          {formatCurrency(earnings.yesterday)} <span className="text-[10px] md:text-sm text-white/80">₽</span>
+        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px] text-white/60">
+          <Icon 
+            name={yesterdayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
+            size={10} 
+            className={`md:w-[14px] md:h-[14px]`}
+          />
+          <span>
+            {yesterdayChange.isPositive ? '+' : ''}{yesterdayChange.percent}%
+          </span>
         </div>
       </div>
       
-      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all">
-        <div className="flex items-center justify-between mb-0.5">
-          <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">Сегодня</div>
-          <div className="flex items-center gap-0.5">
-            <Icon 
-              name={todayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
-              size={10} 
-              className={`md:w-[14px] md:h-[14px] ${todayChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}`}
-            />
-            <span className={`text-[8px] md:text-[10px] font-extrabold ${todayChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
-              {todayChange.percent}%
-            </span>
-          </div>
+      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all min-w-[70px] md:min-w-[90px]">
+        <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">Сегодня</div>
+        <div className="text-sm md:text-lg font-bold text-white leading-tight">
+          {formatCurrency(earnings.today)} ₽
         </div>
-        <div className="text-sm md:text-lg font-bold text-white leading-tight whitespace-nowrap">
-          {formatCurrency(earnings.today)} <span className="text-[10px] md:text-sm text-white/80">₽</span>
+        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px] text-white/60">
+          <Icon 
+            name={todayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
+            size={10} 
+            className={`md:w-[14px] md:h-[14px]`}
+          />
+          <span>
+            {todayChange.isPositive ? '+' : ''}{todayChange.percent}%
+          </span>
         </div>
       </div>
       
-      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all">
-        <div className="flex items-center justify-between mb-0.5">
-          <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">За месяц</div>
-          <div className="flex items-center gap-0.5">
-            <Icon 
-              name={monthChange.isPositive ? "TrendingUp" : "TrendingDown"} 
-              size={10} 
-              className={`md:w-[14px] md:h-[14px] ${monthChange.isPositive ? "text-green-200 drop-shadow-md" : "text-red-400 drop-shadow-md"}`}
-            />
-            <span className={`text-[8px] md:text-[10px] font-extrabold ${monthChange.isPositive ? "text-green-100" : "text-red-100"} drop-shadow-md`}>
-              {monthChange.percent}%
-            </span>
-          </div>
+      <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all min-w-[70px] md:min-w-[90px]">
+        <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">За месяц</div>
+        <div className="text-sm md:text-lg font-bold text-white leading-tight">
+          {formatCurrency(earnings.month)} ₽
         </div>
-        <div className="text-sm md:text-lg font-bold text-white leading-tight whitespace-nowrap">
-          {formatCurrency(earnings.month)} <span className="text-[10px] md:text-sm text-white/80">₽</span>
+        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px] text-white/60">
+          <Icon 
+            name={monthChange.isPositive ? "TrendingUp" : "TrendingDown"} 
+            size={10} 
+            className={`md:w-[14px] md:h-[14px]`}
+          />
+          <span>
+            {monthChange.isPositive ? '+' : ''}{monthChange.percent}%
+          </span>
         </div>
       </div>
     </div>

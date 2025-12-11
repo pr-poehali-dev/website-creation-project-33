@@ -52,18 +52,18 @@ export default function MonthComparisonBadge({ sessionToken }: MonthComparisonBa
   const monthLabel = `${prevMonth}/${currentMonth}`.toUpperCase();
 
   return (
-    <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all">
+    <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-md md:rounded-lg shadow-md px-2 py-1 md:px-3 md:py-2 hover:shadow-lg transition-all min-w-[70px] md:min-w-[90px]">
       <div className="text-[8px] md:text-[10px] text-white/70 font-medium uppercase tracking-wide">
         {monthLabel}
       </div>
-      <div className="flex items-center gap-1 text-white text-sm md:text-lg font-bold leading-tight">
-        <Icon name={icon} size={14} className="md:w-4 md:h-4" />
-        <span>
-          {isPositive ? '+' : ''}{difference}
-        </span>
+      <div className="text-sm md:text-lg font-bold text-white leading-tight">
+        {isPositive ? '+' : ''}{difference}
       </div>
-      <div className="text-[8px] md:text-[10px] text-white/60">
-        {percentageChange > 0 ? '+' : ''}{percentageChange}%
+      <div className="flex items-center gap-0.5 text-[8px] md:text-[10px] text-white/60">
+        <Icon name={icon} size={10} className="md:w-[14px] md:h-[14px]" />
+        <span>
+          {percentageChange > 0 ? '+' : ''}{percentageChange}%
+        </span>
       </div>
     </div>
   );

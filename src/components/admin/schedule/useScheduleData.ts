@@ -60,10 +60,12 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       
       const usersData = await usersResponse.json();
       console.log('📦 Данные пользователей из API:', usersData);
-      console.log('📋 Список users:', usersData.users);
+      
+      const allUsers = [...(usersData.active_users || []), ...(usersData.inactive_users || [])];
+      console.log('📋 Все пользователи (активные + неактивные):', allUsers.length);
       
       const userEmailMap = new Map(
-        usersData.users?.map((u: any) => [`${u.name}`, u.email]) || []
+        allUsers.map((u: any) => [`${u.name}`, u.email])
       );
       
       console.log('📧 Маппинг имён и email:', Object.fromEntries(userEmailMap));

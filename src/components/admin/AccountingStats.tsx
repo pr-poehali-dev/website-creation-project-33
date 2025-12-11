@@ -138,9 +138,9 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
           <Icon 
             name={yesterdayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
             size={10} 
-            className={`md:w-[14px] md:h-[14px] ${yesterdayChange.isPositive ? 'text-green-300' : 'text-red-300'}`}
+            className={`md:w-[14px] md:h-[14px] ${yesterdayChange.isPositive ? 'text-green-300' : 'text-red-400'}`}
           />
-          <span className={yesterdayChange.isPositive ? 'text-green-300' : 'text-red-300'}>
+          <span className={yesterdayChange.isPositive ? 'text-green-300' : 'text-red-400'}>
             {yesterdayChange.isPositive ? '+' : ''}{yesterdayChange.percent}%
           </span>
         </div>
@@ -155,9 +155,9 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
           <Icon 
             name={todayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
             size={10} 
-            className={`md:w-[14px] md:h-[14px] ${todayChange.isPositive ? 'text-green-300' : 'text-red-300'}`}
+            className={`md:w-[14px] md:h-[14px] ${todayChange.isPositive ? 'text-green-300' : 'text-red-400'}`}
           />
-          <span className={todayChange.isPositive ? 'text-green-300' : 'text-red-300'}>
+          <span className={todayChange.isPositive ? 'text-green-300' : 'text-red-400'}>
             {todayChange.isPositive ? '+' : ''}{todayChange.percent}%
           </span>
         </div>
@@ -172,9 +172,9 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
           <Icon 
             name={monthChange.isPositive ? "TrendingUp" : "TrendingDown"} 
             size={10} 
-            className={`md:w-[14px] md:h-[14px] ${monthChange.isPositive ? 'text-green-300' : 'text-red-300'}`}
+            className={`md:w-[14px] md:h-[14px] ${monthChange.isPositive ? 'text-green-300' : 'text-red-400'}`}
           />
-          <span className={monthChange.isPositive ? 'text-green-300' : 'text-red-300'}>
+          <span className={monthChange.isPositive ? 'text-green-300' : 'text-red-400'}>
             {monthChange.isPositive ? '+' : ''}{monthChange.percent}%
           </span>
         </div>

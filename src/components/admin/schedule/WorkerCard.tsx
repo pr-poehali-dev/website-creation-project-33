@@ -110,18 +110,39 @@ export default function WorkerCard({
     : null;
   const selectedOrgAvg = selectedOrgStats?.avg_per_shift || 0;
 
-  // Расчёт предполагаемого дохода КВВ/КМС
+  // Расчёт предполагаемого дохода КМС по формуле из бухучёта
   const selectedOrgData = currentOrganization
     ? allOrganizations.find(o => o.name === currentOrganization)
     : null;
   
-  let expectedRevenue = 0;
+  let expectedKMS = 0;
   if (selectedOrgData && selectedOrgAvg > 0) {
+    const contactsCount = Math.round(selectedOrgAvg);
     const rate = selectedOrgData.contact_rate;
-    const revenue = selectedOrgAvg * rate;
-    expectedRevenue = selectedOrgData.payment_type === 'cashless' 
-      ? revenue * 0.93  // Вычитаем 7% налога для безнала
-      : revenue;
+    
+    // Шаг 1: Рассчитываем выручку
+    const revenue = contactsCount * rate;
+    
+    // Шаг 2: Рассчитываем налог (только для безнала)
+    const tax = selectedOrgData.payment_type === 'cashless' 
+      ? Math.round(revenue * 0.07) 
+      : 0;
+    
+    // Шаг 3: Выручка после налога
+    const afterTax = revenue - tax;
+    
+    // Шаг 4: Рассчитываем зарплату промоутера
+    // С 01.10.2025 прогрессивная шкала: до 10 контактов - 200₽, от 10 - 300₽
+    const shiftDate = new Date(dayDate);
+    const workerSalary = shiftDate >= new Date('2025-10-01') && contactsCount >= 10
+      ? contactsCount * 300
+      : contactsCount * 200;
+    
+    // Шаг 5: Чистая прибыль (без учёта расходов, т.к. их заранее не знаем)
+    const netProfit = afterTax - workerSalary;
+    
+    // Шаг 6: КМС = 50% от чистой прибыли (округлённо)
+    expectedKMS = Math.round(netProfit / 2);
   }
 
   return (
@@ -153,9 +174,9 @@ export default function WorkerCard({
               <span className="text-[9px] md:text-[10px] text-amber-400">
                 Выбрано: {currentOrganization} (~{selectedOrgAvg.toFixed(1)} контактов)
               </span>
-              {expectedRevenue > 0 && (
+              {expectedKMS > 0 && (
                 <span className="text-[9px] md:text-[10px] text-emerald-400">
-                  Ожидаемый доход: ~{Math.round(expectedRevenue)} ₽
+                  Ожидаемый доход КМС: ~{expectedKMS} ₽
                 </span>
               )}
             </div>

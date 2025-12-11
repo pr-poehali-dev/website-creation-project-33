@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { UserSchedule, DeleteSlotState } from './types';
 import { isMaximKorelsky } from './utils';
@@ -10,19 +11,25 @@ interface WorkerCardProps {
   dayDate: string;
   slotTime: string;
   slotLabel: string;
-  workComments: Record<string, Record<string, {location?: string, flyers?: string}>>;
+  workComments: Record<string, Record<string, {
+    location?: string;
+    flyers?: string;
+    organization?: string;
+    location_type?: string;
+    location_details?: string;
+  }>>;
   savingComment: string | null;
   allLocations: string[];
   recommendedOrg: string;
   orgAvg?: number;
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
-  onCommentChange: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
-  onCommentBlur: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
+  onCommentChange: (userName: string, date: string, field: string, value: string) => void;
+  onCommentBlur: (userName: string, date: string, field: string, value: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
 }
 
-
+const LOCATION_TYPES = ['ТЦ', 'Школа', 'Садик', 'Улица'];
 
 export default function WorkerCard({
   worker,
@@ -40,8 +47,6 @@ export default function WorkerCard({
   onRemoveSlot,
   deletingSlot
 }: WorkerCardProps) {
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredLocations, setFilteredLocations] = useState<string[]>([]);
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
 
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
@@ -49,44 +54,18 @@ export default function WorkerCard({
   const workerName = `${worker.first_name} ${worker.last_name}`;
   const commentKey = `${workerName}-${dayDate}`;
   
-  console.log(`🔍 WorkerCard для ${workerName} на ${dayDate}:`, { 
-    recommendedOrg: recommendedOrg || '(пусто)', 
-    orgAvg, 
-    hasOrgStats: orgStats?.length > 0,
-    statsCount: orgStats?.length || 0
-  });
-  
   const commentData = workComments[dayDate]?.[workerName] || {};
-  const currentLocation = commentData.location || '';
+  const currentOrganization = commentData.organization || '';
+  const currentLocationType = commentData.location_type || '';
+  const currentLocationDetails = commentData.location_details || '';
   const currentFlyers = commentData.flyers || '';
 
-
-
-  const handleLocationChange = (value: string) => {
-    onCommentChange(workerName, dayDate, 'location', value);
-    
-    if (value.length > 0) {
-      const filtered = allLocations.filter(loc => 
-        loc.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredLocations(filtered);
-      setShowSuggestions(filtered.length > 0);
-    } else {
-      setShowSuggestions(false);
-    }
+  const handleSave = () => {
+    onCommentBlur(workerName, dayDate, 'organization', currentOrganization);
+    onCommentBlur(workerName, dayDate, 'location_type', currentLocationType);
+    onCommentBlur(workerName, dayDate, 'location_details', currentLocationDetails);
+    onCommentBlur(workerName, dayDate, 'flyers', currentFlyers);
   };
-
-  const handleFlyersChange = (value: string) => {
-    onCommentChange(workerName, dayDate, 'flyers', value);
-  };
-
-  const handleSuggestionClick = (location: string) => {
-    onCommentChange(workerName, dayDate, 'location', location);
-    setShowSuggestions(false);
-    onCommentBlur(workerName, dayDate, 'location', location);
-  };
-
-
 
   return (
     <div className="space-y-1">
@@ -126,40 +105,66 @@ export default function WorkerCard({
           )}
         </button>
       </div>
+      
       <div className="space-y-1 ml-2">
-        <div className="relative flex items-center gap-1">
+        <div className="flex items-center gap-1">
+          <Select
+            value={currentOrganization}
+            onValueChange={(value) => onCommentChange(workerName, dayDate, 'organization', value)}
+          >
+            <SelectTrigger className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200">
+              <SelectValue placeholder="Организация" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-600 text-slate-200 max-h-[200px]">
+              {allLocations.map((org) => (
+                <SelectItem key={org} value={org} className="text-[10px] md:text-xs">
+                  {org}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {currentOrganization && savingComment !== commentKey && (
+            <Icon name="Building2" size={12} className="text-cyan-400 flex-shrink-0" />
+          )}
+        </div>
+        
+        <div className="flex items-center gap-1">
+          <Select
+            value={currentLocationType}
+            onValueChange={(value) => onCommentChange(workerName, dayDate, 'location_type', value)}
+          >
+            <SelectTrigger className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200">
+              <SelectValue placeholder="Тип места" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-600 text-slate-200">
+              {LOCATION_TYPES.map((type) => (
+                <SelectItem key={type} value={type} className="text-[10px] md:text-xs">
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {currentLocationType && savingComment !== commentKey && (
+            <Icon name="MapPin" size={12} className="text-emerald-400 flex-shrink-0" />
+          )}
+        </div>
+        
+        <div className="flex items-center gap-1">
           <Input
             type="text"
-            placeholder="Место работы"
-            value={currentLocation}
-            onChange={(e) => handleLocationChange(e.target.value)}
+            placeholder="Адрес / Детали"
+            value={currentLocationDetails}
+            onChange={(e) => onCommentChange(workerName, dayDate, 'location_details', e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
-                setShowSuggestions(false);
+                handleSave();
               }
             }}
             className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200"
           />
-          {currentLocation && savingComment !== commentKey && (
-            <Icon name="MapPin" size={12} className="text-emerald-400 flex-shrink-0" />
-          )}
-        
-          {showSuggestions && filteredLocations.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
-              {filteredLocations.map((location, idx) => (
-                <div
-                  key={idx}
-                  className="px-2 py-1 text-[10px] md:text-xs hover:bg-slate-700/50 cursor-pointer text-slate-200"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleSuggestionClick(location);
-                  }}
-                >
-                  {location}
-                </div>
-              ))}
-            </div>
+          {currentLocationDetails && savingComment !== commentKey && (
+            <Icon name="Navigation" size={12} className="text-blue-400 flex-shrink-0" />
           )}
         </div>
         
@@ -168,25 +173,22 @@ export default function WorkerCard({
             type="text"
             placeholder="Листовки"
             value={currentFlyers}
-            onChange={(e) => handleFlyersChange(e.target.value)}
+            onChange={(e) => onCommentChange(workerName, dayDate, 'flyers', e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
+                handleSave();
               }
             }}
             className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200"
           />
           {currentFlyers && savingComment !== commentKey && (
-            <Icon name="FileText" size={12} className="text-cyan-400 flex-shrink-0" />
+            <Icon name="FileText" size={12} className="text-amber-400 flex-shrink-0" />
           )}
         </div>
         
         <button
-          onClick={() => {
-            setShowSuggestions(false);
-            onCommentBlur(workerName, dayDate, 'location', currentLocation);
-            onCommentBlur(workerName, dayDate, 'flyers', currentFlyers);
-          }}
+          onClick={handleSave}
           disabled={savingComment === commentKey}
           className="w-full px-2 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 text-white rounded text-[10px] md:text-xs h-6 md:h-7 flex items-center justify-center gap-1"
           title="Сохранить"

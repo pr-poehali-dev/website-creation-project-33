@@ -6,7 +6,7 @@ from typing import Dict, Any
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Business: Управление комментариями о местах работы промоутеров
-    Args: event - dict с httpMethod, body (user_name, work_date, location_comment)
+    Args: event - dict с httpMethod, body (user_name, work_date, organization, location_type, location_details, flyers_comment)
     Returns: HTTP response dict
     '''
     method: str = event.get('httpMethod', 'GET')
@@ -78,7 +78,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cursor.execute("""
-                SELECT user_name, location_comment, flyers_comment
+                SELECT user_name, location_comment, flyers_comment, organization, location_type, location_details
                 FROM work_location_comments
                 WHERE work_date = %s
             """, (work_date,))
@@ -86,10 +86,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             comments = {}
             for row in cursor.fetchall():
                 user_data = {}
-                if row[1]:  # location_comment
+                if row[1]:  # location_comment (legacy)
                     user_data['location'] = row[1]
                 if row[2]:  # flyers_comment
                     user_data['flyers'] = row[2]
+                if row[3]:  # organization
+                    user_data['organization'] = row[3]
+                if row[4]:  # location_type
+                    user_data['location_type'] = row[4]
+                if row[5]:  # location_details
+                    user_data['location_details'] = row[5]
                 if user_data:  # Only add if at least one field exists
                     comments[row[0]] = user_data
             
@@ -111,6 +117,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             work_date = body_data.get('work_date')
             location_comment = body_data.get('location_comment', '').strip()
             flyers_comment = body_data.get('flyers_comment', '').strip()
+            organization = body_data.get('organization', '').strip()
+            location_type = body_data.get('location_type', '').strip()
+            location_details = body_data.get('location_details', '').strip()
             
             if not user_name or not work_date:
                 conn.close()
@@ -136,14 +145,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 """, (location_comment,))
             
             cursor.execute("""
-                INSERT INTO work_location_comments (user_name, work_date, location_comment, flyers_comment, updated_at)
-                VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)
+                INSERT INTO work_location_comments 
+                (user_name, work_date, location_comment, flyers_comment, organization, location_type, location_details, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
                 ON CONFLICT (user_name, work_date)
                 DO UPDATE SET 
                     location_comment = EXCLUDED.location_comment,
                     flyers_comment = EXCLUDED.flyers_comment,
+                    organization = EXCLUDED.organization,
+                    location_type = EXCLUDED.location_type,
+                    location_details = EXCLUDED.location_details,
                     updated_at = CURRENT_TIMESTAMP
-            """, (user_name, work_date, location_comment, flyers_comment))
+            """, (user_name, work_date, location_comment, flyers_comment, organization, location_type, location_details))
             
             conn.commit()
             cursor.close()

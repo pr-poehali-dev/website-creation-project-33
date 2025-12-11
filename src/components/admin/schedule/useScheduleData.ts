@@ -2,7 +2,13 @@ import { useState, useEffect } from 'react';
 import { DaySchedule, UserSchedule } from './types';
 
 export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule[], orgLimits?: Map<string, number>) {
-  const [workComments, setWorkComments] = useState<Record<string, Record<string, {location?: string, flyers?: string}>>>({});
+  const [workComments, setWorkComments] = useState<Record<string, Record<string, {
+    location?: string;
+    flyers?: string;
+    organization?: string;
+    location_type?: string;
+    location_details?: string;
+  }>>>({});
   const [savingComment, setSavingComment] = useState<string | null>(null);
   const [allLocations, setAllLocations] = useState<string[]>([]);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, Array<{organization_name: string, avg_per_shift: number}>>>({});
@@ -23,15 +29,23 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   const loadAllLocations = async () => {
     try {
       const response = await fetch(
-        'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2?get_locations=true'
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_all_organizations',
+        {
+          headers: {
+            'X-Session-Token': localStorage.getItem('session_token') || '',
+          }
+        }
       );
       
       if (response.ok) {
         const data = await response.json();
-        setAllLocations(data.locations || []);
+        if (data.organizations && Array.isArray(data.organizations)) {
+          setAllLocations(data.organizations.sort());
+          console.log(`✅ Загружено ${data.organizations.length} организаций для списка`);
+        }
       }
     } catch (error) {
-      console.error('Error loading locations:', error);
+      console.error('Error loading organizations:', error);
     }
   };
 
@@ -198,15 +212,18 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     setWorkComments(comments);
   };
 
-  const saveComment = async (userName: string, date: string, field: 'location' | 'flyers', value: string) => {
+  const saveComment = async (userName: string, date: string, field: string, value: string) => {
     const key = `${userName}-${date}`;
     console.log(`💾 Сохранение данных: ${userName} | ${date} | ${field}: "${value}"`);
     setSavingComment(key);
     
     const currentData = workComments[date]?.[userName] || {};
     const updatedData = {
-      location_comment: field === 'location' ? value : (currentData.location || ''),
-      flyers_comment: field === 'flyers' ? value : (currentData.flyers || '')
+      location_comment: currentData.location || '',
+      flyers_comment: field === 'flyers' ? value : (currentData.flyers || ''),
+      organization: field === 'organization' ? value : (currentData.organization || ''),
+      location_type: field === 'location_type' ? value : (currentData.location_type || ''),
+      location_details: field === 'location_details' ? value : (currentData.location_details || '')
     };
     
     try {
@@ -232,7 +249,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             ...prev[date],
             [userName]: {
               location: updatedData.location_comment,
-              flyers: updatedData.flyers_comment
+              flyers: updatedData.flyers_comment,
+              organization: updatedData.organization,
+              location_type: updatedData.location_type,
+              location_details: updatedData.location_details
             }
           }
         }));
@@ -246,7 +266,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     }
   };
 
-  const updateComment = (userName: string, date: string, field: 'location' | 'flyers', value: string) => {
+  const updateComment = (userName: string, date: string, field: string, value: string) => {
     setWorkComments(prev => {
       const currentData = prev[date]?.[userName] || {};
       return {

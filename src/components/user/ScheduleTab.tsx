@@ -91,7 +91,13 @@ export default function ScheduleTab() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [workComments, setWorkComments] = useState<Record<string, {location?: string, flyers?: string}>>({});
+  const [workComments, setWorkComments] = useState<Record<string, {
+    location?: string;
+    flyers?: string;
+    organization?: string;
+    location_type?: string;
+    location_details?: string;
+  }>>({});
   const [workShifts, setWorkShifts] = useState<WorkShift[]>([]);
 
   useEffect(() => {
@@ -165,7 +171,13 @@ export default function ScheduleTab() {
     
     try {
       const startDate = new Date(weeks[currentWeekIndex].start);
-      const comments: Record<string, {location?: string, flyers?: string}> = {};
+      const comments: Record<string, {
+        location?: string;
+        flyers?: string;
+        organization?: string;
+        location_type?: string;
+        location_details?: string;
+      }> = {};
       
       for (let i = 0; i < 7; i++) {
         const currentDate = new Date(startDate);
@@ -388,21 +400,39 @@ export default function ScheduleTab() {
 
                     {workComments[day.date] && day.slots.some(slot => slot.selected) && (
                       <div className="mt-2 space-y-2">
-                        {workComments[day.date].location && (
+                        {workComments[day.date].organization && (
+                          <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg p-2">
+                            <Icon name="Building2" size={14} className="text-purple-600 flex-shrink-0" />
+                            <div>
+                              <span className="text-[10px] text-purple-600 font-medium">Организация:</span>
+                              <span className="text-xs text-purple-900 font-medium ml-1">{workComments[day.date].organization}</span>
+                            </div>
+                          </div>
+                        )}
+                        {workComments[day.date].location_type && (
                           <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
                             <Icon name="MapPin" size={14} className="text-blue-600 flex-shrink-0" />
                             <div>
-                              <span className="text-[10px] text-blue-600 font-medium">Место работы:</span>
-                              <span className="text-xs text-blue-900 font-medium ml-1">{workComments[day.date].location}</span>
+                              <span className="text-[10px] text-blue-600 font-medium">Тип места:</span>
+                              <span className="text-xs text-blue-900 font-medium ml-1">{workComments[day.date].location_type}</span>
+                            </div>
+                          </div>
+                        )}
+                        {workComments[day.date].location_details && (
+                          <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg p-2">
+                            <Icon name="Navigation" size={14} className="text-indigo-600 flex-shrink-0" />
+                            <div>
+                              <span className="text-[10px] text-indigo-600 font-medium">Адрес:</span>
+                              <span className="text-xs text-indigo-900 font-medium ml-1">{workComments[day.date].location_details}</span>
                             </div>
                           </div>
                         )}
                         {workComments[day.date].flyers && (
-                          <div className="flex items-center gap-2 bg-cyan-50 border border-cyan-200 rounded-lg p-2">
-                            <Icon name="FileText" size={14} className="text-cyan-600 flex-shrink-0" />
+                          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg p-2">
+                            <Icon name="FileText" size={14} className="text-amber-600 flex-shrink-0" />
                             <div>
-                              <span className="text-[10px] text-cyan-600 font-medium">Листовки:</span>
-                              <span className="text-xs text-cyan-900 font-medium ml-1">{workComments[day.date].flyers}</span>
+                              <span className="text-[10px] text-amber-600 font-medium">Листовки:</span>
+                              <span className="text-xs text-amber-900 font-medium ml-1">{workComments[day.date].flyers}</span>
                             </div>
                           </div>
                         )}

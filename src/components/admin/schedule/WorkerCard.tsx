@@ -151,9 +151,10 @@ export default function WorkerCard({
   // Расчёт дохода для рекомендованной организации
   const recommendedKMS = recommendedOrg && orgAvg ? calculateKMS(recommendedOrg, orgAvg) : 0;
   
-  // Разница между рекомендуемым и ожидаемым доходом
-  const kmsDifference = recommendedKMS - expectedKMS;
-  const kmsDifferencePercent = expectedKMS > 0 ? Math.round((kmsDifference / expectedKMS) * 100) : 0;
+  // Разница: Ожидаемый доход - Рекомендуемый доход
+  // Положительная = выбрали лучше (зелёный), Отрицательная = рекомендация была бы лучше (красный)
+  const kmsDifference = expectedKMS - recommendedKMS;
+  const kmsDifferencePercent = recommendedKMS > 0 ? Math.round((kmsDifference / recommendedKMS) * 100) : 0;
 
   return (
     <div className="space-y-1">

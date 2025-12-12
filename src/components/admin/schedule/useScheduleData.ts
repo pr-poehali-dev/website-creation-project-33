@@ -162,8 +162,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         const currentOrg = workComments[day.date]?.[userName]?.organization;
         
         if (currentOrg) {
-          // Организация уже выбрана — сохраняем и учитываем
-          recommendations[userName][day.date] = currentOrg;
+          // Организация уже выбрана — учитываем в счётчике, но НЕ добавляем в рекомендации
+          // Рекомендация != Выбранная организация!
           orgsUsedToday.add(currentOrg);
           
           if (currentOrg === 'ТОП (Ногинск)') {
@@ -206,20 +206,6 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         if (!hasAnySlot) {
           if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
             console.log(`  ❌ ПРОПУЩЕН: нет активных слотов`);
-          }
-          return;
-        }
-        
-        const currentOrg = workComments[day.date]?.[userName]?.organization;
-        
-        if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
-          console.log(`  - currentOrg:`, currentOrg);
-        }
-        
-        // Если организация уже выбрана — пропускаем
-        if (currentOrg) {
-          if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
-            console.log(`  ❌ ПРОПУЩЕН: организация уже выбрана (${currentOrg})`);
           }
           return;
         }

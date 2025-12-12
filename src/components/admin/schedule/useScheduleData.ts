@@ -29,6 +29,11 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       
       if (response.ok) {
         const data = await response.json();
+        console.log('📦 Данные из get_accounting_data:', {
+          shiftsCount: data.shifts?.length || 0,
+          firstShift: data.shifts?.[0]
+        });
+        
         if (data.shifts && Array.isArray(data.shifts)) {
           // Группируем по датам
           const statsByDate: Record<string, {contacts: number, revenue: number}> = {};

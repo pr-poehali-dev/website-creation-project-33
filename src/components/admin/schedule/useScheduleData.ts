@@ -265,10 +265,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           const totalOrgUses = totalOrgUsageThisWeek[orgName] || 0;
           
           // Проверяем: организация не превысила лимит использования на неделе
+          // ВАЖНО: НЕ увеличиваем счётчик здесь! Рекомендация != Использование
+          // Счётчик увеличивается только когда администратор РЕАЛЬНО выбирает организацию
           if (totalOrgUses < maxUses) {
             recommendedOrg = orgName;
-            // Помечаем как использованную для текущего дня
-            totalOrgUsageThisWeek[orgName] = totalOrgUses + 1;
             break;
           }
         }

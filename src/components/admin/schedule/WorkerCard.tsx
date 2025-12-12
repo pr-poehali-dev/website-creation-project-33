@@ -180,7 +180,7 @@ export default function WorkerCard({
               </span>
               {recommendedKMS > 0 && (
                 <span className="text-[9px] md:text-[10px] text-cyan-300">
-                  Рекомендуемый доход КМС: ~{recommendedKMS} ₽
+                  Рекомендуемый доход КМС/КВВ: ~{recommendedKMS} ₽
                 </span>
               )}
             </div>
@@ -191,8 +191,8 @@ export default function WorkerCard({
                 Выбрано: {currentOrganization} {selectedOrgAvg > 0 ? `(~${selectedOrgAvg.toFixed(1)} контактов)` : '(не было смен)'}
               </span>
               {expectedKMS > 0 && selectedOrgAvg > 0 && (
-                <span className="text-[9px] md:text-[10px] text-emerald-400">
-                  Ожидаемый доход КМС: ~{expectedKMS} ₽
+                <span className="text-[9px] md:text-[10px] text-amber-400">
+                  Ожидаемый доход КМС/КВВ: ~{expectedKMS} ₽
                 </span>
               )}
               {recommendedKMS > 0 && expectedKMS > 0 && kmsDifference !== 0 && (

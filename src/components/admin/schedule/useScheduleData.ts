@@ -39,7 +39,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           const statsByDate: Record<string, {contacts: number, revenue: number}> = {};
           
           data.shifts.forEach((shift: any) => {
-            const date = shift.shift_date; // формат YYYY-MM-DD
+            const date = shift.date; // формат YYYY-MM-DD
             if (!date) return;
             
             if (!statsByDate[date]) {
@@ -51,7 +51,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             statsByDate[date].contacts += contacts;
             
             // Фактический доход КМС - рассчитываем по той же логике что в бухучете
-            const orgName = shift.organization_name;
+            const orgName = shift.organization;
             
             // Базовый доход (с учетом компенсации)
             let baseRevenue = 0;

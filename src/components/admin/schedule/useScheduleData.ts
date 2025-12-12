@@ -35,32 +35,58 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           
           data.shifts.forEach((shift: any) => {
             const date = shift.shift_date; // формат YYYY-MM-DD
+            if (!date) return;
+            
             if (!statsByDate[date]) {
               statsByDate[date] = { contacts: 0, revenue: 0 };
             }
             
-            // Фактические контакты
+            // Фактические контакты - суммируем contacts_count
             const contacts = shift.contacts_count || 0;
             statsByDate[date].contacts += contacts;
             
-            // Фактический доход КМС - ищем организацию и рассчитываем
+            // Фактический доход КМС - рассчитываем по той же логике что в бухучете
             const orgName = shift.organization_name;
-            const orgData = allOrganizations.find(o => o.name === orgName);
             
-            if (orgData && contacts > 0) {
-              const rate = orgData.contact_rate;
-              const revenue = contacts * rate;
-              const tax = orgData.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
-              const afterTax = revenue - tax;
-              const shiftDate = new Date(date);
-              const workerSalary = shiftDate >= new Date('2025-10-01') && contacts >= 10
-                ? contacts * 300
-                : contacts * 200;
-              const netProfit = afterTax - workerSalary;
-              const kmsIncome = Math.round(netProfit / 2);
-              
-              statsByDate[date].revenue += kmsIncome;
+            // Базовый доход (с учетом компенсации)
+            let baseRevenue = 0;
+            if (orgName === 'Администратор') {
+              baseRevenue = 2968;
+            } else {
+              baseRevenue = contacts * (shift.contact_rate || 0);
             }
+            const compensation = shift.compensation_amount || 0;
+            const revenue = baseRevenue + compensation;
+            
+            // Налог 7% для безнала
+            let tax = 0;
+            if (orgName === 'Администратор') {
+              tax = 172;
+            } else if (shift.payment_type === 'cashless') {
+              tax = Math.round(revenue * 0.07);
+            }
+            const afterTax = revenue - tax;
+            
+            // Зарплата промоутера
+            let workerSalary = 0;
+            if (orgName === 'Администратор') {
+              workerSalary = 600;
+            } else if (date && new Date(date) >= new Date('2025-10-01') && contacts >= 10) {
+              workerSalary = contacts * 300;
+            } else {
+              workerSalary = contacts * 200;
+            }
+            
+            // Расходы
+            const expense = shift.expense_amount || 0;
+            
+            // Чистая прибыль
+            const netProfit = afterTax - workerSalary - expense;
+            
+            // КМС = половина чистой прибыли (как в бухучете)
+            const kmsIncome = Math.round(netProfit / 2);
+            
+            statsByDate[date].revenue += kmsIncome;
           });
           
           setActualStats(statsByDate);

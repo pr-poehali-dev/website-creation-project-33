@@ -196,7 +196,7 @@ export default function WorkerCard({
                 </span>
               )}
               {recommendedKMS > 0 && expectedKMS > 0 && (
-                <span className={`text-[9px] md:text-[10px] ${kmsDifference === 0 ? 'text-slate-400' : kmsDifference > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <span className={`text-[9px] md:text-[10px] ${kmsDifference >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                   Разница с рекомендацией: {kmsDifference > 0 ? '+' : ''}{kmsDifference} ₽ ({kmsDifferencePercent > 0 ? '+' : ''}{kmsDifferencePercent}%)
                 </span>
               )}

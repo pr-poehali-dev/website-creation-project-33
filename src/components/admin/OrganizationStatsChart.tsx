@@ -29,7 +29,7 @@ export default function OrganizationStatsChart() {
   const [selectedMonthIndex, setSelectedMonthIndex] = React.useState<number>(0);
   const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
   const [modalOpen, setModalOpen] = React.useState(false);
-  const [selectedPromoter, setSelectedPromoter] = React.useState<{ name: string; contacts: number } | null>(null);
+  const [selectedPromoter, setSelectedPromoter] = React.useState<{ name: string; contacts: number; orgName: string } | null>(null);
   const [sortBy, setSortBy] = React.useState<'revenue' | 'contacts' | 'average'>('revenue');
 
   if (isLoading) {
@@ -197,16 +197,21 @@ export default function OrganizationStatsChart() {
           sortedOrgs={sortedOrgs}
           selectedOrg={selectedOrg}
           setSelectedOrg={setSelectedOrg}
-          setSelectedPromoter={setSelectedPromoter}
+          setSelectedPromoter={(promoter) => setSelectedPromoter(promoter)}
           setModalOpen={setModalOpen}
         />
       </CardContent>
 
       <PromoterShiftsModal
-        open={modalOpen}
+        isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         promoterName={selectedPromoter?.name || ''}
+        organizationName={selectedPromoter?.orgName || ''}
         totalContacts={selectedPromoter?.contacts || 0}
+        timeRange={timeRange}
+        selectedWeekIndex={selectedWeekIndex}
+        selectedMonthIndex={selectedMonthIndex}
+        selectedYear={selectedYear}
       />
     </Card>
   );

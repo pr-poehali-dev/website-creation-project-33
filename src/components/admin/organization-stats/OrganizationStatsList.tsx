@@ -14,7 +14,7 @@ interface OrganizationStatsListProps {
   sortedOrgs: OrgTotal[];
   selectedOrg: string | null;
   setSelectedOrg: (value: string | null) => void;
-  setSelectedPromoter: (value: { name: string; contacts: number }) => void;
+  setSelectedPromoter: (value: { name: string; contacts: number; orgName: string }) => void;
   setModalOpen: (value: boolean) => void;
 }
 
@@ -101,7 +101,7 @@ export default function OrganizationStatsList({
                     <button
                       key={user.userName}
                       onClick={() => {
-                        setSelectedPromoter({ name: user.userName, contacts: user.contacts });
+                        setSelectedPromoter({ name: user.userName, contacts: user.contacts, orgName: org.name });
                         setModalOpen(true);
                       }}
                       className="w-full flex items-center justify-between py-2 px-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"

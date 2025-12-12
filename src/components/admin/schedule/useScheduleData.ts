@@ -34,27 +34,18 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           const statsByDate: Record<string, {contacts: number, revenue: number}> = {};
           
           data.shifts.forEach((shift: any) => {
-            const date = shift.date; // формат YYYY-MM-DD
+            const date = shift.shift_date; // формат YYYY-MM-DD
             if (!statsByDate[date]) {
               statsByDate[date] = { contacts: 0, revenue: 0 };
             }
             
             // Фактические контакты
-            const contacts = shift.contacts_count || 0;
+            const contacts = shift.contacts || 0;
             statsByDate[date].contacts += contacts;
             
-            // Фактический доход КМС (без деления на 2, берем только столбик КМС)
-            const rate = shift.contact_rate || 0;
-            const revenue = contacts * rate;
-            const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
-            const afterTax = revenue - tax;
-            const shiftDate = new Date(date);
-            const workerSalary = shiftDate >= new Date('2025-10-01') && contacts >= 10
-              ? contacts * 300
-              : contacts * 200;
-            const netProfit = afterTax - workerSalary;
-            
-            statsByDate[date].revenue += netProfit;
+            // Фактический доход КМС/КВВ - берём готовое значение из API и делим на 2
+            const kmsIncome = shift.kms_income || 0;
+            statsByDate[date].revenue += Math.round(kmsIncome / 2);
           });
           
           setActualStats(statsByDate);

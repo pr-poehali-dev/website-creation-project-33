@@ -231,9 +231,30 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         // Получаем статистику промоутера
         let userStats = stats[userName] || [];
         
-        // Фильтрация по orgLimits (если заданы)
+        // Фильтрация и дополнение по orgLimits (если заданы)
         if (orgLimits && orgLimits.size > 0) {
+          // Сначала фильтруем существующую статистику
           userStats = userStats.filter(stat => orgLimits.has(stat.organization_name));
+          
+          // Добавляем организации из orgLimits, в которых промоутера не было
+          const existingOrgNames = new Set(userStats.map(s => s.organization_name));
+          orgLimits.forEach((_, orgName) => {
+            if (!existingOrgNames.has(orgName)) {
+              userStats.push({
+                organization_name: orgName,
+                avg_per_shift: 0, // Не было смен
+                shift_count: 0
+              });
+            }
+          });
+          
+          // Пересортируем: сначала по avg_per_shift (DESC), потом по shift_count (DESC)
+          userStats.sort((a, b) => {
+            if (b.avg_per_shift !== a.avg_per_shift) {
+              return b.avg_per_shift - a.avg_per_shift;
+            }
+            return b.shift_count - a.shift_count;
+          });
         }
         
         if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {

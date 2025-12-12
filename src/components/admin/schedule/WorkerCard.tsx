@@ -169,12 +169,12 @@ export default function WorkerCard({
               </span>
             </div>
           )}
-          {currentOrganization && selectedOrgAvg > 0 && (
+          {currentOrganization && (
             <div className="flex flex-col gap-0.5 ml-2 mt-0.5">
               <span className="text-[9px] md:text-[10px] text-amber-400">
-                Выбрано: {currentOrganization} (~{selectedOrgAvg.toFixed(1)} контактов)
+                Выбрано: {currentOrganization} {selectedOrgAvg > 0 ? `(~${selectedOrgAvg.toFixed(1)} контактов)` : '(не было смен)'}
               </span>
-              {expectedKMS > 0 && (
+              {expectedKMS > 0 && selectedOrgAvg > 0 && (
                 <span className="text-[9px] md:text-[10px] text-emerald-400">
                   Ожидаемый доход КМС: ~{expectedKMS} ₽
                 </span>

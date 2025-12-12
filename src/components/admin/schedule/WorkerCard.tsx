@@ -110,21 +110,21 @@ export default function WorkerCard({
     : null;
   const selectedOrgAvg = selectedOrgStats?.avg_per_shift || 0;
 
-  // Расчёт предполагаемого дохода КМС по формуле из бухучёта
-  const selectedOrgData = currentOrganization
-    ? allOrganizations.find(o => o.name === currentOrganization)
-    : null;
-  
-  let expectedKMS = 0;
-  if (selectedOrgData && selectedOrgAvg > 0) {
-    const contactsCount = Math.round(selectedOrgAvg);
-    const rate = selectedOrgData.contact_rate;
+  // Функция расчёта дохода КМС
+  const calculateKMS = (orgName: string, avgContacts: number): number => {
+    if (avgContacts <= 0) return 0;
+    
+    const orgData = allOrganizations.find(o => o.name === orgName);
+    if (!orgData) return 0;
+    
+    const contactsCount = Math.round(avgContacts);
+    const rate = orgData.contact_rate;
     
     // Шаг 1: Рассчитываем выручку
     const revenue = contactsCount * rate;
     
     // Шаг 2: Рассчитываем налог (только для безнала)
-    const tax = selectedOrgData.payment_type === 'cashless' 
+    const tax = orgData.payment_type === 'cashless' 
       ? Math.round(revenue * 0.07) 
       : 0;
     
@@ -142,8 +142,18 @@ export default function WorkerCard({
     const netProfit = afterTax - workerSalary;
     
     // Шаг 6: КМС = 50% от чистой прибыли (округлённо)
-    expectedKMS = Math.round(netProfit / 2);
-  }
+    return Math.round(netProfit / 2);
+  };
+
+  // Расчёт дохода для выбранной организации
+  const expectedKMS = currentOrganization ? calculateKMS(currentOrganization, selectedOrgAvg) : 0;
+  
+  // Расчёт дохода для рекомендованной организации
+  const recommendedKMS = recommendedOrg && orgAvg ? calculateKMS(recommendedOrg, orgAvg) : 0;
+  
+  // Разница между рекомендуемым и ожидаемым доходом
+  const kmsDifference = recommendedKMS - expectedKMS;
+  const kmsDifferencePercent = expectedKMS > 0 ? Math.round((kmsDifference / expectedKMS) * 100) : 0;
 
   return (
     <div className="space-y-1">
@@ -165,8 +175,13 @@ export default function WorkerCard({
                 className="text-[9px] md:text-[10px] text-cyan-400 cursor-pointer hover:underline"
                 onClick={() => setShowOrgStatsModal(true)}
               >
-                Рекомендация: {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)})` : ''}
+                Рекомендация: {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)} контактов)` : ''}
               </span>
+              {recommendedKMS > 0 && (
+                <span className="text-[9px] md:text-[10px] text-cyan-300">
+                  Рекомендуемый доход КМС: ~{recommendedKMS} ₽
+                </span>
+              )}
             </div>
           )}
           {currentOrganization && (
@@ -177,6 +192,11 @@ export default function WorkerCard({
               {expectedKMS > 0 && selectedOrgAvg > 0 && (
                 <span className="text-[9px] md:text-[10px] text-emerald-400">
                   Ожидаемый доход КМС: ~{expectedKMS} ₽
+                </span>
+              )}
+              {recommendedKMS > 0 && expectedKMS > 0 && kmsDifference !== 0 && (
+                <span className={`text-[9px] md:text-[10px] ${kmsDifference > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  Разница с рекомендацией: {kmsDifference > 0 ? '+' : ''}{kmsDifference} ₽ ({kmsDifferencePercent > 0 ? '+' : ''}{kmsDifferencePercent}%)
                 </span>
               )}
             </div>

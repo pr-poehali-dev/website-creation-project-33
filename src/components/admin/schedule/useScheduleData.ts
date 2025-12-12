@@ -141,7 +141,11 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     
     // Проходим по дням ПОСЛЕДОВАТЕЛЬНО
     weekDays.forEach(day => {
-      console.log(`📅 Обрабатываем день: ${day.date} (${day.dayName})`);
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const isCurrentDay = day.date === today;
+      const isFutureDay = day.date > today;
+      
+      console.log(`📅 Обрабатываем день: ${day.date} (${day.dayName}) | Сегодня: ${today} | Текущий: ${isCurrentDay} | Будущий: ${isFutureDay}`);
       
       // Сначала собираем все выбранные организации на этот день
       const orgsUsedToday = new Set<string>();
@@ -169,9 +173,12 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       });
       
       // Обновляем общий счётчик использования организаций
-      orgsUsedToday.forEach(org => {
-        totalOrgUsageThisWeek[org] = (totalOrgUsageThisWeek[org] || 0) + 1;
-      });
+      // НО только для дней которые УЖЕ ПРОШЛИ (не считаем будущие дни!)
+      if (!isFutureDay) {
+        orgsUsedToday.forEach(org => {
+          totalOrgUsageThisWeek[org] = (totalOrgUsageThisWeek[org] || 0) + 1;
+        });
+      }
       
       // Теперь для промоутеров БЕЗ выбранной организации рассчитываем рекомендацию
       schedules.forEach(user => {

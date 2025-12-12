@@ -98,13 +98,13 @@ export default function DaySummary({
   // Фактические данные за день
   const actualDayStats = actualStats[day.date] || { contacts: 0, revenue: 0 };
 
-  // Разница: рекомендованные - фактические
-  const contactsDiff = totalRecommendedContacts - actualDayStats.contacts;
+  // Разница: фактические - рекомендованные
+  const contactsDiff = actualDayStats.contacts - totalRecommendedContacts;
   const contactsDiffPercent = totalRecommendedContacts > 0 
     ? Math.round((contactsDiff / totalRecommendedContacts) * 100) 
     : 0;
 
-  const incomeDiff = totalRecommendedIncome - actualDayStats.revenue;
+  const incomeDiff = actualDayStats.revenue - totalRecommendedIncome;
   const incomeDiffPercent = totalRecommendedIncome > 0 
     ? Math.round((incomeDiff / totalRecommendedIncome) * 100) 
     : 0;
@@ -133,7 +133,7 @@ export default function DaySummary({
               <span className="font-semibold">{actualDayStats.contacts}</span>
             </div>
             {totalRecommendedContacts > 0 && actualDayStats.contacts > 0 && (
-              <div className={`flex justify-between ${contactsDiff <= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              <div className={`flex justify-between ${contactsDiff >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 <span>Разница по контактам:</span>
                 <span className="font-semibold">
                   {contactsDiff > 0 ? '+' : ''}{contactsDiff.toFixed(1)} ({contactsDiffPercent > 0 ? '+' : ''}{contactsDiffPercent}%)
@@ -157,7 +157,7 @@ export default function DaySummary({
               <span className="font-semibold">{actualDayStats.revenue} ₽</span>
             </div>
             {totalRecommendedIncome > 0 && actualDayStats.revenue > 0 && (
-              <div className={`flex justify-between ${incomeDiff <= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              <div className={`flex justify-between ${incomeDiff >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 <span>Разница по доходу:</span>
                 <span className="font-semibold">
                   {incomeDiff > 0 ? '+' : ''}{incomeDiff} ₽ ({incomeDiffPercent > 0 ? '+' : ''}{incomeDiffPercent}%)

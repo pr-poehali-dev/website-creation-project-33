@@ -170,6 +170,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           if (currentOrg === 'ТОП (Ногинск)') {
             console.log(`🔴 ТОП (Ногинск) найден! День: ${day.date}, Промоутер: ${userName}`);
           }
+          
+          if (currentOrg.includes('KIBERONE')) {
+            console.log(`🟣 KIBERONE найден! День: ${day.date}, Промоутер: ${userName}, Организация: ${currentOrg}`);
+          }
         }
       });
       
@@ -177,9 +181,12 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       // ВАЖНО: учитываем ТОЛЬКО прошлые дни (НЕ текущий и НЕ будущие!)
       // Это позволяет рекомендовать одну организацию ВСЕМ промоутерам в текущий день
       if (isPastDay) {
+        console.log(`   ✅ Учитываем использование за ${day.date}:`, Array.from(orgsUsedToday));
         orgsUsedToday.forEach(org => {
           totalOrgUsageThisWeek[org] = (totalOrgUsageThisWeek[org] || 0) + 1;
         });
+      } else {
+        console.log(`   ⏭️ Пропускаем учёт за ${day.date} (текущий или будущий день)`);
       }
       
       // Теперь для промоутеров БЕЗ выбранной организации рассчитываем рекомендацию

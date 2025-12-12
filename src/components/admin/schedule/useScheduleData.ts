@@ -40,12 +40,27 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             }
             
             // Фактические контакты
-            const contacts = shift.contacts || 0;
+            const contacts = shift.contacts_count || 0;
             statsByDate[date].contacts += contacts;
             
-            // Фактический доход КМС/КВВ - берём готовое значение из API
-            const kmsIncome = shift.kms_income || 0;
-            statsByDate[date].revenue += kmsIncome;
+            // Фактический доход КМС - ищем организацию и рассчитываем
+            const orgName = shift.organization_name;
+            const orgData = allOrganizations.find(o => o.name === orgName);
+            
+            if (orgData && contacts > 0) {
+              const rate = orgData.contact_rate;
+              const revenue = contacts * rate;
+              const tax = orgData.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+              const afterTax = revenue - tax;
+              const shiftDate = new Date(date);
+              const workerSalary = shiftDate >= new Date('2025-10-01') && contacts >= 10
+                ? contacts * 300
+                : contacts * 200;
+              const netProfit = afterTax - workerSalary;
+              const kmsIncome = Math.round(netProfit / 2);
+              
+              statsByDate[date].revenue += kmsIncome;
+            }
           });
           
           setActualStats(statsByDate);

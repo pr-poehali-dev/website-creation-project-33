@@ -53,17 +53,42 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     const stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>> = {};
     
     try {
+      const usersResponse = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=users',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': localStorage.getItem('session_token') || '',
+          }
+        }
+      );
+      
+      if (!usersResponse.ok) {
+        console.log('❌ Ошибка загрузки пользователей:', usersResponse.status);
+        return;
+      }
+      
+      const usersData = await usersResponse.json();
+      console.log('📦 Данные пользователей из API:', usersData);
+      
+      const allUsers = [...(usersData.active_users || []), ...(usersData.inactive_users || [])];
+      console.log('📋 Все пользователи (активные + неактивные):', allUsers.length);
+      
+      const userEmailMap = new Map(
+        allUsers.map((u: any) => [`${u.name}`, u.email])
+      );
+      
+      console.log('📧 Маппинг имён и email:', Object.fromEntries(userEmailMap));
+      
       for (const user of schedules) {
         const userName = `${user.first_name} ${user.last_name}`;
-        const userEmail = user.email;
+        const userEmail = userEmailMap.get(userName);
         
         if (!userEmail) {
           console.log(`⚠️ Email не найден для: ${userName}`);
           continue;
         }
-        
-        console.log(`📧 Загружаем статистику для ${userName} (${userEmail})`);
-        
         
         try {
           const response = await fetch(

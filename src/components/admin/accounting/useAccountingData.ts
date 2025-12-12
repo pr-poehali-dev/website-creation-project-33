@@ -18,10 +18,8 @@ export function useAccountingData(enabled: boolean) {
       });
       if (response.ok) {
         const data = await response.json();
-        // API возвращает active_users и inactive_users, берём только активных промоутеров
-        const activeUsers = data.active_users || [];
-        console.log('✅ Пользователи загружены:', activeUsers.length);
-        setUsers(activeUsers);
+        console.log('✅ Пользователи загружены:', data.users?.length || 0);
+        setUsers(data.users || []);
       } else {
         console.error('❌ Ошибка загрузки пользователей:', response.status);
       }

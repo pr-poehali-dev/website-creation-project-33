@@ -150,7 +150,10 @@ export default function WorkerCard({
   };
 
   // Расчёт дохода для выбранной организации
-  const expectedKMS = currentOrganization ? calculateKMS(currentOrganization, selectedOrgAvg) : 0;
+  // Если не было смен (selectedOrgAvg = 0), используем общий средний показатель
+  const expectedKMS = currentOrganization 
+    ? calculateKMS(currentOrganization, selectedOrgAvg > 0 ? selectedOrgAvg : avgContacts) 
+    : 0;
   
   // Расчёт дохода для рекомендованной организации
   const recommendedKMS = recommendedOrg && orgAvg ? calculateKMS(recommendedOrg, orgAvg) : 0;
@@ -194,7 +197,7 @@ export default function WorkerCard({
               <span className="text-[9px] md:text-[10px] text-amber-400">
                 Выбрано: {currentOrganization} {selectedOrgAvg > 0 ? `(~${selectedOrgAvg.toFixed(1)} контактов)` : '(не было смен)'}
               </span>
-              {expectedKMS > 0 && selectedOrgAvg > 0 && (
+              {expectedKMS > 0 && (
                 <span className="text-[9px] md:text-[10px] text-amber-400">
                   Ожидаемый доход КМС/КВВ: ~{expectedKMS} ₽
                 </span>

@@ -185,15 +185,48 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         const userName = `${user.first_name} ${user.last_name}`;
         const daySchedule = user.schedule[day.date];
         
-        if (!daySchedule) return;
+        if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+          console.log(`🔍 [${userName}] Проверка на ${day.date}:`);
+          console.log(`  - daySchedule:`, daySchedule);
+        }
+        
+        if (!daySchedule) {
+          if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+            console.log(`  ❌ ПРОПУЩЕН: нет daySchedule`);
+          }
+          return;
+        }
         
         const hasAnySlot = Object.keys(daySchedule).some(slotTime => daySchedule[slotTime] === true);
-        if (!hasAnySlot) return;
+        
+        if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+          console.log(`  - hasAnySlot:`, hasAnySlot);
+        }
+        
+        if (!hasAnySlot) {
+          if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+            console.log(`  ❌ ПРОПУЩЕН: нет активных слотов`);
+          }
+          return;
+        }
         
         const currentOrg = workComments[day.date]?.[userName]?.organization;
         
+        if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+          console.log(`  - currentOrg:`, currentOrg);
+        }
+        
         // Если организация уже выбрана — пропускаем
-        if (currentOrg) return;
+        if (currentOrg) {
+          if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+            console.log(`  ❌ ПРОПУЩЕН: организация уже выбрана (${currentOrg})`);
+          }
+          return;
+        }
+        
+        if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+          console.log(`  ✅ ПРОХОДИТ ВСЕ ПРОВЕРКИ - начинаем расчёт рекомендации`);
+        }
         
         // Получаем статистику промоутера
         let userStats = stats[userName] || [];

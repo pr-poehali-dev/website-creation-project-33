@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { DaySchedule, UserSchedule, DeleteSlotState, DayStats, OrganizationData } from './types';
 import TimeSlotCard from './TimeSlotCard';
+import DaySummary from './DaySummary';
 
 interface DayCardProps {
   day: DaySchedule;
@@ -105,6 +106,15 @@ export default function DayCard({
                 );
               })}
             </div>
+            
+            <DaySummary
+              day={day}
+              getUsersWorkingOnSlot={getUsersWorkingOnSlot}
+              workComments={workComments}
+              allOrganizations={allOrganizations}
+              userOrgStats={userOrgStats}
+              recommendedLocations={recommendedLocations}
+            />
           </div>
         )}
       </CardContent>

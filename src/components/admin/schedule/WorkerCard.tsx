@@ -153,16 +153,6 @@ export default function WorkerCard({
   // Если не было смен (selectedOrgAvg = 0), используем общий средний показатель
   const contactsForCalc = selectedOrgAvg > 0 ? selectedOrgAvg : avgContacts;
   
-  if (workerName === 'Евгений Сурков' && dayDate === '2025-12-12') {
-    console.log(`🧮 КМС Расчёт для Суркова:`);
-    console.log(`  - currentOrganization: ${currentOrganization}`);
-    console.log(`  - selectedOrgAvg: ${selectedOrgAvg}`);
-    console.log(`  - avgContacts (общий): ${avgContacts}`);
-    console.log(`  - contactsForCalc: ${contactsForCalc}`);
-    console.log(`  - allOrganizations:`, allOrganizations);
-    console.log(`  - Организация найдена?`, allOrganizations.find(o => o.name === currentOrganization));
-  }
-  
   const expectedKMS = currentOrganization 
     ? calculateKMS(currentOrganization, contactsForCalc) 
     : 0;
@@ -174,11 +164,6 @@ export default function WorkerCard({
   // Положительная = выбрали лучше (зелёный), Отрицательная = рекомендация была бы лучше (красный)
   const kmsDifference = expectedKMS - recommendedKMS;
   const kmsDifferencePercent = recommendedKMS > 0 ? Math.round((kmsDifference / recommendedKMS) * 100) : 0;
-  
-  if (workerName === 'Евгений Сурков' && dayDate === '2025-12-12') {
-    console.log(`  - expectedKMS: ${expectedKMS}`);
-    console.log(`  - recommendedKMS: ${recommendedKMS}`);
-  }
 
   return (
     <div className="space-y-1">

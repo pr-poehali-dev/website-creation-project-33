@@ -152,7 +152,8 @@ export function useChartData(
     const grouped: Record<string, any> = {};
     
     timeFilteredData.forEach(item => {
-      const date = new Date(toMoscowTime(item.date));
+      const dateStr = item.date;
+      const date = new Date(dateStr + 'T00:00:00');
       let key: string;
       
       if (groupBy === 'week') {
@@ -228,7 +229,10 @@ export function useChartData(
         for (let i = 0; i < 7; i++) {
           const day = new Date(monday);
           day.setDate(monday.getDate() + i);
-          dates.push(day.toISOString().split('T')[0]);
+          const year = day.getFullYear();
+          const month = String(day.getMonth() + 1).padStart(2, '0');
+          const dayNum = String(day.getDate()).padStart(2, '0');
+          dates.push(`${year}-${month}-${dayNum}`);
         }
       } else if (groupBy === 'month') {
         const [year, month] = period.split('-');

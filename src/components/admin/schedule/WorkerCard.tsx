@@ -56,8 +56,12 @@ export default function WorkerCard({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
-  const avgContacts = worker.avg_per_shift || 0;
   const workerName = `${worker.first_name} ${worker.last_name}`;
+  
+  // Рассчитываем общий средний по всем организациям
+  const avgContacts = orgStats.length > 0
+    ? orgStats.reduce((sum, org) => sum + org.avg_per_shift, 0) / orgStats.length
+    : (worker.avg_per_shift || 0);
   const commentKey = `${workerName}-${dayDate}`;
   
   const commentData = workComments[dayDate]?.[workerName] || {};

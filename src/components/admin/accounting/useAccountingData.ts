@@ -10,22 +10,18 @@ export function useAccountingData(enabled: boolean) {
 
   const getSessionToken = () => localStorage.getItem('session_token');
 
-  useEffect(() => {
-    if (enabled) {
-      loadAccountingData();
-      loadUsers();
-      loadOrganizations();
-    }
-  }, [enabled]);
-
   const loadUsers = async () => {
     try {
+      console.log('📥 Загружаем пользователей...');
       const response = await fetch(`${ADMIN_API}?action=users`, {
         headers: { 'X-Session-Token': getSessionToken() || '' }
       });
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Пользователи загружены:', data.users?.length || 0);
         setUsers(data.users || []);
+      } else {
+        console.error('❌ Ошибка загрузки пользователей:', response.status);
       }
     } catch (error) {
       console.error('Error loading users:', error);
@@ -34,12 +30,16 @@ export function useAccountingData(enabled: boolean) {
 
   const loadOrganizations = async () => {
     try {
+      console.log('📥 Загружаем организации...');
       const response = await fetch(`${ADMIN_API}?action=get_organizations`, {
         headers: { 'X-Session-Token': getSessionToken() || '' }
       });
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Организации загружены:', data.organizations?.length || 0);
         setOrganizations(data.organizations || []);
+      } else {
+        console.error('❌ Ошибка загрузки организаций:', response.status);
       }
     } catch (error) {
       console.error('Error loading organizations:', error);
@@ -90,6 +90,14 @@ export function useAccountingData(enabled: boolean) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (enabled) {
+      loadAccountingData();
+      loadUsers();
+      loadOrganizations();
+    }
+  }, [enabled]);
 
   return {
     shifts,

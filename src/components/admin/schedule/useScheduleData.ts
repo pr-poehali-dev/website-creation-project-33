@@ -43,9 +43,9 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             const contacts = shift.contacts || 0;
             statsByDate[date].contacts += contacts;
             
-            // Фактический доход КМС/КВВ - берём готовое значение из API и делим на 2
+            // Фактический доход КМС/КВВ - берём готовое значение из API
             const kmsIncome = shift.kms_income || 0;
-            statsByDate[date].revenue += Math.round(kmsIncome / 2);
+            statsByDate[date].revenue += kmsIncome;
           });
           
           setActualStats(statsByDate);

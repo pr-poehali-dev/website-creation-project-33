@@ -14,6 +14,58 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   const [allOrganizations, setAllOrganizations] = useState<OrganizationData[]>([]);
   const [userOrgStats, setUserOrgStats] = useState<Record<string, Array<{organization_name: string, avg_per_shift: number}>>>({});
   const [recommendedLocations, setRecommendedLocations] = useState<Record<string, Record<string, string>>>({});
+  const [actualStats, setActualStats] = useState<Record<string, {contacts: number, revenue: number}>>({});
+
+  const loadActualStats = async () => {
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_accounting_data',
+        {
+          headers: {
+            'X-Session-Token': localStorage.getItem('session_token') || '',
+          }
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.shifts && Array.isArray(data.shifts)) {
+          // Группируем по датам
+          const statsByDate: Record<string, {contacts: number, revenue: number}> = {};
+          
+          data.shifts.forEach((shift: any) => {
+            const date = shift.date; // формат YYYY-MM-DD
+            if (!statsByDate[date]) {
+              statsByDate[date] = { contacts: 0, revenue: 0 };
+            }
+            
+            // Фактические контакты
+            const contacts = shift.contacts_count || 0;
+            statsByDate[date].contacts += contacts;
+            
+            // Фактический доход КМС/КВВ
+            const rate = shift.contact_rate || 0;
+            const revenue = contacts * rate;
+            const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+            const afterTax = revenue - tax;
+            const shiftDate = new Date(date);
+            const workerSalary = shiftDate >= new Date('2025-10-01') && contacts >= 10
+              ? contacts * 300
+              : contacts * 200;
+            const netProfit = afterTax - workerSalary;
+            const kmsIncome = Math.round(netProfit / 2);
+            
+            statsByDate[date].revenue += kmsIncome;
+          });
+          
+          setActualStats(statsByDate);
+          console.log('✅ Загружены фактические данные:', statsByDate);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading actual stats:', error);
+    }
+  };
 
   const loadAllLocations = async () => {
     try {
@@ -393,6 +445,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       await loadAllLocations();
       await loadWorkComments();
       await loadUserOrgStats();
+      await loadActualStats();
     };
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -412,6 +465,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     allOrganizations,
     userOrgStats,
     recommendedLocations,
+    actualStats,
     saveComment,
     updateComment
   };

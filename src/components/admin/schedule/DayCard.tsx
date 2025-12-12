@@ -15,6 +15,7 @@ interface DayCardProps {
   allOrganizations: OrganizationData[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
   recommendedLocations: Record<string, Record<string, string>>;
+  actualStats: Record<string, {contacts: number, revenue: number}>;
   onToggleDay: (date: string) => void;
   onCommentChange: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
   onCommentBlur: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
@@ -34,6 +35,7 @@ export default function DayCard({
   allOrganizations,
   userOrgStats,
   recommendedLocations,
+  actualStats,
   onToggleDay,
   onCommentChange,
   onCommentBlur,
@@ -114,6 +116,7 @@ export default function DayCard({
               allOrganizations={allOrganizations}
               userOrgStats={userOrgStats}
               recommendedLocations={recommendedLocations}
+              actualStats={actualStats}
             />
           </div>
         )}

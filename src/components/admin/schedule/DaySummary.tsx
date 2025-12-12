@@ -13,6 +13,7 @@ interface DaySummaryProps {
   allOrganizations: OrganizationData[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
   recommendedLocations: Record<string, Record<string, string>>;
+  actualStats: Record<string, {contacts: number, revenue: number}>;
 }
 
 // Функция расчёта дохода КМС (копия из WorkerCard)
@@ -46,7 +47,8 @@ export default function DaySummary({
   workComments,
   allOrganizations,
   userOrgStats,
-  recommendedLocations
+  recommendedLocations,
+  actualStats
 }: DaySummaryProps) {
   
   // Собираем всех промоутеров за день (уникальные)
@@ -104,6 +106,9 @@ export default function DaySummary({
     ? Math.round((incomeDiff / totalRecommendedIncome) * 100) 
     : 0;
 
+  // Фактические данные за день
+  const actualDayStats = actualStats[day.date] || { contacts: 0, revenue: 0 };
+
   // Если нет данных - не показываем
   if (allWorkers.size === 0) return null;
 
@@ -122,6 +127,10 @@ export default function DaySummary({
             <div className="flex justify-between text-amber-400">
               <span>Контакты (выбрано):</span>
               <span className="font-semibold">~{totalSelectedContacts.toFixed(1)}</span>
+            </div>
+            <div className="flex justify-between text-green-400">
+              <span>Контакты (фактически):</span>
+              <span className="font-semibold">{actualDayStats.contacts}</span>
             </div>
             {totalRecommendedContacts > 0 && (
               <div className={`flex justify-between ${contactsDiff >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -142,6 +151,10 @@ export default function DaySummary({
             <div className="flex justify-between text-amber-400">
               <span>Доход КМС/КВВ (выбрано):</span>
               <span className="font-semibold">~{totalSelectedIncome} ₽</span>
+            </div>
+            <div className="flex justify-between text-green-400">
+              <span>Доход КМС/КВВ (фактически):</span>
+              <span className="font-semibold">{actualDayStats.revenue} ₽</span>
             </div>
             {totalRecommendedIncome > 0 && (
               <div className={`flex justify-between ${incomeDiff >= 0 ? 'text-green-400' : 'text-red-400'}`}>

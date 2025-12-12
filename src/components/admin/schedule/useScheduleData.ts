@@ -139,6 +139,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     // Счётчик ОБЩЕГО использования организаций по всем промоутерам (накапливается по дням)
     const totalOrgUsageThisWeek: Record<string, number> = {};
     
+    // Очищаем временные переменные для текущего дня
+    (window as any).tempCurrentDayOrgs = null;
+    (window as any).tempCurrentDayOrgsAdded = false;
+    
     // Проходим по дням ПОСЛЕДОВАТЕЛЬНО
     weekDays.forEach(day => {
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
@@ -178,18 +182,40 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       });
       
       // Обновляем общий счётчик использования организаций
-      // ВАЖНО: учитываем ТОЛЬКО прошлые дни (НЕ текущий и НЕ будущие!)
-      // Это позволяет рекомендовать одну организацию ВСЕМ промоутерам в текущий день
+      // Логика:
+      // - Для ТЕКУЩЕГО дня: учитываем только ПРОШЛЫЕ дни (НЕ текущий!)
+      //   Это позволяет рекомендовать одну организацию ВСЕМ промоутерам сегодня
+      // - Для БУДУЩИХ дней: учитываем ПРОШЛЫЕ + ТЕКУЩИЙ день
+      //   Уже сделанные выборы в текущем дне должны влиять на будущие рекомендации
+      
       if (isPastDay) {
-        console.log(`   ✅ Учитываем использование за ${day.date}:`, Array.from(orgsUsedToday));
+        // Прошлый день - всегда учитываем
+        console.log(`   ✅ Учитываем использование за ${day.date} (прошлый день):`, Array.from(orgsUsedToday));
         orgsUsedToday.forEach(org => {
           totalOrgUsageThisWeek[org] = (totalOrgUsageThisWeek[org] || 0) + 1;
         });
-      } else {
-        console.log(`   ⏭️ Пропускаем учёт за ${day.date} (текущий или будущий день)`);
+      } else if (isCurrentDay) {
+        // Текущий день - НЕ учитываем при расчёте рекомендаций для текущего дня
+        // Но СОХРАНЯЕМ для использования при расчёте будущих дней
+        console.log(`   ⏸️ Текущий день ${day.date} - сохраняем для будущих дней:`, Array.from(orgsUsedToday));
+        // Сохраняем выборы текущего дня во временную переменную
+        orgsUsedToday.forEach(org => {
+          if (!(window as any).tempCurrentDayOrgs) (window as any).tempCurrentDayOrgs = {};
+          (window as any).tempCurrentDayOrgs[org] = ((window as any).tempCurrentDayOrgs[org] || 0) + 1;
+        });
+      } else if (isFutureDay) {
+        // Будущий день - добавляем выборы текущего дня в счётчик (один раз)
+        if ((window as any).tempCurrentDayOrgs && !(window as any).tempCurrentDayOrgsAdded) {
+          console.log(`   ➕ Добавляем текущий день в счётчик для будущих:`, (window as any).tempCurrentDayOrgs);
+          Object.entries((window as any).tempCurrentDayOrgs as Record<string, number>).forEach(([org, count]) => {
+            totalOrgUsageThisWeek[org] = (totalOrgUsageThisWeek[org] || 0) + count;
+          });
+          (window as any).tempCurrentDayOrgsAdded = true;
+        }
+        console.log(`   ⏭️ Будущий день ${day.date}`);
       }
       
-      // Теперь для промоутеров БЕЗ выбранной организации рассчитываем рекомендацию
+      // Теперь для промоутеров рассчитываем рекомендацию
       schedules.forEach(user => {
         const userName = `${user.first_name} ${user.last_name}`;
         const daySchedule = user.schedule[day.date];

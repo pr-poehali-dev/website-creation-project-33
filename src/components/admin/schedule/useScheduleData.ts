@@ -43,7 +43,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             const contacts = shift.contacts_count || 0;
             statsByDate[date].contacts += contacts;
             
-            // Фактический доход КМС/КВВ
+            // Фактический доход КМС (без деления на 2, берем только столбик КМС)
             const rate = shift.contact_rate || 0;
             const revenue = contacts * rate;
             const tax = shift.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
@@ -53,9 +53,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
               ? contacts * 300
               : contacts * 200;
             const netProfit = afterTax - workerSalary;
-            const kmsIncome = Math.round(netProfit / 2);
             
-            statsByDate[date].revenue += kmsIncome;
+            statsByDate[date].revenue += netProfit;
           });
           
           setActualStats(statsByDate);

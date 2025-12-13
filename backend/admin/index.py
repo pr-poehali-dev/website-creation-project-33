@@ -1359,10 +1359,13 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
         if action == 'users':
             active_users = get_all_users(is_active=True)
             inactive_users = get_all_users(is_active=False)
+            # Для бухучёта нужен простой список users
+            users = [{'id': u['id'], 'name': u['name']} for u in active_users]
             return {
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({
+                    'users': users,
                     'active_users': active_users,
                     'inactive_users': inactive_users
                 })

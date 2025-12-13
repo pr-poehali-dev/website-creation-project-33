@@ -1086,17 +1086,24 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             
             org_stats = []
             for (org_id, org_name), data in org_data.items():
-                total_contacts = sum(data['daily_contacts'].values())
-                shifts = len(data['shift_dates'])
+                # Берём только последние 3 смены
+                sorted_dates = sorted(data['shift_dates'], reverse=True)[:3]
+                
+                # Считаем контакты только по последним 3 сменам
+                recent_contacts = sum(
+                    data['daily_contacts'].get(date, 0) 
+                    for date in sorted_dates
+                )
+                shifts = len(sorted_dates)
                 
                 if shifts > 0:
-                    avg_per_shift = round(total_contacts / shifts, 1)
+                    avg_per_shift = round(recent_contacts / shifts, 1)
                 else:
                     avg_per_shift = 0.0
                 
                 org_stats.append({
                     'organization_name': org_name,
-                    'contacts': total_contacts,
+                    'contacts': recent_contacts,
                     'shifts': shifts,
                     'avg_per_shift': avg_per_shift
                 })

@@ -17,8 +17,37 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   const [actualStats, setActualStats] = useState<Record<string, {contacts: number, revenue: number}>>({});
 
   const loadActualStats = async () => {
+    if (weekDays.length === 0) return;
+    
     try {
-      const response = await fetch(
+      const dates = weekDays.map(d => d.date);
+      
+      // 1. Получаем реальные контакты из leads_analytics через schedule-stats
+      const contactsResponse = await fetch(
+        'https://functions.poehali.dev/1bee9f5e-8c1a-4353-aa1b-726199b50b62',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': localStorage.getItem('session_token') || '',
+          },
+          body: JSON.stringify({ dates })
+        }
+      );
+      
+      const statsByDate: Record<string, {contacts: number, revenue: number}> = {};
+      
+      if (contactsResponse.ok) {
+        const contactsData = await contactsResponse.json();
+        if (contactsData.actual && Array.isArray(contactsData.actual)) {
+          contactsData.actual.forEach((item: any) => {
+            statsByDate[item.date] = { contacts: item.count || 0, revenue: 0 };
+          });
+        }
+      }
+      
+      // 2. Получаем доход КМС из бухучёта
+      const accountingResponse = await fetch(
         'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_accounting_data',
         {
           headers: {
@@ -27,33 +56,20 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         }
       );
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log('📦 Данные из get_accounting_data:', {
-          shiftsCount: data.shifts?.length || 0,
-          firstShift: data.shifts?.[0]
-        });
-        
-        if (data.shifts && Array.isArray(data.shifts)) {
-          // Группируем по датам
-          const statsByDate: Record<string, {contacts: number, revenue: number}> = {};
-          
-          data.shifts.forEach((shift: any) => {
-            const date = shift.date; // формат YYYY-MM-DD
+      if (accountingResponse.ok) {
+        const accountingData = await accountingResponse.json();
+        if (accountingData.shifts && Array.isArray(accountingData.shifts)) {
+          accountingData.shifts.forEach((shift: any) => {
+            const date = shift.date;
             if (!date) return;
             
             if (!statsByDate[date]) {
               statsByDate[date] = { contacts: 0, revenue: 0 };
             }
             
-            // Фактические контакты - суммируем contacts_count
             const contacts = shift.contacts_count || 0;
-            statsByDate[date].contacts += contacts;
-            
-            // Фактический доход КМС - рассчитываем по той же логике что в бухучете
             const orgName = shift.organization;
             
-            // Базовый доход (с учетом компенсации)
             let baseRevenue = 0;
             if (orgName === 'Администратор') {
               baseRevenue = 2968;
@@ -63,7 +79,6 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             const compensation = shift.compensation_amount || 0;
             const revenue = baseRevenue + compensation;
             
-            // Налог 7% для безнала
             let tax = 0;
             if (orgName === 'Администратор') {
               tax = 172;
@@ -72,7 +87,6 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             }
             const afterTax = revenue - tax;
             
-            // Зарплата промоутера
             let workerSalary = 0;
             if (orgName === 'Администратор') {
               workerSalary = 600;
@@ -82,22 +96,17 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
               workerSalary = contacts * 200;
             }
             
-            // Расходы
             const expense = shift.expense_amount || 0;
-            
-            // Чистая прибыль
             const netProfit = afterTax - workerSalary - expense;
-            
-            // КМС = половина чистой прибыли (как в бухучете)
             const kmsIncome = Math.round(netProfit / 2);
             
             statsByDate[date].revenue += kmsIncome;
           });
-          
-          setActualStats(statsByDate);
-          console.log('✅ Загружены фактические данные:', statsByDate);
         }
       }
+      
+      setActualStats(statsByDate);
+      console.log('✅ Загружены фактические данные:', statsByDate);
     } catch (error) {
       console.error('Error loading actual stats:', error);
     }

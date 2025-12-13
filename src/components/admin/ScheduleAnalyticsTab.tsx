@@ -72,8 +72,12 @@ export default function ScheduleAnalyticsTab() {
 
       const expected = Array.from(uniqueWorkers).reduce((sum, userId) => {
         const worker = schedules.find(s => s.user_id === userId);
-        return sum + (worker?.avg_per_shift || 0);
+        const avgValue = worker?.avg_per_shift || 0;
+        console.log(`[${day.date}] ${worker?.first_name} ${worker?.last_name}: avg_per_shift = ${avgValue}`);
+        return sum + avgValue;
       }, 0);
+
+      console.log(`[${day.date}] Сумма: ${expected}, После округления: ${Math.round(expected)}`);
 
       return {
         date: day.date,

@@ -375,6 +375,7 @@ export default function WorkerCard({
           workerName={workerName}
           workerEmail={worker.email}
           orgStats={orgStats}
+          allOrganizations={allOrganizations}
           onClose={() => setShowOrgStatsModal(false)}
         />
       )}

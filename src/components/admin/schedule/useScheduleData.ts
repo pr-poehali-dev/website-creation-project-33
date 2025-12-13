@@ -371,9 +371,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           });
         }
         
-        if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
+        if ((userName === 'Евгений Сурков' && day.date === '2025-12-12') || 
+            (userName === 'Ольга Салтыкова' && day.date === '2025-12-10')) {
           console.log(`
-🔍🔍🔍 ДЕТАЛЬНЫЙ ЛОГ ДЛЯ СУРКОВА 12.12 🔍🔍🔍`);
+🔍🔍🔍 ДЕТАЛЬНЫЙ ЛОГ ДЛЯ ${userName} ${day.date} 🔍🔍🔍`);
           console.log(`1️⃣ ПОЛНАЯ статистика (${stats[userName]?.length || 0} орг) - ОТСОРТИРОВАНА:`);
           stats[userName]?.forEach((s, i) => {
             const income = calculateKMS(s.organization_name, s.avg_per_shift);
@@ -397,6 +398,11 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           const orgName = orgStat.organization_name;
           const maxUses = orgLimits?.get(orgName) || 1;
           const totalOrgUses = totalOrgUsageThisWeek[orgName] || 0;
+          const income = calculateKMS(orgName, orgStat.avg_per_shift);
+          
+          if ((userName === 'Ольга Салтыкова' && day.date === '2025-12-10')) {
+            console.log(`   🔎 Проверка ${orgName}: uses=${totalOrgUses}/${maxUses}, доход=${income}₽`);
+          }
           
           // Проверяем: организация не превысила лимит использования на неделе
           // ВАЖНО: НЕ увеличиваем счётчик здесь! Рекомендация != Использование
@@ -409,8 +415,9 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         
         recommendations[userName][day.date] = recommendedOrg;
         
-        if (userName === 'Евгений Сурков' && day.date === '2025-12-12') {
-          console.log(`✅ ВЫБРАНО ДЛЯ СУРКОВА: "${recommendedOrg}"`);
+        if ((userName === 'Евгений Сурков' && day.date === '2025-12-12') ||
+            (userName === 'Ольга Салтыкова' && day.date === '2025-12-10')) {
+          console.log(`✅ ВЫБРАНО ДЛЯ ${userName}: "${recommendedOrg}"`);
         }
       });
     });

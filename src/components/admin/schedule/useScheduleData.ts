@@ -196,6 +196,25 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     }
   };
 
+  const calculateKMS = (orgName: string, avgContacts: number): number => {
+    if (avgContacts <= 0) return 0;
+    
+    const orgData = allOrganizations.find(o => o.name === orgName);
+    if (!orgData) return 0;
+    
+    const contactsCount = Math.round(avgContacts);
+    const rate = orgData.contact_rate;
+    
+    const revenue = contactsCount * rate;
+    const tax = orgData.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+    const afterTax = revenue - tax;
+    
+    const workerSalary = contactsCount >= 10 ? contactsCount * 300 : contactsCount * 200;
+    const netProfit = afterTax - workerSalary;
+    
+    return Math.round(netProfit / 2);
+  };
+
   const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>) => {
     const recommendations: Record<string, Record<string, string>> = {};
     
@@ -340,10 +359,13 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             }
           });
           
-          // Пересортируем: сначала по avg_per_shift (DESC), потом по shift_count (DESC)
+          // Пересортируем: сначала по предполагаемому доходу (DESC), потом по shift_count (DESC)
           userStats.sort((a, b) => {
-            if (b.avg_per_shift !== a.avg_per_shift) {
-              return b.avg_per_shift - a.avg_per_shift;
+            const incomeA = calculateKMS(a.organization_name, a.avg_per_shift);
+            const incomeB = calculateKMS(b.organization_name, b.avg_per_shift);
+            
+            if (incomeB !== incomeA) {
+              return incomeB - incomeA;
             }
             return b.shift_count - a.shift_count;
           });
@@ -353,10 +375,16 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           console.log(`
 🔍🔍🔍 ДЕТАЛЬНЫЙ ЛОГ ДЛЯ СУРКОВА 12.12 🔍🔍🔍`);
           console.log(`1️⃣ ПОЛНАЯ статистика (${stats[userName]?.length || 0} орг) - ОТСОРТИРОВАНА:`);
-          stats[userName]?.forEach((s, i) => console.log(`   ${i+1}. ${s.organization_name}: ${s.avg_per_shift}`));
+          stats[userName]?.forEach((s, i) => {
+            const income = calculateKMS(s.organization_name, s.avg_per_shift);
+            console.log(`   ${i+1}. ${s.organization_name}: ${s.avg_per_shift} контактов → ~${income}₽`);
+          });
           
           console.log(`2️⃣ После фильтрации (${userStats.length} орг):`);
-          userStats.forEach((s, i) => console.log(`   ${i+1}. ${s.organization_name}: ${s.avg_per_shift}`));
+          userStats.forEach((s, i) => {
+            const income = calculateKMS(s.organization_name, s.avg_per_shift);
+            console.log(`   ${i+1}. ${s.organization_name}: ${s.avg_per_shift} контактов → ~${income}₽`);
+          });
           
           console.log(`3️⃣ Использовано на неделе:`, totalOrgUsageThisWeek);
           console.log(`4️⃣ orgLimits:`, orgLimits ? Object.fromEntries(orgLimits) : 'НЕТ');

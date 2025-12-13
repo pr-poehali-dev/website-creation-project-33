@@ -1,15 +1,46 @@
 import { useState } from 'react';
 import ShiftDetailsModal from './ShiftDetailsModal';
 
+interface OrganizationData {
+  name: string;
+  contact_rate: number;
+  payment_type: 'cash' | 'cashless';
+}
+
 interface OrgStatsModalProps {
   workerName: string;
   workerEmail: string;
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
+  allOrganizations: OrganizationData[];
   onClose: () => void;
 }
 
-export default function OrgStatsModal({ workerName, workerEmail, orgStats, onClose }: OrgStatsModalProps) {
+export default function OrgStatsModal({ workerName, workerEmail, orgStats, allOrganizations, onClose }: OrgStatsModalProps) {
   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
+
+  const calculateKMS = (orgName: string, avgContacts: number): number => {
+    if (avgContacts <= 0) return 0;
+    
+    const orgData = allOrganizations.find(o => o.name === orgName);
+    if (!orgData) return 0;
+    
+    const contactsCount = Math.round(avgContacts);
+    const rate = orgData.contact_rate;
+    
+    const revenue = contactsCount * rate;
+    const tax = orgData.payment_type === 'cashless' ? Math.round(revenue * 0.07) : 0;
+    const afterTax = revenue - tax;
+    
+    const workerSalary = contactsCount >= 10 ? contactsCount * 300 : contactsCount * 200;
+    const netProfit = afterTax - workerSalary;
+    
+    return Math.round(netProfit / 2);
+  };
+
+  const statsWithIncome = orgStats.map(stat => ({
+    ...stat,
+    expectedIncome: calculateKMS(stat.organization_name, stat.avg_per_shift)
+  }));
 
   return (
     <>
@@ -41,8 +72,8 @@ export default function OrgStatsModal({ workerName, workerEmail, orgStats, onClo
           {orgStats.length === 0 ? (
             <p className="text-sm text-gray-500 italic">Нет данных по организациям</p>
           ) : (
-            orgStats
-              .sort((a, b) => b.avg_per_shift - a.avg_per_shift)
+            statsWithIncome
+              .sort((a, b) => b.expectedIncome - a.expectedIncome)
               .map((stat, idx) => (
                 <div 
                   key={idx}
@@ -52,9 +83,16 @@ export default function OrgStatsModal({ workerName, workerEmail, orgStats, onClo
                   <span className="text-sm text-gray-700 font-medium">
                     {stat.organization_name}
                   </span>
-                  <span className="text-lg font-bold text-blue-600">
-                    {stat.avg_per_shift.toFixed(1)}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold text-blue-600">
+                      {stat.avg_per_shift.toFixed(1)}
+                    </span>
+                    {stat.expectedIncome > 0 && (
+                      <span className="text-sm font-semibold text-green-600">
+                        ~{stat.expectedIncome} ₽
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))
           )}

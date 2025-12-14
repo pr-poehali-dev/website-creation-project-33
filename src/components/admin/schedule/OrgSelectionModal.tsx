@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import ShiftDetailsModal from './ShiftDetailsModal';
 
@@ -18,6 +19,13 @@ interface OrgSelectionModalProps {
   onClose: () => void;
 }
 
+interface OrgWithStats {
+  name: string;
+  avgPerShift: number | null;
+  expectedIncome: number;
+  hasData: boolean;
+}
+
 export default function OrgSelectionModal({ 
   workerName, 
   workerEmail, 
@@ -28,6 +36,8 @@ export default function OrgSelectionModal({
 }: OrgSelectionModalProps) {
   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
   const [showDetailsForOrg, setShowDetailsForOrg] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
 
   const calculateKMS = (orgName: string, avgContacts: number): number => {
     if (avgContacts <= 0) return 0;
@@ -48,10 +58,50 @@ export default function OrgSelectionModal({
     return Math.round(netProfit / 2);
   };
 
-  const statsWithIncome = orgStats.map(stat => ({
-    ...stat,
-    expectedIncome: calculateKMS(stat.organization_name, stat.avg_per_shift)
-  }));
+  const allOrgsWithStats = useMemo(() => {
+    const orgsMap = new Map<string, OrgWithStats>();
+    
+    allOrganizations.forEach(org => {
+      const stat = orgStats.find(s => s.organization_name === org.name);
+      
+      if (stat) {
+        orgsMap.set(org.name, {
+          name: org.name,
+          avgPerShift: stat.avg_per_shift,
+          expectedIncome: calculateKMS(org.name, stat.avg_per_shift),
+          hasData: true
+        });
+      } else {
+        orgsMap.set(org.name, {
+          name: org.name,
+          avgPerShift: null,
+          expectedIncome: 0,
+          hasData: false
+        });
+      }
+    });
+    
+    const orgsArray = Array.from(orgsMap.values());
+    
+    return orgsArray.sort((a, b) => {
+      if (a.hasData && !b.hasData) return -1;
+      if (!a.hasData && b.hasData) return 1;
+      if (a.hasData && b.hasData) return b.expectedIncome - a.expectedIncome;
+      return a.name.localeCompare(b.name);
+    });
+  }, [allOrganizations, orgStats]);
+
+  const filteredOrgs = useMemo(() => {
+    if (!searchQuery.trim()) return allOrgsWithStats;
+    
+    const query = searchQuery.toLowerCase();
+    return allOrgsWithStats.filter(org => 
+      org.name.toLowerCase().includes(query)
+    );
+  }, [allOrgsWithStats, searchQuery]);
+
+  const displayedOrgs = showAll ? filteredOrgs : filteredOrgs.slice(0, 5);
+  const hasMore = filteredOrgs.length > 5;
 
   const handleOrgClick = (orgName: string) => {
     if (selectedOrg === orgName) {
@@ -63,7 +113,10 @@ export default function OrgSelectionModal({
 
   const handleDetailsClick = (orgName: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowDetailsForOrg(orgName);
+    const orgData = allOrgsWithStats.find(o => o.name === orgName);
+    if (orgData?.hasData) {
+      setShowDetailsForOrg(orgName);
+    }
   };
 
   const handleSelectClick = () => {
@@ -80,7 +133,7 @@ export default function OrgSelectionModal({
         onClick={onClose}
       >
         <div 
-          className="bg-white rounded-lg p-4 md:p-6 max-w-md w-full shadow-xl max-h-[90vh] overflow-y-auto"
+          className="bg-white rounded-lg p-4 md:p-6 max-w-md w-full shadow-xl max-h-[90vh] flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-4">
@@ -95,61 +148,94 @@ export default function OrgSelectionModal({
             </button>
           </div>
           
-          <p className="text-xs md:text-sm text-gray-600 mb-4">
+          <p className="text-xs md:text-sm text-gray-600 mb-3">
             {workerName}
           </p>
 
-          <div className="space-y-2 mb-4">
-            {orgStats.length === 0 ? (
-              <p className="text-xs md:text-sm text-gray-500 italic">Нет данных по организациям</p>
+          <div className="relative mb-3">
+            <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Поиск организации..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowAll(false);
+              }}
+              className="pl-9 text-xs md:text-sm h-9"
+            />
+          </div>
+
+          <div className="space-y-2 mb-4 overflow-y-auto flex-1">
+            {filteredOrgs.length === 0 ? (
+              <p className="text-xs md:text-sm text-gray-500 italic text-center py-4">
+                {searchQuery ? 'Организации не найдены' : 'Нет доступных организаций'}
+              </p>
             ) : (
-              statsWithIncome
-                .sort((a, b) => b.expectedIncome - a.expectedIncome)
-                .map((stat, idx) => (
+              <>
+                {displayedOrgs.map((org, idx) => (
                   <div 
                     key={idx}
                     className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all border-2 ${
-                      selectedOrg === stat.organization_name
+                      selectedOrg === org.name
                         ? 'bg-blue-50 border-blue-500'
                         : 'bg-gray-50 border-transparent hover:bg-gray-100'
                     }`}
-                    onClick={() => handleOrgClick(stat.organization_name)}
+                    onClick={() => handleOrgClick(org.name)}
                   >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                        selectedOrg === stat.organization_name
+                        selectedOrg === org.name
                           ? 'border-blue-500 bg-blue-500'
                           : 'border-gray-300'
                       }`}>
-                        {selectedOrg === stat.organization_name && (
+                        {selectedOrg === org.name && (
                           <Icon name="Check" size={12} className="text-white" />
                         )}
                       </div>
                       <span className="text-xs md:text-sm text-gray-700 font-medium truncate">
-                        {stat.organization_name}
+                        {org.name}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                      <div className="flex flex-col items-end gap-0.5">
-                        <span className="text-sm md:text-lg font-bold text-blue-600">
-                          {stat.avg_per_shift.toFixed(1)}
+                      {org.hasData ? (
+                        <>
+                          <div className="flex flex-col items-end gap-0.5">
+                            <span className="text-sm md:text-lg font-bold text-blue-600">
+                              {org.avgPerShift?.toFixed(1)}
+                            </span>
+                            {org.expectedIncome > 0 && (
+                              <span className="text-[10px] md:text-xs font-semibold text-green-600">
+                                ~{org.expectedIncome} ₽
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={(e) => handleDetailsClick(org.name, e)}
+                            className="p-1.5 hover:bg-gray-200 rounded-full transition-colors"
+                            title="Показать детали"
+                          >
+                            <Icon name="Info" size={16} className="text-gray-500" />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[10px] md:text-xs text-gray-400 italic">
+                          Нет смен
                         </span>
-                        {stat.expectedIncome > 0 && (
-                          <span className="text-[10px] md:text-xs font-semibold text-green-600">
-                            ~{stat.expectedIncome} ₽
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        onClick={(e) => handleDetailsClick(stat.organization_name, e)}
-                        className="p-1.5 hover:bg-gray-200 rounded-full transition-colors"
-                        title="Показать детали"
-                      >
-                        <Icon name="Info" size={16} className="text-gray-500" />
-                      </button>
+                      )}
                     </div>
                   </div>
-                ))
+                ))}
+                
+                {!showAll && hasMore && (
+                  <button
+                    onClick={() => setShowAll(true)}
+                    className="w-full py-2 text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium hover:bg-blue-50 rounded-lg transition-colors"
+                  >
+                    Показать ещё {filteredOrgs.length - 5}
+                  </button>
+                )}
+              </>
             )}
           </div>
 

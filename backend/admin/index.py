@@ -85,36 +85,56 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                     'is_active': row[13]
                 })
             
-            # Вычисляем смены для каждого пользователя отдельным запросом
-            for user in users:
-                if user['lead_count'] > 0:
-                    cur.execute("""
-                        SELECT l.created_at, l.organization_id
+            # Получаем ВСЕ лиды для активных пользователей одним запросом
+            if users:
+                user_ids = [user['id'] for user in users if user['lead_count'] > 0]
+                
+                if user_ids:
+                    # Плейсхолдеры для IN clause
+                    placeholders = ','.join(['%s'] * len(user_ids))
+                    cur.execute(f"""
+                        SELECT l.user_id, l.created_at, l.organization_id
                         FROM t_p24058207_website_creation_pro.leads_analytics l
-                        WHERE l.user_id = %s AND l.is_active = true
-                        ORDER BY l.created_at DESC
-                    """, (user['id'],))
+                        WHERE l.user_id IN ({placeholders}) AND l.is_active = true
+                        ORDER BY l.user_id, l.created_at DESC
+                    """, tuple(user_ids))
                     
-                    # Группируем по московским датам + организация
-                    shift_combinations = set()
-                    last_shift_date = None
+                    # Группируем лиды по пользователям
+                    user_leads_map = {}
                     for lead_row in cur.fetchall():
-                        moscow_dt = get_moscow_time_from_utc(lead_row[0])
-                        moscow_date = moscow_dt.date()
-                        org_id = lead_row[1]
-                        shift_combinations.add((moscow_date, org_id))
-                        if last_shift_date is None:
-                            last_shift_date = moscow_date
+                        user_id = lead_row[0]
+                        if user_id not in user_leads_map:
+                            user_leads_map[user_id] = []
+                        user_leads_map[user_id].append((lead_row[1], lead_row[2]))
                     
-                    shifts = len(shift_combinations)
-                    avg_per_shift = round(user['lead_count'] / shifts) if shifts > 0 else 0
-                    user['shifts_count'] = shifts
-                    user['avg_per_shift'] = avg_per_shift
-                    user['last_shift_date'] = last_shift_date.isoformat() if last_shift_date else None
+                    # Вычисляем смены для каждого пользователя
+                    for user in users:
+                        if user['id'] in user_leads_map:
+                            shift_combinations = set()
+                            last_shift_date = None
+                            
+                            for created_at, org_id in user_leads_map[user['id']]:
+                                moscow_dt = get_moscow_time_from_utc(created_at)
+                                moscow_date = moscow_dt.date()
+                                shift_combinations.add((moscow_date, org_id))
+                                if last_shift_date is None:
+                                    last_shift_date = moscow_date
+                            
+                            shifts = len(shift_combinations)
+                            avg_per_shift = round(user['lead_count'] / shifts) if shifts > 0 else 0
+                            user['shifts_count'] = shifts
+                            user['avg_per_shift'] = avg_per_shift
+                            user['last_shift_date'] = last_shift_date.isoformat() if last_shift_date else None
+                        else:
+                            user['shifts_count'] = 0
+                            user['avg_per_shift'] = 0
+                            user['last_shift_date'] = None
                 else:
-                    user['shifts_count'] = 0
-                    user['avg_per_shift'] = 0
-                    user['last_shift_date'] = None
+                    # Нет пользователей с лидами
+                    for user in users:
+                        user['shifts_count'] = 0
+                        user['avg_per_shift'] = 0
+                        user['last_shift_date'] = None
     return users
 
 def get_moscow_time_from_utc(utc_time):

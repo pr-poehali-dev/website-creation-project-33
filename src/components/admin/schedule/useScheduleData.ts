@@ -150,16 +150,14 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     const stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>> = {};
     
     try {
-      for (const user of schedules) {
+      const requests = schedules.map(async (user) => {
         const userName = `${user.first_name} ${user.last_name}`;
         const userEmail = user.email;
         
         if (!userEmail) {
           console.log(`⚠️ Email не найден для: ${userName}`);
-          continue;
+          return null;
         }
-        
-        console.log(`📧 Загружаем статистику для ${userName} (${userEmail})`);
         
         try {
           const response = await fetch(
@@ -180,13 +178,22 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           if (response.ok) {
             const data = await response.json();
             if (data.org_stats && data.org_stats.length > 0) {
-              stats[userName] = data.org_stats.sort((a: any, b: any) => b.avg_per_shift - a.avg_per_shift);
+              return { userName, orgStats: data.org_stats.sort((a: any, b: any) => b.avg_per_shift - a.avg_per_shift) };
             }
           }
         } catch (error) {
           console.error(`Error loading org stats for ${userName}:`, error);
         }
-      }
+        return null;
+      });
+      
+      const results = await Promise.all(requests);
+      
+      results.forEach(result => {
+        if (result) {
+          stats[result.userName] = result.orgStats;
+        }
+      });
       
       console.log('📊 Загружена статистика по организациям:', stats);
       setUserOrgStats(stats);

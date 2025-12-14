@@ -273,40 +273,40 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+    <div className="space-y-4 md:space-y-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-3 md:mb-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Планирование выходов</h2>
+            <h2 className="text-base md:text-2xl font-bold text-gray-900 mb-2 md:mb-3">Планирование выходов</h2>
             
-            <div className="flex flex-wrap gap-4 text-sm mb-2">
-              <span className="text-gray-500 italic">За последние 14 дней:</span>
-              <div className="text-gray-700">
-                <span className="font-medium">ВСЕ:</span> {stats14Days.all.percent}% ({stats14Days.all.recent} из {stats14Days.all.total})
+            <div className="flex flex-wrap gap-2 md:gap-4 text-[10px] md:text-sm mb-1.5 md:mb-2">
+              <span className="text-gray-500 italic whitespace-nowrap">14 дней:</span>
+              <div className="text-gray-700 whitespace-nowrap">
+                <span className="font-medium">ВСЕ:</span> {stats14Days.all.percent}% ({stats14Days.all.recent}/{stats14Days.all.total})
               </div>
-              <div className="text-gray-700">
-                <span className="font-medium">ТОП:</span> {stats14Days.top.percent}% ({stats14Days.top.recent} из {stats14Days.top.total})
+              <div className="text-gray-700 whitespace-nowrap">
+                <span className="font-medium">ТОП:</span> {stats14Days.top.percent}% ({stats14Days.top.recent}/{stats14Days.top.total})
               </div>
-              <div className="text-gray-700">
-                <span className="font-medium">KIBERONE:</span> {stats14Days.kiberone.percent}% ({stats14Days.kiberone.recent} из {stats14Days.kiberone.total})
+              <div className="text-gray-700 whitespace-nowrap">
+                <span className="font-medium">KIB:</span> {stats14Days.kiberone.percent}% ({stats14Days.kiberone.recent}/{stats14Days.kiberone.total})
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-4 text-sm">
-              <span className="text-gray-500 italic">За последние 30 дней:</span>
-              <div className="text-gray-700">
-                <span className="font-medium">ВСЕ:</span> {stats30Days.all.percent}% ({stats30Days.all.recent} из {stats30Days.all.total})
+            <div className="flex flex-wrap gap-2 md:gap-4 text-[10px] md:text-sm">
+              <span className="text-gray-500 italic whitespace-nowrap">30 дней:</span>
+              <div className="text-gray-700 whitespace-nowrap">
+                <span className="font-medium">ВСЕ:</span> {stats30Days.all.percent}% ({stats30Days.all.recent}/{stats30Days.all.total})
               </div>
-              <div className="text-gray-700">
-                <span className="font-medium">ТОП:</span> {stats30Days.top.percent}% ({stats30Days.top.recent} из {stats30Days.top.total})
+              <div className="text-gray-700 whitespace-nowrap">
+                <span className="font-medium">ТОП:</span> {stats30Days.top.percent}% ({stats30Days.top.recent}/{stats30Days.top.total})
               </div>
-              <div className="text-gray-700">
-                <span className="font-medium">KIBERONE:</span> {stats30Days.kiberone.percent}% ({stats30Days.kiberone.recent} из {stats30Days.kiberone.total})
+              <div className="text-gray-700 whitespace-nowrap">
+                <span className="font-medium">KIB:</span> {stats30Days.kiberone.percent}% ({stats30Days.kiberone.recent}/{stats30Days.kiberone.total})
               </div>
             </div>
           </div>
           
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 md:gap-2">
             {(['day', 'week', 'month', 'year'] as ViewMode[]).map((mode) => (
               <button
                 key={mode}
@@ -315,7 +315,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
                   setCurrentDate(now);
                   setViewMode(mode);
                 }}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg text-[10px] md:text-sm font-medium transition-all ${
                   viewMode === mode
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -330,23 +330,23 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 border border-purple-200">
+        <div className="flex items-center justify-between gap-2 md:gap-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-2.5 md:p-4 border border-purple-200">
           <button
             onClick={() => navigateDate('prev')}
-            className="p-2 hover:bg-white rounded-lg transition-colors"
+            className="p-1.5 md:p-2 hover:bg-white rounded-lg transition-colors flex-shrink-0"
           >
-            <Icon name="ChevronLeft" size={24} className="text-purple-600" />
+            <Icon name="ChevronLeft" size={20} className="text-purple-600 md:w-6 md:h-6" />
           </button>
           
-          <div className="text-center">
-            <div className="text-lg font-bold text-gray-900">{formatDateRange()}</div>
+          <div className="text-center min-w-0 flex-1">
+            <div className="text-xs md:text-lg font-bold text-gray-900 truncate">{formatDateRange()}</div>
           </div>
           
           <button
             onClick={() => navigateDate('next')}
-            className="p-2 hover:bg-white rounded-lg transition-colors"
+            className="p-1.5 md:p-2 hover:bg-white rounded-lg transition-colors flex-shrink-0"
           >
-            <Icon name="ChevronRight" size={24} className="text-purple-600" />
+            <Icon name="ChevronRight" size={20} className="text-purple-600 md:w-6 md:h-6" />
           </button>
         </div>
       </div>
@@ -354,29 +354,29 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
       {/* График динамики */}
       <ClientsChart organizations={organizations} shifts={allShifts} />
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Icon name="CheckCircle2" size={24} className="text-green-600" />
+      <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+            <div className="p-1.5 md:p-2 bg-green-100 rounded-lg flex-shrink-0">
+              <Icon name="CheckCircle2" size={20} className="text-green-600 md:w-6 md:h-6" />
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">Были выходы</h3>
-              <p className="text-sm text-gray-600">{organizationsWithShifts.length} организаций</p>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm md:text-lg font-bold text-gray-900 truncate">Были выходы</h3>
+              <p className="text-xs md:text-sm text-gray-600">{organizationsWithShifts.length} организаций</p>
             </div>
           </div>
           
-          <div className="space-y-3 max-h-[600px] overflow-y-auto">
+          <div className="space-y-2 md:space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto">
             {organizationsWithShifts.map((org) => (
-              <div key={org.id} className="border border-gray-200 rounded-lg p-4 hover:border-green-400 transition-colors">
-                <div className="font-medium text-gray-900 mb-2">{org.name}</div>
-                <div className="space-y-2">
+              <div key={org.id} className="border border-gray-200 rounded-lg p-2.5 md:p-4 hover:border-green-400 transition-colors">
+                <div className="font-medium text-gray-900 mb-1.5 md:mb-2 text-xs md:text-base leading-tight">{org.name}</div>
+                <div className="space-y-1 md:space-y-2">
                   {shiftsGroupedByOrg[org.id]?.map((shift) => (
-                    <div key={shift.id} className="flex items-center gap-2 text-sm">
-                      <Icon name="User" size={14} className="text-gray-400" />
-                      <span className="text-gray-700">{shift.user_name}</span>
-                      <span className="text-gray-400">•</span>
-                      <span className="text-gray-600">
+                    <div key={shift.id} className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+                      <Icon name="User" size={12} className="text-gray-400 flex-shrink-0 md:w-[14px] md:h-[14px]" />
+                      <span className="text-gray-700 truncate">{shift.user_name}</span>
+                      <span className="text-gray-400 flex-shrink-0">•</span>
+                      <span className="text-gray-600 whitespace-nowrap">
                         {new Date(shift.shift_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
                       </span>
                     </div>
@@ -385,30 +385,30 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
               </div>
             ))}
             {organizationsWithShifts.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <Icon name="Calendar" size={48} className="mx-auto mb-2 text-gray-300" />
-                <p>Нет выходов в этом периоде</p>
+              <div className="text-center py-6 md:py-8 text-gray-500">
+                <Icon name="Calendar" size={36} className="mx-auto mb-2 text-gray-300 md:w-12 md:h-12" />
+                <p className="text-xs md:text-base">Нет выходов в этом периоде</p>
               </div>
             )}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <Icon name="AlertCircle" size={24} className="text-red-600" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3 md:mb-4">
+            <div className="flex items-center gap-2 md:gap-3 min-w-0">
+              <div className="p-1.5 md:p-2 bg-red-100 rounded-lg flex-shrink-0">
+                <Icon name="AlertCircle" size={20} className="text-red-600 md:w-6 md:h-6" />
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Не было выходов</h3>
-                <p className="text-sm text-gray-600">{organizationsWithoutShifts.length} организаций</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm md:text-lg font-bold text-gray-900 truncate">Не было выходов</h3>
+                <p className="text-xs md:text-sm text-gray-600">{organizationsWithoutShifts.length} организаций</p>
               </div>
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 md:gap-2 flex-shrink-0">
               <button
                 onClick={() => setOrgFilter('ALL')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-sm font-medium transition-all ${
                   orgFilter === 'ALL'
                     ? 'bg-purple-600 text-white shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -418,7 +418,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
               </button>
               <button
                 onClick={() => setOrgFilter('TOP')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-sm font-medium transition-all ${
                   orgFilter === 'TOP'
                     ? 'bg-purple-600 text-white shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -428,36 +428,37 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
               </button>
               <button
                 onClick={() => setOrgFilter('KIBERONE')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-sm font-medium transition-all ${
                   orgFilter === 'KIBERONE'
                     ? 'bg-purple-600 text-white shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                KIBERONE
+                <span className="hidden xs:inline">KIBERONE</span>
+                <span className="xs:hidden">KIB</span>
               </button>
             </div>
           </div>
           
-          <div className="space-y-3 max-h-[600px] overflow-y-auto">
+          <div className="space-y-2 md:space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto">
             {organizationsWithoutShifts.map((org) => {
               const colorScheme = getDaysColor(org.days_since_last_shift);
               return (
                 <div 
                   key={org.id} 
-                  className={`border rounded-lg p-4 transition-colors ${colorScheme.bg}`}
+                  className={`border rounded-lg p-2.5 md:p-4 transition-colors ${colorScheme.bg}`}
                 >
-                  <div className="font-medium text-gray-900 mb-2">{org.name}</div>
+                  <div className="font-medium text-gray-900 mb-1.5 md:mb-2 text-xs md:text-base leading-tight">{org.name}</div>
                   {org.last_shift_date ? (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Icon name="Clock" size={14} className="text-gray-400" />
+                    <div className="flex flex-wrap items-center gap-1.5 md:gap-2 text-[10px] md:text-sm">
+                      <Icon name="Clock" size={12} className="text-gray-400 flex-shrink-0 md:w-[14px] md:h-[14px]" />
                       <span className="text-gray-600">
-                        Последний выход: {new Date(org.last_shift_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {new Date(org.last_shift_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                       {org.days_since_last_shift !== null && (
                         <>
-                          <span className="text-gray-400">•</span>
-                          <span className={`font-medium ${colorScheme.text}`}>
+                          <span className="text-gray-400 flex-shrink-0">•</span>
+                          <span className={`font-medium ${colorScheme.text} whitespace-nowrap`}>
                             {org.days_since_last_shift} {
                               org.days_since_last_shift === 1 ? 'день' :
                               org.days_since_last_shift < 5 ? 'дня' : 'дней'
@@ -467,8 +468,8 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
                       )}
                     </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Icon name="Info" size={14} />
+                  <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-sm text-gray-500">
+                    <Icon name="Info" size={12} className="flex-shrink-0 md:w-[14px] md:h-[14px]" />
                     <span>Еще не было выходов</span>
                   </div>
                 )}
@@ -476,9 +477,9 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
             );
             })}
             {organizationsWithoutShifts.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <Icon name="CheckCircle" size={48} className="mx-auto mb-2 text-gray-300" />
-                <p>Во всех организациях были выходы!</p>
+              <div className="text-center py-6 md:py-8 text-gray-500">
+                <Icon name="CheckCircle" size={36} className="mx-auto mb-2 text-gray-300 md:w-12 md:h-12" />
+                <p className="text-xs md:text-base">Во всех организациях были выходы!</p>
               </div>
             )}
           </div>

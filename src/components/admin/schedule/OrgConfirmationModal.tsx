@@ -42,74 +42,74 @@ export default function OrgConfirmationModal({
       onClick={onCancel}
     >
       <div 
-        className="bg-slate-900 border-2 border-amber-500/50 rounded-xl p-4 md:p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
+        className="bg-slate-900 border-2 border-amber-500/50 rounded-xl p-3 md:p-6 max-w-lg w-full shadow-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto custom-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-            <Icon name="AlertTriangle" size={24} className="text-amber-400" />
+        <div className="flex items-start gap-2 md:gap-3 mb-3 md:mb-4">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+            <Icon name="AlertTriangle" size={20} className="text-amber-400 md:w-6 md:h-6" />
           </div>
           <div className="flex-1">
-            <h3 className="text-base md:text-lg font-bold text-slate-100 mb-1">
+            <h3 className="text-sm md:text-lg font-bold text-slate-100 mb-0.5 md:mb-1">
               Внимание: выбор вне ТОП-3
             </h3>
-            <p className="text-xs md:text-sm text-slate-400">
+            <p className="text-[11px] md:text-sm text-slate-400">
               Выбранная организация не входит в рекомендованный список
             </p>
           </div>
           <button
             onClick={onCancel}
-            className="text-slate-400 hover:text-slate-200 transition-colors"
+            className="text-slate-400 hover:text-slate-200 transition-colors flex-shrink-0"
           >
-            <Icon name="X" size={20} />
+            <Icon name="X" size={18} className="md:w-5 md:h-5" />
           </button>
         </div>
 
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs md:text-sm text-slate-400">Ваш выбор:</span>
-            <span className="text-xs md:text-sm font-semibold text-amber-400">
+        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-2.5 md:p-3 mb-3 md:mb-4">
+          <div className="flex items-center justify-between mb-1.5 md:mb-2">
+            <span className="text-[11px] md:text-sm text-slate-400">Ваш выбор:</span>
+            <span className="text-[11px] md:text-sm font-semibold text-amber-400">
               #{selectedRank} в рейтинге
             </span>
           </div>
-          <p className="text-sm md:text-base font-bold text-slate-100 flex items-center gap-2">
-            <Icon name="Building2" size={16} className="text-amber-400" />
+          <p className="text-xs md:text-base font-bold text-slate-100 flex items-center gap-1.5 md:gap-2">
+            <Icon name="Building2" size={14} className="text-amber-400 md:w-4 md:h-4" />
             {selectedOrg}
           </p>
         </div>
 
-        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 mb-4">
-          <p className="text-xs md:text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
-            <Icon name="TrendingUp" size={16} />
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5 md:p-3 mb-3 md:mb-4">
+          <p className="text-[11px] md:text-sm font-semibold text-emerald-400 mb-2 md:mb-3 flex items-center gap-1.5 md:gap-2">
+            <Icon name="TrendingUp" size={14} className="md:w-4 md:h-4" />
             Оптимальный выбор (ТОП-3):
           </p>
-          <div className="space-y-2">
+          <div className="space-y-1.5 md:space-y-2">
             {topThree.map((org, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs md:text-sm">
-                <span className="text-slate-300">
+              <div key={idx} className="flex items-center justify-between text-[11px] md:text-sm">
+                <span className="text-slate-300 flex-1 pr-2">
                   {idx + 1}. {org.name}
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
                   <span className="text-cyan-400 font-bold">{org.avg.toFixed(1)}</span>
-                  <span className="text-emerald-400 font-semibold">~{org.income} ₽</span>
+                  <span className="text-emerald-400 font-semibold whitespace-nowrap">~{org.income} ₽</span>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs md:text-sm font-semibold text-slate-300 flex items-center gap-2">
-              <Icon name="Activity" size={16} className="text-cyan-400" />
+        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-2.5 md:p-3 mb-3 md:mb-4">
+          <div className="flex items-center justify-between mb-2 md:mb-3">
+            <p className="text-[11px] md:text-sm font-semibold text-slate-300 flex items-center gap-1.5 md:gap-2">
+              <Icon name="Activity" size={14} className="text-cyan-400 md:w-4 md:h-4" />
               Тренд контактов (последние 7 смен):
             </p>
           </div>
           
-          <div className="flex gap-2 mb-3">
+          <div className="flex gap-1.5 md:gap-2 mb-2 md:mb-3">
             <button
               onClick={() => setChartMode('all')}
-              className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
+              className={`flex-1 px-2 py-1.5 md:py-1 text-[10px] md:text-xs rounded transition-colors ${
                 chartMode === 'all'
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
                   : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
@@ -119,7 +119,7 @@ export default function OrgConfirmationModal({
             </button>
             <button
               onClick={() => setChartMode('selected')}
-              className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
+              className={`flex-1 px-2 py-1.5 md:py-1 text-[10px] md:text-xs rounded transition-colors ${
                 chartMode === 'selected'
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
                   : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
@@ -129,7 +129,7 @@ export default function OrgConfirmationModal({
             </button>
             <button
               onClick={() => setChartMode('top3')}
-              className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
+              className={`flex-1 px-2 py-1.5 md:py-1 text-[10px] md:text-xs rounded transition-colors ${
                 chartMode === 'top3'
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
                   : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
@@ -146,17 +146,18 @@ export default function OrgConfirmationModal({
                 const orgMaxContacts = Math.max(...orgData.map(r => r.contacts), 1);
                 
                 return (
-                  <div key={org.name} className="border-t border-slate-700 pt-3 first:border-t-0 first:pt-0">
-                    <p className="text-[10px] text-slate-400 mb-2 font-medium">{org.name}</p>
+                  <div key={org.name} className="border-t border-slate-700 pt-2 md:pt-3 first:border-t-0 first:pt-0">
+                    <p className="text-[9px] md:text-[10px] text-slate-400 mb-1.5 md:mb-2 font-medium">{org.name}</p>
                     {orgData.length === 0 ? (
                       <p className="text-[9px] text-slate-500 italic text-center py-4">Нет данных</p>
                     ) : (
-                      <div className="relative bg-slate-900/50 rounded-lg p-3">
+                      <div className="relative bg-slate-900/50 rounded-lg p-2 md:p-3">
                         <svg 
                           className="w-full" 
                           viewBox="0 0 400 100" 
                           preserveAspectRatio="none"
-                          style={{ height: '100px' }}
+                          style={{ height: '80px' }}
+                          className="h-20 md:h-[100px]"
                         >
                           <defs>
                             <linearGradient id={`gradient-${org.name.replace(/[\s()]/g, '-')}`} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -214,11 +215,11 @@ export default function OrgConfirmationModal({
                         </svg>
                         
                         {/* Подписи дат и значений */}
-                        <div className="flex justify-between mt-2">
+                        <div className="flex justify-between mt-1.5 md:mt-2">
                           {orgData.map((shift, idx) => (
                             <div key={idx} className="flex flex-col items-center" style={{ width: `${100 / orgData.length}%` }}>
-                              <span className="text-[10px] text-cyan-400 font-bold">{shift.contacts}</span>
-                              <span className="text-[9px] text-slate-500">
+                              <span className="text-[9px] md:text-[10px] text-cyan-400 font-bold">{shift.contacts}</span>
+                              <span className="text-[7px] md:text-[9px] text-slate-500">
                                 {new Date(shift.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })}
                               </span>
                             </div>
@@ -231,7 +232,7 @@ export default function OrgConfirmationModal({
               })}
             </div>
           ) : currentData.length > 0 ? (
-            <div className="relative h-40 bg-slate-900/50 rounded-lg p-3">
+            <div className="relative h-32 md:h-40 bg-slate-900/50 rounded-lg p-2.5 md:p-3">
               <svg 
                 className="w-full h-full" 
                 viewBox="0 0 400 120" 
@@ -293,11 +294,11 @@ export default function OrgConfirmationModal({
               </svg>
               
               {/* Подписи дат и значений */}
-              <div className="flex justify-between mt-2">
+              <div className="flex justify-between mt-1.5 md:mt-2">
                 {currentData.map((shift, idx) => (
                   <div key={idx} className="flex flex-col items-center" style={{ width: `${100 / currentData.length}%` }}>
-                    <span className="text-[10px] text-cyan-400 font-bold">{shift.contacts}</span>
-                    <span className="text-[9px] text-slate-500">
+                    <span className="text-[9px] md:text-[10px] text-cyan-400 font-bold">{shift.contacts}</span>
+                    <span className="text-[7px] md:text-[9px] text-slate-500">
                       {new Date(shift.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })}
                     </span>
                   </div>
@@ -305,30 +306,30 @@ export default function OrgConfirmationModal({
               </div>
             </div>
           ) : (
-            <p className="text-xs text-slate-500 italic text-center py-8">Нет данных по сменам</p>
+            <p className="text-[10px] md:text-xs text-slate-500 italic text-center py-6 md:py-8">Нет данных по сменам</p>
           )}
         </div>
 
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 mb-4">
-          <p className="text-xs md:text-sm text-center text-slate-300 font-medium">
+        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-2.5 md:p-3 mb-3 md:mb-4">
+          <p className="text-[11px] md:text-sm text-center text-slate-300 font-medium leading-relaxed">
             Подтверждаете ли вы свой выбор данной организации<br />
             <span className="text-amber-400">(не входящей в ТОП-3)?</span>
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2 md:gap-3">
           <Button
             onClick={onCancel}
-            className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-100 border-2 border-slate-600 hover:border-slate-500"
+            className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-100 border-2 border-slate-600 hover:border-slate-500 text-xs md:text-sm py-2 md:py-2.5"
           >
-            <Icon name="X" size={16} className="mr-1" />
+            <Icon name="X" size={14} className="mr-1 md:w-4 md:h-4" />
             Нет
           </Button>
           <Button
             onClick={onConfirm}
-            className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white"
+            className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white text-xs md:text-sm py-2 md:py-2.5"
           >
-            <Icon name="Check" size={16} className="mr-1" />
+            <Icon name="Check" size={14} className="mr-1 md:w-4 md:h-4" />
             Да, выбрать
           </Button>
         </div>

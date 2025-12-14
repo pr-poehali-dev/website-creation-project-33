@@ -74,7 +74,7 @@ export default function OrgStatsModal({ workerName, workerEmail, orgStats, allOr
         </p>
 
         <div className="space-y-2 overflow-y-auto pr-1 custom-scrollbar flex-1">
-          {isLoading ? (
+          {isLoading || orgStats.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="relative w-24 h-24 mb-4">
                 <svg className="w-24 h-24 transform -rotate-90">
@@ -105,11 +105,6 @@ export default function OrgStatsModal({ workerName, workerEmail, orgStats, allOr
                 </div>
               </div>
               <p className="text-sm text-slate-400">Загрузка статистики...</p>
-            </div>
-          ) : orgStats.length === 0 ? (
-            <div className="text-center py-8">
-              <Icon name="Inbox" size={36} className="mx-auto mb-2 text-slate-600" />
-              <p className="text-xs md:text-sm text-slate-500 italic">Нет данных по организациям</p>
             </div>
           ) : (
             statsWithIncome

@@ -151,69 +151,71 @@ export default function OrgConfirmationModal({
                     {orgData.length === 0 ? (
                       <p className="text-[9px] text-slate-500 italic text-center py-4">Нет данных</p>
                     ) : (
-                      <div className="relative h-32 bg-slate-900/50 rounded-lg p-2">
-                        <svg 
-                          className="w-full h-full" 
-                          viewBox="0 0 400 100" 
-                          preserveAspectRatio="none"
-                        >
-                          <defs>
-                            <linearGradient id={`gradient-${org.name.replace(/\s+/g, '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                              <stop offset="0%" stopColor="rgb(34, 211, 238)" stopOpacity="0.3" />
-                              <stop offset="100%" stopColor="rgb(34, 211, 238)" stopOpacity="0" />
-                            </linearGradient>
-                          </defs>
-                          
-                          {/* Линия графика */}
-                          <polyline
-                            fill="none"
-                            stroke="rgb(34, 211, 238)"
-                            strokeWidth="2"
-                            points={orgData.map((shift, idx) => {
-                              const x = (idx / (orgData.length - 1 || 1)) * 400;
-                              const y = 90 - ((shift.contacts / orgMaxContacts) * 80);
-                              return `${x},${y}`;
-                            }).join(' ')}
-                          />
-                          
-                          {/* Заливка под графиком */}
-                          <polygon
-                            fill={`url(#gradient-${org.name.replace(/\s+/g, '')})`}
-                            points={`
-                              0,90
-                              ${orgData.map((shift, idx) => {
+                      <div className="bg-slate-900/50 rounded-lg p-3">
+                        <div className="relative h-24">
+                          <svg 
+                            className="w-full h-full" 
+                            viewBox="0 0 400 80" 
+                            preserveAspectRatio="none"
+                          >
+                            <defs>
+                              <linearGradient id={`gradient-${org.name.replace(/\s+/g, '-')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="rgb(34, 211, 238)" stopOpacity="0.3" />
+                                <stop offset="100%" stopColor="rgb(34, 211, 238)" stopOpacity="0" />
+                              </linearGradient>
+                            </defs>
+                            
+                            {/* Линия графика */}
+                            <polyline
+                              fill="none"
+                              stroke="rgb(34, 211, 238)"
+                              strokeWidth="2"
+                              points={orgData.map((shift, idx) => {
                                 const x = (idx / (orgData.length - 1 || 1)) * 400;
-                                const y = 90 - ((shift.contacts / orgMaxContacts) * 80);
+                                const y = 70 - ((shift.contacts / orgMaxContacts) * 60);
                                 return `${x},${y}`;
                               }).join(' ')}
-                              400,90
-                            `}
-                          />
-                          
-                          {/* Точки на графике */}
-                          {orgData.map((shift, idx) => {
-                            const x = (idx / (orgData.length - 1 || 1)) * 400;
-                            const y = 90 - ((shift.contacts / orgMaxContacts) * 80);
-                            const isGrowth = idx > 0 && shift.contacts > orgData[idx - 1].contacts;
-                            const isDecline = idx > 0 && shift.contacts < orgData[idx - 1].contacts;
-                            const dotColor = isGrowth ? 'rgb(16, 185, 129)' : isDecline ? 'rgb(239, 68, 68)' : 'rgb(34, 211, 238)';
+                            />
                             
-                            return (
-                              <circle
-                                key={idx}
-                                cx={x}
-                                cy={y}
-                                r="3"
-                                fill={dotColor}
-                                stroke="white"
-                                strokeWidth="1.5"
-                              />
-                            );
-                          })}
-                        </svg>
+                            {/* Заливка под графиком */}
+                            <polygon
+                              fill={`url(#gradient-${org.name.replace(/\s+/g, '-')})`}
+                              points={`
+                                0,70
+                                ${orgData.map((shift, idx) => {
+                                  const x = (idx / (orgData.length - 1 || 1)) * 400;
+                                  const y = 70 - ((shift.contacts / orgMaxContacts) * 60);
+                                  return `${x},${y}`;
+                                }).join(' ')}
+                                400,70
+                              `}
+                            />
+                            
+                            {/* Точки на графике */}
+                            {orgData.map((shift, idx) => {
+                              const x = (idx / (orgData.length - 1 || 1)) * 400;
+                              const y = 70 - ((shift.contacts / orgMaxContacts) * 60);
+                              const isGrowth = idx > 0 && shift.contacts > orgData[idx - 1].contacts;
+                              const isDecline = idx > 0 && shift.contacts < orgData[idx - 1].contacts;
+                              const dotColor = isGrowth ? 'rgb(16, 185, 129)' : isDecline ? 'rgb(239, 68, 68)' : 'rgb(34, 211, 238)';
+                              
+                              return (
+                                <circle
+                                  key={idx}
+                                  cx={x}
+                                  cy={y}
+                                  r="3"
+                                  fill={dotColor}
+                                  stroke="white"
+                                  strokeWidth="1.5"
+                                />
+                              );
+                            })}
+                          </svg>
+                        </div>
                         
                         {/* Подписи дат и значений */}
-                        <div className="flex justify-between mt-1">
+                        <div className="flex justify-between mt-2">
                           {orgData.map((shift, idx) => (
                             <div key={idx} className="flex flex-col items-center" style={{ width: `${100 / orgData.length}%` }}>
                               <span className="text-[9px] text-cyan-400 font-semibold">{shift.contacts}</span>

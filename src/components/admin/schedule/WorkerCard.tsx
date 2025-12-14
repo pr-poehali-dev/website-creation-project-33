@@ -150,9 +150,36 @@ export default function WorkerCard({
             )}
           </div>
           {!recommendedOrg && orgStats.length === 0 && (
-            <div className="ml-2">
-              <span className="text-[9px] md:text-[10px] text-slate-400 animate-pulse">
-                Загрузка статистики...
+            <div className="ml-2 flex items-center gap-2">
+              <div className="relative w-8 h-8">
+                <svg className="w-8 h-8 transform -rotate-90">
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="12"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    className="text-slate-700"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="12"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeDasharray={`${2 * Math.PI * 12}`}
+                    strokeDashoffset={`${2 * Math.PI * 12 * (1 - (loadingProgress || 0) / 100)}`}
+                    className="text-cyan-400 transition-all duration-300"
+                  />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-cyan-400">
+                  {loadingProgress || 0}%
+                </span>
+              </div>
+              <span className="text-[9px] md:text-[10px] text-slate-400">
+                Загрузка...
               </span>
             </div>
           )}

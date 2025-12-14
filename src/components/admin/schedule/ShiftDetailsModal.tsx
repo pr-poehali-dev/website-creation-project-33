@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '@/components/ui/icon';
 
 interface ShiftDetailsModalProps {
   workerName: string;
@@ -60,45 +61,59 @@ export default function ShiftDetailsModal({ workerName, workerEmail, orgName, on
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60]"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl"
+        className="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 md:p-6 max-w-md w-full mx-4 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-base md:text-lg font-bold text-slate-100 flex items-center gap-2">
+            <Icon name="History" size={20} className="text-cyan-400 md:w-6 md:h-6" />
             История смен
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-slate-400 hover:text-slate-200 transition-colors"
           >
-            ✕
+            <Icon name="X" size={20} />
           </button>
         </div>
         
-        <div className="mb-2">
-          <p className="text-sm text-gray-600">{workerName}</p>
-          <p className="text-sm font-medium text-gray-900">{orgName}</p>
+        <div className="mb-3">
+          <p className="text-xs md:text-sm text-slate-400 flex items-center gap-1.5">
+            <Icon name="User" size={14} className="text-cyan-400" />
+            {workerName}
+          </p>
+          <p className="text-xs md:text-sm font-medium text-slate-200 flex items-center gap-1.5 mt-1">
+            <Icon name="Building2" size={14} className="text-cyan-400" />
+            {orgName}
+          </p>
         </div>
 
-        <div className="space-y-2 max-h-96 overflow-y-auto">
+        <div className="space-y-2 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
           {loading ? (
-            <p className="text-sm text-gray-500 italic text-center py-4">Загрузка...</p>
+            <div className="text-center py-8">
+              <Icon name="Loader2" size={36} className="mx-auto mb-2 text-cyan-400 animate-spin" />
+              <p className="text-xs md:text-sm text-slate-500 italic">Загрузка...</p>
+            </div>
           ) : shiftDetails.length === 0 ? (
-            <p className="text-sm text-gray-500 italic text-center py-4">Нет данных по сменам</p>
+            <div className="text-center py-8">
+              <Icon name="Inbox" size={36} className="mx-auto mb-2 text-slate-600" />
+              <p className="text-xs md:text-sm text-slate-500 italic">Нет данных по сменам</p>
+            </div>
           ) : (
             shiftDetails.map((shift, idx) => (
               <div 
                 key={idx}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-slate-800/50 border border-slate-700 rounded-lg"
               >
-                <span className="text-sm text-gray-700">
+                <span className="text-xs md:text-sm text-slate-300 flex items-center gap-2">
+                  <Icon name="Calendar" size={14} className="text-cyan-400" />
                   {formatDate(shift.date)}
                 </span>
-                <span className="text-lg font-bold text-green-600">
+                <span className="text-lg font-bold text-emerald-400">
                   {shift.contacts}
                 </span>
               </div>
@@ -109,3 +124,20 @@ export default function ShiftDetailsModal({ workerName, workerEmail, orgName, on
     </div>
   );
 }
+
+<style>{`
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgb(30 41 59 / 0.5);
+    border-radius: 3px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgb(71 85 105);
+    border-radius: 3px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgb(100 116 139);
+  }
+`}</style>

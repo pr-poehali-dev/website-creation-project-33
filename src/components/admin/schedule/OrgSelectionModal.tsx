@@ -15,6 +15,7 @@ interface OrgSelectionModalProps {
   workerEmail: string;
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
   allOrganizations: OrganizationData[];
+  loadingProgress?: number;
   onSelect: (orgName: string) => void;
   onClose: () => void;
 }
@@ -30,7 +31,8 @@ export default function OrgSelectionModal({
   workerName, 
   workerEmail, 
   orgStats, 
-  allOrganizations, 
+  allOrganizations,
+  loadingProgress = 100,
   onSelect, 
   onClose 
 }: OrgSelectionModalProps) {
@@ -38,6 +40,7 @@ export default function OrgSelectionModal({
   const [showDetailsForOrg, setShowDetailsForOrg] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const isLoading = loadingProgress < 100 || orgStats.length === 0;
 
   const calculateKMS = (orgName: string, avgContacts: number): number => {
     if (avgContacts <= 0) return 0;
@@ -169,7 +172,39 @@ export default function OrgSelectionModal({
           </div>
 
           <div className="space-y-2 mb-4 overflow-y-auto flex-1 pr-1 custom-scrollbar">
-            {filteredOrgs.length === 0 ? (
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="relative w-24 h-24 mb-4">
+                  <svg className="w-24 h-24 transform -rotate-90">
+                    <circle
+                      cx="48"
+                      cy="48"
+                      r="40"
+                      stroke="currentColor"
+                      strokeWidth="6"
+                      fill="none"
+                      className="text-slate-700"
+                    />
+                    <circle
+                      cx="48"
+                      cy="48"
+                      r="40"
+                      stroke="currentColor"
+                      strokeWidth="6"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 40}`}
+                      strokeDashoffset={`${2 * Math.PI * 40 * (1 - loadingProgress / 100)}`}
+                      className="text-cyan-400 transition-all duration-300"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-cyan-400">{loadingProgress}%</span>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-400">Загрузка статистики...</p>
+              </div>
+            ) : filteredOrgs.length === 0 ? (
               <div className="text-center py-8">
                 <Icon name="Inbox" size={36} className="mx-auto mb-2 text-slate-600" />
                 <p className="text-xs md:text-sm text-slate-500 italic">

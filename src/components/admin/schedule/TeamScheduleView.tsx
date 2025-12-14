@@ -258,6 +258,7 @@ export default function TeamScheduleView({
             userOrgStats={userOrgStats}
             recommendedLocations={recommendedLocations}
             actualStats={actualStats}
+            loadingProgress={loadingProgress}
             onToggleDay={toggleDay}
             onCommentChange={updateComment}
             onCommentBlur={handleCommentBlur}

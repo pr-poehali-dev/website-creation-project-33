@@ -25,6 +25,7 @@ interface WorkerCardProps {
   recommendedOrg: string;
   orgAvg?: number;
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
+  loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: string, value: string) => void;
   onCommentBlur: (userName: string, date: string, field: string, value: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
@@ -45,6 +46,7 @@ export default function WorkerCard({
   recommendedOrg,
   orgAvg,
   orgStats,
+  loadingProgress,
   onCommentChange,
   onCommentBlur,
   onRemoveSlot,

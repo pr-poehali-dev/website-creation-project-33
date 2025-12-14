@@ -45,7 +45,7 @@ export default function OrgSelectionModal({
   const [recentContactsAll, setRecentContactsAll] = useState<Array<{ date: string; contacts: number }>>([]);
   const [recentContactsSelected, setRecentContactsSelected] = useState<Array<{ date: string; contacts: number }>>([]);
   const [recentContactsTop3, setRecentContactsTop3] = useState<Record<string, Array<{ date: string; contacts: number }>>>({});
-  const isLoading = loadingProgress < 100 || orgStats.length === 0;
+  const isLoading = loadingProgress < 100;
 
   const calculateKMS = (orgName: string, avgContacts: number): number => {
     if (avgContacts <= 0) return 0;

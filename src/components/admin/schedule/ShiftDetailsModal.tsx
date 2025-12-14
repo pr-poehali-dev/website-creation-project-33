@@ -61,11 +61,11 @@ export default function ShiftDetailsModal({ workerName, workerEmail, orgName, on
 
   return (
     <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60]"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
       onClick={onClose}
     >
       <div 
-        className="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 md:p-6 max-w-md w-full mx-4 shadow-2xl"
+        className="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 md:p-6 max-w-md w-full mx-4 shadow-2xl max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -92,7 +92,7 @@ export default function ShiftDetailsModal({ workerName, workerEmail, orgName, on
           </p>
         </div>
 
-        <div className="space-y-2 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+        <div className="space-y-2 overflow-y-auto pr-1 custom-scrollbar flex-1">
           {loading ? (
             <div className="text-center py-8">
               <Icon name="Loader2" size={36} className="mx-auto mb-2 text-cyan-400 animate-spin" />

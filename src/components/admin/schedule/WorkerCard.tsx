@@ -347,6 +347,7 @@ export default function WorkerCard({
           workerEmail={worker.email}
           orgStats={orgStats}
           allOrganizations={allOrganizations}
+          loadingProgress={loadingProgress}
           onClose={() => setShowOrgStatsModal(false)}
         />
       )}

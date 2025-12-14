@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 
@@ -5,20 +6,35 @@ interface OrgConfirmationModalProps {
   selectedOrg: string;
   selectedRank: number;
   topThree: Array<{ name: string; avg: number; income: number }>;
-  recentContacts: Array<{ date: string; contacts: number }>;
+  recentContactsAll: Array<{ date: string; contacts: number }>;
+  recentContactsSelected: Array<{ date: string; contacts: number }>;
+  recentContactsTop3: Record<string, Array<{ date: string; contacts: number }>>;
   onConfirm: () => void;
   onCancel: () => void;
 }
+
+type ChartMode = 'all' | 'selected' | 'top3';
 
 export default function OrgConfirmationModal({
   selectedOrg,
   selectedRank,
   topThree,
-  recentContacts,
+  recentContactsAll,
+  recentContactsSelected,
+  recentContactsTop3,
   onConfirm,
   onCancel
 }: OrgConfirmationModalProps) {
-  const maxContacts = Math.max(...recentContacts.map(r => r.contacts), 1);
+  const [chartMode, setChartMode] = useState<ChartMode>('all');
+  
+  const getCurrentChartData = () => {
+    if (chartMode === 'all') return recentContactsAll;
+    if (chartMode === 'selected') return recentContactsSelected;
+    return [];
+  };
+  
+  const currentData = getCurrentChartData();
+  const maxContacts = Math.max(...currentData.map(r => r.contacts), 1);
   
   return (
     <div 
@@ -82,17 +98,91 @@ export default function OrgConfirmationModal({
           </div>
         </div>
 
-        {recentContacts.length > 0 && (
-          <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 mb-4">
-            <p className="text-xs md:text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs md:text-sm font-semibold text-slate-300 flex items-center gap-2">
               <Icon name="Activity" size={16} className="text-cyan-400" />
               Тренд контактов (последние 7 смен):
             </p>
+          </div>
+          
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={() => setChartMode('all')}
+              className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
+                chartMode === 'all'
+                  ? 'bg-cyan-600 text-white'
+                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+              }`}
+            >
+              Все
+            </button>
+            <button
+              onClick={() => setChartMode('selected')}
+              className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
+                chartMode === 'selected'
+                  ? 'bg-cyan-600 text-white'
+                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+              }`}
+            >
+              Выбор
+            </button>
+            <button
+              onClick={() => setChartMode('top3')}
+              className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
+                chartMode === 'top3'
+                  ? 'bg-cyan-600 text-white'
+                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+              }`}
+            >
+              ТОП-3
+            </button>
+          </div>
+          
+          {chartMode === 'top3' ? (
+            <div className="space-y-3">
+              {topThree.map((org) => {
+                const orgData = recentContactsTop3[org.name] || [];
+                const orgMaxContacts = Math.max(...orgData.map(r => r.contacts), 1);
+                
+                return (
+                  <div key={org.name} className="border-t border-slate-700 pt-2">
+                    <p className="text-[10px] text-slate-400 mb-2">{org.name}</p>
+                    <div className="flex items-end justify-between gap-1 h-16">
+                      {orgData.length === 0 ? (
+                        <p className="text-[9px] text-slate-500 italic">Нет данных</p>
+                      ) : (
+                        orgData.map((shift, idx) => {
+                          const height = (shift.contacts / orgMaxContacts) * 100;
+                          const isGrowth = idx > 0 && shift.contacts > orgData[idx - 1].contacts;
+                          const isDecline = idx > 0 && shift.contacts < orgData[idx - 1].contacts;
+                          
+                          return (
+                            <div key={idx} className="flex-1 flex flex-col items-center gap-1">
+                              <span className="text-[8px] text-slate-400 font-semibold">{shift.contacts}</span>
+                              <div 
+                                className={`w-full rounded-t transition-all ${
+                                  isGrowth ? 'bg-emerald-500' : 
+                                  isDecline ? 'bg-red-500' : 
+                                  'bg-cyan-500'
+                                }`}
+                                style={{ height: `${Math.max(height, 5)}%` }}
+                              />
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : currentData.length > 0 ? (
             <div className="flex items-end justify-between gap-1 h-24">
-              {recentContacts.map((shift, idx) => {
+              {currentData.map((shift, idx) => {
                 const height = (shift.contacts / maxContacts) * 100;
-                const isGrowth = idx > 0 && shift.contacts > recentContacts[idx - 1].contacts;
-                const isDecline = idx > 0 && shift.contacts < recentContacts[idx - 1].contacts;
+                const isGrowth = idx > 0 && shift.contacts > currentData[idx - 1].contacts;
+                const isDecline = idx > 0 && shift.contacts < currentData[idx - 1].contacts;
                 
                 return (
                   <div key={idx} className="flex-1 flex flex-col items-center gap-1">
@@ -113,8 +203,10 @@ export default function OrgConfirmationModal({
                 );
               })}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-xs text-slate-500 italic text-center py-4">Нет данных по сменам</p>
+          )}
+        </div>
 
         <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 mb-4">
           <p className="text-xs md:text-sm text-center text-slate-300 font-medium">
@@ -126,8 +218,7 @@ export default function OrgConfirmationModal({
         <div className="flex gap-3">
           <Button
             onClick={onCancel}
-            variant="outline"
-            className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-slate-100"
+            className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-100 border-2 border-slate-600 hover:border-slate-500"
           >
             <Icon name="X" size={16} className="mr-1" />
             Нет

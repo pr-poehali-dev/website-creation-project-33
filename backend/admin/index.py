@@ -1170,6 +1170,58 @@ def get_recent_contacts(email: str, limit: int = 7) -> List[Dict[str, Any]]:
             recent_shifts.reverse()
             return recent_shifts
 
+def get_recent_contacts_org(email: str, org_name: str, limit: int = 7) -> List[Dict[str, Any]]:
+    """Получить последние N смен с контактами пользователя в конкретной организации"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id FROM t_p24058207_website_creation_pro.users 
+                WHERE email = %s
+            """, (email,))
+            user_row = cur.fetchone()
+            
+            if not user_row:
+                return []
+            
+            user_id = user_row[0]
+            
+            # Получаем organization_id по имени
+            cur.execute("""
+                SELECT id FROM t_p24058207_website_creation_pro.organizations 
+                WHERE name = %s
+            """, (org_name,))
+            org_row = cur.fetchone()
+            
+            if not org_row:
+                return []
+            
+            org_id = org_row[0]
+            
+            cur.execute("""
+                SELECT 
+                    DATE(created_at) as shift_date,
+                    COUNT(*) as contacts
+                FROM t_p24058207_website_creation_pro.leads_analytics
+                WHERE user_id = %s 
+                    AND organization_id = %s
+                    AND lead_type = 'контакт'
+                    AND is_active = true
+                GROUP BY DATE(created_at)
+                ORDER BY DATE(created_at) DESC
+                LIMIT %s
+            """, (user_id, org_id, limit))
+            
+            recent_shifts = []
+            for row in cur.fetchall():
+                recent_shifts.append({
+                    'date': row[0].isoformat(),
+                    'contacts': row[1]
+                })
+            
+            # Reverse to show chronological order (oldest first)
+            recent_shifts.reverse()
+            return recent_shifts
+
 def get_user_shifts(email: str) -> List[Dict[str, Any]]:
     """Получить все смены пользователя с детальной информацией"""
     with get_db_connection() as conn:
@@ -1907,6 +1959,25 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 }
             
             recent_contacts = get_recent_contacts(email, limit)
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': True, 'recent_contacts': recent_contacts})
+            }
+        
+        elif action == 'get_recent_contacts_org':
+            email = body_data.get('email')
+            org_name = body_data.get('org_name')
+            limit = body_data.get('limit', 7)
+            
+            if not email or not org_name:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Email и org_name обязательны'})
+                }
+            
+            recent_contacts = get_recent_contacts_org(email, org_name, limit)
             return {
                 'statusCode': 200,
                 'headers': headers,

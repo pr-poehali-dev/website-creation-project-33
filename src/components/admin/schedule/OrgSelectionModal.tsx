@@ -129,31 +129,33 @@ export default function OrgSelectionModal({
   return (
     <>
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         onClick={onClose}
       >
         <div 
-          className="bg-white rounded-lg p-4 md:p-6 max-w-md w-full shadow-xl max-h-[90vh] flex flex-col"
+          className="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 md:p-6 max-w-md w-full shadow-2xl max-h-[90vh] flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base md:text-lg font-semibold text-gray-900">
+            <h3 className="text-base md:text-lg font-bold text-slate-100 flex items-center gap-2">
+              <Icon name="Building2" size={20} className="text-cyan-400 md:w-6 md:h-6" />
               Выбор организации
             </h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-slate-400 hover:text-slate-200 transition-colors"
             >
               <Icon name="X" size={20} />
             </button>
           </div>
           
-          <p className="text-xs md:text-sm text-gray-600 mb-3">
+          <p className="text-xs md:text-sm text-slate-400 mb-3 flex items-center gap-1.5">
+            <Icon name="User" size={14} className="text-cyan-400" />
             {workerName}
           </p>
 
           <div className="relative mb-3">
-            <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <Input
               type="text"
               placeholder="Поиск организации..."
@@ -162,15 +164,18 @@ export default function OrgSelectionModal({
                 setSearchQuery(e.target.value);
                 setShowAll(false);
               }}
-              className="pl-9 text-xs md:text-sm h-9"
+              className="pl-9 text-xs md:text-sm h-9 bg-slate-800/50 border-slate-600 text-slate-200 placeholder:text-slate-500 focus:border-cyan-500"
             />
           </div>
 
-          <div className="space-y-2 mb-4 overflow-y-auto flex-1">
+          <div className="space-y-2 mb-4 overflow-y-auto flex-1 pr-1 custom-scrollbar">
             {filteredOrgs.length === 0 ? (
-              <p className="text-xs md:text-sm text-gray-500 italic text-center py-4">
-                {searchQuery ? 'Организации не найдены' : 'Нет доступных организаций'}
-              </p>
+              <div className="text-center py-8">
+                <Icon name="Inbox" size={36} className="mx-auto mb-2 text-slate-600" />
+                <p className="text-xs md:text-sm text-slate-500 italic">
+                  {searchQuery ? 'Организации не найдены' : 'Нет доступных организаций'}
+                </p>
+              </div>
             ) : (
               <>
                 {displayedOrgs.map((org, idx) => (
@@ -178,22 +183,22 @@ export default function OrgSelectionModal({
                     key={idx}
                     className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all border-2 ${
                       selectedOrg === org.name
-                        ? 'bg-blue-50 border-blue-500'
-                        : 'bg-gray-50 border-transparent hover:bg-gray-100'
+                        ? 'bg-cyan-500/20 border-cyan-500'
+                        : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 hover:border-slate-600'
                     }`}
                     onClick={() => handleOrgClick(org.name)}
                   >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                         selectedOrg === org.name
-                          ? 'border-blue-500 bg-blue-500'
-                          : 'border-gray-300'
+                          ? 'border-cyan-400 bg-cyan-500'
+                          : 'border-slate-600'
                       }`}>
                         {selectedOrg === org.name && (
                           <Icon name="Check" size={12} className="text-white" />
                         )}
                       </div>
-                      <span className="text-xs md:text-sm text-gray-700 font-medium truncate">
+                      <span className="text-xs md:text-sm text-slate-200 font-medium truncate">
                         {org.name}
                       </span>
                     </div>
@@ -201,25 +206,25 @@ export default function OrgSelectionModal({
                       {org.hasData ? (
                         <>
                           <div className="flex flex-col items-end gap-0.5">
-                            <span className="text-sm md:text-lg font-bold text-blue-600">
+                            <span className="text-sm md:text-lg font-bold text-cyan-400">
                               {org.avgPerShift?.toFixed(1)}
                             </span>
                             {org.expectedIncome > 0 && (
-                              <span className="text-[10px] md:text-xs font-semibold text-green-600">
+                              <span className="text-[10px] md:text-xs font-semibold text-emerald-400">
                                 ~{org.expectedIncome} ₽
                               </span>
                             )}
                           </div>
                           <button
                             onClick={(e) => handleDetailsClick(org.name, e)}
-                            className="p-1.5 hover:bg-gray-200 rounded-full transition-colors"
+                            className="p-1.5 hover:bg-slate-600/50 rounded-full transition-colors"
                             title="Показать детали"
                           >
-                            <Icon name="Info" size={16} className="text-gray-500" />
+                            <Icon name="Info" size={16} className="text-slate-400 hover:text-cyan-400" />
                           </button>
                         </>
                       ) : (
-                        <span className="text-[10px] md:text-xs text-gray-400 italic">
+                        <span className="text-[10px] md:text-xs text-slate-500 italic">
                           Нет смен
                         </span>
                       )}
@@ -230,8 +235,9 @@ export default function OrgSelectionModal({
                 {!showAll && hasMore && (
                   <button
                     onClick={() => setShowAll(true)}
-                    className="w-full py-2 text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium hover:bg-blue-50 rounded-lg transition-colors"
+                    className="w-full py-2 text-xs md:text-sm text-cyan-400 hover:text-cyan-300 font-medium hover:bg-slate-800/50 rounded-lg transition-colors border border-slate-700 hover:border-cyan-500/50"
                   >
+                    <Icon name="ChevronDown" size={14} className="inline mr-1" />
                     Показать ещё {filteredOrgs.length - 5}
                   </button>
                 )}
@@ -239,18 +245,18 @@ export default function OrgSelectionModal({
             )}
           </div>
 
-          <div className="flex gap-2 pt-4 border-t border-gray-200">
+          <div className="flex gap-2 pt-4 border-t border-slate-700">
             <Button
               onClick={onClose}
               variant="outline"
-              className="flex-1 text-xs md:text-sm"
+              className="flex-1 text-xs md:text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-600"
             >
               Отмена
             </Button>
             <Button
               onClick={handleSelectClick}
               disabled={!selectedOrg}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm"
+              className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Icon name="Check" size={16} className="mr-1.5" />
               Выбрать
@@ -267,6 +273,23 @@ export default function OrgSelectionModal({
           onClose={() => setShowDetailsForOrg(null)}
         />
       )}
+      
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgb(30 41 59 / 0.5);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgb(71 85 105);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgb(100 116 139);
+        }
+      `}</style>
     </>
   );
 }

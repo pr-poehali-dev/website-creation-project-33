@@ -151,13 +151,11 @@ export default function OrgConfirmationModal({
                     {orgData.length === 0 ? (
                       <p className="text-[9px] text-slate-500 italic text-center py-4">Нет данных</p>
                     ) : (
-                      <div className="relative bg-slate-900/50 rounded-lg p-2 md:p-3">
+                      <div className="relative bg-slate-900/50 rounded-lg p-2 md:p-3 overflow-hidden">
                         <svg 
-                          className="w-full" 
+                          className="w-full h-20 md:h-[100px]" 
                           viewBox="0 0 400 100" 
-                          preserveAspectRatio="none"
-                          style={{ height: '80px' }}
-                          className="h-20 md:h-[100px]"
+                          preserveAspectRatio="xMidYMid meet"
                         >
                           <defs>
                             <linearGradient id={`gradient-${org.name.replace(/[\s()]/g, '-')}`} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -232,11 +230,11 @@ export default function OrgConfirmationModal({
               })}
             </div>
           ) : currentData.length > 0 ? (
-            <div className="relative h-32 md:h-40 bg-slate-900/50 rounded-lg p-2.5 md:p-3">
+            <div className="relative h-32 md:h-40 bg-slate-900/50 rounded-lg p-2.5 md:p-3 overflow-hidden">
               <svg 
                 className="w-full h-full" 
                 viewBox="0 0 400 120" 
-                preserveAspectRatio="none"
+                preserveAspectRatio="xMidYMid meet"
               >
                 <defs>
                   <linearGradient id="chart-gradient" x1="0%" y1="0%" x2="0%" y2="100%">

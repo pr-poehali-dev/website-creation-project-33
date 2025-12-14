@@ -23,34 +23,36 @@ export default function ScheduleHeader({
 }: ScheduleHeaderProps) {
   return (
     <div className="flex flex-col gap-4 mb-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col gap-3">
         <h2 className="text-xl md:text-2xl font-bold text-slate-100 flex items-center gap-2">
           <Icon name="Calendar" size={24} className="text-cyan-400 md:w-7 md:h-7" />
           График работы отдела
         </h2>
-        <div className="flex gap-2">
-          <Button
-            onClick={() => setView('team')}
-            variant={view === 'team' ? 'default' : 'outline'}
-            className={`text-xs md:text-sm ${view === 'team' ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : 'bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200'}`}
-            size="sm"
-          >
-            <Icon name="Users" size={16} className="mr-1 md:mr-2" />
-            Общий
-          </Button>
-          <Button
-            onClick={() => setView('individual')}
-            variant={view === 'individual' ? 'default' : 'outline'}
-            className={`text-xs md:text-sm ${view === 'individual' ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : 'bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200'}`}
-            size="sm"
-          >
-            <Icon name="User" size={16} className="mr-1 md:mr-2" />
-            Индивидуально
-          </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex gap-2 flex-1">
+            <Button
+              onClick={() => setView('team')}
+              variant={view === 'team' ? 'default' : 'outline'}
+              className={`text-xs md:text-sm flex-1 sm:flex-initial ${view === 'team' ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : 'bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200'}`}
+              size="sm"
+            >
+              <Icon name="Users" size={16} className="mr-1 md:mr-2" />
+              Общий
+            </Button>
+            <Button
+              onClick={() => setView('individual')}
+              variant={view === 'individual' ? 'default' : 'outline'}
+              className={`text-xs md:text-sm flex-1 sm:flex-initial ${view === 'individual' ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : 'bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200'}`}
+              size="sm"
+            >
+              <Icon name="User" size={16} className="mr-1 md:mr-2" />
+              Индивидуально
+            </Button>
+          </div>
           {onOpenAddShift && (
             <Button
               onClick={onOpenAddShift}
-              className="bg-green-600 hover:bg-green-700 text-white text-xs md:text-sm"
+              className="bg-green-600 hover:bg-green-700 text-white text-xs md:text-sm w-full sm:w-auto"
               size="sm"
             >
               <Icon name="CalendarPlus" size={16} className="mr-1 md:mr-2" />

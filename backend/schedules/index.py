@@ -168,6 +168,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = get_db_connection()
         cur = conn.cursor()
         
+        # Получаем графики промоутеров
         cur.execute("""
             SELECT u.id, COALESCE(ps.schedule_data, '{}'::jsonb), %s, u.name, u.email
             FROM t_p24058207_website_creation_pro.users u
@@ -178,24 +179,68 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         """, (week_start, week_start))
         
         rows = cur.fetchall()
+        
+        # Получаем статистику (avg_per_shift) для всех промоутеров одним запросом
+        cur.execute("""
+            SELECT 
+                u.id as user_id,
+                CASE 
+                    WHEN COUNT(DISTINCT DATE(la.created_at)) > 0 
+                    THEN ROUND(COUNT(la.id)::numeric / COUNT(DISTINCT DATE(la.created_at)), 1)
+                    ELSE 0
+                END as avg_per_shift
+            FROM t_p24058207_website_creation_pro.users u
+            LEFT JOIN t_p24058207_website_creation_pro.leads_analytics la 
+                ON u.id = la.user_id 
+                AND la.lead_type = 'контакт' 
+                AND la.is_active = true
+            WHERE u.is_admin = false AND u.is_active = true AND u.is_approved = true
+            GROUP BY u.id
+        """)
+        
+        stats_rows = cur.fetchall()
+        stats_map = {row[0]: float(row[1]) if row[1] else 0 for row in stats_rows}
+        
+        # Получаем фактические контакты за неделю (для сравнения с прогнозом)
+        week_end_date = (datetime.strptime(week_start, '%Y-%m-%d') + timedelta(days=6)).strftime('%Y-%m-%d')
+        cur.execute("""
+            SELECT 
+                DATE(created_at) as date,
+                COUNT(id) as count
+            FROM t_p24058207_website_creation_pro.leads_analytics
+            WHERE DATE(created_at) >= %s 
+                AND DATE(created_at) <= %s
+                AND lead_type = 'контакт'
+                AND is_active = true
+            GROUP BY DATE(created_at)
+        """, (week_start, week_end_date))
+        
+        actual_rows = cur.fetchall()
+        actual_map = {row[0].isoformat(): row[1] for row in actual_rows}
+        
         cur.close()
         conn.close()
         
         schedules = []
         for row in rows:
+            user_id = row[0]
             schedules.append({
-                'user_id': row[0],
+                'user_id': user_id,
                 'schedule': row[1],
                 'week_start_date': row[2],
                 'first_name': row[3].split()[0] if row[3] else 'User',
                 'last_name': row[3].split()[1] if row[3] and len(row[3].split()) > 1 else '',
-                'email': row[4]
+                'email': row[4],
+                'avg_per_shift': stats_map.get(user_id, 0)
             })
         
         return {
             'statusCode': 200,
             'headers': headers,
-            'body': json.dumps({'schedules': schedules})
+            'body': json.dumps({
+                'schedules': schedules,
+                'actual_contacts': actual_map
+            })
         }
     
     return {

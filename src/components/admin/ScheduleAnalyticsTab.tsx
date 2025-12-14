@@ -31,32 +31,9 @@ export default function ScheduleAnalyticsTab() {
     }
   }, [view, currentWeekIndex]);
 
-  const enrichSchedulesWithStats = async (schedules: UserSchedule[]) => {
-    try {
-      const response = await fetch('https://functions.poehali.dev/1bee9f5e-8c1a-4353-aa1b-726199b50b62', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': localStorage.getItem('session_token') || '',
-        }
-      });
+  // Удалено: статистика теперь приходит сразу из schedules API
 
-      if (response.ok) {
-        const data = await response.json();
-        const statsMap = new Map(data.stats?.map((s: any) => [s.user_id, s.avg_per_shift]) || []);
-        
-        return schedules.map(schedule => ({
-          ...schedule,
-          avg_per_shift: statsMap.get(schedule.user_id) || 0
-        }));
-      }
-    } catch (error) {
-      console.error('Error loading stats:', error);
-    }
-    return schedules;
-  };
-
-  const calculateDayStats = (schedules: UserSchedule[], days: DaySchedule[]) => {
+  const calculateDayStats = (schedules: UserSchedule[], days: DaySchedule[], actualContactsMap: Record<string, number>) => {
     const stats: DayStats[] = days.map(day => {
       const uniqueWorkers = new Set<number>();
 
@@ -78,44 +55,14 @@ export default function ScheduleAnalyticsTab() {
       return {
         date: day.date,
         expected: Math.round(expected),
-        actual: 0
+        actual: actualContactsMap[day.date] || 0
       };
     });
 
     setDayStats(stats);
-    if (stats.length > 0) {
-      loadActualStats(stats);
-    }
   };
 
-  const loadActualStats = async (stats: DayStats[]) => {
-    try {
-      const response = await fetch('https://functions.poehali.dev/1bee9f5e-8c1a-4353-aa1b-726199b50b62', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': localStorage.getItem('session_token') || '',
-        },
-        body: JSON.stringify({
-          dates: stats.map(s => s.date)
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const updatedStats = stats.map(stat => {
-          const actualData = data.actual?.find((a: any) => a.date === stat.date);
-          return {
-            ...stat,
-            actual: actualData?.count || 0
-          };
-        });
-        setDayStats(updatedStats);
-      }
-    } catch (error) {
-      console.error('Error loading actual stats:', error);
-    }
-  };
+  // Удалено: фактические контакты теперь приходят из schedules API
 
   const loadAllSchedules = async (days: DaySchedule[]) => {
     setLoading(true);
@@ -133,9 +80,9 @@ export default function ScheduleAnalyticsTab() {
 
       if (response.ok) {
         const data = await response.json();
-        const schedulesWithStats = await enrichSchedulesWithStats(data.schedules || []);
-        setSchedules(schedulesWithStats);
-        calculateDayStats(schedulesWithStats, days);
+        // Статистика avg_per_shift и actual_contacts теперь приходят сразу
+        setSchedules(data.schedules || []);
+        calculateDayStats(data.schedules || [], days, data.actual_contacts || {});
       }
     } catch (error) {
       console.error('Error loading schedules:', error);

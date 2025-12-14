@@ -15,6 +15,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   const [userOrgStats, setUserOrgStats] = useState<Record<string, Array<{organization_name: string, avg_per_shift: number}>>>({});
   const [recommendedLocations, setRecommendedLocations] = useState<Record<string, Record<string, string>>>({});
   const [actualStats, setActualStats] = useState<Record<string, {contacts: number, revenue: number}>>({});
+  const [loadingProgress, setLoadingProgress] = useState<number>(0);
 
   const loadActualStats = async () => {
     if (weekDays.length === 0) return;
@@ -147,7 +148,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     console.log('🔎 Начинаем загрузку статистики. schedules:', schedules);
     if (schedules.length === 0) return;
     
+    setLoadingProgress(0);
     const stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>> = {};
+    const totalUsers = schedules.filter(u => u.email).length;
+    let completedUsers = 0;
     
     try {
       const requests = schedules.map(async (user) => {
@@ -175,6 +179,9 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
             }
           );
           
+          completedUsers++;
+          setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
+          
           if (response.ok) {
             const data = await response.json();
             if (data.org_stats && data.org_stats.length > 0) {
@@ -183,6 +190,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           }
         } catch (error) {
           console.error(`Error loading org stats for ${userName}:`, error);
+          completedUsers++;
+          setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
         }
         return null;
       });
@@ -198,8 +207,10 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       console.log('📊 Загружена статистика по организациям:', stats);
       setUserOrgStats(stats);
       calculateRecommendations(stats);
+      setLoadingProgress(100);
     } catch (error) {
       console.error('Error loading users:', error);
+      setLoadingProgress(0);
     }
   };
 
@@ -551,6 +562,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     allLocations,
     allOrganizations,
     userOrgStats,
+    loadingProgress,
     recommendedLocations,
     actualStats,
     saveComment,

@@ -149,6 +149,13 @@ export default function WorkerCard({
               </span>
             )}
           </div>
+          {!recommendedOrg && orgStats.length === 0 && (
+            <div className="ml-2">
+              <span className="text-[9px] md:text-[10px] text-slate-400 animate-pulse">
+                Загрузка статистики...
+              </span>
+            </div>
+          )}
           {recommendedOrg && (
             <div className="flex flex-col gap-0.5 ml-2">
               <span 

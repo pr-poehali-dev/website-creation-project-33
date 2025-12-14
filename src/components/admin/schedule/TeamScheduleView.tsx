@@ -41,6 +41,7 @@ export default function TeamScheduleView({
     userOrgStats,
     recommendedLocations,
     actualStats,
+    loadingProgress,
     saveComment,
     updateComment
   } = useScheduleData(weekDays, schedules, orgLimits);
@@ -207,6 +208,25 @@ export default function TeamScheduleView({
   return (
     <div className="space-y-4">
       <WeekCalendar weekDays={weekDays} />
+
+      {loadingProgress > 0 && loadingProgress < 100 && (
+        <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <div className="flex justify-between mb-1">
+                <span className="text-sm text-slate-300">Загрузка статистики...</span>
+                <span className="text-sm font-bold text-cyan-400">{loadingProgress}%</span>
+              </div>
+              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
+                  style={{ width: `${loadingProgress}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <OrganizationFilter
         userOrgStats={userOrgStats}

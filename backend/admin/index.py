@@ -1131,6 +1131,45 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
             org_stats.sort(key=lambda x: x['avg_per_shift'], reverse=True)
             return org_stats
 
+def get_recent_contacts(email: str, limit: int = 7) -> List[Dict[str, Any]]:
+    """Получить последние N смен с контактами пользователя"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id FROM t_p24058207_website_creation_pro.users 
+                WHERE email = %s
+            """, (email,))
+            user_row = cur.fetchone()
+            
+            if not user_row:
+                return []
+            
+            user_id = user_row[0]
+            
+            cur.execute("""
+                SELECT 
+                    DATE(created_at) as shift_date,
+                    COUNT(*) as contacts
+                FROM t_p24058207_website_creation_pro.leads_analytics
+                WHERE user_id = %s 
+                    AND lead_type = 'контакт'
+                    AND is_active = true
+                GROUP BY DATE(created_at)
+                ORDER BY DATE(created_at) DESC
+                LIMIT %s
+            """, (user_id, limit))
+            
+            recent_shifts = []
+            for row in cur.fetchall():
+                recent_shifts.append({
+                    'date': row[0].isoformat(),
+                    'contacts': row[1]
+                })
+            
+            # Reverse to show chronological order (oldest first)
+            recent_shifts.reverse()
+            return recent_shifts
+
 def get_user_shifts(email: str) -> List[Dict[str, Any]]:
     """Получить все смены пользователя с детальной информацией"""
     with get_db_connection() as conn:
@@ -1854,6 +1893,24 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({'success': True, 'shift_details': shift_details})
+            }
+        
+        elif action == 'get_recent_contacts':
+            email = body_data.get('email')
+            limit = body_data.get('limit', 7)
+            
+            if not email:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Email обязателен'})
+                }
+            
+            recent_contacts = get_recent_contacts(email, limit)
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': True, 'recent_contacts': recent_contacts})
             }
         
         elif action == 'get_user_shifts':

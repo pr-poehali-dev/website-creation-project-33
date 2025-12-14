@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import ShiftDetailsModal from './ShiftDetailsModal';
+import OrgConfirmationModal from './OrgConfirmationModal';
 
 interface OrganizationData {
   name: string;
@@ -38,8 +39,10 @@ export default function OrgSelectionModal({
 }: OrgSelectionModalProps) {
   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
   const [showDetailsForOrg, setShowDetailsForOrg] = useState<string | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [recentContacts, setRecentContacts] = useState<Array<{ date: string; contacts: number }>>([]);
   const isLoading = loadingProgress < 100 || orgStats.length === 0;
 
   const calculateKMS = (orgName: string, avgContacts: number): number => {
@@ -123,10 +126,69 @@ export default function OrgSelectionModal({
   };
 
   const handleSelectClick = () => {
-    if (selectedOrg) {
+    if (!selectedOrg) return;
+    
+    // Проверяем, входит ли выбранная организация в ТОП-3
+    const selectedOrgData = allOrgsWithStats.find(o => o.name === selectedOrg);
+    const topThreeOrgs = allOrgsWithStats
+      .filter(o => o.hasData)
+      .sort((a, b) => b.expectedIncome - a.expectedIncome)
+      .slice(0, 3);
+    
+    const selectedRank = allOrgsWithStats
+      .filter(o => o.hasData)
+      .sort((a, b) => b.expectedIncome - a.expectedIncome)
+      .findIndex(o => o.name === selectedOrg) + 1;
+    
+    // Если выбранная организация не в ТОП-3, показываем подтверждение
+    if (selectedRank > 3 && selectedOrgData?.hasData) {
+      setShowConfirmation(true);
+      loadRecentContacts();
+    } else {
       onSelect(selectedOrg);
       onClose();
     }
+  };
+
+  const loadRecentContacts = async () => {
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': localStorage.getItem('session_token') || '',
+          },
+          body: JSON.stringify({
+            action: 'get_recent_contacts',
+            email: workerEmail,
+            limit: 7
+          })
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.recent_contacts) {
+          setRecentContacts(data.recent_contacts);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading recent contacts:', error);
+    }
+  };
+
+  const handleConfirmSelection = () => {
+    if (selectedOrg) {
+      onSelect(selectedOrg);
+      setShowConfirmation(false);
+      onClose();
+    }
+  };
+
+  const handleCancelConfirmation = () => {
+    setShowConfirmation(false);
   };
 
   return (
@@ -306,6 +368,32 @@ export default function OrgSelectionModal({
           workerEmail={workerEmail}
           orgName={showDetailsForOrg}
           onClose={() => setShowDetailsForOrg(null)}
+        />
+      )}
+
+      {showConfirmation && selectedOrg && (
+        <OrgConfirmationModal
+          selectedOrg={selectedOrg}
+          selectedRank={
+            allOrgsWithStats
+              .filter(o => o.hasData)
+              .sort((a, b) => b.expectedIncome - a.expectedIncome)
+              .findIndex(o => o.name === selectedOrg) + 1
+          }
+          topThree={
+            allOrgsWithStats
+              .filter(o => o.hasData)
+              .sort((a, b) => b.expectedIncome - a.expectedIncome)
+              .slice(0, 3)
+              .map(o => ({
+                name: o.name,
+                avg: o.avgPerShift || 0,
+                income: o.expectedIncome
+              }))
+          }
+          recentContacts={recentContacts}
+          onConfirm={handleConfirmSelection}
+          onCancel={handleCancelConfirmation}
         />
       )}
       

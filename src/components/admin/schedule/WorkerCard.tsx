@@ -269,8 +269,13 @@ export default function WorkerCard({
           <Select
             value={currentLocationType}
             onValueChange={(value) => onCommentChange(workerName, dayDate, 'location_type', value)}
+            disabled={!currentOrganization}
           >
-            <SelectTrigger className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200">
+            <SelectTrigger className={`text-[10px] md:text-xs h-6 md:h-7 px-2 border-slate-600 text-slate-200 ${
+              !currentOrganization 
+                ? 'bg-slate-800/30 cursor-not-allowed opacity-50' 
+                : 'bg-slate-800/50'
+            }`}>
               <SelectValue placeholder="Тип места" />
             </SelectTrigger>
             <SelectContent className="bg-slate-800 border-slate-600 text-slate-200">
@@ -298,7 +303,12 @@ export default function WorkerCard({
                 handleSave();
               }
             }}
-            className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200"
+            disabled={!currentOrganization}
+            className={`text-[10px] md:text-xs h-6 md:h-7 px-2 border-slate-600 text-slate-200 ${
+              !currentOrganization 
+                ? 'bg-slate-800/30 cursor-not-allowed opacity-50' 
+                : 'bg-slate-800/50'
+            }`}
           />
           {currentLocationDetails && savingComment !== commentKey && (
             <Icon name="Navigation" size={12} className="text-blue-400 flex-shrink-0" />
@@ -317,7 +327,12 @@ export default function WorkerCard({
                 handleSave();
               }
             }}
-            className="text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border-slate-600 text-slate-200"
+            disabled={!currentOrganization}
+            className={`text-[10px] md:text-xs h-6 md:h-7 px-2 border-slate-600 text-slate-200 ${
+              !currentOrganization 
+                ? 'bg-slate-800/30 cursor-not-allowed opacity-50' 
+                : 'bg-slate-800/50'
+            }`}
           />
           {currentFlyers && savingComment !== commentKey && (
             <Icon name="FileText" size={12} className="text-amber-400 flex-shrink-0" />

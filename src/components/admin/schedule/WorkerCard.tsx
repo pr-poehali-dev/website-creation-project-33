@@ -5,6 +5,7 @@ import Icon from '@/components/ui/icon';
 import { UserSchedule, DeleteSlotState, OrganizationData } from './types';
 import { isMaximKorelsky } from './utils';
 import OrgStatsModal from './OrgStatsModal';
+import OrgSelectionModal from './OrgSelectionModal';
 
 interface WorkerCardProps {
   worker: UserSchedule;
@@ -50,10 +51,7 @@ export default function WorkerCard({
   deletingSlot
 }: WorkerCardProps) {
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
-  const [showOrgDropdown, setShowOrgDropdown] = useState(false);
-  const [orgSearchQuery, setOrgSearchQuery] = useState('');
-  const [showAllOrgs, setShowAllOrgs] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showOrgSelectionModal, setShowOrgSelectionModal] = useState(false);
 
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const workerName = `${worker.first_name} ${worker.last_name}`;
@@ -68,35 +66,9 @@ export default function WorkerCard({
   const currentLocationDetails = commentData.location_details || '';
   const currentFlyers = commentData.flyers || '';
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowOrgDropdown(false);
-        setOrgSearchQuery('');
-        setShowAllOrgs(false);
-      }
-    };
-
-    if (showOrgDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showOrgDropdown]);
-
-  const filteredOrgs = allLocations.filter(org => 
-    org.toLowerCase().includes(orgSearchQuery.toLowerCase())
-  );
-
-  const displayedOrgs = showAllOrgs ? filteredOrgs : filteredOrgs.slice(0, 3);
-
   const handleOrgSelect = (org: string) => {
     onCommentChange(workerName, dayDate, 'organization', org);
-    setShowOrgDropdown(false);
-    setOrgSearchQuery('');
-    setShowAllOrgs(false);
+    setShowOrgSelectionModal(false);
   };
 
   const handleSave = () => {
@@ -225,68 +197,31 @@ export default function WorkerCard({
       </div>
       
       <div className="space-y-1 ml-2">
-        <div className="relative flex items-center gap-1" ref={dropdownRef}>
-          <div className="relative flex-1">
-            <button
-              type="button"
-              onClick={() => setShowOrgDropdown(!showOrgDropdown)}
-              className="w-full text-left text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border border-slate-600 text-slate-200 rounded-md hover:bg-slate-700/50 flex items-center justify-between"
-            >
-              <span className={currentOrganization ? '' : 'text-slate-500'}>
-                {currentOrganization || 'Организация'}
-              </span>
-              <Icon name="ChevronDown" size={12} className="flex-shrink-0" />
-            </button>
-            
-            {showOrgDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-md shadow-lg z-20 max-h-64 overflow-hidden">
-                <div className="p-2 border-b border-slate-600">
-                  <div className="relative">
-                    <Icon name="Search" size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <Input
-                      type="text"
-                      placeholder="Поиск организации..."
-                      value={orgSearchQuery}
-                      onChange={(e) => {
-                        setOrgSearchQuery(e.target.value);
-                        setShowAllOrgs(false);
-                      }}
-                      className="text-[10px] md:text-xs h-6 pl-7 pr-2 bg-slate-700/50 border-slate-600 text-slate-200"
-                      autoFocus
-                    />
-                  </div>
+        <div className="relative flex items-center gap-1">
+          <div className="relative flex-1 flex items-center gap-1">
+            {currentOrganization ? (
+              <>
+                <div className="flex-1 text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border border-slate-600 text-slate-200 rounded-md flex items-center">
+                  <span className="truncate">{currentOrganization}</span>
                 </div>
-                
-                <div className="max-h-40 overflow-y-auto">
-                  {displayedOrgs.length > 0 ? (
-                    <>
-                      {displayedOrgs.map((org) => (
-                        <button
-                          key={org}
-                          type="button"
-                          onClick={() => handleOrgSelect(org)}
-                          className="w-full text-left px-2 py-1.5 text-[10px] md:text-xs hover:bg-slate-700/50 text-slate-200 transition-colors"
-                        >
-                          {org}
-                        </button>
-                      ))}
-                      {!showAllOrgs && filteredOrgs.length > 3 && (
-                        <button
-                          type="button"
-                          onClick={() => setShowAllOrgs(true)}
-                          className="w-full text-center px-2 py-1.5 text-[10px] md:text-xs text-cyan-400 hover:bg-slate-700/50 border-t border-slate-600"
-                        >
-                          Показать ещё {filteredOrgs.length - 3}...
-                        </button>
-                      )}
-                    </>
-                  ) : (
-                    <div className="px-2 py-3 text-center text-[10px] text-slate-500">
-                      Не найдено
-                    </div>
-                  )}
-                </div>
-              </div>
+                <button
+                  type="button"
+                  onClick={() => onCommentChange(workerName, dayDate, 'organization', '')}
+                  className="p-1 hover:bg-red-500/20 rounded transition-colors"
+                  title="Удалить организацию"
+                >
+                  <Icon name="X" size={12} className="text-red-400" />
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowOrgSelectionModal(true)}
+                className="flex-1 text-left text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border border-slate-600 text-slate-500 rounded-md hover:bg-slate-700/50 flex items-center justify-between group"
+              >
+                <span>Организация</span>
+                <Icon name="Plus" size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+              </button>
             )}
           </div>
           {currentOrganization && savingComment !== commentKey && (
@@ -377,6 +312,17 @@ export default function WorkerCard({
           orgStats={orgStats}
           allOrganizations={allOrganizations}
           onClose={() => setShowOrgStatsModal(false)}
+        />
+      )}
+      
+      {showOrgSelectionModal && (
+        <OrgSelectionModal
+          workerName={workerName}
+          workerEmail={worker.email}
+          orgStats={orgStats}
+          allOrganizations={allOrganizations}
+          onSelect={handleOrgSelect}
+          onClose={() => setShowOrgSelectionModal(false)}
         />
       )}
     </div>

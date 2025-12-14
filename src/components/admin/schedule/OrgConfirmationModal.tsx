@@ -111,7 +111,7 @@ export default function OrgConfirmationModal({
               onClick={() => setChartMode('all')}
               className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
                 chartMode === 'all'
-                  ? 'bg-cyan-600 text-white'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
                   : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
               }`}
             >
@@ -121,7 +121,7 @@ export default function OrgConfirmationModal({
               onClick={() => setChartMode('selected')}
               className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
                 chartMode === 'selected'
-                  ? 'bg-cyan-600 text-white'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
                   : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
               }`}
             >
@@ -131,7 +131,7 @@ export default function OrgConfirmationModal({
               onClick={() => setChartMode('top3')}
               className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
                 chartMode === 'top3'
-                  ? 'bg-cyan-600 text-white'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
                   : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
               }`}
             >
@@ -140,71 +140,171 @@ export default function OrgConfirmationModal({
           </div>
           
           {chartMode === 'top3' ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {topThree.map((org) => {
                 const orgData = recentContactsTop3[org.name] || [];
                 const orgMaxContacts = Math.max(...orgData.map(r => r.contacts), 1);
                 
                 return (
-                  <div key={org.name} className="border-t border-slate-700 pt-2">
-                    <p className="text-[10px] text-slate-400 mb-2">{org.name}</p>
-                    <div className="flex items-end justify-between gap-1 h-16">
-                      {orgData.length === 0 ? (
-                        <p className="text-[9px] text-slate-500 italic">Нет данных</p>
-                      ) : (
-                        orgData.map((shift, idx) => {
-                          const height = (shift.contacts / orgMaxContacts) * 100;
-                          const isGrowth = idx > 0 && shift.contacts > orgData[idx - 1].contacts;
-                          const isDecline = idx > 0 && shift.contacts < orgData[idx - 1].contacts;
+                  <div key={org.name} className="border-t border-slate-700 pt-3 first:border-t-0 first:pt-0">
+                    <p className="text-[10px] text-slate-400 mb-2 font-medium">{org.name}</p>
+                    {orgData.length === 0 ? (
+                      <p className="text-[9px] text-slate-500 italic text-center py-4">Нет данных</p>
+                    ) : (
+                      <div className="relative h-32 bg-slate-900/50 rounded-lg p-2">
+                        <svg 
+                          className="w-full h-full" 
+                          viewBox="0 0 400 100" 
+                          preserveAspectRatio="none"
+                        >
+                          <defs>
+                            <linearGradient id={`gradient-${org.name.replace(/\s+/g, '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                              <stop offset="0%" stopColor="rgb(34, 211, 238)" stopOpacity="0.3" />
+                              <stop offset="100%" stopColor="rgb(34, 211, 238)" stopOpacity="0" />
+                            </linearGradient>
+                          </defs>
                           
-                          return (
-                            <div key={idx} className="flex-1 flex flex-col items-center gap-1">
-                              <span className="text-[8px] text-slate-400 font-semibold">{shift.contacts}</span>
-                              <div 
-                                className={`w-full rounded-t transition-all ${
-                                  isGrowth ? 'bg-emerald-500' : 
-                                  isDecline ? 'bg-red-500' : 
-                                  'bg-cyan-500'
-                                }`}
-                                style={{ height: `${Math.max(height, 5)}%` }}
+                          {/* Линия графика */}
+                          <polyline
+                            fill="none"
+                            stroke="rgb(34, 211, 238)"
+                            strokeWidth="2"
+                            points={orgData.map((shift, idx) => {
+                              const x = (idx / (orgData.length - 1 || 1)) * 400;
+                              const y = 90 - ((shift.contacts / orgMaxContacts) * 80);
+                              return `${x},${y}`;
+                            }).join(' ')}
+                          />
+                          
+                          {/* Заливка под графиком */}
+                          <polygon
+                            fill={`url(#gradient-${org.name.replace(/\s+/g, '')})`}
+                            points={`
+                              0,90
+                              ${orgData.map((shift, idx) => {
+                                const x = (idx / (orgData.length - 1 || 1)) * 400;
+                                const y = 90 - ((shift.contacts / orgMaxContacts) * 80);
+                                return `${x},${y}`;
+                              }).join(' ')}
+                              400,90
+                            `}
+                          />
+                          
+                          {/* Точки на графике */}
+                          {orgData.map((shift, idx) => {
+                            const x = (idx / (orgData.length - 1 || 1)) * 400;
+                            const y = 90 - ((shift.contacts / orgMaxContacts) * 80);
+                            const isGrowth = idx > 0 && shift.contacts > orgData[idx - 1].contacts;
+                            const isDecline = idx > 0 && shift.contacts < orgData[idx - 1].contacts;
+                            const dotColor = isGrowth ? 'rgb(16, 185, 129)' : isDecline ? 'rgb(239, 68, 68)' : 'rgb(34, 211, 238)';
+                            
+                            return (
+                              <circle
+                                key={idx}
+                                cx={x}
+                                cy={y}
+                                r="3"
+                                fill={dotColor}
+                                stroke="white"
+                                strokeWidth="1.5"
                               />
+                            );
+                          })}
+                        </svg>
+                        
+                        {/* Подписи дат и значений */}
+                        <div className="flex justify-between mt-1">
+                          {orgData.map((shift, idx) => (
+                            <div key={idx} className="flex flex-col items-center" style={{ width: `${100 / orgData.length}%` }}>
+                              <span className="text-[9px] text-cyan-400 font-semibold">{shift.contacts}</span>
+                              <span className="text-[8px] text-slate-500">
+                                {new Date(shift.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })}
+                              </span>
                             </div>
-                          );
-                        })
-                      )}
-                    </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
           ) : currentData.length > 0 ? (
-            <div className="flex items-end justify-between gap-1 h-24">
-              {currentData.map((shift, idx) => {
-                const height = (shift.contacts / maxContacts) * 100;
-                const isGrowth = idx > 0 && shift.contacts > currentData[idx - 1].contacts;
-                const isDecline = idx > 0 && shift.contacts < currentData[idx - 1].contacts;
+            <div className="relative h-40 bg-slate-900/50 rounded-lg p-3">
+              <svg 
+                className="w-full h-full" 
+                viewBox="0 0 400 120" 
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <linearGradient id="chart-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="rgb(34, 211, 238)" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="rgb(34, 211, 238)" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
                 
-                return (
-                  <div key={idx} className="flex-1 flex flex-col items-center gap-1">
-                    <span className="text-[9px] text-slate-400 font-semibold">{shift.contacts}</span>
-                    <div 
-                      className={`w-full rounded-t transition-all ${
-                        isGrowth ? 'bg-emerald-500' : 
-                        isDecline ? 'bg-red-500' : 
-                        'bg-cyan-500'
-                      }`}
-                      style={{ height: `${Math.max(height, 5)}%` }}
-                      title={`${new Date(shift.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}: ${shift.contacts} контактов`}
+                {/* Линия графика */}
+                <polyline
+                  fill="none"
+                  stroke="rgb(34, 211, 238)"
+                  strokeWidth="2.5"
+                  points={currentData.map((shift, idx) => {
+                    const x = (idx / (currentData.length - 1 || 1)) * 400;
+                    const y = 100 - ((shift.contacts / maxContacts) * 90);
+                    return `${x},${y}`;
+                  }).join(' ')}
+                />
+                
+                {/* Заливка под графиком */}
+                <polygon
+                  fill="url(#chart-gradient)"
+                  points={`
+                    0,100
+                    ${currentData.map((shift, idx) => {
+                      const x = (idx / (currentData.length - 1 || 1)) * 400;
+                      const y = 100 - ((shift.contacts / maxContacts) * 90);
+                      return `${x},${y}`;
+                    }).join(' ')}
+                    400,100
+                  `}
+                />
+                
+                {/* Точки на графике */}
+                {currentData.map((shift, idx) => {
+                  const x = (idx / (currentData.length - 1 || 1)) * 400;
+                  const y = 100 - ((shift.contacts / maxContacts) * 90);
+                  const isGrowth = idx > 0 && shift.contacts > currentData[idx - 1].contacts;
+                  const isDecline = idx > 0 && shift.contacts < currentData[idx - 1].contacts;
+                  const dotColor = isGrowth ? 'rgb(16, 185, 129)' : isDecline ? 'rgb(239, 68, 68)' : 'rgb(34, 211, 238)';
+                  
+                  return (
+                    <circle
+                      key={idx}
+                      cx={x}
+                      cy={y}
+                      r="4"
+                      fill={dotColor}
+                      stroke="white"
+                      strokeWidth="2"
                     />
+                  );
+                })}
+              </svg>
+              
+              {/* Подписи дат и значений */}
+              <div className="flex justify-between mt-2">
+                {currentData.map((shift, idx) => (
+                  <div key={idx} className="flex flex-col items-center" style={{ width: `${100 / currentData.length}%` }}>
+                    <span className="text-[10px] text-cyan-400 font-bold">{shift.contacts}</span>
                     <span className="text-[9px] text-slate-500">
                       {new Date(shift.date).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })}
                     </span>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           ) : (
-            <p className="text-xs text-slate-500 italic text-center py-4">Нет данных по сменам</p>
+            <p className="text-xs text-slate-500 italic text-center py-8">Нет данных по сменам</p>
           )}
         </div>
 

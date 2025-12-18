@@ -188,10 +188,16 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     Object.keys(editingComment).length > 0 ||
     Object.keys(editingPersonalFunds).length > 0;
 
-  const uniqueOrganizations = Array.from(new Set(shifts.map(s => s.organization))).sort();
-  const uniquePromoters = Array.from(new Set(shifts.map(s => s.user_name))).sort();
+  const dateFilteredShifts = shifts.filter(shift => {
+    if (dateFilter.from && shift.date < dateFilter.from) return false;
+    if (dateFilter.to && shift.date > dateFilter.to) return false;
+    return true;
+  });
 
-  const filteredShifts = shifts.filter(shift => {
+  const uniqueOrganizations = Array.from(new Set(dateFilteredShifts.map(s => s.organization))).sort();
+  const uniquePromoters = Array.from(new Set(dateFilteredShifts.map(s => s.user_name))).sort();
+
+  const filteredShifts = dateFilteredShifts.filter(shift => {
     if (filters.paid_by_organization !== null && shift.paid_by_organization !== filters.paid_by_organization) return false;
     if (filters.paid_to_worker !== null && shift.paid_to_worker !== filters.paid_to_worker) return false;
     if (filters.paid_kvv !== null && shift.paid_kvv !== filters.paid_kvv) return false;
@@ -201,9 +207,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     if (organizationFilter.length > 0 && !organizationFilter.includes(shift.organization)) return false;
     if (promoterFilter.length > 0 && !promoterFilter.includes(shift.user_name)) return false;
     if (paymentTypeFilter.length > 0 && !paymentTypeFilter.includes(shift.payment_type)) return false;
-    
-    if (dateFilter.from && shift.date < dateFilter.from) return false;
-    if (dateFilter.to && shift.date > dateFilter.to) return false;
     
     return true;
   });

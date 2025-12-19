@@ -350,7 +350,7 @@ export default function ScheduleTab() {
                     <div className="flex items-center gap-2 md:gap-3">
                       <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-[#001f54]'} text-white flex flex-col items-center justify-center font-bold`}>
                         <span className="text-[10px] md:text-xs">{day.dayName}</span>
-                        <span className="text-sm md:text-lg">{new Date(day.date).getDate()}.10</span>
+                        <span className="text-sm md:text-lg">{new Date(day.date).getDate()}.{(new Date(day.date).getMonth() + 1).toString().padStart(2, '0')}</span>
                       </div>
                       <div>
                         <p className="text-sm md:text-base font-semibold text-gray-800">

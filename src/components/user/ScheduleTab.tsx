@@ -53,7 +53,7 @@ const formatDateLocal = (date: Date): string => {
 const getAllWeeksUntilEndOfYear = () => {
   const weeks = [];
   const startDate = new Date('2025-10-20');
-  const endOfYear = new Date('2025-12-31');
+  const endOfYear = new Date('2026-12-31');
   
   let currentMonday = new Date(startDate);
   
@@ -61,9 +61,14 @@ const getAllWeeksUntilEndOfYear = () => {
     const weekEnd = new Date(currentMonday);
     weekEnd.setDate(currentMonday.getDate() + 6);
     
+    const startMonth = (currentMonday.getMonth() + 1).toString().padStart(2, '0');
+    const startDay = currentMonday.getDate().toString().padStart(2, '0');
+    const endMonth = (weekEnd.getMonth() + 1).toString().padStart(2, '0');
+    const endDay = weekEnd.getDate().toString().padStart(2, '0');
+    
     weeks.push({
       start: formatDateLocal(currentMonday),
-      label: `${currentMonday.getDate().toString().padStart(2, '0')}.${(currentMonday.getMonth() + 1).toString().padStart(2, '0')} - ${weekEnd.getDate().toString().padStart(2, '0')}.${(weekEnd.getMonth() + 1).toString().padStart(2, '0')}`
+      label: `${startDay}.${startMonth} - ${endDay}.${endMonth}`
     });
     
     currentMonday = new Date(currentMonday);

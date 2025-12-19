@@ -96,6 +96,7 @@ export default function ScheduleTab() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const isUkrainian = user?.name === 'Виктор Кобыляцкий';
   const [workComments, setWorkComments] = useState<Record<string, {
     location?: string;
     flyers?: string;
@@ -114,8 +115,8 @@ export default function ScheduleTab() {
   const initializeSchedule = () => {
     const days: DaySchedule[] = [];
     const startDate = new Date(weeks[currentWeekIndex].start);
-    const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-    const dayNamesFull = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+    const dayNames = isUkrainian ? ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'] : ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const dayNamesFull = isUkrainian ? ['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П'ятниця', 'Субота', 'Неділя'] : ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
     
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(startDate);
@@ -298,14 +299,14 @@ export default function ScheduleTab() {
               <div>
                 <h2 className="text-xl md:text-2xl font-bold text-[#001f54] flex items-center gap-2">
                   <Icon name="Calendar" size={24} className="md:w-7 md:h-7" />
-                  График работы
+                  {isUkrainian ? 'Графік роботи' : 'График работы'}
                 </h2>
                 <p className="text-xs md:text-sm text-gray-600 mt-1">
-                  Выберите удобные промежутки времени на неделю
+                  {isUkrainian ? 'Виберіть зручні проміжки часу на тиждень' : 'Выберите удобные промежутки времени на неделю'}
                 </p>
               </div>
               <Badge className="bg-[#001f54] text-white text-sm md:text-lg px-3 md:px-4 py-1 md:py-2">
-                {getSelectedCount()} смен
+                {getSelectedCount()} {isUkrainian ? 'змін' : 'смен'}
               </Badge>
             </div>
             
@@ -318,12 +319,12 @@ export default function ScheduleTab() {
                 className="border-[#001f54] text-[#001f54] hover:bg-[#001f54] hover:text-white"
               >
                 <Icon name="ChevronLeft" size={16} className="md:mr-1" />
-                <span className="hidden md:inline">Предыдущая</span>
+                <span className="hidden md:inline">{isUkrainian ? 'Попередній' : 'Предыдущая'}</span>
               </Button>
               
               <div className="text-center">
                 <p className="text-sm md:text-base font-bold text-[#001f54]">{weeks[currentWeekIndex].label}</p>
-                <p className="text-[10px] md:text-xs text-gray-500">Неделя {currentWeekIndex + 1} из {weeks.length}</p>
+                <p className="text-[10px] md:text-xs text-gray-500">{isUkrainian ? 'Тиждень' : 'Неделя'} {currentWeekIndex + 1} {isUkrainian ? 'з' : 'из'} {weeks.length}</p>
               </div>
               
               <Button
@@ -333,7 +334,7 @@ export default function ScheduleTab() {
                 size="sm"
                 className="border-[#001f54] text-[#001f54] hover:bg-[#001f54] hover:text-white"
               >
-                <span className="hidden md:inline">Следующая</span>
+                <span className="hidden md:inline">{isUkrainian ? 'Наступний' : 'Следующая'}</span>
                 <Icon name="ChevronRight" size={16} className="md:ml-1" />
               </Button>
             </div>
@@ -389,7 +390,7 @@ export default function ScheduleTab() {
                             <div className="flex-1">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <Badge className="bg-green-600 text-white text-[10px] px-2 py-0.5">
-                                  От админа
+                                  {isUkrainian ? 'Від адміна' : 'От админа'}
                                 </Badge>
                                 <span className="text-xs font-bold text-green-900">{shift.organization_name}</span>
                               </div>
@@ -409,7 +410,7 @@ export default function ScheduleTab() {
                           <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg p-2">
                             <Icon name="Building2" size={14} className="text-purple-600 flex-shrink-0" />
                             <div>
-                              <span className="text-[10px] text-purple-600 font-medium">Организация:</span>
+                              <span className="text-[10px] text-purple-600 font-medium">{isUkrainian ? 'Організація:' : 'Организация:'}</span>
                               <span className="text-xs text-purple-900 font-medium ml-1">{workComments[day.date].organization}</span>
                             </div>
                           </div>
@@ -418,7 +419,7 @@ export default function ScheduleTab() {
                           <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
                             <Icon name="MapPin" size={14} className="text-blue-600 flex-shrink-0" />
                             <div>
-                              <span className="text-[10px] text-blue-600 font-medium">Тип места:</span>
+                              <span className="text-[10px] text-blue-600 font-medium">{isUkrainian ? 'Тип місця:' : 'Тип места:'}</span>
                               <span className="text-xs text-blue-900 font-medium ml-1">{workComments[day.date].location_type}</span>
                             </div>
                           </div>
@@ -427,7 +428,7 @@ export default function ScheduleTab() {
                           <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg p-2">
                             <Icon name="Navigation" size={14} className="text-indigo-600 flex-shrink-0" />
                             <div>
-                              <span className="text-[10px] text-indigo-600 font-medium">Адрес:</span>
+                              <span className="text-[10px] text-indigo-600 font-medium">{isUkrainian ? 'Адреса:' : 'Адрес:'}</span>
                               <span className="text-xs text-indigo-900 font-medium ml-1">{workComments[day.date].location_details}</span>
                             </div>
                           </div>
@@ -436,7 +437,7 @@ export default function ScheduleTab() {
                           <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg p-2">
                             <Icon name="FileText" size={14} className="text-amber-600 flex-shrink-0" />
                             <div>
-                              <span className="text-[10px] text-amber-600 font-medium">Листовки:</span>
+                              <span className="text-[10px] text-amber-600 font-medium">{isUkrainian ? 'Листівки:' : 'Листовки:'}</span>
                               <span className="text-xs text-amber-900 font-medium ml-1">{workComments[day.date].flyers}</span>
                             </div>
                           </div>
@@ -453,7 +454,7 @@ export default function ScheduleTab() {
             {saved && (
               <Badge className="bg-green-500 text-white px-3 md:px-4 py-2 flex items-center gap-2 justify-center">
                 <Icon name="Check" size={16} />
-                Сохранено
+                {isUkrainian ? 'Збережено' : 'Сохранено'}
               </Badge>
             )}
             <Button
@@ -464,12 +465,12 @@ export default function ScheduleTab() {
               {saving ? (
                 <>
                   <Icon name="Loader2" size={18} className="mr-2 animate-spin md:w-5 md:h-5" />
-                  Сохранение...
+                  {isUkrainian ? 'Збереження...' : 'Сохранение...'}
                 </>
               ) : (
                 <>
                   <Icon name="Save" size={18} className="mr-2 md:w-5 md:h-5" />
-                  Подтвердить график
+                  {isUkrainian ? 'Підтвердити графік' : 'Подтвердить график'}
                 </>
               )}
             </Button>

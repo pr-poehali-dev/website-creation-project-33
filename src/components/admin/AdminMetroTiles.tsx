@@ -39,20 +39,20 @@ const NavButton = ({
 }) => (
   <button
     onClick={onClick}
-    className={`relative group flex items-center justify-center w-14 h-14 rounded-xl transition-all ${
+    className={`relative group flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-300 ${
       active 
-        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg scale-110' 
-        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105'
+        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50 scale-110 rotate-0' 
+        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105 hover:-rotate-3'
     }`}
     title={label}
   >
-    <Icon name={icon} size={24} />
+    <Icon name={icon} size={24} className={`transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110 group-hover:rotate-12'}`} />
     {badge !== undefined && badge > 0 && (
-      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 min-w-[20px] h-5">
+      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 min-w-[20px] h-5 animate-pulse">
         {badge}
       </Badge>
     )}
-    <div className="absolute left-16 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl">
+    <div className="absolute left-16 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50 shadow-xl group-hover:translate-x-1">
       {label}
     </div>
   </button>

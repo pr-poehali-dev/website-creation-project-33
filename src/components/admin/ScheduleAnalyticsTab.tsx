@@ -117,38 +117,41 @@ export default function ScheduleAnalyticsTab() {
   return (
     <div className="space-y-6">
       {/* Заголовок с переключением периодов */}
-      <Card className="bg-white border-slate-200">
+      <Card className="bg-slate-900 border-slate-700">
         <CardContent className="p-6">
-          <h2 className="text-2xl font-bold text-slate-800 mb-4">Планирование выходов</h2>
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-white mb-1">Планирование выходов</h2>
+            <p className="text-slate-400 text-sm">Управление расписанием смен по организациям</p>
+          </div>
           
           {/* Статистика */}
-          <div className="space-y-2 text-sm text-slate-600 mb-4">
+          <div className="space-y-2 text-sm text-slate-300 mb-6">
             <div>
-              <span className="font-medium">14 дней:</span> ВСЕ: {stats.week14.vse} ТОП: {stats.week14.top} КИБ: {stats.week14.kib}
+              <span className="font-medium text-white">14 дней:</span> ВСЕ: {stats.week14.vse} ТОП: {stats.week14.top} КИБ: {stats.week14.kib}
             </div>
             <div>
-              <span className="font-medium">30 дней:</span> ВСЕ: {stats.week30.vse} ТОП: {stats.week30.top} КИБ: {stats.week30.kib}
+              <span className="font-medium text-white">30 дней:</span> ВСЕ: {stats.week30.vse} ТОП: {stats.week30.top} КИБ: {stats.week30.kib}
             </div>
           </div>
 
           {/* Навигация по неделям */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <button
               onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
               disabled={currentWeekIndex === 0}
-              className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <Icon name="ChevronLeft" size={20} />
             </button>
             
             <div className="text-center">
-              <div className="text-lg font-semibold text-slate-800">{currentWeek.label}</div>
+              <div className="text-lg font-semibold text-white">{currentWeek.label}</div>
             </div>
             
             <button
               onClick={() => setCurrentWeekIndex(Math.min(weeks.length - 1, currentWeekIndex + 1))}
               disabled={currentWeekIndex === weeks.length - 1}
-              className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <Icon name="ChevronRight" size={20} />
             </button>
@@ -158,40 +161,40 @@ export default function ScheduleAnalyticsTab() {
           <div className="flex gap-2">
             <button 
               onClick={() => setViewMode('day')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
                 viewMode === 'day' 
-                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-purple-500 text-white shadow-lg' 
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
               День
             </button>
             <button 
               onClick={() => setViewMode('week')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
                 viewMode === 'week' 
-                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-purple-500 text-white shadow-lg' 
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
               Неделя
             </button>
             <button 
               onClick={() => setViewMode('month')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
                 viewMode === 'month' 
-                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-purple-500 text-white shadow-lg' 
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
               Месяц
             </button>
             <button 
               onClick={() => setViewMode('year')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
                 viewMode === 'year' 
-                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-purple-500 text-white shadow-lg' 
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
               Год

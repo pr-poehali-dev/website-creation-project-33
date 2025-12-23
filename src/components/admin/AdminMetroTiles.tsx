@@ -39,7 +39,7 @@ const NavButton = ({
 }) => (
   <button
     onClick={onClick}
-    className={`relative group flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-300 ${
+    className={`relative group flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-300 flex-shrink-0 ${
       active 
         ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50 scale-110 rotate-0' 
         : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105 hover:-rotate-3'
@@ -52,9 +52,6 @@ const NavButton = ({
         {badge}
       </Badge>
     )}
-    <div className="absolute left-16 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50 shadow-xl group-hover:translate-x-1">
-      {label}
-    </div>
   </button>
 );
 

@@ -17,42 +17,17 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
     <>
       <div className="md:hidden mb-6 bg-gray-50 border border-gray-200 p-4 rounded-lg">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-blue-600">
-              <Icon name="Shield" size={20} className="text-white" />
-            </div>
-            Админ-панель
-          </h1>
+          <div className="flex items-center gap-3">
+            <img 
+              src="https://cdn.poehali.dev/files/logo-empire-promo.png" 
+              alt="Империя Промо" 
+              className="h-10 w-auto object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
           <div className="flex gap-2">
-            {onCleanupOrphanedComments && (
-              <Button 
-                onClick={onCleanupOrphanedComments}
-                disabled={cleaningComments}
-                className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-3 py-2"
-                size="sm"
-                variant="outline"
-                title="Очистить комментарии без смен"
-              >
-                {cleaningComments ? (
-                  <Icon name="Loader2" size={16} className="text-gray-700 animate-spin" />
-                ) : (
-                  <Icon name="Trash2" size={16} className="text-gray-700" />
-                )}
-              </Button>
-            )}
-            <Button 
-              onClick={onResetApproaches}
-              disabled={resetting}
-              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-3 py-2"
-              size="sm"
-              variant="outline"
-            >
-              {resetting ? (
-                <Icon name="Loader2" size={16} className="text-gray-700 animate-spin" />
-              ) : (
-                <Icon name="RotateCcw" size={16} className="text-gray-700" />
-              )}
-            </Button>
             <Button 
               onClick={onOpenGoogleSheets}
               className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-3 py-2"

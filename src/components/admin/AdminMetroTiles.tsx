@@ -72,7 +72,13 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   const renderWithSidebar = (content: React.ReactNode) => (
     <div className="space-y-4">
       {/* Горизонтальная навигация на мобильных, вертикальная на десктопе */}
-      <div className="flex md:hidden gap-1.5 justify-between">
+      <div className="flex md:hidden gap-1.5 justify-between items-center">
+        <button
+          onClick={() => setCurrentView('tiles')}
+          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+        >
+          <Icon name="Home" size={20} />
+        </button>
         {navigationItems.map((item) => (
           <NavButton
             key={item.view}

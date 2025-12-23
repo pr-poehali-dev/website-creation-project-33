@@ -11,6 +11,14 @@ export default function AdminPanel() {
   const unreadCount = useChatUnread();
   const [resetting, setResetting] = useState(false);
   const [cleaningComments, setCleaningComments] = useState(false);
+  const [navigationItems, setNavigationItems] = useState<Array<{
+    view: string;
+    icon: string;
+    label: string;
+    badge?: number;
+    active: boolean;
+    onClick: () => void;
+  }>>([]);
 
   const openGoogleSheets = () => {
     const sheetId = 'https://docs.google.com/spreadsheets/d/1fH4lgqreRPBoHQadU8Srw7L3bPgT5xa3zyz2idfpptM/edit';
@@ -97,10 +105,12 @@ export default function AdminPanel() {
           resetting={resetting}
           onCleanupOrphanedComments={cleanupOrphanedComments}
           cleaningComments={cleaningComments}
+          navigationItems={navigationItems}
         />
         <AdminMetroTiles 
           unreadCount={unreadCount} 
           sessionToken={localStorage.getItem('session_token') || ''} 
+          onNavigationChange={setNavigationItems}
         />
       </div>
     </div>

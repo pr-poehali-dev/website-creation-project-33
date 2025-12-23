@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-
+import { Badge } from '@/components/ui/badge';
 
 interface AdminHeaderProps {
   onLogout: () => void;
@@ -10,12 +10,20 @@ interface AdminHeaderProps {
   resetting: boolean;
   onCleanupOrphanedComments?: () => void;
   cleaningComments?: boolean;
+  navigationItems?: Array<{
+    view: string;
+    icon: string;
+    label: string;
+    badge?: number;
+    active: boolean;
+    onClick: () => void;
+  }>;
 }
 
-export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetApproaches, resetting, onCleanupOrphanedComments, cleaningComments }: AdminHeaderProps) {
+export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetApproaches, resetting, onCleanupOrphanedComments, cleaningComments, navigationItems }: AdminHeaderProps) {
   return (
     <>
-      <div className="md:hidden mb-6 bg-gray-50 border border-gray-200 p-4 rounded-lg">
+      <div className="md:hidden mb-6 bg-gray-50 border border-gray-200 p-4 rounded-lg space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img 
@@ -45,6 +53,30 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
             </Button>
           </div>
         </div>
+        
+        {navigationItems && navigationItems.length > 0 && (
+          <div className="flex gap-1.5 justify-between">
+            {navigationItems.map((item) => (
+              <button
+                key={item.view}
+                onClick={item.onClick}
+                className={`relative flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 flex-shrink-0 ${
+                  item.active
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50 scale-110'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105'
+                }`}
+                title={item.label}
+              >
+                <Icon name={item.icon} size={20} className={`transition-transform duration-300 ${item.active ? 'scale-110' : ''}`} />
+                {item.badge !== undefined && item.badge > 0 && (
+                  <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 min-w-[20px] h-5 animate-pulse">
+                    {item.badge}
+                  </Badge>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="hidden md:flex justify-between items-center mb-8 bg-gray-50 border border-gray-200 p-6 rounded-lg">

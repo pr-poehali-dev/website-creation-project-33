@@ -57,12 +57,7 @@ export default function ScheduleAnalyticsTab() {
   const weeks = generateWeeks();
   const currentWeek = weeks[currentWeekIndex];
 
-  // Диагностика рендера
-  useEffect(() => {
-    console.log('🎨 ScheduleAnalyticsTab: Component mounted/updated');
-    console.log('🎨 Current viewMode:', viewMode);
-    console.log('🎨 Card classes should be: bg-slate-900 border-slate-700');
-  }, [viewMode]);
+
 
   // Загрузка данных активности организаций
   useEffect(() => {
@@ -121,25 +116,20 @@ export default function ScheduleAnalyticsTab() {
     week30: { vse: '26% (16/61)', top: '31% (10/32)', kib: '22% (2/9)' }
   };
 
-  console.log('🔄 ScheduleAnalyticsTab render with viewMode:', viewMode);
-
   return (
     <div className="space-y-6">
-      {/* Планирование выходов - тёмная тема */}
-      <Card className="bg-slate-900 border-slate-700">
+      {/* Планирование выходов */}
+      <Card className="bg-white border-slate-200">
         <CardContent className="p-6">
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold text-white mb-1">Планирование выходов</h2>
-            <p className="text-slate-400 text-sm">Управление расписанием смен по организациям</p>
-          </div>
+          <h2 className="text-2xl font-bold text-slate-800 mb-6">Планирование выходов</h2>
           
           {/* Статистика */}
-          <div className="space-y-2 text-sm text-slate-300 mb-6">
+          <div className="space-y-2 text-sm text-slate-600 mb-6">
             <div>
-              <span className="font-medium text-white">14 дней:</span> ВСЕ: {stats.week14.vse} ТОП: {stats.week14.top} КИБ: {stats.week14.kib}
+              14 дней: ВСЕ: {stats.week14.vse} ТОП: {stats.week14.top} КИБ: {stats.week14.kib}
             </div>
             <div>
-              <span className="font-medium text-white">30 дней:</span> ВСЕ: {stats.week30.vse} ТОП: {stats.week30.top} КИБ: {stats.week30.kib}
+              30 дней: ВСЕ: {stats.week30.vse} ТОП: {stats.week30.top} КИБ: {stats.week30.kib}
             </div>
           </div>
 
@@ -148,19 +138,19 @@ export default function ScheduleAnalyticsTab() {
             <button
               onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
               disabled={currentWeekIndex === 0}
-              className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Icon name="ChevronLeft" size={20} />
             </button>
             
             <div className="text-center">
-              <div className="text-lg font-semibold text-white">{currentWeek.label}</div>
+              <div className="text-lg font-semibold text-slate-800">{currentWeek.label}</div>
             </div>
             
             <button
               onClick={() => setCurrentWeekIndex(Math.min(weeks.length - 1, currentWeekIndex + 1))}
               disabled={currentWeekIndex === weeks.length - 1}
-              className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Icon name="ChevronRight" size={20} />
             </button>
@@ -170,40 +160,40 @@ export default function ScheduleAnalyticsTab() {
           <div className="flex gap-2">
             <button 
               onClick={() => setViewMode('day')}
-              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm ${
                 viewMode === 'day' 
-                  ? 'bg-cyan-500 text-white shadow-lg' 
-                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               День
             </button>
             <button 
               onClick={() => setViewMode('week')}
-              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm ${
                 viewMode === 'week' 
-                  ? 'bg-cyan-500 text-white shadow-lg' 
-                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               Неделя
             </button>
             <button 
               onClick={() => setViewMode('month')}
-              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm ${
                 viewMode === 'month' 
-                  ? 'bg-cyan-500 text-white shadow-lg' 
-                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               Месяц
             </button>
             <button 
               onClick={() => setViewMode('year')}
-              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm ${
                 viewMode === 'year' 
-                  ? 'bg-cyan-500 text-white shadow-lg' 
-                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               Год

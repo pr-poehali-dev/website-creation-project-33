@@ -1699,16 +1699,22 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     query = f"""
                         SELECT 
                             s.shift_date,
-                            (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
-                             FROM t_p24058207_website_creation_pro.shift_videos 
-                             WHERE user_id = s.user_id AND work_date = s.shift_date 
-                             AND organization_id = s.organization_id AND video_type = 'start' 
-                             ORDER BY created_at LIMIT 1) as start_time,
-                            (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
-                             FROM t_p24058207_website_creation_pro.shift_videos 
-                             WHERE user_id = s.user_id AND work_date = s.shift_date 
-                             AND organization_id = s.organization_id AND video_type = 'end' 
-                             ORDER BY created_at DESC LIMIT 1) as end_time,
+                            COALESCE(
+                                (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
+                                 FROM t_p24058207_website_creation_pro.shift_videos 
+                                 WHERE user_id = s.user_id AND work_date = s.shift_date 
+                                 AND organization_id = s.organization_id AND video_type = 'start' 
+                                 ORDER BY created_at LIMIT 1),
+                                (s.shift_start AT TIME ZONE 'Europe/Moscow')::time
+                            ) as start_time,
+                            COALESCE(
+                                (SELECT (created_at AT TIME ZONE 'Europe/Moscow')::time 
+                                 FROM t_p24058207_website_creation_pro.shift_videos 
+                                 WHERE user_id = s.user_id AND work_date = s.shift_date 
+                                 AND organization_id = s.organization_id AND video_type = 'end' 
+                                 ORDER BY created_at DESC LIMIT 1),
+                                (s.shift_end AT TIME ZONE 'Europe/Moscow')::time
+                            ) as end_time,
                             o.name as organization,
                             o.id as organization_id,
                             u.id as user_id,

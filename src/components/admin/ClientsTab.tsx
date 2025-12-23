@@ -355,28 +355,28 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
       <ClientsChart organizations={organizations} shifts={allShifts} />
 
       <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+        <div className="bg-slate-900 rounded-xl shadow-sm border border-slate-700 p-3 md:p-6">
           <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-            <div className="p-1.5 md:p-2 bg-green-100 rounded-lg flex-shrink-0">
-              <Icon name="CheckCircle2" size={20} className="text-green-600 md:w-6 md:h-6" />
+            <div className="p-1.5 md:p-2 bg-green-500/20 rounded-lg flex-shrink-0">
+              <Icon name="CheckCircle2" size={20} className="text-green-400 md:w-6 md:h-6" />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm md:text-lg font-bold text-gray-900 truncate">Были выходы</h3>
-              <p className="text-xs md:text-sm text-gray-600">{organizationsWithShifts.length} организаций</p>
+              <h3 className="text-sm md:text-lg font-bold text-white truncate">Были выходы</h3>
+              <p className="text-xs md:text-sm text-slate-400">{organizationsWithShifts.length} организаций</p>
             </div>
           </div>
           
           <div className="space-y-2 md:space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto">
             {organizationsWithShifts.map((org) => (
-              <div key={org.id} className="border border-gray-200 rounded-lg p-2.5 md:p-4 hover:border-green-400 transition-colors">
-                <div className="font-medium text-gray-900 mb-1.5 md:mb-2 text-xs md:text-base leading-tight">{org.name}</div>
+              <div key={org.id} className="border border-slate-700 rounded-lg p-2.5 md:p-4 hover:border-green-500 transition-colors bg-slate-800/50">
+                <div className="font-medium text-white mb-1.5 md:mb-2 text-xs md:text-base leading-tight">{org.name}</div>
                 <div className="space-y-1 md:space-y-2">
                   {shiftsGroupedByOrg[org.id]?.map((shift) => (
                     <div key={shift.id} className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
-                      <Icon name="User" size={12} className="text-gray-400 flex-shrink-0 md:w-[14px] md:h-[14px]" />
-                      <span className="text-gray-700 truncate">{shift.user_name}</span>
-                      <span className="text-gray-400 flex-shrink-0">•</span>
-                      <span className="text-gray-600 whitespace-nowrap">
+                      <Icon name="User" size={12} className="text-slate-400 flex-shrink-0 md:w-[14px] md:h-[14px]" />
+                      <span className="text-slate-300 truncate">{shift.user_name}</span>
+                      <span className="text-slate-500 flex-shrink-0">•</span>
+                      <span className="text-slate-400 whitespace-nowrap">
                         {new Date(shift.shift_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
                       </span>
                     </div>
@@ -385,23 +385,23 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
               </div>
             ))}
             {organizationsWithShifts.length === 0 && (
-              <div className="text-center py-6 md:py-8 text-gray-500">
-                <Icon name="Calendar" size={36} className="mx-auto mb-2 text-gray-300 md:w-12 md:h-12" />
+              <div className="text-center py-6 md:py-8 text-slate-400">
+                <Icon name="Calendar" size={36} className="mx-auto mb-2 text-slate-600 md:w-12 md:h-12" />
                 <p className="text-xs md:text-base">Нет выходов в этом периоде</p>
               </div>
             )}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+        <div className="bg-slate-900 rounded-xl shadow-sm border border-slate-700 p-3 md:p-6">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2 md:gap-3 min-w-0">
-              <div className="p-1.5 md:p-2 bg-red-100 rounded-lg flex-shrink-0">
-                <Icon name="AlertCircle" size={20} className="text-red-600 md:w-6 md:h-6" />
+              <div className="p-1.5 md:p-2 bg-red-500/20 rounded-lg flex-shrink-0">
+                <Icon name="AlertCircle" size={20} className="text-red-400 md:w-6 md:h-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-sm md:text-lg font-bold text-gray-900 truncate">Не было выходов</h3>
-                <p className="text-xs md:text-sm text-gray-600">{organizationsWithoutShifts.length} организаций</p>
+                <h3 className="text-sm md:text-lg font-bold text-white truncate">Не было выходов</h3>
+                <p className="text-xs md:text-sm text-slate-400">{organizationsWithoutShifts.length} организаций</p>
               </div>
             </div>
             
@@ -410,8 +410,8 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
                 onClick={() => setOrgFilter('ALL')}
                 className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-sm font-medium transition-all ${
                   orgFilter === 'ALL'
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-cyan-500 text-white shadow-md'
+                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                 }`}
               >
                 ВСЕ
@@ -420,8 +420,8 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
                 onClick={() => setOrgFilter('TOP')}
                 className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-sm font-medium transition-all ${
                   orgFilter === 'TOP'
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-cyan-500 text-white shadow-md'
+                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                 }`}
               >
                 ТОП
@@ -430,8 +430,8 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
                 onClick={() => setOrgFilter('KIBERONE')}
                 className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-sm font-medium transition-all ${
                   orgFilter === 'KIBERONE'
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-cyan-500 text-white shadow-md'
+                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                 }`}
               >
                 <span className="hidden xs:inline">KIBERONE</span>
@@ -446,19 +446,23 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
               return (
                 <div 
                   key={org.id} 
-                  className={`border rounded-lg p-2.5 md:p-4 transition-colors ${colorScheme.bg}`}
+                  className="border border-slate-700 rounded-lg p-2.5 md:p-4 transition-colors bg-slate-800/50 hover:border-red-500"
                 >
-                  <div className="font-medium text-gray-900 mb-1.5 md:mb-2 text-xs md:text-base leading-tight">{org.name}</div>
+                  <div className="font-medium text-white mb-1.5 md:mb-2 text-xs md:text-base leading-tight">{org.name}</div>
                   {org.last_shift_date ? (
                     <div className="flex flex-wrap items-center gap-1.5 md:gap-2 text-[10px] md:text-sm">
-                      <Icon name="Clock" size={12} className="text-gray-400 flex-shrink-0 md:w-[14px] md:h-[14px]" />
-                      <span className="text-gray-600">
+                      <Icon name="Clock" size={12} className="text-slate-400 flex-shrink-0 md:w-[14px] md:h-[14px]" />
+                      <span className="text-slate-300">
                         {new Date(org.last_shift_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                       {org.days_since_last_shift !== null && (
                         <>
-                          <span className="text-gray-400 flex-shrink-0">•</span>
-                          <span className={`font-medium ${colorScheme.text} whitespace-nowrap`}>
+                          <span className="text-slate-500 flex-shrink-0">•</span>
+                          <span className={`font-medium whitespace-nowrap ${
+                            org.days_since_last_shift <= 6 ? 'text-green-400' :
+                            org.days_since_last_shift <= 13 ? 'text-yellow-400' :
+                            'text-red-400'
+                          }`}>
                             {org.days_since_last_shift} {
                               org.days_since_last_shift === 1 ? 'день' :
                               org.days_since_last_shift < 5 ? 'дня' : 'дней'
@@ -468,7 +472,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
                       )}
                     </div>
                 ) : (
-                  <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-sm text-gray-500">
+                  <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-sm text-slate-400">
                     <Icon name="Info" size={12} className="flex-shrink-0 md:w-[14px] md:h-[14px]" />
                     <span>Еще не было выходов</span>
                   </div>
@@ -477,8 +481,8 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
             );
             })}
             {organizationsWithoutShifts.length === 0 && (
-              <div className="text-center py-6 md:py-8 text-gray-500">
-                <Icon name="CheckCircle" size={36} className="mx-auto mb-2 text-gray-300 md:w-12 md:h-12" />
+              <div className="text-center py-6 md:py-8 text-slate-400">
+                <Icon name="CheckCircle" size={36} className="mx-auto mb-2 text-slate-600 md:w-12 md:h-12" />
                 <p className="text-xs md:text-base">Во всех организациях были выходы!</p>
               </div>
             )}

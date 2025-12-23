@@ -116,7 +116,7 @@ export default function ScheduleAnalyticsTab() {
 
   return (
     <div className="space-y-6">
-      {/* Заголовок с переключением периодов */}
+      {/* Планирование выходов - тёмная тема */}
       <Card className="bg-slate-900 border-slate-700">
         <CardContent className="p-6">
           <div className="mb-4">

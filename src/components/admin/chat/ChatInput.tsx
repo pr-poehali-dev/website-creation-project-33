@@ -86,7 +86,7 @@ export default function ChatInput({
           </Button>
         </div>
       )}
-      <div className="relative flex items-end gap-2">
+      <div className="relative flex items-end">
         <input
           ref={fileInputRef}
           type="file"
@@ -104,38 +104,55 @@ export default function ChatInput({
             }}
             onKeyDown={onKeyPress}
             placeholder="Введите сообщение..."
-            className="min-h-[52px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-5 py-4 pr-28 md:pr-32 text-sm md:text-base text-gray-900 placeholder:text-gray-400 overflow-y-auto"
+            className="min-h-[52px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-5 py-4 pr-40 text-sm md:text-base text-gray-900 placeholder:text-gray-400 overflow-y-auto"
             maxLength={1000}
           />
           
           <div className="absolute right-2 bottom-2 flex items-center gap-1">
-            <Button
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              variant="ghost"
-              size="icon"
-              disabled={isSending || isRecording}
-              className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
-            >
-              <Icon name="Smile" size={18} />
-            </Button>
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              variant="ghost"
-              size="icon"
-              disabled={isSending || isRecording || selectedFile !== null}
-              className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
-            >
-              <Icon name="Paperclip" size={18} />
-            </Button>
-            <Button
-              onClick={isRecording ? onStopRecording : onStartRecording}
-              variant="ghost"
-              size="icon"
-              disabled={isSending || selectedFile !== null}
-              className={`h-9 w-9 rounded-full transition-all text-gray-500 ${isRecording ? 'bg-red-500/20 hover:bg-red-500/30 animate-pulse' : 'hover:bg-gray-100'}`}
-            >
-              <Icon name="Mic" size={18} className={isRecording ? 'text-red-600' : ''} />
-            </Button>
+            {!newMessage.trim() && !selectedFile ? (
+              <>
+                <Button
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  variant="ghost"
+                  size="icon"
+                  disabled={isSending || isRecording}
+                  className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+                >
+                  <Icon name="Smile" size={18} />
+                </Button>
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="ghost"
+                  size="icon"
+                  disabled={isSending || isRecording}
+                  className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+                >
+                  <Icon name="Paperclip" size={18} />
+                </Button>
+                <Button
+                  onClick={isRecording ? onStopRecording : onStartRecording}
+                  variant="ghost"
+                  size="icon"
+                  disabled={isSending}
+                  className={`h-9 w-9 rounded-full transition-all text-gray-500 ${isRecording ? 'bg-red-500/20 hover:bg-red-500/30 animate-pulse' : 'hover:bg-gray-100'}`}
+                >
+                  <Icon name="Mic" size={18} className={isRecording ? 'text-red-600' : ''} />
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={onSendMessage}
+                disabled={isSending}
+                className="h-9 w-9 rounded-full bg-cyan-500 hover:bg-cyan-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                size="icon"
+              >
+                {isSending ? (
+                  <Icon name="Loader2" size={18} className="animate-spin" />
+                ) : (
+                  <Icon name="Send" size={18} />
+                )}
+              </Button>
+            )}
           </div>
           
           {showEmojiPicker && (
@@ -144,19 +161,6 @@ export default function ChatInput({
             </div>
           )}
         </div>
-        
-        <Button
-          onClick={onSendMessage}
-          disabled={(!newMessage.trim() && !selectedFile) || isSending}
-          className="glass-button h-[52px] w-[52px] rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          size="icon"
-        >
-          {isSending ? (
-            <Icon name="Loader2" size={20} className="animate-spin" />
-          ) : (
-            <Icon name="Send" size={20} />
-          )}
-        </Button>
       </div>
     </div>
   );

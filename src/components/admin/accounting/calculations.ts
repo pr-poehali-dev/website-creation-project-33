@@ -36,8 +36,8 @@ export const calculateAfterTax = (shift: ShiftRecord) => {
 };
 
 export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string, organizationName?: string, userId?: number) => {
-  // Для Корельского Максима (ID 3) зарплата всегда 0
-  if (userId === 3) {
+  // Для Корельского Максима (ID 3) и Кобыляцкого Виктора (ID 9) зарплата всегда 0
+  if (userId === 3 || userId === 9) {
     return 0;
   }
   
@@ -71,14 +71,22 @@ export const calculateKVV = (shift: ShiftRecord) => {
   if (shift.user_id === 3) {
     return 0;
   }
+  // Для Кобыляцкого Виктора (ID 9) КВВ = вся сумма после налога
+  if (shift.user_id === 9) {
+    return calculateAfterTax(shift);
+  }
   // Личные средства НЕ добавляются к KVV, только к долгам
   return Math.round(calculateNetProfit(shift) / 2);
 };
 
 export const calculateKMS = (shift: ShiftRecord) => {
-  // Для Корельского Максима (ID 3) КМС = вся сумма после налога (или полная сумма для налички)
+  // Для Корельского Максима (ID 3) КМС = вся сумма после налога
   if (shift.user_id === 3) {
     return calculateAfterTax(shift);
+  }
+  // Для Кобыляцкого Виктора (ID 9) КМС всегда 0
+  if (shift.user_id === 9) {
+    return 0;
   }
   // Личные средства НЕ добавляются к KMS, только к долгам
   return Math.round(calculateNetProfit(shift) / 2);

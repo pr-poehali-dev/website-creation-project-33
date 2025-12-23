@@ -57,6 +57,13 @@ export default function ScheduleAnalyticsTab() {
   const weeks = generateWeeks();
   const currentWeek = weeks[currentWeekIndex];
 
+  // Диагностика рендера
+  useEffect(() => {
+    console.log('🎨 ScheduleAnalyticsTab: Component mounted/updated');
+    console.log('🎨 Current viewMode:', viewMode);
+    console.log('🎨 Card classes should be: bg-slate-900 border-slate-700');
+  }, [viewMode]);
+
   // Загрузка данных активности организаций
   useEffect(() => {
     loadOrganizationActivity();
@@ -113,6 +120,8 @@ export default function ScheduleAnalyticsTab() {
     week14: { vse: '25% (15/61)', top: '31% (10/32)', kib: '22% (2/9)' },
     week30: { vse: '26% (16/61)', top: '31% (10/32)', kib: '22% (2/9)' }
   };
+
+  console.log('🔄 ScheduleAnalyticsTab render with viewMode:', viewMode);
 
   return (
     <div className="space-y-6">

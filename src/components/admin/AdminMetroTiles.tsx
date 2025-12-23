@@ -24,20 +24,77 @@ interface AdminMetroTilesProps {
 type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients';
 type StatsSubView = 'users' | 'rating' | 'organizations';
 
+const NavButton = ({ 
+  icon, 
+  label, 
+  active, 
+  onClick, 
+  badge 
+}: { 
+  icon: string; 
+  label: string; 
+  active: boolean; 
+  onClick: () => void; 
+  badge?: number;
+}) => (
+  <button
+    onClick={onClick}
+    className={`relative group flex items-center justify-center w-14 h-14 rounded-xl transition-all ${
+      active 
+        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg scale-110' 
+        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105'
+    }`}
+    title={label}
+  >
+    <Icon name={icon} size={24} />
+    {badge !== undefined && badge > 0 && (
+      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 min-w-[20px] h-5">
+        {badge}
+      </Badge>
+    )}
+    <div className="absolute left-16 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl">
+      {label}
+    </div>
+  </button>
+);
+
 export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetroTilesProps) {
   const [currentView, setCurrentView] = useState<TileView>('tiles');
   const [statsSubView, setStatsSubView] = useState<StatsSubView>('rating');
 
+  const navigationItems = [
+    { view: 'requests' as TileView, icon: 'UserCheck', label: 'Заявки' },
+    { view: 'accounting' as TileView, icon: 'Calculator', label: 'Бух.учет' },
+    { view: 'stats' as TileView, icon: 'TrendingUp', label: 'Статистика' },
+    { view: 'chat' as TileView, icon: 'MessageSquare', label: 'Чат', badge: unreadCount },
+    { view: 'clients' as TileView, icon: 'Users', label: 'Заказчики' },
+    { view: 'analytics' as TileView, icon: 'Calendar', label: 'График' },
+  ];
+
+  // Боковая навигация для всех разделов кроме главного
+  const renderWithSidebar = (content: React.ReactNode) => (
+    <div className="flex gap-4">
+      <div className="flex flex-col gap-3 sticky top-4 h-fit">
+        {navigationItems.map((item) => (
+          <NavButton
+            key={item.view}
+            icon={item.icon}
+            label={item.label}
+            active={currentView === item.view}
+            onClick={() => setCurrentView(item.view)}
+            badge={item.badge}
+          />
+        ))}
+      </div>
+      <div className="flex-1 min-w-0">
+        {content}
+      </div>
+    </div>
+  );
+
   if (currentView === 'requests') {
-    return (
+    return renderWithSidebar(
       <div className="space-y-4">
-        <button
-          onClick={() => setCurrentView('tiles')}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
-        >
-          <Icon name="ArrowLeft" size={20} />
-          <span className="text-base md:text-lg font-medium">Назад</span>
-        </button>
         <PendingUsers sessionToken={sessionToken} />
         <AllUsersWorkTime sessionToken={sessionToken} />
       </div>
@@ -45,64 +102,45 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   }
 
   if (currentView === 'accounting') {
-    return (
-      <div className="space-y-4">
-        <button
-          onClick={() => setCurrentView('tiles')}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
-        >
-          <Icon name="ArrowLeft" size={20} />
-          <span className="text-base md:text-lg font-medium">Назад</span>
-        </button>
-        <AccountingTab enabled={true} />
-      </div>
+    return renderWithSidebar(
+      <AccountingTab enabled={true} />
     );
   }
 
   if (currentView === 'stats') {
-    return (
+    return renderWithSidebar(
       <div className="space-y-4">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           <button
-            onClick={() => setCurrentView('tiles')}
-            className="flex items-center justify-center md:justify-start gap-2 px-4 py-2 rounded-xl transition-all text-sm font-medium bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50 w-full md:w-auto"
+            onClick={() => setStatsSubView('rating')}
+            className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
+              statsSubView === 'rating' 
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
           >
-            <Icon name="ArrowLeft" size={16} />
-            <span>Назад</span>
+            Рейтинг
           </button>
-          
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setStatsSubView('rating')}
-              className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
-                statsSubView === 'rating' 
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
-                  : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
-              }`}
-            >
-              Рейтинг
-            </button>
-            <button
-              onClick={() => setStatsSubView('users')}
-              className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
-                statsSubView === 'users' 
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
-                  : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
-              }`}
-            >
-              Пользователи
-            </button>
-            <button
-              onClick={() => setStatsSubView('organizations')}
-              className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
-                statsSubView === 'organizations' 
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
-                  : 'bg-slate-800/50 text-slate-300 border border-slate-600 hover:bg-slate-700/50'
-              }`}
-            >
-              Организации
-            </button>
-          </div>
+          <button
+            onClick={() => setStatsSubView('users')}
+            className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
+              statsSubView === 'users' 
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Пользователи
+          </button>
+          <button
+            onClick={() => setStatsSubView('organizations')}
+            className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
+              statsSubView === 'organizations' 
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Организации
+          </button>
         </div>
 
         {statsSubView === 'users' && <UsersTab enabled={true} />}
@@ -113,47 +151,20 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   }
 
   if (currentView === 'chat') {
-    return (
-      <div className="space-y-4">
-        <button
-          onClick={() => setCurrentView('tiles')}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
-        >
-          <Icon name="ArrowLeft" size={20} />
-          <span className="text-base md:text-lg font-medium">Назад</span>
-        </button>
-        <AdminChatTab />
-      </div>
+    return renderWithSidebar(
+      <AdminChatTab />
     );
   }
 
   if (currentView === 'analytics') {
-    return (
-      <div className="space-y-4">
-        <button
-          onClick={() => setCurrentView('tiles')}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
-        >
-          <Icon name="ArrowLeft" size={20} />
-          <span className="text-base md:text-lg font-medium">Назад</span>
-        </button>
-        <ScheduleAnalyticsTab />
-      </div>
+    return renderWithSidebar(
+      <ScheduleAnalyticsTab />
     );
   }
 
   if (currentView === 'clients') {
-    return (
-      <div className="space-y-4">
-        <button
-          onClick={() => setCurrentView('tiles')}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg mb-4 w-full md:w-auto"
-        >
-          <Icon name="ArrowLeft" size={20} />
-          <span className="text-base md:text-lg font-medium">Назад</span>
-        </button>
-        <ClientsTab sessionToken={sessionToken} />
-      </div>
+    return renderWithSidebar(
+      <ClientsTab sessionToken={sessionToken} />
     );
   }
 

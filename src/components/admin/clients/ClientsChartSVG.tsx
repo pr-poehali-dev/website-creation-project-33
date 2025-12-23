@@ -29,14 +29,14 @@ export default function ClientsChartSVG({
   const svgRef = React.useRef<SVGSVGElement>(null);
 
   const totalPoints = chartData.map((item, i) => {
-    const x = 60 + (i / (chartData.length - 1 || 1)) * 920;
+    const x = 60 + (i / (chartData.length - 1 || 1)) * 880;
     const normalizedValue = valueRange > 0 ? (item.total - minValue) / valueRange : 0.5;
     const y = 350 - normalizedValue * 280;
     return { x, y, label: item.label, value: item.total };
   });
 
   const selectedPoints = hasSelectedOrg ? chartData.map((item, i) => {
-    const x = 60 + (i / (chartData.length - 1 || 1)) * 920;
+    const x = 60 + (i / (chartData.length - 1 || 1)) * 880;
     const normalizedValue = valueRange > 0 ? (item.selected - minValue) / valueRange : 0;
     const y = 350 - normalizedValue * 280;
     return { x, y, label: item.label, value: item.selected };
@@ -96,7 +96,7 @@ export default function ClientsChartSVG({
             <line
               x1="60"
               y1={70 + i * 70}
-              x2="980"
+              x2="940"
               y2={70 + i * 70}
               stroke="#334155"
               strokeWidth="1"
@@ -116,7 +116,7 @@ export default function ClientsChartSVG({
         ))}
 
         {chartData.map((item, i) => {
-          const x = 60 + (i / (chartData.length - 1 || 1)) * 920;
+          const x = 60 + (i / (chartData.length - 1 || 1)) * 880;
           return (
             <text
               key={i}

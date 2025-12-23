@@ -17,8 +17,8 @@ interface OrganizationActivity {
 }
 
 export default function ScheduleAnalyticsTab() {
-  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
-  const [viewMode, setViewMode] = useState<ViewMode>('month');
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(4); // Текущая неделя в середине списка
+  const [viewMode, setViewMode] = useState<ViewMode>('week');
   const [periodDays, setPeriodDays] = useState<PeriodDays>(30);
   const [selectedOrganization, setSelectedOrganization] = useState<string>('all');
   const [organizationActivity, setOrganizationActivity] = useState<OrganizationActivity[]>([]);
@@ -156,16 +156,44 @@ export default function ScheduleAnalyticsTab() {
 
           {/* Переключатель режима */}
           <div className="flex gap-2">
-            <button className="px-4 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
+            <button 
+              onClick={() => setViewMode('day')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                viewMode === 'day' 
+                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
               День
             </button>
-            <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg">
+            <button 
+              onClick={() => setViewMode('week')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                viewMode === 'week' 
+                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
               Неделя
             </button>
-            <button className="px-4 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
+            <button 
+              onClick={() => setViewMode('month')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                viewMode === 'month' 
+                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
               Месяц
             </button>
-            <button className="px-4 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
+            <button 
+              onClick={() => setViewMode('year')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                viewMode === 'year' 
+                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
               Год
             </button>
           </div>

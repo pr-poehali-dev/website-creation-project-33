@@ -31,7 +31,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     .filter(shift => !shift.paid_to_worker && shift.user_name !== 'Корректировка')
     .reduce((sum, shift) => {
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       return sum + salary;
     }, 0);
 
@@ -39,7 +39,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     .filter(shift => shift.salary_at_kvv && shift.user_name !== 'Корректировка')
     .reduce((sum, shift) => {
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       return sum + salary;
     }, 0);
 
@@ -47,7 +47,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     .filter(shift => !shift.paid_to_worker && shift.payment_type === 'cash' && shift.user_name !== 'Корректировка')
     .reduce((sum, shift) => {
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       return sum + salary;
     }, 0);
 
@@ -55,7 +55,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     .filter(shift => !shift.paid_to_worker && shift.payment_type === 'cashless' && shift.user_name !== 'Корректировка')
     .reduce((sum, shift) => {
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       return sum + salary;
     }, 0);
 
@@ -63,7 +63,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     .filter(shift => shift.paid_to_worker && shift.user_name !== 'Корректировка')
     .reduce((sum, shift) => {
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       return sum + salary;
     }, 0);
 
@@ -74,7 +74,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
     .filter(shift => shift.user_name !== 'Корректировка')
     .reduce((sum, shift) => {
       const orgName = shift.organization_name || shift.organization;
-      return sum + calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      return sum + calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
     }, 0);
   const totalNetProfit = shifts
     .filter(shift => shift.user_name !== 'Корректировка')
@@ -83,7 +83,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       const expense = shift.expense_amount || 0;
       return sum + (afterTax - salary - expense);
     }, 0);
@@ -97,7 +97,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       const expense = shift.expense_amount || 0;
       const netProfit = afterTax - salary - expense;
       const kvv = Math.round(netProfit / 2);
@@ -111,7 +111,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       const expense = shift.expense_amount || 0;
       const netProfit = afterTax - salary - expense;
       const kvv = Math.round(netProfit / 2);
@@ -125,7 +125,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       const expense = shift.expense_amount || 0;
       const netProfit = afterTax - salary - expense;
       const kvv = Math.round(netProfit / 2);
@@ -141,7 +141,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       const expense = shift.expense_amount || 0;
       const netProfit = afterTax - salary - expense;
       const kms = Math.round(netProfit / 2);
@@ -155,7 +155,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       const expense = shift.expense_amount || 0;
       const netProfit = afterTax - salary - expense;
       const kms = Math.round(netProfit / 2);
@@ -171,7 +171,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const tax = calculateTax(shift);
       const afterTax = revenue - tax;
       const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
       const expense = shift.expense_amount || 0;
       const netProfit = afterTax - salary - expense;
       const kms = Math.round(netProfit / 2);

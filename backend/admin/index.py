@@ -734,19 +734,43 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
     """Получить данные о времени работы всех промоутеров"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            # Сначала получаем все смены
+            # Получаем смены из двух источников: shift_videos И work_shifts
             cur.execute("""
                 SELECT 
-                    sv.user_id,
-                    u.name as user_name,
-                    sv.work_date,
-                    MIN(CASE WHEN sv.video_type = 'start' THEN sv.created_at END) as shift_start,
-                    MAX(CASE WHEN sv.video_type = 'end' THEN sv.created_at END) as shift_end,
-                    sv.organization_id
-                FROM t_p24058207_website_creation_pro.shift_videos sv
-                JOIN t_p24058207_website_creation_pro.users u ON sv.user_id = u.id
-                GROUP BY sv.user_id, u.name, sv.work_date, sv.organization_id
-                ORDER BY sv.work_date DESC, u.name
+                    user_id,
+                    user_name,
+                    work_date,
+                    shift_start,
+                    shift_end,
+                    organization_id
+                FROM (
+                    -- Смены из shift_videos (с видео)
+                    SELECT 
+                        sv.user_id,
+                        u.name as user_name,
+                        sv.work_date,
+                        MIN(CASE WHEN sv.video_type = 'start' THEN sv.created_at END) as shift_start,
+                        MAX(CASE WHEN sv.video_type = 'end' THEN sv.created_at END) as shift_end,
+                        sv.organization_id
+                    FROM t_p24058207_website_creation_pro.shift_videos sv
+                    JOIN t_p24058207_website_creation_pro.users u ON sv.user_id = u.id
+                    GROUP BY sv.user_id, u.name, sv.work_date, sv.organization_id
+                    
+                    UNION ALL
+                    
+                    -- Ручные смены из work_shifts
+                    SELECT 
+                        ws.user_id,
+                        u.name as user_name,
+                        ws.shift_date as work_date,
+                        ws.shift_start,
+                        ws.shift_end,
+                        ws.organization_id
+                    FROM t_p24058207_website_creation_pro.work_shifts ws
+                    JOIN t_p24058207_website_creation_pro.users u ON ws.user_id = u.id
+                    WHERE ws.shift_start IS NOT NULL AND ws.shift_end IS NOT NULL
+                ) combined_shifts
+                ORDER BY work_date DESC, user_name
             """)
             
             shifts_rows = cur.fetchall()

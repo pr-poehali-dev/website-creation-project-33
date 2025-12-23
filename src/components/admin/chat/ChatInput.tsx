@@ -104,7 +104,7 @@ export default function ChatInput({
             }}
             onKeyDown={onKeyPress}
             placeholder="Введите сообщение..."
-            className="min-h-[52px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-5 py-4 pr-28 text-base text-gray-900 placeholder:text-gray-400"
+            className="min-h-[52px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-5 py-4 pr-28 md:pr-32 text-sm md:text-base text-gray-900 placeholder:text-gray-400 overflow-y-auto"
             maxLength={1000}
           />
           

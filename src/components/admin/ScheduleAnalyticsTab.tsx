@@ -163,7 +163,7 @@ export default function ScheduleAnalyticsTab() {
               onClick={() => setViewMode('day')}
               className={`px-4 py-2 rounded-lg text-sm transition-colors ${
                 viewMode === 'day' 
-                  ? 'bg-purple-500 text-white shadow-lg' 
+                  ? 'bg-cyan-500 text-white shadow-lg' 
                   : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
@@ -173,7 +173,7 @@ export default function ScheduleAnalyticsTab() {
               onClick={() => setViewMode('week')}
               className={`px-4 py-2 rounded-lg text-sm transition-colors ${
                 viewMode === 'week' 
-                  ? 'bg-purple-500 text-white shadow-lg' 
+                  ? 'bg-cyan-500 text-white shadow-lg' 
                   : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
@@ -183,7 +183,7 @@ export default function ScheduleAnalyticsTab() {
               onClick={() => setViewMode('month')}
               className={`px-4 py-2 rounded-lg text-sm transition-colors ${
                 viewMode === 'month' 
-                  ? 'bg-purple-500 text-white shadow-lg' 
+                  ? 'bg-cyan-500 text-white shadow-lg' 
                   : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
@@ -193,7 +193,7 @@ export default function ScheduleAnalyticsTab() {
               onClick={() => setViewMode('year')}
               className={`px-4 py-2 rounded-lg text-sm transition-colors ${
                 viewMode === 'year' 
-                  ? 'bg-purple-500 text-white shadow-lg' 
+                  ? 'bg-cyan-500 text-white shadow-lg' 
                   : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >

@@ -1,5 +1,5 @@
 import { ShiftRecord } from './types';
-import { calculateWorkerSalary, calculateRevenue, calculateTax } from './calculations';
+import { calculateWorkerSalary, calculateRevenue, calculateTax, calculateKMS, calculateKVV } from './calculations';
 
 export interface TableStatistics {
   totalContacts: number;
@@ -87,48 +87,31 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
       const expense = shift.expense_amount || 0;
       return sum + (afterTax - salary - expense);
     }, 0);
-  const totalKVV = Math.round(totalNetProfit / 2);
-  const totalKMS = Math.round(totalNetProfit / 2);
+  const totalKVV = shifts
+    .filter(shift => shift.user_name !== 'Корректировка')
+    .reduce((sum, shift) => sum + calculateKVV(shift), 0);
+  const totalKMS = shifts
+    .filter(shift => shift.user_name !== 'Корректировка')
+    .reduce((sum, shift) => sum + calculateKMS(shift), 0);
 
   const unpaidKVV = shifts
     .filter(shift => !shift.paid_kvv)
     .reduce((sum, shift) => {
-      const revenue = calculateRevenue(shift);
-      const tax = calculateTax(shift);
-      const afterTax = revenue - tax;
-      const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
-      const expense = shift.expense_amount || 0;
-      const netProfit = afterTax - salary - expense;
-      const kvv = Math.round(netProfit / 2);
+      const kvv = calculateKVV(shift);
       return sum + kvv;
     }, 0);
 
   const unpaidKVVCash = shifts
     .filter(shift => !shift.paid_kvv && shift.payment_type === 'cash')
     .reduce((sum, shift) => {
-      const revenue = calculateRevenue(shift);
-      const tax = calculateTax(shift);
-      const afterTax = revenue - tax;
-      const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
-      const expense = shift.expense_amount || 0;
-      const netProfit = afterTax - salary - expense;
-      const kvv = Math.round(netProfit / 2);
+      const kvv = calculateKVV(shift);
       return sum + kvv;
     }, 0);
 
   const unpaidKVVCashless = shifts
     .filter(shift => !shift.paid_kvv && shift.payment_type === 'cashless')
     .reduce((sum, shift) => {
-      const revenue = calculateRevenue(shift);
-      const tax = calculateTax(shift);
-      const afterTax = revenue - tax;
-      const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
-      const expense = shift.expense_amount || 0;
-      const netProfit = afterTax - salary - expense;
-      const kvv = Math.round(netProfit / 2);
+      const kvv = calculateKVV(shift);
       // Добавляем личные средства КВВ к долгу по безналу
       const personalFundsKVV = (shift.personal_funds_by_kvv && shift.personal_funds_amount) ? shift.personal_funds_amount : 0;
       return sum + kvv + personalFundsKVV;
@@ -137,28 +120,14 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const unpaidKMS = shifts
     .filter(shift => !shift.paid_kms)
     .reduce((sum, shift) => {
-      const revenue = calculateRevenue(shift);
-      const tax = calculateTax(shift);
-      const afterTax = revenue - tax;
-      const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
-      const expense = shift.expense_amount || 0;
-      const netProfit = afterTax - salary - expense;
-      const kms = Math.round(netProfit / 2);
+      const kms = calculateKMS(shift);
       return sum + kms;
     }, 0);
 
   const unpaidKMSCash = shifts
     .filter(shift => !shift.paid_kms && shift.payment_type === 'cash')
     .reduce((sum, shift) => {
-      const revenue = calculateRevenue(shift);
-      const tax = calculateTax(shift);
-      const afterTax = revenue - tax;
-      const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
-      const expense = shift.expense_amount || 0;
-      const netProfit = afterTax - salary - expense;
-      const kms = Math.round(netProfit / 2);
+      const kms = calculateKMS(shift);
       // Добавляем личные средства КМС к долгу по налу
       const personalFundsKMS = (shift.personal_funds_by_kms && shift.personal_funds_amount) ? shift.personal_funds_amount : 0;
       return sum + kms + personalFundsKMS;
@@ -167,14 +136,7 @@ export function calculateTableStatistics(shifts: ShiftRecord[]): TableStatistics
   const unpaidKMSCashless = shifts
     .filter(shift => !shift.paid_kms && shift.payment_type === 'cashless')
     .reduce((sum, shift) => {
-      const revenue = calculateRevenue(shift);
-      const tax = calculateTax(shift);
-      const afterTax = revenue - tax;
-      const orgName = shift.organization_name || shift.organization;
-      const salary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
-      const expense = shift.expense_amount || 0;
-      const netProfit = afterTax - salary - expense;
-      const kms = Math.round(netProfit / 2);
+      const kms = calculateKMS(shift);
       return sum + kms;
     }, 0);
 

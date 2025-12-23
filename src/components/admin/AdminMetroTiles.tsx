@@ -39,14 +39,14 @@ const NavButton = ({
 }) => (
   <button
     onClick={onClick}
-    className={`relative group flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-300 flex-shrink-0 ${
+    className={`relative group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all duration-300 flex-shrink-0 ${
       active 
         ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50 scale-110 rotate-0' 
         : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105 hover:-rotate-3'
     }`}
     title={label}
   >
-    <Icon name={icon} size={24} className={`transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110 group-hover:rotate-12'}`} />
+    <Icon name={icon} size={20} className={`md:w-6 md:h-6 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110 group-hover:rotate-12'}`} />
     {badge !== undefined && badge > 0 && (
       <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 min-w-[20px] h-5 animate-pulse">
         {badge}
@@ -72,7 +72,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   const renderWithSidebar = (content: React.ReactNode) => (
     <div className="space-y-4">
       {/* Горизонтальная навигация на мобильных, вертикальная на десктопе */}
-      <div className="flex md:hidden gap-2 overflow-x-auto pb-2 -mx-4 px-4">
+      <div className="flex md:hidden gap-1.5 justify-between">
         {navigationItems.map((item) => (
           <NavButton
             key={item.view}

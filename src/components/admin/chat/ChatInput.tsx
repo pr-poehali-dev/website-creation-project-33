@@ -95,7 +95,7 @@ export default function ChatInput({
           className="hidden"
         />
         
-        <div className="flex-1 relative bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-gray-300 focus-within:ring-2 focus-within:ring-gray-200 min-h-[44px] flex items-center">
+        <div className="flex-1 relative bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-gray-300 focus-within:ring-2 focus-within:ring-gray-200 flex items-center">
           <Textarea
             value={newMessage}
             onChange={(e) => {
@@ -104,12 +104,11 @@ export default function ChatInput({
             }}
             onKeyDown={onKeyPress}
             placeholder="Введите сообщение..."
-            className="flex-1 h-full max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 pl-5 pr-2 py-[10px] text-sm md:text-base text-gray-900 placeholder:text-gray-400 overflow-y-auto leading-normal"
+            className="flex-1 min-h-[44px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 pl-5 pr-2 py-3 text-sm md:text-base text-gray-900 placeholder:text-gray-400 overflow-y-auto leading-snug"
             maxLength={1000}
-            rows={1}
           />
           
-          <div className="flex items-center gap-1 pr-2 flex-shrink-0 self-center">
+          <div className="flex items-center gap-1 pr-2 flex-shrink-0">
             <Button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               variant="ghost"

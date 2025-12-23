@@ -19,14 +19,6 @@ import ClientsTab from './ClientsTab';
 interface AdminMetroTilesProps {
   unreadCount: number;
   sessionToken: string;
-  onNavigationChange?: (items: Array<{
-    view: string;
-    icon: string;
-    label: string;
-    badge?: number;
-    active: boolean;
-    onClick: () => void;
-  }>) => void;
 }
 
 type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients';
@@ -63,22 +55,9 @@ const NavButton = ({
   </button>
 );
 
-export default function AdminMetroTiles({ unreadCount, sessionToken, onNavigationChange }: AdminMetroTilesProps) {
+export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetroTilesProps) {
   const [currentView, setCurrentView] = useState<TileView>('tiles');
   const [statsSubView, setStatsSubView] = useState<StatsSubView>('rating');
-
-  React.useEffect(() => {
-    if (currentView !== 'tiles' && onNavigationChange) {
-      const navItems = navigationItems.map(item => ({
-        ...item,
-        active: currentView === item.view,
-        onClick: () => setCurrentView(item.view)
-      }));
-      onNavigationChange(navItems);
-    } else if (onNavigationChange) {
-      onNavigationChange([]);
-    }
-  }, [currentView, unreadCount, onNavigationChange]);
 
   const navigationItems = [
     { view: 'requests' as TileView, icon: 'UserCheck', label: 'Заявки' },
@@ -92,6 +71,19 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, onNavigatio
   // Навигация для всех разделов кроме главного
   const renderWithSidebar = (content: React.ReactNode) => (
     <div className="space-y-4">
+      {/* Горизонтальная навигация на мобильных, вертикальная на десктопе */}
+      <div className="flex md:hidden gap-1.5 justify-between">
+        {navigationItems.map((item) => (
+          <NavButton
+            key={item.view}
+            icon={item.icon}
+            label={item.label}
+            active={currentView === item.view}
+            onClick={() => setCurrentView(item.view)}
+            badge={item.badge}
+          />
+        ))}
+      </div>
       
       {/* Десктоп версия с боковой навигацией */}
       <div className="hidden md:flex gap-4">

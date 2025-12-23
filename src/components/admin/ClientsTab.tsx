@@ -274,34 +274,34 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
+      <div className="bg-slate-900 rounded-xl shadow-sm border border-slate-700 p-3 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-3 md:mb-4">
           <div>
-            <h2 className="text-base md:text-2xl font-bold text-gray-900 mb-2 md:mb-3">Планирование выходов</h2>
+            <h2 className="text-base md:text-2xl font-bold text-white mb-2 md:mb-3">Планирование выходов</h2>
             
             <div className="flex flex-wrap gap-2 md:gap-4 text-[10px] md:text-sm mb-1.5 md:mb-2">
-              <span className="text-gray-500 italic whitespace-nowrap">14 дней:</span>
-              <div className="text-gray-700 whitespace-nowrap">
-                <span className="font-medium">ВСЕ:</span> {stats14Days.all.percent}% ({stats14Days.all.recent}/{stats14Days.all.total})
+              <span className="text-slate-400 italic whitespace-nowrap">14 дней:</span>
+              <div className="text-slate-300 whitespace-nowrap">
+                <span className="font-medium text-white">ВСЕ:</span> {stats14Days.all.percent}% ({stats14Days.all.recent}/{stats14Days.all.total})
               </div>
-              <div className="text-gray-700 whitespace-nowrap">
-                <span className="font-medium">ТОП:</span> {stats14Days.top.percent}% ({stats14Days.top.recent}/{stats14Days.top.total})
+              <div className="text-slate-300 whitespace-nowrap">
+                <span className="font-medium text-white">ТОП:</span> {stats14Days.top.percent}% ({stats14Days.top.recent}/{stats14Days.top.total})
               </div>
-              <div className="text-gray-700 whitespace-nowrap">
-                <span className="font-medium">KIB:</span> {stats14Days.kiberone.percent}% ({stats14Days.kiberone.recent}/{stats14Days.kiberone.total})
+              <div className="text-slate-300 whitespace-nowrap">
+                <span className="font-medium text-white">KIB:</span> {stats14Days.kiberone.percent}% ({stats14Days.kiberone.recent}/{stats14Days.kiberone.total})
               </div>
             </div>
             
             <div className="flex flex-wrap gap-2 md:gap-4 text-[10px] md:text-sm">
-              <span className="text-gray-500 italic whitespace-nowrap">30 дней:</span>
-              <div className="text-gray-700 whitespace-nowrap">
-                <span className="font-medium">ВСЕ:</span> {stats30Days.all.percent}% ({stats30Days.all.recent}/{stats30Days.all.total})
+              <span className="text-slate-400 italic whitespace-nowrap">30 дней:</span>
+              <div className="text-slate-300 whitespace-nowrap">
+                <span className="font-medium text-white">ВСЕ:</span> {stats30Days.all.percent}% ({stats30Days.all.recent}/{stats30Days.all.total})
               </div>
-              <div className="text-gray-700 whitespace-nowrap">
-                <span className="font-medium">ТОП:</span> {stats30Days.top.percent}% ({stats30Days.top.recent}/{stats30Days.top.total})
+              <div className="text-slate-300 whitespace-nowrap">
+                <span className="font-medium text-white">ТОП:</span> {stats30Days.top.percent}% ({stats30Days.top.recent}/{stats30Days.top.total})
               </div>
-              <div className="text-gray-700 whitespace-nowrap">
-                <span className="font-medium">KIB:</span> {stats30Days.kiberone.percent}% ({stats30Days.kiberone.recent}/{stats30Days.kiberone.total})
+              <div className="text-slate-300 whitespace-nowrap">
+                <span className="font-medium text-white">KIB:</span> {stats30Days.kiberone.percent}% ({stats30Days.kiberone.recent}/{stats30Days.kiberone.total})
               </div>
             </div>
           </div>
@@ -317,8 +317,8 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
                 }}
                 className={`px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg text-[10px] md:text-sm font-medium transition-all ${
                   viewMode === mode
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-cyan-500 text-white shadow-lg'
+                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                 }`}
               >
                 {mode === 'day' && 'День'}
@@ -330,23 +330,23 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 md:gap-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-2.5 md:p-4 border border-purple-200">
+        <div className="flex items-center justify-between gap-2 md:gap-4 bg-slate-800/50 rounded-lg p-2.5 md:p-4 border border-slate-700">
           <button
             onClick={() => navigateDate('prev')}
-            className="p-1.5 md:p-2 hover:bg-white rounded-lg transition-colors flex-shrink-0"
+            className="p-1.5 md:p-2 hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0"
           >
-            <Icon name="ChevronLeft" size={20} className="text-purple-600 md:w-6 md:h-6" />
+            <Icon name="ChevronLeft" size={20} className="text-cyan-500 md:w-6 md:h-6" />
           </button>
           
           <div className="text-center min-w-0 flex-1">
-            <div className="text-xs md:text-lg font-bold text-gray-900 truncate">{formatDateRange()}</div>
+            <div className="text-xs md:text-lg font-bold text-white truncate">{formatDateRange()}</div>
           </div>
           
           <button
             onClick={() => navigateDate('next')}
-            className="p-1.5 md:p-2 hover:bg-white rounded-lg transition-colors flex-shrink-0"
+            className="p-1.5 md:p-2 hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0"
           >
-            <Icon name="ChevronRight" size={20} className="text-purple-600 md:w-6 md:h-6" />
+            <Icon name="ChevronRight" size={20} className="text-cyan-500 md:w-6 md:h-6" />
           </button>
         </div>
       </div>

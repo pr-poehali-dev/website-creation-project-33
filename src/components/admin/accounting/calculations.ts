@@ -35,7 +35,12 @@ export const calculateAfterTax = (shift: ShiftRecord) => {
   return revenue - tax;
 };
 
-export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string, organizationName?: string) => {
+export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string, organizationName?: string, userId?: number) => {
+  // Для Корельского Максима (ID 3) зарплата всегда 0
+  if (userId === 3) {
+    return 0;
+  }
+  
   // Для организации "Администратор" фиксированная зарплата 600₽ за смену
   if (organizationName === 'Администратор') {
     return 600;
@@ -56,17 +61,25 @@ export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string,
 export const calculateNetProfit = (shift: ShiftRecord) => {
   const afterTax = calculateAfterTax(shift);
   const orgName = shift.organization_name || shift.organization;
-  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName);
+  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
   const expense = shift.expense_amount || 0;
   return afterTax - workerSalary - expense;
 };
 
 export const calculateKVV = (shift: ShiftRecord) => {
+  // Для Корельского Максима (ID 3) КВВ всегда 0
+  if (shift.user_id === 3) {
+    return 0;
+  }
   // Личные средства НЕ добавляются к KVV, только к долгам
   return Math.round(calculateNetProfit(shift) / 2);
 };
 
 export const calculateKMS = (shift: ShiftRecord) => {
+  // Для Корельского Максима (ID 3) КМС = вся сумма после налога (или полная сумма для налички)
+  if (shift.user_id === 3) {
+    return calculateAfterTax(shift);
+  }
   // Личные средства НЕ добавляются к KMS, только к долгам
   return Math.round(calculateNetProfit(shift) / 2);
 };

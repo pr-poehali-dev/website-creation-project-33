@@ -104,42 +104,39 @@ export default function ChatInput({
             }}
             onKeyDown={onKeyPress}
             placeholder="Введите сообщение..."
-            className="min-h-[52px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-5 py-4 pr-40 text-sm md:text-base text-gray-900 placeholder:text-gray-400 overflow-y-auto"
+            className="min-h-[44px] max-h-[120px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 pl-5 pr-44 py-3 text-sm md:text-base text-gray-900 placeholder:text-gray-400 overflow-y-auto"
             maxLength={1000}
           />
           
-          <div className="absolute right-2 bottom-2 flex items-center gap-1">
-            {!newMessage.trim() && !selectedFile ? (
-              <>
-                <Button
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  variant="ghost"
-                  size="icon"
-                  disabled={isSending || isRecording}
-                  className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
-                >
-                  <Icon name="Smile" size={18} />
-                </Button>
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  variant="ghost"
-                  size="icon"
-                  disabled={isSending || isRecording}
-                  className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
-                >
-                  <Icon name="Paperclip" size={18} />
-                </Button>
-                <Button
-                  onClick={isRecording ? onStopRecording : onStartRecording}
-                  variant="ghost"
-                  size="icon"
-                  disabled={isSending}
-                  className={`h-9 w-9 rounded-full transition-all text-gray-500 ${isRecording ? 'bg-red-500/20 hover:bg-red-500/30 animate-pulse' : 'hover:bg-gray-100'}`}
-                >
-                  <Icon name="Mic" size={18} className={isRecording ? 'text-red-600' : ''} />
-                </Button>
-              </>
-            ) : (
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <Button
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              variant="ghost"
+              size="icon"
+              disabled={isSending || isRecording}
+              className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+            >
+              <Icon name="Smile" size={18} />
+            </Button>
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="ghost"
+              size="icon"
+              disabled={isSending || isRecording || selectedFile !== null}
+              className="h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+            >
+              <Icon name="Paperclip" size={18} />
+            </Button>
+            <Button
+              onClick={isRecording ? onStopRecording : onStartRecording}
+              variant="ghost"
+              size="icon"
+              disabled={isSending || selectedFile !== null}
+              className={`h-9 w-9 rounded-full transition-all text-gray-500 ${isRecording ? 'bg-red-500/20 hover:bg-red-500/30 animate-pulse' : 'hover:bg-gray-100'}`}
+            >
+              <Icon name="Mic" size={18} className={isRecording ? 'text-red-600' : ''} />
+            </Button>
+            {(newMessage.trim() || selectedFile) && (
               <Button
                 onClick={onSendMessage}
                 disabled={isSending}

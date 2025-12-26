@@ -2407,10 +2407,12 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         print(f"🔍 UPDATE params: new=({new_user_id}, {new_work_date}, {new_organization_id})")
                         print(f"🔍 Times: start={start_time}, end={end_time}")
                         
+                        # КРИТИЧНО: Блокируем строку смены для предотвращения race condition
                         cur.execute("""
                             SELECT id, user_id, shift_date, organization_id 
                             FROM t_p24058207_website_creation_pro.work_shifts
                             WHERE user_id = %s AND shift_date = %s AND organization_id = %s
+                            FOR UPDATE
                         """, (old_user_id, old_work_date, old_organization_id))
                         
                         existing_shift = cur.fetchone()
@@ -2439,6 +2441,18 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         start_time_normalized = start_time.split(':')[0] + ':' + start_time.split(':')[1]
                         end_time_normalized = end_time.split(':')[0] + ':' + end_time.split(':')[1]
                         
+                        # КРИТИЧНО: Сначала проверяем сколько контактов есть
+                        cur.execute("""
+                            SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics
+                            WHERE user_id = %s 
+                            AND organization_id = %s 
+                            AND (created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')::date = %s
+                            AND lead_type = 'контакт'
+                        """, (old_user_id, old_organization_id, old_work_date))
+                        
+                        current_contacts = cur.fetchone()[0]
+                        print(f"🔍 BEFORE DELETE: Found {current_contacts} contacts for user={old_user_id}, org={old_organization_id}, date={old_work_date}")
+                        
                         # Удаляем ВСЕ контакты для этой смены (user + date + org)
                         # Используем московскую дату для корректного удаления
                         cur.execute("""
@@ -2450,7 +2464,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         """, (old_user_id, old_organization_id, old_work_date))
                         
                         deleted_count = cur.rowcount
-                        print(f"✅ Deleted {deleted_count} contacts")
+                        print(f"✅ AFTER DELETE: Deleted {deleted_count} contacts (expected to delete all {current_contacts})")
+                        
+                        if deleted_count != current_contacts:
+                            print(f"⚠️ WARNING: Mismatch! Expected {current_contacts}, deleted {deleted_count}")
                         
                         if shift_id:
                             cur.execute("""
@@ -2498,6 +2515,19 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         ))
                         
                         print(f"✅ Inserted accounting record")
+                        
+                        # КРИТИЧНО: Проверяем что нет контактов до создания новых
+                        cur.execute("""
+                            SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics
+                            WHERE user_id = %s 
+                            AND organization_id = %s 
+                            AND (created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')::date = %s
+                            AND lead_type = 'контакт'
+                        """, (new_user_id, new_organization_id, new_work_date))
+                        
+                        remaining_contacts = cur.fetchone()[0]
+                        if remaining_contacts > 0:
+                            print(f"⚠️ WARNING: Found {remaining_contacts} remaining contacts after DELETE! This should be 0!")
                         
                         print(f"🔍 Creating contacts: contacts_count={contacts_count}")
                         

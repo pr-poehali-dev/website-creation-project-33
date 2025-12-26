@@ -2535,20 +2535,37 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             moscow_tz = pytz.timezone('Europe/Moscow')
                             shift_date_obj = datetime.strptime(new_work_date, '%Y-%m-%d')
                             
-                            time_parts = start_time.split(':')
-                            hours = int(time_parts[0])
-                            minutes = int(time_parts[1]) if len(time_parts) > 1 else 0
+                            # Парсим время начала и конца смены
+                            start_parts = start_time.split(':')
+                            start_hours = int(start_parts[0])
+                            start_minutes = int(start_parts[1]) if len(start_parts) > 1 else 0
+                            
+                            end_parts = end_time.split(':')
+                            end_hours = int(end_parts[0])
+                            end_minutes = int(end_parts[1]) if len(end_parts) > 1 else 0
                             
                             from datetime import time as time_obj
-                            base_time = moscow_tz.localize(datetime.combine(
+                            shift_start_time = moscow_tz.localize(datetime.combine(
                                 shift_date_obj, 
-                                time_obj(hours, minutes)
+                                time_obj(start_hours, start_minutes)
+                            ))
+                            shift_end_time = moscow_tz.localize(datetime.combine(
+                                shift_date_obj, 
+                                time_obj(end_hours, end_minutes)
                             ))
                             
-                            print(f"🔍 Creating {contacts_count} contacts starting from {base_time} (hours={hours}, minutes={minutes})")
+                            # Рассчитываем длительность смены в минутах
+                            shift_duration_minutes = (shift_end_time - shift_start_time).total_seconds() / 60
+                            
+                            # КРИТИЧНО: Распределяем контакты РАВНОМЕРНО внутри смены
+                            # Интервал = длительность смены / количество контактов
+                            interval_minutes = shift_duration_minutes / contacts_count if contacts_count > 0 else 0
+                            
+                            print(f"🔍 Creating {contacts_count} contacts from {shift_start_time} to {shift_end_time} (interval={interval_minutes:.1f} min)")
                             
                             for i in range(contacts_count):
-                                lead_time = base_time + timedelta(minutes=30 * i)
+                                # Каждый контакт равномерно распределён внутри смены
+                                lead_time = shift_start_time + timedelta(minutes=interval_minutes * i)
                                 lead_time_utc = lead_time.astimezone(pytz.UTC)
                                 
                                 cur.execute("""

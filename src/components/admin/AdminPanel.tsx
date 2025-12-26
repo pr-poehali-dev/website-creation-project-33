@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChatUnread } from '@/hooks/useChatUnread';
-import { toast } from '@/hooks/use-toast';
 import AdminAccessDenied from './AdminAccessDenied';
 import AdminHeader from './AdminHeader';
 import AdminMetroTiles from './AdminMetroTiles';
@@ -9,78 +8,9 @@ import AdminMetroTiles from './AdminMetroTiles';
 export default function AdminPanel() {
   const { logout, user } = useAuth();
   const unreadCount = useChatUnread();
-  const [resetting, setResetting] = useState(false);
-  const [cleaningComments, setCleaningComments] = useState(false);
-
   const openGoogleSheets = () => {
     const sheetId = 'https://docs.google.com/spreadsheets/d/1fH4lgqreRPBoHQadU8Srw7L3bPgT5xa3zyz2idfpptM/edit';
     window.open(sheetId, '_blank');
-  };
-
-  const resetApproaches = async () => {
-    if (!confirm('Вы уверены, что хотите обнулить все подходы? Это действие нельзя отменить.')) {
-      return;
-    }
-
-    setResetting(true);
-    try {
-      const sessionToken = localStorage.getItem('session_token');
-      const response = await fetch('https://functions.poehali.dev/cc09c22c-37d7-4e93-8483-4c6412048b89', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': sessionToken || ''
-        }
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        toast({
-          title: 'Успешно!',
-          description: data.message
-        });
-        window.location.reload();
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось обнулить подходы',
-        variant: 'destructive'
-      });
-    } finally {
-      setResetting(false);
-    }
-  };
-
-  const cleanupOrphanedComments = async () => {
-    if (!confirm('Удалить все комментарии без соответствующих смен? Это действие нельзя отменить.')) {
-      return;
-    }
-
-    setCleaningComments(true);
-    try {
-      const response = await fetch('https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2?cleanup=orphaned', {
-        method: 'DELETE'
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        toast({
-          title: 'Успешно!',
-          description: `Удалено ${data.deleted} комментариев без смен`
-        });
-      } else {
-        throw new Error('Failed to cleanup');
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось очистить комментарии',
-        variant: 'destructive'
-      });
-    } finally {
-      setCleaningComments(false);
-    }
   };
 
   if (!user?.is_admin) {
@@ -92,11 +22,7 @@ export default function AdminPanel() {
       <div className="max-w-7xl mx-auto">
         <AdminHeader 
           onLogout={logout} 
-          onOpenGoogleSheets={openGoogleSheets} 
-          onResetApproaches={resetApproaches} 
-          resetting={resetting}
-          onCleanupOrphanedComments={cleanupOrphanedComments}
-          cleaningComments={cleaningComments}
+          onOpenGoogleSheets={openGoogleSheets}
         />
         <AdminMetroTiles 
           unreadCount={unreadCount} 

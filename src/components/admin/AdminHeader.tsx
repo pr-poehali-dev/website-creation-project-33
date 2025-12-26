@@ -6,13 +6,9 @@ import Icon from '@/components/ui/icon';
 interface AdminHeaderProps {
   onLogout: () => void;
   onOpenGoogleSheets: () => void;
-  onResetApproaches: () => void;
-  resetting: boolean;
-  onCleanupOrphanedComments?: () => void;
-  cleaningComments?: boolean;
 }
 
-export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetApproaches, resetting, onCleanupOrphanedComments, cleaningComments }: AdminHeaderProps) {
+export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeaderProps) {
   return (
     <>
       <div className="md:hidden mb-6 bg-gray-50 border border-gray-200 p-4 rounded-lg">
@@ -24,35 +20,6 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
             Админ-панель
           </h1>
           <div className="flex gap-2">
-            {onCleanupOrphanedComments && (
-              <Button 
-                onClick={onCleanupOrphanedComments}
-                disabled={cleaningComments}
-                className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-3 py-2"
-                size="sm"
-                variant="outline"
-                title="Очистить комментарии без смен"
-              >
-                {cleaningComments ? (
-                  <Icon name="Loader2" size={16} className="text-gray-700 animate-spin" />
-                ) : (
-                  <Icon name="Trash2" size={16} className="text-gray-700" />
-                )}
-              </Button>
-            )}
-            <Button 
-              onClick={onResetApproaches}
-              disabled={resetting}
-              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-3 py-2"
-              size="sm"
-              variant="outline"
-            >
-              {resetting ? (
-                <Icon name="Loader2" size={16} className="text-gray-700 animate-spin" />
-              ) : (
-                <Icon name="RotateCcw" size={16} className="text-gray-700" />
-              )}
-            </Button>
             <Button 
               onClick={onOpenGoogleSheets}
               className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-3 py-2"
@@ -80,44 +47,6 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onResetAppro
           Панель администратора
         </h1>
         <div className="flex items-center gap-3">
-          {onCleanupOrphanedComments && (
-            <Button 
-              onClick={onCleanupOrphanedComments}
-              disabled={cleaningComments}
-              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
-              variant="outline"
-            >
-              {cleaningComments ? (
-                <>
-                  <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                  <span>Очистка...</span>
-                </>
-              ) : (
-                <>
-                  <Icon name="Trash2" size={16} className="mr-2" />
-                  <span>Очистить мусор</span>
-                </>
-              )}
-            </Button>
-          )}
-          <Button 
-            onClick={onResetApproaches}
-            disabled={resetting}
-            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
-            variant="outline"
-          >
-            {resetting ? (
-              <>
-                <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                <span>Обнуление...</span>
-              </>
-            ) : (
-              <>
-                <Icon name="RotateCcw" size={16} className="mr-2" />
-                <span>Обнулить подходы</span>
-              </>
-            )}
-          </Button>
           <Button 
             onClick={onOpenGoogleSheets}
             className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"

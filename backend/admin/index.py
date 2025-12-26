@@ -2415,15 +2415,26 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         
                         existing_shift = cur.fetchone()
                         if not existing_shift:
-                            print(f"❌ Shift NOT FOUND for update: user={old_user_id}, date={old_work_date}, org={old_organization_id}")
-                            return {
-                                'statusCode': 404,
-                                'headers': headers,
-                                'body': json.dumps({'error': 'Смена не найдена для обновления'})
-                            }
+                            cur.execute("""
+                                SELECT COUNT(*) 
+                                FROM t_p24058207_website_creation_pro.accounting_expenses
+                                WHERE user_id = %s AND work_date = %s AND organization_id = %s
+                            """, (old_user_id, old_work_date, old_organization_id))
+                            
+                            accounting_exists = cur.fetchone()[0] > 0
+                            if not accounting_exists:
+                                print(f"❌ Shift NOT FOUND for update: user={old_user_id}, date={old_work_date}, org={old_organization_id}")
+                                return {
+                                    'statusCode': 404,
+                                    'headers': headers,
+                                    'body': json.dumps({'error': 'Смена не найдена для обновления'})
+                                }
                         
-                        shift_id = existing_shift[0]
-                        print(f"✅ Found shift: id={shift_id}")
+                        shift_id = existing_shift[0] if existing_shift else None
+                        if shift_id:
+                            print(f"✅ Found shift: id={shift_id}")
+                        else:
+                            print(f"✅ Found accounting record only")
                         
                         start_time_normalized = start_time.split(':')[0] + ':' + start_time.split(':')[1]
                         end_time_normalized = end_time.split(':')[0] + ':' + end_time.split(':')[1]
@@ -2436,12 +2447,19 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         
                         print(f"✅ Deleted contacts")
                         
-                        cur.execute("""
-                            DELETE FROM t_p24058207_website_creation_pro.work_shifts
-                            WHERE id = %s
-                        """, (shift_id,))
+                        if shift_id:
+                            cur.execute("""
+                                DELETE FROM t_p24058207_website_creation_pro.work_shifts
+                                WHERE id = %s
+                            """, (shift_id,))
+                            print(f"✅ Deleted old shift")
                         
-                        print(f"✅ Deleted old shift")
+                        cur.execute("""
+                            DELETE FROM t_p24058207_website_creation_pro.accounting_expenses
+                            WHERE user_id = %s AND work_date = %s AND organization_id = %s
+                        """, (old_user_id, old_work_date, old_organization_id))
+                        
+                        print(f"✅ Deleted accounting record")
                         
                         conn.commit()
                         print(f"✅ Committed deletes")
@@ -2451,18 +2469,30 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         
                         cur.execute("""
                             INSERT INTO t_p24058207_website_creation_pro.work_shifts
-                            (user_id, organization_id, shift_date, shift_start, shift_end,
-                             expense_amount, expense_comment, paid_by_organization, 
-                             paid_to_worker, paid_kvv, paid_kms)
-                            VALUES (%s, %s, %s, %s::timestamptz, %s::timestamptz, %s, %s, %s, %s, %s, %s)
+                            (user_id, organization_id, shift_date, shift_start, shift_end)
+                            VALUES (%s, %s, %s, %s::timestamptz, %s::timestamptz)
                         """, (
                             new_user_id, new_organization_id, new_work_date,
-                            shift_start_dt, shift_end_dt,
-                            expense_amount, expense_comment,
-                            paid_by_organization, paid_to_worker, paid_kvv, paid_kms
+                            shift_start_dt, shift_end_dt
                         ))
                         
                         print(f"✅ Inserted new shift")
+                        
+                        invoice_issued = body_data.get('invoice_issued', False)
+                        
+                        cur.execute("""
+                            INSERT INTO t_p24058207_website_creation_pro.accounting_expenses
+                            (user_id, work_date, organization_id, expense_amount, expense_comment,
+                             paid_by_organization, paid_to_worker, paid_kvv, paid_kms, invoice_issued,
+                             created_at, updated_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+                        """, (
+                            new_user_id, new_work_date, new_organization_id,
+                            expense_amount, expense_comment,
+                            paid_by_organization, paid_to_worker, paid_kvv, paid_kms, invoice_issued
+                        ))
+                        
+                        print(f"✅ Inserted accounting record")
                         
                         if contacts_count > 0:
                             moscow_tz = pytz.timezone('Europe/Moscow')

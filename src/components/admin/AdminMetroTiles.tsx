@@ -60,6 +60,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   const [statsSubView, setStatsSubView] = useState<StatsSubView>('rating');
 
   const navigationItems = [
+    { view: 'tiles' as TileView, icon: 'Home', label: 'Домой' },
     { view: 'requests' as TileView, icon: 'UserCheck', label: 'Заявки' },
     { view: 'accounting' as TileView, icon: 'Calculator', label: 'Бух.учет' },
     { view: 'stats' as TileView, icon: 'TrendingUp', label: 'Статистика' },
@@ -72,7 +73,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   const renderWithSidebar = (content: React.ReactNode) => (
     <div className="space-y-4">
       {/* Горизонтальная навигация на мобильных, вертикальная на десктопе */}
-      <div className="flex md:hidden gap-1.5 justify-between">
+      <div className="flex md:hidden gap-1.5 justify-between overflow-x-auto pb-2">
         {navigationItems.map((item) => (
           <NavButton
             key={item.view}

@@ -2518,6 +2518,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 time_obj(hours, minutes)
                             ))
                             
+                            print(f"🔍 Creating {contacts_count} contacts starting from {base_time} (hours={hours}, minutes={minutes})")
+                            
                             for i in range(contacts_count):
                                 lead_time = base_time + timedelta(minutes=30 * i)
                                 lead_time_utc = lead_time.astimezone(pytz.UTC)

@@ -2439,18 +2439,15 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         start_time_normalized = start_time.split(':')[0] + ':' + start_time.split(':')[1]
                         end_time_normalized = end_time.split(':')[0] + ':' + end_time.split(':')[1]
                         
-                        # Удаляем контакты только в диапазоне старой смены
-                        old_shift_start = f"{old_work_date} 00:00:00+03"
-                        old_shift_end = f"{old_work_date} 23:59:59+03"
-                        
+                        # Удаляем ВСЕ контакты для этой смены (user + date + org)
+                        # Используем DATE() чтобы точно удалить все контакты за день
                         cur.execute("""
                             DELETE FROM t_p24058207_website_creation_pro.leads_analytics
                             WHERE user_id = %s 
                             AND organization_id = %s 
-                            AND created_at >= %s::timestamptz 
-                            AND created_at <= %s::timestamptz
+                            AND DATE(created_at) = %s
                             AND lead_type = 'контакт'
-                        """, (old_user_id, old_organization_id, old_shift_start, old_shift_end))
+                        """, (old_user_id, old_organization_id, old_work_date))
                         
                         deleted_count = cur.rowcount
                         print(f"✅ Deleted {deleted_count} contacts")

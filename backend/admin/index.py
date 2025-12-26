@@ -2557,14 +2557,13 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             # Рассчитываем длительность смены в минутах
                             shift_duration_minutes = (shift_end_time - shift_start_time).total_seconds() / 60
                             
-                            # КРИТИЧНО: Распределяем контакты РАВНОМЕРНО внутри смены
-                            # Интервал = длительность смены / количество контактов
-                            interval_minutes = shift_duration_minutes / contacts_count if contacts_count > 0 else 0
+                            # КРИТИЧНО: Фиксированный интервал 1 минута между контактами
+                            interval_minutes = 1
                             
-                            print(f"🔍 Creating {contacts_count} contacts from {shift_start_time} to {shift_end_time} (interval={interval_minutes:.1f} min)")
+                            print(f"🔍 Creating {contacts_count} contacts from {shift_start_time} (interval={interval_minutes} min)")
                             
                             for i in range(contacts_count):
-                                # Каждый контакт равномерно распределён внутри смены
+                                # Контакты создаются с интервалом 1 минута
                                 lead_time = shift_start_time + timedelta(minutes=interval_minutes * i)
                                 lead_time_utc = lead_time.astimezone(pytz.UTC)
                                 

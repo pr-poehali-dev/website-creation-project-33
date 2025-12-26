@@ -2558,6 +2558,21 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 """, (new_user_id, new_organization_id, lead_time_utc))
                             
                             print(f"✅ Created {contacts_count} contacts")
+                            
+                            # КРИТИЧНО: Проверяем сколько контактов реально создалось
+                            cur.execute("""
+                                SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics
+                                WHERE user_id = %s 
+                                AND organization_id = %s 
+                                AND (created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow')::date = %s
+                                AND lead_type = 'контакт'
+                            """, (new_user_id, new_organization_id, new_work_date))
+                            
+                            final_contacts = cur.fetchone()[0]
+                            print(f"🔍 FINAL COUNT: {final_contacts} contacts in DB (expected {contacts_count})")
+                            
+                            if final_contacts != contacts_count:
+                                print(f"⚠️ CRITICAL WARNING: Expected {contacts_count} but found {final_contacts} contacts!")
                         
                         conn.commit()
                         

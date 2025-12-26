@@ -317,7 +317,7 @@ export function useShiftActions(
           title: 'Успешно',
           description: 'Смена обновлена'
         });
-        loadAccountingData();
+        // НЕ вызываем loadAccountingData() здесь - обновление произойдет в родительском компоненте
         return true;
       } else {
         const error = await response.json();

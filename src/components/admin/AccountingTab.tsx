@@ -155,9 +155,10 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     
     const success = await saveEditedShift(editingShift, updatedShift);
     if (success) {
-      await loadAccountingData(); // Дожидаемся обновления данных
       setShowEditModal(false);
       setEditingShift(null);
+      // Обновление данных происходит асинхронно в фоне, не блокируя закрытие модалки
+      loadAccountingData();
     }
   };
 

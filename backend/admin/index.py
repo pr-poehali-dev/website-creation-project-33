@@ -2494,6 +2494,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                         
                         print(f"✅ Inserted accounting record")
                         
+                        print(f"🔍 Creating contacts: contacts_count={contacts_count}")
+                        
                         if contacts_count > 0:
                             moscow_tz = pytz.timezone('Europe/Moscow')
                             shift_date_obj = datetime.strptime(new_work_date, '%Y-%m-%d')
@@ -2517,6 +2519,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                     (user_id, organization_id, lead_type, lead_result, created_at, is_active)
                                     VALUES (%s, %s, 'контакт', 'согласие', %s, true)
                                 """, (new_user_id, new_organization_id, lead_time_utc))
+                            
+                            print(f"✅ Created {contacts_count} contacts")
                         
                         conn.commit()
                         

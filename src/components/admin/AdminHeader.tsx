@@ -39,7 +39,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
         </div>
       </div>
 
-      <div className="hidden md:flex justify-between items-center mb-8 bg-gray-900 border border-yellow-500/50 p-6 rounded-lg relative overflow-hidden">
+      <div className="hidden md:flex justify-center items-center mb-8 bg-teal-900 border-2 border-yellow-500/80 p-6 rounded-2xl relative overflow-hidden shadow-xl">
         <div className="absolute inset-0 z-0">
           <img 
             src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
@@ -47,21 +47,21 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
             className="w-full h-full object-cover object-left"
           />
         </div>
-        <h1 className="text-3xl font-bold text-white relative z-10 drop-shadow-lg">
+        <h1 className="text-4xl font-bold text-white relative z-10 drop-shadow-2xl">
           С Новым Годом!
         </h1>
-        <div className="flex items-center gap-3 relative z-10">
+        <div className="flex items-center gap-3 absolute right-6 z-10">
           <Button 
             onClick={onOpenGoogleSheets}
-            className="bg-white/95 hover:bg-white text-gray-700 border border-gray-300 shadow-lg"
+            className="bg-white hover:bg-gray-50 text-teal-800 border-2 border-yellow-400 shadow-xl font-semibold"
             variant="outline"
           >
-            <Icon name="Sheet" size={16} className="mr-2 text-gray-700" />
-            <span className="text-gray-700">Google Таблицы</span>
+            <Icon name="Sheet" size={16} className="mr-2 text-teal-800" />
+            <span className="text-teal-800">Google Таблицы</span>
           </Button>
           <Button 
             onClick={onLogout} 
-            className="bg-red-600 hover:bg-red-700 text-white shadow-lg"
+            className="bg-red-600 hover:bg-red-700 text-white border-2 border-yellow-400 shadow-xl font-semibold"
           >
             <Icon name="LogOut" size={16} className="mr-2" />
             Выйти

@@ -42,9 +42,9 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
       <div className="hidden md:flex justify-between items-center mb-8 bg-gray-900 border border-yellow-500/50 p-6 rounded-lg relative overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://cdn.poehali.dev/files/girlianda_zvezdy_elka_153044_3840x2400.jpg" 
+            src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
             alt="" 
-            className="w-full h-full object-cover object-top scale-150"
+            className="w-full h-full object-cover object-left"
           />
         </div>
         <h1 className="text-3xl font-bold text-white flex items-center gap-3 relative z-10 drop-shadow-lg">

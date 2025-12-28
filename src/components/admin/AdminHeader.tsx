@@ -47,10 +47,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
             className="w-full h-full object-cover object-left"
           />
         </div>
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3 relative z-10 drop-shadow-lg">
-          <div className="p-3 rounded bg-red-600 border-2 border-yellow-400">
-            <Icon name="Sparkles" size={32} className="text-white" />
-          </div>
+        <h1 className="text-3xl font-bold text-white relative z-10 drop-shadow-lg">
           С Новым Годом!
         </h1>
         <div className="flex items-center gap-3 relative z-10">

@@ -39,14 +39,21 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
         </div>
       </div>
 
-      <div className="hidden md:flex justify-between items-center mb-8 bg-gray-50 border border-gray-200 p-6 rounded-lg">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+      <div className="hidden md:flex justify-between items-center mb-8 bg-gray-50 border border-gray-200 p-6 rounded-lg relative overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-30">
+          <img 
+            src="https://cdn.poehali.dev/files/girlianda_zvezdy_elka_153044_3840x2400.jpg" 
+            alt="" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3 relative z-10">
           <div className="p-3 rounded bg-blue-600">
             <Icon name="Shield" size={32} className="text-white" />
           </div>
           Панель администратора
         </h1>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative z-10">
           <Button 
             onClick={onOpenGoogleSheets}
             className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"

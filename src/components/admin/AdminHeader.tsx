@@ -53,15 +53,15 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
         <div className="flex items-center gap-3 absolute right-6 z-10">
           <Button 
             onClick={onOpenGoogleSheets}
-            className="bg-white hover:bg-gray-50 text-teal-800 border-2 border-yellow-400 shadow-xl font-semibold"
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl font-semibold"
             variant="outline"
           >
-            <Icon name="Sheet" size={16} className="mr-2 text-teal-800" />
-            <span className="text-teal-800">Google Таблицы</span>
+            <Icon name="Sheet" size={16} className="mr-2 text-white" />
+            <span className="text-white">Google Таблицы</span>
           </Button>
           <Button 
             onClick={onLogout} 
-            className="bg-red-600 hover:bg-red-700 text-white border-2 border-yellow-400 shadow-xl font-semibold"
+            className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl font-semibold"
           >
             <Icon name="LogOut" size={16} className="mr-2" />
             Выйти

@@ -39,24 +39,24 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
         </div>
       </div>
 
-      <div className="hidden md:flex justify-between items-center mb-8 bg-gray-50 border border-gray-200 p-6 rounded-lg relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-30">
+      <div className="hidden md:flex justify-between items-center mb-8 bg-gray-900 border border-yellow-500/50 p-6 rounded-lg relative overflow-hidden">
+        <div className="absolute inset-0 z-0">
           <img 
             src="https://cdn.poehali.dev/files/girlianda_zvezdy_elka_153044_3840x2400.jpg" 
             alt="" 
             className="w-full h-full object-cover"
           />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3 relative z-10">
-          <div className="p-3 rounded bg-blue-600">
-            <Icon name="Shield" size={32} className="text-white" />
+        <h1 className="text-3xl font-bold text-white flex items-center gap-3 relative z-10 drop-shadow-lg">
+          <div className="p-3 rounded bg-red-600 border-2 border-yellow-400">
+            <Icon name="Sparkles" size={32} className="text-white" />
           </div>
-          Панель администратора
+          С Новым Годом!
         </h1>
         <div className="flex items-center gap-3 relative z-10">
           <Button 
             onClick={onOpenGoogleSheets}
-            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
+            className="bg-white/95 hover:bg-white text-gray-700 border border-gray-300 shadow-lg"
             variant="outline"
           >
             <Icon name="Sheet" size={16} className="mr-2 text-gray-700" />
@@ -64,7 +64,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
           </Button>
           <Button 
             onClick={onLogout} 
-            className="bg-red-600 hover:bg-red-700 text-white"
+            className="bg-red-600 hover:bg-red-700 text-white shadow-lg"
           >
             <Icon name="LogOut" size={16} className="mr-2" />
             Выйти

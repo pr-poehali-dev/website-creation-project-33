@@ -44,7 +44,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
           <img 
             src="https://cdn.poehali.dev/files/girlianda_zvezdy_elka_153044_3840x2400.jpg" 
             alt="" 
-            className="w-full h-full object-contain object-center"
+            className="w-full h-full object-cover object-top scale-150"
           />
         </div>
         <h1 className="text-3xl font-bold text-white flex items-center gap-3 relative z-10 drop-shadow-lg">

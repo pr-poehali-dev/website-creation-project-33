@@ -59,6 +59,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   const [currentView, setCurrentView] = useState<TileView>('tiles');
   const [statsSubView, setStatsSubView] = useState<StatsSubView>('rating');
 
+  const handleViewChange = (view: TileView) => {
+    console.log('🔄 Переключение раздела:', currentView, '→', view);
+    setCurrentView(view);
+  };
+
   const navigationItems = [
     { view: 'tiles' as TileView, icon: 'Home', label: 'Домой' },
     { view: 'requests' as TileView, icon: 'UserCheck', label: 'Заявки' },
@@ -80,7 +85,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
             icon={item.icon}
             label={item.label}
             active={currentView === item.view}
-            onClick={() => setCurrentView(item.view)}
+            onClick={() => handleViewChange(item.view)}
             badge={item.badge}
           />
         ))}
@@ -95,7 +100,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
               icon={item.icon}
               label={item.label}
               active={currentView === item.view}
-              onClick={() => setCurrentView(item.view)}
+              onClick={() => handleViewChange(item.view)}
               badge={item.badge}
             />
           ))}
@@ -191,22 +196,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
 
   return (
-    <>
-      {/* Мобильная навигация на главном экране */}
-      <div className="flex md:hidden gap-1.5 justify-between overflow-x-auto pb-2 mb-4">
-        {navigationItems.map((item) => (
-          <NavButton
-            key={item.view}
-            icon={item.icon}
-            label={item.label}
-            active={currentView === item.view}
-            onClick={() => setCurrentView(item.view)}
-            badge={item.badge}
-          />
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-8">
       <div
         onClick={() => setCurrentView('requests')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-1 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"

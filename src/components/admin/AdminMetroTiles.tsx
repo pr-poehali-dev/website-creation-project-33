@@ -197,7 +197,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-1 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
         </div>
         <div className="relative z-10">
           <div className="p-2 rounded-xl bg-blue-500/20 border border-blue-400/30 w-fit mb-2 md:mb-3">
@@ -213,7 +213,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-2 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
         </div>
         <div className="relative z-10 flex flex-col h-full">
           <div className="p-2 rounded-xl bg-yellow-400/20 border border-yellow-300/30 w-fit mb-2 md:mb-3">
@@ -232,7 +232,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-3 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
         </div>
         <div className="relative z-10 flex flex-col h-full">
           <div className="p-2 rounded-xl bg-green-500/20 border border-green-400/30 w-fit mb-2 md:mb-3">
@@ -252,7 +252,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-4 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
         </div>
         {unreadCount > 0 && (
           <div className="absolute top-2 right-2 md:top-3 md:right-3 z-20">
@@ -275,7 +275,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-5 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
         </div>
         <div className="relative z-10">
           <div className="p-2 rounded-xl bg-purple-500/20 border border-purple-400/30 w-fit mb-2 md:mb-3">
@@ -291,7 +291,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-6 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
         </div>
         <div className="relative z-10 flex flex-col h-full">
           <div className="p-2 rounded-xl bg-indigo-500/20 border border-indigo-400/30 w-fit mb-2 md:mb-3">

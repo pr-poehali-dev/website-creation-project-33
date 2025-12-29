@@ -19,6 +19,8 @@ import ClientsTab from './ClientsTab';
 interface AdminMetroTilesProps {
   unreadCount: number;
   sessionToken: string;
+  currentView: TileView;
+  onViewChange: (view: TileView) => void;
 }
 
 type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients';
@@ -55,13 +57,12 @@ const NavButton = ({
   </button>
 );
 
-export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetroTilesProps) {
-  const [currentView, setCurrentView] = useState<TileView>('tiles');
+export default function AdminMetroTiles({ unreadCount, sessionToken, currentView, onViewChange }: AdminMetroTilesProps) {
   const [statsSubView, setStatsSubView] = useState<StatsSubView>('rating');
 
   const handleViewChange = (view: TileView) => {
     console.log('🔄 Переключение раздела:', currentView, '→', view);
-    setCurrentView(view);
+    onViewChange(view);
   };
 
   const navigationItems = [
@@ -184,7 +185,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-8">
       <div
-        onClick={() => setCurrentView('requests')}
+        onClick={() => handleViewChange('requests')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-1 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
@@ -200,7 +201,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       </div>
 
       <div
-        onClick={() => setCurrentView('accounting')}
+        onClick={() => handleViewChange('accounting')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-2 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
@@ -219,7 +220,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       </div>
 
       <div
-        onClick={() => setCurrentView('stats')}
+        onClick={() => handleViewChange('stats')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-3 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
@@ -239,7 +240,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       </div>
 
       <div
-        onClick={() => setCurrentView('chat')}
+        onClick={() => handleViewChange('chat')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-4 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
@@ -262,7 +263,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       </div>
 
       <div
-        onClick={() => setCurrentView('clients')}
+        onClick={() => handleViewChange('clients')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-5 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">
@@ -278,7 +279,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
       </div>
 
       <div
-        onClick={() => setCurrentView('analytics')}
+        onClick={() => handleViewChange('analytics')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-6 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">

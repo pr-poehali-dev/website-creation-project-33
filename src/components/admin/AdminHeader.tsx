@@ -6,9 +6,11 @@ import Icon from '@/components/ui/icon';
 interface AdminHeaderProps {
   onLogout: () => void;
   onOpenGoogleSheets: () => void;
+  onGoHome?: () => void;
+  showHomeButton?: boolean;
 }
 
-export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeaderProps) {
+export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false }: AdminHeaderProps) {
   return (
     <>
       <div className="md:hidden mb-6 bg-teal-900 border-2 border-yellow-400/80 p-4 rounded-xl relative overflow-hidden shadow-xl">
@@ -24,6 +26,16 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeade
             С Новым Годом!
           </h1>
           <div className="flex gap-2">
+            {showHomeButton && onGoHome && (
+              <Button 
+                onClick={onGoHome}
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
+                size="sm"
+                variant="outline"
+              >
+                <Icon name="Home" size={16} className="text-white" />
+              </Button>
+            )}
             <Button 
               onClick={onOpenGoogleSheets}
               className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"

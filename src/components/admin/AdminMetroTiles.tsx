@@ -74,23 +74,9 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     { view: 'analytics' as TileView, icon: 'Calendar', label: 'График' },
   ];
 
-  // Навигация для всех разделов кроме главного
+  // Навигация только для десктопа
   const renderWithSidebar = (content: React.ReactNode) => (
     <div className="space-y-4">
-      {/* Горизонтальная навигация на мобильных, вертикальная на десктопе */}
-      <div className="flex md:hidden gap-1.5 justify-between overflow-x-auto pb-2">
-        {navigationItems.map((item) => (
-          <NavButton
-            key={item.view}
-            icon={item.icon}
-            label={item.label}
-            active={currentView === item.view}
-            onClick={() => handleViewChange(item.view)}
-            badge={item.badge}
-          />
-        ))}
-      </div>
-      
       {/* Десктоп версия с боковой навигацией */}
       <div className="hidden md:flex gap-4">
         <div className="flex flex-col gap-3 sticky top-4 h-fit">
@@ -110,7 +96,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
         </div>
       </div>
       
-      {/* Контент на мобильных */}
+      {/* Контент на мобильных без навигации */}
       <div className="md:hidden">
         {content}
       </div>

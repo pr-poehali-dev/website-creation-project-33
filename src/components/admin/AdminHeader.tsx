@@ -11,26 +11,30 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout, onOpenGoogleSheets }: AdminHeaderProps) {
   return (
     <>
-      <div className="md:hidden mb-6 bg-gray-50 border border-gray-200 p-4 rounded-lg">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-blue-600">
-              <Icon name="Shield" size={20} className="text-white" />
-            </div>
-            Админ-панель
+      <div className="md:hidden mb-6 bg-teal-900 border-2 border-yellow-400/80 p-4 rounded-xl relative overflow-hidden shadow-xl">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
+            alt="" 
+            className="w-full h-full object-cover object-right scale-[2.5]"
+          />
+        </div>
+        <div className="flex items-center justify-between relative z-10">
+          <h1 className="text-xl font-bold text-white drop-shadow-lg">
+            С Новым Годом!
           </h1>
           <div className="flex gap-2">
             <Button 
               onClick={onOpenGoogleSheets}
-              className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-3 py-2"
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
               size="sm"
               variant="outline"
             >
-              <Icon name="Sheet" size={16} className="text-gray-700" />
+              <Icon name="Sheet" size={16} className="text-white" />
             </Button>
             <Button 
               onClick={onLogout} 
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-2"
+              className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
               size="sm"
             >
               <Icon name="LogOut" size={16} className="text-white" />

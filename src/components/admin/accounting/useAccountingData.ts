@@ -12,37 +12,51 @@ export function useAccountingData(enabled: boolean) {
 
   const loadUsers = async () => {
     try {
-      console.log('📥 Загружаем пользователей...');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
       const response = await fetch(`${ADMIN_API}?action=users`, {
-        headers: { 'X-Session-Token': getSessionToken() || '' }
+        headers: { 'X-Session-Token': getSessionToken() || '' },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
+      
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Пользователи загружены:', data.users?.length || 0);
         setUsers(data.users || []);
       } else {
-        console.error('❌ Ошибка загрузки пользователей:', response.status);
+        console.error('Ошибка загрузки пользователей:', response.status);
       }
-    } catch (error) {
-      console.error('Error loading users:', error);
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('Error loading users:', error);
+      }
     }
   };
 
   const loadOrganizations = async () => {
     try {
-      console.log('📥 Загружаем организации...');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
       const response = await fetch(`${ADMIN_API}?action=get_organizations`, {
-        headers: { 'X-Session-Token': getSessionToken() || '' }
+        headers: { 'X-Session-Token': getSessionToken() || '' },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
+      
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Организации загружены:', data.organizations?.length || 0);
         setOrganizations(data.organizations || []);
       } else {
-        console.error('❌ Ошибка загрузки организаций:', response.status);
+        console.error('Ошибка загрузки организаций:', response.status);
       }
-    } catch (error) {
-      console.error('Error loading organizations:', error);
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('Error loading organizations:', error);
+      }
     }
   };
 
@@ -52,7 +66,15 @@ export function useAccountingData(enabled: boolean) {
       const params = new URLSearchParams({ action: 'get_accounting_data' });
       if (days !== undefined) {
         params.append('days', days.toString());
+      } else {
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+          params.append('days', '30');
+        }
       }
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
       
       const response = await fetch(
         `${ADMIN_API}?${params.toString()}`,
@@ -60,32 +82,44 @@ export function useAccountingData(enabled: boolean) {
           headers: {
             'X-Session-Token': getSessionToken() || '',
           },
+          signal: controller.signal
         }
       );
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = await response.json();
         console.log('Accounting data received:', data.shifts?.[0]);
-        // Приводим данные к нужному типу, добавляя compensation_amount если его нет
         const shiftsWithCompensation = (data.shifts || []).map((shift: any) => ({
           ...shift,
           compensation_amount: shift.compensation_amount || 0
         }));
         setShifts(shiftsWithCompensation);
       } else {
+        const errorText = await response.text();
+        console.error('Ошибка ответа:', response.status, errorText);
         toast({
-          title: 'Ошибка',
-          description: 'Не удалось загрузить данные',
+          title: 'Ошибка загрузки',
+          description: `Код ошибки: ${response.status}`,
           variant: 'destructive',
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading accounting data:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить данные',
-        variant: 'destructive',
-      });
+      if (error.name === 'AbortError') {
+        toast({
+          title: 'Превышено время ожидания',
+          description: 'Сервер не ответил за 30 секунд. Попробуйте позже.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Ошибка сети',
+          description: error.message || 'Проверьте подключение к интернету',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }

@@ -114,6 +114,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   }
 
   if (currentView === 'accounting') {
+    console.log('📊 Рендерим раздел Бухучет');
     return renderWithSidebar(
       <AccountingTab enabled={true} />
     );

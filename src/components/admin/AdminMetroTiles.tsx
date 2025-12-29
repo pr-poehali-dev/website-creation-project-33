@@ -194,9 +194,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-8">
       <div
         onClick={() => setCurrentView('requests')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-1 bg-gradient-to-br from-blue-600 to-blue-800 shadow-xl hover:shadow-2xl border border-blue-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-1 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
-        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 z-0">
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+        </div>
         <div className="relative z-10">
           <div className="p-2 rounded-xl bg-blue-500/20 border border-blue-400/30 w-fit mb-2 md:mb-3">
             <Icon name="UserCheck" size={20} className="text-white md:w-6 md:h-6" />
@@ -208,9 +210,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('accounting')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-2 bg-gradient-to-br from-yellow-500 to-orange-600 shadow-xl hover:shadow-2xl border border-yellow-400/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-2 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
-        <div className="absolute bottom-0 left-0 w-40 h-40 bg-yellow-300/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 z-0">
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+        </div>
         <div className="relative z-10 flex flex-col h-full">
           <div className="p-2 rounded-xl bg-yellow-400/20 border border-yellow-300/30 w-fit mb-2 md:mb-3">
             <Icon name="Calculator" size={20} className="text-white md:w-6 md:h-6" />
@@ -225,9 +229,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('stats')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-3 bg-gradient-to-br from-green-600 to-emerald-700 shadow-xl hover:shadow-2xl border border-green-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-3 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
-        <div className="absolute top-0 left-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 z-0">
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+        </div>
         <div className="relative z-10 flex flex-col h-full">
           <div className="p-2 rounded-xl bg-green-500/20 border border-green-400/30 w-fit mb-2 md:mb-3">
             <Icon name="BarChart3" size={20} className="text-white md:w-6 md:h-6" />
@@ -243,8 +249,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('chat')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-4 bg-gradient-to-br from-orange-500 to-red-600 shadow-xl hover:shadow-2xl border border-orange-400/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-4 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
+        <div className="absolute inset-0 z-0">
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+        </div>
         {unreadCount > 0 && (
           <div className="absolute top-2 right-2 md:top-3 md:right-3 z-20">
             <div className="bg-red-500 text-white px-2 py-1 md:px-2.5 md:py-1 rounded-full text-xs font-bold shadow-lg border border-red-300/50">
@@ -252,7 +261,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
             </div>
           </div>
         )}
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-orange-300/10 rounded-full blur-3xl" />
         <div className="relative z-10">
           <div className="p-2 rounded-xl bg-orange-400/20 border border-orange-300/30 w-fit mb-2 md:mb-3">
             <Icon name="MessageCircle" size={20} className="text-white md:w-6 md:h-6" />
@@ -264,9 +272,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('clients')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-5 bg-gradient-to-br from-purple-600 to-indigo-700 shadow-xl hover:shadow-2xl border border-purple-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-5 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
-        <div className="absolute top-0 left-0 w-40 h-40 bg-purple-400/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 z-0">
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+        </div>
         <div className="relative z-10">
           <div className="p-2 rounded-xl bg-purple-500/20 border border-purple-400/30 w-fit mb-2 md:mb-3">
             <Icon name="Building2" size={20} className="text-white md:w-6 md:h-6" />
@@ -278,9 +288,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken }: AdminMetr
 
       <div
         onClick={() => setCurrentView('analytics')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-6 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-xl hover:shadow-2xl border border-indigo-500/30"
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-6 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-indigo-400/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 z-0">
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90" />
+        </div>
         <div className="relative z-10 flex flex-col h-full">
           <div className="p-2 rounded-xl bg-indigo-500/20 border border-indigo-400/30 w-fit mb-2 md:mb-3">
             <Icon name="TrendingUp" size={20} className="text-white md:w-6 md:h-6" />

@@ -1359,6 +1359,39 @@ def get_user_org_shift_details(email: str, org_name: str) -> List[Dict[str, Any]
             
             return shift_details
 
+def delete_year_2025_data() -> Dict[str, int]:
+    """Удалить все данные за 2025 год из всех таблиц"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Удаляем лиды за 2025
+            cur.execute("""
+                DELETE FROM t_p24058207_website_creation_pro.leads_analytics 
+                WHERE created_at >= '2025-01-01 00:00:00' AND created_at < '2026-01-01 00:00:00'
+            """)
+            deleted_leads = cur.rowcount
+            
+            # Удаляем смены за 2025
+            cur.execute("""
+                DELETE FROM t_p24058207_website_creation_pro.work_shifts 
+                WHERE shift_date >= '2025-01-01' AND shift_date < '2026-01-01'
+            """)
+            deleted_shifts = cur.rowcount
+            
+            # Удаляем видео смен за 2025
+            cur.execute("""
+                DELETE FROM t_p24058207_website_creation_pro.shift_videos 
+                WHERE work_date >= '2025-01-01' AND work_date < '2026-01-01'
+            """)
+            deleted_videos = cur.rowcount
+            
+            conn.commit()
+            
+            return {
+                'deleted_leads': deleted_leads,
+                'deleted_shifts': deleted_shifts,
+                'deleted_videos': deleted_videos
+            }
+
 def approve_user(user_id: int, admin_id: int) -> bool:
     """Одобрить пользователя"""
     with get_db_connection() as conn:
@@ -1924,6 +1957,26 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
                 }
+        
+        elif action == 'delete_2025_data':
+            # Проверяем права администратора
+            if not user['is_admin']:
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Доступ запрещен'})
+                }
+            
+            result = delete_year_2025_data()
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({
+                    'success': True,
+                    'message': f"Удалено данных за 2025 год: {result['deleted_leads']} лидов, {result['deleted_shifts']} смен, {result['deleted_videos']} видео",
+                    'result': result
+                })
+            }
         
         elif action == 'get_user_revenue':
             email = body_data.get('email')

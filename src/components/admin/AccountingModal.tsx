@@ -19,6 +19,7 @@ interface AccountingModalProps {
   activeFiltersCount: number;
   hasUnsavedPayments: boolean;
   savingPayments: boolean;
+  deleting2025: boolean;
   editingExpense: Record<string, string>;
   editingComment: Record<string, string>;
   editingPersonalFunds: Record<string, string>;
@@ -30,6 +31,7 @@ interface AccountingModalProps {
   onPaymentTypeFilterChange: (value: ('cash' | 'cashless')[]) => void;
   onDateFilterChange: (filter: { from: string; to: string }) => void;
   onSavePayments: () => void;
+  onDelete2025: () => void;
   onEditShift: (shift: ShiftRecord) => void;
   onDeleteShift: (id: number) => void;
   onExpenseChange: (id: number, value: string) => void;
@@ -57,6 +59,7 @@ export default function AccountingModal({
   activeFiltersCount,
   hasUnsavedPayments,
   savingPayments,
+  deleting2025,
   editingExpense,
   editingComment,
   editingPersonalFunds,
@@ -68,6 +71,7 @@ export default function AccountingModal({
   onPaymentTypeFilterChange,
   onDateFilterChange,
   onSavePayments,
+  onDelete2025,
   onEditShift,
   onDeleteShift,
   onExpenseChange,
@@ -107,6 +111,20 @@ export default function AccountingModal({
           </h2>
           
           <div className="flex items-center gap-3">
+            <button
+              onClick={onDelete2025}
+              disabled={deleting2025}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Удалить данные за 2025 год"
+            >
+              {deleting2025 ? (
+                <Icon name="Loader2" size={16} className="animate-spin" />
+              ) : (
+                <Icon name="Trash2" size={16} />
+              )}
+              <span>{deleting2025 ? 'Удаление...' : 'Удалить 2025'}</span>
+            </button>
+            
             <div className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700">
               <button
                 onClick={() => setZoom(Math.max(50, zoom - 10))}

@@ -95,7 +95,21 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
                   {contactsCount}
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
-                  {contactsCount === 1 ? 'контакт' : contactsCount < 5 ? 'контакта' : 'контактов'}
+                  {(() => {
+                    const lastDigit = contactsCount % 10;
+                    const lastTwoDigits = contactsCount % 100;
+                    
+                    if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+                      return 'контактов';
+                    }
+                    if (lastDigit === 1) {
+                      return 'контакт';
+                    }
+                    if (lastDigit >= 2 && lastDigit <= 4) {
+                      return 'контакта';
+                    }
+                    return 'контактов';
+                  })()}
                 </div>
               </div>
             </div>

@@ -5,21 +5,15 @@ import Icon from '@/components/ui/icon';
 interface AccountingHeaderProps {
   onExport: () => void;
   onAdd: () => void;
-  onRefresh: () => void;
   onFullscreen: () => void;
-  onDelete2025: () => void;
   exporting: boolean;
-  deleting: boolean;
 }
 
 export default function AccountingHeader({ 
   onExport, 
   onAdd, 
-  onRefresh,
   onFullscreen, 
-  onDelete2025,
-  exporting,
-  deleting 
+  exporting
 }: AccountingHeaderProps) {
   return (
     <CardHeader className="pb-3 md:pb-4 bg-gradient-to-r from-slate-800/80 to-slate-900/80 border-b border-slate-700/50">
@@ -59,27 +53,6 @@ export default function AccountingHeader({
           >
             <Icon name="Plus" size={16} />
             <span className="hidden md:inline">Добавить</span>
-          </button>
-          <button
-            onClick={onRefresh}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
-            title="Обновить данные"
-          >
-            <Icon name="RefreshCw" size={16} />
-            <span className="hidden md:inline">Обновить</span>
-          </button>
-          <button
-            onClick={onDelete2025}
-            disabled={deleting}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Удалить данные за 2025 год"
-          >
-            {deleting ? (
-              <Icon name="Loader2" size={16} className="animate-spin" />
-            ) : (
-              <Icon name="Trash2" size={16} />
-            )}
-            <span className="hidden md:inline">{deleting ? 'Удаление...' : 'Удалить 2025'}</span>
           </button>
         </div>
       </div>

@@ -51,7 +51,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const [editingShift, setEditingShift] = useState<ShiftRecord | null>(null);
   const [exporting, setExporting] = useState(false);
   const [savingPayments, setSavingPayments] = useState(false);
-  const [deleting2025, setDeleting2025] = useState(false);
   const [filters, setFilters] = useState({
     paid_by_organization: null as boolean | null,
     paid_to_worker: null as boolean | null,
@@ -138,14 +137,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     }
   };
 
-  const handleRefresh = () => {
-    loadAccountingData();
-    toast({
-      title: 'Обновление',
-      description: 'Загрузка свежих данных...',
-    });
-  };
-
   const handleEditShift = (shift: ShiftRecord) => {
     setEditingShift(shift);
     setShowEditModal(true);
@@ -182,55 +173,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     setSavingPayments(true);
     await saveAllPayments(shifts);
     setSavingPayments(false);
-  };
-
-  const handleDelete2025Data = async () => {
-    if (!confirm('Вы уверены, что хотите удалить ВСЕ данные за 2025 год? Это действие нельзя отменить!')) {
-      return;
-    }
-
-    if (!confirm('Последнее предупреждение! Будут удалены все лиды, смены и видео за 2025 год. Продолжить?')) {
-      return;
-    }
-
-    setDeleting2025(true);
-    try {
-      const response = await fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || ''
-        },
-        body: JSON.stringify({
-          action: 'delete_2025_data'
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        toast({
-          title: 'Данные удалены',
-          description: data.message,
-        });
-        await loadAccountingData();
-      } else {
-        const error = await response.json();
-        toast({
-          title: 'Ошибка',
-          description: error.error || 'Не удалось удалить данные',
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      console.error('Error deleting 2025 data:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Произошла ошибка при удалении данных',
-        variant: 'destructive'
-      });
-    } finally {
-      setDeleting2025(false);
-    }
   };
 
   const hasUnsavedPayments = 
@@ -295,11 +237,8 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         <AccountingHeader
           onExport={handleExportToGoogleSheets}
           onAdd={() => setShowAddModal(true)}
-          onRefresh={handleRefresh}
           onFullscreen={() => setShowFullscreen(true)}
-          onDelete2025={handleDelete2025Data}
           exporting={exporting}
-          deleting={deleting2025}
         />
         <CardContent>
           {hasUnsavedPayments && (

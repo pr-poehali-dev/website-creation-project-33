@@ -200,44 +200,58 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     <div className="space-y-6 md:space-y-8 px-4 md:px-0">
       {/* Кнопка записи звука */}
       <div className="flex justify-center py-8 md:py-12">
-        <button
-          onClick={startRecording}
-          disabled={isRecording}
-          className="audio-record-button shadow-lg hover:shadow-xl"
-          style={{
-            width: '100px',
-            height: '100px',
-            borderRadius: '50%',
-            backgroundColor: '#001f54',
-            border: 'none',
-            cursor: isRecording ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.3s ease',
-            opacity: isRecording ? 0.5 : 1,
-          }}
-          onMouseEnter={(e) => {
-            if (!isRecording) {
-              e.currentTarget.style.backgroundColor = '#003580';
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isRecording) {
-              e.currentTarget.style.backgroundColor = '#001f54';
-              e.currentTarget.style.transform = 'scale(1)';
-            }
-          }}
-        >
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '16px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '26px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '20px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '30px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '18px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+        <div className="relative">
+          {/* Колпак Деда Мороза */}
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
+            <div className="relative w-12 h-16">
+              {/* Треугольник колпака */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[24px] border-l-transparent border-r-[24px] border-r-transparent border-t-[40px] border-t-red-600"></div>
+              {/* Помпон */}
+              <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-md"></div>
+              {/* Опушка */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-2 bg-white rounded-full"></div>
+            </div>
           </div>
-        </button>
+          
+          <button
+            onClick={startRecording}
+            disabled={isRecording}
+            className="audio-record-button shadow-lg hover:shadow-xl"
+            style={{
+              width: '100px',
+              height: '100px',
+              borderRadius: '50%',
+              backgroundColor: '#001f54',
+              border: 'none',
+              cursor: isRecording ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.3s ease',
+              opacity: isRecording ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!isRecording) {
+                e.currentTarget.style.backgroundColor = '#003580';
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isRecording) {
+                e.currentTarget.style.backgroundColor = '#001f54';
+                e.currentTarget.style.transform = 'scale(1)';
+              }
+            }}
+          >
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '16px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
+              <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '26px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
+              <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '20px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
+              <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '30px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
+              <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '18px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Модальное окно с блокнотом */}
@@ -305,13 +319,37 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
       {/* Кнопка завершить смену */}
       <div className="flex justify-center">
-        <button
-          onClick={() => setEndShiftPhotoOpen(true)}
-          className="px-8 py-4 md:px-10 md:py-5 bg-white text-[#001f54] border-2 border-[#001f54] rounded-full font-semibold text-base md:text-lg hover:bg-[#001f54] hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-3"
-        >
-          <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
-          Завершить смену
-        </button>
+        <div className="relative">
+          {/* Мишура сверху */}
+          <div className="absolute -top-3 left-0 right-0 flex justify-center">
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" style={{ animationDelay: '0ms', animationDuration: '1500ms' }}></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-400 animate-pulse" style={{ animationDelay: '300ms', animationDuration: '1500ms' }}></div>
+              <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" style={{ animationDelay: '600ms', animationDuration: '1500ms' }}></div>
+              <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" style={{ animationDelay: '900ms', animationDuration: '1500ms' }}></div>
+              <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '1200ms', animationDuration: '1500ms' }}></div>
+            </div>
+          </div>
+          
+          {/* Мишура снизу */}
+          <div className="absolute -bottom-3 left-0 right-0 flex justify-center">
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '0ms', animationDuration: '1500ms' }}></div>
+              <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" style={{ animationDelay: '300ms', animationDuration: '1500ms' }}></div>
+              <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" style={{ animationDelay: '600ms', animationDuration: '1500ms' }}></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-400 animate-pulse" style={{ animationDelay: '900ms', animationDuration: '1500ms' }}></div>
+              <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" style={{ animationDelay: '1200ms', animationDuration: '1500ms' }}></div>
+            </div>
+          </div>
+          
+          <button
+            onClick={() => setEndShiftPhotoOpen(true)}
+            className="px-8 py-4 md:px-10 md:py-5 bg-white text-[#001f54] border-2 border-[#001f54] rounded-full font-semibold text-base md:text-lg hover:bg-[#001f54] hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-3"
+          >
+            <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
+            Завершить смену
+          </button>
+        </div>
       </div>
 
       <PhotoCapture

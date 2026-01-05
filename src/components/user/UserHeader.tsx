@@ -69,10 +69,10 @@ export default function UserHeader({
             )}
             <Button 
               onClick={onOpenAI} 
-              className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2 font-bold"
+              className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
               size="sm"
             >
-              AI
+              <Icon name="Sparkles" size={16} className="text-white" />
             </Button>
             <Button 
               onClick={onOpenSchedule} 
@@ -110,11 +110,11 @@ export default function UserHeader({
             <>
               <Button 
                 onClick={onOpenChat} 
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl font-semibold relative"
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl relative px-3"
                 variant="outline"
+                size="sm"
               >
-                <Icon name="MessageCircle" size={16} className="mr-2 text-white" />
-                <span className="text-white">Чат</span>
+                <Icon name="MessageCircle" size={18} className="text-white" />
                 {(unreadCount + groupUnreadCount) > 0 && (
                   <Badge className="absolute -top-2 -right-2 h-5 min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-xs px-1">
                     {unreadCount + groupUnreadCount}
@@ -124,36 +124,36 @@ export default function UserHeader({
               {onChangeOrganization && (
                 <Button 
                   onClick={onChangeOrganization}
-                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl font-semibold"
+                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl px-3"
                   variant="outline"
+                  size="sm"
                 >
-                  <Icon name="RefreshCw" size={16} className="mr-2 text-white" />
-                  <span className="text-white">Сменить</span>
+                  <Icon name="RefreshCw" size={18} className="text-white" />
                 </Button>
               )}
             </>
           )}
           <Button 
             onClick={onOpenAI} 
-            className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl font-bold"
+            className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl px-3"
+            size="sm"
           >
-            <Icon name="Sparkles" size={16} className="mr-2" />
-            AI Помощник
+            <Icon name="Sparkles" size={18} className="text-white" />
           </Button>
           <Button 
             onClick={onOpenSchedule} 
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl font-semibold"
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl px-3"
             variant="outline"
+            size="sm"
           >
-            <Icon name="Calendar" size={16} className="mr-2 text-white" />
-            <span className="text-white">График</span>
+            <Icon name="Calendar" size={18} className="text-white" />
           </Button>
           <Button 
             onClick={onLogout} 
-            className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl font-semibold"
+            className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl px-3"
+            size="sm"
           >
-            <Icon name="LogOut" size={16} className="mr-2" />
-            Выйти
+            <Icon name="LogOut" size={18} className="text-white" />
           </Button>
         </div>
       </div>

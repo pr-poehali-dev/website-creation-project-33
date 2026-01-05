@@ -980,15 +980,25 @@ def add_manual_shift(user_id: int, work_date: str, start_time: str, end_time: st
         return False
 
 def delete_shift_by_date(user_id: int, work_date: str) -> bool:
-    """Удалить информацию о смене (открытие/закрытие) для конкретного дня и пользователя"""
+    """Удалить информацию о смене (открытие/закрытие) для конкретного дня и пользователя из обеих таблиц"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+            deleted_count = 0
+            
             cur.execute("""
                 DELETE FROM t_p24058207_website_creation_pro.shift_videos 
                 WHERE user_id = %s AND work_date = %s
             """, (user_id, work_date))
+            deleted_count += cur.rowcount
+            
+            cur.execute("""
+                DELETE FROM t_p24058207_website_creation_pro.work_shifts 
+                WHERE user_id = %s AND shift_date = %s
+            """, (user_id, work_date))
+            deleted_count += cur.rowcount
+            
             conn.commit()
-            return cur.rowcount > 0
+            return deleted_count > 0
 
 def get_pending_users() -> List[Dict[str, Any]]:
     """Получить список пользователей, ожидающих одобрения"""

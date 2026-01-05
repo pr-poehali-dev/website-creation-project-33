@@ -138,7 +138,7 @@ export default function UserDashboard() {
         {currentView === 'tiles' && selectedOrganization && (
           <>
             {organizationName && (
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
+              <div className="flex justify-end items-center gap-3 mb-4 md:mb-6">
                 <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1.5">
                   <Icon name="Building2" size={14} className="mr-1.5" />
                   {organizationName}

@@ -44,53 +44,46 @@ export default function UserHeader({
         
         {selectedOrganization ? (
           <>
-            {/* With Organization Selected - Only Buttons */}
-            <div className="flex gap-1.5 relative z-10 justify-center flex-wrap">
-              <Button 
-                onClick={onOpenChat} 
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2 relative"
-                size="sm"
-                variant="outline"
-              >
-                <Icon name="MessageCircle" size={16} className="text-white" />
-                {(unreadCount + groupUnreadCount) > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-xs px-1">
-                    {unreadCount + groupUnreadCount}
-                  </Badge>
+            {/* With Organization Selected - Year in center, buttons on right */}
+            <div className="flex items-center justify-between relative z-10">
+              <div className="flex-1"></div>
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg absolute left-1/2 transform -translate-x-1/2">
+                2026
+              </h1>
+              <div className="flex gap-1 ml-auto">
+                {onChangeOrganization && (
+                  <Button 
+                    onClick={onChangeOrganization}
+                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-2 py-1.5 h-8"
+                    size="sm"
+                    variant="outline"
+                  >
+                    <Icon name="RefreshCw" size={14} className="text-white" />
+                  </Button>
                 )}
-              </Button>
-              {onChangeOrganization && (
                 <Button 
-                  onClick={onChangeOrganization}
-                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
+                  onClick={onOpenAI} 
+                  className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-2 py-1.5 h-8"
+                  size="sm"
+                >
+                  <Icon name="Sparkles" size={14} className="text-white" />
+                </Button>
+                <Button 
+                  onClick={onOpenSchedule} 
+                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-2 py-1.5 h-8"
                   size="sm"
                   variant="outline"
                 >
-                  <Icon name="RefreshCw" size={16} className="text-white" />
+                  <Icon name="Calendar" size={14} className="text-white" />
                 </Button>
-              )}
-              <Button 
-                onClick={onOpenAI} 
-                className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
-                size="sm"
-              >
-                <Icon name="Sparkles" size={16} className="text-white" />
-              </Button>
-              <Button 
-                onClick={onOpenSchedule} 
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
-                size="sm"
-                variant="outline"
-              >
-                <Icon name="Calendar" size={16} className="text-white" />
-              </Button>
-              <Button 
-                onClick={onLogout} 
-                className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
-                size="sm"
-              >
-                <Icon name="LogOut" size={16} className="text-white" />
-              </Button>
+                <Button 
+                  onClick={onLogout} 
+                  className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-2 py-1.5 h-8"
+                  size="sm"
+                >
+                  <Icon name="LogOut" size={14} className="text-white" />
+                </Button>
+              </div>
             </div>
             </>
           ) : (

@@ -124,7 +124,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   placeholder="Поиск организации..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white/95 backdrop-blur-md border-teal-300/50 text-teal-900 placeholder:text-gray-900/70 focus:border-teal-400 focus:ring-teal-400/30 shadow-lg"
+                  className="pl-10 bg-white/40 backdrop-blur-md border-teal-300/50 text-gray-900 placeholder:text-gray-900/70 focus:border-teal-400 focus:ring-teal-400/30 shadow-lg"
                 />
               </div>
 
@@ -139,7 +139,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   <button
                     key={org.id}
                     onClick={() => handleOrgClick(org)}
-                    className="w-full p-4 rounded-xl border-2 border-yellow-400/60 bg-white/95 backdrop-blur-sm hover:border-yellow-500 hover:bg-yellow-50/80 transition-all duration-300 flex items-center justify-center hover:shadow-lg hover:scale-[1.02] active:scale-95"
+                    className="w-full p-4 rounded-xl border-2 border-yellow-400/60 bg-white/30 backdrop-blur-sm hover:border-yellow-500 hover:bg-yellow-50/40 transition-all duration-300 flex items-center justify-center hover:shadow-lg hover:scale-[1.02] active:scale-95"
                   >
                     {org.name.startsWith('ТОП (') ? (
                       <div className="flex items-center gap-3">
@@ -192,7 +192,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                 <Button
                   onClick={() => setShowAll(!showAll)}
                   variant="outline"
-                  className="w-full border-teal-500/50 text-gray-900 hover:bg-teal-50 bg-white/80 backdrop-blur-sm shadow-sm"
+                  className="w-full border-teal-500/50 text-gray-900 hover:bg-teal-50/40 bg-white/30 backdrop-blur-sm shadow-sm"
                 >
                   <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={20} className="mr-2" />
                   {showAll ? 'Скрыть' : `Показать ещё (${organizations.length - 4})`}

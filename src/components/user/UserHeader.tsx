@@ -44,9 +44,9 @@ export default function UserHeader({
         
         {selectedOrganization ? (
           <>
-            {/* With Organization Selected - Year on left, buttons on right */}
-            <div className="flex items-center justify-between relative z-10">
-              <h1 className="text-3xl font-bold text-white drop-shadow-lg">
+            {/* With Organization Selected - Year in center, buttons on right */}
+            <div className="flex items-center justify-end relative z-10">
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg absolute left-1/2 transform -translate-x-1/2">
                 2026
               </h1>
               <div className="flex gap-1">

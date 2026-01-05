@@ -237,7 +237,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
             <Icon name="BarChart3" size={20} className="text-white md:w-6 md:h-6" />
           </div>
           <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Статистика</h2>
-          <p className="text-green-100 text-xs md:text-sm mb-2 md:mb-3">Пользователи, рейтинг, организации</p>
+          <p className="text-green-100 text-xs md:text-sm mb-2 md:mb-3">Промоутеры, рейтинг, организации</p>
           <div className="mt-auto pt-2 md:pt-4 flex flex-wrap gap-1.5 md:gap-2">
             <MonthComparisonBadge sessionToken={sessionToken} />
             <TodayContactsCounter sessionToken={sessionToken} />

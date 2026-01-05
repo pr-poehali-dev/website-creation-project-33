@@ -147,7 +147,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            Пользователи
+            Промоутеры
           </button>
           <button
             onClick={() => setStatsSubView('organizations')}

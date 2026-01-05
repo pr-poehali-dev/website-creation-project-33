@@ -275,7 +275,7 @@ export default function ChartFilters({
 
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs md:text-sm text-slate-300 font-medium whitespace-nowrap">Пользователи:</span>
+          <span className="text-xs md:text-sm text-slate-300 font-medium whitespace-nowrap">Промоутеры:</span>
           <Button
             onClick={toggleAllUsers}
             variant="outline"

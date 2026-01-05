@@ -44,13 +44,12 @@ export default function UserHeader({
         
         {selectedOrganization ? (
           <>
-            {/* With Organization Selected - Year in center, buttons on right */}
+            {/* With Organization Selected - Year on left, buttons on right */}
             <div className="flex items-center justify-between relative z-10">
-              <div className="flex-1"></div>
-              <h1 className="text-3xl font-bold text-white drop-shadow-lg absolute left-1/2 transform -translate-x-1/2">
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">
                 2026
               </h1>
-              <div className="flex gap-1 ml-auto">
+              <div className="flex gap-1">
                 {onChangeOrganization && (
                   <Button 
                     onClick={onChangeOrganization}

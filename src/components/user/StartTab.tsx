@@ -100,12 +100,12 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
     <div className="space-y-6 slide-up">
       <Card className="border-none shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-30"
-          style={{ backgroundImage: 'url(https://cdn.poehali.dev/files/Texture_Christmas_Snowflakes_572714_3840x2400.jpg)' }}
+          className="absolute inset-0 bg-cover bg-center opacity-95"
+          style={{ backgroundImage: 'url(https://cdn.poehali.dev/files/cfc2924e2f5bfb692677b8b2609770ec.jpg)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/90 to-white/95" />
+        <div className="absolute inset-0 bg-gradient-to-b from-teal-900/20 to-teal-900/40" />
         <CardHeader className="text-center relative z-10">
-          <CardTitle className="text-teal-900 text-2xl font-bold">
+          <CardTitle className="text-white text-2xl font-bold drop-shadow-lg">
             Выберите организацию
           </CardTitle>
         </CardHeader>
@@ -118,13 +118,13 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
           ) : (
             <>
               <div className="relative mb-4">
-                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-600" />
+                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-700" />
                 <Input
                   type="text"
                   placeholder="Поиск организации..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white/90 backdrop-blur-sm border-teal-200 text-teal-900 placeholder:text-teal-600/60 focus:border-teal-500 focus:ring-teal-500/20 shadow-sm"
+                  className="pl-10 bg-white/95 backdrop-blur-md border-teal-300/50 text-teal-900 placeholder:text-teal-700/60 focus:border-teal-400 focus:ring-teal-400/30 shadow-lg"
                 />
               </div>
 

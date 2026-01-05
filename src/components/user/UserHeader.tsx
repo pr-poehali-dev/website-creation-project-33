@@ -12,6 +12,9 @@ interface UserHeaderProps {
   unreadCount: number;
   groupUnreadCount: number;
   selectedOrganization: number | null;
+  organizationName?: string;
+  todayContacts?: number;
+  totalContacts?: number;
 }
 
 export default function UserHeader({ 
@@ -22,7 +25,10 @@ export default function UserHeader({
   onChangeOrganization,
   unreadCount,
   groupUnreadCount,
-  selectedOrganization
+  selectedOrganization,
+  organizationName,
+  todayContacts,
+  totalContacts
 }: UserHeaderProps) {
   return (
     <>
@@ -35,15 +41,36 @@ export default function UserHeader({
             className="w-full h-full object-cover object-center scale-[1.5]"
           />
         </div>
-        <div className="flex items-center justify-between relative z-10">
+        
+        {/* Top row - Title and Info */}
+        <div className="flex items-start justify-between relative z-10 mb-3">
           <h1 className="text-xl font-bold text-white drop-shadow-lg">
             С Новым Годом!
           </h1>
-          <div className="flex gap-2">
-            {selectedOrganization && (
+          
+          {/* Organization Badge and Counter */}
+          {selectedOrganization && organizationName && (
+            <div className="flex flex-col items-end gap-1.5">
+              <Badge className="bg-white/90 text-[#001f54] border border-yellow-400/80 text-xs px-2 py-0.5 whitespace-nowrap">
+                <Icon name="Building2" size={12} className="mr-1" />
+                {organizationName}
+              </Badge>
+              {todayContacts !== undefined && totalContacts !== undefined && (
+                <Badge className="bg-white/90 text-[#001f54] border border-yellow-400/80 text-xs px-2 py-0.5 whitespace-nowrap">
+                  {todayContacts}/{totalContacts}
+                </Badge>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom row - Buttons */}
+        <div className="flex gap-1.5 relative z-10">
+          {selectedOrganization && (
+            <>
               <Button 
                 onClick={onOpenChat} 
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2 relative"
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-2.5 py-2 relative"
                 size="sm"
                 variant="outline"
               >
@@ -54,30 +81,40 @@ export default function UserHeader({
                   </Badge>
                 )}
               </Button>
-            )}
-            <Button 
-              onClick={onOpenAI} 
-              className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
-              size="sm"
-            >
-              <Icon name="Sparkles" size={16} className="text-white" />
-            </Button>
-            <Button 
-              onClick={onOpenSchedule} 
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
-              size="sm"
-              variant="outline"
-            >
-              <Icon name="Calendar" size={16} className="text-white" />
-            </Button>
-            <Button 
-              onClick={onLogout} 
-              className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
-              size="sm"
-            >
-              <Icon name="LogOut" size={16} className="text-white" />
-            </Button>
-          </div>
+              {onChangeOrganization && (
+                <Button 
+                  onClick={onChangeOrganization}
+                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-2.5 py-2"
+                  size="sm"
+                  variant="outline"
+                >
+                  <Icon name="RefreshCw" size={16} className="text-white" />
+                </Button>
+              )}
+            </>
+          )}
+          <Button 
+            onClick={onOpenAI} 
+            className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-2.5 py-2"
+            size="sm"
+          >
+            <Icon name="Sparkles" size={16} className="text-white" />
+          </Button>
+          <Button 
+            onClick={onOpenSchedule} 
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-2.5 py-2"
+            size="sm"
+            variant="outline"
+          >
+            <Icon name="Calendar" size={16} className="text-white" />
+          </Button>
+          <Button 
+            onClick={onLogout} 
+            className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-2.5 py-2"
+            size="sm"
+          >
+            <Icon name="LogOut" size={16} className="text-white" />
+          </Button>
         </div>
       </div>
 

@@ -28,6 +28,7 @@ export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState<string>(selectedOrganization ? 'work' : 'tiles');
   const [backgroundImage, setBackgroundImage] = useState<string>('');
   const [todayContacts, setTodayContacts] = useState<number>(0);
+  const [totalContacts, setTotalContacts] = useState<number>(0);
   const contactsCounterRef = useRef<ContactsCounterRef>(null);
   const [currentView, setCurrentView] = useState<'tiles' | 'start' | 'work' | 'schedule' | 'training'>(selectedOrganization ? 'tiles' : 'start');
 
@@ -118,6 +119,9 @@ export default function UserDashboard() {
           unreadCount={unreadCount}
           groupUnreadCount={groupUnreadCount}
           selectedOrganization={selectedOrganization}
+          organizationName={organizationName}
+          todayContacts={todayContacts}
+          totalContacts={totalContacts}
         />
 
         <ChatTabs 
@@ -143,7 +147,10 @@ export default function UserDashboard() {
                   <Icon name="Building2" size={14} className="mr-1.5" />
                   {organizationName}
                 </Badge>
-                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => setTodayContacts(stats.today_contacts)} />
+                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
+                  setTodayContacts(stats.today_contacts);
+                  setTotalContacts(stats.total_contacts);
+                }} />
               </div>
             )}
             

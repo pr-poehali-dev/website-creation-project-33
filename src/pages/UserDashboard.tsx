@@ -156,8 +156,8 @@ export default function UserDashboard() {
                   <img 
                     src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
                     alt="" 
-                    className="w-full h-full object-cover"
-                    style={{ objectPosition: '0% 15%' }}
+                    className="w-full h-full object-cover scale-[2.5]"
+                    style={{ objectPosition: '85% 20%' }}
                   />
                 </div>
                 <div className="relative z-10">
@@ -177,8 +177,8 @@ export default function UserDashboard() {
                   <img 
                     src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
                     alt="" 
-                    className="w-full h-full object-cover"
-                    style={{ objectPosition: '100% 10%' }}
+                    className="w-full h-full object-cover scale-[2.5]"
+                    style={{ objectPosition: '90% 35%' }}
                   />
                 </div>
                 <div className="relative z-10">
@@ -198,8 +198,8 @@ export default function UserDashboard() {
                   <img 
                     src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
                     alt="" 
-                    className="w-full h-full object-cover"
-                    style={{ objectPosition: '0% 80%' }}
+                    className="w-full h-full object-cover scale-[2.5]"
+                    style={{ objectPosition: '80% 55%' }}
                   />
                 </div>
                 <div className="relative z-10">
@@ -219,8 +219,8 @@ export default function UserDashboard() {
                   <img 
                     src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
                     alt="" 
-                    className="w-full h-full object-cover"
-                    style={{ objectPosition: '100% 85%' }}
+                    className="w-full h-full object-cover scale-[2.5]"
+                    style={{ objectPosition: '95% 45%' }}
                   />
                 </div>
                 <div className="relative z-10">

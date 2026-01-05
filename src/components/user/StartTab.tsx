@@ -139,51 +139,9 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   <button
                     key={org.id}
                     onClick={() => handleOrgClick(org)}
-                    className="w-full p-4 rounded-xl border-2 border-yellow-400/60 bg-white/30 backdrop-blur-sm hover:border-yellow-500 hover:bg-yellow-50/40 transition-all duration-300 flex items-center justify-center hover:shadow-lg hover:scale-[1.02] active:scale-95"
+                    className="w-full p-4 rounded-xl border-2 border-teal-300/50 bg-white/30 backdrop-blur-sm hover:border-teal-400 hover:bg-teal-50/40 transition-all duration-300 flex items-center justify-center hover:shadow-lg hover:scale-[1.02] active:scale-95"
                   >
-                    {org.name.startsWith('ТОП (') ? (
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src="https://cdn.poehali.dev/files/4333ad33-867b-4fa5-ac4a-ee84df41ad36.jpeg" 
-                          alt="ТОП IT ACADEMY"
-                          className="h-8 object-contain"
-                        />
-                        <span className="text-lg text-slate-900 font-medium">
-                          ТОП ({org.name.replace('ТОП (', '').replace(')', '')})
-                        </span>
-                      </div>
-                    ) : org.name.startsWith('KIBERONE (') ? (
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src="https://cdn.poehali.dev/files/193514cf-f3d3-4bb3-b21a-107c707033e7.jpeg" 
-                          alt="KIBERONE"
-                          className="h-8 object-contain"
-                        />
-                        <span className="text-lg text-slate-900 font-medium">
-                          KIBERONE ({org.name.replace('KIBERONE (', '').replace(')', '')})
-                        </span>
-                      </div>
-                    ) : org.name === 'Сотка' ? (
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src="https://cdn.poehali.dev/files/7954e315-365e-4811-a221-ea0a5db669d9.jpeg" 
-                          alt="Сотка"
-                          className="h-12 object-contain"
-                        />
-                        <span className="text-lg text-slate-900 font-medium">Сотка</span>
-                      </div>
-                    ) : org.name === 'WORKOUT ANT' ? (
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src="https://cdn.poehali.dev/files/78d7d4cd-36bf-48a2-8b4d-d7a24cae0b4d.jpeg" 
-                          alt="WORKOUT ANT"
-                          className="h-12 object-contain"
-                        />
-                        <span className="text-lg text-slate-900 font-medium">WORKOUT ANT</span>
-                      </div>
-                    ) : (
-                      <span className="text-lg text-slate-900 font-medium">{org.name}</span>
-                    )}
+                    <span className="text-lg text-white font-medium drop-shadow-md">{org.name}</span>
                   </button>
                 ))}
               </div>

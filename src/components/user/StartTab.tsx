@@ -192,7 +192,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                 <Button
                   onClick={() => setShowAll(!showAll)}
                   variant="outline"
-                  className="w-full border-teal-500/50 text-teal-700 hover:bg-teal-50 bg-white/80 backdrop-blur-sm shadow-sm"
+                  className="w-full border-teal-500/50 text-gray-900 hover:bg-teal-50 bg-white/80 backdrop-blur-sm shadow-sm"
                 >
                   <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={20} className="mr-2" />
                   {showAll ? 'Скрыть' : `Показать ещё (${organizations.length - 4})`}

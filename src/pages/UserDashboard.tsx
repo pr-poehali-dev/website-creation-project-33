@@ -106,7 +106,8 @@ export default function UserDashboard() {
 
   return (
     <div 
-      className="min-h-screen p-3 md:p-6 bg-white"
+      className="min-h-screen p-3 md:p-6 bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: 'url(https://cdn.poehali.dev/files/46deb624490a0b9cdae4cd9a84a9cf44.jpg)' }}
     >
       <div className="max-w-6xl mx-auto">
         <UserHeader 

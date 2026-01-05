@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Check duplicates",
+    "request": {},
+    "expected": {
+      "statusCode": 200
+    }
+  }
+]

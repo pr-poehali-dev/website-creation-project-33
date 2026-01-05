@@ -756,7 +756,7 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                     JOIN t_p24058207_website_creation_pro.users u ON sv.user_id = u.id
                     GROUP BY sv.user_id, u.name, sv.work_date, sv.organization_id
                     
-                    UNION ALL
+                    UNION
                     
                     -- Ручные смены из work_shifts
                     SELECT 

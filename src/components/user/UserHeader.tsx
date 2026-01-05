@@ -32,7 +32,7 @@ export default function UserHeader({
           <img 
             src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
             alt="" 
-            className="w-full h-full object-cover object-right scale-[2.5]"
+            className="w-full h-full object-cover object-center scale-[1.5]"
           />
         </div>
         <div className="flex items-center justify-between relative z-10">
@@ -41,31 +41,19 @@ export default function UserHeader({
           </h1>
           <div className="flex gap-2">
             {selectedOrganization && (
-              <>
-                <Button 
-                  onClick={onOpenChat} 
-                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2 relative"
-                  size="sm"
-                  variant="outline"
-                >
-                  <Icon name="MessageCircle" size={16} className="text-white" />
-                  {(unreadCount + groupUnreadCount) > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-xs px-1">
-                      {unreadCount + groupUnreadCount}
-                    </Badge>
-                  )}
-                </Button>
-                {onChangeOrganization && (
-                  <Button 
-                    onClick={onChangeOrganization}
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
-                    size="sm"
-                    variant="outline"
-                  >
-                    <Icon name="RefreshCw" size={16} className="text-white" />
-                  </Button>
+              <Button 
+                onClick={onOpenChat} 
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2 relative"
+                size="sm"
+                variant="outline"
+              >
+                <Icon name="MessageCircle" size={16} className="text-white" />
+                {(unreadCount + groupUnreadCount) > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-xs px-1">
+                    {unreadCount + groupUnreadCount}
+                  </Badge>
                 )}
-              </>
+              </Button>
             )}
             <Button 
               onClick={onOpenAI} 

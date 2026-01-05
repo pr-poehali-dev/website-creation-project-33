@@ -100,15 +100,14 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
     <div className="space-y-6 slide-up">
       <Card className="border-none shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-40"
-          style={{ backgroundImage: 'url(https://cdn.poehali.dev/files/fon-zima-snezhinki-winter-snowflakes-background.jpg)' }}
+          className="absolute inset-0 bg-cover bg-center opacity-30"
+          style={{ backgroundImage: 'url(https://cdn.poehali.dev/files/Texture_Christmas_Snowflakes_572714_3840x2400.jpg)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/80 to-white/95" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/90 to-white/95" />
         <CardHeader className="text-center relative z-10">
           <CardTitle className="text-teal-900 text-2xl font-bold">
-            ✨ С Новым Годом! ✨
+            Выберите организацию
           </CardTitle>
-          <p className="text-teal-700 mt-2">Выберите организацию</p>
         </CardHeader>
         <CardContent className="space-y-6 relative z-10">
           {organizations.length === 0 ? (

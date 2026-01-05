@@ -152,10 +152,13 @@ export default function UserDashboard() {
                 onClick={() => setCurrentView('work')}
                 className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-4 right-4 text-teal-700 text-6xl">❄</div>
-                  <div className="absolute bottom-8 left-8 text-teal-700 text-8xl">🎄</div>
-                  <div className="absolute top-12 left-12 text-teal-700 text-4xl">❄</div>
+                <div className="absolute inset-0 opacity-20">
+                  <img 
+                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
+                    alt="" 
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: '30% 20%' }}
+                  />
                 </div>
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
@@ -170,10 +173,13 @@ export default function UserDashboard() {
                 onClick={() => setCurrentView('schedule')}
                 className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-4 right-4 text-teal-700 text-6xl">❄</div>
-                  <div className="absolute bottom-8 left-8 text-teal-700 text-8xl">🎄</div>
-                  <div className="absolute top-12 left-12 text-teal-700 text-4xl">❄</div>
+                <div className="absolute inset-0 opacity-20">
+                  <img 
+                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
+                    alt="" 
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: '60% 40%' }}
+                  />
                 </div>
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
@@ -188,10 +194,13 @@ export default function UserDashboard() {
                 onClick={() => setCurrentView('training')}
                 className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-4 right-4 text-teal-700 text-6xl">❄</div>
-                  <div className="absolute bottom-8 left-8 text-teal-700 text-8xl">🎄</div>
-                  <div className="absolute top-12 left-12 text-teal-700 text-4xl">❄</div>
+                <div className="absolute inset-0 opacity-20">
+                  <img 
+                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
+                    alt="" 
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: '80% 60%' }}
+                  />
                 </div>
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
@@ -206,10 +215,13 @@ export default function UserDashboard() {
                 onClick={() => setChatOpen(true)}
                 className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-4 right-4 text-teal-700 text-6xl">❄</div>
-                  <div className="absolute bottom-8 left-8 text-teal-700 text-8xl">🎄</div>
-                  <div className="absolute top-12 left-12 text-teal-700 text-4xl">❄</div>
+                <div className="absolute inset-0 opacity-20">
+                  <img 
+                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
+                    alt="" 
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: '50% 80%' }}
+                  />
                 </div>
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4 relative">

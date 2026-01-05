@@ -255,7 +255,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
           <div className="p-2 rounded-lg bg-slate-800">
             <Icon name="Trophy" size={20} className="text-cyan-400" />
           </div>
-          Рейтинг пользователей ({getRankingTitle()})
+          Рейтинг промоутеров ({getRankingTitle()})
         </CardTitle>
       </CardHeader>
       <CardContent>

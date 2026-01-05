@@ -170,7 +170,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
             <div className="p-2 rounded-lg bg-slate-800">
               <Icon name="Users" size={18} className="text-cyan-400 md:w-5 md:h-5" />
             </div>
-            Активные пользователи ({activeUsers.length})
+            Активные промоутеры ({activeUsers.length})
           </span>
           <Badge className="bg-slate-800 text-green-400 border border-green-400/30 flex items-center gap-2 px-2 md:px-3 py-1 text-sm">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -203,7 +203,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
           {filteredActiveUsers.length === 0 ? (
             <div className="text-center py-8 text-slate-400">
               <Icon name="SearchX" size={48} className="mx-auto mb-3 text-slate-600" />
-              <p>Пользователи не найдены</p>
+              <p>Промоутеры не найдены</p>
             </div>
           ) : (
             <>
@@ -269,7 +269,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
               <div className="p-2 rounded-lg bg-slate-800">
                 <Icon name="UserX" size={18} className="text-red-400 md:w-5 md:h-5" />
               </div>
-              Деактивированные пользователи ({inactiveUsers.length})
+              Деактивированные промоутеры ({inactiveUsers.length})
             </span>
           </CardTitle>
         </CardHeader>
@@ -298,7 +298,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
             {filteredInactiveUsers.length === 0 ? (
               <div className="text-center py-8 text-slate-400">
                 <Icon name="SearchX" size={48} className="mx-auto mb-3 text-slate-600" />
-                <p>Пользователи не найдены</p>
+                <p>Промоутеры не найдены</p>
               </div>
             ) : (
               <>

@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useChatUnread } from '@/hooks/useChatUnread';
 import ChatTabs from '@/components/chat/ChatTabs';
 import AIHelper from '@/components/chat/AIHelper';
+import UserHeader from '@/components/user/UserHeader';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
 import TrainingTab from '@/components/user/TrainingTab';
@@ -105,81 +106,19 @@ export default function UserDashboard() {
 
   return (
     <div 
-      className="min-h-screen p-3 md:p-6"
-      style={{
-        backgroundImage: backgroundImage || 'linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
-      }}
+      className="min-h-screen p-3 md:p-6 bg-white"
     >
       <div className="max-w-6xl mx-auto">
-        {/* Шапка */}
-        <div className="mb-3 md:mb-4 slide-up">
-          <div className="flex justify-between items-start md:items-center gap-2">
-            <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-              <div className="w-12 h-12 rounded-full bg-white border-2 border-[#001f54] overflow-hidden flex items-center justify-center p-2 shadow-lg flex-shrink-0">
-                <img 
-                  src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg" 
-                  alt="ИМПЕРИЯ"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-sm md:text-xl font-bold text-[#001f54] leading-tight">
-                  ИМПЕРИЯ
-                </h1>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
-              {selectedOrganization && (
-                <>
-                  <Button 
-                    onClick={() => setChatOpen(true)} 
-                    className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg relative h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    size="sm"
-                  >
-                    <Icon name="MessageCircle" size={18} />
-                    {(unreadCount + groupUnreadCount) > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-xs px-1">
-                        {unreadCount + groupUnreadCount}
-                      </Badge>
-                    )}
-                  </Button>
-                  <Button 
-                    onClick={handleChangeOrganization}
-                    className="hidden md:flex border-0 text-[#001f54] hover:bg-[#001f54]/5 transition-all duration-300 h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <Icon name="RefreshCw" size={18} />
-                  </Button>
-                </>
-              )}
-              <Button 
-                onClick={() => setAiHelperOpen(true)} 
-                className="hidden md:flex bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 font-bold text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                size="sm"
-              >
-                AI
-              </Button>
-              <Button 
-                onClick={() => setCurrentView('schedule')} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                size="sm"
-              >
-                <Icon name="Calendar" size={18} />
-              </Button>
-              <Button 
-                onClick={logout} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg h-10 w-10 p-0 md:h-9 md:w-auto md:px-3 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                size="sm"
-              >
-                <Icon name="LogOut" size={18} />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <UserHeader 
+          onLogout={logout}
+          onOpenChat={() => setChatOpen(true)}
+          onOpenAI={() => setAiHelperOpen(true)}
+          onOpenSchedule={() => setCurrentView('schedule')}
+          onChangeOrganization={handleChangeOrganization}
+          unreadCount={unreadCount}
+          groupUnreadCount={groupUnreadCount}
+          selectedOrganization={selectedOrganization}
+        />
 
         <ChatTabs 
           open={chatOpen} 

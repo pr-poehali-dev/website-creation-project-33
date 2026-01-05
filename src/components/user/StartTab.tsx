@@ -98,9 +98,9 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
 
   return (
     <div className="space-y-6 slide-up">
-      <Card className="border-[#001f54]/20 shadow-xl bg-white hover:shadow-2xl transition-all duration-300">
+      <Card className="border-slate-200 shadow-xl bg-white hover:shadow-2xl transition-all duration-300">
         <CardHeader className="text-center">
-          <CardTitle className="text-[#001f54] text-2xl">
+          <CardTitle className="text-slate-900 text-2xl">
             Выберите организацию
           </CardTitle>
         </CardHeader>
@@ -134,7 +134,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   <button
                     key={org.id}
                     onClick={() => handleOrgClick(org)}
-                    className="w-full p-4 rounded-lg border-2 border-gray-200 bg-white hover:border-[#001f54]/30 transition-all duration-300 flex items-center justify-center hover:shadow-md"
+                    className="w-full p-4 rounded-lg border-2 border-slate-200 bg-white hover:border-slate-300 transition-all duration-300 flex items-center justify-center hover:shadow-md"
                   >
                     {org.name.startsWith('ТОП (') ? (
                       <div className="flex items-center gap-3">
@@ -143,7 +143,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                           alt="ТОП IT ACADEMY"
                           className="h-8 object-contain"
                         />
-                        <span className="text-lg text-[#001f54] font-medium">
+                        <span className="text-lg text-slate-900 font-medium">
                           ТОП ({org.name.replace('ТОП (', '').replace(')', '')})
                         </span>
                       </div>
@@ -154,7 +154,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                           alt="KIBERONE"
                           className="h-8 object-contain"
                         />
-                        <span className="text-lg text-[#001f54] font-medium">
+                        <span className="text-lg text-slate-900 font-medium">
                           KIBERONE ({org.name.replace('KIBERONE (', '').replace(')', '')})
                         </span>
                       </div>
@@ -165,7 +165,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                           alt="Сотка"
                           className="h-12 object-contain"
                         />
-                        <span className="text-lg text-[#001f54] font-medium">Сотка</span>
+                        <span className="text-lg text-slate-900 font-medium">Сотка</span>
                       </div>
                     ) : org.name === 'WORKOUT ANT' ? (
                       <div className="flex items-center gap-3">
@@ -174,10 +174,10 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                           alt="WORKOUT ANT"
                           className="h-12 object-contain"
                         />
-                        <span className="text-lg text-[#001f54] font-medium">WORKOUT ANT</span>
+                        <span className="text-lg text-slate-900 font-medium">WORKOUT ANT</span>
                       </div>
                     ) : (
-                      <span className="text-lg text-[#001f54] font-medium">{org.name}</span>
+                      <span className="text-lg text-slate-900 font-medium">{org.name}</span>
                     )}
                   </button>
                 ))}

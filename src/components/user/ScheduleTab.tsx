@@ -52,7 +52,7 @@ const formatDateLocal = (date: Date): string => {
 
 const getAllWeeksUntilEndOfYear = () => {
   const weeks = [];
-  const startDate = new Date('2025-10-20');
+  const startDate = new Date('2024-12-29');
   const endOfYear = new Date('2026-12-31');
   
   let currentMonday = new Date(startDate);

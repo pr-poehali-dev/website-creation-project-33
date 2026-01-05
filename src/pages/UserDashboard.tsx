@@ -155,7 +155,7 @@ export default function UserDashboard() {
                   />
                 </div>
                 {organizationName && (
-                  <Badge className="absolute top-4 right-4 bg-[#c89b3c]/30 backdrop-blur-sm text-white border border-[#c89b3c]/60 text-xs md:text-sm px-2 py-1 z-20 shadow-lg">
+                  <Badge className="absolute top-4 right-4 bg-[#c89b3c]/30 hover:bg-[#c89b3c]/40 backdrop-blur-sm text-white border border-[#c89b3c]/60 text-xs md:text-sm px-2 py-1 z-20 shadow-lg transition-colors pointer-events-none">
                     <Icon name="Building2" size={12} className="mr-1" />
                     {organizationName}
                     <span className="ml-2 opacity-90">{todayContacts}/{totalContacts}</span>

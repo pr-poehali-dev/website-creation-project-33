@@ -141,19 +141,6 @@ export default function UserDashboard() {
 
         {currentView === 'tiles' && selectedOrganization && (
           <>
-            {organizationName && (
-              <div className="flex justify-end items-center gap-3 mb-4 md:mb-6">
-                <Badge className="bg-[#001f54]/10 text-[#001f54] border border-[#001f54]/20 text-sm md:text-base px-3 py-1.5">
-                  <Icon name="Building2" size={14} className="mr-1.5" />
-                  {organizationName}
-                </Badge>
-                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
-                  setTodayContacts(stats.today_contacts);
-                  setTotalContacts(stats.total_contacts);
-                }} />
-              </div>
-            )}
-            
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-6">
               <div
                 onClick={() => setCurrentView('work')}
@@ -167,6 +154,17 @@ export default function UserDashboard() {
                     style={{ objectPosition: '85% 20%' }}
                   />
                 </div>
+                {organizationName && (
+                  <Badge className="absolute top-4 right-4 bg-[#c89b3c] text-white border-none text-xs md:text-sm px-2 py-1 z-20 shadow-lg">
+                    <Icon name="Building2" size={12} className="mr-1" />
+                    {organizationName}
+                    <span className="ml-2 opacity-90">{todayContacts}/{totalContacts}</span>
+                  </Badge>
+                )}
+                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
+                  setTodayContacts(stats.today_contacts);
+                  setTotalContacts(stats.total_contacts);
+                }} />
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
                     <Icon name="Briefcase" size={24} className="text-white" />

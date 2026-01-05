@@ -118,13 +118,13 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
           ) : (
             <>
               <div className="relative mb-4">
-                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-700" />
+                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-900" />
                 <Input
                   type="text"
                   placeholder="Поиск организации..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white/95 backdrop-blur-md border-teal-300/50 text-teal-900 placeholder:text-teal-700/60 focus:border-teal-400 focus:ring-teal-400/30 shadow-lg"
+                  className="pl-10 bg-white/95 backdrop-blur-md border-teal-300/50 text-teal-900 placeholder:text-gray-900/70 focus:border-teal-400 focus:ring-teal-400/30 shadow-lg"
                 />
               </div>
 

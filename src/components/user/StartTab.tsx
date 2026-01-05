@@ -98,13 +98,19 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
 
   return (
     <div className="space-y-6 slide-up">
-      <Card className="border-slate-200 shadow-xl bg-white hover:shadow-2xl transition-all duration-300">
-        <CardHeader className="text-center">
-          <CardTitle className="text-slate-900 text-2xl">
-            Выберите организацию
+      <Card className="border-none shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-40"
+          style={{ backgroundImage: 'url(https://cdn.poehali.dev/files/fon-zima-snezhinki-winter-snowflakes-background.jpg)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/80 to-white/95" />
+        <CardHeader className="text-center relative z-10">
+          <CardTitle className="text-teal-900 text-2xl font-bold">
+            ✨ С Новым Годом! ✨
           </CardTitle>
+          <p className="text-teal-700 mt-2">Выберите организацию</p>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 relative z-10">
           {organizations.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Icon name="AlertCircle" size={48} className="mx-auto mb-3 opacity-30" />
@@ -113,13 +119,13 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
           ) : (
             <>
               <div className="relative mb-4">
-                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-600" />
                 <Input
                   type="text"
                   placeholder="Поиск организации..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20"
+                  className="pl-10 bg-white/90 backdrop-blur-sm border-teal-200 text-teal-900 placeholder:text-teal-600/60 focus:border-teal-500 focus:ring-teal-500/20 shadow-sm"
                 />
               </div>
 
@@ -134,7 +140,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   <button
                     key={org.id}
                     onClick={() => handleOrgClick(org)}
-                    className="w-full p-4 rounded-lg border-2 border-slate-200 bg-white hover:border-slate-300 transition-all duration-300 flex items-center justify-center hover:shadow-md"
+                    className="w-full p-4 rounded-xl border-2 border-yellow-400/60 bg-white/95 backdrop-blur-sm hover:border-yellow-500 hover:bg-yellow-50/80 transition-all duration-300 flex items-center justify-center hover:shadow-lg hover:scale-[1.02] active:scale-95"
                   >
                     {org.name.startsWith('ТОП (') ? (
                       <div className="flex items-center gap-3">
@@ -187,7 +193,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                 <Button
                   onClick={() => setShowAll(!showAll)}
                   variant="outline"
-                  className="w-full border-[#001f54]/30 text-[#001f54] hover:bg-[#001f54]/5"
+                  className="w-full border-teal-500/50 text-teal-700 hover:bg-teal-50 bg-white/80 backdrop-blur-sm shadow-sm"
                 >
                   <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={20} className="mr-2" />
                   {showAll ? 'Скрыть' : `Показать ещё (${organizations.length - 4})`}

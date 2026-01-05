@@ -129,8 +129,8 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
 
   return (
     <div className="flex flex-wrap gap-1.5 md:gap-2">
-      <div className="inline-block bg-yellow-400/20 border border-yellow-300/30 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
-        <div className="text-[8px] md:text-[10px] text-yellow-100 font-medium uppercase tracking-wide">Вчера</div>
+      <div className="inline-block bg-orange-400/20 border border-yellow-300/30 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
+        <div className="text-[8px] md:text-[10px] text-orange-100 font-medium uppercase tracking-wide">Вчера</div>
         <div className="text-sm md:text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.yesterday)} ₽
         </div>
@@ -146,8 +146,8 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         </div>
       </div>
       
-      <div className="inline-block bg-yellow-400/20 border border-yellow-300/30 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
-        <div className="text-[8px] md:text-[10px] text-yellow-100 font-medium uppercase tracking-wide">Сегодня</div>
+      <div className="inline-block bg-orange-400/20 border border-yellow-300/30 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
+        <div className="text-[8px] md:text-[10px] text-orange-100 font-medium uppercase tracking-wide">Сегодня</div>
         <div className="text-sm md:text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.today)} ₽
         </div>
@@ -163,8 +163,8 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
         </div>
       </div>
       
-      <div className="inline-block bg-yellow-400/20 border border-yellow-300/30 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
-        <div className="text-[8px] md:text-[10px] text-yellow-100 font-medium uppercase tracking-wide">За месяц</div>
+      <div className="inline-block bg-orange-400/20 border border-yellow-300/30 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
+        <div className="text-[8px] md:text-[10px] text-orange-100 font-medium uppercase tracking-wide">За месяц</div>
         <div className="text-sm md:text-lg font-bold text-white leading-tight">
           {formatCurrency(earnings.month)} ₽
         </div>

@@ -339,7 +339,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         activeFiltersCount={activeFiltersCount}
         hasUnsavedPayments={hasUnsavedPayments}
         savingPayments={savingPayments}
-        deleting2025={deleting2025}
         editingExpense={editingExpense}
         editingComment={editingComment}
         editingPersonalFunds={editingPersonalFunds}
@@ -351,7 +350,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         onPaymentTypeFilterChange={setPaymentTypeFilter}
         onDateFilterChange={(filter) => setDateFilter(filter)}
         onSavePayments={handleSavePayments}
-        onDelete2025={handleDelete2025Data}
         onEditShift={handleEditShift}
         onDeleteShift={deleteShift}
         onExpenseChange={(id, value) => setEditingExpense(prev => ({ ...prev, [id]: value }))}

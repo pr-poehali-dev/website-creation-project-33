@@ -152,12 +152,12 @@ export default function UserDashboard() {
                 onClick={() => setCurrentView('work')}
                 className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="absolute inset-0 opacity-20">
+                <div className="absolute inset-0 opacity-40">
                   <img 
                     src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
                     alt="" 
                     className="w-full h-full object-cover"
-                    style={{ objectPosition: '30% 20%' }}
+                    style={{ objectPosition: '10% 30%' }}
                   />
                 </div>
                 <div className="relative z-10">
@@ -173,12 +173,12 @@ export default function UserDashboard() {
                 onClick={() => setCurrentView('schedule')}
                 className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="absolute inset-0 opacity-20">
+                <div className="absolute inset-0 opacity-40">
                   <img 
                     src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
                     alt="" 
                     className="w-full h-full object-cover"
-                    style={{ objectPosition: '60% 40%' }}
+                    style={{ objectPosition: '85% 25%' }}
                   />
                 </div>
                 <div className="relative z-10">
@@ -194,12 +194,12 @@ export default function UserDashboard() {
                 onClick={() => setCurrentView('training')}
                 className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="absolute inset-0 opacity-20">
+                <div className="absolute inset-0 opacity-40">
                   <img 
                     src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
                     alt="" 
                     className="w-full h-full object-cover"
-                    style={{ objectPosition: '80% 60%' }}
+                    style={{ objectPosition: '15% 70%' }}
                   />
                 </div>
                 <div className="relative z-10">
@@ -215,12 +215,12 @@ export default function UserDashboard() {
                 onClick={() => setChatOpen(true)}
                 className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="absolute inset-0 opacity-20">
+                <div className="absolute inset-0 opacity-40">
                   <img 
                     src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
                     alt="" 
                     className="w-full h-full object-cover"
-                    style={{ objectPosition: '50% 80%' }}
+                    style={{ objectPosition: '90% 60%' }}
                   />
                 </div>
                 <div className="relative z-10">

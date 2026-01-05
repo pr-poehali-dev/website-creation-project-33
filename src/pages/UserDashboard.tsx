@@ -150,64 +150,78 @@ export default function UserDashboard() {
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-6">
               <div
                 onClick={() => setCurrentView('work')}
-                className="metro-tile bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
+                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="relative z-10">
-                  <Icon name="Briefcase" size={56} className="text-white mb-5" />
-                  <h2 className="text-3xl font-bold text-white mb-2">Работа</h2>
-                  <p className="text-blue-100 text-base">Лиды и контакты</p>
+                <div className="absolute inset-0 opacity-5">
+                  <div className="absolute top-4 right-4 text-teal-700 text-6xl">❄</div>
+                  <div className="absolute bottom-8 left-8 text-teal-700 text-8xl">🎄</div>
+                  <div className="absolute top-12 left-12 text-teal-700 text-4xl">❄</div>
                 </div>
-                <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="Briefcase" size={140} className="text-white" />
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
+                    <Icon name="Briefcase" size={24} className="text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Работа</h2>
+                  <p className="text-slate-300 text-sm">Лиды и контакты</p>
                 </div>
               </div>
 
               <div
                 onClick={() => setCurrentView('schedule')}
-                className="metro-tile bg-green-600 hover:bg-green-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
+                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="relative z-10">
-                  <Icon name="Calendar" size={56} className="text-white mb-5" />
-                  <h2 className="text-3xl font-bold text-white mb-2">График</h2>
-                  <p className="text-green-100 text-base">Расписание смен</p>
+                <div className="absolute inset-0 opacity-5">
+                  <div className="absolute top-4 right-4 text-teal-700 text-6xl">❄</div>
+                  <div className="absolute bottom-8 left-8 text-teal-700 text-8xl">🎄</div>
+                  <div className="absolute top-12 left-12 text-teal-700 text-4xl">❄</div>
                 </div>
-                <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="Calendar" size={140} className="text-white" />
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
+                    <Icon name="Calendar" size={24} className="text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-2">График</h2>
+                  <p className="text-slate-300 text-sm">Расписание смен</p>
                 </div>
               </div>
 
               <div
                 onClick={() => setCurrentView('training')}
-                className="metro-tile bg-purple-600 hover:bg-purple-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
+                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
-                <div className="relative z-10">
-                  <Icon name="GraduationCap" size={56} className="text-white mb-5" />
-                  <h2 className="text-3xl font-bold text-white mb-2">Обучение</h2>
-                  <p className="text-purple-100 text-base">Материалы и тесты</p>
+                <div className="absolute inset-0 opacity-5">
+                  <div className="absolute top-4 right-4 text-teal-700 text-6xl">❄</div>
+                  <div className="absolute bottom-8 left-8 text-teal-700 text-8xl">🎄</div>
+                  <div className="absolute top-12 left-12 text-teal-700 text-4xl">❄</div>
                 </div>
-                <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="GraduationCap" size={140} className="text-white" />
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
+                    <Icon name="GraduationCap" size={24} className="text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Обучение</h2>
+                  <p className="text-slate-300 text-sm">Материалы и тесты</p>
                 </div>
               </div>
 
               <div
                 onClick={() => setChatOpen(true)}
-                className="metro-tile bg-orange-600 hover:bg-orange-700 cursor-pointer transition-all duration-200 active:scale-95 p-8 rounded-xl relative overflow-hidden group min-h-[180px]"
+                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
+                <div className="absolute inset-0 opacity-5">
+                  <div className="absolute top-4 right-4 text-teal-700 text-6xl">❄</div>
+                  <div className="absolute bottom-8 left-8 text-teal-700 text-8xl">🎄</div>
+                  <div className="absolute top-12 left-12 text-teal-700 text-4xl">❄</div>
+                </div>
                 <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-5">
-                    <Icon name="MessageCircle" size={56} className="text-white" />
+                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4 relative">
+                    <Icon name="MessageCircle" size={24} className="text-white" />
                     {unreadCount > 0 && (
-                      <Badge className="bg-red-500 text-white text-lg px-3 py-1">
+                      <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5">
                         {unreadCount}
                       </Badge>
                     )}
                   </div>
-                  <h2 className="text-3xl font-bold text-white mb-2">Чат</h2>
-                  <p className="text-orange-100 text-base">Связь с администратором</p>
-                </div>
-                <div className="absolute bottom-0 right-0 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icon name="MessageCircle" size={120} className="text-white" />
+                  <h2 className="text-2xl font-bold text-white mb-2">Чат</h2>
+                  <p className="text-slate-300 text-sm">Связь с администратором</p>
                 </div>
               </div>
             </div>

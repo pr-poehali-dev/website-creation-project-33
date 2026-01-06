@@ -735,8 +735,9 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             # Получаем смены из двух источников: shift_videos И work_shifts
+            # Приоритет shift_videos - если есть смена с видео, ручная не показывается
             cur.execute("""
-                SELECT 
+                SELECT DISTINCT ON (user_id, work_date, organization_id)
                     user_id,
                     user_name,
                     work_date,
@@ -744,33 +745,35 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                     shift_end,
                     organization_id
                 FROM (
-                    -- Смены из shift_videos (с видео)
+                    -- Смены из shift_videos (с видео) - приоритет 1
                     SELECT 
                         sv.user_id,
                         u.name as user_name,
                         sv.work_date,
                         MIN(CASE WHEN sv.video_type = 'start' THEN sv.created_at END) as shift_start,
                         MAX(CASE WHEN sv.video_type = 'end' THEN sv.created_at END) as shift_end,
-                        sv.organization_id
+                        sv.organization_id,
+                        1 as priority
                     FROM t_p24058207_website_creation_pro.shift_videos sv
                     JOIN t_p24058207_website_creation_pro.users u ON sv.user_id = u.id
                     GROUP BY sv.user_id, u.name, sv.work_date, sv.organization_id
                     
-                    UNION
+                    UNION ALL
                     
-                    -- Ручные смены из work_shifts
+                    -- Ручные смены из work_shifts - приоритет 2
                     SELECT 
                         ws.user_id,
                         u.name as user_name,
                         ws.shift_date as work_date,
                         ws.shift_start,
                         ws.shift_end,
-                        ws.organization_id
+                        ws.organization_id,
+                        2 as priority
                     FROM t_p24058207_website_creation_pro.work_shifts ws
                     JOIN t_p24058207_website_creation_pro.users u ON ws.user_id = u.id
                     WHERE ws.shift_start IS NOT NULL AND ws.shift_end IS NOT NULL
                 ) combined_shifts
-                ORDER BY work_date DESC, user_name
+                ORDER BY user_id, work_date, organization_id, priority, work_date DESC, user_name
             """)
             
             shifts_rows = cur.fetchall()

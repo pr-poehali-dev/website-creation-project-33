@@ -128,12 +128,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         kvv = shift.get('kvv_amount', 0)
         kms = shift.get('kms_amount', 0)
         
+        # Форматируем время: оставляем только часы и минуты (HH:MM)
+        start_time = shift.get('start_time', '')
+        end_time = shift.get('end_time', '')
+        if start_time and len(start_time) > 5:
+            start_time = start_time[:5]  # Берем первые 5 символов (HH:MM)
+        if end_time and len(end_time) > 5:
+            end_time = end_time[:5]
+        
         row = [
             shift.get('date', ''),
             shift.get('user_name', ''),
             shift.get('organization', ''),
-            shift.get('start_time', ''),
-            shift.get('end_time', ''),
+            start_time,
+            end_time,
             str(shift.get('contacts_count', 0)),
             str(shift.get('contact_rate', 0)),
             'Безнал' if shift.get('payment_type') == 'cashless' else 'Нал',

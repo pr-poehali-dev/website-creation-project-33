@@ -160,17 +160,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             shift.get('organization', ''),
             start_time,
             end_time,
-            str(shift.get('contacts_count', 0)),
-            str(shift.get('contact_rate', 0)),
+            shift.get('contacts_count', 0),  # Число
+            shift.get('contact_rate', 0),    # Число
             'Безнал' if shift.get('payment_type') == 'cashless' else 'Нал',
-            str(revenue),
-            str(tax),
-            str(after_tax),
-            str(worker_salary),
-            str(expense),
-            str(net_profit),
-            str(kvv),
-            str(kms),
+            revenue,        # Число
+            tax,            # Число
+            after_tax,      # Число
+            worker_salary,  # Число
+            expense,        # Число
+            net_profit,     # Число
+            kvv,            # Число
+            kms,            # Число
             'Да' if shift.get('paid_by_organization') else 'Нет',
             'Да' if shift.get('paid_to_worker') else 'Нет',
             'Да' if shift.get('paid_kvv') else 'Нет',
@@ -184,7 +184,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     service.spreadsheets().values().update(
         spreadsheetId=sheet_id,
         range=f"'{sheet_title}'!A1",
-        valueInputOption='RAW',
+        valueInputOption='USER_ENTERED',  # Автоматическое определение типов данных
         body={'values': all_data}
     ).execute()
     

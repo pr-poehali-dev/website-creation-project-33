@@ -93,6 +93,8 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
       const timeoutId = setTimeout(() => controller.abort(), 30000);
       
       console.log('📤 Экспортируем смены:', filteredShifts);
+      console.log('📤 Первая смена expense_amount:', filteredShifts[0]?.expense_amount);
+      console.log('📤 Сумма всех expense_amount:', filteredShifts.reduce((sum, s) => sum + (s.expense_amount || 0), 0));
       
       const response = await fetch('https://functions.poehali.dev/e7ea8b8a-c7f4-4c24-84f4-436f40f76963', {
         method: 'POST',

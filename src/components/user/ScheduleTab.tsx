@@ -106,6 +106,11 @@ export default function ScheduleTab() {
   }>>({});
   const [workShifts, setWorkShifts] = useState<WorkShift[]>([]);
 
+  // Сброс на текущую неделю при монтировании компонента
+  useEffect(() => {
+    setCurrentWeekIndex(getCurrentWeekIndex());
+  }, []);
+
   useEffect(() => {
     initializeSchedule();
     loadSchedule();

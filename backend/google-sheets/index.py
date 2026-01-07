@@ -62,6 +62,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'No shifts data provided'})
         }
     
+    # Логируем первую смену для диагностики
+    if shifts:
+        print(f"🔍 Первая смена для экспорта: {shifts[0]}")
+        print(f"🔍 expense_amount в первой смене: {shifts[0].get('expense_amount', 'НЕТ ПОЛЯ')}")
+    
     credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_NEW')
     sheet_id = os.environ.get('GOOGLE_SHEET_ID_NEW')
     

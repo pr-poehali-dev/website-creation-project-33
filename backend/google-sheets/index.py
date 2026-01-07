@@ -95,7 +95,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'title': sheet_title,
                 'gridProperties': {
                     'rowCount': len(shifts) + 1,
-                    'columnCount': 21
+                    'columnCount': 19
                 }
             }
         }
@@ -112,7 +112,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     headers_row = [
         'Дата', 'Сотрудник', 'Организация', 'Начало смены', 'Конец смены', 
         'Контакты', 'Ставка', 'Тип оплаты', 'Приход', 'Налог 7%', 'После налога',
-        'Зарплата', 'Расход', 'Комментарий к расходу', 'Чистый остаток', 'КВВ', 'КМС',
+        'Зарплата', 'Чистый остаток', 'КВВ', 'КМС',
         'Оплачено орг.', 'Оплачено работнику', 'Оплачено КВВ', 'Оплачено КМС'
     ]
     
@@ -141,8 +141,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             str(tax),
             str(after_tax),
             str(worker_salary),
-            str(expense),
-            shift.get('expense_comment', ''),
             str(net_profit),
             str(kvv),
             str(kms),

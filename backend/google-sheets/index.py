@@ -168,6 +168,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body={'requests': format_requests}
     ).execute()
     
+    # Проверяем и удаляем лишние строки (если таблица автоматически добавляет ИТОГО)
+    current_data = service.spreadsheets().values().get(
+        spreadsheetId=sheet_id,
+        range=f"'{sheet_title}'!A:A"
+    ).execute()
+    
+    actual_rows = len(current_data.get('values', []))
+    expected_rows = len(shifts) + 1  # +1 для заголовка
+    
+    # Если строк больше ожидаемого, удаляем лишние
+    if actual_rows > expected_rows:
+        delete_rows_request = {
+            'deleteDimension': {
+                'range': {
+                    'sheetId': new_sheet_id,
+                    'dimension': 'ROWS',
+                    'startIndex': expected_rows,
+                    'endIndex': actual_rows
+                }
+            }
+        }
+        service.spreadsheets().batchUpdate(
+            spreadsheetId=sheet_id,
+            body={'requests': [delete_rows_request]}
+        ).execute()
+    
     sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit#gid={new_sheet_id}"
     
     return {

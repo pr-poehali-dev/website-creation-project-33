@@ -94,7 +94,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
       
       console.log('📤 Экспортируем смены:', filteredShifts);
       
-      const response = await fetch('https://functions.poehali.dev/e7ea8b8a-c7f4-4c24-84f4-436f40f76963', {
+      const response = await fetch('https://functions.poehali.dev/ce92c4be-1721-49f2-95bb-4bafa6f05fc4', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

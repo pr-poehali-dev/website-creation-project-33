@@ -11,6 +11,7 @@ import AccountingModal from './AccountingModal';
 import KmsRevenueChart from './accounting/KmsRevenueChart';
 import { useAccountingData } from './accounting/useAccountingData';
 import { useShiftActions } from './accounting/useShiftActions';
+import { calculateKVV, calculateKMS, calculateRevenue, calculateTax, calculateAfterTax, calculateWorkerSalary } from './accounting/calculations';
 
 interface AccountingTabProps {
   enabled?: boolean;
@@ -91,9 +92,6 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
-      
-      // Импортируем функции расчёта
-      const { calculateKVV, calculateKMS, calculateRevenue, calculateTax, calculateAfterTax, calculateWorkerSalary } = await import('./accounting/calculations');
       
       // Добавляем рассчитанные поля к данным смен
       const shiftsWithCalculations = filteredShifts.map(shift => ({

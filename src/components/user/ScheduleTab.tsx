@@ -84,7 +84,13 @@ const getCurrentWeekIndex = (): number => {
   const currentMonday = getMondayOfWeek(moscowDate);
   const currentMondayStr = formatDateLocal(currentMonday);
   
+  console.log('🔍 Текущая дата (Москва):', formatDateLocal(moscowDate));
+  console.log('🔍 Понедельник текущей недели:', currentMondayStr);
+  console.log('🔍 Все недели:', weeks.map(w => w.start));
+  
   const index = weeks.findIndex(week => week.start === currentMondayStr);
+  console.log('🔍 Найденный индекс недели:', index);
+  
   return index >= 0 ? index : 0;
 };
 

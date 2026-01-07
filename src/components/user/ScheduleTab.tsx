@@ -28,9 +28,9 @@ interface WorkShift {
 }
 
 const getMoscowDate = (): Date => {
-  const now = new Date();
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  return new Date(utc + (3600000 * 3));
+  // Получаем текущую дату и время в московской таймзоне
+  const moscowTimeStr = new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' });
+  return new Date(moscowTimeStr);
 };
 
 const getMondayOfWeek = (date: Date): Date => {

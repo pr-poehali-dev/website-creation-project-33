@@ -85,28 +85,46 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     creds = Credentials.from_service_account_info(credentials_dict, scopes=scopes)
     service = build('sheets', 'v4', credentials=creds)
     
-    # Создаём новый лист с меткой времени
-    sheet_title = f"Экспорт {datetime.now().strftime('%d.%m.%Y %H:%M')}"
+    # Используем существующий лист "Бухучет"
+    sheet_title = "Бухучет"
     
-    # Добавляем новый лист
-    add_sheet_request = {
-        'addSheet': {
-            'properties': {
-                'title': sheet_title,
-                'gridProperties': {
-                    'rowCount': len(shifts) + 1,
-                    'columnCount': 20
+    # Получаем информацию о таблице
+    spreadsheet = service.spreadsheets().get(spreadsheetId=sheet_id).execute()
+    sheets = spreadsheet.get('sheets', [])
+    
+    # Ищем лист "Бухучет"
+    target_sheet = None
+    for sheet in sheets:
+        if sheet['properties']['title'] == sheet_title:
+            target_sheet = sheet
+            break
+    
+    # Если листа нет - создаем его
+    if not target_sheet:
+        add_sheet_request = {
+            'addSheet': {
+                'properties': {
+                    'title': sheet_title,
+                    'gridProperties': {
+                        'rowCount': len(shifts) + 1,
+                        'columnCount': 20
+                    }
                 }
             }
         }
-    }
-    
-    batch_update_response = service.spreadsheets().batchUpdate(
-        spreadsheetId=sheet_id,
-        body={'requests': [add_sheet_request]}
-    ).execute()
-    
-    new_sheet_id = batch_update_response['replies'][0]['addSheet']['properties']['sheetId']
+        batch_update_response = service.spreadsheets().batchUpdate(
+            spreadsheetId=sheet_id,
+            body={'requests': [add_sheet_request]}
+        ).execute()
+        sheet_id_gid = batch_update_response['replies'][0]['addSheet']['properties']['sheetId']
+    else:
+        sheet_id_gid = target_sheet['properties']['sheetId']
+        
+        # Очищаем существующие данные
+        service.spreadsheets().values().clear(
+            spreadsheetId=sheet_id,
+            range=f"'{sheet_title}'!A1:Z"
+        ).execute()
     
     # Заголовки таблицы
     headers_row = [
@@ -174,7 +192,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     format_requests = [{
         'repeatCell': {
             'range': {
-                'sheetId': new_sheet_id,
+                'sheetId': sheet_id_gid,
                 'startRowIndex': 0,
                 'endRowIndex': 1
             },
@@ -193,7 +211,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body={'requests': format_requests}
     ).execute()
     
-    sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit#gid={new_sheet_id}"
+    sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit#gid={sheet_id_gid}"
     
     return {
         'statusCode': 200,
@@ -204,7 +222,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'isBase64Encoded': False,
         'body': json.dumps({
             'success': True,
-            'message': f'Экспортировано {len(shifts)} смен в новый лист "{sheet_title}"',
+            'message': f'Экспортировано {len(shifts)} смен в лист "{sheet_title}"',
             'sheet_url': sheet_url
         })
     }

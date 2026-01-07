@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
+import { getAllWeeksUntilEndOfYear, getCurrentWeekIndex } from './schedule/scheduleUtils';
+import ScheduleWeekNavigation from './schedule/ScheduleWeekNavigation';
+import ScheduleDayCard from './schedule/ScheduleDayCard';
 
 interface TimeSlot {
   label: string;
@@ -26,81 +29,6 @@ interface WorkShift {
   organization_name: string;
   organization_id: number;
 }
-
-const getMoscowDate = (): Date => {
-  // Получаем текущую дату и время в московской таймзоне
-  const moscowTimeStr = new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' });
-  return new Date(moscowTimeStr);
-};
-
-const getMondayOfWeek = (date: Date): Date => {
-  // Создаем дату в московском времени
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const day_of_month = date.getDate();
-  
-  // Создаем новую дату без влияния таймзоны
-  const localDate = new Date(year, month, day_of_month);
-  
-  const dayOfWeek = localDate.getDay();
-  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  
-  const monday = new Date(localDate);
-  monday.setDate(localDate.getDate() + diff);
-  monday.setHours(0, 0, 0, 0);
-  return monday;
-};
-
-const formatDateLocal = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
-const getAllWeeksUntilEndOfYear = () => {
-  const weeks = [];
-  const startDate = new Date('2026-01-05');  // Понедельник 05.01.2026
-  const endOfYear = new Date('2026-12-31');
-  
-  let currentMonday = new Date(startDate);
-  
-  while (currentMonday <= endOfYear) {
-    const weekEnd = new Date(currentMonday);
-    weekEnd.setDate(currentMonday.getDate() + 6);
-    
-    const startMonth = (currentMonday.getMonth() + 1).toString().padStart(2, '0');
-    const startDay = currentMonday.getDate().toString().padStart(2, '0');
-    const endMonth = (weekEnd.getMonth() + 1).toString().padStart(2, '0');
-    const endDay = weekEnd.getDate().toString().padStart(2, '0');
-    
-    weeks.push({
-      start: formatDateLocal(currentMonday),
-      label: `${startDay}.${startMonth} - ${endDay}.${endMonth}`
-    });
-    
-    currentMonday = new Date(currentMonday);
-    currentMonday.setDate(currentMonday.getDate() + 7);
-  }
-  
-  return weeks;
-};
-
-const getCurrentWeekIndex = (): number => {
-  const weeks = getAllWeeksUntilEndOfYear();
-  const moscowDate = getMoscowDate();
-  const currentMonday = getMondayOfWeek(moscowDate);
-  const currentMondayStr = formatDateLocal(currentMonday);
-  
-  console.log('🔍 Текущая дата (Москва):', formatDateLocal(moscowDate));
-  console.log('🔍 Понедельник текущей недели:', currentMondayStr);
-  console.log('🔍 Все недели:', weeks.map(w => w.start));
-  
-  const index = weeks.findIndex(week => week.start === currentMondayStr);
-  console.log('🔍 Найденный индекс недели:', index);
-  
-  return index >= 0 ? index : 0;
-};
 
 export default function ScheduleTab() {
   const { user } = useAuth();
@@ -329,143 +257,27 @@ export default function ScheduleTab() {
               </Badge>
             </div>
             
-            <div className="flex items-center justify-between gap-3 bg-gray-50 p-3 rounded-lg border-2 border-gray-200">
-              <Button
-                onClick={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
-                disabled={currentWeekIndex === 0 || loading}
-                variant="outline"
-                size="sm"
-                className="border-[#001f54] text-[#001f54] hover:bg-[#001f54] hover:text-white"
-              >
-                <Icon name="ChevronLeft" size={16} className="md:mr-1" />
-                <span className="hidden md:inline">{isUkrainian ? 'Попередній' : 'Предыдущая'}</span>
-              </Button>
-              
-              <div className="text-center">
-                <p className="text-sm md:text-base font-bold text-[#001f54]">{weeks[currentWeekIndex].label}</p>
-                <p className="text-[10px] md:text-xs text-gray-500">{isUkrainian ? 'Тиждень' : 'Неделя'} {currentWeekIndex + 1} {isUkrainian ? 'з' : 'из'} {weeks.length}</p>
-              </div>
-              
-              <Button
-                onClick={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
-                disabled={currentWeekIndex === weeks.length - 1 || loading}
-                variant="outline"
-                size="sm"
-                className="border-[#001f54] text-[#001f54] hover:bg-[#001f54] hover:text-white"
-              >
-                <span className="hidden md:inline">{isUkrainian ? 'Наступний' : 'Следующая'}</span>
-                <Icon name="ChevronRight" size={16} className="md:ml-1" />
-              </Button>
-            </div>
+            <ScheduleWeekNavigation
+              currentWeekIndex={currentWeekIndex}
+              weeks={weeks}
+              onPrevious={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
+              onNext={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
+              loading={loading}
+              isUkrainian={isUkrainian}
+            />
           </div>
 
           <div className="space-y-3">
             {schedule.map((day, dayIndex) => (
-              <Card 
-                key={day.date} 
-                className={`border-2 ${day.isWeekend ? 'border-orange-200 bg-orange-50/30' : 'border-blue-200 bg-blue-50/30'}`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-[#001f54]'} text-white flex flex-col items-center justify-center font-bold`}>
-                        <span className="text-[10px] md:text-xs">{day.dayName}</span>
-                        <span className="text-sm md:text-lg">{new Date(day.date).getDate()}.{(new Date(day.date).getMonth() + 1).toString().padStart(2, '0')}</span>
-                      </div>
-                      <div>
-                        <p className="text-sm md:text-base font-semibold text-gray-800">
-                          {day.dayNameFull}
-                        </p>
-                        <p className="text-[10px] md:text-xs text-gray-500">{day.date}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      {day.slots.map((slot, slotIndex) => (
-                        <Button
-                          key={slot.time}
-                          onClick={() => toggleSlot(dayIndex, slotIndex)}
-                          variant={slot.selected ? 'default' : 'outline'}
-                          className={`text-xs md:text-sm transition-all duration-300 ${
-                            slot.selected
-                              ? day.isWeekend
-                                ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                                : 'bg-[#001f54] hover:bg-[#002b6b] text-white'
-                              : 'border-2 hover:border-[#001f54] hover:bg-gray-50'
-                          }`}
-                          size="sm"
-                        >
-                          <Icon name="Clock" size={14} className="mr-1 md:mr-2" />
-                          {slot.label}
-                        </Button>
-                      ))}
-                    </div>
-
-                    {workShifts.filter(shift => shift.date === day.date).length > 0 && (
-                      <div className="mt-2 space-y-2">
-                        {workShifts.filter(shift => shift.date === day.date).map((shift, idx) => (
-                          <div key={idx} className="flex items-center gap-2 bg-green-50 border-2 border-green-300 rounded-lg p-2.5">
-                            <Icon name="Briefcase" size={16} className="text-green-600 flex-shrink-0" />
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <Badge className="bg-green-600 text-white text-[10px] px-2 py-0.5">
-                                  {isUkrainian ? 'Від адміна' : 'От админа'}
-                                </Badge>
-                                <span className="text-xs font-bold text-green-900">{shift.organization_name}</span>
-                              </div>
-                              <p className="text-[10px] text-green-700 mt-0.5">
-                                <Icon name="Clock" size={10} className="inline mr-1" />
-                                {new Date(shift.start_time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })} - {new Date(shift.end_time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {workComments[day.date] && day.slots.some(slot => slot.selected) && (
-                      <div className="mt-2 space-y-2">
-                        {workComments[day.date].organization && (
-                          <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg p-2">
-                            <Icon name="Building2" size={14} className="text-purple-600 flex-shrink-0" />
-                            <div>
-                              <span className="text-[10px] text-purple-600 font-medium">{isUkrainian ? 'Організація:' : 'Организация:'}</span>
-                              <span className="text-xs text-purple-900 font-medium ml-1">{workComments[day.date].organization}</span>
-                            </div>
-                          </div>
-                        )}
-                        {workComments[day.date].location_type && (
-                          <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
-                            <Icon name="MapPin" size={14} className="text-blue-600 flex-shrink-0" />
-                            <div>
-                              <span className="text-[10px] text-blue-600 font-medium">{isUkrainian ? 'Тип місця:' : 'Тип места:'}</span>
-                              <span className="text-xs text-blue-900 font-medium ml-1">{workComments[day.date].location_type}</span>
-                            </div>
-                          </div>
-                        )}
-                        {workComments[day.date].location_details && (
-                          <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg p-2">
-                            <Icon name="Navigation" size={14} className="text-indigo-600 flex-shrink-0" />
-                            <div>
-                              <span className="text-[10px] text-indigo-600 font-medium">{isUkrainian ? 'Адреса:' : 'Адрес:'}</span>
-                              <span className="text-xs text-indigo-900 font-medium ml-1">{workComments[day.date].location_details}</span>
-                            </div>
-                          </div>
-                        )}
-                        {workComments[day.date].flyers && (
-                          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg p-2">
-                            <Icon name="FileText" size={14} className="text-amber-600 flex-shrink-0" />
-                            <div>
-                              <span className="text-[10px] text-amber-600 font-medium">{isUkrainian ? 'Листівки:' : 'Листовки:'}</span>
-                              <span className="text-xs text-amber-900 font-medium ml-1">{workComments[day.date].flyers}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <ScheduleDayCard
+                key={day.date}
+                day={day}
+                dayIndex={dayIndex}
+                workShifts={workShifts}
+                workComment={workComments[day.date]}
+                onToggleSlot={toggleSlot}
+                isUkrainian={isUkrainian}
+              />
             ))}
           </div>
 

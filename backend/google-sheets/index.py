@@ -95,7 +95,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'title': sheet_title,
                 'gridProperties': {
                     'rowCount': len(shifts) + 1,
-                    'columnCount': 15
+                    'columnCount': 21
                 }
             }
         }
@@ -111,15 +111,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # Заголовки таблицы
     headers_row = [
         'Дата', 'Сотрудник', 'Организация', 'Начало смены', 'Конец смены', 
-        'Контакты', 'Ставка', 'Тип оплаты', 'Сумма к оплате', 
-        'Расход (₽)', 'Комментарий к расходу', 
+        'Контакты', 'Ставка', 'Тип оплаты', 'Приход', 'Налог 7%', 'После налога',
+        'Зарплата', 'Расход', 'Комментарий к расходу', 'Чистый остаток', 'КВВ', 'КМС',
         'Оплачено орг.', 'Оплачено работнику', 'Оплачено КВВ', 'Оплачено КМС'
     ]
     
     # Формируем строки данных
     data_rows = []
     for shift in shifts:
-        payment_amount = shift.get('contacts_count', 0) * shift.get('contact_rate', 0)
+        revenue = shift.get('revenue', 0)
+        tax = shift.get('tax', 0)
+        after_tax = shift.get('after_tax', 0)
+        worker_salary = shift.get('worker_salary', 0)
+        expense = shift.get('expense_amount', 0)
+        net_profit = after_tax - worker_salary - expense
+        kvv = shift.get('kvv_amount', 0)
+        kms = shift.get('kms_amount', 0)
         
         row = [
             shift.get('date', ''),
@@ -130,9 +137,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             str(shift.get('contacts_count', 0)),
             str(shift.get('contact_rate', 0)),
             'Безнал' if shift.get('payment_type') == 'cashless' else 'Нал',
-            str(payment_amount),
-            str(shift.get('expense_amount', 0)),
+            str(revenue),
+            str(tax),
+            str(after_tax),
+            str(worker_salary),
+            str(expense),
             shift.get('expense_comment', ''),
+            str(net_profit),
+            str(kvv),
+            str(kms),
             'Да' if shift.get('paid_by_organization') else 'Нет',
             'Да' if shift.get('paid_to_worker') else 'Нет',
             'Да' if shift.get('paid_kvv') else 'Нет',

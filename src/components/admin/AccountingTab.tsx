@@ -92,9 +92,19 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
       
-      console.log('📤 Экспортируем смены:', filteredShifts);
-      console.log('📤 Первая смена expense_amount:', filteredShifts[0]?.expense_amount);
-      console.log('📤 Сумма всех expense_amount:', filteredShifts.reduce((sum, s) => sum + (s.expense_amount || 0), 0));
+      // Импортируем функции расчёта
+      const { calculateKVV, calculateKMS, calculateRevenue, calculateTax, calculateAfterTax, calculateWorkerSalary } = await import('./accounting/calculations');
+      
+      // Добавляем рассчитанные поля к данным смен
+      const shiftsWithCalculations = filteredShifts.map(shift => ({
+        ...shift,
+        kvv_amount: calculateKVV(shift),
+        kms_amount: calculateKMS(shift),
+        revenue: calculateRevenue(shift),
+        tax: calculateTax(shift),
+        after_tax: calculateAfterTax(shift),
+        worker_salary: calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name || shift.organization, shift.user_id)
+      }));
       
       const response = await fetch('https://functions.poehali.dev/e7ea8b8a-c7f4-4c24-84f4-436f40f76963', {
         method: 'POST',
@@ -103,7 +113,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           'X-Session-Token': getSessionToken() || ''
         },
         body: JSON.stringify({
-          shifts: filteredShifts
+          shifts: shiftsWithCalculations
         }),
         signal: controller.signal
       });

@@ -34,11 +34,19 @@ const getMoscowDate = (): Date => {
 };
 
 const getMondayOfWeek = (date: Date): Date => {
-  const day = date.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
+  // Создаем дату в московском времени
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day_of_month = date.getDate();
   
-  const monday = new Date(date);
-  monday.setDate(date.getDate() + diff);
+  // Создаем новую дату без влияния таймзоны
+  const localDate = new Date(year, month, day_of_month);
+  
+  const dayOfWeek = localDate.getDay();
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  
+  const monday = new Date(localDate);
+  monday.setDate(localDate.getDate() + diff);
   monday.setHours(0, 0, 0, 0);
   return monday;
 };

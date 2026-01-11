@@ -198,16 +198,16 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
 
   if (isLoading) {
     return (
-      <Card className="bg-white border-gray-200 rounded-2xl">
+      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-gray-900 flex items-center gap-2">
-            <Icon name="Clock" size={24} />
+          <CardTitle className="text-slate-100 flex items-center gap-2">
+            <Icon name="Clock" size={24} className="text-cyan-400" />
             Время работы
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center gap-2 text-gray-900 py-8">
-            <Icon name="Loader2" size={20} className="animate-spin" />
+          <div className="flex items-center justify-center gap-2 text-slate-300 py-8">
+            <Icon name="Loader2" size={20} className="animate-spin text-cyan-400" />
             Загрузка данных...
           </div>
         </CardContent>
@@ -230,12 +230,12 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
   });
 
   return (
-    <Card className="bg-white border-gray-200 rounded-2xl">
+    <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
       <CardHeader className="pb-3 sm:pb-6">
         <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-gray-900 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-lg md:text-xl">
-            <div className="p-1.5 sm:p-2 rounded-lg bg-gray-100">
-              <Icon name="Clock" size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
+          <CardTitle className="text-slate-100 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-lg md:text-xl">
+            <div className="p-1.5 sm:p-2 rounded-lg bg-slate-800">
+              <Icon name="Clock" size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6 text-cyan-400" />
             </div>
             <span className="hidden xs:inline">Время работы промоутеров</span>
             <span className="xs:hidden">Время работы</span>
@@ -243,7 +243,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
           <div className="flex items-center gap-2">
             <Button
               onClick={() => setShowAddModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white text-xs md:text-sm font-semibold"
               size="sm"
             >
               <Icon name="Plus" size={14} className="md:w-4 md:h-4" />
@@ -252,19 +252,19 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
             </Button>
             <button
               onClick={loadWorkTime}
-              className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors"
               title="Обновить данные"
             >
-              <Icon name="RefreshCw" size={16} className="text-gray-900 md:w-[18px] md:h-[18px]" />
+              <Icon name="RefreshCw" size={16} className="text-cyan-400 md:w-[18px] md:h-[18px]" />
             </button>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {workTimeData.length === 0 ? (
-          <div className="text-center py-6 md:py-8 text-gray-600">
-            <Icon name="Calendar" size={40} className="mx-auto mb-3 md:mb-4 text-gray-300 md:w-12 md:h-12" />
-            <p className="text-base md:text-lg font-medium text-gray-900">Нет данных</p>
+          <div className="text-center py-6 md:py-8 text-slate-400">
+            <Icon name="Calendar" size={40} className="mx-auto mb-3 md:mb-4 text-slate-500 md:w-12 md:h-12" />
+            <p className="text-base md:text-lg font-medium text-slate-100">Нет данных</p>
             <p className="text-xs md:text-sm mt-2">Промоутеры еще не открывали смены</p>
           </div>
         ) : (
@@ -275,23 +275,23 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
               const isExpanded = expandedDates.has(date);
               
               return (
-                <div key={date} className="border-2 border-gray-200 rounded-xl overflow-hidden bg-gray-100">
+                <div key={date} className="border-2 border-slate-600 rounded-xl overflow-hidden bg-slate-800/50">
                   <div 
-                    className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 cursor-pointer hover:bg-gray-100 transition-colors gap-2"
+                    className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 cursor-pointer hover:bg-slate-800/70 transition-colors gap-2"
                     onClick={() => toggleDate(date)}
                   >
                     <div className="flex items-center gap-2 md:gap-3">
                       <Icon 
                         name={isExpanded ? "ChevronDown" : "ChevronRight"} 
                         size={18} 
-                        className="text-gray-900 transition-transform md:w-5 md:h-5" 
+                        className="text-cyan-400 transition-transform md:w-5 md:h-5" 
                       />
-                      <Icon name="Calendar" size={18} className="text-gray-900 md:w-5 md:h-5" />
-                      <span className="font-bold text-gray-900 text-sm md:text-base">{date}</span>
-                      <span className="text-xs md:text-sm text-gray-500">({shifts.length})</span>
+                      <Icon name="Calendar" size={18} className="text-cyan-400 md:w-5 md:h-5" />
+                      <span className="font-bold text-slate-100 text-sm md:text-base">{date}</span>
+                      <span className="text-xs md:text-sm text-slate-400">({shifts.length})</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs md:text-sm text-gray-600 bg-gray-100 px-2 py-1 md:px-3 rounded-lg ml-7 md:ml-0">
-                      <Icon name="MessageSquare" size={12} className="md:w-[14px] md:h-[14px]" />
+                    <div className="flex items-center gap-1.5 text-xs md:text-sm text-slate-300 bg-slate-700 px-2 py-1 md:px-3 rounded-lg ml-7 md:ml-0">
+                      <Icon name="MessageSquare" size={12} className="md:w-[14px] md:h-[14px] text-cyan-400" />
                       <span>{totalLeads} лидов</span>
                     </div>
                   </div>
@@ -305,15 +305,15 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                       return (
                         <div 
                           key={index} 
-                          className="bg-white/50 rounded-lg p-2.5 md:p-3 border border-[#001f54]/10"
+                          className="bg-slate-700/50 rounded-lg p-2.5 md:p-3 border border-slate-600"
                         >
                           <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                             <div className="flex items-center gap-1.5 md:gap-2">
-                              <Icon name="User" size={12} className="text-[#001f54]/70 md:w-[14px] md:h-[14px]" />
-                              <span className="font-medium text-[#001f54] text-xs md:text-sm">{shift.user_name}</span>
+                              <Icon name="User" size={12} className="text-slate-400 md:w-[14px] md:h-[14px]" />
+                              <span className="font-medium text-slate-100 text-xs md:text-sm">{shift.user_name}</span>
                             </div>
                             <div className="flex items-center gap-1.5 md:gap-2">
-                              <div className="flex items-center gap-0.5 md:gap-1 text-[10px] md:text-xs text-[#001f54]/70">
+                              <div className="flex items-center gap-0.5 md:gap-1 text-[10px] md:text-xs text-slate-400">
                                 <Icon name="MessageSquare" size={10} className="md:w-3 md:h-3" />
                                 <span>{shift.leads_count}</span>
                               </div>
@@ -325,12 +325,12 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                                   handleDeleteShift(shift.user_id, shift.date);
                                 }}
                                 disabled={isDeleting}
-                                className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-red-100"
+                                className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-red-500/20"
                               >
                                 {isDeleting ? (
-                                  <Icon name="Loader2" size={12} className="animate-spin text-[#001f54]/70 md:w-[14px] md:h-[14px]" />
+                                  <Icon name="Loader2" size={12} className="animate-spin text-slate-400 md:w-[14px] md:h-[14px]" />
                                 ) : (
-                                  <Icon name="Trash2" size={12} className="text-red-600 md:w-[14px] md:h-[14px]" />
+                                  <Icon name="Trash2" size={12} className="text-red-400 md:w-[14px] md:h-[14px]" />
                                 )}
                               </Button>
                             </div>
@@ -338,25 +338,25 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                       
                       <div className="grid grid-cols-3 gap-2 md:gap-3 text-xs md:text-sm">
                         <div className="flex flex-col">
-                          <span className="text-[#001f54]/60 text-[10px] md:text-xs mb-0.5 md:mb-1">Начало</span>
-                          <div className="flex items-center gap-1 md:gap-1.5 text-[#001f54] font-medium">
-                            <Icon name="LogIn" size={12} className="text-green-600 md:w-[14px] md:h-[14px]" />
+                          <span className="text-slate-400 text-[10px] md:text-xs mb-0.5 md:mb-1">Начало</span>
+                          <div className="flex items-center gap-1 md:gap-1.5 text-slate-100 font-medium">
+                            <Icon name="LogIn" size={12} className="text-emerald-400 md:w-[14px] md:h-[14px]" />
                             <span className="text-[11px] md:text-sm">{shift.start_time}</span>
                           </div>
                         </div>
                         
                         <div className="flex flex-col">
-                          <span className="text-[#001f54]/60 text-[10px] md:text-xs mb-0.5 md:mb-1">Окончание</span>
-                          <div className="flex items-center gap-1 md:gap-1.5 text-[#001f54] font-medium">
-                            <Icon name="LogOut" size={12} className="text-red-600 md:w-[14px] md:h-[14px]" />
+                          <span className="text-slate-400 text-[10px] md:text-xs mb-0.5 md:mb-1">Окончание</span>
+                          <div className="flex items-center gap-1 md:gap-1.5 text-slate-100 font-medium">
+                            <Icon name="LogOut" size={12} className="text-red-400 md:w-[14px] md:h-[14px]" />
                             <span className="text-[11px] md:text-sm">{shift.end_time}</span>
                           </div>
                         </div>
                         
                         <div className="flex flex-col">
-                          <span className="text-[#001f54]/60 text-[10px] md:text-xs mb-0.5 md:mb-1">Отработано</span>
-                          <div className="flex items-center gap-1 md:gap-1.5 text-[#001f54] font-bold">
-                            <Icon name="Timer" size={12} className="text-blue-600 md:w-[14px] md:h-[14px]" />
+                          <span className="text-slate-400 text-[10px] md:text-xs mb-0.5 md:mb-1">Отработано</span>
+                          <div className="flex items-center gap-1 md:gap-1.5 text-slate-100 font-bold">
+                            <Icon name="Timer" size={12} className="text-cyan-400 md:w-[14px] md:h-[14px]" />
                             <span className="text-[10px] md:text-xs">{shift.hours_worked}</span>
                           </div>
                         </div>
@@ -374,14 +374,14 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
       </CardContent>
 
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <Card className="w-full max-w-md rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <Card className="w-full max-w-md rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base sm:text-lg">Добавить смену</CardTitle>
+                <CardTitle className="text-base sm:text-lg text-slate-100">Добавить смену</CardTitle>
                 <button 
                   onClick={() => setShowAddModal(false)} 
-                  className="text-gray-400 hover:text-gray-600 p-1"
+                  className="text-slate-400 hover:text-slate-200 p-1"
                 >
                   <Icon name="X" size={20} />
                 </button>
@@ -389,13 +389,13 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
             </CardHeader>
             <CardContent className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Промоутер
                 </label>
                 <select
                   value={selectedUser || ''}
                   onChange={(e) => setSelectedUser(Number(e.target.value))}
-                  className="w-full p-2.5 sm:p-2 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full p-2.5 sm:p-2 text-sm border-2 border-slate-600 bg-slate-800 text-slate-100 rounded-lg focus:border-cyan-500 focus:outline-none"
                 >
                   <option value="">Выберите промоутера</option>
                   {users.map(user => (
@@ -407,39 +407,39 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
               </div>
 
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Дата
                 </label>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full p-2.5 sm:p-2 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full p-2.5 sm:p-2 text-sm border-2 border-slate-600 bg-slate-800 text-slate-100 rounded-lg focus:border-cyan-500 focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                     Время открытия
                   </label>
                   <input
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full p-2.5 sm:p-2 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full p-2.5 sm:p-2 text-sm border-2 border-slate-600 bg-slate-800 text-slate-100 rounded-lg focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                     Время закрытия
                   </label>
                   <input
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full p-2.5 sm:p-2 text-sm border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full p-2.5 sm:p-2 text-sm border-2 border-slate-600 bg-slate-800 text-slate-100 rounded-lg focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -448,7 +448,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                 <Button
                   onClick={handleAddShift}
                   disabled={isSubmitting || !selectedUser || !selectedDate || !startTime || !endTime}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2.5"
+                  className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm py-2.5 font-semibold"
                 >
                   {isSubmitting ? (
                     <>
@@ -463,7 +463,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                   onClick={() => setShowAddModal(false)}
                   variant="outline"
                   disabled={isSubmitting}
-                  className="sm:flex-none text-sm py-2.5"
+                  className="sm:flex-none text-sm py-2.5 border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
                 >
                   Отмена
                 </Button>

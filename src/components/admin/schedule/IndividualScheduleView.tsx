@@ -37,14 +37,14 @@ export default function IndividualScheduleView({
           value={selectedUser?.toString() || ''}
           onValueChange={(val) => setSelectedUser(parseInt(val))}
         >
-          <SelectTrigger className="w-full md:w-64 bg-white border-gray-300 text-gray-900">
+          <SelectTrigger className="w-full md:w-64 bg-slate-800 border-slate-600 text-slate-100">
             <SelectValue placeholder="Выберите промоутера" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-slate-800 border-slate-600">
             {schedules.map(user => {
               const isMaxim = isMaximKorelsky(user.first_name, user.last_name);
               return (
-                <SelectItem key={user.user_id} value={user.user_id.toString()}>
+                <SelectItem key={user.user_id} value={user.user_id.toString()} className="text-slate-100 focus:bg-slate-700">
                   {user.first_name} {user.last_name}{isMaxim && ' 👑'}
                 </SelectItem>
               );
@@ -52,7 +52,7 @@ export default function IndividualScheduleView({
           </SelectContent>
         </Select>
         {selectedUserData && (
-          <Badge className="bg-blue-600 text-white text-sm md:text-lg px-3 md:px-4 py-1 md:py-2">
+          <Badge className="bg-cyan-500 text-slate-900 text-sm md:text-lg px-3 md:px-4 py-1 md:py-2 font-bold">
             {getTotalShifts(selectedUserData.schedule)} смен
           </Badge>
         )}
@@ -67,19 +67,19 @@ export default function IndividualScheduleView({
             const isMaxim = isMaximKorelsky(selectedUserData.first_name, selectedUserData.last_name);
 
             return (
-              <Card key={day.date} className="bg-white border-2 border-gray-200 shadow-sm">
+              <Card key={day.date} className="bg-slate-800 border-2 border-slate-600 shadow-xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-blue-600'} text-white flex flex-col items-center justify-center font-bold`}>
+                      <div className={`w-12 h-12 rounded-lg ${day.isWeekend ? 'bg-orange-500' : 'bg-cyan-500'} text-slate-900 flex flex-col items-center justify-center font-bold`}>
                         <span className="text-xs">{day.dayName}</span>
                         <span className="text-lg">{new Date(day.date).getDate()}.10</span>
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-semibold text-slate-100">
                           {day.dayNameFull}
                         </p>
-                        <p className="text-xs text-gray-600">{day.date}</p>
+                        <p className="text-xs text-slate-400">{day.date}</p>
                       </div>
                     </div>
 
@@ -89,14 +89,14 @@ export default function IndividualScheduleView({
 
                         return (
                           <div key={slot.time} className="relative group">
-                            <Badge className={`${isMaxim ? 'bg-purple-600' : 'bg-green-600'} pr-7`}>
+                            <Badge className={`${isMaxim ? 'bg-purple-500' : 'bg-emerald-500'} text-slate-900 font-semibold pr-7`}>
                               <Icon name="Clock" size={14} className="mr-1" />
                               {slot.label}
                             </Badge>
                             <button
                               onClick={() => confirmRemoveSlot(selectedUserData.user_id, `${selectedUserData.first_name} ${selectedUserData.last_name}`, day.date, slot.time, slot.label)}
                               disabled={deletingSlot?.userId === selectedUserData.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time}
-                              className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white hover:text-red-200 disabled:opacity-50"
+                              className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-slate-900 hover:text-red-600 disabled:opacity-50"
                               title="Удалить смену"
                             >
                               {deletingSlot?.userId === selectedUserData.user_id && deletingSlot?.date === day.date && deletingSlot?.slot === slot.time ? (

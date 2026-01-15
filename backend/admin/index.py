@@ -489,7 +489,7 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                     {
                         'name': org_name,
                         'contacts': stats['contacts'],
-                        'approaches': stats['approaches'],
+                        'approaches': stats['approaches'] + stats['contacts'],  # подходы = отмены + контакты
                         'total': stats['total']
                     }
                     for org_name, stats in user_data['organizations'].items()
@@ -502,7 +502,7 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                     'email': user_data['email'],
                     'lead_count': user_data['lead_count'],
                     'contacts': user_data['contacts'],
-                    'approaches': user_data['approaches'],
+                    'approaches': user_data['approaches'] + user_data['contacts'],  # подходы = отмены + контакты
                     'organizations': org_list
                 })
             

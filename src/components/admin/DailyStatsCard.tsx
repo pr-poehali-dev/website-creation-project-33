@@ -122,7 +122,14 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
                           <div className="text-[10px] md:text-xs text-slate-400">контакты</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-base md:text-lg font-bold text-orange-400 mb-0.5 md:mb-1">{day.approaches}</div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="text-base md:text-lg font-bold text-orange-400">{day.approaches}</div>
+                            {day.approaches > 0 && (
+                              <div className="text-xs md:text-sm text-slate-500 font-medium">
+                                {Math.round((day.contacts / day.approaches) * 100)}%
+                              </div>
+                            )}
+                          </div>
                           <div className="text-[10px] md:text-xs text-slate-400">подходы</div>
                         </div>
                         {day.count > 0 && (

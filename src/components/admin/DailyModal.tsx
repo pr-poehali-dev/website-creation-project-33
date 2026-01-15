@@ -145,15 +145,16 @@ export default function DailyModal({
           ) : dailyUserStats.length > 0 ? (
             <div className="space-y-4 sm:space-y-5">
               {(() => {
-                const orgStats: Record<string, { contacts: number; total: number }> = {};
+                const orgStats: Record<string, { contacts: number; approaches: number; total: number }> = {};
                 
                 dailyUserStats.forEach(user => {
                   if (user.organizations) {
                     user.organizations.forEach(org => {
                       if (!orgStats[org.name]) {
-                        orgStats[org.name] = { contacts: 0, total: 0 };
+                        orgStats[org.name] = { contacts: 0, approaches: 0, total: 0 };
                       }
                       orgStats[org.name].contacts += org.contacts;
+                      orgStats[org.name].approaches += org.approaches;
                       orgStats[org.name].total += org.total;
                     });
                   }
@@ -180,6 +181,10 @@ export default function DailyModal({
                               <div className="text-center">
                                 <div className="text-xs sm:text-sm font-bold text-green-400">{org.contacts}</div>
                                 <div className="text-[9px] sm:text-[10px] text-slate-400">контакты</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-xs sm:text-sm font-bold text-orange-400">{org.approaches}</div>
+                                <div className="text-[9px] sm:text-[10px] text-slate-400">подходы</div>
                               </div>
                             </div>
                           </div>
@@ -222,6 +227,10 @@ export default function DailyModal({
                               <div className="text-center">
                                 <div className="text-sm md:text-base font-bold text-green-400">{user.contacts}</div>
                                 <div className="text-[10px] md:text-xs text-slate-400">контакты</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-sm md:text-base font-bold text-orange-400">{user.approaches}</div>
+                                <div className="text-[10px] md:text-xs text-slate-400">подходы</div>
                               </div>
                             </div>
                             <Icon 
@@ -305,6 +314,10 @@ export default function DailyModal({
                                         <div className="text-center">
                                           <div className="text-xs sm:text-sm font-bold text-green-400">{org.contacts}</div>
                                           <div className="text-[9px] sm:text-[10px] text-slate-400">контакты</div>
+                                        </div>
+                                        <div className="text-center">
+                                          <div className="text-xs sm:text-sm font-bold text-orange-400">{org.approaches}</div>
+                                          <div className="text-[9px] sm:text-[10px] text-slate-400">подходы</div>
                                         </div>
                                       </div>
                                     </div>

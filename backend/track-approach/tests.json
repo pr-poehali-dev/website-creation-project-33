@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Track approach successfully",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "organization_id": 1
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing user ID",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "organization_id": 1
+      },
+      "expectedStatus": 400
+    }
+  ]
+}

@@ -94,12 +94,29 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     }
   };
 
-  const cancelNotebook = () => {
+  const cancelNotebook = async () => {
     stopRecording();
     setNotebookModalOpen(false);
     setAudioBlob(null);
     setNotes('');
     localStorage.removeItem('notepad_draft');
+    
+    if (selectedOrganizationId && user) {
+      try {
+        await fetch('https://functions.poehali.dev/c587029d-f424-4cf7-8816-d61ef2c6756b', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': user.id.toString(),
+          },
+          body: JSON.stringify({
+            organization_id: selectedOrganizationId,
+          }),
+        });
+      } catch (error) {
+        console.error('Failed to track approach:', error);
+      }
+    }
   };
 
   const handleSendToTelegram = async () => {

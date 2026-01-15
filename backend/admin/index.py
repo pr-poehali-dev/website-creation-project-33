@@ -344,6 +344,23 @@ def get_leads_stats() -> Dict[str, Any]:
                 elif row[1] == 'подход':
                     daily_groups[date_key]['approaches'] += 1
             
+            # Добавляем подходы из таблицы leads (нажатия кнопки Отменить)
+            cur.execute("""
+                SELECT created_at, approaches
+                FROM t_p24058207_website_creation_pro.leads
+                WHERE created_at >= '2025-01-01' AND approaches > 0
+                ORDER BY created_at DESC
+            """)
+            
+            for row in cur.fetchall():
+                moscow_dt = get_moscow_time_from_utc(row[0])
+                date_key = moscow_dt.date().isoformat()
+                
+                if date_key not in daily_groups:
+                    daily_groups[date_key] = {'contacts': 0, 'approaches': 0, 'total': 0}
+                
+                daily_groups[date_key]['approaches'] += row[1]
+            
             # Преобразуем в список и сортируем
             daily_stats = []
             for date_key, stats in daily_groups.items():
@@ -420,6 +437,48 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                     user_groups[user_id]['organizations'][org_name]['contacts'] += 1
                 elif lead_type == 'подход':
                     user_groups[user_id]['organizations'][org_name]['approaches'] += 1
+            
+            # Добавляем подходы из таблицы leads (нажатия кнопки Отменить)
+            cur.execute("""
+                SELECT u.id, u.name, u.email, l.created_at, l.approaches, l.organization_id, o.name as org_name
+                FROM t_p24058207_website_creation_pro.users u 
+                LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id 
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.created_at IS NOT NULL AND l.approaches > 0
+            """)
+            
+            for row in cur.fetchall():
+                moscow_dt = get_moscow_time_from_utc(row[3])
+                date_key = moscow_dt.date().isoformat()
+                
+                if date_key != date:
+                    continue
+                
+                user_id = row[0]
+                org_name = row[6] if row[6] else 'Не указана'
+                approaches_count = row[4]
+                
+                if user_id not in user_groups:
+                    user_groups[user_id] = {
+                        'name': row[1],
+                        'email': row[2],
+                        'lead_count': 0,
+                        'contacts': 0,
+                        'approaches': 0,
+                        'organizations': {}
+                    }
+                
+                user_groups[user_id]['approaches'] += approaches_count
+                
+                # Группируем по организациям
+                if org_name not in user_groups[user_id]['organizations']:
+                    user_groups[user_id]['organizations'][org_name] = {
+                        'contacts': 0,
+                        'approaches': 0,
+                        'total': 0
+                    }
+                
+                user_groups[user_id]['organizations'][org_name]['approaches'] += approaches_count
             
             # Преобразуем в список и сортируем
             user_stats = []

@@ -121,6 +121,10 @@ export default function DailyStatsCard({ dailyStats, onDayClick }: DailyStatsCar
                           <div className="text-base md:text-lg font-bold text-green-400 mb-0.5 md:mb-1">{day.contacts}</div>
                           <div className="text-[10px] md:text-xs text-slate-400">контакты</div>
                         </div>
+                        <div className="text-right">
+                          <div className="text-base md:text-lg font-bold text-orange-400 mb-0.5 md:mb-1">{day.approaches}</div>
+                          <div className="text-[10px] md:text-xs text-slate-400">подходы</div>
+                        </div>
                         {day.count > 0 && (
                           <Icon name="ChevronRight" size={14} className="text-slate-500 ml-0 md:ml-1 md:w-4 md:h-4" />
                         )}

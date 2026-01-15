@@ -274,8 +274,10 @@ def get_leads_stats() -> Dict[str, Any]:
                 )
                 SELECT 
                     u.id, u.name, u.email,
-                    (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la
-                     WHERE la.user_id = u.id AND la.lead_type IN ('подход', 'контакт') AND la.is_active = true) as approaches,
+                    (
+                        (SELECT COALESCE(SUM(approaches), 0) FROM t_p24058207_website_creation_pro.leads WHERE user_id = u.id) +
+                        (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la WHERE la.user_id = u.id AND la.lead_type = 'контакт' AND la.is_active = true)
+                    ) as approaches,
                     (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la
                      WHERE la.user_id = u.id AND la.is_active = true) as total_leads,
                     COALESCE(ur.total_revenue, 0) as revenue,
@@ -342,9 +344,6 @@ def get_leads_stats() -> Dict[str, Any]:
                 daily_groups[date_key]['total'] += 1
                 if row[1] == 'контакт':
                     daily_groups[date_key]['contacts'] += 1
-                    daily_groups[date_key]['approaches'] += 1  # контакт = подход тоже
-                elif row[1] == 'подход':
-                    daily_groups[date_key]['approaches'] += 1
             
             # Добавляем подходы из таблицы leads (нажатия кнопки Отменить)
             cur.execute("""
@@ -369,7 +368,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 daily_stats.append({
                     'date': date_key,
                     'contacts': stats['contacts'],
-                    'approaches': stats['approaches'],
+                    'approaches': stats['approaches'] + stats['contacts'],  # подходы = отмены + контакты
                     'count': stats['total']
                 })
             

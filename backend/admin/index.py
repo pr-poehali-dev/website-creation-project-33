@@ -148,9 +148,10 @@ def get_leads_stats() -> Dict[str, Any]:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             # Контакты из подтверждённых смен (как в бухучёте)
+            # Подходы теперь = количество 'подход' + количество 'контакт'
             cur.execute("""
                 SELECT COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type = 'подход' THEN 1 END) as approaches,
+                       COUNT(CASE WHEN l.lead_type IN ('подход', 'контакт') THEN 1 END) as approaches,
                        COUNT(*) as total
                 FROM t_p24058207_website_creation_pro.work_shifts s
                 JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
@@ -274,7 +275,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 SELECT 
                     u.id, u.name, u.email,
                     (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la
-                     WHERE la.user_id = u.id AND la.lead_type = 'подход' AND la.is_active = true) as approaches,
+                     WHERE la.user_id = u.id AND la.lead_type IN ('подход', 'контакт') AND la.is_active = true) as approaches,
                     (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la
                      WHERE la.user_id = u.id AND la.is_active = true) as total_leads,
                     COALESCE(ur.total_revenue, 0) as revenue,
@@ -341,6 +342,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 daily_groups[date_key]['total'] += 1
                 if row[1] == 'контакт':
                     daily_groups[date_key]['contacts'] += 1
+                    daily_groups[date_key]['approaches'] += 1  # контакт = подход тоже
                 elif row[1] == 'подход':
                     daily_groups[date_key]['approaches'] += 1
             

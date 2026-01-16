@@ -57,8 +57,11 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   }, [endShiftPhotoOpen]);
 
   const startRecording = async () => {
+    console.log('🎤 startRecording called, user.id:', user?.id);
+    
     // Блокировка для Анны Королевой (user_id = 6853)
     if (user?.id === 6853) {
+      console.log('🚫 User blocked, showing modal');
       setBlockedUserModalOpen(true);
       return;
     }
@@ -184,7 +187,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         reader.readAsDataURL(finalAudioBlob);
       });
 
-      fetch('https://functions.poehali.dev/ecd9eaa3-7399-4f8b-8219-529b81f87b6a', {
+      const response = await fetch('https://functions.poehali.dev/ecd9eaa3-7399-4f8b-8219-529b81f87b6a', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -196,7 +199,20 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           organization_id: selectedOrganizationId,
           organization_name: organizationName
         })
-      }).catch(err => console.error('Background send error:', err));
+      });
+
+      // Проверка на блокировку пользователя
+      if (response.status === 403) {
+        const errorData = await response.json().catch(() => ({ error: 'Свяжитесь с Максимом' }));
+        setNotebookModalOpen(false);
+        setBlockedUserModalOpen(true);
+        setIsLoading(false);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to send');
+      }
 
       toast({ 
         title: 'Отправлено!',

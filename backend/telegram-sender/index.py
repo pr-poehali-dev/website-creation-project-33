@@ -166,6 +166,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'X-User-Id header required'})
             }
         
+        if int(user_id) == 6853:
+            return {
+                'statusCode': 403,
+                'headers': {'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Свяжитесь с Максимом'})
+            }
+        
         if not notes and not audio_data:
             return {
                 'statusCode': 400,

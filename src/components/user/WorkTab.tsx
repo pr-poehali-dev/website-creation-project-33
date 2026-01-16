@@ -36,6 +36,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [endShiftPhotoOpen, setEndShiftPhotoOpen] = useState(false);
   const [dayResultsOpen, setDayResultsOpen] = useState(false);
   const [notebookModalOpen, setNotebookModalOpen] = useState(false);
+  const [blockedUserModalOpen, setBlockedUserModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -56,6 +57,12 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   }, [endShiftPhotoOpen]);
 
   const startRecording = async () => {
+    // Блокировка для Анны Королевой (user_id = 6853)
+    if (user?.id === 6853) {
+      setBlockedUserModalOpen(true);
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
@@ -355,6 +362,27 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           onShiftEnd?.();
         }}
       />
+
+      {/* Модальное окно для заблокированного пользователя */}
+      <Dialog open={blockedUserModalOpen} onOpenChange={setBlockedUserModalOpen}>
+        <DialogContent className="max-w-md w-[calc(100%-2rem)] bg-white !border-0 shadow-2xl rounded-2xl p-6">
+          <div className="flex flex-col items-center justify-center text-center space-y-4 py-6">
+            <div className="p-4 rounded-full bg-red-100">
+              <Icon name="AlertCircle" size={48} className="text-red-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Свяжитесь с Максимом</h2>
+            <p className="text-gray-600 text-lg">Для продолжения работы обратитесь к администратору</p>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => setBlockedUserModalOpen(false)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg"
+            >
+              Понятно
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

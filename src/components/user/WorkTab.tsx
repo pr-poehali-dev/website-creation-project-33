@@ -26,10 +26,10 @@ interface WorkTabProps {
 export default function WorkTab({ selectedOrganizationId, organizationName, onChangeOrganization, todayContactsCount, onContactAdded, onShiftEnd }: WorkTabProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [notes, setNotes] = useState(() => {
-    const saved = localStorage.getItem('notepad_draft');
-    return saved || '';
-  });
+  const [parentName, setParentName] = useState(() => localStorage.getItem('parent_name_draft') || '');
+  const [childName, setChildName] = useState(() => localStorage.getItem('child_name_draft') || '');
+  const [childAge, setChildAge] = useState(() => localStorage.getItem('child_age_draft') || '');
+  const [phone, setPhone] = useState(() => localStorage.getItem('phone_draft') || '');
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,12 +41,11 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const chunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
-    if (notes) {
-      localStorage.setItem('notepad_draft', notes);
-    } else {
-      localStorage.removeItem('notepad_draft');
-    }
-  }, [notes]);
+    localStorage.setItem('parent_name_draft', parentName);
+    localStorage.setItem('child_name_draft', childName);
+    localStorage.setItem('child_age_draft', childAge);
+    localStorage.setItem('phone_draft', phone);
+  }, [parentName, childName, childAge, phone]);
 
   useEffect(() => {
     console.log('🎯 audioBlob changed:', audioBlob ? `Blob (${audioBlob.size} bytes)` : 'null');
@@ -108,8 +107,14 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     stopRecording();
     setNotebookModalOpen(false);
     setAudioBlob(null);
-    setNotes('');
-    localStorage.removeItem('notepad_draft');
+    setParentName('');
+    setChildName('');
+    setChildAge('');
+    setPhone('');
+    localStorage.removeItem('parent_name_draft');
+    localStorage.removeItem('child_name_draft');
+    localStorage.removeItem('child_age_draft');
+    localStorage.removeItem('phone_draft');
     
     if (selectedOrganizationId && user) {
       try {
@@ -194,7 +199,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           'X-User-Id': user?.id?.toString() || '',
         },
         body: JSON.stringify({
-          notes: notes.trim(),
+          notes: `Родитель: ${parentName.trim()}\nРебёнок: ${childName.trim()}\nВозраст: ${childAge.trim()}\nТелефон: +7${phone.trim()}`,
           audio_data: audioData,
           organization_id: selectedOrganizationId,
           organization_name: organizationName
@@ -220,10 +225,16 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       });
       
       onContactAdded?.();
-      setNotes('');
+      setParentName('');
+      setChildName('');
+      setChildAge('');
+      setPhone('');
       setAudioBlob(null);
       setNotebookModalOpen(false);
-      localStorage.removeItem('notepad_draft');
+      localStorage.removeItem('parent_name_draft');
+      localStorage.removeItem('child_name_draft');
+      localStorage.removeItem('child_age_draft');
+      localStorage.removeItem('phone_draft');
     } catch (error) {
       console.error('Send error:', error);
       toast({ 
@@ -303,13 +314,73 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               )}
             </div>
             
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Имя родителя, имя ребенка, возраст ребенка"
-              className="min-h-[180px] sm:min-h-[200px] md:min-h-[250px] bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 resize-none focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl"
-              style={{ outline: 'none', boxShadow: 'none' }}
-            />
+            <div className="space-y-3 sm:space-y-4">
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                  Имя родителя
+                </label>
+                <Input
+                  value={parentName}
+                  onChange={(e) => setParentName(e.target.value)}
+                  placeholder="Иван"
+                  className="bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12"
+                  style={{ outline: 'none', boxShadow: 'none' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                  Имя ребёнка
+                </label>
+                <Input
+                  value={childName}
+                  onChange={(e) => setChildName(e.target.value)}
+                  placeholder="Мария"
+                  className="bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12"
+                  style={{ outline: 'none', boxShadow: 'none' }}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                    Возраст
+                  </label>
+                  <Input
+                    value={childAge}
+                    onChange={(e) => setChildAge(e.target.value)}
+                    placeholder="5 лет"
+                    className="bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12"
+                    style={{ outline: 'none', boxShadow: 'none' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                    Телефон
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900 font-medium text-sm sm:text-base pointer-events-none">
+                      +7
+                    </span>
+                    <Input
+                      value={phone}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        if (value.length <= 10) {
+                          setPhone(value);
+                        }
+                      }}
+                      placeholder="9001234567"
+                      className="bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12 pl-9"
+                      style={{ outline: 'none', boxShadow: 'none' }}
+                      type="tel"
+                      maxLength={10}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2 mt-4">

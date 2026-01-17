@@ -38,6 +38,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [dayResultsOpen, setDayResultsOpen] = useState(false);
   const [notebookModalOpen, setNotebookModalOpen] = useState(false);
   const [blockedUserModalOpen, setBlockedUserModalOpen] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -250,6 +251,20 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
   return (
     <div className="space-y-6 md:space-y-8 px-4 md:px-0">
+      {/* QR-код */}
+      <div className="flex justify-center py-4">
+        <div
+          onClick={() => setQrModalOpen(true)}
+          className="cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 p-3 bg-white rounded-2xl shadow-lg hover:shadow-xl"
+        >
+          <img 
+            src="https://cdn.poehali.dev/files/image-fotor-20260117124937.jpg"
+            alt="QR Code"
+            className="w-32 h-32 md:w-40 md:h-40"
+          />
+        </div>
+      </div>
+
       {/* Кнопка записи звука */}
       <div className="flex justify-center py-8 md:py-12">
         <button
@@ -469,6 +484,22 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               Понятно
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Модальное окно с увеличенным QR-кодом */}
+      <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
+        <DialogContent className="max-w-2xl w-[calc(100%-2rem)] bg-transparent border-0 shadow-none p-0">
+          <div 
+            className="flex items-center justify-center p-4 cursor-pointer"
+            onClick={() => setQrModalOpen(false)}
+          >
+            <img 
+              src="https://cdn.poehali.dev/files/image-fotor-20260117124937.jpg"
+              alt="QR Code"
+              className="w-full max-w-lg h-auto rounded-2xl shadow-2xl"
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>

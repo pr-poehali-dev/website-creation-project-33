@@ -44,21 +44,13 @@ export default function StatsOverview({ stats, onExportAll, exportingAll }: Stat
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center">
           {/* Контакты */}
           <div className="text-center p-6 md:p-8 rounded-xl bg-slate-800/50 border-2 border-green-400/30 transition-all duration-300 hover:shadow-lg hover:scale-105 min-w-[200px]">
             <div className="text-3xl md:text-4xl font-bold text-green-400 mb-2">
               {stats.contacts}
             </div>
             <div className="text-slate-300 text-base md:text-lg font-medium">Контактов</div>
-          </div>
-          
-          {/* Подходы */}
-          <div className="text-center p-6 md:p-8 rounded-xl bg-slate-800/50 border-2 border-orange-400/30 transition-all duration-300 hover:shadow-lg hover:scale-105 min-w-[200px]">
-            <div className="text-3xl md:text-4xl font-bold text-orange-400 mb-2">
-              {stats.approaches}
-            </div>
-            <div className="text-slate-300 text-base md:text-lg font-medium">Подходов</div>
           </div>
         </div>
       </CardContent>

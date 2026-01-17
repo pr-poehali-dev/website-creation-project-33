@@ -16,6 +16,7 @@ export default function PromotersList() {
   const [promoters, setPromoters] = useState<PromoterStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [exportingId, setExportingId] = useState<number | null>(null);
+  const [blockingId, setBlockingId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchPromoters();
@@ -62,6 +63,35 @@ export default function PromotersList() {
     }
   };
 
+  const blockPromoter = async (promoterId: number, promoterName: string) => {
+    setBlockingId(promoterId);
+    try {
+      const response = await fetch('https://functions.poehali.dev/f3c8f0dd-ab15-427b-a94e-d3ede8e8c4ba', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: promoterId })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: 'Промоутер заблокирован',
+          description: `${promoterName} выкинут на страницу входа`
+        });
+      } else {
+        throw new Error(data.error || 'Ошибка блокировки');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: error instanceof Error ? error.message : 'Не удалось заблокировать промоутера',
+        variant: 'destructive'
+      });
+    } finally {
+      setBlockingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <Card className="bg-white shadow-xl">
@@ -88,19 +118,34 @@ export default function PromotersList() {
             <div key={promoter.promoter_id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold text-[#001f54]">{promoter.promoter_name}</h3>
-                <Button
-                  onClick={() => exportPromoterData(promoter.promoter_id, promoter.promoter_name)}
-                  disabled={exportingId === promoter.promoter_id}
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  {exportingId === promoter.promoter_id ? (
-                    <Icon name="Loader2" size={14} className="mr-1 animate-spin" />
-                  ) : (
-                    <Icon name="Sheet" size={14} className="mr-1" />
-                  )}
-                  Экспорт
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => blockPromoter(promoter.promoter_id, promoter.promoter_name)}
+                    disabled={blockingId === promoter.promoter_id}
+                    size="sm"
+                    variant="ghost"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    {blockingId === promoter.promoter_id ? (
+                      <Icon name="Loader2" size={18} className="animate-spin" />
+                    ) : (
+                      <Icon name="AlertCircle" size={18} />
+                    )}
+                  </Button>
+                  <Button
+                    onClick={() => exportPromoterData(promoter.promoter_id, promoter.promoter_name)}
+                    disabled={exportingId === promoter.promoter_id}
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    {exportingId === promoter.promoter_id ? (
+                      <Icon name="Loader2" size={14} className="mr-1 animate-spin" />
+                    ) : (
+                      <Icon name="Sheet" size={14} className="mr-1" />
+                    )}
+                    Экспорт
+                  </Button>
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>

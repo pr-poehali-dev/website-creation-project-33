@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { useSessionValidator } from '@/hooks/useSessionValidator';
 import AuthPage from '@/components/auth/AuthPage';
 import AdminPanel from '@/components/admin/AdminPanel';
 import UserDashboard from "./pages/UserDashboard";
@@ -22,6 +23,9 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { user, loading } = useAuth();
+  
+  // Автоматическая проверка сессии при кликах
+  useSessionValidator();
 
   if (loading) {
     return (

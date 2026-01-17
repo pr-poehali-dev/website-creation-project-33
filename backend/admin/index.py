@@ -1078,7 +1078,7 @@ def get_pending_users() -> List[Dict[str, Any]]:
             return pending_users
 
 def get_user_revenue_details(email: str) -> List[Dict[str, Any]]:
-    """Получить детализацию дохода пользователя по организациям"""
+    """Получить детализацию зарплаты пользователя по организациям (смены из бухучёта)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -1092,45 +1092,66 @@ def get_user_revenue_details(email: str) -> List[Dict[str, Any]]:
             
             user_id = user_row[0]
             
+            # Получаем зарплату по сменам из бухучёта (work_shifts)
             cur.execute("""
                 SELECT 
                     o.name as organization_name,
-                    o.contact_rate,
-                    o.payment_type,
-                    COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts
-                FROM t_p24058207_website_creation_pro.leads_analytics l
-                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE l.user_id = %s AND l.is_active = true
-                GROUP BY o.id, o.name, o.contact_rate, o.payment_type
-                HAVING COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) > 0
-                ORDER BY contacts DESC
+                    ws.shift_date,
+                    ws.organization_id,
+                    COALESCE(shift_contacts.contacts_count, 0) as contacts
+                FROM t_p24058207_website_creation_pro.work_shifts ws
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON ws.organization_id = o.id
+                LEFT JOIN LATERAL (
+                    SELECT COUNT(*) as contacts_count
+                    FROM t_p24058207_website_creation_pro.leads_analytics la
+                    WHERE la.user_id = ws.user_id
+                    AND la.created_at::date = ws.shift_date
+                    AND la.organization_id = ws.organization_id
+                    AND la.lead_type = 'контакт'
+                    AND la.is_active = true
+                ) shift_contacts ON true
+                WHERE ws.user_id = %s
+                ORDER BY o.name, ws.shift_date DESC
             """, (user_id,))
             
-            org_revenues = []
+            # Группируем по организациям
+            org_salary_map = {}
             for row in cur.fetchall():
                 org_name = row[0] if row[0] else 'Не указана'
-                rate = row[1] if row[1] else 0
-                payment_type = row[2] if row[2] else 'cash'
                 contacts = row[3]
                 
-                revenue_before_tax = contacts * rate
+                if org_name not in org_salary_map:
+                    org_salary_map[org_name] = {
+                        'total_contacts': 0,
+                        'total_salary': 0,
+                        'shifts': 0
+                    }
                 
-                if payment_type == 'cashless':
-                    tax = revenue_before_tax * 0.07
-                    revenue_after_tax = revenue_before_tax * 0.93
-                else:
-                    tax = 0
-                    revenue_after_tax = revenue_before_tax
+                # Зарплата за смену: ≥10 контактов → 300₽, <10 → 200₽
+                shift_salary = contacts * 300 if contacts >= 10 else contacts * 200
+                
+                org_salary_map[org_name]['total_contacts'] += contacts
+                org_salary_map[org_name]['total_salary'] += shift_salary
+                org_salary_map[org_name]['shifts'] += 1
+            
+            # Формируем итоговый список
+            org_revenues = []
+            for org_name, data in org_salary_map.items():
+                avg_rate = round(data['total_salary'] / data['total_contacts']) if data['total_contacts'] > 0 else 0
                 
                 org_revenues.append({
                     'organization_name': org_name,
-                    'contacts': contacts,
-                    'rate': rate,
-                    'payment_type': payment_type,
-                    'revenue_before_tax': round(revenue_before_tax, 2),
-                    'tax': round(tax, 2),
-                    'revenue_after_tax': round(revenue_after_tax, 2)
+                    'contacts': data['total_contacts'],
+                    'shifts': data['shifts'],
+                    'rate': avg_rate,
+                    'payment_type': 'salary',  # Тип "зарплата"
+                    'revenue_before_tax': data['total_salary'],
+                    'tax': 0,
+                    'revenue_after_tax': data['total_salary']
                 })
+            
+            # Сортируем по зарплате (убыв.)
+            org_revenues.sort(key=lambda x: x['revenue_after_tax'], reverse=True)
             
             return org_revenues
 

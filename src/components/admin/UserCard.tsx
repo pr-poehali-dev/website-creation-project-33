@@ -87,7 +87,7 @@ export default function UserCard({
   const handleBlockUser = async () => {
     setBlockingUser(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/f3c8f0dd-ab15-427b-a94e-d3ede8e8c4ba', {
+      const response = await fetch('https://functions.poehali.dev/4fd575d9-3eab-46f6-8648-120ba9fb667d', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id })

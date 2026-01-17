@@ -251,20 +251,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
   return (
     <div className="space-y-6 md:space-y-8 px-4 md:px-0">
-      {/* QR-код */}
-      <div className="flex justify-center py-4">
-        <div
-          onClick={() => setQrModalOpen(true)}
-          className="cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 p-3 bg-white rounded-2xl shadow-lg hover:shadow-xl"
-        >
-          <img 
-            src="https://cdn.poehali.dev/files/image-fotor-20260117124937.jpg"
-            alt="QR Code"
-            className="w-32 h-32 md:w-40 md:h-40"
-          />
-        </div>
-      </div>
-
       {/* Кнопка записи звука */}
       <div className="flex justify-center py-8 md:py-12">
         <button
@@ -313,24 +299,26 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           cancelNotebook();
         }
       }}>
-        <DialogContent className="max-w-2xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-white !border-0 shadow-2xl rounded-2xl p-4 sm:p-6">
-          <div className="space-y-4 sm:space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-blue-500 shadow-lg">
-                <Icon name="NotebookPen" size={20} className="text-white sm:w-[22px] sm:h-[22px]" />
-              </div>
-              {isRecording && (
-                <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-full">
-                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
-                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
-                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
-                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
-                  <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+        <DialogContent className="max-w-4xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-white !border-0 shadow-2xl rounded-2xl p-4 sm:p-6">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Левая часть - форма */}
+            <div className="flex-1 space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-blue-500 shadow-lg">
+                  <Icon name="NotebookPen" size={20} className="text-white sm:w-[22px] sm:h-[22px]" />
                 </div>
-              )}
-            </div>
-            
-            <div className="space-y-3 sm:space-y-4">
+                {isRecording && (
+                  <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-full">
+                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
+                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
+                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
+                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
+                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-3 sm:space-y-4">
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
                   Имя родителя
@@ -395,6 +383,20 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Правая часть - QR-код */}
+            <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center lg:min-w-[200px]">
+              <div
+                onClick={() => setQrModalOpen(true)}
+                className="cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 p-3 bg-gray-50 rounded-2xl shadow-lg hover:shadow-xl"
+              >
+                <img 
+                  src="https://cdn.poehali.dev/files/image-fotor-20260117124937.jpg"
+                  alt="QR Code"
+                  className="w-40 h-40"
+                />
               </div>
             </div>
           </div>

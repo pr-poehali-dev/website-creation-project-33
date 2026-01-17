@@ -13,7 +13,7 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type'
             },
             'body': '',
@@ -31,6 +31,21 @@ def handler(event: dict, context) -> dict:
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': 'Unknown action'}),
+            'isBase64Encoded': False
+        }
+    
+    if method == 'DELETE':
+        query_params = event.get('queryStringParameters', {}) or {}
+        action = query_params.get('action')
+        user_id = query_params.get('user_id')
+        
+        if action == 'delete_user' and user_id:
+            return delete_user(int(user_id))
+        
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Invalid parameters'}),
             'isBase64Encoded': False
         }
     
@@ -168,6 +183,24 @@ def get_users():
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'users': [dict(u) for u in users]}, default=str),
+            'isBase64Encoded': False
+        }
+    finally:
+        cursor.close()
+        conn.close()
+
+def delete_user(user_id: int):
+    '''Удаляет пользователя из БД'''
+    conn = psycopg2.connect(os.environ.get('DATABASE_URL'))
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('DELETE FROM telegram_users WHERE id = %s', (user_id,))
+        conn.commit()
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'status': 'ok', 'message': 'User deleted'}),
             'isBase64Encoded': False
         }
     finally:

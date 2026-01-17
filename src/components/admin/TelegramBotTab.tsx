@@ -52,6 +52,33 @@ export default function TelegramBotTab() {
     }
   };
 
+  const deleteUser = async (userId: number) => {
+    if (!confirm('Удалить этого подписчика?')) return;
+    
+    try {
+      const response = await fetch(`https://functions.poehali.dev/3866e45c-8059-4370-ba27-042c0eac094d?action=delete_user&user_id=${userId}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        loadUsers();
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  };
+
+  const formatMoscowTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('ru-RU', {
+      timeZone: 'Europe/Moscow',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const setupWebhook = async () => {
     setLoading(true);
     try {
@@ -185,8 +212,8 @@ export default function TelegramBotTab() {
                   key={user.id}
                   className="p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-slate-600 transition-colors"
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="flex-1">
                       <div className="text-slate-100 font-medium">
                         {user.first_name} {user.last_name || ''}
                       </div>
@@ -198,10 +225,18 @@ export default function TelegramBotTab() {
                           📱 {user.phone_number}
                         </div>
                       )}
+                      <div className="text-xs text-slate-500 mt-2">
+                        {formatMoscowTime(user.created_at)}
+                      </div>
                     </div>
-                    <div className="text-xs text-slate-500">
-                      {new Date(user.created_at).toLocaleDateString('ru-RU')}
-                    </div>
+                    <Button
+                      onClick={() => deleteUser(user.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    >
+                      <Icon name="Trash2" size={16} />
+                    </Button>
                   </div>
                 </div>
               ))}

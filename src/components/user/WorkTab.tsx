@@ -384,6 +384,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
                   </div>
                 </div>
               </div>
+              </div>
             </div>
 
             {/* Правая часть - QR-код (десктоп и мобильный) */}

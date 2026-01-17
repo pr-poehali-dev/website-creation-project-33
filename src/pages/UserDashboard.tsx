@@ -241,6 +241,26 @@ export default function UserDashboard() {
                   <p className="text-slate-300 text-sm">Связь с администратором</p>
                 </div>
               </div>
+
+              <div
+                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
+              >
+                <div className="absolute inset-0 opacity-80">
+                  <img 
+                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
+                    alt="" 
+                    className="w-full h-full object-cover scale-[2.5]"
+                    style={{ objectPosition: '50% 50%' }}
+                  />
+                </div>
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
+                    <Icon name="Bot" size={24} className="text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Телеграм бот</h2>
+                  <p className="text-slate-300 text-sm">Управление ботом</p>
+                </div>
+              </div>
             </div>
           </>
         )}

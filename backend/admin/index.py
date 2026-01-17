@@ -234,43 +234,28 @@ def get_leads_stats() -> Dict[str, Any]:
                 if shift_contacts_count > user_data_map[user_id]['max_contacts']:
                     user_data_map[user_id]['max_contacts'] = shift_contacts_count
             
-            # Получаем дополнительные данные: имена, email, подходы, доход
+            # Получаем дополнительные данные: имена, email, подходы, зарплата
             cur.execute("""
-                WITH user_revenue AS (
+                WITH user_salary AS (
                     SELECT 
-                        l.user_id,
+                        ws.user_id,
                         SUM(
                             CASE 
-                                WHEN COALESCE(
-                                    (SELECT payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods 
-                                     WHERE organization_id = o.id 
-                                     AND start_date <= l.created_at::date 
-                                     AND (end_date IS NULL OR end_date >= l.created_at::date)
-                                     ORDER BY start_date DESC LIMIT 1),
-                                    o.payment_type
-                                ) = 'cashless' 
-                                THEN COALESCE(
-                                    (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
-                                     WHERE organization_id = o.id 
-                                     AND start_date <= l.created_at::date 
-                                     AND (end_date IS NULL OR end_date >= l.created_at::date)
-                                     ORDER BY start_date DESC LIMIT 1),
-                                    o.contact_rate
-                                ) * 0.93
-                                ELSE COALESCE(
-                                    (SELECT contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods 
-                                     WHERE organization_id = o.id 
-                                     AND start_date <= l.created_at::date 
-                                     AND (end_date IS NULL OR end_date >= l.created_at::date)
-                                     ORDER BY start_date DESC LIMIT 1),
-                                    o.contact_rate
-                                )
+                                WHEN shift_contacts.contacts_count >= 10 THEN shift_contacts.contacts_count * 300
+                                ELSE shift_contacts.contacts_count * 200
                             END
-                        ) as total_revenue
-                    FROM t_p24058207_website_creation_pro.leads_analytics l
-                    LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                    WHERE l.lead_type = 'контакт' AND l.is_active = true
-                    GROUP BY l.user_id
+                        ) as total_salary
+                    FROM t_p24058207_website_creation_pro.work_shifts ws
+                    LEFT JOIN LATERAL (
+                        SELECT COUNT(*) as contacts_count
+                        FROM t_p24058207_website_creation_pro.leads_analytics la
+                        WHERE la.user_id = ws.user_id
+                        AND la.created_at::date = ws.shift_date
+                        AND la.organization_id = ws.organization_id
+                        AND la.lead_type = 'контакт'
+                        AND la.is_active = true
+                    ) shift_contacts ON true
+                    GROUP BY ws.user_id
                 )
                 SELECT 
                     u.id, u.name, u.email,
@@ -280,10 +265,10 @@ def get_leads_stats() -> Dict[str, Any]:
                     ) as approaches,
                     (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la
                      WHERE la.user_id = u.id AND la.is_active = true) as total_leads,
-                    COALESCE(ur.total_revenue, 0) as revenue,
+                    COALESCE(us.total_salary, 0) as revenue,
                     u.is_active
                 FROM t_p24058207_website_creation_pro.users u
-                LEFT JOIN user_revenue ur ON u.id = ur.user_id
+                LEFT JOIN user_salary us ON u.id = us.user_id
             """)
             
             user_stats = []

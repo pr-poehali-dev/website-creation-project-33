@@ -74,18 +74,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if user_id == 'all':
         query = """
             SELECT 
-                COUNT(*) as total_contacts,
-                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') THEN 1 ELSE 0 END) as today_contacts
+                COUNT(*) FILTER (WHERE lead_type = 'контакт') as total_contacts,
+                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'контакт' THEN 1 ELSE 0 END) as today_contacts,
+                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'подход' THEN 1 ELSE 0 END) as today_approaches
             FROM t_p24058207_website_creation_pro.leads_analytics
-            WHERE lead_type = 'контакт' AND user_id != 999
+            WHERE user_id != 999
         """
     else:
         query = f"""
             SELECT 
-                COUNT(*) as total_contacts,
-                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') THEN 1 ELSE 0 END) as today_contacts
+                COUNT(*) FILTER (WHERE lead_type = 'контакт') as total_contacts,
+                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'контакт' THEN 1 ELSE 0 END) as today_contacts,
+                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'подход' THEN 1 ELSE 0 END) as today_approaches
             FROM t_p24058207_website_creation_pro.leads_analytics
-            WHERE user_id = {int(user_id)} AND lead_type = 'контакт' AND user_id != 999
+            WHERE user_id = {int(user_id)} AND user_id != 999
         """
     
     cur.execute(query)
@@ -97,6 +99,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # Format response
     total_contacts = result[0] if result else 0
     today_contacts = result[1] if result and result[1] else 0
+    today_approaches = result[2] if result and result[2] else 0
     
     return {
         'statusCode': 200,
@@ -106,7 +109,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         },
         'body': json.dumps({
             'total_contacts': total_contacts,
-            'today_contacts': today_contacts
+            'today_contacts': today_contacts,
+            'today_approaches': today_approaches
         }),
         'isBase64Encoded': False
     }

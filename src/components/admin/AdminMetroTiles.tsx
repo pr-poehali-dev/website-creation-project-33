@@ -304,6 +304,21 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
           </div>
         </div>
       </div>
+
+      <div
+        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-7 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
+      >
+        <div className="absolute inset-0 z-0">
+          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
+        </div>
+        <div className="relative z-10">
+          <div className="p-2 rounded-xl bg-blue-500/20 border border-blue-400/30 w-fit mb-2 md:mb-3">
+            <Icon name="Bot" size={20} className="text-white md:w-6 md:h-6" />
+          </div>
+          <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Телеграм бот</h2>
+          <p className="text-blue-100 text-xs md:text-sm">Управление ботом</p>
+        </div>
+      </div>
     </div>
   );
 }

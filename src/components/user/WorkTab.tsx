@@ -386,8 +386,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
               </div>
             </div>
 
-            {/* Правая часть - QR-код */}
-            <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center lg:min-w-[200px]">
+            {/* Правая часть - QR-код (десктоп и мобильный) */}
+            <div className="flex flex-col items-center justify-center lg:min-w-[200px]">
               <div
                 onClick={() => setQrModalOpen(true)}
                 className="cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 p-3 bg-gray-50 rounded-2xl shadow-lg hover:shadow-xl"
@@ -395,7 +395,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
                 <img 
                   src="https://cdn.poehali.dev/files/image-fotor-20260117124937.jpg"
                   alt="QR Code"
-                  className="w-40 h-40"
+                  className="w-32 h-32 sm:w-40 sm:h-40"
                 />
               </div>
             </div>

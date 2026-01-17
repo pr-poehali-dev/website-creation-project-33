@@ -74,20 +74,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if user_id == 'all':
         query = """
             SELECT 
-                COUNT(*) FILTER (WHERE lead_type = 'контакт') as total_contacts,
-                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'контакт' THEN 1 ELSE 0 END) as today_contacts,
-                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'подход' THEN 1 ELSE 0 END) as today_approaches
-            FROM t_p24058207_website_creation_pro.leads_analytics
-            WHERE user_id != 999
+                (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics WHERE lead_type = 'контакт' AND user_id != 999) as total_contacts,
+                (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics WHERE DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'контакт' AND user_id != 999) as today_contacts,
+                (SELECT COALESCE(SUM(approaches), 0) FROM t_p24058207_website_creation_pro.leads WHERE DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND user_id != 999) as today_approaches
         """
     else:
         query = f"""
             SELECT 
-                COUNT(*) FILTER (WHERE lead_type = 'контакт') as total_contacts,
-                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'контакт' THEN 1 ELSE 0 END) as today_contacts,
-                SUM(CASE WHEN DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'подход' THEN 1 ELSE 0 END) as today_approaches
-            FROM t_p24058207_website_creation_pro.leads_analytics
-            WHERE user_id = {int(user_id)} AND user_id != 999
+                (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = {int(user_id)} AND lead_type = 'контакт') as total_contacts,
+                (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics WHERE user_id = {int(user_id)} AND DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours') AND lead_type = 'контакт') as today_contacts,
+                (SELECT COALESCE(SUM(approaches), 0) FROM t_p24058207_website_creation_pro.leads WHERE user_id = {int(user_id)} AND DATE(created_at + INTERVAL '3 hours') = DATE(NOW() + INTERVAL '3 hours')) as today_approaches
         """
     
     cur.execute(query)

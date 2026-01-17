@@ -15,6 +15,7 @@ import AccountingTab from './AccountingTab';
 import AccountingStats from './AccountingStats';
 import TodayWorkersCounter from './TodayWorkersCounter';
 import ClientsTab from './ClientsTab';
+import TelegramBotTab from './TelegramBotTab';
 
 
 interface AdminMetroTilesProps {
@@ -24,7 +25,7 @@ interface AdminMetroTilesProps {
   onViewChange: (view: TileView) => void;
 }
 
-type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients';
+type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram';
 type StatsSubView = 'users' | 'rating' | 'organizations';
 
 const NavButton = ({ 
@@ -187,7 +188,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     );
   }
 
-
+  if (currentView === 'telegram') {
+    return renderWithSidebar(
+      <TelegramBotTab />
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-8">
@@ -306,6 +311,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
       </div>
 
       <div
+        onClick={() => handleViewChange('telegram')}
         className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-7 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
       >
         <div className="absolute inset-0 z-0">

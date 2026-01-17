@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Test get bot info",
+      "method": "GET",
+      "path": "/?action=get_me",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "ok": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

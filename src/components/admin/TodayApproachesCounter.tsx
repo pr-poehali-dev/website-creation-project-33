@@ -25,14 +25,20 @@ export default function TodayApproachesCounter({ sessionToken }: TodayApproaches
 
       if (response.ok) {
         const data = await response.json();
+        console.log('📊 Approaches data:', data);
         const newValue = data.today_approaches || 0;
+        console.log('📊 Today approaches:', newValue);
         if (newValue !== todayApproaches) {
           setIsFlipping(true);
           setTimeout(() => {
             setTodayApproaches(newValue);
             setIsFlipping(false);
           }, 300);
+        } else {
+          setTodayApproaches(newValue);
         }
+      } else {
+        console.error('Failed to load approaches, status:', response.status);
       }
     } catch (error) {
       console.error('Failed to load approaches:', error);
@@ -54,14 +60,14 @@ export default function TodayApproachesCounter({ sessionToken }: TodayApproaches
   }
 
   return (
-    <div className="inline-block bg-orange-500/20 border border-orange-400/30 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
-      <div className="text-[8px] md:text-[10px] text-orange-100 font-medium uppercase tracking-wide">Подходы</div>
+    <div className="inline-block bg-green-500/20 border border-green-400/30 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
+      <div className="text-[8px] md:text-[10px] text-green-100 font-medium uppercase tracking-wide">Подходы</div>
       <div className={`text-sm md:text-lg font-bold text-white leading-tight transition-transform duration-300 ${
         isFlipping ? 'scale-110' : 'scale-100'
       }`}>
         {formatNumber(todayApproaches)}
       </div>
-      <div className="text-[8px] md:text-[10px] text-orange-100">сегодня</div>
+      <div className="text-[8px] md:text-[10px] text-green-100">сегодня</div>
     </div>
   );
 }

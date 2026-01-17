@@ -200,7 +200,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           'X-User-Id': user?.id?.toString() || '',
         },
         body: JSON.stringify({
-          notes: `Родитель: ${parentName.trim()}\nРебёнок: ${childName.trim()}\nВозраст: ${childAge.trim()}\nТелефон: +7${phone.trim()}`,
+          notes: `${parentName.trim()}\n${childName.trim()}\n${childAge.trim()}\n+7${phone.trim()}`,
           audio_data: audioData,
           organization_id: selectedOrganizationId,
           organization_name: organizationName

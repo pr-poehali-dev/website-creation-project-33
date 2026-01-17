@@ -35,6 +35,7 @@ export default function UserCard({
 }: UserCardProps) {
   const { user: authUser } = useAuth();
   const [uploadingQR, setUploadingQR] = useState(false);
+  const [blockingUser, setBlockingUser] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleQRUpload = async (file: File) => {
@@ -80,6 +81,35 @@ export default function UserCard({
       });
     } finally {
       setUploadingQR(false);
+    }
+  };
+
+  const handleBlockUser = async () => {
+    setBlockingUser(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/f3c8f0dd-ab15-427b-a94e-d3ede8e8c4ba', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: 'Промоутер заблокирован',
+          description: `${user.name} выкинут на страницу входа`
+        });
+      } else {
+        throw new Error(data.error || 'Ошибка блокировки');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: error instanceof Error ? error.message : 'Не удалось заблокировать промоутера',
+        variant: 'destructive'
+      });
+    } finally {
+      setBlockingUser(false);
     }
   };
 
@@ -156,6 +186,19 @@ export default function UserCard({
               </>
             ) : (
               <>
+                <Button
+                  size="sm"
+                  onClick={handleBlockUser}
+                  disabled={blockingUser || user.is_admin}
+                  className="bg-red-600 hover:bg-red-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                  title="Заблокировать промоутера"
+                >
+                  {blockingUser ? (
+                    <Icon name="Loader2" size={12} className="md:w-[14px] md:h-[14px] animate-spin" />
+                  ) : (
+                    <Icon name="AlertCircle" size={12} className="md:w-[14px] md:h-[14px]" />
+                  )}
+                </Button>
                 <Button
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}

@@ -307,15 +307,37 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
                 <div className="p-2 sm:p-2.5 rounded-xl bg-blue-500 shadow-lg">
                   <Icon name="NotebookPen" size={20} className="text-white sm:w-[22px] sm:h-[22px]" />
                 </div>
-                {isRecording && (
-                  <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-full">
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  {isRecording && (
+                    <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-full">
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+                    </div>
+                  )}
+                  <button
+                    onClick={cancelNotebook}
+                    disabled={isLoading}
+                    className="p-2 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 disabled:opacity-50"
+                    title="Отменить"
+                  >
+                    <Icon name="X" size={20} />
+                  </button>
+                  <button
+                    onClick={handleSendToTelegram}
+                    disabled={isLoading}
+                    className="p-2 rounded-xl bg-[#0088cc] hover:bg-[#006699] text-white transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-xl"
+                    title="Отправить в Telegram"
+                  >
+                    {isLoading ? (
+                      <Icon name="Loader2" size={20} className="animate-spin" />
+                    ) : (
+                      <Icon name="Send" size={20} />
+                    )}
+                  </button>
+                </div>
               </div>
               
               <div className="space-y-3 sm:space-y-4">
@@ -402,34 +424,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             </div>
           </div>
 
-          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2 mt-4">
-            <Button
-              onClick={cancelNotebook}
-              variant="outline"
-              className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 w-full sm:w-auto rounded-xl font-medium transition-all duration-300 text-sm sm:text-base h-10 sm:h-auto"
-              disabled={isLoading}
-            >
-              <Icon name="X" size={16} className="sm:w-[18px] sm:h-[18px]" />
-              <span className="ml-1">Отменить</span>
-            </Button>
-            <Button
-              onClick={handleSendToTelegram}
-              disabled={isLoading}
-              className="bg-[#0088cc] hover:bg-[#006699] text-white flex items-center gap-2 w-full sm:w-auto justify-center rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base h-10 sm:h-auto"
-            >
-              {isLoading ? (
-                <>
-                  <Icon name="Loader2" size={16} className="animate-spin sm:w-[18px] sm:h-[18px]" />
-                  <span>Отправка...</span>
-                </>
-              ) : (
-                <>
-                  <Icon name="Send" size={16} className="sm:w-[18px] sm:h-[18px]" />
-                  <span>Отправить в Telegram</span>
-                </>
-              )}
-            </Button>
-          </DialogFooter>
+
         </DialogContent>
       </Dialog>
 

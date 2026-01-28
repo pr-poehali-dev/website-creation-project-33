@@ -336,29 +336,29 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         <button
           onClick={startRecording}
           disabled={isRecording}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-base sm:text-lg px-8 sm:px-12 py-4 sm:py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-3 sm:gap-4"
+          className="w-32 h-32 sm:w-40 sm:h-40 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
           style={{
-            backgroundColor: isRecording ? '#001f54' : undefined,
+            backgroundColor: isRecording ? '#1e3a8a' : '#1e40af',
           }}
           onMouseEnter={(e) => {
             if (!isRecording) {
-              e.currentTarget.style.backgroundColor = '#003087';
+              e.currentTarget.style.backgroundColor = '#1e3a8a';
               e.currentTarget.style.transform = 'scale(1.05)';
             }
           }}
           onMouseLeave={(e) => {
             if (!isRecording) {
-              e.currentTarget.style.backgroundColor = '#001f54';
+              e.currentTarget.style.backgroundColor = '#1e40af';
               e.currentTarget.style.transform = 'scale(1)';
             }
           }}
         >
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '16px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '26px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '20px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '30px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
-            <div className="w-1.5 bg-white rounded-full animate-pulse" style={{ height: '18px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '20px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '32px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '24px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '36px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '22px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
           </div>
         </button>
       </div>

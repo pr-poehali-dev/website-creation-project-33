@@ -311,17 +311,17 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           disabled={isRecording}
           className="w-32 h-32 sm:w-40 sm:h-40 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
           style={{
-            backgroundColor: isRecording ? '#065f46' : '#059669',
+            backgroundColor: isRecording ? '#064e3b' : '#047857',
           }}
           onMouseEnter={(e) => {
             if (!isRecording) {
-              e.currentTarget.style.backgroundColor = '#065f46';
+              e.currentTarget.style.backgroundColor = '#064e3b';
               e.currentTarget.style.transform = 'scale(1.05)';
             }
           }}
           onMouseLeave={(e) => {
             if (!isRecording) {
-              e.currentTarget.style.backgroundColor = '#059669';
+              e.currentTarget.style.backgroundColor = '#047857';
               e.currentTarget.style.transform = 'scale(1)';
             }
           }}

@@ -305,33 +305,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <Card className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-lg">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-          <div className="flex items-start gap-3 sm:gap-4 w-full sm:w-auto">
-            <div className="p-2 sm:p-3 rounded-xl bg-blue-500 shadow-lg flex-shrink-0">
-              <Icon name="Building2" size={20} className="text-white sm:w-[24px] sm:h-[24px]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 break-words">{organizationName}</h3>
-              <button
-                onClick={onChangeOrganization}
-                className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors flex items-center gap-1"
-              >
-                Сменить организацию
-                <Icon name="ChevronRight" size={14} className="sm:w-[16px] sm:h-[16px]" />
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-md w-full sm:w-auto justify-center sm:justify-start">
-            <Icon name="Users" size={18} className="text-blue-600 sm:w-[20px] sm:h-[20px]" />
-            <div className="text-center sm:text-left">
-              <p className="text-xs text-gray-600">Сегодня</p>
-              <p className="text-lg sm:text-xl font-bold text-blue-600">{todayContactsCount}</p>
-            </div>
-          </div>
-        </div>
-      </Card>
-
       <div className="flex justify-center">
         <button
           onClick={startRecording}

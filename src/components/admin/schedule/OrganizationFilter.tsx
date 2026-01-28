@@ -34,6 +34,8 @@ export default function OrganizationFilter({
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
   const [allOrganizations, setAllOrganizations] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     loadAllOrganizations();
@@ -46,6 +48,7 @@ export default function OrganizationFilter({
         stats.forEach(stat => orgsFromStats.add(stat.organization_name));
       });
       setAllOrganizations(Array.from(orgsFromStats).sort());
+      setIsLoading(false);
       console.log(`ℹ️ Использую ${orgsFromStats.size} организаций из userOrgStats (fallback)`);
     }
   }, [userOrgStats, allOrganizations.length]);
@@ -65,6 +68,7 @@ export default function OrganizationFilter({
         const data = await response.json();
         if (data.organizations && Array.isArray(data.organizations) && data.organizations.length > 0) {
           setAllOrganizations(data.organizations.sort());
+          setIsLoading(false);
           console.log(`✅ Загружено ${data.organizations.length} организаций из API`);
           return;
         }
@@ -73,12 +77,26 @@ export default function OrganizationFilter({
       console.error('❌ Ошибка загрузки организаций из API:', error);
     }
     
+    setIsLoading(false);
     console.log('⚠️ API не вернул организации, ожидаю userOrgStats для fallback');
   };
   
   const sortedOrgs = allOrganizations;
   
   const actualSelectedCount = sortedOrgs.filter(org => orgLimits.has(org)).length;
+
+  if (isLoading) {
+    return (
+      <Card className="bg-cyan-500/10 border border-cyan-500/50 md:border-2">
+        <CardContent className="p-2 md:p-4">
+          <div className="flex items-center gap-1.5 md:gap-2">
+            <Icon name="Loader2" size={16} className="text-cyan-400 animate-spin md:w-5 md:h-5" />
+            <span className="text-xs md:text-sm text-slate-300">Загрузка организаций...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (sortedOrgs.length === 0 && Object.keys(userOrgStats).length === 0) {
     return null;

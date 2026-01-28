@@ -1,19 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
-import PhotoCapture from './PhotoCapture';
-import DayResultsDialog from './DayResultsDialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import NotebookModal from './NotebookModal';
+import QRCodeModal from './QRCodeModal';
+import EndShiftSection from './EndShiftSection';
+import BlockedUserModal from './BlockedUserModal';
 
 interface WorkTabProps {
   selectedOrganizationId: number | null;
@@ -60,7 +54,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const startRecording = async () => {
     console.log('🎤 startRecording called, user.id:', user?.id);
     
-    // Блокировка для Анны Королевой (user_id = 6853)
     if (user?.id === 6853) {
       console.log('🚫 User blocked, showing modal');
       setBlockedUserModalOpen(true);
@@ -142,11 +135,9 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     try {
       let finalAudioBlob = audioBlob;
 
-      // Если запись ещё идёт, останавливаем и ждём результат
       if (isRecording && mediaRecorderRef.current) {
         console.log('🎤 Stopping recording...');
         
-        // Создаём промис который разрешится когда получим blob
         const audioBlobPromise = new Promise<Blob>((resolve, reject) => {
           const originalOnstop = mediaRecorderRef.current!.onstop;
           
@@ -160,7 +151,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             resolve(blob);
           };
 
-          // Таймаут на 5 секунд
           setTimeout(() => reject(new Error('Recording timeout')), 5000);
         });
 
@@ -208,7 +198,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         })
       });
 
-      // Проверка на блокировку пользователя
       if (response.status === 403) {
         const errorData = await response.json().catch(() => ({ error: 'Свяжитесь с Максимом' }));
         setNotebookModalOpen(false);
@@ -239,9 +228,9 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       localStorage.removeItem('phone_draft');
     } catch (error) {
       console.error('Send error:', error);
-      toast({ 
-        title: 'Ошибка',
-        description: 'Не удалось записать аудио. Попробуйте снова.',
+      toast({
+        title: 'Ошибка отправки',
+        description: 'Не удалось отправить данные. Попробуйте снова.',
         variant: 'destructive'
       });
     } finally {
@@ -249,30 +238,111 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     }
   };
 
+  const handleEndShift = async (photoUrl: string) => {
+    console.log('📸 Ending shift with photo:', photoUrl);
+    
+    if (!selectedOrganizationId || !user) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось определить организацию или пользователя',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/cc46a2e1-ed85-4c98-a16a-7513fa07bed2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString(),
+        },
+        body: JSON.stringify({
+          organization_id: selectedOrganizationId,
+          photo_url: photoUrl,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to end shift');
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['today-contacts-count'] });
+
+      toast({
+        title: 'Смена завершена!',
+        description: 'Спасибо за работу. Отдохните хорошо!'
+      });
+
+      onShiftEnd?.();
+    } catch (error) {
+      console.error('End shift error:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось завершить смену. Попробуйте снова.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  if (!selectedOrganizationId) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4">
+        <div className="text-center space-y-4 sm:space-y-6 max-w-md">
+          <div className="p-4 sm:p-6 rounded-full bg-blue-50 inline-block">
+            <Icon name="Building2" size={48} className="text-blue-500 sm:w-[56px] sm:h-[56px]" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Выберите организацию</h3>
+            <p className="text-sm sm:text-base text-gray-600">
+              Выберите организацию из списка или создайте новую, чтобы начать работу
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 md:space-y-8 px-4 md:px-0">
-      {/* Кнопка записи звука */}
-      <div className="flex justify-center py-8 md:py-12">
+    <div className="space-y-6 sm:space-y-8">
+      <Card className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-lg">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-start gap-3 sm:gap-4 w-full sm:w-auto">
+            <div className="p-2 sm:p-3 rounded-xl bg-blue-500 shadow-lg flex-shrink-0">
+              <Icon name="Building2" size={20} className="text-white sm:w-[24px] sm:h-[24px]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 break-words">{organizationName}</h3>
+              <button
+                onClick={onChangeOrganization}
+                className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors flex items-center gap-1"
+              >
+                Сменить организацию
+                <Icon name="ChevronRight" size={14} className="sm:w-[16px] sm:h-[16px]" />
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3 bg-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-md w-full sm:w-auto justify-center sm:justify-start">
+            <Icon name="Users" size={18} className="text-blue-600 sm:w-[20px] sm:h-[20px]" />
+            <div className="text-center sm:text-left">
+              <p className="text-xs text-gray-600">Сегодня</p>
+              <p className="text-lg sm:text-xl font-bold text-blue-600">{todayContactsCount}</p>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <div className="flex justify-center">
         <button
           onClick={startRecording}
           disabled={isRecording}
-          className="audio-record-button shadow-lg hover:shadow-xl"
+          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-base sm:text-lg px-8 sm:px-12 py-4 sm:py-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-3 sm:gap-4"
           style={{
-            width: '100px',
-            height: '100px',
-            borderRadius: '50%',
-            backgroundColor: '#001f54',
-            border: 'none',
-            cursor: isRecording ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.3s ease',
-            opacity: isRecording ? 0.5 : 1,
+            backgroundColor: isRecording ? '#001f54' : undefined,
           }}
           onMouseEnter={(e) => {
             if (!isRecording) {
-              e.currentTarget.style.backgroundColor = '#003580';
+              e.currentTarget.style.backgroundColor = '#003087';
               e.currentTarget.style.transform = 'scale(1.05)';
             }
           }}
@@ -293,213 +363,46 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         </button>
       </div>
 
-      {/* Модальное окно с блокнотом */}
-      <Dialog open={notebookModalOpen} onOpenChange={(open) => {
-        if (!open) {
-          cancelNotebook();
-        }
-      }}>
-        <DialogContent className="max-w-4xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-white !border-0 shadow-2xl rounded-2xl p-4 sm:p-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Левая часть - форма */}
-            <div className="flex-1 space-y-4 sm:space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="p-2 sm:p-2.5 rounded-xl bg-blue-500 shadow-lg">
-                  <Icon name="NotebookPen" size={20} className="text-white sm:w-[22px] sm:h-[22px]" />
-                </div>
-                <div className="flex items-center gap-2">
-                  {isRecording && (
-                    <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-full">
-                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
-                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
-                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
-                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
-                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
-                    </div>
-                  )}
-                  <button
-                    onClick={cancelNotebook}
-                    disabled={isLoading}
-                    className="p-2 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 disabled:opacity-50"
-                    title="Отменить"
-                  >
-                    <Icon name="X" size={20} />
-                  </button>
-                  <button
-                    onClick={handleSendToTelegram}
-                    disabled={isLoading}
-                    className="p-2 rounded-xl bg-[#0088cc] hover:bg-[#006699] text-white transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-xl"
-                    title="Отправить в Telegram"
-                  >
-                    {isLoading ? (
-                      <Icon name="Loader2" size={20} className="animate-spin" />
-                    ) : (
-                      <Icon name="Send" size={20} />
-                    )}
-                  </button>
-                </div>
-              </div>
-              
-              <div className="space-y-3 sm:space-y-4">
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                  Имя родителя
-                </label>
-                <Input
-                  value={parentName}
-                  onChange={(e) => setParentName(e.target.value)}
-                  placeholder="Иван"
-                  className="bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12"
-                  style={{ outline: 'none', boxShadow: 'none' }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                  Имя ребёнка
-                </label>
-                <Input
-                  value={childName}
-                  onChange={(e) => setChildName(e.target.value)}
-                  placeholder="Мария"
-                  className="bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12"
-                  style={{ outline: 'none', boxShadow: 'none' }}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                    Возраст
-                  </label>
-                  <Input
-                    value={childAge}
-                    onChange={(e) => setChildAge(e.target.value)}
-                    placeholder="5 лет"
-                    className="bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12"
-                    style={{ outline: 'none', boxShadow: 'none' }}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                    Телефон
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900 font-medium text-sm sm:text-base pointer-events-none">
-                      +7
-                    </span>
-                    <Input
-                      value={phone}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9]/g, '');
-                        if (value.length <= 10) {
-                          setPhone(value);
-                        }
-                      }}
-                      placeholder="9001234567"
-                      className="bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12 pl-9"
-                      style={{ outline: 'none', boxShadow: 'none' }}
-                      type="tel"
-                      maxLength={10}
-                    />
-                  </div>
-                </div>
-              </div>
-              </div>
-            </div>
-
-            {/* Правая часть - QR-код (десктоп и мобильный) */}
-            <div className="flex flex-col items-center justify-center lg:min-w-[200px]">
-              <div
-                onClick={() => setQrModalOpen(true)}
-                className="cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 p-3 bg-gray-50 rounded-2xl shadow-lg hover:shadow-xl"
-              >
-                <img 
-                  src="https://cdn.poehali.dev/files/image-fotor-20260117124937.jpg"
-                  alt="QR Code"
-                  className="w-32 h-32 sm:w-40 sm:h-40"
-                />
-              </div>
-            </div>
-          </div>
-
-
-        </DialogContent>
-      </Dialog>
-
-      {/* Кнопка завершить смену */}
-      <div className="flex justify-center">
-        <button
-          onClick={() => setEndShiftPhotoOpen(true)}
-          className="px-8 py-4 md:px-10 md:py-5 bg-white text-[#001f54] border-2 border-[#001f54] rounded-full font-semibold text-base md:text-lg hover:bg-[#001f54] hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-3"
-        >
-          <Icon name="LogOut" size={20} className="md:w-6 md:h-6" />
-          Завершить смену
-        </button>
-      </div>
-
-      <PhotoCapture
-        open={endShiftPhotoOpen}
-        onOpenChange={setEndShiftPhotoOpen}
-        type="end"
-        organizationId={selectedOrganizationId || 0}
-        onSuccess={(contactsCount) => {
-          console.log('✅ Photo sent successfully');
-          queryClient.invalidateQueries({ queryKey: ['user-stats'] });
-          
-          // Показываем результаты за день после успешной отправки фото
-          setTimeout(() => {
-            setDayResultsOpen(true);
-          }, 300);
+      <NotebookModal
+        open={notebookModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            cancelNotebook();
+          }
         }}
+        isRecording={isRecording}
+        isLoading={isLoading}
+        parentName={parentName}
+        setParentName={setParentName}
+        childName={childName}
+        setChildName={setChildName}
+        childAge={childAge}
+        setChildAge={setChildAge}
+        phone={phone}
+        setPhone={setPhone}
+        onCancel={cancelNotebook}
+        onSend={handleSendToTelegram}
+        onQRClick={() => setQrModalOpen(true)}
       />
 
-      <DayResultsDialog
-        open={dayResultsOpen}
-        contactsCount={todayContactsCount}
-        onClose={() => {
-          setDayResultsOpen(false);
-          onShiftEnd?.();
-        }}
+      <QRCodeModal 
+        open={qrModalOpen} 
+        onOpenChange={setQrModalOpen} 
       />
 
-      {/* Модальное окно для заблокированного пользователя */}
-      <Dialog open={blockedUserModalOpen} onOpenChange={setBlockedUserModalOpen}>
-        <DialogContent className="max-w-md w-[calc(100%-2rem)] bg-white !border-0 shadow-2xl rounded-2xl p-6">
-          <div className="flex flex-col items-center justify-center text-center space-y-4 py-6">
-            <div className="p-4 rounded-full bg-red-100">
-              <Icon name="AlertCircle" size={48} className="text-red-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">Свяжитесь с Максимом</h2>
-            <p className="text-gray-600 text-lg">Для продолжения работы обратитесь к администратору</p>
-          </div>
-          <DialogFooter>
-            <Button
-              onClick={() => setBlockedUserModalOpen(false)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg"
-            >
-              Понятно
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EndShiftSection
+        endShiftPhotoOpen={endShiftPhotoOpen}
+        setEndShiftPhotoOpen={setEndShiftPhotoOpen}
+        dayResultsOpen={dayResultsOpen}
+        setDayResultsOpen={setDayResultsOpen}
+        onEndShift={handleEndShift}
+        todayContactsCount={todayContactsCount}
+      />
 
-      {/* Модальное окно с увеличенным QR-кодом */}
-      <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
-        <DialogContent className="max-w-2xl w-[calc(100%-2rem)] bg-transparent border-0 shadow-none p-0">
-          <div 
-            className="flex items-center justify-center p-4 cursor-pointer"
-            onClick={() => setQrModalOpen(false)}
-          >
-            <img 
-              src="https://cdn.poehali.dev/files/image-fotor-20260117124937.jpg"
-              alt="QR Code"
-              className="w-full max-w-lg h-auto rounded-2xl shadow-2xl"
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <BlockedUserModal
+        open={blockedUserModalOpen}
+        onOpenChange={setBlockedUserModalOpen}
+      />
     </div>
   );
 }

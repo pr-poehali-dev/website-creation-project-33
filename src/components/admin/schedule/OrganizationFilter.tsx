@@ -35,7 +35,6 @@ export default function OrganizationFilter({
   const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
   const [allOrganizations, setAllOrganizations] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     loadAllOrganizations();

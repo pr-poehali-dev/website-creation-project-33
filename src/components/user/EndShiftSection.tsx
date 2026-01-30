@@ -72,7 +72,7 @@ export default function EndShiftSection({
 
       <DayResultsDialog
         open={dayResultsOpen}
-        onOpenChange={setDayResultsOpen}
+        onClose={() => setDayResultsOpen(false)}
         contactsCount={todayContactsCount}
       />
 

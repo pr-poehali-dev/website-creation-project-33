@@ -25,9 +25,9 @@ export default function EndShiftSection({
     <>
       <div className="flex justify-center">
         <button
-          onClick={() => {
-            console.log('🔴 Button clicked, setting endShiftPhotoOpen to true');
-            setEndShiftPhotoOpen(true);
+          onClick={async () => {
+            await onEndShift('');
+            setDayResultsOpen(true);
           }}
           className="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white font-bold text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center gap-2 sm:gap-3"
           onMouseEnter={(e) => {
@@ -41,34 +41,6 @@ export default function EndShiftSection({
           <span>Завершить смену</span>
         </button>
       </div>
-
-      <Dialog 
-        open={endShiftPhotoOpen} 
-        onOpenChange={(open) => {
-          console.log('🔴 Dialog onOpenChange called with:', open);
-          setEndShiftPhotoOpen(open);
-        }}
-      >
-        <DialogContent className="max-w-2xl bg-white !border-0 shadow-2xl rounded-2xl p-4 sm:p-6">
-          <div className="space-y-4 sm:space-y-6">
-            <div className="text-center">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Завершение смены</h3>
-              <p className="text-sm sm:text-base text-gray-600">Сфотографируйте счётчик посетителей</p>
-            </div>
-
-            <PhotoCapture
-              onPhotoTaken={async (photoUrl) => {
-                console.log('📸 Photo taken, calling onEndShift');
-                await onEndShift(photoUrl);
-                console.log('🔴 After onEndShift, setting endShiftPhotoOpen to false');
-                setEndShiftPhotoOpen(false);
-                console.log('🔴 Opening day results dialog');
-                setDayResultsOpen(true);
-              }}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <DayResultsDialog
         open={dayResultsOpen}

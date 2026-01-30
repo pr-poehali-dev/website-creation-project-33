@@ -370,6 +370,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         setDayResultsOpen={setDayResultsOpen}
         onEndShift={handleEndShift}
         todayContactsCount={todayContactsCount}
+        organizationId={selectedOrganizationId}
       />
 
       <BlockedUserModal

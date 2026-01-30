@@ -11,6 +11,7 @@ interface EndShiftSectionProps {
   setDayResultsOpen: (open: boolean) => void;
   onEndShift: (photoUrl: string) => Promise<void>;
   todayContactsCount: number;
+  organizationId: number | null;
 }
 
 export default function EndShiftSection({
@@ -19,7 +20,8 @@ export default function EndShiftSection({
   dayResultsOpen,
   setDayResultsOpen,
   onEndShift,
-  todayContactsCount
+  todayContactsCount,
+  organizationId
 }: EndShiftSectionProps) {
   return (
     <>
@@ -39,27 +41,17 @@ export default function EndShiftSection({
         </button>
       </div>
 
-      <Dialog 
-        open={endShiftPhotoOpen} 
-        onOpenChange={setEndShiftPhotoOpen}
-      >
-        <DialogContent className="max-w-2xl bg-white !border-0 shadow-2xl rounded-2xl p-4 sm:p-6">
-          <div className="space-y-4 sm:space-y-6">
-            <div className="text-center">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Завершение смены</h3>
-              <p className="text-sm sm:text-base text-gray-600">Сделайте фото с рабочего места</p>
-            </div>
-
-            <PhotoCapture
-              onPhotoTaken={async (photoUrl) => {
-                await onEndShift(photoUrl);
-                setEndShiftPhotoOpen(false);
-                setDayResultsOpen(true);
-              }}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      {organizationId && (
+        <PhotoCapture
+          open={endShiftPhotoOpen}
+          onOpenChange={setEndShiftPhotoOpen}
+          type="end"
+          organizationId={organizationId}
+          onSuccess={(contactsCount) => {
+            setDayResultsOpen(true);
+          }}
+        />
+      )}
 
       <DayResultsDialog
         open={dayResultsOpen}

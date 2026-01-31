@@ -58,11 +58,11 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                        CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online,
                        COUNT(l.id) as lead_count,
                        u.latitude, u.longitude, u.location_city, u.location_country,
-                       u.registration_ip, u.is_active, u.video_recording_enabled
+                       u.registration_ip, u.is_active
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
                 WHERE u.is_active = %s
-                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country, u.registration_ip, u.is_active, u.video_recording_enabled
+                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country, u.registration_ip, u.is_active
                 ORDER BY u.created_at DESC
             """, (online_threshold, is_active))
             
@@ -82,8 +82,7 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                     'location_city': row[10],
                     'location_country': row[11],
                     'registration_ip': row[12],
-                    'is_active': row[13],
-                    'video_recording_enabled': row[14] if len(row) > 14 else False
+                    'is_active': row[13]
                 })
             
             # Получаем ВСЕ лиды для активных пользователей одним запросом
@@ -2905,52 +2904,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'statusCode': 404,
                     'headers': headers,
                     'body': json.dumps({'error': 'Пользователь не найден'})
-                }
-        
-        elif action == 'toggle_video_recording':
-            user_id = body_data.get('user_id')
-            enabled = body_data.get('enabled', False)
-            
-            if not user_id:
-                return {
-                    'statusCode': 400,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'ID пользователя обязателен'})
-                }
-            
-            if not user['is_admin']:
-                return {
-                    'statusCode': 403,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Только админ может изменять настройки видеозаписи'})
-                }
-            
-            try:
-                with get_db_connection() as conn:
-                    with conn.cursor() as cur:
-                        cur.execute(
-                            "UPDATE t_p24058207_website_creation_pro.users SET video_recording_enabled = %s WHERE id = %s",
-                            (enabled, user_id)
-                        )
-                        conn.commit()
-                        
-                        if cur.rowcount > 0:
-                            return {
-                                'statusCode': 200,
-                                'headers': headers,
-                                'body': json.dumps({'success': True})
-                            }
-                        else:
-                            return {
-                                'statusCode': 404,
-                                'headers': headers,
-                                'body': json.dumps({'error': 'Пользователь не найден'})
-                            }
-            except Exception as e:
-                return {
-                    'statusCode': 500,
-                    'headers': headers,
-                    'body': json.dumps({'error': f'Ошибка обновления настроек: {str(e)}'})
                 }
     
     elif method == 'DELETE':

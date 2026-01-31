@@ -7,8 +7,6 @@ import { User } from './types';
 import { formatLastSeen } from '@/utils/timeFormat';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToggleVideoRecording } from '@/hooks/useAdminData';
-import { Switch } from '@/components/ui/switch';
 
 interface UserCardProps {
   user: User;
@@ -39,7 +37,6 @@ export default function UserCard({
   const [uploadingQR, setUploadingQR] = useState(false);
   const [blockingUser, setBlockingUser] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const toggleVideoRecordingMutation = useToggleVideoRecording();
 
   const handleQRUpload = async (file: File) => {
     setUploadingQR(true);
@@ -167,21 +164,7 @@ export default function UserCard({
             <Icon name="ChevronDown" size={16} className="text-slate-500 md:mr-2" />
           )}
           
-          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            {!user.is_admin && (
-              <div className="flex items-center gap-1.5 mr-1" title="Видеозапись">
-                <Icon name="Video" size={14} className={user.video_recording_enabled ? 'text-green-500' : 'text-slate-500'} />
-                <Switch
-                  checked={user.video_recording_enabled || false}
-                  onCheckedChange={(checked) => {
-                    toggleVideoRecordingMutation.mutate({ userId: user.id, enabled: checked });
-                  }}
-                  disabled={toggleVideoRecordingMutation.isPending}
-                  className="scale-75"
-                />
-              </div>
-            )}
-            <div className="flex gap-1 md:gap-2">
+          <div className="flex gap-1 md:gap-2" onClick={(e) => e.stopPropagation()}>
             {isEditing ? (
               <>
                 <Button 
@@ -261,7 +244,6 @@ export default function UserCard({
                 )}
               </>
             )}
-            </div>
           </div>
         </div>
       </div>

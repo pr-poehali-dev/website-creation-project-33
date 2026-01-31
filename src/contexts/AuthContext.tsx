@@ -5,7 +5,6 @@ interface User {
   email: string;
   name: string;
   is_admin: boolean;
-  video_recording_enabled?: boolean;
 }
 
 interface LoginResult {

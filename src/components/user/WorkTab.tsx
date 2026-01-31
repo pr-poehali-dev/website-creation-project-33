@@ -35,7 +35,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const videoRecordingEnabled = user?.video_recording_enabled || false;
 
   useEffect(() => {
     localStorage.setItem('parent_name_draft', parentName);
@@ -54,8 +53,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
   const startRecording = async () => {
     console.log('🎤 startRecording called, user.id:', user?.id);
-    console.log('🎥 Video recording enabled:', videoRecordingEnabled);
-    console.log('👤 Full user object:', user);
     
     if (user?.id === 6853) {
       console.log('🚫 User blocked, showing modal');
@@ -64,29 +61,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     }
 
     try {
-      const constraints = videoRecordingEnabled 
-        ? { audio: true, video: { facingMode: 'environment' } }
-        : { audio: true };
-      
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      let mimeType = videoRecordingEnabled 
-        ? 'video/webm;codecs=vp8,opus'
-        : 'audio/webm;codecs=opus';
-      
-      if (videoRecordingEnabled && !MediaRecorder.isTypeSupported(mimeType)) {
-        console.log('⚠️ vp8,opus not supported, trying alternatives');
-        const alternatives = ['video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
-        for (const alt of alternatives) {
-          if (MediaRecorder.isTypeSupported(alt)) {
-            mimeType = alt;
-            console.log('✅ Using alternative codec:', alt);
-            break;
-          }
-        }
-      }
-      
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -97,9 +73,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       };
 
       mediaRecorder.onstop = () => {
-        const finalMimeType = videoRecordingEnabled ? 'video/webm;codecs=vp8,opus' : 'audio/webm;codecs=opus';
-        const blob = new Blob(chunksRef.current, { type: finalMimeType });
-        console.log(videoRecordingEnabled ? '🎥 Video recorded' : '🎤 Audio recorded', 'blob size:', blob.size, 'mimeType:', finalMimeType);
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        console.log('🎤 Audio recorded, blob size:', blob.size);
         setAudioBlob(blob);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -109,10 +84,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       setNotebookModalOpen(true);
     } catch (error) {
       toast({ 
-        title: videoRecordingEnabled ? 'Ошибка доступа к камере' : 'Ошибка доступа к микрофону',
-        description: videoRecordingEnabled 
-          ? 'Разрешите доступ к камере и микрофону для записи видео'
-          : 'Разрешите доступ к микрофону для записи аудио',
+        title: 'Ошибка доступа к микрофону',
+        description: 'Разрешите доступ к микрофону для записи аудио',
         variant: 'destructive'
       });
     }
@@ -169,9 +142,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           const originalOnstop = mediaRecorderRef.current!.onstop;
           
           mediaRecorderRef.current!.onstop = () => {
-            const finalMimeType = videoRecordingEnabled ? 'video/webm;codecs=vp8,opus' : 'audio/webm;codecs=opus';
-            const blob = new Blob(chunksRef.current, { type: finalMimeType });
-            console.log(videoRecordingEnabled ? '🎥 Video recorded in handleSend' : '🎤 Audio recorded in handleSend', 'blob size:', blob.size, 'mimeType:', finalMimeType);
+            const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+            console.log('🎤 Audio recorded in handleSend, blob size:', blob.size);
             
             const stream = mediaRecorderRef.current?.stream;
             stream?.getTracks().forEach(track => track.stop());
@@ -222,8 +194,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           notes: `${parentName.trim()} ${childName.trim()} ${childAge.trim()} +7${phone.trim()}`,
           audio_data: audioData,
           organization_id: selectedOrganizationId,
-          organization_name: organizationName,
-          media_type: videoRecordingEnabled ? 'video' : 'audio'
+          organization_name: organizationName
         })
       });
 

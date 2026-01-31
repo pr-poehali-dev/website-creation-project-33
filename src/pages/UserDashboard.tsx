@@ -10,7 +10,7 @@ import AIHelper from '@/components/chat/AIHelper';
 import UserHeader from '@/components/user/UserHeader';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
-import WorkNewTab from '@/components/user/WorkNewTab';
+import NewWorkTab from '@/components/user/NewWorkTab';
 import TrainingTab from '@/components/user/TrainingTab';
 import ScheduleTab from '@/components/user/ScheduleTab';
 import ContactsCounter, { ContactsStats, ContactsCounterRef } from '@/components/user/ContactsCounter';
@@ -309,7 +309,7 @@ export default function UserDashboard() {
                 <span className="text-lg">Назад</span>
               </button>
             </div>
-            <WorkNewTab selectedOrganizationId={selectedOrganization} />
+            <NewWorkTab />
           </div>
         )}
 

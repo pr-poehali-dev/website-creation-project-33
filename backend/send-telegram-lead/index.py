@@ -1,12 +1,13 @@
 import json
-import requests
+import urllib.request
+import urllib.parse
 import base64
 
 TELEGRAM_TOKEN = "8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc"
 USER_ID = "5215501225"
 
 def handler(event: dict, context) -> dict:
-    """Отправляет видео-лид в Telegram"""
+    """Отправляет видео-лид в Telegram через base64"""
     
     method = event.get('httpMethod', 'POST')
     
@@ -23,72 +24,53 @@ def handler(event: dict, context) -> dict:
         }
     
     try:
-        body = event.get('body', '')
-        is_base64 = event.get('isBase64Encoded', False)
+        body = event.get('body', '{}')
+        data = json.loads(body)
         
-        if is_base64:
-            body = base64.b64decode(body)
+        video_base64 = data.get('video')
+        parent_name = data.get('parentName', '')
+        child_name = data.get('childName', '')
+        child_age = data.get('childAge', '')
         
-        # Парсим multipart/form-data вручную
-        content_type = event.get('headers', {}).get('content-type', '')
-        if 'multipart/form-data' not in content_type:
+        if not video_base64:
             return {
                 'statusCode': 400,
                 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({'error': 'Expected multipart/form-data'}),
+                'body': json.dumps({'error': 'Video data missing'}),
                 'isBase64Encoded': False
             }
         
-        # Извлекаем boundary
-        boundary = content_type.split('boundary=')[1]
-        parts = body.split(f'--{boundary}'.encode())
-        
-        video_data = None
-        parent_name = ''
-        child_name = ''
-        child_age = ''
-        
-        for part in parts:
-            if b'Content-Disposition' in part:
-                if b'name="video"' in part:
-                    video_data = part.split(b'\r\n\r\n', 1)[1].rsplit(b'\r\n', 1)[0]
-                elif b'name="parentName"' in part:
-                    parent_name = part.split(b'\r\n\r\n', 1)[1].rsplit(b'\r\n', 1)[0].decode('utf-8')
-                elif b'name="childName"' in part:
-                    child_name = part.split(b'\r\n\r\n', 1)[1].rsplit(b'\r\n', 1)[0].decode('utf-8')
-                elif b'name="childAge"' in part:
-                    child_age = part.split(b'\r\n\r\n', 1)[1].rsplit(b'\r\n', 1)[0].decode('utf-8')
-        
-        if not video_data:
-            return {
-                'statusCode': 400,
-                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({'error': 'Video not found'}),
-                'isBase64Encoded': False
-            }
+        # Декодируем base64
+        video_data = base64.b64decode(video_base64)
         
         # Формируем сообщение
         caption = f"🎯 Новый лид!\n\n👨‍👩‍👧 Родитель: {parent_name}\n👶 Ребенок: {child_name}\n🎂 Возраст: {child_age}"
         
-        # Отправляем видео в Telegram
+        # Формируем multipart/form-data
+        boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+        body_parts = []
+        
+        # Добавляем chat_id
+        body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="chat_id"\r\n\r\n{USER_ID}\r\n')
+        
+        # Добавляем caption
+        body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="caption"\r\n\r\n{caption}\r\n')
+        
+        # Добавляем видео
+        body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="video"; filename="lead.mp4"\r\nContent-Type: video/mp4\r\n\r\n')
+        
+        body_bytes = ''.join(body_parts).encode('utf-8') + video_data + f'\r\n--{boundary}--\r\n'.encode('utf-8')
+        
+        # Отправляем в Telegram
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVideo"
-        files = {'video': ('lead.mp4', video_data, 'video/mp4')}
-        data = {'chat_id': USER_ID, 'caption': caption}
+        req = urllib.request.Request(url, data=body_bytes, method='POST')
+        req.add_header('Content-Type', f'multipart/form-data; boundary={boundary}')
         
-        response = requests.post(url, files=files, data=data, timeout=30)
-        
-        if response.status_code == 200:
+        with urllib.request.urlopen(req, timeout=30) as response:
             return {
                 'statusCode': 200,
                 'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({'success': True, 'message': 'Лид отправлен'}),
-                'isBase64Encoded': False
-            }
-        else:
-            return {
-                'statusCode': 500,
-                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({'error': f'Telegram error: {response.text}'}),
+                'body': json.dumps({'success': True}),
                 'isBase64Encoded': False
             }
             

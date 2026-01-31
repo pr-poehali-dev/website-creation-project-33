@@ -30,15 +30,30 @@ export default function VideoLeadModal({ open, onClose, videoBlob }: VideoLeadMo
 
     setSending(true);
     try {
-      const formData = new FormData();
-      formData.append('video', videoBlob, 'lead_video.mp4');
-      formData.append('parentName', parentName);
-      formData.append('childName', childName);
-      formData.append('childAge', childAge);
+      // Конвертируем Blob в base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(',')[1]); // Убираем "data:video/mp4;base64,"
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(videoBlob);
+      });
 
-      const response = await fetch('https://functions.poehali.dev/send-telegram-lead', {
+      const videoBase64 = await base64Promise;
+
+      const response = await fetch('https://functions.poehali.dev/video-lead', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          video: videoBase64,
+          parentName,
+          childName,
+          childAge,
+        }),
       });
 
       if (response.ok) {

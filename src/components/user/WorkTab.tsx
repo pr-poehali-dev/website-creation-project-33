@@ -68,7 +68,12 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         : { audio: true };
       
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      const mediaRecorder = new MediaRecorder(stream);
+      
+      const mimeType = videoRecordingEnabled 
+        ? 'video/webm;codecs=vp8,opus'
+        : 'audio/webm;codecs=opus';
+      
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -79,9 +84,9 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       };
 
       mediaRecorder.onstop = () => {
-        const mimeType = videoRecordingEnabled ? 'video/webm' : 'audio/webm';
-        const blob = new Blob(chunksRef.current, { type: mimeType });
-        console.log(videoRecordingEnabled ? '🎥 Video recorded' : '🎤 Audio recorded', 'blob size:', blob.size);
+        const finalMimeType = videoRecordingEnabled ? 'video/webm;codecs=vp8,opus' : 'audio/webm;codecs=opus';
+        const blob = new Blob(chunksRef.current, { type: finalMimeType });
+        console.log(videoRecordingEnabled ? '🎥 Video recorded' : '🎤 Audio recorded', 'blob size:', blob.size, 'mimeType:', finalMimeType);
         setAudioBlob(blob);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -151,9 +156,9 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           const originalOnstop = mediaRecorderRef.current!.onstop;
           
           mediaRecorderRef.current!.onstop = () => {
-            const mimeType = videoRecordingEnabled ? 'video/webm' : 'audio/webm';
-            const blob = new Blob(chunksRef.current, { type: mimeType });
-            console.log(videoRecordingEnabled ? '🎥 Video recorded in handleSend' : '🎤 Audio recorded in handleSend', 'blob size:', blob.size);
+            const finalMimeType = videoRecordingEnabled ? 'video/webm;codecs=vp8,opus' : 'audio/webm;codecs=opus';
+            const blob = new Blob(chunksRef.current, { type: finalMimeType });
+            console.log(videoRecordingEnabled ? '🎥 Video recorded in handleSend' : '🎤 Audio recorded in handleSend', 'blob size:', blob.size, 'mimeType:', finalMimeType);
             
             const stream = mediaRecorderRef.current?.stream;
             stream?.getTracks().forEach(track => track.stop());

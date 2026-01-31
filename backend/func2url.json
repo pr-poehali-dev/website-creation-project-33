@@ -33,6 +33,5 @@
   "export-data": "https://functions.poehali.dev/8e6ffbcb-a1f9-453e-9404-fde81533bff7",
   "create-admin": "https://functions.poehali.dev/a90162d1-9dcc-406c-a29c-63c5b89a9da8",
   "auth": "https://functions.poehali.dev/d4f30ed2-6b6b-4e8a-a691-2c364dd41e43",
-  "admin": "https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214",
-  "telegram-sender": "https://functions.poehali.dev/ecd9eaa3-7399-4f8b-8219-529b81f87b6a"
+  "admin": "https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214"
 }

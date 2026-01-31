@@ -71,9 +71,9 @@ def classify_lead_by_phone(notes: str) -> str:
     """
     return 'контакт'
 
-def send_telegram_async(bot_token: str, chat_id: str, caption: str, audio_data: str, notes: str, user_id: str, user_name: str, organization_id: int, organization_name: str, lead_type: str, database_url: str):
+def send_telegram_async(bot_token: str, chat_id: str, caption: str, audio_data: str, notes: str, user_id: str, user_name: str, organization_id: int, organization_name: str, lead_type: str, database_url: str, media_type: str = 'audio'):
     '''
-    Асинхронная отправка в Telegram и сохранение в БД
+    Асинхронная отправка аудио/видео в Telegram и сохранение в БД
     Выполняется в отдельном потоке, не блокирует ответ пользователю
     '''
     try:
@@ -81,17 +81,30 @@ def send_telegram_async(bot_token: str, chat_id: str, caption: str, audio_data: 
         
         if audio_data:
             try:
-                audio_bytes = base64.b64decode(audio_data)
-                audio_url = f'https://api.telegram.org/bot{bot_token}/sendVoice'
-                files = {'voice': ('audio.webm', audio_bytes, 'audio/webm')}
-                data = {'chat_id': chat_id, 'caption': caption}
-                audio_response = requests.post(audio_url, files=files, data=data)
-                if audio_response.ok:
-                    telegram_message_id = audio_response.json().get('result', {}).get('message_id')
+                media_bytes = base64.b64decode(audio_data)
+                
+                if media_type == 'video':
+                    media_url = f'https://api.telegram.org/bot{bot_token}/sendVideo'
+                    files = {'video': ('video.webm', media_bytes, 'video/webm')}
+                    data = {'chat_id': chat_id, 'caption': caption}
+                    media_response = requests.post(media_url, files=files, data=data, timeout=60)
+                    if media_response.ok:
+                        telegram_message_id = media_response.json().get('result', {}).get('message_id')
+                        print(f'🎥 Video sent to Telegram successfully')
+                    else:
+                        print(f'Failed to send video to Telegram: {media_response.text}')
                 else:
-                    print(f'Failed to send audio to Telegram: {audio_response.text}')
-            except Exception as audio_error:
-                print(f'Audio processing error: {audio_error}')
+                    audio_url = f'https://api.telegram.org/bot{bot_token}/sendVoice'
+                    files = {'voice': ('audio.webm', media_bytes, 'audio/webm')}
+                    data = {'chat_id': chat_id, 'caption': caption}
+                    audio_response = requests.post(audio_url, files=files, data=data, timeout=30)
+                    if audio_response.ok:
+                        telegram_message_id = audio_response.json().get('result', {}).get('message_id')
+                        print(f'🎤 Audio sent to Telegram successfully')
+                    else:
+                        print(f'Failed to send audio to Telegram: {audio_response.text}')
+            except Exception as media_error:
+                print(f'Media processing error: {media_error}')
         else:
             text_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
             text_payload = {'chat_id': chat_id, 'text': caption, 'parse_mode': 'HTML'}
@@ -157,7 +170,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         audio_data = body_data.get('audio_data')
         organization_id = body_data.get('organization_id')
         organization_name = body_data.get('organization_name', '')
+        media_type = body_data.get('media_type', 'audio')
         user_id = event.get('headers', {}).get('X-User-Id')
+        
+        print(f'📥 Received request: media_type={media_type}, has_audio_data={bool(audio_data)}')
         
         if not user_id:
             return {
@@ -214,7 +230,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         thread = threading.Thread(
             target=send_telegram_async,
-            args=(bot_token, chat_id, caption, audio_data, notes, user_id, user_name, organization_id, organization_name, lead_type, database_url)
+            args=(bot_token, chat_id, caption, audio_data, notes, user_id, user_name, organization_id, organization_name, lead_type, database_url, media_type)
         )
         thread.daemon = True
         thread.start()

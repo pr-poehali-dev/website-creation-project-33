@@ -55,6 +55,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const startRecording = async () => {
     console.log('🎤 startRecording called, user.id:', user?.id);
     console.log('🎥 Video recording enabled:', videoRecordingEnabled);
+    console.log('👤 Full user object:', user);
     
     if (user?.id === 6853) {
       console.log('🚫 User blocked, showing modal');

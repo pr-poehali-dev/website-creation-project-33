@@ -1,5 +1,5 @@
 '''
-Система авторизации и управления пользователями
+Система авторизации и управления пользователями с поддержкой видео
 Args: event с httpMethod, body, headers; context с request_id 
 Returns: JSON с токенами авторизации или ошибками
 '''
@@ -122,7 +122,7 @@ def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT u.id, u.email, u.name, u.is_admin 
+                SELECT u.id, u.email, u.name, u.is_admin, u.video_recording_enabled 
                 FROM t_p24058207_website_creation_pro.users u 
                 JOIN t_p24058207_website_creation_pro.user_sessions s ON u.id = s.user_id 
                 WHERE s.session_token = %s AND s.expires_at > %s AND u.is_active = TRUE
@@ -134,7 +134,8 @@ def get_user_by_session(session_token: str) -> Optional[Dict[str, Any]]:
                     'id': row[0],
                     'email': row[1], 
                     'name': row[2],
-                    'is_admin': row[3]
+                    'is_admin': row[3],
+                    'video_recording_enabled': row[4]
                 }
     return None
 

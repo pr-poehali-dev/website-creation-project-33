@@ -369,6 +369,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         dayResultsOpen={dayResultsOpen}
         setDayResultsOpen={setDayResultsOpen}
         onEndShift={handleEndShift}
+        onShiftEnd={onShiftEnd}
         todayContactsCount={todayContactsCount}
         organizationId={selectedOrganizationId}
       />

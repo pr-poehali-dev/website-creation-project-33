@@ -6,15 +6,21 @@ interface DayResultsDialogProps {
   open: boolean;
   contactsCount: number;
   onClose: () => void;
+  onShiftEnd?: () => void;
 }
 
-export default function DayResultsDialog({ open, contactsCount, onClose }: DayResultsDialogProps) {
+export default function DayResultsDialog({ open, contactsCount, onClose, onShiftEnd }: DayResultsDialogProps) {
   const [countdown, setCountdown] = useState(5);
   const onCloseRef = useRef(onClose);
+  const onShiftEndRef = useRef(onShiftEnd);
 
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
+
+  useEffect(() => {
+    onShiftEndRef.current = onShiftEnd;
+  }, [onShiftEnd]);
 
   useEffect(() => {
     if (open) {
@@ -23,9 +29,13 @@ export default function DayResultsDialog({ open, contactsCount, onClose }: DayRe
       const interval = setInterval(() => {
         setCountdown(prev => {
           if (prev <= 1) {
-            console.log('✅ Countdown finished, calling onClose');
+            console.log('✅ Countdown finished, calling onClose and onShiftEnd');
             clearInterval(interval);
             onCloseRef.current();
+            if (onShiftEndRef.current) {
+              console.log('🚀 Calling onShiftEnd to reset organization');
+              onShiftEndRef.current();
+            }
             return 0;
           }
           console.log(`⏱️ Countdown: ${prev - 1} seconds`);

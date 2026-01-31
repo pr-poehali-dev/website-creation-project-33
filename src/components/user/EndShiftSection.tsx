@@ -10,6 +10,7 @@ interface EndShiftSectionProps {
   dayResultsOpen: boolean;
   setDayResultsOpen: (open: boolean) => void;
   onEndShift: (photoUrl: string) => Promise<void>;
+  onShiftEnd?: () => void;
   todayContactsCount: number;
   organizationId: number | null;
 }
@@ -20,6 +21,7 @@ export default function EndShiftSection({
   dayResultsOpen,
   setDayResultsOpen,
   onEndShift,
+  onShiftEnd,
   todayContactsCount,
   organizationId
 }: EndShiftSectionProps) {
@@ -57,6 +59,7 @@ export default function EndShiftSection({
         open={dayResultsOpen}
         onClose={() => setDayResultsOpen(false)}
         contactsCount={todayContactsCount}
+        onShiftEnd={onShiftEnd}
       />
 
       <Dialog open={false} onOpenChange={() => {}}>

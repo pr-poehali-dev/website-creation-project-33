@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Test OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": "",
+      "bodyMatcher": "exact"
+    },
+    {
+      "name": "Test sending audio lead",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "999"
+      },
+      "body": {
+        "notes": "Тест Иванов 5 лет +79991234567",
+        "audio_data": "dGVzdCBhdWRpbyBkYXRh",
+        "organization_id": 1,
+        "organization_name": "Тестовая организация",
+        "media_type": "audio"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "media_type": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

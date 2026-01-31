@@ -69,9 +69,21 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      const mimeType = videoRecordingEnabled 
+      let mimeType = videoRecordingEnabled 
         ? 'video/webm;codecs=vp8,opus'
         : 'audio/webm;codecs=opus';
+      
+      if (videoRecordingEnabled && !MediaRecorder.isTypeSupported(mimeType)) {
+        console.log('⚠️ vp8,opus not supported, trying alternatives');
+        const alternatives = ['video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+        for (const alt of alternatives) {
+          if (MediaRecorder.isTypeSupported(alt)) {
+            mimeType = alt;
+            console.log('✅ Using alternative codec:', alt);
+            break;
+          }
+        }
+      }
       
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;

@@ -9,6 +9,7 @@ import { useSessionValidator } from '@/hooks/useSessionValidator';
 import AuthPage from '@/components/auth/AuthPage';
 import AdminPanel from '@/components/admin/AdminPanel';
 import UserDashboard from "./pages/UserDashboard";
+import TestCodecs from "./pages/TestCodecs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -63,9 +64,16 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/test-codecs" element={<TestCodecs />} />
+          <Route path="*" element={
+            <AuthProvider>
+              <AppContent />
+            </AuthProvider>
+          } />
+        </Routes>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

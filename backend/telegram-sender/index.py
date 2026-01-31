@@ -138,8 +138,8 @@ def send_telegram_async(bot_token: str, chat_id: str, caption: str, audio_data: 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Accept lead, return success immediately, send to Telegram asynchronously
-    Args: event - dict with httpMethod, body containing notes and audio data
+    Business: Accept lead with audio/video, return success immediately, send to Telegram asynchronously
+    Args: event - dict with httpMethod, body containing notes and media data
           context - object with request_id, function_name, memory_limit_in_mb
     Returns: HTTP response dict with immediate success
     '''

@@ -16,6 +16,7 @@ export interface User {
   location_country?: string;
   registration_ip?: string;
   is_active?: boolean;
+  video_recording_enabled?: boolean;
 }
 
 export interface Lead {

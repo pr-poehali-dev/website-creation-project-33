@@ -35,6 +35,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const videoRecordingEnabled = user?.video_recording_enabled || false;
 
   useEffect(() => {
     localStorage.setItem('parent_name_draft', parentName);
@@ -53,6 +54,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
 
   const startRecording = async () => {
     console.log('🎤 startRecording called, user.id:', user?.id);
+    console.log('🎥 Video recording enabled:', videoRecordingEnabled);
     
     if (user?.id === 6853) {
       console.log('🚫 User blocked, showing modal');
@@ -61,7 +63,11 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const constraints = videoRecordingEnabled 
+        ? { audio: true, video: { facingMode: 'environment' } }
+        : { audio: true };
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
@@ -73,8 +79,9 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        console.log('🎤 Audio recorded, blob size:', blob.size);
+        const mimeType = videoRecordingEnabled ? 'video/webm' : 'audio/webm';
+        const blob = new Blob(chunksRef.current, { type: mimeType });
+        console.log(videoRecordingEnabled ? '🎥 Video recorded' : '🎤 Audio recorded', 'blob size:', blob.size);
         setAudioBlob(blob);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -84,8 +91,10 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       setNotebookModalOpen(true);
     } catch (error) {
       toast({ 
-        title: 'Ошибка доступа к микрофону',
-        description: 'Разрешите доступ к микрофону для записи аудио',
+        title: videoRecordingEnabled ? 'Ошибка доступа к камере' : 'Ошибка доступа к микрофону',
+        description: videoRecordingEnabled 
+          ? 'Разрешите доступ к камере и микрофону для записи видео'
+          : 'Разрешите доступ к микрофону для записи аудио',
         variant: 'destructive'
       });
     }
@@ -142,8 +151,9 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           const originalOnstop = mediaRecorderRef.current!.onstop;
           
           mediaRecorderRef.current!.onstop = () => {
-            const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-            console.log('🎤 Audio recorded in handleSend, blob size:', blob.size);
+            const mimeType = videoRecordingEnabled ? 'video/webm' : 'audio/webm';
+            const blob = new Blob(chunksRef.current, { type: mimeType });
+            console.log(videoRecordingEnabled ? '🎥 Video recorded in handleSend' : '🎤 Audio recorded in handleSend', 'blob size:', blob.size);
             
             const stream = mediaRecorderRef.current?.stream;
             stream?.getTracks().forEach(track => track.stop());
@@ -194,7 +204,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           notes: `${parentName.trim()} ${childName.trim()} ${childAge.trim()} +7${phone.trim()}`,
           audio_data: audioData,
           organization_id: selectedOrganizationId,
-          organization_name: organizationName
+          organization_name: organizationName,
+          media_type: videoRecordingEnabled ? 'video' : 'audio'
         })
       });
 

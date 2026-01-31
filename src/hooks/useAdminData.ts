@@ -155,6 +155,32 @@ export function useUpdateUserName() {
   });
 }
 
+export function useToggleVideoRecording() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, enabled }: { userId: number; enabled: boolean }) => {
+      const response = await fetch(ADMIN_API, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Token': getSessionToken(),
+        },
+        body: JSON.stringify({
+          action: 'toggle_video_recording',
+          user_id: userId,
+          enabled,
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to toggle video recording');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
+
 export function useDeleteLead() {
   const queryClient = useQueryClient();
   

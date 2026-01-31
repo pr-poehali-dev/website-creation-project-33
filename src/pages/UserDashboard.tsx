@@ -10,6 +10,7 @@ import AIHelper from '@/components/chat/AIHelper';
 import UserHeader from '@/components/user/UserHeader';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
+import WorkNewTab from '@/components/user/WorkNewTab';
 import TrainingTab from '@/components/user/TrainingTab';
 import ScheduleTab from '@/components/user/ScheduleTab';
 import ContactsCounter, { ContactsStats, ContactsCounterRef } from '@/components/user/ContactsCounter';
@@ -30,7 +31,7 @@ export default function UserDashboard() {
   const [todayContacts, setTodayContacts] = useState<number>(0);
   const [totalContacts, setTotalContacts] = useState<number>(0);
   const contactsCounterRef = useRef<ContactsCounterRef>(null);
-  const [currentView, setCurrentView] = useState<'tiles' | 'start' | 'work' | 'schedule' | 'training'>(selectedOrganization ? 'tiles' : 'start');
+  const [currentView, setCurrentView] = useState<'tiles' | 'start' | 'work' | 'work-new' | 'schedule' | 'training'>(selectedOrganization ? 'tiles' : 'start');
 
   useEffect(() => {
     if (selectedOrganization) {
@@ -175,6 +176,27 @@ export default function UserDashboard() {
               </div>
 
               <div
+                onClick={() => setCurrentView('work-new')}
+                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
+              >
+                <div className="absolute inset-0 opacity-80">
+                  <img 
+                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
+                    alt="" 
+                    className="w-full h-full object-cover scale-[2.5]"
+                    style={{ objectPosition: '75% 25%' }}
+                  />
+                </div>
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
+                    <Icon name="Video" size={24} className="text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Работа NEW</h2>
+                  <p className="text-slate-300 text-sm">Видео-лиды</p>
+                </div>
+              </div>
+
+              <div
                 onClick={() => setCurrentView('schedule')}
                 className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
               >
@@ -273,6 +295,21 @@ export default function UserDashboard() {
               onContactAdded={() => contactsCounterRef.current?.refresh()}
               onShiftEnd={handleChangeOrganization}
             />
+          </div>
+        )}
+
+        {currentView === 'work-new' && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center gap-3 mb-4">
+              <button
+                onClick={() => setCurrentView('tiles')}
+                className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors flex-shrink-0"
+              >
+                <Icon name="ArrowLeft" size={20} />
+                <span className="text-lg">Назад</span>
+              </button>
+            </div>
+            <WorkNewTab selectedOrganizationId={selectedOrganization} />
           </div>
         )}
 

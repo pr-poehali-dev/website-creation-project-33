@@ -87,20 +87,23 @@ export default function WorkNewTab({ selectedOrganizationId }: WorkNewTabProps) 
     setIsSending(true);
 
     try {
+      const botToken = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc';
+      const chatId = '5215501225';
+      
+      const caption = `🎯 Новый лид!\n\n👤 Родитель: ${parentName}\n👶 Ребенок: ${childName}\n🎂 Возраст: ${childAge} лет`;
+      
       const formData = new FormData();
-      formData.append('parentName', parentName);
-      formData.append('childName', childName);
-      formData.append('childAge', childAge);
+      formData.append('chat_id', chatId);
+      formData.append('caption', caption);
       formData.append('video', videoBlob, 'lead-video.webm');
-      formData.append('organizationId', String(selectedOrganizationId || ''));
 
-      const response = await fetch('/api/send-lead-telegram', {
+      const response = await fetch(`https://api.telegram.org/bot${botToken}/sendVideo`, {
         method: 'POST',
         body: formData
       });
 
       if (!response.ok) {
-        throw new Error('Ошибка отправки');
+        throw new Error('Ошибка отправки в Telegram');
       }
 
       alert('✅ Лид успешно отправлен в Telegram!');

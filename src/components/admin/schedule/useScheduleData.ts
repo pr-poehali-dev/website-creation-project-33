@@ -167,95 +167,67 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     console.log('🔎 Начинаем загрузку статистики. schedules:', schedules);
     if (schedules.length === 0) return;
     
-    setLoadingProgress(0);
-    const stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>> = {};
-    const totalUsers = schedules.filter(u => u.email).length;
-    let completedUsers = 0;
-    
-    // Helper функция для батч-обработки с ограничением параллельных запросов
-    const processBatch = async (users: typeof schedules, batchSize: number = 3) => {
-      const allResults: (null | {userName: string, orgStats: Array<{organization_name: string, avg_per_shift: number}>})[] = [];
-      
-      for (let i = 0; i < users.length; i += batchSize) {
-        const batch = users.slice(i, i + batchSize);
-        const batchResults = await Promise.all(
-          batch.map(async (user) => {
-            const userName = `${user.first_name} ${user.last_name}`;
-            const userEmail = user.email;
-            
-            if (!userEmail) {
-              console.log(`⚠️ Email не найден для: ${userName}`);
-              completedUsers++;
-              setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
-              return null;
-            }
-            
-            try {
-              const response = await fetch(
-                'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
-                {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-Token': localStorage.getItem('session_token') || '',
-                  },
-                  body: JSON.stringify({
-                    action: 'get_user_org_stats',
-                    email: userEmail
-                  })
-                }
-              );
-              
-              completedUsers++;
-              setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
-              
-              if (response.ok) {
-                const data = await response.json();
-                if (data.org_stats && data.org_stats.length > 0) {
-                  return { 
-                    userName, 
-                    orgStats: data.org_stats.sort((a: {avg_per_shift: number}, b: {avg_per_shift: number}) => 
-                      b.avg_per_shift - a.avg_per_shift
-                    ) 
-                  };
-                }
-              }
-            } catch (error) {
-              console.error(`Error loading org stats for ${userName}:`, error);
-              completedUsers++;
-              setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
-            }
-            return null;
-          })
-        );
-        
-        allResults.push(...batchResults);
-        
-        // Добавляем задержку между батчами для снижения нагрузки на БД
-        if (i + batchSize < users.length) {
-          await new Promise(resolve => setTimeout(resolve, 300));
-        }
-      }
-      
-      return allResults;
-    };
+    setLoadingProgress(30);
     
     try {
       const usersWithEmail = schedules.filter(u => u.email);
-      const results = await processBatch(usersWithEmail);
       
-      results.forEach(result => {
-        if (result) {
-          stats[result.userName] = result.orgStats;
+      if (usersWithEmail.length === 0) {
+        setLoadingProgress(100);
+        return;
+      }
+      
+      // Собираем все emails для батч-запроса
+      const emails = usersWithEmail.map(u => u.email);
+      
+      console.log(`⚡ Батч-загрузка статистики для ${emails.length} промоутеров одним запросом`);
+      setLoadingProgress(50);
+      
+      // Один запрос для всех промоутеров сразу!
+      const response = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': localStorage.getItem('session_token') || '',
+          },
+          body: JSON.stringify({
+            action: 'get_batch_user_org_stats',
+            emails: emails
+          })
         }
-      });
+      );
       
-      console.log('📊 Загружена статистика по организациям:', stats);
-      setUserOrgStats(stats);
-      calculateRecommendations(stats);
+      setLoadingProgress(80);
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.batch_stats) {
+          // Преобразуем результат: email → userName
+          const stats: Record<string, Array<{organization_name: string, avg_per_shift: number, shift_count: number}>> = {};
+          
+          usersWithEmail.forEach(user => {
+            const userName = `${user.first_name} ${user.last_name}`;
+            const userEmail = user.email;
+            
+            if (data.batch_stats[userEmail]) {
+              stats[userName] = data.batch_stats[userEmail];
+            }
+          });
+          
+          console.log(`📊 Загружена статистика для ${Object.keys(stats).length} промоутеров`);
+          setUserOrgStats(stats);
+          calculateRecommendations(stats);
+        }
+      } else {
+        console.error('Ошибка загрузки статистики:', await response.text());
+      }
+      
       setLoadingProgress(100);
     } catch (error) {
-      console.error('Error loading users:', error);
+      console.error('Error loading batch stats:', error);
       setLoadingProgress(0);
     }
   };
@@ -279,7 +251,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     return Math.round(netProfit / 2);
   };
 
-  const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>) => {
+  const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number, shift_count?: number}>>) => {
     const recommendations: Record<string, Record<string, string[]>> = {};
     
     console.log('🔍 workComments (ВСЕ данные для проверки organization):', workComments);
@@ -338,7 +310,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           if (incomeB !== incomeA) {
             return incomeB - incomeA;
           }
-          return b.shift_count - a.shift_count;
+          return (b.shift_count || 0) - (a.shift_count || 0);
         });
         
         // Выбираем ТОП-3 организации по доходу (без ограничений на использование)

@@ -1155,6 +1155,111 @@ def get_user_revenue_details(email: str) -> List[Dict[str, Any]]:
             
             return org_revenues
 
+def get_batch_user_org_stats(emails: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+    """Получить статистику по организациям для нескольких пользователей одним запросом"""
+    if not emails:
+        return {}
+    
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Получаем ID пользователей по email
+            placeholders = ','.join(['%s'] * len(emails))
+            cur.execute(f"""
+                SELECT id, email FROM t_p24058207_website_creation_pro.users 
+                WHERE email IN ({placeholders})
+            """, tuple(emails))
+            
+            email_to_id = {row[1]: row[0] for row in cur.fetchall()}
+            
+            if not email_to_id:
+                return {}
+            
+            user_ids = list(email_to_id.values())
+            placeholders = ','.join(['%s'] * len(user_ids))
+            
+            # Получаем все лиды для этих пользователей за один запрос
+            cur.execute(f"""
+                SELECT 
+                    l.user_id,
+                    o.id as org_id,
+                    o.name as organization_name,
+                    l.created_at,
+                    l.lead_type
+                FROM t_p24058207_website_creation_pro.leads_analytics l
+                JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.user_id IN ({placeholders}) AND l.is_active = true
+            """, tuple(user_ids))
+            
+            # Группируем по пользователям
+            user_org_data = {}
+            for row in cur.fetchall():
+                user_id = row[0]
+                org_id = row[1]
+                org_name = row[2]
+                created_at = row[3]
+                lead_type = row[4]
+                
+                moscow_dt = get_moscow_time_from_utc(created_at)
+                moscow_date = moscow_dt.date()
+                
+                if user_id not in user_org_data:
+                    user_org_data[user_id] = {}
+                
+                key = (org_id, org_name)
+                if key not in user_org_data[user_id]:
+                    user_org_data[user_id][key] = {
+                        'shift_dates': set(),
+                        'daily_contacts': {}
+                    }
+                
+                # Считаем смены по всем лидам (дата + организация)
+                user_org_data[user_id][key]['shift_dates'].add(moscow_date)
+                
+                # Считаем контакты отдельно
+                if lead_type == 'контакт':
+                    if moscow_date not in user_org_data[user_id][key]['daily_contacts']:
+                        user_org_data[user_id][key]['daily_contacts'][moscow_date] = 0
+                    user_org_data[user_id][key]['daily_contacts'][moscow_date] += 1
+            
+            # Формируем результат по email
+            id_to_email = {v: k for k, v in email_to_id.items()}
+            result = {}
+            
+            for user_id, org_data in user_org_data.items():
+                email = id_to_email.get(user_id)
+                if not email:
+                    continue
+                
+                org_stats = []
+                for (org_id, org_name), data in org_data.items():
+                    # Берём только последние 3 смены
+                    sorted_dates = sorted(data['shift_dates'], reverse=True)[:3]
+                    
+                    # Считаем контакты только по последним 3 сменам
+                    recent_contacts = sum(
+                        data['daily_contacts'].get(date, 0) 
+                        for date in sorted_dates
+                    )
+                    shifts = len(sorted_dates)
+                    
+                    if shifts > 0:
+                        avg_per_shift = round(recent_contacts / shifts, 1)
+                    else:
+                        avg_per_shift = 0.0
+                    
+                    org_stats.append({
+                        'organization_name': org_name,
+                        'contacts': recent_contacts,
+                        'shifts': shifts,
+                        'avg_per_shift': avg_per_shift,
+                        'shift_count': shifts
+                    })
+                
+                org_stats.sort(key=lambda x: x['avg_per_shift'], reverse=True)
+                result[email] = org_stats
+            
+            return result
+
 def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
     """Получить статистику пользователя по организациям"""
     with get_db_connection() as conn:
@@ -1228,7 +1333,8 @@ def get_user_org_stats(email: str) -> List[Dict[str, Any]]:
                     'organization_name': org_name,
                     'contacts': recent_contacts,
                     'shifts': shifts,
-                    'avg_per_shift': avg_per_shift
+                    'avg_per_shift': avg_per_shift,
+                    'shift_count': shifts
                 })
             
             org_stats.sort(key=lambda x: x['avg_per_shift'], reverse=True)
@@ -2089,6 +2195,23 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({'success': True, 'org_stats': org_stats})
+            }
+        
+        elif action == 'get_batch_user_org_stats':
+            emails = body_data.get('emails')
+            
+            if not emails or not isinstance(emails, list):
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Список emails обязателен'})
+                }
+            
+            batch_stats = get_batch_user_org_stats(emails)
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': True, 'batch_stats': batch_stats})
             }
         
         elif action == 'get_user_org_shift_details':

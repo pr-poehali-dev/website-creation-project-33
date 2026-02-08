@@ -13,5 +13,6 @@
   "telegram-video": "https://functions.poehali.dev/b2eda591-8c66-4dff-95c4-c345ac48703f",
   "user-stats": "https://functions.poehali.dev/78eb7cbb-8b7c-4a62-aaa3-74d7b1e8f257",
   "google-sheets": "https://functions.poehali.dev/ce92c4be-1721-49f2-95bb-4bafa6f05fc4",
-  "chat": "https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c"
+  "chat": "https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c",
+  "admin": "https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214"
 }

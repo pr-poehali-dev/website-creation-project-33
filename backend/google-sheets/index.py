@@ -70,27 +70,65 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_NEW')
     sheet_id = os.environ.get('GOOGLE_SHEET_ID_NEW')
     
+    print(f"🔑 Проверка секретов:")
+    print(f"   GOOGLE_SHEETS_CREDENTIALS_NEW: {'✅ Есть' if credentials_json else '❌ Нет'}")
+    print(f"   GOOGLE_SHEET_ID_NEW: {'✅ Есть (' + sheet_id + ')' if sheet_id else '❌ Нет'}")
+    
     if not credentials_json or not sheet_id:
+        error_msg = 'Google Sheets не настроены. '
+        if not credentials_json:
+            error_msg += 'Отсутствуют учетные данные (GOOGLE_SHEETS_CREDENTIALS_NEW). '
+        if not sheet_id:
+            error_msg += 'Отсутствует ID таблицы (GOOGLE_SHEET_ID_NEW). '
+        error_msg += 'Обратитесь к администратору для настройки секретов.'
+        
+        print(f"❌ Ошибка: {error_msg}")
         return {
             'statusCode': 500,
             'headers': {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': 'Google Sheets не настроены. Обратитесь к администратору.'})
+            'body': json.dumps({'error': error_msg})
         }
     
-    credentials_dict = json.loads(credentials_json)
-    scopes = ['https://www.googleapis.com/auth/spreadsheets']
-    creds = Credentials.from_service_account_info(credentials_dict, scopes=scopes)
-    service = build('sheets', 'v4', credentials=creds)
+    try:
+        credentials_dict = json.loads(credentials_json)
+        scopes = ['https://www.googleapis.com/auth/spreadsheets']
+        creds = Credentials.from_service_account_info(credentials_dict, scopes=scopes)
+        service = build('sheets', 'v4', credentials=creds)
+        print("✅ Google API клиент успешно создан")
+    except Exception as e:
+        error_msg = f'Ошибка при создании клиента Google API: {str(e)}'
+        print(f"❌ {error_msg}")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'error': error_msg})
+        }
     
     # Используем существующий лист "Бухучет"
     sheet_title = "Бухучет"
     
     # Получаем информацию о таблице
-    spreadsheet = service.spreadsheets().get(spreadsheetId=sheet_id).execute()
-    sheets = spreadsheet.get('sheets', [])
+    try:
+        spreadsheet = service.spreadsheets().get(spreadsheetId=sheet_id).execute()
+        sheets = spreadsheet.get('sheets', [])
+        print(f"✅ Таблица найдена, листов: {len(sheets)}")
+    except Exception as e:
+        error_msg = f'Не удалось получить доступ к таблице: {str(e)}. Проверьте ID таблицы и права доступа.'
+        print(f"❌ {error_msg}")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'error': error_msg})
+        }
     
     # Ищем лист "Бухучет"
     target_sheet = None

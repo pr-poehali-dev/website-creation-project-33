@@ -3,6 +3,7 @@
   "telegram-bot": "https://functions.poehali.dev/3866e45c-8059-4370-ba27-042c0eac094d",
   "logout-user": "https://functions.poehali.dev/4fd575d9-3eab-46f6-8648-120ba9fb667d",
   "track-approach": "https://functions.poehali.dev/c587029d-f424-4cf7-8816-d61ef2c6756b",
+  "clients-data": "https://functions.poehali.dev/ea6877bc-65c9-4dc3-bafd-dfa003d3948e",
   "month-comparison": "https://functions.poehali.dev/fb8b60e8-9d84-4e3b-87c6-d5c3fafea739",
   "monthly-contacts": "https://functions.poehali.dev/d0ce132d-5700-4f2a-850e-e49d41bd8969",
   "week-org-filters": "https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101",

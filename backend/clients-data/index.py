@@ -6,14 +6,14 @@ from psycopg2.extras import RealDictCursor
 
 def handler(event, context):
     '''
-    Загружает данные о выходах промоутеров по организациям за выбранный период
+    Загружает данные о выходах промоутеров по организациям за период
     
     Args:
         event: HTTP запрос с параметрами start_date, end_date
         context: контекст выполнения функции
     
     Returns:
-        JSON с организациями и их статусом выходов, отсортированными по давности
+        JSON с организациями и их статусом выходов
     '''
     
     method = event.get('httpMethod', 'GET')

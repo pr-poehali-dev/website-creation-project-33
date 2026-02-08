@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { UserSchedule, DaySchedule, DeleteSlotState, ConfirmDeleteState, DayStats } from './schedule/types';
-import { getAllWeeksUntilEndOfYear, initializeWeekDays, getCurrentWeekIndex } from './schedule/utils';
+import { getAllWeeksUntilEndOfYear, initializeWeekDays, getCurrentWeekIndex, calculateAvgBeforeDate } from './schedule/utils';
 import ScheduleHeader from './schedule/ScheduleHeader';
 import TeamScheduleView from './schedule/TeamScheduleView';
 import IndividualScheduleView from './schedule/IndividualScheduleView';
@@ -49,7 +49,9 @@ export default function ScheduleAnalyticsTab() {
 
       const expected = Array.from(uniqueWorkers).reduce((sum, userId) => {
         const worker = schedules.find(s => s.user_id === userId);
-        return sum + (worker?.avg_per_shift || 0);
+        // Вычисляем средний показатель ДО текущей даты (не включая её)
+        const avgBeforeDate = calculateAvgBeforeDate(worker?.daily_contacts, day.date);
+        return sum + avgBeforeDate;
       }, 0);
 
       return {

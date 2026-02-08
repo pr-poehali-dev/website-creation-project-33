@@ -55,7 +55,7 @@ export default function OrganizationFilter({
   const loadAllOrganizations = async () => {
     try {
       const response = await fetch(
-        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_all_organizations',
+        'https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101?action=get_all_organizations',
         {
           headers: {
             'X-Session-Token': localStorage.getItem('session_token') || '',

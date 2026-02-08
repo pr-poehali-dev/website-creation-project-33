@@ -39,6 +39,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         if method == 'GET':
             params = event.get('queryStringParameters', {})
+            action = params.get('action')
+            
+            if action == 'get_all_organizations':
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT DISTINCT name 
+                    FROM t_p24058207_website_creation_pro.organizations 
+                    WHERE name IS NOT NULL AND name != ''
+                    ORDER BY name
+                """)
+                
+                organizations = [row[0] for row in cursor.fetchall()]
+                cursor.close()
+                conn.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'organizations': organizations})
+                }
+            
             week_start = params.get('week_start')
             
             if not week_start:

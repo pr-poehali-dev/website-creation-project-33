@@ -404,69 +404,27 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         }
         
         // Получаем статистику промоутера
-        let userStats = stats[userName] || [];
+        const userStats = stats[userName] || [];
         
-        // Фильтрация и дополнение по orgLimits (если заданы)
-        if (orgLimits && orgLimits.size > 0) {
-          // Сначала фильтруем существующую статистику
-          userStats = userStats.filter(stat => orgLimits.has(stat.organization_name));
+        // Теперь всегда используем ВСЕ организации (без фильтрации)
+        // Сортируем по предполагаемому доходу (DESC), потом по shift_count (DESC)
+        userStats.sort((a, b) => {
+          const incomeA = calculateKMS(a.organization_name, a.avg_per_shift);
+          const incomeB = calculateKMS(b.organization_name, b.avg_per_shift);
           
-          // Добавляем организации из orgLimits, в которых промоутера не было
-          const existingOrgNames = new Set(userStats.map(s => s.organization_name));
-          orgLimits.forEach((_, orgName) => {
-            if (!existingOrgNames.has(orgName)) {
-              userStats.push({
-                organization_name: orgName,
-                avg_per_shift: 0, // Не было смен
-                shift_count: 0
-              });
-            }
-          });
-          
-          // Пересортируем: сначала по предполагаемому доходу (DESC), потом по shift_count (DESC)
-          userStats.sort((a, b) => {
-            const incomeA = calculateKMS(a.organization_name, a.avg_per_shift);
-            const incomeB = calculateKMS(b.organization_name, b.avg_per_shift);
-            
-            if (incomeB !== incomeA) {
-              return incomeB - incomeA;
-            }
-            return b.shift_count - a.shift_count;
-          });
-        }
-        
-        if ((userName === 'Евгений Сурков' && day.date === '2025-12-12') || 
-            (userName === 'Ольга Салтыкова' && day.date === '2025-12-10')) {
-          console.log(`
-🔍🔍🔍 ДЕТАЛЬНЫЙ ЛОГ ДЛЯ ${userName} ${day.date} 🔍🔍🔍`);
-          console.log(`1️⃣ ПОЛНАЯ статистика (${stats[userName]?.length || 0} орг) - ОТСОРТИРОВАНА:`);
-          stats[userName]?.forEach((s, i) => {
-            const income = calculateKMS(s.organization_name, s.avg_per_shift);
-            console.log(`   ${i+1}. ${s.organization_name}: ${s.avg_per_shift} контактов → ~${income}₽`);
-          });
-          
-          console.log(`2️⃣ После фильтрации (${userStats.length} орг):`);
-          userStats.forEach((s, i) => {
-            const income = calculateKMS(s.organization_name, s.avg_per_shift);
-            console.log(`   ${i+1}. ${s.organization_name}: ${s.avg_per_shift} контактов → ~${income}₽`);
-          });
-          
-          console.log(`3️⃣ Использовано на неделе:`, totalOrgUsageThisWeek);
-          console.log(`4️⃣ orgLimits:`, orgLimits ? Object.fromEntries(orgLimits) : 'НЕТ');
-        }
+          if (incomeB !== incomeA) {
+            return incomeB - incomeA;
+          }
+          return b.shift_count - a.shift_count;
+        });
         
         // Ищем лучшую организацию, которая НЕ была использована на предыдущих днях
         let recommendedOrg = '';
         
         for (const orgStat of userStats) {
           const orgName = orgStat.organization_name;
-          const maxUses = orgLimits?.get(orgName) || 1;
+          const maxUses = 1; // Все организации используются максимум 1 раз на неделю
           const totalOrgUses = totalOrgUsageThisWeek[orgName] || 0;
-          const income = calculateKMS(orgName, orgStat.avg_per_shift);
-          
-          if ((userName === 'Ольга Салтыкова' && day.date === '2025-12-10')) {
-            console.log(`   🔎 Проверка ${orgName}: uses=${totalOrgUses}/${maxUses}, доход=${income}₽`);
-          }
           
           // Проверяем: организация не превысила лимит использования на неделе
           // ВАЖНО: НЕ увеличиваем счётчик здесь! Рекомендация != Использование
@@ -478,11 +436,6 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         }
         
         recommendations[userName][day.date] = recommendedOrg;
-        
-        if ((userName === 'Евгений Сурков' && day.date === '2025-12-12') ||
-            (userName === 'Ольга Салтыкова' && day.date === '2025-12-10')) {
-          console.log(`✅ ВЫБРАНО ДЛЯ ${userName}: "${recommendedOrg}"`);
-        }
       });
     });
     

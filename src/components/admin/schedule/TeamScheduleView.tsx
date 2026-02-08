@@ -4,7 +4,6 @@ import { useScheduleData } from './useScheduleData';
 import WeekCalendar from './WeekCalendar';
 import DayCard from './DayCard';
 import AddPromoterModal from './AddPromoterModal';
-import OrganizationFilter from './OrganizationFilter';
 
 interface TeamScheduleViewProps {
   weekDays: DaySchedule[];
@@ -29,9 +28,6 @@ export default function TeamScheduleView({
 }: TeamScheduleViewProps) {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
-  const [orgLimits, setOrgLimits] = useState<Map<string, number>>(new Map());
-  const [isSavingFilters, setIsSavingFilters] = useState(false);
-  const [filtersLoaded, setFiltersLoaded] = useState(false);
 
   const {
     workComments,
@@ -44,128 +40,7 @@ export default function TeamScheduleView({
     loadingProgress,
     saveComment,
     updateComment
-  } = useScheduleData(weekDays, schedules, orgLimits);
-
-  const weekStart = weekDays.length > 0 ? weekDays[0].date : '';
-
-  useEffect(() => {
-    setFiltersLoaded(false);
-  }, [weekStart]);
-
-  useEffect(() => {
-    if (filtersLoaded || !weekStart) return;
-    
-    const loadFilters = async () => {
-      console.log(`📥 Загрузка фильтров для недели: ${weekStart}`);
-      try {
-        const response = await fetch(
-          `https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101?week_start=${weekStart}`
-        );
-        
-        if (!response.ok) {
-          console.error('❌ Ошибка HTTP:', response.status);
-          setOrgLimits(new Map());
-          setFiltersLoaded(true);
-          return;
-        }
-        
-        const data = await response.json();
-        console.log('📦 Данные фильтров из БД:', JSON.stringify(data));
-        
-        if (!data.organizations || !Array.isArray(data.organizations) || data.organizations.length === 0) {
-          console.log('ℹ️ Нет сохранённых фильтров, изначально 0 организаций выбрано');
-          setOrgLimits(new Map());
-          setFiltersLoaded(true);
-          return;
-        }
-        
-        const limitsData = data.organizations;
-        
-        if (typeof limitsData[0] === 'object' && 'name' in limitsData[0] && 'maxUses' in limitsData[0]) {
-          console.log(`✅ Загружено ${limitsData.length} организаций с лимитами из БД`);
-          const newLimits = new Map<string, number>();
-          limitsData.forEach((item: {name: string, maxUses: number}) => {
-            console.log(`  - ${item.name}: ${item.maxUses}x`);
-            newLimits.set(item.name, item.maxUses);
-          });
-          setOrgLimits(newLimits);
-        } else {
-          console.log('⚠️ Неожиданный формат данных:', limitsData);
-          setOrgLimits(new Map());
-        }
-      } catch (error) {
-        console.error('❌ Ошибка загрузки фильтров:', error);
-        setOrgLimits(new Map());
-      }
-      setFiltersLoaded(true);
-    };
-    
-    loadFilters();
-  }, [weekStart, filtersLoaded]);
-
-  const handleOrgToggle = (org: string) => {
-    setOrgLimits(prev => {
-      const newLimits = new Map(prev);
-      if (newLimits.has(org)) {
-        newLimits.delete(org);
-      } else {
-        newLimits.set(org, 1);
-      }
-      return newLimits;
-    });
-  };
-
-  const handleOrgLimitChange = (org: string, limit: number) => {
-    setOrgLimits(prev => {
-      const newLimits = new Map(prev);
-      newLimits.set(org, limit);
-      return newLimits;
-    });
-  };
-
-  const handleSelectAll = () => {
-    const newLimits = new Map<string, number>();
-    Object.values(userOrgStats).forEach(stats => {
-      stats.forEach(stat => newLimits.set(stat.organization_name, 1));
-    });
-    setOrgLimits(newLimits);
-  };
-
-  const handleClearAll = () => {
-    setOrgLimits(new Map());
-  };
-
-  const handleSaveFilters = async () => {
-    setIsSavingFilters(true);
-    try {
-      const limitsArray = Array.from(orgLimits.entries()).map(([name, maxUses]) => ({
-        name,
-        maxUses
-      }));
-      
-      const response = await fetch(
-        'https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            week_start: weekStart,
-            organizations: limitsArray
-          })
-        }
-      );
-      
-      if (response.ok) {
-        console.log('✅ Фильтры организаций сохранены');
-      } else {
-        console.error('❌ Ошибка сохранения фильтров:', await response.text());
-      }
-    } catch (error) {
-      console.error('❌ Ошибка сохранения фильтров:', error);
-    } finally {
-      setIsSavingFilters(false);
-    }
-  };
+  } = useScheduleData(weekDays, schedules, undefined);
 
   const toggleDay = (date: string) => {
     setExpandedDays(prev => {
@@ -221,18 +96,6 @@ export default function TeamScheduleView({
           </div>
         </div>
       )}
-
-      <OrganizationFilter
-        userOrgStats={userOrgStats}
-        orgLimits={orgLimits}
-        weekStart={weekStart}
-        onOrgToggle={handleOrgToggle}
-        onOrgLimitChange={handleOrgLimitChange}
-        onSelectAll={handleSelectAll}
-        onClearAll={handleClearAll}
-        onSave={handleSaveFilters}
-        isSaving={isSavingFilters}
-      />
 
       {daysWithWorkers.map((day) => {
         const isExpanded = expandedDays.has(day.date);

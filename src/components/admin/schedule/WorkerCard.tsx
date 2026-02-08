@@ -6,6 +6,7 @@ import { UserSchedule, DeleteSlotState, OrganizationData } from './types';
 import { isMaximKorelsky, calculateAvgBeforeDate } from './utils';
 import OrgStatsModal from './OrgStatsModal';
 import OrgSelectionModal from './OrgSelectionModal';
+import WorkerDetailsModal from './WorkerDetailsModal';
 
 interface WorkerCardProps {
   worker: UserSchedule;
@@ -54,6 +55,7 @@ export default function WorkerCard({
 }: WorkerCardProps) {
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
   const [showOrgSelectionModal, setShowOrgSelectionModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const workerName = `${worker.first_name} ${worker.last_name}`;
@@ -142,7 +144,11 @@ export default function WorkerCard({
       <div className="flex items-center justify-between group">
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] md:text-xs text-slate-200">
+            <span 
+              className="text-[10px] md:text-xs text-slate-200 cursor-pointer hover:text-cyan-400 transition-colors"
+              onClick={() => setShowDetailsModal(true)}
+              title="Показать детальную информацию"
+            >
               • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
             </span>
             {avgContacts !== undefined && avgContacts !== null && (
@@ -151,72 +157,6 @@ export default function WorkerCard({
               </span>
             )}
           </div>
-          {!recommendedOrg && orgStats.length === 0 && (
-            <div className="ml-2 flex items-center gap-2">
-              <div className="relative w-8 h-8">
-                <svg className="w-8 h-8 transform -rotate-90">
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r="12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    fill="none"
-                    className="text-slate-700"
-                  />
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r="12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeDasharray={`${2 * Math.PI * 12}`}
-                    strokeDashoffset={`${2 * Math.PI * 12 * (1 - (loadingProgress || 0) / 100)}`}
-                    className="text-cyan-400 transition-all duration-300"
-                  />
-                </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-cyan-400">
-                  {loadingProgress || 0}%
-                </span>
-              </div>
-              <span className="text-[9px] md:text-[10px] text-slate-400">
-                Загрузка...
-              </span>
-            </div>
-          )}
-          {recommendedOrg && (
-            <div className="flex flex-col gap-0.5 ml-2">
-              <span 
-                className="text-[9px] md:text-[10px] text-cyan-400 cursor-pointer hover:underline"
-                onClick={() => setShowOrgStatsModal(true)}
-              >
-                Рекомендация: {recommendedOrg}{orgAvg ? ` (~${orgAvg.toFixed(1)} контактов)` : ''}
-              </span>
-              {recommendedKMS > 0 && (
-                <span className="text-[9px] md:text-[10px] text-cyan-300">
-                  Рекомендуемый доход КМС/КВВ: ~{recommendedKMS} ₽
-                </span>
-              )}
-            </div>
-          )}
-          {currentOrganization && (
-            <div className="flex flex-col gap-0.5 ml-2 mt-0.5">
-              <span className="text-[9px] md:text-[10px] text-amber-400">
-                Выбрано: {currentOrganization} {selectedOrgAvg > 0 ? `(~${selectedOrgAvg.toFixed(1)} контактов)` : '(не было смен)'}
-              </span>
-              {expectedKMS > 0 && (
-                <span className="text-[9px] md:text-[10px] text-amber-400">
-                  Ожидаемый доход КМС/КВВ: ~{expectedKMS} ₽
-                </span>
-              )}
-              {recommendedKMS > 0 && expectedKMS > 0 && (
-                <span className={`text-[9px] md:text-[10px] ${kmsDifference >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  Разница с рекомендацией: {kmsDifference > 0 ? '+' : ''}{kmsDifference} ₽ ({kmsDifferencePercent > 0 ? '+' : ''}{kmsDifferencePercent}%)
-                </span>
-              )}
-            </div>
-          )}
         </div>
         <button
           onClick={() => onRemoveSlot(worker.user_id, workerName, dayDate, slotTime, slotLabel)}
@@ -376,6 +316,24 @@ export default function WorkerCard({
           loadingProgress={loadingProgress}
           onSelect={handleOrgSelect}
           onClose={() => setShowOrgSelectionModal(false)}
+        />
+      )}
+      
+      {showDetailsModal && (
+        <WorkerDetailsModal
+          workerName={workerName}
+          dayDate={dayDate}
+          avgContacts={avgContacts}
+          recommendedOrg={recommendedOrg}
+          recommendedOrgAvg={orgAvg}
+          recommendedKMS={recommendedKMS}
+          currentOrganization={currentOrganization}
+          selectedOrgAvg={selectedOrgAvg}
+          expectedKMS={expectedKMS}
+          kmsDifference={kmsDifference}
+          kmsDifferencePercent={kmsDifferencePercent}
+          allOrganizations={allOrganizations}
+          onClose={() => setShowDetailsModal(false)}
         />
       )}
     </div>

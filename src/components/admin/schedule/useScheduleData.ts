@@ -22,6 +22,20 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     
     try {
       const dates = weekDays.map(d => d.date);
+      const cacheKey = `actual-stats-${dates.join('-')}`;
+      const cached = localStorage.getItem(cacheKey);
+      const cacheTime = localStorage.getItem(`${cacheKey}-time`);
+      
+      // Кэш на 5 минут
+      if (cached && cacheTime) {
+        const age = Date.now() - parseInt(cacheTime);
+        if (age < 5 * 60 * 1000) {
+          const cachedData = JSON.parse(cached);
+          setActualStats(cachedData);
+          console.log('📦 Использую кэшированные фактические данные');
+          return;
+        }
+      }
       
       // 1. Получаем реальные контакты из leads_analytics через schedule-stats
       const contactsResponse = await fetch(
@@ -41,7 +55,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       if (contactsResponse.ok) {
         const contactsData = await contactsResponse.json();
         if (contactsData.actual && Array.isArray(contactsData.actual)) {
-          contactsData.actual.forEach((item: any) => {
+          contactsData.actual.forEach((item: {date: string, count: number}) => {
             statsByDate[item.date] = { contacts: item.count || 0, revenue: 0 };
           });
         }
@@ -60,7 +74,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       if (accountingResponse.ok) {
         const accountingData = await accountingResponse.json();
         if (accountingData.shifts && Array.isArray(accountingData.shifts)) {
-          accountingData.shifts.forEach((shift: any) => {
+          accountingData.shifts.forEach((shift: {date: string, contacts_count: number, organization: string, contact_rate: number, compensation_amount: number, payment_type: string, expense_amount: number}) => {
             const date = shift.date;
             if (!date) return;
             
@@ -107,6 +121,13 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       }
       
       setActualStats(statsByDate);
+      
+      // Сохраняем в кэш
+      const dates = weekDays.map(d => d.date);
+      const cacheKey = `actual-stats-${dates.join('-')}`;
+      localStorage.setItem(cacheKey, JSON.stringify(statsByDate));
+      localStorage.setItem(`${cacheKey}-time`, Date.now().toString());
+      
       console.log('✅ Загружены фактические данные:', statsByDate);
     } catch (error) {
       console.error('Error loading actual stats:', error);
@@ -127,7 +148,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       if (response.ok) {
         const data = await response.json();
         if (data.organizations && Array.isArray(data.organizations)) {
-          const orgsData: OrganizationData[] = data.organizations.map((org: any) => ({
+          const orgsData: OrganizationData[] = data.organizations.map((org: {id: number, name: string, contact_rate: number, payment_type: string}) => ({
             id: org.id,
             name: org.name,
             contact_rate: org.contact_rate || 0,
@@ -153,50 +174,77 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     const totalUsers = schedules.filter(u => u.email).length;
     let completedUsers = 0;
     
-    try {
-      const requests = schedules.map(async (user) => {
-        const userName = `${user.first_name} ${user.last_name}`;
-        const userEmail = user.email;
-        
-        if (!userEmail) {
-          console.log(`⚠️ Email не найден для: ${userName}`);
-          return null;
-        }
-        
-        try {
-          const response = await fetch(
-            'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Session-Token': localStorage.getItem('session_token') || '',
-              },
-              body: JSON.stringify({
-                action: 'get_user_org_stats',
-                email: userEmail
-              })
-            }
-          );
-          
-          completedUsers++;
-          setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.org_stats && data.org_stats.length > 0) {
-              return { userName, orgStats: data.org_stats.sort((a: any, b: any) => b.avg_per_shift - a.avg_per_shift) };
-            }
-          }
-        } catch (error) {
-          console.error(`Error loading org stats for ${userName}:`, error);
-          completedUsers++;
-          setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
-        }
-        return null;
-      });
+    // Helper функция для батч-обработки с ограничением параллельных запросов
+    const processBatch = async (users: typeof schedules, batchSize: number = 3) => {
+      const allResults: (null | {userName: string, orgStats: Array<{organization_name: string, avg_per_shift: number}>})[] = [];
       
-      const results = await Promise.all(requests);
+      for (let i = 0; i < users.length; i += batchSize) {
+        const batch = users.slice(i, i + batchSize);
+        const batchResults = await Promise.all(
+          batch.map(async (user) => {
+            const userName = `${user.first_name} ${user.last_name}`;
+            const userEmail = user.email;
+            
+            if (!userEmail) {
+              console.log(`⚠️ Email не найден для: ${userName}`);
+              completedUsers++;
+              setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
+              return null;
+            }
+            
+            try {
+              const response = await fetch(
+                'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-Session-Token': localStorage.getItem('session_token') || '',
+                  },
+                  body: JSON.stringify({
+                    action: 'get_user_org_stats',
+                    email: userEmail
+                  })
+                }
+              );
+              
+              completedUsers++;
+              setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
+              
+              if (response.ok) {
+                const data = await response.json();
+                if (data.org_stats && data.org_stats.length > 0) {
+                  return { 
+                    userName, 
+                    orgStats: data.org_stats.sort((a: {avg_per_shift: number}, b: {avg_per_shift: number}) => 
+                      b.avg_per_shift - a.avg_per_shift
+                    ) 
+                  };
+                }
+              }
+            } catch (error) {
+              console.error(`Error loading org stats for ${userName}:`, error);
+              completedUsers++;
+              setLoadingProgress(Math.round((completedUsers / totalUsers) * 100));
+            }
+            return null;
+          })
+        );
+        
+        allResults.push(...batchResults);
+        
+        // Добавляем задержку между батчами для снижения нагрузки на БД
+        if (i + batchSize < users.length) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
+      
+      return allResults;
+    };
+    
+    try {
+      const usersWithEmail = schedules.filter(u => u.email);
+      const results = await processBatch(usersWithEmail);
       
       results.forEach(result => {
         if (result) {
@@ -247,9 +295,9 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     // Счётчик ОБЩЕГО использования организаций по всем промоутерам (накапливается по дням)
     const totalOrgUsageThisWeek: Record<string, number> = {};
     
-    // Очищаем временные переменные для текущего дня
-    (window as any).tempCurrentDayOrgs = null;
-    (window as any).tempCurrentDayOrgsAdded = false;
+    // Временные переменные для текущего дня
+    const tempCurrentDayOrgs: Record<string, number> | null = null;
+    const tempCurrentDayOrgsAdded = false;
     
     // Проходим по дням ПОСЛЕДОВАТЕЛЬНО
     weekDays.forEach(day => {
@@ -308,17 +356,17 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         console.log(`   ⏸️ Текущий день ${day.date} - сохраняем для будущих дней:`, Array.from(orgsUsedToday));
         // Сохраняем выборы текущего дня во временную переменную
         orgsUsedToday.forEach(org => {
-          if (!(window as any).tempCurrentDayOrgs) (window as any).tempCurrentDayOrgs = {};
-          (window as any).tempCurrentDayOrgs[org] = ((window as any).tempCurrentDayOrgs[org] || 0) + 1;
+          if (!tempCurrentDayOrgs) tempCurrentDayOrgs = {};
+          tempCurrentDayOrgs[org] = (tempCurrentDayOrgs[org] || 0) + 1;
         });
       } else if (isFutureDay) {
         // Будущий день - добавляем выборы текущего дня в счётчик (один раз)
-        if ((window as any).tempCurrentDayOrgs && !(window as any).tempCurrentDayOrgsAdded) {
-          console.log(`   ➕ Добавляем текущий день в счётчик для будущих:`, (window as any).tempCurrentDayOrgs);
-          Object.entries((window as any).tempCurrentDayOrgs as Record<string, number>).forEach(([org, count]) => {
+        if (tempCurrentDayOrgs && !tempCurrentDayOrgsAdded) {
+          console.log(`   ➕ Добавляем текущий день в счётчик для будущих:`, tempCurrentDayOrgs);
+          Object.entries(tempCurrentDayOrgs).forEach(([org, count]) => {
             totalOrgUsageThisWeek[org] = (totalOrgUsageThisWeek[org] || 0) + count;
           });
-          (window as any).tempCurrentDayOrgsAdded = true;
+          tempCurrentDayOrgsAdded = true;
         }
         console.log(`   ⏭️ Будущий день ${day.date}`);
       }

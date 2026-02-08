@@ -82,26 +82,18 @@ export default function TeamScheduleView({
           } else if (limitsData.length > 0 && typeof limitsData[0] === 'string') {
             console.log('🔄 Миграция старого формата данных');
             const newLimits = new Map<string, number>();
-            limitsData.forEach((orgName: any) => {
+            limitsData.forEach((orgName: string) => {
               newLimits.set(orgName, 1);
             });
             setOrgLimits(newLimits);
           } else {
-            console.log('ℹ️ Нет сохранённых фильтров, выбираем все организации');
-            const newLimits = new Map<string, number>();
-            Object.values(userOrgStats).forEach(stats => {
-              stats.forEach(stat => newLimits.set(stat.organization_name, 1));
-            });
-            setOrgLimits(newLimits);
+            console.log('ℹ️ Нет сохранённых фильтров, изначально 0 организаций выбрано');
+            setOrgLimits(new Map());
           }
         }
       } catch (error) {
         console.error('❌ Ошибка загрузки фильтров:', error);
-        const newLimits = new Map<string, number>();
-        Object.values(userOrgStats).forEach(stats => {
-          stats.forEach(stat => newLimits.set(stat.organization_name, 1));
-        });
-        setOrgLimits(newLimits);
+        setOrgLimits(new Map());
       }
       setFiltersLoaded(true);
     };

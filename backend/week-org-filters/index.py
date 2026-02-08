@@ -48,7 +48,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     FROM t_p24058207_website_creation_pro.organizations 
                     WHERE name IS NOT NULL AND name != ''
                       AND name NOT IN ('Администратор', 'Корректировка', 'Корректировка (безнал)', 
-                                       'Корректировка (нал)', 'Удалить', 'KIBERONE', 'балет')
+                                       'Корректировка (нал)', 'Удалить')
+                      AND is_active = true
                     ORDER BY name
                 """)
                 

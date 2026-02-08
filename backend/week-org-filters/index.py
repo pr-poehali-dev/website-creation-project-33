@@ -91,13 +91,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             conn.close()
             
             if row:
+                organizations_data = json.loads(row[0]) if row[0] else []
                 return {
                     'statusCode': 200,
                     'headers': {
                         'Content-Type': 'application/json',
                         'Access-Control-Allow-Origin': '*'
                     },
-                    'body': json.dumps({'organizations': row[0]})
+                    'body': json.dumps({'organizations': organizations_data})
                 }
             else:
                 return {

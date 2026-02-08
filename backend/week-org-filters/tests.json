@@ -1,28 +1,34 @@
 {
   "tests": [
     {
-      "name": "Get week filters - not found",
-      "method": "GET",
-      "path": "/?week_start=2025-10-27",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "organizations": []
-      },
-      "bodyMatcher": "partial"
-    },
-    {
       "name": "Save week filters",
       "method": "POST",
       "path": "/",
       "body": {
         "week_start": "2025-10-27",
-        "organizations": ["ТОП (Беляево)", "KIEBONE"]
+        "organizations": [
+          {"name": "ТОП (Беляево)", "maxUses": 2},
+          {"name": "KIEBONE", "maxUses": 1}
+        ]
       },
       "expectedStatus": 200,
       "expectedBody": {
         "success": true
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get saved week filters",
+      "method": "GET",
+      "path": "/?week_start=2025-10-27",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "organizations": [
+          {"name": "ТОП (Беляево)", "maxUses": 2},
+          {"name": "KIEBONE", "maxUses": 1}
+        ]
+      },
+      "bodyMatcher": "exact"
     }
   ]
 }

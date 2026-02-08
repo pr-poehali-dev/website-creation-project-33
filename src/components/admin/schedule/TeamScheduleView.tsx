@@ -49,7 +49,11 @@ export default function TeamScheduleView({
   const weekStart = weekDays.length > 0 ? weekDays[0].date : '';
 
   useEffect(() => {
-    if (Object.keys(userOrgStats).length === 0 || filtersLoaded || !weekStart) return;
+    setFiltersLoaded(false);
+  }, [weekStart]);
+
+  useEffect(() => {
+    if (filtersLoaded || !weekStart) return;
     
     const loadFilters = async () => {
       console.log(`📥 Загрузка фильтров для недели: ${weekStart}`);
@@ -58,38 +62,36 @@ export default function TeamScheduleView({
           `https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101?week_start=${weekStart}`
         );
         
-        if (response.ok) {
-          const data = await response.json();
-          console.log('📦 Данные фильтров из БД:', data);
-          
-          let limitsData: Array<{name: string, maxUses: number}> = [];
-          
-          if (data.organizations) {
-            if (typeof data.organizations === 'string') {
-              limitsData = JSON.parse(data.organizations);
-            } else if (Array.isArray(data.organizations)) {
-              limitsData = data.organizations;
-            }
-          }
-          
-          if (limitsData.length > 0 && typeof limitsData[0] === 'object' && 'name' in limitsData[0]) {
-            console.log(`✅ Загружено ${limitsData.length} организаций с лимитами из БД`);
-            const newLimits = new Map<string, number>();
-            limitsData.forEach(item => {
-              newLimits.set(item.name, item.maxUses);
-            });
-            setOrgLimits(newLimits);
-          } else if (limitsData.length > 0 && typeof limitsData[0] === 'string') {
-            console.log('🔄 Миграция старого формата данных');
-            const newLimits = new Map<string, number>();
-            limitsData.forEach((orgName: string) => {
-              newLimits.set(orgName, 1);
-            });
-            setOrgLimits(newLimits);
-          } else {
-            console.log('ℹ️ Нет сохранённых фильтров, изначально 0 организаций выбрано');
-            setOrgLimits(new Map());
-          }
+        if (!response.ok) {
+          console.error('❌ Ошибка HTTP:', response.status);
+          setOrgLimits(new Map());
+          setFiltersLoaded(true);
+          return;
+        }
+        
+        const data = await response.json();
+        console.log('📦 Данные фильтров из БД:', JSON.stringify(data));
+        
+        if (!data.organizations || !Array.isArray(data.organizations) || data.organizations.length === 0) {
+          console.log('ℹ️ Нет сохранённых фильтров, изначально 0 организаций выбрано');
+          setOrgLimits(new Map());
+          setFiltersLoaded(true);
+          return;
+        }
+        
+        const limitsData = data.organizations;
+        
+        if (typeof limitsData[0] === 'object' && 'name' in limitsData[0] && 'maxUses' in limitsData[0]) {
+          console.log(`✅ Загружено ${limitsData.length} организаций с лимитами из БД`);
+          const newLimits = new Map<string, number>();
+          limitsData.forEach((item: {name: string, maxUses: number}) => {
+            console.log(`  - ${item.name}: ${item.maxUses}x`);
+            newLimits.set(item.name, item.maxUses);
+          });
+          setOrgLimits(newLimits);
+        } else {
+          console.log('⚠️ Неожиданный формат данных:', limitsData);
+          setOrgLimits(new Map());
         }
       } catch (error) {
         console.error('❌ Ошибка загрузки фильтров:', error);
@@ -99,7 +101,7 @@ export default function TeamScheduleView({
     };
     
     loadFilters();
-  }, [userOrgStats, weekStart, filtersLoaded]);
+  }, [weekStart, filtersLoaded]);
 
   const handleOrgToggle = (org: string) => {
     setOrgLimits(prev => {

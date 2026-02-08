@@ -104,3 +104,19 @@ export const isMaximKorelsky = (firstName: string, lastName: string): boolean =>
   const ln = lastName?.toLowerCase() || '';
   return (fn === 'максим' && ln === 'корельский') || (fn === 'корельский' && ln === 'максим');
 };
+
+export const calculateAvgBeforeDate = (
+  dailyContacts: Array<{date: string, count: number}> | undefined,
+  beforeDate: string
+): number => {
+  if (!dailyContacts || dailyContacts.length === 0) return 0;
+  
+  const filteredDays = dailyContacts.filter(item => item.date < beforeDate);
+  
+  if (filteredDays.length === 0) return 0;
+  
+  const totalContacts = filteredDays.reduce((sum, item) => sum + item.count, 0);
+  const avgContacts = totalContacts / filteredDays.length;
+  
+  return Math.round(avgContacts * 10) / 10;
+};

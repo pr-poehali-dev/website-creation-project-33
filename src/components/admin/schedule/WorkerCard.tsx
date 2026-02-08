@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { UserSchedule, DeleteSlotState, OrganizationData } from './types';
-import { isMaximKorelsky } from './utils';
+import { isMaximKorelsky, calculateAvgBeforeDate } from './utils';
 import OrgStatsModal from './OrgStatsModal';
 import OrgSelectionModal from './OrgSelectionModal';
 
@@ -58,8 +58,8 @@ export default function WorkerCard({
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const workerName = `${worker.first_name} ${worker.last_name}`;
   
-  // Используем общий средний показатель промоутера из базы
-  const avgContacts = worker.avg_per_shift || 0;
+  // Вычисляем средний показатель ДО текущей даты (не включая её)
+  const avgContacts = calculateAvgBeforeDate(worker.daily_contacts, dayDate);
   const commentKey = `${workerName}-${dayDate}`;
   
   const commentData = workComments[dayDate]?.[workerName] || {};

@@ -10,6 +10,7 @@ export interface UserSchedule {
   email: string;
   schedule: any;
   avg_per_shift?: number;
+  daily_contacts?: Array<{date: string, count: number}>;
 }
 
 export interface DaySchedule {

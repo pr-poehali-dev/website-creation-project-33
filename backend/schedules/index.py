@@ -180,26 +180,42 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         rows = cur.fetchall()
         
-        # Получаем статистику (avg_per_shift) для всех промоутеров одним запросом
+        # Получаем детальную статистику контактов по дням для всех промоутеров
         cur.execute("""
             SELECT 
-                u.id as user_id,
-                CASE 
-                    WHEN COUNT(DISTINCT DATE(la.created_at)) > 0 
-                    THEN ROUND(COUNT(la.id)::numeric / COUNT(DISTINCT DATE(la.created_at)), 1)
-                    ELSE 0
-                END as avg_per_shift
-            FROM t_p24058207_website_creation_pro.users u
-            LEFT JOIN t_p24058207_website_creation_pro.leads_analytics la 
-                ON u.id = la.user_id 
-                AND la.lead_type = 'контакт' 
+                la.user_id,
+                DATE(la.created_at) as contact_date,
+                COUNT(la.id) as contacts_count
+            FROM t_p24058207_website_creation_pro.leads_analytics la
+            WHERE la.lead_type = 'контакт' 
                 AND la.is_active = true
-            WHERE u.is_admin = false AND u.is_active = true AND u.is_approved = true
-            GROUP BY u.id
+            GROUP BY la.user_id, DATE(la.created_at)
+            ORDER BY la.user_id, DATE(la.created_at)
         """)
         
-        stats_rows = cur.fetchall()
-        stats_map = {row[0]: float(row[1]) if row[1] else 0 for row in stats_rows}
+        daily_stats_rows = cur.fetchall()
+        
+        # Группируем статистику по пользователям: {user_id: [{date, count}, ...]}
+        user_daily_stats = {}
+        for row in daily_stats_rows:
+            user_id = row[0]
+            contact_date = row[1].isoformat() if row[1] else None
+            contacts_count = row[2]
+            
+            if user_id not in user_daily_stats:
+                user_daily_stats[user_id] = []
+            
+            user_daily_stats[user_id].append({
+                'date': contact_date,
+                'count': contacts_count
+            })
+        
+        # Вычисляем общий avg_per_shift для каждого промоутера (для обратной совместимости)
+        stats_map = {}
+        for user_id, daily_list in user_daily_stats.items():
+            total_contacts = sum(item['count'] for item in daily_list)
+            total_days = len(daily_list)
+            stats_map[user_id] = round(total_contacts / total_days, 1) if total_days > 0 else 0
         
         # Получаем фактические контакты за неделю (для сравнения с прогнозом)
         week_end_date = (datetime.strptime(week_start, '%Y-%m-%d') + timedelta(days=6)).strftime('%Y-%m-%d')
@@ -231,7 +247,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'first_name': row[3].split()[0] if row[3] else 'User',
                 'last_name': row[3].split()[1] if row[3] and len(row[3].split()) > 1 else '',
                 'email': row[4],
-                'avg_per_shift': stats_map.get(user_id, 0)
+                'avg_per_shift': stats_map.get(user_id, 0),
+                'daily_contacts': user_daily_stats.get(user_id, [])
             })
         
         return {

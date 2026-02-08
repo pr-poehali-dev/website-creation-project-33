@@ -13,7 +13,7 @@ interface TimeSlotCardProps {
   allLocations: string[];
   allOrganizations: OrganizationData[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
-  recommendedLocations: Record<string, Record<string, string>>;
+  recommendedLocations: Record<string, Record<string, string[]>>;
   loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
   onCommentBlur: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
@@ -67,9 +67,8 @@ export default function TimeSlotCard({
         ) : (
           workers.map(worker => {
             const workerName = `${worker.first_name} ${worker.last_name}`;
-            const recommendedOrg = recommendedLocations[workerName]?.[dayDate] || '';
+            const recommendedOrgs = recommendedLocations[workerName]?.[dayDate] || [];
             const orgStats = userOrgStats[workerName] || [];
-            const orgAvg = orgStats.find(o => o.organization_name === recommendedOrg)?.avg_per_shift;
 
             return (
               <WorkerCard
@@ -82,8 +81,7 @@ export default function TimeSlotCard({
                 savingComment={savingComment}
                 allLocations={allLocations}
                 allOrganizations={allOrganizations}
-                recommendedOrg={recommendedOrg}
-                orgAvg={orgAvg}
+                recommendedOrgs={recommendedOrgs}
                 orgStats={orgStats}
                 loadingProgress={loadingProgress}
                 onCommentChange={onCommentChange}

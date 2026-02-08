@@ -23,8 +23,7 @@ interface WorkerCardProps {
   savingComment: string | null;
   allLocations: string[];
   allOrganizations: OrganizationData[];
-  recommendedOrg: string;
-  orgAvg?: number;
+  recommendedOrgs: string[];
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
   loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: string, value: string) => void;
@@ -44,8 +43,7 @@ export default function WorkerCard({
   savingComment,
   allLocations,
   allOrganizations,
-  recommendedOrg,
-  orgAvg,
+  recommendedOrgs,
   orgStats,
   loadingProgress,
   onCommentChange,
@@ -131,13 +129,23 @@ export default function WorkerCard({
     ? calculateKMS(currentOrganization, contactsForCalc) 
     : 0;
   
-  // Расчёт дохода для рекомендованной организации
-  const recommendedKMS = recommendedOrg && orgAvg ? calculateKMS(recommendedOrg, orgAvg) : 0;
+  // Расчёт доходов для ТОП-3 рекомендованных организаций
+  const recommendedKMSList = recommendedOrgs.map(orgName => {
+    const orgStat = orgStats.find(o => o.organization_name === orgName);
+    const orgAvg = orgStat?.avg_per_shift || avgContacts;
+    return {
+      orgName,
+      orgAvg,
+      kms: calculateKMS(orgName, orgAvg)
+    };
+  });
   
-  // Разница: Ожидаемый доход - Рекомендуемый доход
-  // Положительная = выбрали лучше (зелёный), Отрицательная = рекомендация была бы лучше (красный)
-  const kmsDifference = expectedKMS - recommendedKMS;
-  const kmsDifferencePercent = recommendedKMS > 0 ? Math.round((kmsDifference / recommendedKMS) * 100) : 0;
+  // Для сравнения берём лучшую рекомендацию (первую)
+  const bestRecommendedKMS = recommendedKMSList[0]?.kms || 0;
+  
+  // Разница: Ожидаемый доход - Лучший рекомендованный доход
+  const kmsDifference = expectedKMS - bestRecommendedKMS;
+  const kmsDifferencePercent = bestRecommendedKMS > 0 ? Math.round((kmsDifference / bestRecommendedKMS) * 100) : 0;
 
   return (
     <div className="space-y-1">
@@ -324,9 +332,7 @@ export default function WorkerCard({
           workerName={workerName}
           dayDate={dayDate}
           avgContacts={avgContacts}
-          recommendedOrg={recommendedOrg}
-          recommendedOrgAvg={orgAvg}
-          recommendedKMS={recommendedKMS}
+          recommendedOrgs={recommendedKMSList}
           currentOrganization={currentOrganization}
           selectedOrgAvg={selectedOrgAvg}
           expectedKMS={expectedKMS}

@@ -280,7 +280,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   };
 
   const calculateRecommendations = (stats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>) => {
-    const recommendations: Record<string, Record<string, string>> = {};
+    const recommendations: Record<string, Record<string, string[]>> = {};
     
     console.log('🔍 workComments (ВСЕ данные для проверки organization):', workComments);
     
@@ -290,86 +290,9 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       recommendations[userName] = {};
     });
     
-    // Счётчик ОБЩЕГО использования организаций по всем промоутерам (накапливается по дням)
-    const totalOrgUsageThisWeek: Record<string, number> = {};
-    
-    // Временные переменные для текущего дня
-    let tempCurrentDayOrgs: Record<string, number> | null = null;
-    let tempCurrentDayOrgsAdded = false;
-    
-    // Проходим по дням ПОСЛЕДОВАТЕЛЬНО
+    // Проходим по дням и рассчитываем рекомендации
     weekDays.forEach(day => {
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-      const isCurrentDay = day.date === today;
-      const isFutureDay = day.date > today;
-      const isPastDay = day.date < today; // Новая переменная: день УЖЕ ПРОШЁЛ
-      
-      console.log(`📅 Обрабатываем день: ${day.date} (${day.dayName}) | Сегодня: ${today} | Прошлый: ${isPastDay} | Текущий: ${isCurrentDay} | Будущий: ${isFutureDay}`);
-      
-      // Сначала собираем все выбранные организации на этот день
-      const orgsUsedToday = new Set<string>();
-      
-      schedules.forEach(user => {
-        const userName = `${user.first_name} ${user.last_name}`;
-        const daySchedule = user.schedule[day.date];
-        
-        if (!daySchedule) return;
-        
-        const hasAnySlot = Object.keys(daySchedule).some(slotTime => daySchedule[slotTime] === true);
-        if (!hasAnySlot) return;
-        
-        const currentOrg = workComments[day.date]?.[userName]?.organization;
-        
-        if (currentOrg) {
-          // Организация уже выбрана — учитываем в счётчике, но НЕ добавляем в рекомендации
-          // Рекомендация != Выбранная организация!
-          orgsUsedToday.add(currentOrg);
-          
-          if (currentOrg === 'ТОП (Ногинск)') {
-            console.log(`🔴 ТОП (Ногинск) найден! День: ${day.date}, Промоутер: ${userName}`);
-          }
-          
-          if (currentOrg.includes('KIBERONE')) {
-            console.log(`🟣 KIBERONE найден! День: ${day.date}, Промоутер: ${userName}, Организация: ${currentOrg}`);
-          }
-        }
-      });
-      
-      // Обновляем общий счётчик использования организаций
-      // Логика:
-      // - Для ТЕКУЩЕГО дня: учитываем только ПРОШЛЫЕ дни (НЕ текущий!)
-      //   Это позволяет рекомендовать одну организацию ВСЕМ промоутерам сегодня
-      // - Для БУДУЩИХ дней: учитываем ПРОШЛЫЕ + ТЕКУЩИЙ день
-      //   Уже сделанные выборы в текущем дне должны влиять на будущие рекомендации
-      
-      if (isPastDay) {
-        // Прошлый день - всегда учитываем
-        console.log(`   ✅ Учитываем использование за ${day.date} (прошлый день):`, Array.from(orgsUsedToday));
-        orgsUsedToday.forEach(org => {
-          totalOrgUsageThisWeek[org] = (totalOrgUsageThisWeek[org] || 0) + 1;
-        });
-      } else if (isCurrentDay) {
-        // Текущий день - НЕ учитываем при расчёте рекомендаций для текущего дня
-        // Но СОХРАНЯЕМ для использования при расчёте будущих дней
-        console.log(`   ⏸️ Текущий день ${day.date} - сохраняем для будущих дней:`, Array.from(orgsUsedToday));
-        // Сохраняем выборы текущего дня во временную переменную
-        orgsUsedToday.forEach(org => {
-          if (!tempCurrentDayOrgs) tempCurrentDayOrgs = {};
-          tempCurrentDayOrgs[org] = (tempCurrentDayOrgs[org] || 0) + 1;
-        });
-      } else if (isFutureDay) {
-        // Будущий день - добавляем выборы текущего дня в счётчик (один раз)
-        if (tempCurrentDayOrgs && !tempCurrentDayOrgsAdded) {
-          console.log(`   ➕ Добавляем текущий день в счётчик для будущих:`, tempCurrentDayOrgs);
-          Object.entries(tempCurrentDayOrgs).forEach(([org, count]) => {
-            totalOrgUsageThisWeek[org] = (totalOrgUsageThisWeek[org] || 0) + count;
-          });
-          tempCurrentDayOrgsAdded = true;
-        }
-        console.log(`   ⏭️ Будущий день ${day.date}`);
-      }
-      
-      // Теперь для промоутеров рассчитываем рекомендацию
+      // Для каждого промоутера рассчитываем рекомендации
       schedules.forEach(user => {
         const userName = `${user.first_name} ${user.last_name}`;
         const daySchedule = user.schedule[day.date];
@@ -418,29 +341,14 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           return b.shift_count - a.shift_count;
         });
         
-        // Ищем лучшую организацию, которая НЕ была использована на предыдущих днях
-        let recommendedOrg = '';
+        // Выбираем ТОП-3 организации по доходу (без ограничений на использование)
+        const top3Orgs = userStats.slice(0, 3).map(stat => stat.organization_name);
         
-        for (const orgStat of userStats) {
-          const orgName = orgStat.organization_name;
-          const maxUses = 1; // Все организации используются максимум 1 раз на неделю
-          const totalOrgUses = totalOrgUsageThisWeek[orgName] || 0;
-          
-          // Проверяем: организация не превысила лимит использования на неделе
-          // ВАЖНО: НЕ увеличиваем счётчик здесь! Рекомендация != Использование
-          // Счётчик увеличивается только когда администратор РЕАЛЬНО выбирает организацию
-          if (totalOrgUses < maxUses) {
-            recommendedOrg = orgName;
-            break;
-          }
-        }
-        
-        recommendations[userName][day.date] = recommendedOrg;
+        recommendations[userName][day.date] = top3Orgs;
       });
     });
     
-    console.log('📊 Общее использование организаций на неделе:', totalOrgUsageThisWeek);
-    console.log('🎯 Рекомендации:', recommendations);
+    console.log('🎯 Рекомендации (топ-3 для каждого):', recommendations);
     setRecommendedLocations(recommendations);
   };
 

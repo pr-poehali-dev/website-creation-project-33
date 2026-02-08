@@ -13,7 +13,7 @@ interface DayCardProps {
   allLocations: string[];
   allOrganizations: OrganizationData[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
-  recommendedLocations: Record<string, Record<string, string>>;
+  recommendedLocations: Record<string, Record<string, string[]>>;
   actualStats: Record<string, {contacts: number, revenue: number}>;
   loadingProgress?: number;
   onToggleDay: (date: string) => void;

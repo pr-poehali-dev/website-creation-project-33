@@ -6,9 +6,7 @@ interface WorkerDetailsModalProps {
   workerName: string;
   dayDate: string;
   avgContacts: number;
-  recommendedOrg: string;
-  recommendedOrgAvg?: number;
-  recommendedKMS: number;
+  recommendedOrgs: Array<{orgName: string, orgAvg: number, kms: number}>;
   currentOrganization: string;
   selectedOrgAvg: number;
   expectedKMS: number;
@@ -22,9 +20,7 @@ export default function WorkerDetailsModal({
   workerName,
   dayDate,
   avgContacts,
-  recommendedOrg,
-  recommendedOrgAvg,
-  recommendedKMS,
+  recommendedOrgs,
   currentOrganization,
   selectedOrgAvg,
   expectedKMS,
@@ -65,28 +61,37 @@ export default function WorkerDetailsModal({
             </div>
           </div>
 
-          {/* Рекомендация */}
-          {recommendedOrg && (
+          {/* ТОП-3 Рекомендации */}
+          {recommendedOrgs.length > 0 && (
             <div className="bg-cyan-900/20 rounded-lg p-4 border border-cyan-700/50">
               <h3 className="text-sm font-semibold text-cyan-300 mb-3 flex items-center gap-2">
                 <Icon name="Lightbulb" size={16} />
-                Рекомендуемая организация
+                ТОП-3 Рекомендуемых организаций
               </h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-semibold text-cyan-200">{recommendedOrg}</span>
-                  {recommendedOrgAvg !== undefined && recommendedOrgAvg > 0 && (
-                    <span className="text-sm text-cyan-400 bg-cyan-900/30 px-2 py-1 rounded">
-                      ~{recommendedOrgAvg.toFixed(1)} контактов
-                    </span>
-                  )}
-                </div>
-                {recommendedKMS > 0 && (
-                  <div className="flex justify-between items-center pt-2 border-t border-cyan-700/30">
-                    <span className="text-sm text-cyan-300">Рекомендуемый доход КМС/КВВ:</span>
-                    <span className="text-lg font-bold text-cyan-400">~{recommendedKMS} ₽</span>
+                {recommendedOrgs.map((rec, index) => (
+                  <div key={rec.orgName} className={`p-3 rounded-lg border ${
+                    index === 0 ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-cyan-700/30 bg-slate-800/30'
+                  }`}>
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                          index === 0 ? 'bg-cyan-500 text-white' : 'bg-cyan-700/50 text-cyan-300'
+                        }`}>
+                          #{index + 1}
+                        </span>
+                        <span className="text-base font-semibold text-cyan-200">{rec.orgName}</span>
+                      </div>
+                      <span className="text-sm text-cyan-400 bg-cyan-900/30 px-2 py-1 rounded">
+                        ~{rec.orgAvg.toFixed(1)} контактов
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-cyan-700/30">
+                      <span className="text-sm text-cyan-300">Ожидаемый доход КМС/КВВ:</span>
+                      <span className="text-lg font-bold text-cyan-400">~{rec.kms} ₽</span>
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
             </div>
           )}
@@ -115,17 +120,17 @@ export default function WorkerDetailsModal({
             </div>
           )}
 
-          {/* Разница с рекомендацией */}
-          {recommendedKMS > 0 && expectedKMS > 0 && currentOrganization && (
+          {/* Разница с лучшей рекомендацией */}
+          {recommendedOrgs.length > 0 && expectedKMS > 0 && currentOrganization && (
             <div className={`rounded-lg p-4 border ${kmsDifference >= 0 ? 'bg-green-900/20 border-green-700/50' : 'bg-red-900/20 border-red-700/50'}`}>
               <h3 className={`text-sm font-semibold mb-3 flex items-center gap-2 ${kmsDifference >= 0 ? 'text-green-300' : 'text-red-300'}`}>
                 <Icon name={kmsDifference >= 0 ? 'TrendingUp' : 'TrendingDown'} size={16} />
-                Разница с рекомендацией
+                Разница с лучшей рекомендацией
               </h3>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className={`text-sm ${kmsDifference >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                    {kmsDifference >= 0 ? 'Выбрано лучше на:' : 'Рекомендация была бы лучше на:'}
+                    {kmsDifference >= 0 ? 'Выбрано лучше на:' : 'Лучшая рекомендация была бы лучше на:'}
                   </span>
                   <div className="text-right">
                     <span className={`text-xl font-bold ${kmsDifference >= 0 ? 'text-green-400' : 'text-red-400'}`}>

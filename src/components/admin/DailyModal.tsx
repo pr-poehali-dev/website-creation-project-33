@@ -32,6 +32,7 @@ export default function DailyModal({
   const [comments, setComments] = React.useState<Record<string, {location?: string, flyers?: string}>>({});
   const [savingComment, setSavingComment] = React.useState<string | null>(null);
   const [leadsModalUser, setLeadsModalUser] = React.useState<string | null>(null);
+  const [selectedOrganization, setSelectedOrganization] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (selectedDate) {
@@ -172,12 +173,16 @@ export default function DailyModal({
                     </div>
                     <div className="space-y-2">
                       {orgList.map((org) => (
-                        <div key={org.name} className="bg-slate-900 border border-slate-700 rounded-lg p-2 sm:p-3 shadow-sm">
+                        <div 
+                          key={org.name} 
+                          className="bg-slate-900 border border-slate-700 rounded-lg p-2 sm:p-3 shadow-sm hover:bg-slate-800 hover:border-cyan-500/50 transition-all cursor-pointer"
+                          onClick={() => setSelectedOrganization(org.name)}
+                        >
                           <div className="flex items-center justify-between gap-2">
                             <div className="font-medium text-slate-100 text-xs sm:text-sm truncate flex-1">
                               {org.name}
                             </div>
-                            <div className="flex gap-2 sm:gap-3 flex-shrink-0">
+                            <div className="flex gap-2 sm:gap-3 flex-shrink-0 items-center">
                               <div className="text-center">
                                 <div className="text-xs sm:text-sm font-bold text-green-400">{org.contacts}</div>
                                 <div className="text-[9px] sm:text-[10px] text-slate-400">контакты</div>
@@ -186,6 +191,7 @@ export default function DailyModal({
                                 <div className="text-xs sm:text-sm font-bold text-orange-400">{org.approaches}</div>
                                 <div className="text-[9px] sm:text-[10px] text-slate-400">подходы</div>
                               </div>
+                              <Icon name="ChevronRight" size={16} className="text-slate-400" />
                             </div>
                           </div>
                         </div>
@@ -361,6 +367,77 @@ export default function DailyModal({
           )}
         </div>
       </div>
+
+      {selectedOrganization && (
+        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 z-[60]" onClick={() => setSelectedOrganization(null)}>
+          <div className="bg-slate-900 rounded-xl max-w-lg w-full max-h-[80vh] overflow-hidden shadow-2xl border-2 border-slate-700" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg font-bold text-slate-100 truncate">
+                    {selectedOrganization}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Промоутеры за {new Intl.DateTimeFormat('ru-RU', {
+                      day: 'numeric',
+                      month: 'long',
+                      timeZone: 'Europe/Moscow'
+                    }).format(new Date(selectedDate))}
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setSelectedOrganization(null)}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-slate-700 text-slate-300 flex-shrink-0"
+                >
+                  <Icon name="X" size={16} />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="p-4 overflow-y-auto max-h-[calc(80vh-80px)]">
+              <div className="space-y-2">
+                {dailyUserStats
+                  .filter(user => 
+                    user.organizations?.some(org => org.name === selectedOrganization)
+                  )
+                  .map((user, index) => {
+                    const orgData = user.organizations?.find(org => org.name === selectedOrganization);
+                    if (!orgData) return null;
+                    
+                    return (
+                      <div key={user.email} className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500/20 border-2 border-cyan-500/30 flex items-center justify-center">
+                              <span className="text-cyan-400 font-bold text-sm">{index + 1}</span>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-slate-100 text-sm truncate">
+                                {user.name}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-3 flex-shrink-0">
+                            <div className="text-center">
+                              <div className="text-sm font-bold text-green-400">{orgData.contacts}</div>
+                              <div className="text-[10px] text-slate-400">контакты</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-sm font-bold text-orange-400">{orgData.approaches}</div>
+                              <div className="text-[10px] text-slate-400">подходы</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {leadsModalUser && (
         <div 

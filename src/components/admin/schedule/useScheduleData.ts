@@ -294,8 +294,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     const totalOrgUsageThisWeek: Record<string, number> = {};
     
     // Временные переменные для текущего дня
-    const tempCurrentDayOrgs: Record<string, number> | null = null;
-    const tempCurrentDayOrgsAdded = false;
+    let tempCurrentDayOrgs: Record<string, number> | null = null;
+    let tempCurrentDayOrgsAdded = false;
     
     // Проходим по дням ПОСЛЕДОВАТЕЛЬНО
     weekDays.forEach(day => {

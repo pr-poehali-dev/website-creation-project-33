@@ -47,6 +47,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT DISTINCT name 
                     FROM t_p24058207_website_creation_pro.organizations 
                     WHERE name IS NOT NULL AND name != ''
+                      AND name NOT IN ('Администратор', 'Корректировка', 'Корректировка (безнал)', 
+                                       'Корректировка (нал)', 'Удалить', 'KIBERONE', 'балет')
                     ORDER BY name
                 """)
                 

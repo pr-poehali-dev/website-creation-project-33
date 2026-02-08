@@ -123,8 +123,6 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       setActualStats(statsByDate);
       
       // Сохраняем в кэш
-      const dates = weekDays.map(d => d.date);
-      const cacheKey = `actual-stats-${dates.join('-')}`;
       localStorage.setItem(cacheKey, JSON.stringify(statsByDate));
       localStorage.setItem(`${cacheKey}-time`, Date.now().toString());
       

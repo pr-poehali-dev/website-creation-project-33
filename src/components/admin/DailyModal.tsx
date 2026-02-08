@@ -147,34 +147,10 @@ export default function DailyModal({
               <span className="text-sm sm:text-base">Загрузка статистики...</span>
             </div>
           ) : dailyUserStats.length > 0 ? (
-            <div className="space-y-4 sm:space-y-5">
-              <OrganizationsStatsSection 
-                dailyUserStats={dailyUserStats}
-                onOrganizationClick={setSelectedOrganization}
-              />
-
-              <div className="space-y-3 sm:space-y-4">
-                <div className="text-sm sm:text-base md:text-lg font-bold text-slate-100 mb-2 sm:mb-3 flex items-center gap-2">
-                  <Icon name="Users" size={20} className="text-cyan-400" />
-                  Сводка по промоутерам
-                </div>
-                {dailyUserStats.map((user, index) => (
-                  <PromoterCard
-                    key={user.email}
-                    user={user}
-                    index={index}
-                    isExpanded={expandedUser === user.name}
-                    comments={comments}
-                    savingComment={savingComment}
-                    userLeads={getUserLeads(user.name)}
-                    onToggle={toggleUser}
-                    onCommentChange={handleCommentChange}
-                    onCommentBlur={saveComment}
-                    onExpandLeads={setLeadsModalUser}
-                  />
-                ))}
-              </div>
-            </div>
+            <OrganizationsStatsSection 
+              dailyUserStats={dailyUserStats}
+              onOrganizationClick={setSelectedOrganization}
+            />
           ) : (
             <div className="text-center text-slate-300 py-8">
               <Icon name="Users" size={32} className="mx-auto mb-3 opacity-60 text-slate-500" />

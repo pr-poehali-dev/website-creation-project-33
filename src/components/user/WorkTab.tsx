@@ -29,7 +29,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [endShiftPhotoOpen, setEndShiftPhotoOpen] = useState(false);
-  const [dayResultsOpen, setDayResultsOpen] = useState(false);
   const [notebookModalOpen, setNotebookModalOpen] = useState(false);
   const [blockedUserModalOpen, setBlockedUserModalOpen] = useState(false);
   const [qrModalOpen, setQrModalOpen] = useState(false);
@@ -238,52 +237,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     }
   };
 
-  const handleEndShift = async (photoUrl: string) => {
-    console.log('📸 Ending shift with photo:', photoUrl);
-    
-    if (!selectedOrganizationId || !user) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось определить организацию или пользователя',
-        variant: 'destructive'
-      });
-      return;
-    }
 
-    try {
-      const response = await fetch('https://functions.poehali.dev/cc46a2e1-ed85-4c98-a16a-7513fa07bed2', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString(),
-        },
-        body: JSON.stringify({
-          organization_id: selectedOrganizationId,
-          photo_url: photoUrl,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to end shift');
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['today-contacts-count'] });
-
-      toast({
-        title: 'Смена завершена!',
-        description: 'Спасибо за работу. Отдохните хорошо!'
-      });
-
-      onShiftEnd?.();
-    } catch (error) {
-      console.error('End shift error:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось завершить смену. Попробуйте снова.',
-        variant: 'destructive'
-      });
-    }
-  };
 
   if (!selectedOrganizationId) {
     return (
@@ -366,11 +320,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       <EndShiftSection
         endShiftPhotoOpen={endShiftPhotoOpen}
         setEndShiftPhotoOpen={setEndShiftPhotoOpen}
-        dayResultsOpen={dayResultsOpen}
-        setDayResultsOpen={setDayResultsOpen}
-        onEndShift={handleEndShift}
         onShiftEnd={onShiftEnd}
-        todayContactsCount={todayContactsCount}
         organizationId={selectedOrganizationId}
       />
 

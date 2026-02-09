@@ -1,28 +1,17 @@
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import PhotoCapture from './PhotoCapture';
-import DayResultsDialog from './DayResultsDialog';
 
 interface EndShiftSectionProps {
   endShiftPhotoOpen: boolean;
   setEndShiftPhotoOpen: (open: boolean) => void;
-  dayResultsOpen: boolean;
-  setDayResultsOpen: (open: boolean) => void;
-  onEndShift: (photoUrl: string) => Promise<void>;
   onShiftEnd?: () => void;
-  todayContactsCount: number;
   organizationId: number | null;
 }
 
 export default function EndShiftSection({
   endShiftPhotoOpen,
   setEndShiftPhotoOpen,
-  dayResultsOpen,
-  setDayResultsOpen,
-  onEndShift,
   onShiftEnd,
-  todayContactsCount,
   organizationId
 }: EndShiftSectionProps) {
   return (
@@ -50,41 +39,12 @@ export default function EndShiftSection({
           type="end"
           organizationId={organizationId}
           onSuccess={(contactsCount) => {
-            setDayResultsOpen(true);
+            onShiftEnd?.();
           }}
         />
       )}
 
-      <DayResultsDialog
-        open={dayResultsOpen}
-        onClose={() => setDayResultsOpen(false)}
-        contactsCount={todayContactsCount}
-        onShiftEnd={onShiftEnd}
-      />
 
-      <Dialog open={false} onOpenChange={() => {}}>
-        <DialogContent className="max-w-md bg-white !border-0 shadow-2xl rounded-2xl p-6">
-          <div className="space-y-4">
-            <div className="flex justify-center">
-              <div className="p-4 rounded-full bg-red-100">
-                <Icon name="AlertCircle" size={48} className="text-red-600" />
-              </div>
-            </div>
-            <h3 className="text-xl font-bold text-center text-gray-900">Доступ ограничен</h3>
-            <p className="text-center text-gray-600">
-              Для получения доступа к этой функции свяжитесь с Максимом
-            </p>
-          </div>
-          <DialogFooter>
-            <Button
-              onClick={() => {}}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium"
-            >
-              Понятно
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

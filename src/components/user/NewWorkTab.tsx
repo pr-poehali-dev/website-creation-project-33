@@ -12,9 +12,6 @@ export default function NewWorkTab() {
 
   const startRecording = async () => {
     try {
-      // Сразу открываем модалку
-      setModalOpen(true);
-      
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' }, // Задняя камера
         audio: true // Со звуком
@@ -46,6 +43,9 @@ export default function NewWorkTab() {
         
         // Останавливаем камеру
         stream.getTracks().forEach(track => track.stop());
+        
+        // Открываем модалку только после остановки
+        setModalOpen(true);
       };
 
       mediaRecorder.start();
@@ -53,7 +53,6 @@ export default function NewWorkTab() {
     } catch (error) {
       console.error('Ошибка доступа к камере:', error);
       alert('Не удалось получить доступ к камере. Проверьте разрешения.');
-      setModalOpen(false);
     }
   };
 
@@ -67,15 +66,35 @@ export default function NewWorkTab() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-4">
       <div className="flex items-center justify-center min-h-[80vh]">
-        <Button
-          onClick={startRecording}
-          className="w-48 h-48 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-2xl transform transition-all hover:scale-105 active:scale-95"
-        >
-          <div className="flex flex-col items-center gap-3">
-            <Icon name="Video" size={64} className="text-white" />
-            <span className="text-xl font-bold text-white">Начать запись</span>
+        {!isRecording ? (
+          <Button
+            onClick={startRecording}
+            className="w-48 h-48 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-2xl transform transition-all hover:scale-105 active:scale-95"
+          >
+            <div className="flex flex-col items-center gap-3">
+              <Icon name="Video" size={64} className="text-white" />
+              <span className="text-xl font-bold text-white">Начать запись</span>
+            </div>
+          </Button>
+        ) : (
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-red-500 animate-pulse flex items-center justify-center">
+                <Icon name="Video" size={48} className="text-white" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full animate-ping" />
+            </div>
+            <p className="text-2xl font-bold text-gray-800">Идёт запись...</p>
+            <Button
+              onClick={stopRecording}
+              size="lg"
+              className="bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg"
+            >
+              <Icon name="Square" size={24} className="mr-2" />
+              Остановить запись
+            </Button>
           </div>
-        </Button>
+        )}
       </div>
 
       <VideoLeadModal
@@ -83,13 +102,9 @@ export default function NewWorkTab() {
         onClose={() => {
           setModalOpen(false);
           setVideoBlob(null);
-          if (isRecording) {
-            stopRecording();
-          }
         }}
         videoBlob={videoBlob}
-        isRecording={isRecording}
-        onStopRecording={stopRecording}
+        isRecording={false}
       />
     </div>
   );

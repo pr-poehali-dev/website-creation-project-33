@@ -97,26 +97,6 @@ export default function VideoLeadModal({ open, onClose, videoBlob, isRecording =
           />
         </div>
 
-        {isRecording && (
-          <div className="flex flex-col items-center gap-4 py-4">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-full bg-red-500 animate-pulse flex items-center justify-center">
-                <Icon name="Video" size={32} className="text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-ping" />
-            </div>
-            <p className="text-lg font-bold text-red-600">Идет запись видео...</p>
-            <Button
-              onClick={onStopRecording}
-              variant="destructive"
-              size="lg"
-            >
-              <Icon name="Square" size={20} className="mr-2" />
-              Остановить запись
-            </Button>
-          </div>
-        )}
-
         <div className="space-y-4">
           <div>
             <Label htmlFor="parent" className="text-gray-700">Имя родителя</Label>
@@ -126,7 +106,6 @@ export default function VideoLeadModal({ open, onClose, videoBlob, isRecording =
               onChange={(e) => setParentName(e.target.value)}
               placeholder="Введите имя родителя"
               className="mt-1"
-              disabled={isRecording}
             />
           </div>
 
@@ -138,7 +117,6 @@ export default function VideoLeadModal({ open, onClose, videoBlob, isRecording =
               onChange={(e) => setChildName(e.target.value)}
               placeholder="Введите имя ребенка"
               className="mt-1"
-              disabled={isRecording}
             />
           </div>
 
@@ -151,40 +129,37 @@ export default function VideoLeadModal({ open, onClose, videoBlob, isRecording =
               onChange={(e) => setChildAge(e.target.value)}
               placeholder="Введите возраст"
               className="mt-1"
-              disabled={isRecording}
             />
           </div>
 
-          {!isRecording && (
-            <div className="flex gap-3 pt-4">
-              <Button
-                onClick={handleSend}
-                disabled={sending}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                {sending ? (
-                  <>
-                    <Icon name="Loader2" size={20} className="mr-2 animate-spin" />
-                    Отправка...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="Send" size={20} className="mr-2" />
-                    Отправить в Telegram
-                  </>
-                )}
-              </Button>
+          <div className="flex gap-3 pt-4">
+            <Button
+              onClick={handleSend}
+              disabled={sending}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {sending ? (
+                <>
+                  <Icon name="Loader2" size={20} className="mr-2 animate-spin" />
+                  Отправка...
+                </>
+              ) : (
+                <>
+                  <Icon name="Send" size={20} className="mr-2" />
+                  Отправить в Telegram
+                </>
+              )}
+            </Button>
 
-              <Button
-                onClick={handleCancel}
-                variant="outline"
-                disabled={sending}
-                className="flex-1"
-              >
-                Отмена
-              </Button>
-            </div>
-          )}
+            <Button
+              onClick={handleCancel}
+              variant="outline"
+              disabled={sending}
+              className="flex-1"
+            >
+              Отмена
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

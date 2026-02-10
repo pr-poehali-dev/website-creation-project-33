@@ -1,8 +1,10 @@
 import json
-import os
 import base64
 import urllib.request
 import urllib.parse
+
+TELEGRAM_TOKEN = "8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc"
+USER_ID = "5215501225"
 
 def handler(event: dict, context) -> dict:
     """Отправляет аудио-лид в Telegram"""
@@ -22,16 +24,6 @@ def handler(event: dict, context) -> dict:
         }
     
     try:
-        telegram_token = os.environ.get('TELEGRAM_BOT_TOKEN')
-        chat_id = os.environ.get('TELEGRAM_CHAT_ID')
-        
-        if not telegram_token or not chat_id:
-            return {
-                'statusCode': 500,
-                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({'error': 'Telegram credentials not configured'}),
-                'isBase64Encoded': False
-            }
         
         body = event.get('body', '{}')
         data = json.loads(body)
@@ -59,7 +51,7 @@ def handler(event: dict, context) -> dict:
         body_parts = []
         
         # Добавляем chat_id
-        body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="chat_id"\r\n\r\n{chat_id}\r\n')
+        body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="chat_id"\r\n\r\n{USER_ID}\r\n')
         
         # Добавляем caption
         body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="caption"\r\n\r\n{caption}\r\n')
@@ -70,7 +62,7 @@ def handler(event: dict, context) -> dict:
         body_bytes = ''.join(body_parts).encode('utf-8') + audio_data + f'\r\n--{boundary}--\r\n'.encode('utf-8')
         
         # Отправляем в Telegram
-        url = f"https://api.telegram.org/bot{telegram_token}/sendVoice"
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVoice"
         req = urllib.request.Request(url, data=body_bytes, method='POST')
         req.add_header('Content-Type', f'multipart/form-data; boundary={boundary}')
         

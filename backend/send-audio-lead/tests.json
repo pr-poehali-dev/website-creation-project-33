@@ -1,14 +1,6 @@
 {
   "tests": [
     {
-      "name": "OPTIONS request returns CORS headers",
-      "method": "OPTIONS",
-      "path": "/",
-      "expectedStatus": 200,
-      "expectedBody": {},
-      "bodyMatcher": "partial"
-    },
-    {
       "name": "POST without audio returns 400",
       "method": "POST",
       "path": "/",

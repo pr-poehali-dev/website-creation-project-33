@@ -183,7 +183,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         reader.readAsDataURL(finalAudioBlob);
       });
 
-      const response = await fetch('https://functions.poehali.dev/ecd9eaa3-7399-4f8b-8219-529b81f87b6a', {
+      const response = await fetch('https://functions.poehali.dev/347ff9ef-ae96-46fb-87df-2eaae7c2a7bf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

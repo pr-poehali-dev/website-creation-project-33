@@ -1,4 +1,5 @@
 {
+  "send-audio-lead": "https://functions.poehali.dev/347ff9ef-ae96-46fb-87df-2eaae7c2a7bf",
   "telegram-setup": "https://functions.poehali.dev/147d0398-6403-42c1-ba20-e559ce30ff28",
   "telegram-bot": "https://functions.poehali.dev/3866e45c-8059-4370-ba27-042c0eac094d",
   "logout-user": "https://functions.poehali.dev/4fd575d9-3eab-46f6-8648-120ba9fb667d",

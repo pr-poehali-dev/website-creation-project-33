@@ -1,0 +1,1 @@
+UPDATE t_p24058207_website_creation_pro.accounting_expenses SET invoice_issued_date = '2026-01-24' WHERE id = 1498 AND invoice_issued_date = '22026-01-24';

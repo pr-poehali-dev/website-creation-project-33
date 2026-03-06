@@ -124,7 +124,7 @@ export default function UserHeader({
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden md:flex justify-center items-center mb-8 bg-green-800 border-2 border-pink-300/60 p-6 rounded-2xl relative overflow-hidden shadow-xl">
+      <div className="hidden md:flex justify-center items-center mb-8 bg-green-800 border-2 border-pink-300/60 p-10 rounded-2xl relative overflow-hidden shadow-xl min-h-[120px]">
         <div className="absolute inset-0 z-0">
           <img 
             src="https://cdn.poehali.dev/projects/84906f5f-7ef4-49e5-9a56-bd61e788e7bd/files/5ec1d6ec-8fb2-46f5-b8cf-c5cf727a7309.jpg" 
@@ -134,8 +134,8 @@ export default function UserHeader({
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-pink-200/20 to-green-900/50" />
         <div className="flex flex-col absolute left-6 z-10">
-          <span className="text-3xl font-bold text-white drop-shadow-2xl tracking-widest leading-tight">ИМПЕРИЯ</span>
-          <span className="text-sm text-white/85 drop-shadow leading-tight">рекламное агентство</span>
+          <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-widest leading-tight">ИМПЕРИЯ</span>
+          <span className="text-base text-white/85 drop-shadow leading-tight tracking-wide">рекламное агентство</span>
         </div>
         <div className="flex items-center gap-3 absolute right-6 z-10">
           {selectedOrganization && (

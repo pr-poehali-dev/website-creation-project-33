@@ -124,27 +124,55 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
       }
 
       const UPLOAD_URL = 'https://functions.poehali.dev/80ebc7f0-e4d8-4018-b8a8-477db92ac225';
+      const CHUNK_SIZE = 1 * 1024 * 1024; // 1 МБ на чанк
+      const upload_id = crypto.randomUUID();
+      const totalSize = finalBlob.size;
+      const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
 
-      // Шаг 1: получаем presigned URL для прямой загрузки в S3
-      setStatusText('Подготавливаю хранилище...');
-      const presignResp = await fetch(UPLOAD_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-User-Id': user?.id?.toString() || '' },
-        body: JSON.stringify({ get_presigned: true, mimeType }),
-      });
-      if (!presignResp.ok) throw new Error('Ошибка получения URL');
-      const { upload_url, video_key, meta_key } = await presignResp.json();
+      // Загружаем видео чанками по 1 МБ через base64
+      let video_key = '';
+      let meta_key = '';
 
-      // Шаг 2: загружаем видео бинарно напрямую в S3 (без base64!)
-      setStatusText(`Загружаю видео (${(finalBlob.size / 1024 / 1024).toFixed(1)} МБ)...`);
-      const s3Resp = await fetch(upload_url, {
-        method: 'PUT',
-        headers: { 'Content-Type': mimeType },
-        body: finalBlob,
-      });
-      if (!s3Resp.ok) throw new Error('Ошибка загрузки видео');
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, totalSize);
+        const chunkBlob = finalBlob.slice(start, end);
 
-      // Шаг 3: сохраняем метаданные (маленький JSON)
+        setStatusText(`Загружаю ${i + 1}/${totalChunks} (${(totalSize / 1024 / 1024).toFixed(1)} МБ)...`);
+
+        const chunkBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            const marker = ';base64,';
+            const idx = result.indexOf(marker);
+            resolve(idx !== -1 ? result.slice(idx + marker.length) : result);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(chunkBlob);
+        });
+
+        const chunkResp = await fetch(UPLOAD_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-User-Id': user?.id?.toString() || '' },
+          body: JSON.stringify({
+            chunk_data: chunkBase64,
+            chunk_index: i,
+            total_chunks: totalChunks,
+            upload_id,
+            mimeType,
+          }),
+        });
+        if (!chunkResp.ok) throw new Error(`Ошибка чанка ${i}`);
+        const chunkResult = await chunkResp.json();
+
+        if (chunkResult.done) {
+          video_key = chunkResult.video_key;
+          meta_key = chunkResult.meta_key;
+        }
+      }
+
+      // Сохраняем метаданные
       setStatusText('Сохраняю данные анкеты...');
       const metaResp = await fetch(UPLOAD_URL, {
         method: 'POST',

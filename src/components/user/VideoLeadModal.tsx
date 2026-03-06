@@ -56,8 +56,10 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
     const videoBase64 = await new Promise<string>((resolve, reject) => {
       reader.onloadend = () => {
         const result = reader.result as string;
-        const parts = result.split(',');
-        resolve(parts.length > 1 ? parts[1] : result);
+        // data URL может содержать запятые в кодеках: data:video/webm;codecs=vp9,opus;base64,DATA
+        const marker = ';base64,';
+        const idx = result.indexOf(marker);
+        resolve(idx !== -1 ? result.slice(idx + marker.length) : result);
       };
       reader.onerror = reject;
       reader.readAsDataURL(blob);

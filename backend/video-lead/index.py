@@ -36,19 +36,20 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({'error': 'Video data missing'})
         }
 
-    # Очищаем base64
-    if ',' in video_base64:
+    # Очищаем base64: убираем data-url префикс если есть, whitespace, url-safe символы
+    if ';base64,' in video_base64:
+        video_base64 = video_base64.split(';base64,', 1)[1]
+    elif ',' in video_base64:
         video_base64 = video_base64.split(',', 1)[1]
     video_base64 = video_base64.strip().replace('\n', '').replace('\r', '').replace(' ', '')
     video_base64 = video_base64.replace('-', '+').replace('_', '/')
-    # Паддинг
     missing = len(video_base64) % 4
     if missing:
         video_base64 += '=' * (4 - missing)
     
-    print(f"[DEBUG] base64 length: {len(video_base64)}, first 50: {video_base64[:50]}, last 10: {video_base64[-10:]}")
+    print(f"[DEBUG] b64 len={len(video_base64)}, start={video_base64[:30]}")
     
-    video_bytes = base64.b64decode(video_base64, validate=False)
+    video_bytes = base64.b64decode(video_base64)
     mime_type = body.get('mimeType', 'video/webm')
 
     # Telegram лучше принимает через sendDocument если формат не mp4

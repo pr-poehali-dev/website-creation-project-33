@@ -38,11 +38,12 @@ export default function UserHeader({
         
         {selectedOrganization ? (
           <>
-            {/* With Organization Selected - Year in center, buttons on right */}
-            <div className="flex items-center justify-end relative z-10">
-              <h1 className="text-3xl font-bold text-white drop-shadow-lg absolute left-[27%] transform -translate-x-1/2">
-                2026
-              </h1>
+            {/* With Organization Selected */}
+            <div className="flex items-center justify-between relative z-10">
+              <div className="flex flex-col">
+                <span className="text-xl font-bold text-white drop-shadow-lg leading-tight tracking-wide">ИМПЕРИЯ</span>
+                <span className="text-xs text-white/80 drop-shadow leading-tight">рекламное агентство</span>
+              </div>
               <div className="flex gap-1">
                 {onChangeOrganization && (
                   <Button 

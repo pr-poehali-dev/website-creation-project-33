@@ -221,7 +221,6 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
       </form>
 
       <div className="mt-4 md:mt-6 text-center">
-        <p className="text-[#001f54] mb-2 text-sm md:text-base">Нет аккаунта?</p>
         <Button 
           variant="ghost" 
           onClick={onToggleMode}

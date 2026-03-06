@@ -149,6 +149,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         )
                         
                         if photo_type == 'start':
+                            # Проверяем: нет ли у промоутера уже открытой смены (shift_end IS NULL)
+                            cur.execute(
+                                """
+                                SELECT id, organization_id, shift_date 
+                                FROM t_p24058207_website_creation_pro.work_shifts
+                                WHERE user_id = %s 
+                                AND shift_end IS NULL
+                                """,
+                                (int(user_id),)
+                            )
+                            active_shift = cur.fetchone()
+                            
+                            if active_shift:
+                                conn.rollback()
+                                return {
+                                    'statusCode': 409,
+                                    'headers': {
+                                        'Access-Control-Allow-Origin': '*',
+                                        'Content-Type': 'application/json'
+                                    },
+                                    'isBase64Encoded': False,
+                                    'body': json.dumps({
+                                        'error': 'active_shift_exists',
+                                        'message': 'У вас уже есть открытая смена. Закройте её перед началом новой.'
+                                    })
+                                }
+
                             cur.execute(
                                 """
                                 SELECT id FROM t_p24058207_website_creation_pro.work_shifts

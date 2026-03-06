@@ -116,6 +116,17 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Ошибка отправки' }));
+        if (response.status === 409 && errorData.error === 'active_shift_exists') {
+          setIsSending(false);
+          setCapturedPhoto(null);
+          onOpenChange(false);
+          toast({
+            title: 'Смена уже открыта',
+            description: 'У вас есть незакрытая смена. Закройте её перед началом новой.',
+            variant: 'destructive',
+          });
+          return;
+        }
         throw new Error(errorData.error || 'Не удалось отправить фото');
       }
 

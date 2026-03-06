@@ -24,6 +24,7 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
   const [childAge, setChildAge] = useState('');
   const [phone, setPhone] = useState('');
   const [sending, setSending] = useState(false);
+  const [savingToStorage, setSavingToStorage] = useState(false);
   const [statusText, setStatusText] = useState('');
 
   const handleSendClick = async () => {
@@ -100,6 +101,64 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
     }
     setSending(false);
     setStatusText('');
+  };
+
+  const handleStorageClick = async () => {
+    if (!parentName || !childName || !childAge || !phone) {
+      toast({ title: 'Заполните все поля', variant: 'destructive' });
+      return;
+    }
+
+    setSavingToStorage(true);
+    setStatusText('Останавливаю запись...');
+    try {
+      let finalBlob = videoBlob;
+      if (isRecording && onStopRecording) {
+        finalBlob = await onStopRecording();
+      }
+      if (!finalBlob || finalBlob.size === 0) {
+        toast({ title: 'Нет видео для сохранения', variant: 'destructive' });
+        setSavingToStorage(false);
+        setStatusText('');
+        return;
+      }
+
+      setStatusText(`Сохраняю в хранилище (${(finalBlob.size / 1024 / 1024).toFixed(1)} МБ)...`);
+      const reader = new FileReader();
+      const videoBase64 = await new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          const marker = ';base64,';
+          const idx = result.indexOf(marker);
+          resolve(idx !== -1 ? result.slice(idx + marker.length) : result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(finalBlob!);
+      });
+
+      const resp = await fetch('https://functions.poehali.dev/80ebc7f0-e4d8-4018-b8a8-477db92ac225', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user?.id?.toString() || '',
+        },
+        body: JSON.stringify({ video: videoBase64, mimeType, parentName, childName, childAge, phone }),
+      });
+
+      if (resp.ok) {
+        toast({ title: 'Сохранено в хранилище!' });
+        resetForm();
+        onClose();
+      } else {
+        throw new Error('Ошибка сохранения');
+      }
+    } catch (e) {
+      console.error('Storage error:', e);
+      toast({ title: 'Не удалось сохранить в хранилище', variant: 'destructive' });
+    } finally {
+      setSavingToStorage(false);
+      setStatusText('');
+    }
   };
 
   const resetForm = () => {
@@ -190,30 +249,36 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
             <p className="text-sm text-blue-600 text-center animate-pulse">{statusText}</p>
           )}
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-2 pt-2">
             <Button
               onClick={handleSendClick}
-              disabled={sending}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={sending || savingToStorage}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2"
             >
               {sending ? (
-                <>
-                  <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                  Отправка...
-                </>
+                <><Icon name="Loader2" size={16} className="mr-1 animate-spin" />Отправка...</>
               ) : (
-                <>
-                  <Icon name="Send" size={18} className="mr-2" />
-                  Отправить в Telegram
-                </>
+                <><Icon name="Send" size={16} className="mr-1" />Telegram</>
+              )}
+            </Button>
+
+            <Button
+              onClick={handleStorageClick}
+              disabled={sending || savingToStorage}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-2"
+            >
+              {savingToStorage ? (
+                <><Icon name="Loader2" size={16} className="mr-1 animate-spin" />Сохранение...</>
+              ) : (
+                <><Icon name="HardDrive" size={16} className="mr-1" />Хранилище</>
               )}
             </Button>
 
             <Button
               onClick={handleCancel}
               variant="outline"
-              disabled={sending}
-              className="flex-1"
+              disabled={sending || savingToStorage}
+              className="flex-1 text-xs px-2"
             >
               Отмена
             </Button>

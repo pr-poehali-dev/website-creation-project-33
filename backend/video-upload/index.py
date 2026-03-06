@@ -4,9 +4,10 @@ import uuid
 import base64
 import boto3
 from botocore.config import Config
+from datetime import datetime
 
 def handler(event: dict, context) -> dict:
-    """Принимает видео как base64, сохраняет в S3, возвращает s3_key"""
+    """Принимает видео как base64 + данные анкеты, сохраняет в S3"""
 
     if event.get('httpMethod') == 'OPTIONS':
         return {
@@ -23,6 +24,11 @@ def handler(event: dict, context) -> dict:
     body = json.loads(event.get('body', '{}'))
     video_b64 = body.get('video', '')
     mime_type = body.get('mimeType', 'video/webm')
+    parent_name = body.get('parentName', '').strip()
+    child_name = body.get('childName', '').strip()
+    child_age = body.get('childAge', '').strip()
+    phone = body.get('phone', '').strip()
+    user_id = event.get('headers', {}).get('X-User-Id', '')
 
     if not video_b64:
         return {
@@ -46,7 +52,10 @@ def handler(event: dict, context) -> dict:
     print(f"[INFO] Video size: {len(video_bytes)} bytes, mime: {mime_type}")
 
     ext = 'mp4' if 'mp4' in mime_type else 'webm'
-    key = f'video-leads/{uuid.uuid4()}.{ext}'
+    lead_id = str(uuid.uuid4())
+    timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S')
+    video_key = f'video-leads/{timestamp}_{lead_id}.{ext}'
+    meta_key = f'video-leads/{timestamp}_{lead_id}.json'
 
     s3 = boto3.client(
         's3',
@@ -56,12 +65,34 @@ def handler(event: dict, context) -> dict:
         config=Config(signature_version='s3v4')
     )
 
+    # Сохраняем видео
     s3.put_object(
         Bucket='files',
-        Key=key,
+        Key=video_key,
         Body=video_bytes,
         ContentType=mime_type
     )
+
+    # Сохраняем данные анкеты рядом с видео
+    meta = {
+        'lead_id': lead_id,
+        'timestamp': timestamp,
+        'parentName': parent_name,
+        'childName': child_name,
+        'childAge': child_age,
+        'phone': phone,
+        'userId': user_id,
+        'videoKey': video_key,
+        'mimeType': mime_type
+    }
+    s3.put_object(
+        Bucket='files',
+        Key=meta_key,
+        Body=json.dumps(meta, ensure_ascii=False).encode('utf-8'),
+        ContentType='application/json'
+    )
+
+    cdn_base = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket"
 
     return {
         'statusCode': 200,
@@ -69,5 +100,9 @@ def handler(event: dict, context) -> dict:
             'Access-Control-Allow-Origin': '*',
             'Content-Type': 'application/json'
         },
-        'body': json.dumps({'s3_key': key})
+        'body': json.dumps({
+            's3_key': video_key,
+            'video_url': f"{cdn_base}/{video_key}",
+            'meta_url': f"{cdn_base}/{meta_key}"
+        })
     }

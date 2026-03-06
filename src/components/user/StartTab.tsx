@@ -106,7 +106,6 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-white/5 to-green-900/40" />
 
         <CardHeader className="text-center relative z-10 pt-8 pb-2">
-          <p className="text-white text-lg font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Выберите организацию для работы</p>
         </CardHeader>
 
         <CardContent className="space-y-6 relative z-10 pb-8">
@@ -121,7 +120,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                 <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-800" />
                 <Input
                   type="text"
-                  placeholder="Поиск организации..."
+                  placeholder="Выберите организацию для работы..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 bg-white/50 backdrop-blur-md border-pink-300/60 text-gray-900 placeholder:text-gray-700/70 focus:border-pink-400 focus:ring-pink-300/30 shadow-lg"

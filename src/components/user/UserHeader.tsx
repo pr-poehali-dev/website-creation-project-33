@@ -88,11 +88,12 @@ export default function UserHeader({
             </>
           ) : (
             <>
-              {/* Without Organization - Centered Title and Buttons */}
-              <div className="flex flex-col items-center gap-3 relative z-10">
-                <h1 className="text-xl font-bold text-white drop-shadow-lg">
-                  🌸 С наступлением весны! 🌿
-                </h1>
+              {/* Without Organization - Logo left, Buttons right */}
+              <div className="flex items-center justify-between w-full relative z-10">
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold text-white drop-shadow-lg leading-tight tracking-wide">ИМПЕРИЯ</span>
+                  <span className="text-xs text-white/80 drop-shadow leading-tight">рекламное агентство</span>
+                </div>
                 <div className="flex gap-2">
                   <Button 
                     onClick={onOpenAI} 
@@ -132,9 +133,10 @@ export default function UserHeader({
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-pink-200/20 to-green-900/50" />
-        <h1 className="text-4xl font-bold text-white relative z-10 drop-shadow-2xl">
-          🌸 С наступлением весны! 🌿
-        </h1>
+        <div className="flex flex-col absolute left-6 z-10">
+          <span className="text-3xl font-bold text-white drop-shadow-2xl tracking-widest leading-tight">ИМПЕРИЯ</span>
+          <span className="text-sm text-white/85 drop-shadow leading-tight">рекламное агентство</span>
+        </div>
         <div className="flex items-center gap-3 absolute right-6 z-10">
           {selectedOrganization && (
             <>

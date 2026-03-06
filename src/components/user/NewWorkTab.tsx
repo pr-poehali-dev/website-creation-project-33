@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/hooks/use-toast';
 import VideoLeadModal from './VideoLeadModal';
 
 export default function NewWorkTab() {
@@ -9,7 +8,8 @@ export default function NewWorkTab() {
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
   const [mimeType, setMimeType] = useState('video/webm');
   const [modalOpen, setModalOpen] = useState(false);
-  const [permissionError, setPermissionError] = useState('');
+  const [statusMsg, setStatusMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
@@ -27,99 +27,102 @@ export default function NewWorkTab() {
     return '';
   };
 
-  const requestPermissions = async () => {
-    setPermissionError('');
+  const startRecordingWithStream = (stream: MediaStream) => {
+    streamRef.current = stream;
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setPermissionError('Ваш браузер не поддерживает запись видео. Откройте в Chrome.');
+    const detectedMime = getSupportedMimeType();
+    const mediaRecorder = detectedMime
+      ? new MediaRecorder(stream, { mimeType: detectedMime })
+      : new MediaRecorder(stream);
+
+    const actualMime = detectedMime || 'video/webm';
+    setMimeType(actualMime);
+    mediaRecorderRef.current = mediaRecorder;
+    videoChunksRef.current = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) videoChunksRef.current.push(event.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(videoChunksRef.current, { type: actualMime });
+      setVideoBlob(blob);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+    };
+
+    mediaRecorder.start(1000);
+    setIsRecording(true);
+    setModalOpen(true);
+    setStatusMsg('');
+    setErrorMsg('');
+  };
+
+  const handleStart = async () => {
+    setErrorMsg('');
+    setStatusMsg('Запрашиваю доступ к камере и микрофону...');
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setErrorMsg('Браузер не поддерживает камеру. Откройте страницу в Google Chrome.');
+      setStatusMsg('');
       return;
     }
 
+    // Попытка 1: задняя камера + микрофон
     try {
+      setStatusMsg('Подключаю камеру и микрофон...');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: 'environment' } },
         audio: true
       });
-
-      streamRef.current = stream;
-
-      const detectedMime = getSupportedMimeType();
-      const mediaRecorder = detectedMime
-        ? new MediaRecorder(stream, { mimeType: detectedMime })
-        : new MediaRecorder(stream);
-
-      const actualMime = detectedMime || 'video/webm';
-      setMimeType(actualMime);
-      mediaRecorderRef.current = mediaRecorder;
-      videoChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) videoChunksRef.current.push(event.data);
-      };
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(videoChunksRef.current, { type: actualMime });
-        setVideoBlob(blob);
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop());
-          streamRef.current = null;
-        }
-      };
-
-      mediaRecorder.start(1000);
-      setIsRecording(true);
-      setModalOpen(true);
-    } catch (err: unknown) {
-      console.error('Camera/mic error:', err);
-      const error = err as { name?: string };
-
-      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-        setPermissionError('Доступ к камере и микрофону запрещён. Разрешите доступ в настройках браузера и обновите страницу.');
-      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-        setPermissionError('Камера или микрофон не найдены на устройстве.');
-      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-        setPermissionError('Камера занята другим приложением. Закройте его и попробуйте снова.');
-      } else if (error.name === 'OverconstrainedError') {
-        try {
-          const fallbackStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true
-          });
-          streamRef.current = fallbackStream;
-          const detectedMime = getSupportedMimeType();
-          const recorder = detectedMime
-            ? new MediaRecorder(fallbackStream, { mimeType: detectedMime })
-            : new MediaRecorder(fallbackStream);
-
-          const actualMime = detectedMime || 'video/webm';
-          setMimeType(actualMime);
-          mediaRecorderRef.current = recorder;
-          videoChunksRef.current = [];
-
-          recorder.ondataavailable = (event) => {
-            if (event.data.size > 0) videoChunksRef.current.push(event.data);
-          };
-          recorder.onstop = () => {
-            const blob = new Blob(videoChunksRef.current, { type: actualMime });
-            setVideoBlob(blob);
-            if (streamRef.current) {
-              streamRef.current.getTracks().forEach(track => track.stop());
-              streamRef.current = null;
-            }
-          };
-
-          recorder.start(1000);
-          setIsRecording(true);
-          setModalOpen(true);
-          return;
-        } catch {
-          setPermissionError('Не удалось запустить камеру.');
-        }
-      } else {
-        setPermissionError('Не удалось получить доступ к камере. Попробуйте обновить страницу.');
-      }
-      toast({ title: 'Ошибка камеры', description: permissionError || 'Проверьте разрешения', variant: 'destructive' });
+      startRecordingWithStream(stream);
+      return;
+    } catch (e1) {
+      console.log('Attempt 1 failed:', (e1 as Error).name, (e1 as Error).message);
     }
+
+    // Попытка 2: любая камера + микрофон
+    try {
+      setStatusMsg('Пробую другую камеру...');
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      });
+      startRecordingWithStream(stream);
+      return;
+    } catch (e2) {
+      console.log('Attempt 2 failed:', (e2 as Error).name, (e2 as Error).message);
+    }
+
+    // Попытка 3: только камера без микрофона
+    try {
+      setStatusMsg('Пробую без микрофона...');
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false
+      });
+      startRecordingWithStream(stream);
+      return;
+    } catch (e3) {
+      const err = e3 as Error & { name: string };
+      console.error('All attempts failed:', err.name, err.message);
+
+      if (err.name === 'NotAllowedError') {
+        setErrorMsg(
+          'Доступ запрещён. Нажмите на значок замка (🔒) слева от адреса сайта → разрешите камеру и микрофон → обновите страницу.'
+        );
+      } else if (err.name === 'NotFoundError') {
+        setErrorMsg('Камера или микрофон не найдены на устройстве.');
+      } else if (err.name === 'NotReadableError') {
+        setErrorMsg('Камера используется другим приложением. Закройте его и попробуйте снова.');
+      } else {
+        setErrorMsg(`Ошибка: ${err.name} — ${err.message}. Попробуйте открыть в Google Chrome.`);
+      }
+    }
+
+    setStatusMsg('');
   };
 
   const stopRecording = () => {
@@ -144,17 +147,21 @@ export default function NewWorkTab() {
     <div className="bg-white min-h-screen p-4">
       <div className="flex flex-col items-center pt-6 gap-4">
         <Button
-          onClick={requestPermissions}
+          onClick={handleStart}
           className="w-36 h-36 rounded-full bg-blue-500 hover:bg-blue-600 shadow-xl flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95"
         >
           <Icon name="Video" size={32} className="text-white" />
           <span className="text-sm font-semibold text-white">Начать запись</span>
         </Button>
 
-        {permissionError && (
+        {statusMsg && (
+          <p className="text-sm text-gray-500 animate-pulse">{statusMsg}</p>
+        )}
+
+        {errorMsg && (
           <div className="max-w-sm bg-red-50 border border-red-200 rounded-xl p-4 text-center">
             <Icon name="AlertCircle" size={20} className="text-red-500 mx-auto mb-2" />
-            <p className="text-sm text-red-700">{permissionError}</p>
+            <p className="text-sm text-red-700">{errorMsg}</p>
           </div>
         )}
       </div>

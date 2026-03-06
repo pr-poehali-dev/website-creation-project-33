@@ -97,13 +97,13 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
   }
 
   return (
-    <div className="space-y-6 slide-up">
-      <Card className="border-none shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
+    <div className="slide-up">
+      <Card className="border-2 border-t-0 border-pink-300/60 shadow-xl transition-all duration-300 relative overflow-hidden rounded-t-none rounded-b-2xl">
         <div 
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/84906f5f-7ef4-49e5-9a56-bd61e788e7bd/files/5ec1d6ec-8fb2-46f5-b8cf-c5cf727a7309.jpg)' }}
+          style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/84906f5f-7ef4-49e5-9a56-bd61e788e7bd/files/5ec1d6ec-8fb2-46f5-b8cf-c5cf727a7309.jpg)', backgroundPosition: 'center 40%' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-pink-200/30 via-white/10 to-green-900/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-white/5 to-green-900/40" />
 
         <CardHeader className="text-center relative z-10 pt-8 pb-2">
           <div className="flex items-center justify-center gap-2 mb-1">

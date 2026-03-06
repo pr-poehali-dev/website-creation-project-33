@@ -95,7 +95,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
       
       // Добавляем рассчитанные поля + применяем несохранённые изменения чекбоксов
       const shiftsWithCalculations = filteredShifts.map(shift => {
-        const key = `${shift.user_id}_${shift.date}_${shift.organization_id}`;
+        const key = `${shift.user_id}-${shift.date}-${shift.organization_id}`;
         const pendingPayments = editingPayments[key];
         const pendingDates = editingInvoiceDates[key];
         const mergedShift = {

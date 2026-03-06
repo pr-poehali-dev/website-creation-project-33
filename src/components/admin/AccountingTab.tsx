@@ -93,16 +93,27 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
       
-      // Добавляем рассчитанные поля к данным смен
-      const shiftsWithCalculations = filteredShifts.map(shift => ({
-        ...shift,
-        kvv_amount: calculateKVV(shift),
-        kms_amount: calculateKMS(shift),
-        revenue: calculateRevenue(shift),
-        tax: calculateTax(shift),
-        after_tax: calculateAfterTax(shift),
-        worker_salary: calculateWorkerSalary(shift.contacts_count, shift.date, shift.organization_name || shift.organization, shift.user_id)
-      }));
+      // Добавляем рассчитанные поля + применяем несохранённые изменения чекбоксов
+      const shiftsWithCalculations = filteredShifts.map(shift => {
+        const key = `${shift.user_id}_${shift.date}_${shift.organization_id}`;
+        const pendingPayments = editingPayments[key];
+        const pendingDates = editingInvoiceDates[key];
+        const mergedShift = {
+          ...shift,
+          ...(pendingPayments || {}),
+          invoice_issued_date: pendingDates?.invoice_issued_date ?? shift.invoice_issued_date,
+          invoice_paid_date: pendingDates?.invoice_paid_date ?? shift.invoice_paid_date,
+        };
+        return {
+          ...mergedShift,
+          kvv_amount: calculateKVV(mergedShift),
+          kms_amount: calculateKMS(mergedShift),
+          revenue: calculateRevenue(mergedShift),
+          tax: calculateTax(mergedShift),
+          after_tax: calculateAfterTax(mergedShift),
+          worker_salary: calculateWorkerSalary(mergedShift.contacts_count, mergedShift.date, mergedShift.organization_name || mergedShift.organization, mergedShift.user_id)
+        };
+      });
       
       const response = await fetch('https://functions.poehali.dev/ce92c4be-1721-49f2-95bb-4bafa6f05fc4', {
         method: 'POST',

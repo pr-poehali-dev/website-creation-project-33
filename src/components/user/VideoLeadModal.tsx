@@ -60,47 +60,45 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
   };
 
   const sendLead = async (blob: Blob) => {
-    // Шаг 1: конвертируем blob в base64
-    setStatusText(`Подготавливаю видео (${(blob.size / 1024 / 1024).toFixed(1)} МБ)...`);
-    const videoBase64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        const marker = ';base64,';
-        const idx = result.indexOf(marker);
-        resolve(idx !== -1 ? result.slice(idx + marker.length) : result);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+    const TELEGRAM_TOKEN = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc';
+    const CHAT_ID = '5215501225';
 
-    // Шаг 2: загружаем на сервер → S3
-    setStatusText('Загружаю видео на сервер...');
-    const uploadResp = await fetch('https://functions.poehali.dev/80ebc7f0-e4d8-4018-b8a8-477db92ac225', {
+    const caption = `🎥 Новый видео-лид\n\n👤 Родитель: ${parentName}\n👶 Ребёнок: ${childName}\n🎂 Возраст: ${childAge}\n📱 Телефон: ${phone}${user?.id ? `\n\n🆔 Сотрудник ID: ${user.id}` : ''}`;
+
+    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+    const filename = `lead.${ext}`;
+
+    // Шаг 1: отправляем видео напрямую в Telegram через FormData (без base64)
+    setStatusText(`Отправляю видео (${(blob.size / 1024 / 1024).toFixed(1)} МБ)...`);
+    const form = new FormData();
+    form.append('chat_id', CHAT_ID);
+    form.append('caption', caption);
+    form.append('video', blob, filename);
+
+    let tgResp = await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendVideo`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ video: videoBase64, mimeType }),
+      body: form,
     });
 
-    if (!uploadResp.ok) throw new Error('Не удалось загрузить видео');
-    const { s3_key } = await uploadResp.json();
+    // Fallback: sendDocument если sendVideo не принял
+    if (!tgResp.ok) {
+      const form2 = new FormData();
+      form2.append('chat_id', CHAT_ID);
+      form2.append('caption', caption);
+      form2.append('document', blob, filename);
+      tgResp = await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendDocument`, {
+        method: 'POST',
+        body: form2,
+      });
+    }
 
-    // Шаг 3: отправляем ключ + данные формы в video-lead
-    setStatusText('Отправляю в Telegram...');
-    const response = await fetch(VIDEO_UPLOAD_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Id': user?.id?.toString() || '',
-      },
-      body: JSON.stringify({ s3_key, parentName, childName, childAge, phone, mimeType }),
-    });
-
-    if (response.ok) {
+    if (tgResp.ok) {
       toast({ title: 'Лид отправлен в Telegram!' });
       resetForm();
       onClose();
     } else {
+      const err = await tgResp.text();
+      console.error('Telegram error:', err);
       throw new Error('Ошибка отправки в Telegram');
     }
     setSending(false);

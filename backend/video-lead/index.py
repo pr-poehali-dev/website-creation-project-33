@@ -36,10 +36,13 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({'error': 'Video data missing'})
         }
 
-    # Фикс паддинга base64
-    missing_padding = len(video_base64) % 4
-    if missing_padding:
-        video_base64 += '=' * (4 - missing_padding)
+    if ',' in video_base64:
+        video_base64 = video_base64.split(',', 1)[1]
+    video_base64 = video_base64.strip()
+    video_base64 = video_base64.replace('-', '+').replace('_', '/')
+    missing = len(video_base64) % 4
+    if missing:
+        video_base64 += '=' * (4 - missing)
     video_bytes = base64.b64decode(video_base64)
     mime_type = body.get('mimeType', 'video/webm')
 

@@ -98,7 +98,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
 
   return (
     <div className="slide-up">
-      <Card className="border-2 border-pink-300/85 shadow-xl transition-all duration-300 relative overflow-hidden rounded-2xl">
+      <Card className="border-2 border-pink-300/40 shadow-xl transition-all duration-300 relative overflow-hidden rounded-2xl">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/84906f5f-7ef4-49e5-9a56-bd61e788e7bd/files/5ec1d6ec-8fb2-46f5-b8cf-c5cf727a7309.jpg)', backgroundPosition: 'center 40%' }}
@@ -138,7 +138,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   <button
                     key={org.id}
                     onClick={() => handleOrgClick(org)}
-                    className="w-full p-4 rounded-xl border-2 border-pink-300/85 bg-white/70 backdrop-blur-sm hover:border-pink-300/85 hover:bg-white/85 transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.02] active:scale-95"
+                    className="w-full p-4 rounded-xl border-2 border-pink-300/40 bg-white/70 backdrop-blur-sm hover:border-pink-300/40 hover:bg-white/85 transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.02] active:scale-95"
                   >
                     <span className="text-base">🌷</span>
                     <span className="text-lg text-gray-800 font-semibold">{org.name}</span>

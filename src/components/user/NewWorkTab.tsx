@@ -9,25 +9,23 @@ export default function NewWorkTab() {
   const [modalOpen, setModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const startRecording = async () => {
     try {
-      // Сразу открываем модалку
       setModalOpen(true);
-      
+
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }, // Задняя камера
-        audio: true // Со звуком
+        video: { facingMode: 'environment' },
+        audio: true
       });
 
-      // Используем совместимый кодек для Telegram
-      const options = { mimeType: 'video/mp4' };
-      let mediaRecorder: MediaRecorder;
+      streamRef.current = stream;
 
+      let mediaRecorder: MediaRecorder;
       try {
-        mediaRecorder = new MediaRecorder(stream, options);
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/mp4' });
       } catch {
-        // Fallback для iOS/Safari
         mediaRecorder = new MediaRecorder(stream);
       }
 
@@ -35,16 +33,12 @@ export default function NewWorkTab() {
       videoChunksRef.current = [];
 
       mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          videoChunksRef.current.push(event.data);
-        }
+        if (event.data.size > 0) videoChunksRef.current.push(event.data);
       };
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(videoChunksRef.current, { type: 'video/mp4' });
         setVideoBlob(blob);
-        
-        // Останавливаем камеру
         stream.getTracks().forEach(track => track.stop());
       };
 
@@ -64,6 +58,17 @@ export default function NewWorkTab() {
     }
   };
 
+  const handleClose = () => {
+    if (isRecording) stopRecording();
+    setModalOpen(false);
+    setVideoBlob(null);
+    videoChunksRef.current = [];
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-4">
       <div className="flex items-center justify-center min-h-[80vh]">
@@ -80,13 +85,7 @@ export default function NewWorkTab() {
 
       <VideoLeadModal
         open={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setVideoBlob(null);
-          if (isRecording) {
-            stopRecording();
-          }
-        }}
+        onClose={handleClose}
         videoBlob={videoBlob}
         isRecording={isRecording}
         onStopRecording={stopRecording}

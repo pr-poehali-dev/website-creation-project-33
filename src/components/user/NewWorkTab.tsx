@@ -1,7 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import VideoLeadModal from './VideoLeadModal';
+
+const MAX_SIZE_BYTES = 9.99 * 1024 * 1024; // 9.99 МБ
 
 export default function NewWorkTab() {
   const [isRecording, setIsRecording] = useState(false);
@@ -10,10 +12,12 @@ export default function NewWorkTab() {
   const [modalOpen, setModalOpen] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [recordedSize, setRecordedSize] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const stopResolveRef = useRef<((blob: Blob) => void) | null>(null);
+  const currentSizeRef = useRef(0);
 
   const getSupportedMimeType = () => {
     const types = [
@@ -40,9 +44,21 @@ export default function NewWorkTab() {
     setMimeType(actualMime);
     mediaRecorderRef.current = mediaRecorder;
     videoChunksRef.current = [];
+    currentSizeRef.current = 0;
+    setRecordedSize(0);
 
     mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) videoChunksRef.current.push(event.data);
+      if (event.data.size > 0) {
+        videoChunksRef.current.push(event.data);
+        currentSizeRef.current += event.data.size;
+        setRecordedSize(currentSizeRef.current);
+
+        // Останавливаем при достижении лимита 9.99 МБ
+        if (currentSizeRef.current >= MAX_SIZE_BYTES && mediaRecorderRef.current?.state === 'recording') {
+          mediaRecorderRef.current.stop();
+          setIsRecording(false);
+        }
+      }
     };
 
     mediaRecorder.onstop = () => {
@@ -191,6 +207,8 @@ export default function NewWorkTab() {
         mimeType={mimeType}
         isRecording={isRecording}
         onStopRecording={stopRecordingAndGetBlob}
+        recordedSize={recordedSize}
+        maxSize={MAX_SIZE_BYTES}
       />
     </div>
   );

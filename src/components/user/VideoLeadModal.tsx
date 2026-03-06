@@ -7,6 +7,8 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
+const VIDEO_UPLOAD_URL = 'https://functions.poehali.dev/3698e100-6084-4fbd-aaca-c2be1dc6e458';
+
 interface VideoLeadModalProps {
   open: boolean;
   onClose: () => void;
@@ -23,6 +25,7 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
   const [childAge, setChildAge] = useState('');
   const [phone, setPhone] = useState('');
   const [sending, setSending] = useState(false);
+  const [statusText, setStatusText] = useState('');
 
   const handleSendClick = async () => {
     if (!parentName || !childName || !childAge || !phone) {
@@ -31,8 +34,8 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
     }
 
     setSending(true);
+    setStatusText('Останавливаю запись...');
     try {
-      // Если идёт запись — останавливаем и ждём blob
       let finalBlob = videoBlob;
       if (isRecording && onStopRecording) {
         finalBlob = await onStopRecording();
@@ -41,37 +44,50 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
       if (!finalBlob || finalBlob.size === 0) {
         toast({ title: 'Нет видео для отправки', variant: 'destructive' });
         setSending(false);
+        setStatusText('');
         return;
       }
 
       await sendLead(finalBlob);
-    } catch {
+    } catch (e) {
+      console.error('Send error:', e);
       toast({ title: 'Не удалось отправить лид', variant: 'destructive' });
       setSending(false);
+      setStatusText('');
     }
   };
 
   const sendLead = async (blob: Blob) => {
-    const reader = new FileReader();
-    const videoBase64 = await new Promise<string>((resolve, reject) => {
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        // data URL может содержать запятые в кодеках: data:video/webm;codecs=vp9,opus;base64,DATA
-        const marker = ';base64,';
-        const idx = result.indexOf(marker);
-        resolve(idx !== -1 ? result.slice(idx + marker.length) : result);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+    // Шаг 1: получаем presigned URL для загрузки в S3
+    setStatusText('Подготавливаю загрузку...');
+    const uploadResp = await fetch('https://functions.poehali.dev/80ebc7f0-e4d8-4018-b8a8-477db92ac225', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mimeType }),
     });
 
-    const response = await fetch('https://functions.poehali.dev/3698e100-6084-4fbd-aaca-c2be1dc6e458', {
+    if (!uploadResp.ok) throw new Error('Не удалось получить URL для загрузки');
+    const { upload_url, s3_key } = await uploadResp.json();
+
+    // Шаг 2: загружаем видео напрямую в S3
+    setStatusText(`Загружаю видео (${(blob.size / 1024 / 1024).toFixed(1)} МБ)...`);
+    const s3Resp = await fetch(upload_url, {
+      method: 'PUT',
+      headers: { 'Content-Type': mimeType },
+      body: blob,
+    });
+
+    if (!s3Resp.ok) throw new Error('Не удалось загрузить видео');
+
+    // Шаг 3: отправляем ключ + данные формы в video-lead
+    setStatusText('Отправляю в Telegram...');
+    const response = await fetch(VIDEO_UPLOAD_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-User-Id': user?.id?.toString() || '',
       },
-      body: JSON.stringify({ video: videoBase64, parentName, childName, childAge, phone, mimeType }),
+      body: JSON.stringify({ s3_key, parentName, childName, childAge, phone, mimeType }),
     });
 
     if (response.ok) {
@@ -79,9 +95,10 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
       resetForm();
       onClose();
     } else {
-      throw new Error('Ошибка отправки');
+      throw new Error('Ошибка отправки в Telegram');
     }
     setSending(false);
+    setStatusText('');
   };
 
   const resetForm = () => {
@@ -92,6 +109,7 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
   };
 
   const handleCancel = () => {
+    if (sending) return;
     resetForm();
     onClose();
   };
@@ -125,6 +143,7 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
               onChange={(e) => setParentName(e.target.value)}
               placeholder="Введите имя родителя"
               className="mt-1"
+              disabled={sending}
             />
           </div>
 
@@ -136,6 +155,7 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
               onChange={(e) => setChildName(e.target.value)}
               placeholder="Введите имя ребёнка"
               className="mt-1"
+              disabled={sending}
             />
           </div>
 
@@ -148,6 +168,7 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
               onChange={(e) => setChildAge(e.target.value)}
               placeholder="Введите возраст"
               className="mt-1"
+              disabled={sending}
             />
           </div>
 
@@ -160,8 +181,13 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+7 (___) ___-__-__"
               className="mt-1"
+              disabled={sending}
             />
           </div>
+
+          {statusText && (
+            <p className="text-sm text-blue-600 text-center animate-pulse">{statusText}</p>
+          )}
 
           <div className="flex gap-3 pt-2">
             <Button

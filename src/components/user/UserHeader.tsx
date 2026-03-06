@@ -124,7 +124,7 @@ export default function UserHeader({
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden md:flex justify-center items-center mb-0 bg-green-800 border-2 border-b-0 border-pink-300/60 p-10 rounded-t-2xl relative overflow-hidden shadow-xl min-h-[120px]">
+      <div className="hidden md:flex justify-center items-center mb-8 bg-green-800 border-2 border-pink-300/60 p-10 rounded-2xl relative overflow-hidden shadow-xl min-h-[120px]">
         <div className="absolute inset-0 z-0">
           <img 
             src="https://cdn.poehali.dev/projects/84906f5f-7ef4-49e5-9a56-bd61e788e7bd/files/5ec1d6ec-8fb2-46f5-b8cf-c5cf727a7309.jpg" 

@@ -1,13 +1,15 @@
 import json
 import os
 import uuid
-import base64
 import boto3
 from botocore.config import Config
 from datetime import datetime
 
 def handler(event: dict, context) -> dict:
-    """Принимает видео как base64 + данные анкеты, сохраняет в S3"""
+    """
+    Режим 1 (get_presigned=true): возвращает presigned PUT URL для прямой загрузки видео в S3.
+    Режим 2 (save_meta=true): сохраняет JSON метаданных лида в S3.
+    """
 
     if event.get('httpMethod') == 'OPTIONS':
         return {
@@ -22,40 +24,7 @@ def handler(event: dict, context) -> dict:
         }
 
     body = json.loads(event.get('body', '{}'))
-    video_b64 = body.get('video', '')
-    mime_type = body.get('mimeType', 'video/webm')
-    parent_name = body.get('parentName', '').strip()
-    child_name = body.get('childName', '').strip()
-    child_age = body.get('childAge', '').strip()
-    phone = body.get('phone', '').strip()
     user_id = event.get('headers', {}).get('X-User-Id', '')
-
-    if not video_b64:
-        return {
-            'statusCode': 400,
-            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'video data missing'})
-        }
-
-    # Очищаем base64
-    marker = ';base64,'
-    idx = video_b64.find(marker)
-    if idx != -1:
-        video_b64 = video_b64[idx + len(marker):]
-    video_b64 = video_b64.strip().replace('\n', '').replace('\r', '').replace(' ', '')
-    video_b64 = video_b64.replace('-', '+').replace('_', '/')
-    missing = len(video_b64) % 4
-    if missing:
-        video_b64 += '=' * (4 - missing)
-
-    video_bytes = base64.b64decode(video_b64)
-    print(f"[INFO] Video size: {len(video_bytes)} bytes, mime: {mime_type}")
-
-    ext = 'mp4' if 'mp4' in mime_type else 'webm'
-    lead_id = str(uuid.uuid4())
-    timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S')
-    video_key = f'video-leads/{timestamp}_{lead_id}.{ext}'
-    meta_key = f'video-leads/{timestamp}_{lead_id}.json'
 
     s3 = boto3.client(
         's3',
@@ -65,44 +34,68 @@ def handler(event: dict, context) -> dict:
         config=Config(signature_version='s3v4')
     )
 
-    # Сохраняем видео
-    s3.put_object(
-        Bucket='files',
-        Key=video_key,
-        Body=video_bytes,
-        ContentType=mime_type
-    )
+    # Режим 1: получить presigned URL для прямой загрузки видео
+    if body.get('get_presigned'):
+        mime_type = body.get('mimeType', 'video/webm')
+        ext = 'mp4' if 'mp4' in mime_type else 'webm'
+        timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S')
+        lead_id = str(uuid.uuid4())
+        video_key = f'video-leads/{timestamp}_{lead_id}.{ext}'
+        meta_key = f'video-leads/{timestamp}_{lead_id}.json'
 
-    # Сохраняем данные анкеты рядом с видео
-    meta = {
-        'lead_id': lead_id,
-        'timestamp': timestamp,
-        'parentName': parent_name,
-        'childName': child_name,
-        'childAge': child_age,
-        'phone': phone,
-        'userId': user_id,
-        'videoKey': video_key,
-        'mimeType': mime_type
-    }
-    s3.put_object(
-        Bucket='files',
-        Key=meta_key,
-        Body=json.dumps(meta, ensure_ascii=False).encode('utf-8'),
-        ContentType='application/json'
-    )
+        upload_url = s3.generate_presigned_url(
+            'put_object',
+            Params={'Bucket': 'files', 'Key': video_key, 'ContentType': mime_type},
+            ExpiresIn=600
+        )
 
-    cdn_base = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket"
+        return {
+            'statusCode': 200,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'upload_url': upload_url, 'video_key': video_key, 'meta_key': meta_key})
+        }
+
+    # Режим 2: сохранить метаданные лида
+    if body.get('save_meta'):
+        meta_key = body.get('meta_key', '')
+        if not meta_key:
+            return {
+                'statusCode': 400,
+                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': 'meta_key missing'})
+            }
+
+        meta = {
+            'timestamp': body.get('timestamp', ''),
+            'parentName': body.get('parentName', ''),
+            'childName': body.get('childName', ''),
+            'childAge': body.get('childAge', ''),
+            'phone': body.get('phone', ''),
+            'userId': user_id,
+            'videoKey': body.get('video_key', ''),
+            'mimeType': body.get('mimeType', '')
+        }
+
+        s3.put_object(
+            Bucket='files',
+            Key=meta_key,
+            Body=json.dumps(meta, ensure_ascii=False).encode('utf-8'),
+            ContentType='application/json'
+        )
+
+        cdn_base = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket"
+        return {
+            'statusCode': 200,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({
+                'success': True,
+                'video_url': f"{cdn_base}/{body.get('video_key', '')}",
+                'meta_url': f"{cdn_base}/{meta_key}"
+            })
+        }
 
     return {
-        'statusCode': 200,
-        'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json'
-        },
-        'body': json.dumps({
-            's3_key': video_key,
-            'video_url': f"{cdn_base}/{video_key}",
-            'meta_url': f"{cdn_base}/{meta_key}"
-        })
+        'statusCode': 400,
+        'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+        'body': json.dumps({'error': 'unknown mode'})
     }

@@ -123,35 +123,39 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
         return;
       }
 
-      setStatusText(`Сохраняю в хранилище (${(finalBlob.size / 1024 / 1024).toFixed(1)} МБ)...`);
-      const reader = new FileReader();
-      const videoBase64 = await new Promise<string>((resolve, reject) => {
-        reader.onloadend = () => {
-          const result = reader.result as string;
-          const marker = ';base64,';
-          const idx = result.indexOf(marker);
-          resolve(idx !== -1 ? result.slice(idx + marker.length) : result);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(finalBlob!);
-      });
+      const UPLOAD_URL = 'https://functions.poehali.dev/80ebc7f0-e4d8-4018-b8a8-477db92ac225';
 
-      const resp = await fetch('https://functions.poehali.dev/80ebc7f0-e4d8-4018-b8a8-477db92ac225', {
+      // Шаг 1: получаем presigned URL для прямой загрузки в S3
+      setStatusText('Подготавливаю хранилище...');
+      const presignResp = await fetch(UPLOAD_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user?.id?.toString() || '',
-        },
-        body: JSON.stringify({ video: videoBase64, mimeType, parentName, childName, childAge, phone }),
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': user?.id?.toString() || '' },
+        body: JSON.stringify({ get_presigned: true, mimeType }),
       });
+      if (!presignResp.ok) throw new Error('Ошибка получения URL');
+      const { upload_url, video_key, meta_key } = await presignResp.json();
 
-      if (resp.ok) {
-        toast({ title: 'Сохранено в хранилище!' });
-        resetForm();
-        onClose();
-      } else {
-        throw new Error('Ошибка сохранения');
-      }
+      // Шаг 2: загружаем видео бинарно напрямую в S3 (без base64!)
+      setStatusText(`Загружаю видео (${(finalBlob.size / 1024 / 1024).toFixed(1)} МБ)...`);
+      const s3Resp = await fetch(upload_url, {
+        method: 'PUT',
+        headers: { 'Content-Type': mimeType },
+        body: finalBlob,
+      });
+      if (!s3Resp.ok) throw new Error('Ошибка загрузки видео');
+
+      // Шаг 3: сохраняем метаданные (маленький JSON)
+      setStatusText('Сохраняю данные анкеты...');
+      const metaResp = await fetch(UPLOAD_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': user?.id?.toString() || '' },
+        body: JSON.stringify({ save_meta: true, meta_key, video_key, mimeType, parentName, childName, childAge, phone }),
+      });
+      if (!metaResp.ok) throw new Error('Ошибка сохранения метаданных');
+
+      toast({ title: 'Сохранено в хранилище!' });
+      resetForm();
+      onClose();
     } catch (e) {
       console.error('Storage error:', e);
       toast({ title: 'Не удалось сохранить в хранилище', variant: 'destructive' });

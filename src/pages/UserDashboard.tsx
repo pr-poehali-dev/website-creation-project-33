@@ -146,15 +146,13 @@ export default function UserDashboard() {
               <div className="mb-4 flex items-center gap-2 px-1">
                 <Icon name="Building2" size={16} className="text-gray-400" />
                 <span className="text-sm text-gray-500">{organizationName}</span>
-                {(todayContacts > 0 || totalContacts > 0) && (
-                  <span className="text-sm text-gray-400">— {todayContacts}/{totalContacts}</span>
-                )}
+                <span className="text-sm text-gray-400">—</span>
+                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
+                  setTodayContacts(stats.today_contacts);
+                  setTotalContacts(stats.total_contacts);
+                }} />
               </div>
             )}
-            <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
-              setTodayContacts(stats.today_contacts);
-              setTotalContacts(stats.total_contacts);
-            }} />
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
               <div className="divide-y divide-gray-100">
                 <button

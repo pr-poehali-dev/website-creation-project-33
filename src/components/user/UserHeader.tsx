@@ -33,15 +33,8 @@ export default function UserHeader({
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden mb-6 bg-green-800 border-2 border-pink-300/60 p-4 rounded-xl relative overflow-hidden shadow-xl">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://cdn.poehali.dev/projects/84906f5f-7ef4-49e5-9a56-bd61e788e7bd/files/5ec1d6ec-8fb2-46f5-b8cf-c5cf727a7309.jpg" 
-            alt="" 
-            className="w-full h-full object-cover object-center"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-pink-200/20 to-green-800/50" />
+      <div className="md:hidden mb-6 p-4 rounded-xl relative overflow-hidden shadow-xl" style={{background: 'linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 50%, #1e4d35 100%)'}}>
+        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%)'}} />
         
         {selectedOrganization ? (
           <>
@@ -124,15 +117,8 @@ export default function UserHeader({
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden md:flex justify-center items-center mb-8 bg-green-800 border-2 border-pink-300/60 p-10 rounded-2xl relative overflow-hidden shadow-xl min-h-[120px]">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://cdn.poehali.dev/projects/84906f5f-7ef4-49e5-9a56-bd61e788e7bd/files/5ec1d6ec-8fb2-46f5-b8cf-c5cf727a7309.jpg" 
-            alt="" 
-            className="w-full h-full object-cover object-top"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-green-900/30" />
+      <div className="hidden md:flex justify-center items-center mb-8 p-10 rounded-2xl relative overflow-hidden shadow-xl min-h-[120px]" style={{background: 'linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 50%, #1e4d35 100%)'}}>
+        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%), radial-gradient(circle at 80% 20%, #6ee7b7 0%, transparent 40%)'}} />
         <div className="flex flex-col absolute left-6 z-10">
           <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-widest leading-tight">ИМПЕРИЯ</span>
           <span className="text-base text-white/85 drop-shadow leading-tight tracking-wide">рекламное агентство</span>

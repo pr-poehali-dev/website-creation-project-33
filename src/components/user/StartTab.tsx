@@ -98,68 +98,59 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
 
   return (
     <div className="slide-up">
-      <Card className="border-2 border-pink-300/40 shadow-xl transition-all duration-300 relative overflow-hidden rounded-2xl">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/84906f5f-7ef4-49e5-9a56-bd61e788e7bd/files/5ec1d6ec-8fb2-46f5-b8cf-c5cf727a7309.jpg)', backgroundPosition: 'center 40%' }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-white/5 to-green-900/40" />
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
 
-        <CardHeader className="text-center relative z-10 pt-8 pb-2">
-        </CardHeader>
+        <div className="px-6 pt-6 pb-4">
+          <div className="relative">
+            <Icon name="Search" size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Выберите организацию для работы..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-12 bg-gray-50 border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-emerald-400 focus:ring-emerald-300/30 rounded-xl text-sm"
+            />
+          </div>
+        </div>
 
-        <CardContent className="space-y-6 relative z-10 pb-8">
+        <div className="px-6 pb-6 space-y-2">
           {organizations.length === 0 ? (
-            <div className="text-center py-8 text-white/80">
-              <Icon name="AlertCircle" size={48} className="mx-auto mb-3 opacity-50" />
-              <p>Организации не добавлены администратором</p>
+            <div className="text-center py-12 text-gray-400">
+              <Icon name="AlertCircle" size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Организации не добавлены администратором</p>
             </div>
           ) : (
             <>
-              <div className="relative mb-4">
-                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-800" />
-                <Input
-                  type="text"
-                  placeholder="Выберите организацию для работы..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white/50 backdrop-blur-md border-pink-300/60 text-gray-900 placeholder:text-gray-700/70 focus:border-pink-400 focus:ring-pink-300/30 shadow-lg"
-                />
-              </div>
-
-              <div className="space-y-3">
-                {organizations
-                  .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
-                  .filter((org) => 
-                    org.name.toLowerCase().includes(searchQuery.toLowerCase())
-                  )
-                  .slice(0, showAll ? undefined : 4)
-                  .map((org) => (
-                  <button
-                    key={org.id}
-                    onClick={() => handleOrgClick(org)}
-                    className="w-full p-4 rounded-xl border-2 border-pink-300/40 bg-white/70 backdrop-blur-sm hover:border-pink-300/40 hover:bg-white/85 transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.02] active:scale-95"
-                  >
-                    <span className="text-base">🌷</span>
-                    <span className="text-lg text-gray-800 font-semibold">{org.name}</span>
-                  </button>
-                ))}
-              </div>
+              {organizations
+                .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+                .filter((org) =>
+                  org.name.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .slice(0, showAll ? undefined : 4)
+                .map((org) => (
+                <button
+                  key={org.id}
+                  onClick={() => handleOrgClick(org)}
+                  className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-white hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-200 flex items-center justify-between group shadow-sm hover:shadow-md"
+                >
+                  <span className="text-gray-800 font-medium text-sm group-hover:text-emerald-700 transition-colors">{org.name}</span>
+                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-emerald-400 transition-colors" />
+                </button>
+              ))}
 
               {!searchQuery && organizations.length > 4 && (
-                <Button
+                <button
                   onClick={() => setShowAll(!showAll)}
-                  variant="outline"
-                  className="w-full border-pink-300/60 text-white hover:bg-white/30 bg-white/20 backdrop-blur-sm shadow-sm"
+                  className="w-full py-3 text-sm text-gray-400 hover:text-emerald-600 transition-colors flex items-center justify-center gap-1.5"
                 >
-                  <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={20} className="mr-2" />
+                  <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} />
                   {showAll ? 'Скрыть' : `Показать ещё (${organizations.length - 4})`}
-                </Button>
+                </button>
               )}
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent>

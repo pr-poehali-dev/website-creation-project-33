@@ -58,26 +58,30 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
   };
 
   const sendLead = async (blob: Blob) => {
-    // Шаг 1: получаем presigned URL для загрузки в S3
-    setStatusText('Подготавливаю загрузку...');
+    // Шаг 1: конвертируем blob в base64
+    setStatusText(`Подготавливаю видео (${(blob.size / 1024 / 1024).toFixed(1)} МБ)...`);
+    const videoBase64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        const marker = ';base64,';
+        const idx = result.indexOf(marker);
+        resolve(idx !== -1 ? result.slice(idx + marker.length) : result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+
+    // Шаг 2: загружаем на сервер → S3
+    setStatusText('Загружаю видео на сервер...');
     const uploadResp = await fetch('https://functions.poehali.dev/80ebc7f0-e4d8-4018-b8a8-477db92ac225', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mimeType }),
+      body: JSON.stringify({ video: videoBase64, mimeType }),
     });
 
-    if (!uploadResp.ok) throw new Error('Не удалось получить URL для загрузки');
-    const { upload_url, s3_key } = await uploadResp.json();
-
-    // Шаг 2: загружаем видео напрямую в S3
-    setStatusText(`Загружаю видео (${(blob.size / 1024 / 1024).toFixed(1)} МБ)...`);
-    const s3Resp = await fetch(upload_url, {
-      method: 'PUT',
-      headers: { 'Content-Type': mimeType },
-      body: blob,
-    });
-
-    if (!s3Resp.ok) throw new Error('Не удалось загрузить видео');
+    if (!uploadResp.ok) throw new Error('Не удалось загрузить видео');
+    const { s3_key } = await uploadResp.json();
 
     // Шаг 3: отправляем ключ + данные формы в video-lead
     setStatusText('Отправляю в Telegram...');

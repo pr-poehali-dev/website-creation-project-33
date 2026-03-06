@@ -1,11 +1,12 @@
 import json
 import os
 import uuid
+import base64
 import boto3
 from botocore.config import Config
 
 def handler(event: dict, context) -> dict:
-    """Генерирует presigned URL для загрузки видео напрямую в S3"""
+    """Принимает видео как base64, сохраняет в S3, возвращает s3_key"""
 
     if event.get('httpMethod') == 'OPTIONS':
         return {
@@ -20,7 +21,29 @@ def handler(event: dict, context) -> dict:
         }
 
     body = json.loads(event.get('body', '{}'))
+    video_b64 = body.get('video', '')
     mime_type = body.get('mimeType', 'video/webm')
+
+    if not video_b64:
+        return {
+            'statusCode': 400,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': 'video data missing'})
+        }
+
+    # Очищаем base64
+    marker = ';base64,'
+    idx = video_b64.find(marker)
+    if idx != -1:
+        video_b64 = video_b64[idx + len(marker):]
+    video_b64 = video_b64.strip().replace('\n', '').replace('\r', '').replace(' ', '')
+    video_b64 = video_b64.replace('-', '+').replace('_', '/')
+    missing = len(video_b64) % 4
+    if missing:
+        video_b64 += '=' * (4 - missing)
+
+    video_bytes = base64.b64decode(video_b64)
+    print(f"[INFO] Video size: {len(video_bytes)} bytes, mime: {mime_type}")
 
     ext = 'mp4' if 'mp4' in mime_type else 'webm'
     key = f'video-leads/{uuid.uuid4()}.{ext}'
@@ -33,14 +56,11 @@ def handler(event: dict, context) -> dict:
         config=Config(signature_version='s3v4')
     )
 
-    presigned_url = s3.generate_presigned_url(
-        'put_object',
-        Params={
-            'Bucket': 'files',
-            'Key': key,
-            'ContentType': mime_type
-        },
-        ExpiresIn=600
+    s3.put_object(
+        Bucket='files',
+        Key=key,
+        Body=video_bytes,
+        ContentType=mime_type
     )
 
     return {
@@ -49,8 +69,5 @@ def handler(event: dict, context) -> dict:
             'Access-Control-Allow-Origin': '*',
             'Content-Type': 'application/json'
         },
-        'body': json.dumps({
-            'upload_url': presigned_url,
-            's3_key': key
-        })
+        'body': json.dumps({'s3_key': key})
     }

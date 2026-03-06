@@ -70,16 +70,14 @@ export default function NewWorkTab() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-4">
-      <div className="flex items-center justify-center min-h-[80vh]">
+    <div className="bg-white min-h-screen p-4">
+      <div className="flex justify-start pt-2">
         <Button
           onClick={startRecording}
-          className="w-48 h-48 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-2xl transform transition-all hover:scale-105 active:scale-95"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md flex items-center gap-2 text-base font-semibold"
         >
-          <div className="flex flex-col items-center gap-3">
-            <Icon name="Video" size={64} className="text-white" />
-            <span className="text-xl font-bold text-white">Начать запись</span>
-          </div>
+          <Icon name="Video" size={20} className="text-white" />
+          Начать запись
         </Button>
       </div>
 

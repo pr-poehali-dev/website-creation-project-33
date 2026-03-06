@@ -12,12 +12,17 @@ interface RegisterFormProps {
 export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [pendingApproval, setPendingApproval] = useState(false);
   
   const { register } = useAuth();
+
+  const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
+  const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,12 +35,19 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
       return;
     }
 
-    const result = await register(email, password, name);
+    if (password !== confirmPassword) {
+      setError('Пароли не совпадают');
+      setLoading(false);
+      return;
+    }
+
+    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    const result = await register(email, password, fullName);
     
     if (result === 'pending') {
       setPendingApproval(true);
     } else if (result === true) {
-      // Успешная регистрация (если вдруг не требуется одобрение)
+      // Успешная регистрация
     } else if (typeof result === 'object' && result.error) {
       setError(result.error);
     } else {
@@ -73,28 +85,54 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
     <div>
       <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         <div className="space-y-3 md:space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-[#001f54] font-medium text-sm md:text-base">
-              Имя
-            </Label>
-            <div className="relative">
-              <Icon 
-                name="User" 
-                size={18} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-5 md:h-5" 
-              />
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
-                placeholder="Ваше имя и фамилия"
-                required
-              />
+
+          {/* Имя и Фамилия */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="firstName" className="text-[#001f54] font-medium text-sm md:text-base">
+                Имя
+              </Label>
+              <div className="relative">
+                <Icon 
+                  name="User" 
+                  size={18} 
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
+                />
+                <Input
+                  id="firstName"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
+                  placeholder="Иван"
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-[#001f54] font-medium text-sm md:text-base">
+                Фамилия
+              </Label>
+              <div className="relative">
+                <Icon 
+                  name="User" 
+                  size={18} 
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
+                />
+                <Input
+                  id="lastName"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
+                  placeholder="Петров"
+                  required
+                />
+              </div>
             </div>
           </div>
 
+          {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-[#001f54] font-medium text-sm md:text-base">
               Email
@@ -103,7 +141,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
               <Icon 
                 name="Mail" 
                 size={18} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-5 md:h-5" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
               />
               <Input
                 id="email"
@@ -117,6 +155,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
             </div>
           </div>
           
+          {/* Пароль */}
           <div className="space-y-2">
             <Label htmlFor="password" className="text-[#001f54] font-medium text-sm md:text-base">
               Пароль
@@ -125,7 +164,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
               <Icon 
                 name="Lock" 
                 size={18} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-5 md:h-5" 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
               />
               <Input
                 id="password"
@@ -140,6 +179,57 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
             </div>
             <p className="text-[#001f54]/70 text-xs md:text-sm">Минимум 6 символов</p>
           </div>
+
+          {/* Повторите пароль */}
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword" className="text-[#001f54] font-medium text-sm md:text-base">
+              Повторите пароль
+            </Label>
+            <div className="relative">
+              <Icon 
+                name="Lock" 
+                size={18} 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
+              />
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`pl-10 pr-10 bg-white text-[#001f54] placeholder:text-gray-400 h-12 md:h-auto text-base transition-all duration-300 ${
+                  passwordsMatch
+                    ? 'border-green-400 focus:border-green-500 focus:ring-green-500/20'
+                    : passwordsMismatch
+                    ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
+                    : 'border-gray-200 focus:border-[#001f54] focus:ring-[#001f54]/20'
+                }`}
+                placeholder="••••••••"
+                required
+              />
+              {confirmPassword.length > 0 && (
+                <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 transition-all duration-300 ${
+                  passwordsMatch ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+                }`}>
+                  <Icon name="CheckCircle2" size={18} className="text-green-500" />
+                </div>
+              )}
+              {passwordsMismatch && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 transition-all duration-300 opacity-100 scale-100">
+                  <Icon name="XCircle" size={18} className="text-red-400" />
+                </div>
+              )}
+            </div>
+            <div className={`overflow-hidden transition-all duration-300 ${
+              passwordsMismatch ? 'max-h-6 opacity-100' : 'max-h-0 opacity-0'
+            }`}>
+              <p className="text-red-500 text-xs">Пароли не совпадают</p>
+            </div>
+            <div className={`overflow-hidden transition-all duration-300 ${
+              passwordsMatch ? 'max-h-6 opacity-100' : 'max-h-0 opacity-0'
+            }`}>
+              <p className="text-green-600 text-xs">Пароли совпадают</p>
+            </div>
+          </div>
         </div>
 
         {error && (
@@ -152,7 +242,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
         <Button 
           type="submit" 
           className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold py-3 md:py-3 rounded-lg transition-all duration-300 shadow-lg h-12 md:h-auto text-base" 
-          disabled={loading}
+          disabled={loading || passwordsMismatch}
         >
           {loading ? (
             <>

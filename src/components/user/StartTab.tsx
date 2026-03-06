@@ -100,31 +100,39 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
     <div className="space-y-6 slide-up">
       <Card className="border-none shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-95"
-          style={{ backgroundImage: 'url(https://cdn.poehali.dev/files/cfc2924e2f5bfb692677b8b2609770ec.jpg)' }}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/84906f5f-7ef4-49e5-9a56-bd61e788e7bd/files/5ec1d6ec-8fb2-46f5-b8cf-c5cf727a7309.jpg)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-teal-900/20 to-teal-900/40" />
-        <CardHeader className="text-center relative z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-pink-200/30 via-white/10 to-green-900/40" />
+
+        <CardHeader className="text-center relative z-10 pt-8 pb-2">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="text-2xl">🌸</span>
+            <span className="text-2xl">🌿</span>
+            <span className="text-2xl">🌸</span>
+          </div>
           <CardTitle className="text-white text-2xl font-bold drop-shadow-lg">
-            Выберите организацию
+            Добро пожаловать в весну!
           </CardTitle>
+          <p className="text-white/90 text-sm drop-shadow mt-1">Выберите организацию для работы</p>
         </CardHeader>
-        <CardContent className="space-y-6 relative z-10">
+
+        <CardContent className="space-y-6 relative z-10 pb-8">
           {organizations.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Icon name="AlertCircle" size={48} className="mx-auto mb-3 opacity-30" />
+            <div className="text-center py-8 text-white/80">
+              <Icon name="AlertCircle" size={48} className="mx-auto mb-3 opacity-50" />
               <p>Организации не добавлены администратором</p>
             </div>
           ) : (
             <>
               <div className="relative mb-4">
-                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-900" />
+                <Icon name="Search" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-800" />
                 <Input
                   type="text"
                   placeholder="Поиск организации..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white/40 backdrop-blur-md border-teal-300/50 text-gray-900 placeholder:text-gray-900/70 focus:border-teal-400 focus:ring-teal-400/30 shadow-lg"
+                  className="pl-10 bg-white/50 backdrop-blur-md border-pink-300/60 text-gray-900 placeholder:text-gray-700/70 focus:border-pink-400 focus:ring-pink-300/30 shadow-lg"
                 />
               </div>
 
@@ -139,8 +147,9 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   <button
                     key={org.id}
                     onClick={() => handleOrgClick(org)}
-                    className="w-full p-4 rounded-xl border-2 border-teal-300/50 bg-white/30 backdrop-blur-sm hover:border-teal-400 hover:bg-teal-50/40 transition-all duration-300 flex items-center justify-center hover:shadow-lg hover:scale-[1.02] active:scale-95"
+                    className="w-full p-4 rounded-xl border-2 border-pink-200/60 bg-white/35 backdrop-blur-sm hover:border-pink-300 hover:bg-white/55 transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.02] active:scale-95"
                   >
+                    <span className="text-base">🌷</span>
                     <span className="text-lg text-white font-medium drop-shadow-md">{org.name}</span>
                   </button>
                 ))}
@@ -150,7 +159,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                 <Button
                   onClick={() => setShowAll(!showAll)}
                   variant="outline"
-                  className="w-full border-teal-500/50 text-gray-900 hover:bg-teal-50/40 bg-white/30 backdrop-blur-sm shadow-sm"
+                  className="w-full border-pink-300/60 text-white hover:bg-white/30 bg-white/20 backdrop-blur-sm shadow-sm"
                 >
                   <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={20} className="mr-2" />
                   {showAll ? 'Скрыть' : `Показать ещё (${organizations.length - 4})`}

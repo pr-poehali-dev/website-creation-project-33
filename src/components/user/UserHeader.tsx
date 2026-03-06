@@ -33,7 +33,7 @@ export default function UserHeader({
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden mb-6 p-4 rounded-xl relative overflow-hidden shadow-xl" style={{background: 'linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 50%, #1e4d35 100%)'}}>
+      <div className="md:hidden mb-6 p-4 rounded-xl relative overflow-hidden shadow-xl" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
         <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%)'}} />
         
         {selectedOrganization ? (
@@ -117,7 +117,7 @@ export default function UserHeader({
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden md:flex justify-center items-center mb-8 p-10 rounded-2xl relative overflow-hidden shadow-xl min-h-[120px]" style={{background: 'linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 50%, #1e4d35 100%)'}}>
+      <div className="hidden md:flex justify-center items-center mb-8 p-10 rounded-2xl relative overflow-hidden shadow-xl min-h-[120px]" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
         <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%), radial-gradient(circle at 80% 20%, #6ee7b7 0%, transparent 40%)'}} />
         <div className="flex flex-col absolute left-6 z-10">
           <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-widest leading-tight">ИМПЕРИЯ</span>

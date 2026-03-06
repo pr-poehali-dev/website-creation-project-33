@@ -106,15 +106,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-white/5 to-green-900/40" />
 
         <CardHeader className="text-center relative z-10 pt-8 pb-2">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <span className="text-2xl">🌸</span>
-            <span className="text-2xl">🌿</span>
-            <span className="text-2xl">🌸</span>
-          </div>
-          <CardTitle className="text-white text-2xl font-bold drop-shadow-lg">
-            Добро пожаловать в весну!
-          </CardTitle>
-          <p className="text-white/90 text-sm drop-shadow mt-1">Выберите организацию для работы</p>
+          <p className="text-white text-lg font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Выберите организацию для работы</p>
         </CardHeader>
 
         <CardContent className="space-y-6 relative z-10 pb-8">

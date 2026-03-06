@@ -141,7 +141,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
               {!searchQuery && organizations.length > 4 && (
                 <button
                   onClick={() => setShowAll(!showAll)}
-                  className="w-full py-3 text-sm text-gray-400 hover:text-emerald-600 transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full py-3 text-sm text-gray-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} />
                   {showAll ? 'Скрыть' : `Показать ещё (${organizations.length - 4})`}

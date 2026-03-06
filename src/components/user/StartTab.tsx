@@ -147,7 +147,7 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   <button
                     key={org.id}
                     onClick={() => handleOrgClick(org)}
-                    className="w-full p-4 rounded-xl border-2 border-pink-300/70 bg-white/70 backdrop-blur-sm hover:border-pink-400 hover:bg-white/85 transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.02] active:scale-95"
+                    className="w-full p-4 rounded-xl border-2 border-pink-300/60 bg-white/70 backdrop-blur-sm hover:border-pink-300/60 hover:bg-white/85 transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:scale-[1.02] active:scale-95"
                   >
                     <span className="text-base">🌷</span>
                     <span className="text-lg text-gray-800 font-semibold">{org.name}</span>

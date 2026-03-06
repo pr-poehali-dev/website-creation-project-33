@@ -1,9 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import VideoLeadModal from './VideoLeadModal';
-
-const MAX_SIZE_BYTES = 7 * 1024 * 1024; // 7 МБ (base64 увеличит до ~9.3 МБ)
 
 export default function NewWorkTab() {
   const [isRecording, setIsRecording] = useState(false);
@@ -12,12 +10,10 @@ export default function NewWorkTab() {
   const [modalOpen, setModalOpen] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [recordedSize, setRecordedSize] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const stopResolveRef = useRef<((blob: Blob) => void) | null>(null);
-  const currentSizeRef = useRef(0);
 
   const getSupportedMimeType = () => {
     const types = [
@@ -44,21 +40,9 @@ export default function NewWorkTab() {
     setMimeType(actualMime);
     mediaRecorderRef.current = mediaRecorder;
     videoChunksRef.current = [];
-    currentSizeRef.current = 0;
-    setRecordedSize(0);
 
     mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        videoChunksRef.current.push(event.data);
-        currentSizeRef.current += event.data.size;
-        setRecordedSize(currentSizeRef.current);
-
-        // Останавливаем при достижении лимита 9.99 МБ
-        if (currentSizeRef.current >= MAX_SIZE_BYTES && mediaRecorderRef.current?.state === 'recording') {
-          mediaRecorderRef.current.stop();
-          setIsRecording(false);
-        }
-      }
+      if (event.data.size > 0) videoChunksRef.current.push(event.data);
     };
 
     mediaRecorder.onstop = () => {
@@ -91,7 +75,6 @@ export default function NewWorkTab() {
       return;
     }
 
-    // Попытка 1: задняя камера + микрофон
     try {
       setStatusMsg('Подключаю камеру и микрофон...');
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -104,36 +87,25 @@ export default function NewWorkTab() {
       console.log('Attempt 1 failed:', (e1 as Error).name, (e1 as Error).message);
     }
 
-    // Попытка 2: любая камера + микрофон
     try {
       setStatusMsg('Пробую другую камеру...');
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       startRecordingWithStream(stream);
       return;
     } catch (e2) {
       console.log('Attempt 2 failed:', (e2 as Error).name, (e2 as Error).message);
     }
 
-    // Попытка 3: только камера без микрофона
     try {
       setStatusMsg('Пробую без микрофона...');
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
       startRecordingWithStream(stream);
       return;
     } catch (e3) {
       const err = e3 as Error & { name: string };
       console.error('All attempts failed:', err.name, err.message);
-
       if (err.name === 'NotAllowedError') {
-        setErrorMsg(
-          'Доступ запрещён. Нажмите на значок замка (🔒) слева от адреса сайта → разрешите камеру и микрофон → обновите страницу.'
-        );
+        setErrorMsg('Доступ запрещён. Нажмите на значок замка (🔒) слева от адреса сайта → разрешите камеру и микрофон → обновите страницу.');
       } else if (err.name === 'NotFoundError') {
         setErrorMsg('Камера или микрофон не найдены на устройстве.');
       } else if (err.name === 'NotReadableError') {
@@ -146,14 +118,10 @@ export default function NewWorkTab() {
     setStatusMsg('');
   };
 
-  // Останавливает запись и возвращает Promise<Blob>
   const stopRecordingAndGetBlob = (): Promise<Blob> => {
     return new Promise((resolve) => {
       if (!mediaRecorderRef.current || !isRecording) {
-        // Уже есть blob
-        if (videoBlob) {
-          resolve(videoBlob);
-        }
+        if (videoBlob) resolve(videoBlob);
         return;
       }
       stopResolveRef.current = resolve;
@@ -207,8 +175,6 @@ export default function NewWorkTab() {
         mimeType={mimeType}
         isRecording={isRecording}
         onStopRecording={stopRecordingAndGetBlob}
-        recordedSize={recordedSize}
-        maxSize={MAX_SIZE_BYTES}
       />
     </div>
   );

@@ -7,7 +7,6 @@ import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
-const VIDEO_UPLOAD_URL = 'https://functions.poehali.dev/3698e100-6084-4fbd-aaca-c2be1dc6e458';
 
 interface VideoLeadModalProps {
   open: boolean;
@@ -16,11 +15,9 @@ interface VideoLeadModalProps {
   mimeType?: string;
   isRecording?: boolean;
   onStopRecording?: () => Promise<Blob>;
-  recordedSize?: number;
-  maxSize?: number;
 }
 
-export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'video/webm', isRecording = false, onStopRecording, recordedSize = 0, maxSize = 9.99 * 1024 * 1024 }: VideoLeadModalProps) {
+export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'video/webm', isRecording = false, onStopRecording }: VideoLeadModalProps) {
   const { user } = useAuth();
   const [parentName, setParentName] = useState('');
   const [childName, setChildName] = useState('');
@@ -129,23 +126,6 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
             {isRecording ? 'Идёт запись...' : 'Новый лид'}
           </DialogTitle>
         </DialogHeader>
-
-        {isRecording && (
-          <div className="px-1">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>Размер записи</span>
-              <span className={recordedSize / maxSize > 0.85 ? 'text-orange-500 font-semibold' : ''}>
-                {(recordedSize / 1024 / 1024).toFixed(1)} / 7 МБ
-              </span>
-            </div>
-            <div className="w-full bg-gray-100 rounded-full h-2">
-              <div
-                className={`h-2 rounded-full transition-all duration-300 ${recordedSize / maxSize > 0.85 ? 'bg-orange-400' : 'bg-blue-500'}`}
-                style={{ width: `${Math.min((recordedSize / maxSize) * 100, 100)}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         <div className="flex justify-center py-2">
           <img

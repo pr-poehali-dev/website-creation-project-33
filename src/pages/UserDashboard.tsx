@@ -81,7 +81,7 @@ export default function UserDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        const org = data.organizations.find((o: any) => o.id === selectedOrganization);
+        const org = data.organizations.find((o: { id: number; name: string }) => o.id === selectedOrganization);
         if (org) {
           setOrganizationName(org.name);
         }
@@ -142,126 +142,105 @@ export default function UserDashboard() {
 
         {currentView === 'tiles' && selectedOrganization && (
           <>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-6">
-              <div
-                onClick={() => setCurrentView('work')}
-                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
-              >
-                <div className="absolute inset-0 opacity-80">
-                  <img 
-                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
-                    alt="" 
-                    className="w-full h-full object-cover scale-[2.5]"
-                    style={{ objectPosition: '85% 20%' }}
-                  />
-                </div>
-                {organizationName && (
-                  <Badge className="absolute top-4 right-4 bg-[#c89b3c]/30 hover:bg-[#c89b3c]/40 backdrop-blur-sm text-white border border-[#c89b3c]/60 text-xs md:text-sm px-2 py-1 z-20 shadow-lg transition-colors pointer-events-none">
-                    <Icon name="Building2" size={12} className="mr-1" />
-                    {organizationName}
-                    <span className="ml-2 opacity-90">{todayContacts}/{totalContacts}</span>
-                  </Badge>
+            {organizationName && (
+              <div className="mb-4 flex items-center gap-2 px-1">
+                <Icon name="Building2" size={16} className="text-gray-400" />
+                <span className="text-sm text-gray-500">{organizationName}</span>
+                {(todayContacts > 0 || totalContacts > 0) && (
+                  <span className="text-sm text-gray-400">— {todayContacts}/{totalContacts}</span>
                 )}
-                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
-                  setTodayContacts(stats.today_contacts);
-                  setTotalContacts(stats.total_contacts);
-                }} />
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
-                    <Icon name="Briefcase" size={24} className="text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Работа</h2>
-                  <p className="text-slate-300 text-sm">Лиды и контакты</p>
-                </div>
               </div>
-
-              <div
-                onClick={() => setCurrentView('work-new')}
-                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
-              >
-                <div className="absolute inset-0 opacity-80">
-                  <img 
-                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
-                    alt="" 
-                    className="w-full h-full object-cover scale-[2.5]"
-                    style={{ objectPosition: '75% 25%' }}
-                  />
-                </div>
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
-                    <Icon name="Video" size={24} className="text-white" />
+            )}
+            <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
+              setTodayContacts(stats.today_contacts);
+              setTotalContacts(stats.total_contacts);
+            }} />
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+              <div className="divide-y divide-gray-100">
+                <button
+                  onClick={() => setCurrentView('work')}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+                      <Icon name="Briefcase" size={20} className="text-blue-500" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Работа</div>
+                      <div className="text-xs text-gray-400">Лиды и контакты</div>
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Работа NEW</h2>
-                  <p className="text-slate-300 text-sm">Видео-лиды</p>
-                </div>
-              </div>
+                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                </button>
 
-              <div
-                onClick={() => setCurrentView('schedule')}
-                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
-              >
-                <div className="absolute inset-0 opacity-80">
-                  <img 
-                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
-                    alt="" 
-                    className="w-full h-full object-cover scale-[2.5]"
-                    style={{ objectPosition: '90% 35%' }}
-                  />
-                </div>
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
-                    <Icon name="Calendar" size={24} className="text-white" />
+                <button
+                  onClick={() => setCurrentView('work-new')}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+                      <Icon name="Video" size={20} className="text-blue-500" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Работа NEW</div>
+                      <div className="text-xs text-gray-400">Видео-лиды</div>
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">График</h2>
-                  <p className="text-slate-300 text-sm">Расписание смен</p>
-                </div>
-              </div>
+                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                </button>
 
-              <div
-                onClick={() => setCurrentView('training')}
-                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
-              >
-                <div className="absolute inset-0 opacity-80">
-                  <img 
-                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
-                    alt="" 
-                    className="w-full h-full object-cover scale-[2.5]"
-                    style={{ objectPosition: '80% 55%' }}
-                  />
-                </div>
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4">
-                    <Icon name="GraduationCap" size={24} className="text-white" />
+                <button
+                  onClick={() => setCurrentView('schedule')}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+                      <Icon name="Calendar" size={20} className="text-blue-500" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">График</div>
+                      <div className="text-xs text-gray-400">Расписание смен</div>
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Обучение</h2>
-                  <p className="text-slate-300 text-sm">Материалы и тесты</p>
-                </div>
-              </div>
+                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                </button>
 
-              <div
-                onClick={() => setChatOpen(true)}
-                className="metro-tile bg-teal-900 hover:bg-teal-800 cursor-pointer transition-all duration-200 active:scale-95 p-6 md:p-8 rounded-2xl relative overflow-hidden group min-h-[180px] border-2 border-yellow-500/80 shadow-xl"
-              >
-                <div className="absolute inset-0 opacity-80">
-                  <img 
-                    src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
-                    alt="" 
-                    className="w-full h-full object-cover scale-[2.5]"
-                    style={{ objectPosition: '95% 45%' }}
-                  />
-                </div>
-                <div className="relative z-10">
-                  <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-4 relative">
-                    <Icon name="MessageCircle" size={24} className="text-white" />
-                    {unreadCount > 0 && (
-                      <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5">
-                        {unreadCount}
-                      </Badge>
-                    )}
+                <button
+                  onClick={() => setCurrentView('training')}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+                      <Icon name="GraduationCap" size={20} className="text-blue-500" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Обучение</div>
+                      <div className="text-xs text-gray-400">Материалы и тесты</div>
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Чат</h2>
-                  <p className="text-slate-300 text-sm">Связь с администратором</p>
-                </div>
+                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                </button>
+
+                <button
+                  onClick={() => setChatOpen(true)}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors relative">
+                      <Icon name="MessageCircle" size={20} className="text-blue-500" />
+                      {unreadCount > 0 && (
+                        <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[18px]">
+                          {unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Чат</div>
+                      <div className="text-xs text-gray-400">Связь с администратором</div>
+                    </div>
+                  </div>
+                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                </button>
               </div>
             </div>
           </>

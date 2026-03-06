@@ -13,7 +13,7 @@ interface VideoLeadModalProps {
   videoBlob: Blob | null;
   mimeType?: string;
   isRecording?: boolean;
-  onStopRecording?: () => void;
+  onStopRecording?: () => Promise<Blob>;
 }
 
 export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'video/webm', isRecording = false, onStopRecording }: VideoLeadModalProps) {
@@ -25,53 +25,61 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
   const [sending, setSending] = useState(false);
 
   const handleSendClick = async () => {
-    if (isRecording && onStopRecording) {
-      onStopRecording();
-      return;
-    }
-    await sendLead();
-  };
-
-  const sendLead = async () => {
     if (!parentName || !childName || !childAge || !phone) {
       toast({ title: 'Заполните все поля', variant: 'destructive' });
-      return;
-    }
-    if (!videoBlob) {
-      toast({ title: 'Нет видео для отправки', variant: 'destructive' });
       return;
     }
 
     setSending(true);
     try {
-      const reader = new FileReader();
-      const videoBase64 = await new Promise<string>((resolve, reject) => {
-        reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(videoBlob);
-      });
-
-      const response = await fetch('https://functions.poehali.dev/3698e100-6084-4fbd-aaca-c2be1dc6e458', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user?.id?.toString() || '',
-        },
-        body: JSON.stringify({ video: videoBase64, parentName, childName, childAge, phone, mimeType }),
-      });
-
-      if (response.ok) {
-        toast({ title: 'Лид отправлен в Telegram!' });
-        resetForm();
-        onClose();
-      } else {
-        throw new Error('Ошибка отправки');
+      // Если идёт запись — останавливаем и ждём blob
+      let finalBlob = videoBlob;
+      if (isRecording && onStopRecording) {
+        finalBlob = await onStopRecording();
       }
+
+      if (!finalBlob || finalBlob.size === 0) {
+        toast({ title: 'Нет видео для отправки', variant: 'destructive' });
+        setSending(false);
+        return;
+      }
+
+      await sendLead(finalBlob);
     } catch {
       toast({ title: 'Не удалось отправить лид', variant: 'destructive' });
-    } finally {
       setSending(false);
     }
+  };
+
+  const sendLead = async (blob: Blob) => {
+    const reader = new FileReader();
+    const videoBase64 = await new Promise<string>((resolve, reject) => {
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        const parts = result.split(',');
+        resolve(parts.length > 1 ? parts[1] : result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+
+    const response = await fetch('https://functions.poehali.dev/3698e100-6084-4fbd-aaca-c2be1dc6e458', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Id': user?.id?.toString() || '',
+      },
+      body: JSON.stringify({ video: videoBase64, parentName, childName, childAge, phone, mimeType }),
+    });
+
+    if (response.ok) {
+      toast({ title: 'Лид отправлен в Telegram!' });
+      resetForm();
+      onClose();
+    } else {
+      throw new Error('Ошибка отправки');
+    }
+    setSending(false);
   };
 
   const resetForm = () => {
@@ -82,7 +90,6 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
   };
 
   const handleCancel = () => {
-    if (isRecording && onStopRecording) onStopRecording();
     resetForm();
     onClose();
   };
@@ -164,11 +171,6 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
                 <>
                   <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
                   Отправка...
-                </>
-              ) : isRecording ? (
-                <>
-                  <Icon name="Send" size={18} className="mr-2" />
-                  Отправить в Telegram
                 </>
               ) : (
                 <>

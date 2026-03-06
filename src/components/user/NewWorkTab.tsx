@@ -13,6 +13,7 @@ export default function NewWorkTab() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const stopResolveRef = useRef<((blob: Blob) => void) | null>(null);
 
   const getSupportedMimeType = () => {
     const types = [
@@ -35,7 +36,7 @@ export default function NewWorkTab() {
       ? new MediaRecorder(stream, { mimeType: detectedMime })
       : new MediaRecorder(stream);
 
-    const actualMime = detectedMime || 'video/webm';
+    const actualMime = detectedMime || mediaRecorder.mimeType || 'video/webm';
     setMimeType(actualMime);
     mediaRecorderRef.current = mediaRecorder;
     videoChunksRef.current = [];
@@ -50,6 +51,10 @@ export default function NewWorkTab() {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
+      }
+      if (stopResolveRef.current) {
+        stopResolveRef.current(blob);
+        stopResolveRef.current = null;
       }
     };
 
@@ -125,18 +130,31 @@ export default function NewWorkTab() {
     setStatusMsg('');
   };
 
-  const stopRecording = () => {
+  // Останавливает запись и возвращает Promise<Blob>
+  const stopRecordingAndGetBlob = (): Promise<Blob> => {
+    return new Promise((resolve) => {
+      if (!mediaRecorderRef.current || !isRecording) {
+        // Уже есть blob
+        if (videoBlob) {
+          resolve(videoBlob);
+        }
+        return;
+      }
+      stopResolveRef.current = resolve;
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    });
+  };
+
+  const handleClose = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
-  };
-
-  const handleClose = () => {
-    if (isRecording) stopRecording();
     setModalOpen(false);
     setVideoBlob(null);
     videoChunksRef.current = [];
+    stopResolveRef.current = null;
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
@@ -172,7 +190,7 @@ export default function NewWorkTab() {
         videoBlob={videoBlob}
         mimeType={mimeType}
         isRecording={isRecording}
-        onStopRecording={stopRecording}
+        onStopRecording={stopRecordingAndGetBlob}
       />
     </div>
   );

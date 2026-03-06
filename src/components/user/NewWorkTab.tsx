@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import VideoLeadModal from './VideoLeadModal';
 
-const MAX_SIZE_BYTES = 9.99 * 1024 * 1024; // 9.99 МБ
+const MAX_SIZE_BYTES = 7 * 1024 * 1024; // 7 МБ (base64 увеличит до ~9.3 МБ)
 
 export default function NewWorkTab() {
   const [isRecording, setIsRecording] = useState(false);

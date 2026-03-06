@@ -137,7 +137,7 @@ export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'v
             <div className="flex justify-between text-xs text-gray-500 mb-1">
               <span>Размер записи</span>
               <span className={recordedSize / maxSize > 0.85 ? 'text-orange-500 font-semibold' : ''}>
-                {(recordedSize / 1024 / 1024).toFixed(1)} / 9.99 МБ
+                {(recordedSize / 1024 / 1024).toFixed(1)} / 7 МБ
               </span>
             </div>
             <div className="w-full bg-gray-100 rounded-full h-2">

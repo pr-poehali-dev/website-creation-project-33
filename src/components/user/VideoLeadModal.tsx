@@ -11,11 +11,12 @@ interface VideoLeadModalProps {
   open: boolean;
   onClose: () => void;
   videoBlob: Blob | null;
+  mimeType?: string;
   isRecording?: boolean;
   onStopRecording?: () => void;
 }
 
-export default function VideoLeadModal({ open, onClose, videoBlob, isRecording = false, onStopRecording }: VideoLeadModalProps) {
+export default function VideoLeadModal({ open, onClose, videoBlob, mimeType = 'video/webm', isRecording = false, onStopRecording }: VideoLeadModalProps) {
   const { user } = useAuth();
   const [parentName, setParentName] = useState('');
   const [childName, setChildName] = useState('');
@@ -56,7 +57,7 @@ export default function VideoLeadModal({ open, onClose, videoBlob, isRecording =
           'Content-Type': 'application/json',
           'X-User-Id': user?.id?.toString() || '',
         },
-        body: JSON.stringify({ video: videoBase64, parentName, childName, childAge, phone }),
+        body: JSON.stringify({ video: videoBase64, parentName, childName, childAge, phone, mimeType }),
       });
 
       if (response.ok) {

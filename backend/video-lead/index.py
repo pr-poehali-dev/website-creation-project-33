@@ -37,9 +37,11 @@ def handler(event: dict, context) -> dict:
         }
 
     video_bytes = base64.b64decode(video_base64)
+    mime_type = body.get('mimeType', 'video/webm')
 
+    # Telegram лучше принимает через sendDocument если формат не mp4
     caption = (
-        f"🎥 *Новый видео-лид*\n\n"
+        f"🎥 Новый видео-лид\n\n"
         f"👤 Родитель: {parent_name}\n"
         f"👶 Ребёнок: {child_name}\n"
         f"🎂 Возраст: {child_age}\n"
@@ -48,19 +50,27 @@ def handler(event: dict, context) -> dict:
     if user_id_header:
         caption += f"\n\n🆔 Сотрудник ID: {user_id_header}"
 
+    # Пробуем sendVideo, при ошибке — sendDocument
+    ext = 'mp4' if 'mp4' in mime_type else 'webm'
+    filename = f'lead.{ext}'
+
     api_url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVideo"
     response = requests.post(
         api_url,
-        data={
-            'chat_id': USER_ID,
-            'caption': caption,
-            'parse_mode': 'Markdown'
-        },
-        files={
-            'video': ('lead.mp4', video_bytes, 'video/mp4')
-        },
+        data={'chat_id': USER_ID, 'caption': caption},
+        files={'video': (filename, video_bytes, mime_type)},
         timeout=60
     )
+
+    if response.status_code != 200:
+        # Fallback — отправляем как документ
+        api_url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument"
+        response = requests.post(
+            api_url,
+            data={'chat_id': USER_ID, 'caption': caption},
+            files={'document': (filename, video_bytes, mime_type)},
+            timeout=60
+        )
 
     if response.status_code == 200:
         return {

@@ -6,15 +6,28 @@ import VideoLeadModal from './VideoLeadModal';
 export default function NewWorkTab() {
   const [isRecording, setIsRecording] = useState(false);
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const [mimeType, setMimeType] = useState('video/webm');
   const [modalOpen, setModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
 
+  const getSupportedMimeType = () => {
+    const types = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm',
+      'video/mp4',
+    ];
+    for (const type of types) {
+      if (MediaRecorder.isTypeSupported(type)) return type;
+    }
+    return '';
+  };
+
   const startRecording = async () => {
     try {
-      setModalOpen(true);
-
+      // Сначала получаем доступ к камере — потом открываем модалку
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
         audio: true
@@ -22,13 +35,13 @@ export default function NewWorkTab() {
 
       streamRef.current = stream;
 
-      let mediaRecorder: MediaRecorder;
-      try {
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/mp4' });
-      } catch {
-        mediaRecorder = new MediaRecorder(stream);
-      }
+      const detectedMime = getSupportedMimeType();
+      const mediaRecorder = detectedMime
+        ? new MediaRecorder(stream, { mimeType: detectedMime })
+        : new MediaRecorder(stream);
 
+      const actualMime = detectedMime || 'video/webm';
+      setMimeType(actualMime);
       mediaRecorderRef.current = mediaRecorder;
       videoChunksRef.current = [];
 
@@ -37,17 +50,17 @@ export default function NewWorkTab() {
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(videoChunksRef.current, { type: 'video/mp4' });
+        const blob = new Blob(videoChunksRef.current, { type: actualMime });
         setVideoBlob(blob);
         stream.getTracks().forEach(track => track.stop());
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(1000); // собираем чанки каждую секунду
       setIsRecording(true);
+      setModalOpen(true); // открываем только после успешного старта
     } catch (error) {
       console.error('Ошибка доступа к камере:', error);
-      alert('Не удалось получить доступ к камере. Проверьте разрешения.');
-      setModalOpen(false);
+      alert('Не удалось получить доступ к камере. Проверьте разрешения в браузере.');
     }
   };
 
@@ -85,6 +98,7 @@ export default function NewWorkTab() {
         open={modalOpen}
         onClose={handleClose}
         videoBlob={videoBlob}
+        mimeType={mimeType}
         isRecording={isRecording}
         onStopRecording={stopRecording}
       />

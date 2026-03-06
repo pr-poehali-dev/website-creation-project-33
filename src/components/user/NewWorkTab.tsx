@@ -71,13 +71,13 @@ export default function NewWorkTab() {
 
   return (
     <div className="bg-white min-h-screen p-4">
-      <div className="flex justify-start pt-2">
+      <div className="flex justify-center pt-6">
         <Button
           onClick={startRecording}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl shadow-md flex items-center gap-2 text-base font-semibold"
+          className="w-36 h-36 rounded-full bg-blue-500 hover:bg-blue-600 shadow-xl flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95"
         >
-          <Icon name="Video" size={20} className="text-white" />
-          Начать запись
+          <Icon name="Video" size={32} className="text-white" />
+          <span className="text-sm font-semibold text-white">Начать запись</span>
         </Button>
       </div>
 

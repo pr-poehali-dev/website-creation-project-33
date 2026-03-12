@@ -218,34 +218,34 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
         {/* Бух.учет */}
         <button
           onClick={() => handleViewChange('accounting')}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-yellow-50 hover:border-l-4 hover:border-l-yellow-400 transition-all duration-200 group"
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
         >
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-yellow-50 group-hover:bg-yellow-100 flex items-center justify-center transition-colors flex-shrink-0">
-              <Icon name="Calculator" size={20} className="text-yellow-600" />
+            <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="Calculator" size={20} className="text-blue-500" />
             </div>
             <div className="text-left min-w-0">
-              <div className="font-semibold text-gray-800 group-hover:text-yellow-700 transition-colors">Бух.учет</div>
+              <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Бух.учет</div>
               <div className="text-xs text-gray-400">Финансовый учет и отчетность</div>
             </div>
             <div className="ml-2 flex-shrink-0">
               <AccountingStats sessionToken={sessionToken} />
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-yellow-400 transition-colors flex-shrink-0 ml-2" />
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2" />
         </button>
 
         {/* Статистика */}
         <button
           onClick={() => handleViewChange('stats')}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-green-50 hover:border-l-4 hover:border-l-green-400 transition-all duration-200 group"
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
         >
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-green-50 group-hover:bg-green-100 flex items-center justify-center transition-colors flex-shrink-0">
-              <Icon name="BarChart3" size={20} className="text-green-600" />
+            <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="BarChart3" size={20} className="text-blue-500" />
             </div>
             <div className="text-left min-w-0">
-              <div className="font-semibold text-gray-800 group-hover:text-green-700 transition-colors">Статистика</div>
+              <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Статистика</div>
               <div className="text-xs text-gray-400">Промоутеры, рейтинг, организации</div>
             </div>
             <div className="ml-2 flex-shrink-0 flex flex-wrap gap-1.5">
@@ -254,17 +254,17 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               <TodayApproachesCounter sessionToken={sessionToken} />
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-green-400 transition-colors flex-shrink-0 ml-2" />
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2" />
         </button>
 
         {/* Чат */}
         <button
           onClick={() => handleViewChange('chat')}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-orange-50 hover:border-l-4 hover:border-l-orange-400 transition-all duration-200 group"
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
         >
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 group-hover:bg-orange-100 flex items-center justify-center transition-colors flex-shrink-0 relative">
-              <Icon name="MessageCircle" size={20} className="text-orange-500" />
+            <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0 relative">
+              <Icon name="MessageCircle" size={20} className="text-blue-500" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 animate-pulse">
                   {unreadCount}
@@ -272,7 +272,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               )}
             </div>
             <div className="text-left">
-              <div className="font-semibold text-gray-800 group-hover:text-orange-700 transition-colors">Чат</div>
+              <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Чат</div>
               <div className="text-xs text-gray-400">Общение с промоутерами</div>
             </div>
           </div>
@@ -282,38 +282,38 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
         {/* Заказчики */}
         <button
           onClick={() => handleViewChange('clients')}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-purple-50 hover:border-l-4 hover:border-l-purple-400 transition-all duration-200 group"
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
         >
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center transition-colors flex-shrink-0">
-              <Icon name="Building2" size={20} className="text-purple-500" />
+            <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="Building2" size={20} className="text-blue-500" />
             </div>
             <div className="text-left">
-              <div className="font-semibold text-gray-800 group-hover:text-purple-700 transition-colors">Заказчики</div>
+              <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Заказчики</div>
               <div className="text-xs text-gray-400">Планирование выходов к организациям</div>
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-purple-400 transition-colors flex-shrink-0" />
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0" />
         </button>
 
         {/* График */}
         <button
           onClick={() => handleViewChange('analytics')}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-indigo-50 hover:border-l-4 hover:border-l-indigo-400 transition-all duration-200 group"
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
         >
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 group-hover:bg-indigo-100 flex items-center justify-center transition-colors flex-shrink-0">
-              <Icon name="TrendingUp" size={20} className="text-indigo-500" />
+            <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="TrendingUp" size={20} className="text-blue-500" />
             </div>
             <div className="text-left min-w-0">
-              <div className="font-semibold text-gray-800 group-hover:text-indigo-700 transition-colors">График</div>
+              <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">График</div>
               <div className="text-xs text-gray-400">Расписание смен</div>
             </div>
             <div className="ml-2 flex-shrink-0">
               <TodayWorkersCounter sessionToken={sessionToken} />
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-indigo-400 transition-colors flex-shrink-0 ml-2" />
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2" />
         </button>
 
         {/* Телеграм бот */}

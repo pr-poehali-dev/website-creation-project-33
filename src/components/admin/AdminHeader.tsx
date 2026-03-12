@@ -18,7 +18,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
         <div className="flex items-center justify-between relative z-10">
           <div className="flex flex-col">
             <span className="text-xl font-bold text-white drop-shadow-lg leading-tight tracking-wide">ИМПЕРИЯ</span>
-            <span className="text-xs text-white/80 drop-shadow leading-tight">панель администратора</span>
+            <span className="text-xs text-white/80 drop-shadow leading-tight">рекламное агентство</span>
           </div>
           <div className="flex gap-1">
             {showHomeButton && onGoHome && (
@@ -55,7 +55,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
         <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%), radial-gradient(circle at 80% 20%, #6ee7b7 0%, transparent 40%)'}} />
         <div className="flex flex-col absolute left-6 z-10">
           <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-widest leading-tight">ИМПЕРИЯ</span>
-          <span className="text-base text-white/85 drop-shadow leading-tight tracking-wide">панель администратора</span>
+          <span className="text-base text-white/85 drop-shadow leading-tight tracking-wide">рекламное агентство</span>
         </div>
         <div className="flex items-center gap-3 absolute right-6 z-10">
           {showHomeButton && onGoHome && (

@@ -45,11 +45,11 @@ export default function TodayWorkersCounter({ sessionToken }: TodayWorkersCounte
         
         const uniqueWorkers = new Set<number>();
         
-        schedules.forEach((schedule: any) => {
+        schedules.forEach((schedule: { user_id: number; schedule: Record<string, Record<string, unknown>> }) => {
           if (schedule.schedule && schedule.schedule[today]) {
             const todaySlots = schedule.schedule[today];
             const hasSlots = Object.keys(todaySlots).length > 0 && 
-                           Object.values(todaySlots).some((val: any) => val === true || val === 1 || val === '1' || val);
+                           Object.values(todaySlots).some((val) => val === true || val === 1 || val === '1' || !!val);
             
             if (hasSlots) {
               uniqueWorkers.add(schedule.user_id);
@@ -79,12 +79,12 @@ export default function TodayWorkersCounter({ sessionToken }: TodayWorkersCounte
   };
 
   return (
-    <div className="inline-block bg-indigo-500/20 border border-indigo-400/30 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
-      <div className="text-[8px] md:text-[10px] text-indigo-100 font-medium uppercase tracking-wide">Работают</div>
-      <div className="text-sm md:text-lg font-bold text-white leading-tight">
+    <div className="inline-block bg-indigo-50 border border-indigo-200 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
+      <div className="text-[8px] md:text-[10px] text-indigo-500 font-medium uppercase tracking-wide">Работают</div>
+      <div className="text-sm md:text-base font-bold text-gray-800 leading-tight">
         {formatNumber(workersCount)}
       </div>
-      <div className="text-[8px] md:text-[10px] text-indigo-100">сегодня</div>
+      <div className="text-[8px] md:text-[10px] text-indigo-400">сегодня</div>
     </div>
   );
 }

@@ -195,135 +195,144 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-8">
-      <div
-        onClick={() => handleViewChange('requests')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-1 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
-      >
-        <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
-        </div>
-        <div className="relative z-10">
-          <div className="p-2 rounded-xl bg-blue-500/20 border border-blue-400/30 w-fit mb-2 md:mb-3">
-            <Icon name="UserCheck" size={20} className="text-white md:w-6 md:h-6" />
-          </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Заявки</h2>
-          <p className="text-blue-100 text-xs md:text-sm">Новые заявки и время работы</p>
-        </div>
-      </div>
+    <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+      <div className="divide-y divide-gray-100">
 
-      <div
-        onClick={() => handleViewChange('accounting')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-2 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
-      >
-        <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
-        </div>
-        <div className="relative z-10 flex flex-col h-full">
-          <div className="p-2 rounded-xl bg-yellow-400/20 border border-yellow-300/30 w-fit mb-2 md:mb-3">
-            <Icon name="Calculator" size={20} className="text-white md:w-6 md:h-6" />
-          </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Бух.учет</h2>
-          <p className="text-yellow-100 text-xs md:text-sm mb-2 md:mb-3">Финансовый учет и отчетность</p>
-          <div className="mt-auto pt-2 md:pt-4">
-            <AccountingStats sessionToken={sessionToken} />
-          </div>
-        </div>
-      </div>
-
-      <div
-        onClick={() => handleViewChange('stats')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-3 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
-      >
-        <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
-        </div>
-        <div className="relative z-10 flex flex-col h-full">
-          <div className="p-2 rounded-xl bg-green-500/20 border border-green-400/30 w-fit mb-2 md:mb-3">
-            <Icon name="BarChart3" size={20} className="text-white md:w-6 md:h-6" />
-          </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Статистика</h2>
-          <p className="text-green-100 text-xs md:text-sm mb-2 md:mb-3">Промоутеры, рейтинг, организации</p>
-          <div className="mt-auto pt-2 md:pt-4 flex flex-wrap gap-1.5 md:gap-2">
-            <MonthComparisonBadge sessionToken={sessionToken} />
-            <TodayContactsCounter sessionToken={sessionToken} />
-            <TodayApproachesCounter sessionToken={sessionToken} />
-          </div>
-        </div>
-      </div>
-
-      <div
-        onClick={() => handleViewChange('chat')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-4 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
-      >
-        <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
-        </div>
-        {unreadCount > 0 && (
-          <div className="absolute top-2 right-2 md:top-3 md:right-3 z-20">
-            <div className="bg-red-500 text-white px-2 py-1 md:px-2.5 md:py-1 rounded-full text-xs font-bold shadow-lg border border-red-300/50">
-              {unreadCount}
+        {/* Заявки */}
+        <button
+          onClick={() => handleViewChange('requests')}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="UserCheck" size={20} className="text-blue-500" />
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Заявки</div>
+              <div className="text-xs text-gray-400">Новые заявки и время работы</div>
             </div>
           </div>
-        )}
-        <div className="relative z-10">
-          <div className="p-2 rounded-xl bg-orange-400/20 border border-orange-300/30 w-fit mb-2 md:mb-3">
-            <Icon name="MessageCircle" size={20} className="text-white md:w-6 md:h-6" />
-          </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Чат</h2>
-          <p className="text-orange-100 text-xs md:text-sm">Общение с промоутерами</p>
-        </div>
-      </div>
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0" />
+        </button>
 
-      <div
-        onClick={() => handleViewChange('clients')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-5 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
-      >
-        <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
-        </div>
-        <div className="relative z-10">
-          <div className="p-2 rounded-xl bg-purple-500/20 border border-purple-400/30 w-fit mb-2 md:mb-3">
-            <Icon name="Building2" size={20} className="text-white md:w-6 md:h-6" />
+        {/* Бух.учет */}
+        <button
+          onClick={() => handleViewChange('accounting')}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-yellow-50 hover:border-l-4 hover:border-l-yellow-400 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-yellow-50 group-hover:bg-yellow-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="Calculator" size={20} className="text-yellow-600" />
+            </div>
+            <div className="text-left min-w-0">
+              <div className="font-semibold text-gray-800 group-hover:text-yellow-700 transition-colors">Бух.учет</div>
+              <div className="text-xs text-gray-400">Финансовый учет и отчетность</div>
+            </div>
+            <div className="ml-2 flex-shrink-0">
+              <AccountingStats sessionToken={sessionToken} />
+            </div>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Заказчики</h2>
-          <p className="text-purple-100 text-xs md:text-sm">Планирование выходов к организациям</p>
-        </div>
-      </div>
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-yellow-400 transition-colors flex-shrink-0 ml-2" />
+        </button>
 
-      <div
-        onClick={() => handleViewChange('analytics')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-6 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
-      >
-        <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
-        </div>
-        <div className="relative z-10 flex flex-col h-full">
-          <div className="p-2 rounded-xl bg-indigo-500/20 border border-indigo-400/30 w-fit mb-2 md:mb-3">
-            <Icon name="TrendingUp" size={20} className="text-white md:w-6 md:h-6" />
+        {/* Статистика */}
+        <button
+          onClick={() => handleViewChange('stats')}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-green-50 hover:border-l-4 hover:border-l-green-400 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-green-50 group-hover:bg-green-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="BarChart3" size={20} className="text-green-600" />
+            </div>
+            <div className="text-left min-w-0">
+              <div className="font-semibold text-gray-800 group-hover:text-green-700 transition-colors">Статистика</div>
+              <div className="text-xs text-gray-400">Промоутеры, рейтинг, организации</div>
+            </div>
+            <div className="ml-2 flex-shrink-0 flex flex-wrap gap-1.5">
+              <MonthComparisonBadge sessionToken={sessionToken} />
+              <TodayContactsCounter sessionToken={sessionToken} />
+              <TodayApproachesCounter sessionToken={sessionToken} />
+            </div>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-1">График</h2>
-          <p className="text-indigo-100 text-xs md:text-sm mb-2 md:mb-3">Расписание смен</p>
-          <div className="mt-auto pt-2 md:pt-4">
-            <TodayWorkersCounter sessionToken={sessionToken} />
-          </div>
-        </div>
-      </div>
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-green-400 transition-colors flex-shrink-0 ml-2" />
+        </button>
 
-      <div
-        onClick={() => handleViewChange('telegram')}
-        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 p-6 rounded-2xl relative overflow-hidden group order-7 shadow-xl hover:shadow-2xl border-2 border-yellow-400/80"
-      >
-        <div className="absolute inset-0 z-0">
-          <img src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" alt="" className="w-full h-full object-cover opacity-90 scale-[2.5] object-right" />
-        </div>
-        <div className="relative z-10">
-          <div className="p-2 rounded-xl bg-blue-500/20 border border-blue-400/30 w-fit mb-2 md:mb-3">
-            <Icon name="Bot" size={20} className="text-white md:w-6 md:h-6" />
+        {/* Чат */}
+        <button
+          onClick={() => handleViewChange('chat')}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-orange-50 hover:border-l-4 hover:border-l-orange-400 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-orange-50 group-hover:bg-orange-100 flex items-center justify-center transition-colors flex-shrink-0 relative">
+              <Icon name="MessageCircle" size={20} className="text-orange-500" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-gray-800 group-hover:text-orange-700 transition-colors">Чат</div>
+              <div className="text-xs text-gray-400">Общение с промоутерами</div>
+            </div>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Телеграм бот</h2>
-          <p className="text-blue-100 text-xs md:text-sm">Управление ботом</p>
-        </div>
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-orange-400 transition-colors flex-shrink-0" />
+        </button>
+
+        {/* Заказчики */}
+        <button
+          onClick={() => handleViewChange('clients')}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-purple-50 hover:border-l-4 hover:border-l-purple-400 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="Building2" size={20} className="text-purple-500" />
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-gray-800 group-hover:text-purple-700 transition-colors">Заказчики</div>
+              <div className="text-xs text-gray-400">Планирование выходов к организациям</div>
+            </div>
+          </div>
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-purple-400 transition-colors flex-shrink-0" />
+        </button>
+
+        {/* График */}
+        <button
+          onClick={() => handleViewChange('analytics')}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-indigo-50 hover:border-l-4 hover:border-l-indigo-400 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 group-hover:bg-indigo-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="TrendingUp" size={20} className="text-indigo-500" />
+            </div>
+            <div className="text-left min-w-0">
+              <div className="font-semibold text-gray-800 group-hover:text-indigo-700 transition-colors">График</div>
+              <div className="text-xs text-gray-400">Расписание смен</div>
+            </div>
+            <div className="ml-2 flex-shrink-0">
+              <TodayWorkersCounter sessionToken={sessionToken} />
+            </div>
+          </div>
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-indigo-400 transition-colors flex-shrink-0 ml-2" />
+        </button>
+
+        {/* Телеграм бот */}
+        <button
+          onClick={() => handleViewChange('telegram')}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="Bot" size={20} className="text-blue-500" />
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Телеграм бот</div>
+              <div className="text-xs text-gray-400">Управление ботом</div>
+            </div>
+          </div>
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0" />
+        </button>
+
       </div>
     </div>
   );

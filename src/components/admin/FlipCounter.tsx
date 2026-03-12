@@ -28,14 +28,14 @@ export default function FlipCounter({ value }: FlipCounterProps) {
   };
 
   return (
-    <div className="inline-block bg-green-50 border border-green-200 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
-      <div className="text-[8px] md:text-[10px] text-green-600 font-medium uppercase tracking-wide">Контакты</div>
+    <div className="inline-block bg-blue-50 border border-blue-200 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
+      <div className="text-[8px] md:text-[10px] text-blue-500 font-medium uppercase tracking-wide">Контакты</div>
       <div className={`text-sm md:text-base font-bold text-gray-800 leading-tight transition-transform duration-300 ${
         isFlipping ? 'scale-110' : 'scale-100'
       }`}>
         {formatNumber(displayValue)}
       </div>
-      <div className="text-[8px] md:text-[10px] text-green-500">сегодня</div>
+      <div className="text-[8px] md:text-[10px] text-blue-400">сегодня</div>
     </div>
   );
 }

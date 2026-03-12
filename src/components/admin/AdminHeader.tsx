@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
-
 interface AdminHeaderProps {
   onLogout: () => void;
   onOpenGoogleSheets: () => void;
@@ -13,74 +12,76 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false }: AdminHeaderProps) {
   return (
     <>
-      <div className="md:hidden mb-6 bg-teal-900 border-2 border-yellow-400/80 p-4 rounded-xl relative overflow-hidden shadow-xl">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
-            alt="" 
-            className="w-full h-full object-cover object-right scale-[2.5]"
-          />
-        </div>
+      {/* Mobile Header */}
+      <div className="md:hidden mb-6 p-4 rounded-xl relative overflow-hidden shadow-xl" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
+        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%)'}} />
         <div className="flex items-center justify-between relative z-10">
-          <h1 className="text-xl font-bold text-white drop-shadow-lg">
-            С Новым Годом!
-          </h1>
-          <div className="flex gap-2">
+          <div className="flex flex-col">
+            <span className="text-xl font-bold text-white drop-shadow-lg leading-tight tracking-wide">ИМПЕРИЯ</span>
+            <span className="text-xs text-white/80 drop-shadow leading-tight">панель администратора</span>
+          </div>
+          <div className="flex gap-1">
             {showHomeButton && onGoHome && (
-              <Button 
+              <Button
                 onClick={onGoHome}
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
                 size="sm"
                 variant="outline"
               >
-                <Icon name="Home" size={16} className="text-white" />
+                <Icon name="Home" size={14} className="text-white" />
               </Button>
             )}
-            <Button 
+            <Button
               onClick={onOpenGoogleSheets}
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
               size="sm"
               variant="outline"
             >
-              <Icon name="Sheet" size={16} className="text-white" />
+              <Icon name="Sheet" size={14} className="text-white" />
             </Button>
-            <Button 
-              onClick={onLogout} 
-              className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 px-3 py-2"
+            <Button
+              onClick={onLogout}
+              className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
               size="sm"
             >
-              <Icon name="LogOut" size={16} className="text-white" />
+              <Icon name="LogOut" size={14} className="text-white" />
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="hidden md:flex justify-center items-center mb-8 bg-teal-900 border-2 border-yellow-500/80 p-6 rounded-2xl relative overflow-hidden shadow-xl">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://cdn.poehali.dev/files/SL-070821-44170-88-scaled-1.jpg" 
-            alt="" 
-            className="w-full h-full object-cover object-left"
-          />
+      {/* Desktop Header */}
+      <div className="hidden md:flex justify-center items-center mb-8 p-10 rounded-2xl relative overflow-hidden shadow-xl min-h-[120px]" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
+        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%), radial-gradient(circle at 80% 20%, #6ee7b7 0%, transparent 40%)'}} />
+        <div className="flex flex-col absolute left-6 z-10">
+          <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-widest leading-tight">ИМПЕРИЯ</span>
+          <span className="text-base text-white/85 drop-shadow leading-tight tracking-wide">панель администратора</span>
         </div>
-        <h1 className="text-4xl font-bold text-white relative z-10 drop-shadow-2xl">
-          С Новым Годом!
-        </h1>
         <div className="flex items-center gap-3 absolute right-6 z-10">
-          <Button 
+          {showHomeButton && onGoHome && (
+            <Button
+              onClick={onGoHome}
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl px-3"
+              variant="outline"
+              size="sm"
+            >
+              <Icon name="Home" size={18} className="text-white" />
+            </Button>
+          )}
+          <Button
             onClick={onOpenGoogleSheets}
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl font-semibold"
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl font-semibold"
             variant="outline"
           >
             <Icon name="Sheet" size={16} className="mr-2 text-white" />
             <span className="text-white">Google Таблицы</span>
           </Button>
-          <Button 
-            onClick={onLogout} 
-            className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-yellow-400/80 shadow-xl font-semibold"
+          <Button
+            onClick={onLogout}
+            className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl px-3"
+            size="sm"
           >
-            <Icon name="LogOut" size={16} className="mr-2" />
-            Выйти
+            <Icon name="LogOut" size={18} className="text-white" />
           </Button>
         </div>
       </div>

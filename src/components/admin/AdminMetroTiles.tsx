@@ -224,12 +224,12 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
             <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
               <Icon name="Calculator" size={20} className="text-blue-500" />
             </div>
-            <div className="text-left min-w-0">
+            <div className="text-left min-w-0 flex-1">
               <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Бух.учет</div>
               <div className="text-xs text-gray-400">Финансовый учет и отчетность</div>
-            </div>
-            <div className="ml-2 flex-shrink-0">
-              <AccountingStats sessionToken={sessionToken} />
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                <AccountingStats sessionToken={sessionToken} />
+              </div>
             </div>
           </div>
           <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2" />
@@ -244,14 +244,14 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
             <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
               <Icon name="BarChart3" size={20} className="text-blue-500" />
             </div>
-            <div className="text-left min-w-0">
+            <div className="text-left min-w-0 flex-1">
               <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Статистика</div>
               <div className="text-xs text-gray-400">Промоутеры, рейтинг, организации</div>
-            </div>
-            <div className="ml-2 flex-shrink-0 flex flex-wrap gap-1.5">
-              <MonthComparisonBadge sessionToken={sessionToken} />
-              <TodayContactsCounter sessionToken={sessionToken} />
-              <TodayApproachesCounter sessionToken={sessionToken} />
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                <MonthComparisonBadge sessionToken={sessionToken} />
+                <TodayContactsCounter sessionToken={sessionToken} />
+                <TodayApproachesCounter sessionToken={sessionToken} />
+              </div>
             </div>
           </div>
           <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2" />
@@ -305,12 +305,12 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
             <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
               <Icon name="TrendingUp" size={20} className="text-blue-500" />
             </div>
-            <div className="text-left min-w-0">
+            <div className="text-left min-w-0 flex-1">
               <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">График</div>
               <div className="text-xs text-gray-400">Расписание смен</div>
-            </div>
-            <div className="ml-2 flex-shrink-0">
-              <TodayWorkersCounter sessionToken={sessionToken} />
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                <TodayWorkersCounter sessionToken={sessionToken} />
+              </div>
             </div>
           </div>
           <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2" />

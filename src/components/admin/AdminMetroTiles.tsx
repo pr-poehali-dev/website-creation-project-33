@@ -211,7 +211,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Заявки</div>
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0" />
         </button>
 
         {/* Бух.учет */}
@@ -235,7 +234,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               </div>
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2" />
         </button>
 
         {/* Статистика */}
@@ -261,7 +259,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               </div>
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2" />
         </button>
 
         {/* Чат */}
@@ -282,7 +279,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Чат</div>
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-orange-400 transition-colors flex-shrink-0" />
         </button>
 
         {/* Заказчики */}
@@ -298,7 +294,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Заказчики</div>
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0" />
         </button>
 
         {/* График */}
@@ -319,7 +314,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               </div>
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2" />
         </button>
 
         {/* Телеграм бот */}
@@ -335,7 +329,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Телеграм бот</div>
             </div>
           </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0" />
         </button>
 
       </div>

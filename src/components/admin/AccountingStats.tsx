@@ -127,58 +127,22 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
   const todayChange = calculateChange(earnings.today, earnings.yesterday);
   const monthChange = calculateChange(earnings.month, earnings.previousMonth);
 
+  const Badge = ({ label, value, change }: { label: string; value: string; change: { percent: number; isPositive: boolean } }) => (
+    <div className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-2.5 py-1.5 shadow-sm">
+      <span className="text-[10px] text-gray-400 font-medium">{label}</span>
+      <span className="text-sm font-bold text-gray-800">{value} ₽</span>
+      <span className={`flex items-center gap-0.5 text-[10px] font-semibold ${change.isPositive ? 'text-emerald-500' : 'text-rose-500'}`}>
+        <Icon name={change.isPositive ? "ArrowUpRight" : "ArrowDownRight"} size={10} />
+        {change.isPositive ? '+' : ''}{change.percent}%
+      </span>
+    </div>
+  );
+
   return (
     <div className="flex flex-nowrap gap-1.5">
-      <div className="inline-block bg-blue-50 border border-blue-200 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
-        <div className="text-[8px] md:text-[10px] text-blue-500 font-medium uppercase tracking-wide">Вчера</div>
-        <div className="text-sm md:text-base font-bold text-gray-800 leading-tight">
-          {formatCurrency(earnings.yesterday)} ₽
-        </div>
-        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px]">
-          <Icon 
-            name={yesterdayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
-            size={10} 
-            className={`md:w-[12px] md:h-[12px] ${yesterdayChange.isPositive ? 'text-green-500' : 'text-red-500'}`}
-          />
-          <span className={yesterdayChange.isPositive ? 'text-green-600' : 'text-red-500'}>
-            {yesterdayChange.isPositive ? '+' : ''}{yesterdayChange.percent}%
-          </span>
-        </div>
-      </div>
-      
-      <div className="inline-block bg-blue-50 border border-blue-200 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
-        <div className="text-[8px] md:text-[10px] text-blue-500 font-medium uppercase tracking-wide">Сегодня</div>
-        <div className="text-sm md:text-base font-bold text-gray-800 leading-tight">
-          {formatCurrency(earnings.today)} ₽
-        </div>
-        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px]">
-          <Icon 
-            name={todayChange.isPositive ? "TrendingUp" : "TrendingDown"} 
-            size={10} 
-            className={`md:w-[12px] md:h-[12px] ${todayChange.isPositive ? 'text-green-500' : 'text-red-500'}`}
-          />
-          <span className={todayChange.isPositive ? 'text-green-600' : 'text-red-500'}>
-            {todayChange.isPositive ? '+' : ''}{todayChange.percent}%
-          </span>
-        </div>
-      </div>
-      
-      <div className="inline-block bg-blue-50 border border-blue-200 rounded-xl px-2 py-1 md:px-3 md:py-2 transition-all">
-        <div className="text-[8px] md:text-[10px] text-blue-500 font-medium uppercase tracking-wide">За месяц</div>
-        <div className="text-sm md:text-base font-bold text-gray-800 leading-tight">
-          {formatCurrency(earnings.month)} ₽
-        </div>
-        <div className="flex items-center gap-0.5 text-[8px] md:text-[10px]">
-          <Icon 
-            name={monthChange.isPositive ? "TrendingUp" : "TrendingDown"} 
-            size={10} 
-            className={`md:w-[12px] md:h-[12px] ${monthChange.isPositive ? 'text-green-500' : 'text-red-500'}`}
-          />
-          <span className={monthChange.isPositive ? 'text-green-600' : 'text-red-500'}>
-            {monthChange.isPositive ? '+' : ''}{monthChange.percent}%
-          </span>
-        </div>
-      </div>
+      <Badge label="Вчера" value={formatCurrency(earnings.yesterday)} change={yesterdayChange} />
+      <Badge label="Сегодня" value={formatCurrency(earnings.today)} change={todayChange} />
+      <Badge label="Месяц" value={formatCurrency(earnings.month)} change={monthChange} />
     </div>
   );
 }

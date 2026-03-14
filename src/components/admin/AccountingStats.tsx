@@ -5,6 +5,7 @@ import { calculateTableStatistics } from './accounting/ShiftTableCalculations';
 
 interface AccountingStatsProps {
   sessionToken: string;
+  compact?: boolean;
 }
 
 interface EarningsData {
@@ -15,7 +16,7 @@ interface EarningsData {
   previousMonth: number;
 }
 
-export default function AccountingStats({ sessionToken }: AccountingStatsProps) {
+export default function AccountingStats({ sessionToken, compact }: AccountingStatsProps) {
   const [earnings, setEarnings] = useState<EarningsData>({ 
     today: 0, 
     yesterday: 0, 
@@ -137,6 +138,10 @@ export default function AccountingStats({ sessionToken }: AccountingStatsProps) 
       </span>
     </div>
   );
+
+  if (compact) {
+    return <Badge label="Сегодня" value={formatCurrency(earnings.today)} change={todayChange} />;
+  }
 
   return (
     <div className="flex flex-nowrap gap-1.5">

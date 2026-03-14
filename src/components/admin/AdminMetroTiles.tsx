@@ -224,10 +224,13 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               <Icon name="Calculator" size={20} className="text-blue-500" />
             </div>
             <div className="text-left min-w-0 flex-1">
-              <div className="flex flex-col md:flex-row md:items-center md:gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors flex-shrink-0">Бух.учет</div>
-                <div className="mt-1 md:mt-0 flex flex-nowrap gap-1.5 overflow-x-auto pb-0.5 scrollbar-none min-w-0">
+                <div className="hidden md:flex flex-nowrap gap-1.5 min-w-0">
                   <AccountingStats sessionToken={sessionToken} />
+                </div>
+                <div className="flex md:hidden flex-nowrap gap-1.5 min-w-0">
+                  <AccountingStats sessionToken={sessionToken} compact />
                 </div>
               </div>
             </div>
@@ -245,12 +248,15 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               <Icon name="BarChart3" size={20} className="text-blue-500" />
             </div>
             <div className="text-left min-w-0 flex-1">
-              <div className="flex flex-col md:flex-row md:items-center md:gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors flex-shrink-0">Статистика</div>
-                <div className="mt-1 md:mt-0 flex flex-nowrap gap-1.5 overflow-x-auto pb-0.5 scrollbar-none min-w-0">
+                <div className="hidden md:flex flex-nowrap gap-1.5 min-w-0">
                   <MonthComparisonBadge sessionToken={sessionToken} />
                   <TodayContactsCounter sessionToken={sessionToken} />
                   <TodayApproachesCounter sessionToken={sessionToken} />
+                </div>
+                <div className="flex md:hidden flex-nowrap gap-1.5 min-w-0">
+                  <TodayContactsCounter sessionToken={sessionToken} />
                 </div>
               </div>
             </div>
@@ -305,9 +311,9 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
               <Icon name="TrendingUp" size={20} className="text-blue-500" />
             </div>
             <div className="text-left min-w-0 flex-1">
-              <div className="flex flex-col md:flex-row md:items-center md:gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors flex-shrink-0">График</div>
-                <div className="mt-1 md:mt-0 flex flex-nowrap gap-1.5 overflow-x-auto pb-0.5 scrollbar-none min-w-0">
+                <div className="flex flex-nowrap gap-1.5 min-w-0">
                   <TodayWorkersCounter sessionToken={sessionToken} />
                 </div>
               </div>

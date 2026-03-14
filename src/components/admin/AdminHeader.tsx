@@ -50,11 +50,11 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
                 <Icon name="Home" size={15} className="text-white/80" />
               </button>
             )}
-            <button onClick={onOpenGoogleSheets} className="h-9 px-4 rounded-xl flex items-center gap-2 transition-all hover:bg-white/20" style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)'}}>
+            <button onClick={onOpenGoogleSheets} className="h-9 px-4 rounded-xl flex items-center gap-2 transition-all duration-200 hover:bg-white/25 hover:scale-105 hover:shadow-lg active:scale-95" style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)'}}>
               <Icon name="Sheet" size={15} className="text-white/80" />
               <span style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 500, fontSize: 13, color: 'rgba(255,255,255,0.8)'}}>Google Таблицы</span>
             </button>
-            <button onClick={onLogout} className="h-9 px-3 rounded-xl flex items-center gap-2 transition-all" style={{background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.25)'}}>
+            <button onClick={onLogout} className="h-9 px-3 rounded-xl flex items-center gap-2 transition-all duration-200 hover:bg-red-500/40 hover:scale-105 hover:shadow-lg active:scale-95" style={{background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.25)'}}>
               <Icon name="LogOut" size={15} className="text-red-300" />
             </button>
           </div>

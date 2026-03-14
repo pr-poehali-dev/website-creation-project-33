@@ -11,13 +11,13 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false }: AdminHeaderProps) {
   return (
     <>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap');`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@300;400&display=swap');`}</style>
 
       {/* Mobile Header */}
       <div className="md:hidden mb-6 rounded-2xl overflow-hidden shadow-lg" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
         <div className="px-4 py-3 flex items-center justify-between">
           <div>
-              <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 18, color: '#fff', letterSpacing: '0.12em', lineHeight: 1}}>ИМПЕРИЯ</div>
+              <div style={{fontFamily: 'Cinzel, serif', fontWeight: 700, fontSize: 20, color: '#fff', letterSpacing: '0.18em', lineHeight: 1}}>ИМПЕРИЯ</div>
               <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 300, fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em', textTransform: 'uppercase', lineHeight: 1.6}}>рекламное агентство</div>
           </div>
           <div className="flex gap-1.5">
@@ -41,8 +41,8 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
       <div className="hidden md:block mb-8 rounded-2xl overflow-hidden shadow-xl" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
         <div className="px-8 py-6 flex items-center justify-between">
           <div>
-            <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 34, color: '#fff', letterSpacing: '0.12em', lineHeight: 1}}>ИМПЕРИЯ</div>
-            <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 300, fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.28em', textTransform: 'uppercase', marginTop: 5}}>рекламное агентство</div>
+            <div style={{fontFamily: 'Cinzel, serif', fontWeight: 700, fontSize: 38, color: '#fff', letterSpacing: '0.2em', lineHeight: 1}}>ИМПЕРИЯ</div>
+            <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 300, fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.28em', textTransform: 'uppercase', marginTop: 6}}>рекламное агентство</div>
           </div>
           <div className="flex items-center gap-2">
             {showHomeButton && onGoHome && (

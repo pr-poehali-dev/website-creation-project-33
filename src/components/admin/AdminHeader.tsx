@@ -18,7 +18,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
         <div className="px-4 py-3 flex items-center justify-between">
           <div>
               <div style={{fontFamily: 'Raleway, sans-serif', fontWeight: 800, fontSize: 22, color: '#fff', letterSpacing: '0.1em', lineHeight: 1}}>ИМПЕРИЯ</div>
-              <div style={{fontFamily: 'Raleway, sans-serif', fontWeight: 300, fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em', textTransform: 'uppercase', lineHeight: 1.6}}>рекламное агентство</div>
+              <div style={{fontFamily: 'Raleway, sans-serif', fontWeight: 400, fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em', lineHeight: 1.6}}>рекламное агентство</div>
           </div>
           <div className="flex gap-1.5">
             {showHomeButton && onGoHome && (
@@ -42,7 +42,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
         <div className="px-8 py-6 flex items-center justify-between">
           <div>
             <div style={{fontFamily: 'Raleway, sans-serif', fontWeight: 800, fontSize: 44, color: '#fff', letterSpacing: '0.1em', lineHeight: 1}}>ИМПЕРИЯ</div>
-            <div style={{fontFamily: 'Raleway, sans-serif', fontWeight: 300, fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.25em', textTransform: 'uppercase', marginTop: 6}}>рекламное агентство</div>
+            <div style={{fontFamily: 'Raleway, sans-serif', fontWeight: 400, fontSize: 13, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.05em', marginTop: 5}}>рекламное агентство</div>
           </div>
           <div className="flex items-center gap-2">
             {showHomeButton && onGoHome && (

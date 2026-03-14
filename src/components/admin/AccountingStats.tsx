@@ -131,7 +131,7 @@ export default function AccountingStats({ sessionToken, compact }: AccountingSta
   const Badge = ({ label, value, change }: { label: string; value: string; change: { percent: number; isPositive: boolean } }) => (
     <div className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-2.5 py-1.5 shadow-sm">
       <span className="text-[10px] text-gray-400 font-medium">{label}</span>
-      <span className="text-sm font-bold text-gray-800">{value} ₽</span>
+      <span className="text-sm font-bold text-gray-800 whitespace-nowrap">{value} ₽</span>
       <span className={`flex items-center gap-0.5 text-[10px] font-semibold ${change.isPositive ? 'text-emerald-500' : 'text-rose-500'}`}>
         <Icon name={change.isPositive ? "ArrowUpRight" : "ArrowDownRight"} size={10} />
         {change.isPositive ? '+' : ''}{change.percent}%

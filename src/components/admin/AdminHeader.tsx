@@ -12,78 +12,65 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false }: AdminHeaderProps) {
   return (
     <>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap');`}</style>
+
       {/* Mobile Header */}
-      <div className="md:hidden mb-6 p-4 rounded-xl relative overflow-hidden shadow-xl" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
-        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%)'}} />
-        <div className="flex items-center justify-between relative z-10">
-          <div className="flex flex-col">
-            <span className="text-xl font-bold text-white drop-shadow-lg leading-tight tracking-wide">ИМПЕРИЯ</span>
-            <span className="text-xs text-white/80 drop-shadow leading-tight">рекламное агентство</span>
+      <div className="md:hidden mb-6 rounded-2xl overflow-hidden" style={{background: 'linear-gradient(135deg, #0a0f1e 0%, #111827 100%)'}}>
+        <div className="px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{background: 'linear-gradient(135deg, #3b82f6, #6366f1)'}}>
+              <span style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 14, color: '#fff', letterSpacing: '-1px'}}>И</span>
+            </div>
+            <div>
+              <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 18, color: '#fff', letterSpacing: '0.08em', lineHeight: 1}}>ИМПЕРИЯ</div>
+              <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 300, fontSize: 10, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.15em', textTransform: 'uppercase', lineHeight: 1.4}}>рекламное агентство</div>
+            </div>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1.5">
             {showHomeButton && onGoHome && (
-              <Button
-                onClick={onGoHome}
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
-                size="sm"
-                variant="outline"
-              >
-                <Icon name="Home" size={14} className="text-white" />
-              </Button>
+              <button onClick={onGoHome} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all" style={{background: 'rgba(255,255,255,0.08)'}}>
+                <Icon name="Home" size={14} className="text-white/70" />
+              </button>
             )}
-            <Button
-              onClick={onOpenGoogleSheets}
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
-              size="sm"
-              variant="outline"
-            >
-              <Icon name="Sheet" size={14} className="text-white" />
-            </Button>
-            <Button
-              onClick={onLogout}
-              className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
-              size="sm"
-            >
-              <Icon name="LogOut" size={14} className="text-white" />
-            </Button>
+            <button onClick={onOpenGoogleSheets} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all" style={{background: 'rgba(255,255,255,0.08)'}}>
+              <Icon name="Sheet" size={14} className="text-white/70" />
+            </button>
+            <button onClick={onLogout} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all" style={{background: 'rgba(239,68,68,0.2)'}}>
+              <Icon name="LogOut" size={14} className="text-red-400" />
+            </button>
           </div>
         </div>
+        <div className="h-px mx-4" style={{background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), transparent)'}} />
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden md:flex justify-center items-center mb-8 p-10 rounded-2xl relative overflow-hidden shadow-xl min-h-[120px]" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
-        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%), radial-gradient(circle at 80% 20%, #6ee7b7 0%, transparent 40%)'}} />
-        <div className="flex flex-col absolute left-6 z-10">
-          <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-widest leading-tight">ИМПЕРИЯ</span>
-          <span className="text-base text-white/85 drop-shadow leading-tight tracking-wide">рекламное агентство</span>
+      <div className="hidden md:block mb-8 rounded-2xl overflow-hidden" style={{background: 'linear-gradient(135deg, #0a0f1e 0%, #111827 100%)'}}>
+        <div className="px-8 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{background: 'linear-gradient(135deg, #3b82f6, #6366f1)'}}>
+              <span style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 20, color: '#fff', letterSpacing: '-1px'}}>И</span>
+            </div>
+            <div>
+              <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 32, color: '#fff', letterSpacing: '0.1em', lineHeight: 1}}>ИМПЕРИЯ</div>
+              <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 300, fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.25em', textTransform: 'uppercase', marginTop: 4}}>рекламное агентство</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {showHomeButton && onGoHome && (
+              <button onClick={onGoHome} className="h-9 px-3 rounded-xl flex items-center gap-2 transition-all hover:opacity-80" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)'}}>
+                <Icon name="Home" size={15} className="text-white/60" />
+              </button>
+            )}
+            <button onClick={onOpenGoogleSheets} className="h-9 px-4 rounded-xl flex items-center gap-2 transition-all hover:opacity-80" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)'}}>
+              <Icon name="Sheet" size={15} className="text-white/60" />
+              <span style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 500, fontSize: 13, color: 'rgba(255,255,255,0.6)'}}>Google Таблицы</span>
+            </button>
+            <button onClick={onLogout} className="h-9 px-3 rounded-xl flex items-center gap-2 transition-all hover:opacity-80" style={{background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.2)'}}>
+              <Icon name="LogOut" size={15} className="text-red-400" />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-3 absolute right-6 z-10">
-          {showHomeButton && onGoHome && (
-            <Button
-              onClick={onGoHome}
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl px-3"
-              variant="outline"
-              size="sm"
-            >
-              <Icon name="Home" size={18} className="text-white" />
-            </Button>
-          )}
-          <Button
-            onClick={onOpenGoogleSheets}
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl font-semibold"
-            variant="outline"
-          >
-            <Icon name="Sheet" size={16} className="mr-2 text-white" />
-            <span className="text-white">Google Таблицы</span>
-          </Button>
-          <Button
-            onClick={onLogout}
-            className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl px-3"
-            size="sm"
-          >
-            <Icon name="LogOut" size={18} className="text-white" />
-          </Button>
-        </div>
+        <div className="h-px mx-6" style={{background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.4), rgba(59,130,246,0.4), transparent)'}} />
       </div>
     </>
   );

@@ -16,14 +16,9 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
       {/* Mobile Header */}
       <div className="md:hidden mb-6 rounded-2xl overflow-hidden shadow-lg" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
         <div className="px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)'}}>
-              <span style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 14, color: '#fff'}}>И</span>
-            </div>
-            <div>
+          <div>
               <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 18, color: '#fff', letterSpacing: '0.12em', lineHeight: 1}}>ИМПЕРИЯ</div>
               <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 300, fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em', textTransform: 'uppercase', lineHeight: 1.6}}>рекламное агентство</div>
-            </div>
           </div>
           <div className="flex gap-1.5">
             {showHomeButton && onGoHome && (
@@ -45,14 +40,9 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
       {/* Desktop Header */}
       <div className="hidden md:block mb-8 rounded-2xl overflow-hidden shadow-xl" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
         <div className="px-8 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)'}}>
-              <span style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 18, color: '#fff'}}>И</span>
-            </div>
-            <div>
-              <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 34, color: '#fff', letterSpacing: '0.12em', lineHeight: 1}}>ИМПЕРИЯ</div>
-              <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 300, fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.28em', textTransform: 'uppercase', marginTop: 5}}>рекламное агентство</div>
-            </div>
+          <div>
+            <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 900, fontSize: 34, color: '#fff', letterSpacing: '0.12em', lineHeight: 1}}>ИМПЕРИЯ</div>
+            <div style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 300, fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.28em', textTransform: 'uppercase', marginTop: 5}}>рекламное агентство</div>
           </div>
           <div className="flex items-center gap-2">
             {showHomeButton && onGoHome && (

@@ -117,11 +117,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   if (currentView === 'accounting') {
     return renderWithSidebar(
       <div className="space-y-4">
-        <div className="md:hidden bg-yellow-50 border-2 border-yellow-300 p-3 rounded-lg">
-          <p className="text-sm text-yellow-800 font-medium">
-            Раздел загружается... Это может занять несколько секунд на мобильных устройствах.
-          </p>
-        </div>
         <AccountingTab enabled={true} />
       </div>
     );

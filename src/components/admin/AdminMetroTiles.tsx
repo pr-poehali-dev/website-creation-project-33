@@ -70,10 +70,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     { view: 'tiles' as TileView, icon: 'Home', label: 'Домой' },
     { view: 'requests' as TileView, icon: 'UserCheck', label: 'Заявки' },
     { view: 'accounting' as TileView, icon: 'Calculator', label: 'Бух.учет' },
-    { view: 'stats' as TileView, icon: 'TrendingUp', label: 'Статистика' },
-    { view: 'chat' as TileView, icon: 'MessageSquare', label: 'Чат', badge: unreadCount },
-    { view: 'clients' as TileView, icon: 'Users', label: 'Заказчики' },
-    { view: 'analytics' as TileView, icon: 'Calendar', label: 'График' },
+    { view: 'stats' as TileView, icon: 'BarChart3', label: 'Статистика' },
+    { view: 'chat' as TileView, icon: 'MessageCircle', label: 'Чат', badge: unreadCount },
+    { view: 'clients' as TileView, icon: 'Building2', label: 'Заказчики' },
+    { view: 'analytics' as TileView, icon: 'TrendingUp', label: 'График' },
+    { view: 'telegram' as TileView, icon: 'Bot', label: 'Телеграм бот' },
   ];
 
   // Навигация только для десктопа

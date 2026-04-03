@@ -8,12 +8,12 @@ export default function AuthPage() {
   const toggleMode = () => setIsLogin(!isLogin);
 
   return (
-    <div className="min-h-screen bg-[#f0f2f8] flex items-start justify-center pt-32 px-6 pb-6">
+    <div className="min-h-screen bg-[#f0f2f8] flex items-start justify-center pt-16 sm:pt-32 px-4 sm:px-6 pb-6">
       <div className="w-full max-w-sm">
 
         {/* Заголовок */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#001f54] mb-1">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
             {isLogin ? 'Добро пожаловать' : 'Присоединяйтесь'}
           </h1>
           <p className="text-gray-500 text-sm">

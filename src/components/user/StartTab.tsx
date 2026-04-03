@@ -93,35 +93,57 @@ export default function StartTab({ onOrganizationSelect, onOpenSchedule }: Start
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-4 pt-8 sm:pt-28 pb-8">
+    <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-4 pt-8 sm:pt-28 pb-8 relative">
+
+      {/* Десктоп: кнопки в правом верхнем углу */}
+      <div className="hidden sm:flex absolute top-4 right-4 items-center gap-2">
+        {onOpenSchedule && (
+          <button
+            onClick={onOpenSchedule}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium"
+          >
+            <Icon name="CalendarDays" size={15} />
+            <span>График</span>
+          </button>
+        )}
+        <button
+          onClick={logout}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium"
+        >
+          <Icon name="LogOut" size={15} />
+          <span>Выйти</span>
+        </button>
+      </div>
+
       <div className="w-full max-w-sm animate-fade-up">
 
-        <div className="mb-5 sm:mb-8 animate-fade-down flex items-start justify-between gap-3" style={{ animationDelay: '0.05s' }}>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
-              Выбор организации
-            </h1>
-            <p className="text-gray-500 text-sm">
-              Выберите площадку для начала работы
-            </p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0 mt-1">
-            {onOpenSchedule && (
+        <div className="mb-5 sm:mb-8 animate-fade-down" style={{ animationDelay: '0.05s' }}>
+          {/* Мобиле: заголовок + кнопки-иконки в одну строку */}
+          <div className="flex items-start justify-between gap-3 sm:block">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
+                Выбор организации
+              </h1>
+              <p className="text-gray-500 text-sm">
+                Выберите площадку для начала работы
+              </p>
+            </div>
+            <div className="flex sm:hidden items-center gap-2 flex-shrink-0 mt-1">
+              {onOpenSchedule && (
+                <button
+                  onClick={onOpenSchedule}
+                  className="flex items-center px-3 py-2.5 rounded-xl bg-white shadow-sm text-gray-500 active:scale-95 transition-all duration-200 touch-manipulation"
+                >
+                  <Icon name="CalendarDays" size={16} />
+                </button>
+              )}
               <button
-                onClick={onOpenSchedule}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md active:scale-95 transition-all duration-200 text-sm font-medium touch-manipulation"
+                onClick={logout}
+                className="flex items-center px-3 py-2.5 rounded-xl bg-white shadow-sm text-gray-500 active:scale-95 transition-all duration-200 touch-manipulation"
               >
-                <Icon name="CalendarDays" size={16} />
-                <span className="hidden sm:inline">График</span>
+                <Icon name="LogOut" size={16} />
               </button>
-            )}
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md active:scale-95 transition-all duration-200 text-sm font-medium touch-manipulation"
-            >
-              <Icon name="LogOut" size={16} />
-              <span className="hidden sm:inline">Выйти</span>
-            </button>
+            </div>
           </div>
         </div>
 

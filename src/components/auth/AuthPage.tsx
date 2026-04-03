@@ -11,15 +11,15 @@ export default function AuthPage() {
     <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Логотип */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-[#001f54] flex items-center justify-center overflow-hidden p-1.5">
+        <div className="flex flex-col items-center gap-2 mb-8">
+          <div className="w-20 h-20 rounded-full bg-white border border-gray-200 shadow-md overflow-hidden flex items-center justify-center p-2">
             <img
               src="https://cdn.poehali.dev/files/fa6288f0-0ab3-43ad-8f04-3db3d36eeddf.jpeg"
               alt="IMPERIA PROMO"
               className="w-full h-full object-contain"
             />
           </div>
-          <span className="text-2xl font-black text-[#001f54] tracking-tight">ИМПЕРИЯ</span>
+          <p className="text-xs tracking-[0.2em] uppercase text-gray-400 font-medium mt-1">Империя Промо</p>
         </div>
 
         {/* Таб переключатель */}

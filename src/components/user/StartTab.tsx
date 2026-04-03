@@ -84,22 +84,20 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f0f2f8] flex items-start justify-center pt-16 sm:pt-32 px-4 pb-6">
-        <div className="w-full max-w-sm">
-          <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-500 flex items-center justify-center gap-3">
-            <Icon name="Loader2" size={24} className="animate-spin" />
-            Загрузка...
-          </div>
+      <div className="min-h-screen bg-[#f0f2f8] flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-500 flex items-center justify-center gap-3 w-full max-w-sm">
+          <Icon name="Loader2" size={24} className="animate-spin" />
+          Загрузка...
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f2f8] flex items-start justify-center pt-16 sm:pt-32 px-4 pb-6">
+    <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-4 pt-12 sm:pt-28 pb-8">
       <div className="w-full max-w-sm animate-fade-up">
 
-        <div className="mb-6 sm:mb-8 animate-fade-down" style={{ animationDelay: '0.05s' }}>
+        <div className="mb-5 sm:mb-8 animate-fade-down" style={{ animationDelay: '0.05s' }}>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
             Выбор организации
           </h1>
@@ -108,15 +106,15 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm p-6 animate-fade-up" style={{ animationDelay: '0.15s' }}>
-          <div className="relative mb-4">
+        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 animate-fade-up" style={{ animationDelay: '0.15s' }}>
+          <div className="relative mb-3">
             <Icon name="Search" size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <Input
               type="text"
               placeholder="Выберите организацию для работы..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 bg-gray-50 border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-[#001f54]/40 rounded-xl text-sm"
+              className="pl-10 h-12 bg-gray-50 border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-[#001f54]/40 rounded-xl text-base"
             />
           </div>
 
@@ -138,17 +136,17 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   <button
                     key={org.id}
                     onClick={() => handleOrgClick(org)}
-                    className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-white hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 flex items-center justify-between group"
+                    className="w-full px-4 py-4 rounded-xl border border-gray-200 bg-white active:bg-blue-50 active:border-blue-300 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 flex items-center justify-between group touch-manipulation"
                   >
-                    <span className="text-gray-800 font-medium text-sm group-hover:text-[#001f54] transition-colors">{org.name}</span>
-                    <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-[#001f54]/60 transition-colors" />
+                    <span className="text-gray-800 font-medium text-base group-hover:text-[#001f54] transition-colors">{org.name}</span>
+                    <Icon name="ChevronRight" size={18} className="text-gray-300 group-hover:text-[#001f54]/60 flex-shrink-0 ml-2 transition-colors" />
                   </button>
                 ))}
 
                 {!searchQuery && organizations.length > 4 && (
                   <button
                     onClick={() => setShowAll(!showAll)}
-                    className="w-full py-3 text-sm text-blue-500 hover:text-blue-700 transition-colors flex items-center justify-center gap-1.5"
+                    className="w-full py-4 text-sm text-blue-500 hover:text-blue-700 active:text-blue-700 transition-colors flex items-center justify-center gap-1.5 touch-manipulation"
                   >
                     <Icon name={showAll ? "ChevronUp" : "ChevronDown"} size={16} />
                     {showAll ? 'Скрыть' : `Показать ещё (${organizations.length - 4})`}

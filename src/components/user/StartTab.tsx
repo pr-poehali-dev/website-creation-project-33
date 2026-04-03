@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import PhotoCapture from './PhotoCapture';
@@ -23,7 +21,6 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [pendingOrg, setPendingOrg] = useState<Organization | null>(null);
   const [photoCaptureOpen, setPhotoCaptureOpen] = useState(false);
 
@@ -58,13 +55,12 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
   };
 
   const handleOrgClick = (org: Organization) => {
+    if (pendingOrg?.id === org.id) return;
     setPendingOrg(org);
-    setConfirmDialogOpen(true);
   };
 
   const handleConfirm = () => {
     if (pendingOrg) {
-      setConfirmDialogOpen(false);
       setPhotoCaptureOpen(true);
     }
   };
@@ -132,16 +128,50 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                     org.name.toLowerCase().includes(searchQuery.toLowerCase())
                   )
                   .slice(0, showAll ? undefined : 4)
-                  .map((org) => (
-                  <button
-                    key={org.id}
-                    onClick={() => handleOrgClick(org)}
-                    className="w-full px-4 py-4 rounded-xl border border-gray-200 bg-white active:bg-[#001f54]/5 active:border-[#001f54]/30 hover:bg-[#001f54]/5 hover:border-[#001f54]/30 transition-all duration-200 flex items-center justify-between group touch-manipulation"
-                  >
-                    <span className="text-gray-800 font-medium text-base group-hover:text-[#001f54] transition-colors">{org.name}</span>
-                    <Icon name="ChevronRight" size={18} className="text-gray-300 group-hover:text-[#001f54]/50 flex-shrink-0 ml-2 transition-colors" />
-                  </button>
-                ))}
+                  .map((org) => {
+                    const isSelected = pendingOrg?.id === org.id;
+                    return (
+                      <div
+                        key={org.id}
+                        className={`rounded-xl border transition-all duration-300 overflow-hidden ${
+                          isSelected
+                            ? 'border-[#001f54] bg-[#001f54]'
+                            : 'border-gray-200 bg-white hover:bg-[#001f54]/5 hover:border-[#001f54]/30'
+                        }`}
+                      >
+                        <button
+                          onClick={() => handleOrgClick(org)}
+                          className="w-full px-4 py-4 flex items-center justify-between touch-manipulation"
+                        >
+                          <span className={`font-medium text-base transition-colors ${isSelected ? 'text-white' : 'text-gray-800'}`}>
+                            {org.name}
+                          </span>
+                          <Icon
+                            name={isSelected ? 'Check' : 'ChevronRight'}
+                            size={18}
+                            className={`flex-shrink-0 ml-2 transition-all duration-300 ${isSelected ? 'text-white' : 'text-gray-300'}`}
+                          />
+                        </button>
+
+                        <div className={`transition-all duration-300 ease-in-out ${isSelected ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
+                          <div className="flex gap-2 px-4 pb-4">
+                            <button
+                              onClick={handleCancel}
+                              className="flex-1 py-2.5 rounded-lg bg-white/20 text-white text-sm font-medium hover:bg-white/30 active:bg-white/30 transition-colors touch-manipulation"
+                            >
+                              Отмена
+                            </button>
+                            <button
+                              onClick={handleConfirm}
+                              className="flex-1 py-2.5 rounded-lg bg-white text-[#001f54] text-sm font-semibold hover:bg-white/90 active:bg-white/90 transition-colors touch-manipulation"
+                            >
+                              Подтвердить
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
 
                 {!searchQuery && organizations.length > 4 && (
                   <button
@@ -162,33 +192,6 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
         </p>
       </div>
 
-      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <DialogContent className="max-w-xs rounded-2xl p-0 overflow-hidden border-0 shadow-2xl">
-          <div className="bg-[#001f54] px-6 pt-6 pb-5 text-white">
-            <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mb-4">
-              <Icon name="Building2" size={20} className="text-white" />
-            </div>
-            <DialogTitle className="text-white text-lg font-bold mb-1">Начать работу?</DialogTitle>
-            <p className="text-white/70 text-sm">Вы выбрали площадку</p>
-            <p className="text-white font-semibold text-base mt-0.5">{pendingOrg?.name}</p>
-          </div>
-          <div className="px-6 py-5 bg-white space-y-2">
-            <Button
-              onClick={handleConfirm}
-              className="w-full h-12 bg-[#001f54] hover:bg-[#002b6b] text-white rounded-xl font-semibold text-base touch-manipulation"
-            >
-              Подтвердить
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={handleCancel}
-              className="w-full h-11 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl font-medium touch-manipulation"
-            >
-              Отмена
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {pendingOrg && (
         <PhotoCapture

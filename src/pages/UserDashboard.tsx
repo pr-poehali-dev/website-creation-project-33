@@ -112,10 +112,12 @@ export default function UserDashboard() {
 
   if (currentView === 'schedule') {
     return (
-      <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-3 sm:px-4 pt-16 pb-8 relative">
+      <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-3 sm:px-4 pt-8 sm:pt-16 pb-8 relative">
+
+        {/* Десктоп: кнопка назад в левом верхнем углу */}
         <button
           onClick={() => setCurrentView(selectedOrganization ? 'tiles' : 'start')}
-          className="absolute top-4 left-3 sm:left-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium touch-manipulation"
+          className="hidden sm:flex absolute top-4 left-4 items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium"
         >
           <Icon name="ArrowLeft" size={15} />
           <span>Назад</span>
@@ -123,12 +125,23 @@ export default function UserDashboard() {
 
         <div className="w-full max-w-lg animate-fade-up">
           <div className="mb-4 sm:mb-6">
-            <h1 className="text-xl sm:text-3xl font-bold text-[#001f54] mb-0.5">
-              График работы
-            </h1>
-            <p className="text-gray-500 text-xs sm:text-sm">
-              Выберите удобные промежутки времени на неделю
-            </p>
+            {/* Мобиле: заголовок + кнопка-иконка в одну строку */}
+            <div className="flex items-start justify-between gap-3 sm:block">
+              <div>
+                <h1 className="text-xl sm:text-3xl font-bold text-[#001f54] mb-0.5">
+                  График работы
+                </h1>
+                <p className="text-gray-500 text-xs sm:text-sm">
+                  Выберите удобные промежутки времени на неделю
+                </p>
+              </div>
+              <button
+                onClick={() => setCurrentView(selectedOrganization ? 'tiles' : 'start')}
+                className="flex sm:hidden items-center px-3 py-2.5 rounded-xl bg-white shadow-sm text-gray-500 active:scale-95 transition-all duration-200 flex-shrink-0 mt-1 touch-manipulation"
+              >
+                <Icon name="ArrowLeft" size={16} />
+              </button>
+            </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm p-3 sm:p-5">

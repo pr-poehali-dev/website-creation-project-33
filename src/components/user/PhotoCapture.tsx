@@ -25,7 +25,7 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
     setCameraReady(false);
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
+        video: { facingMode: 'user', width: { ideal: 1920 }, height: { ideal: 1080 } },
         audio: false
       });
       if (videoRef.current) {

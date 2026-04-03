@@ -95,7 +95,6 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
       }
 
       const resultData = await response.json();
-      toast({ title: 'Готово', description: type === 'start' ? 'Смена начата' : 'Смена закрыта' });
       setIsSending(false);
       setCapturedPhoto(null);
       if (type === 'end' && resultData.contacts_today !== undefined) {

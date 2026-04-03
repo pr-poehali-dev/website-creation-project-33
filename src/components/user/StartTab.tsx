@@ -136,10 +136,10 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
                   <button
                     key={org.id}
                     onClick={() => handleOrgClick(org)}
-                    className="w-full px-4 py-4 rounded-xl border border-gray-200 bg-white active:bg-blue-50 active:border-blue-300 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 flex items-center justify-between group touch-manipulation"
+                    className="w-full px-4 py-4 rounded-xl border border-gray-200 bg-white active:bg-[#001f54]/5 active:border-[#001f54]/30 hover:bg-[#001f54]/5 hover:border-[#001f54]/30 transition-all duration-200 flex items-center justify-between group touch-manipulation"
                   >
                     <span className="text-gray-800 font-medium text-base group-hover:text-[#001f54] transition-colors">{org.name}</span>
-                    <Icon name="ChevronRight" size={18} className="text-gray-300 group-hover:text-[#001f54]/60 flex-shrink-0 ml-2 transition-colors" />
+                    <Icon name="ChevronRight" size={18} className="text-gray-300 group-hover:text-[#001f54]/50 flex-shrink-0 ml-2 transition-colors" />
                   </button>
                 ))}
 

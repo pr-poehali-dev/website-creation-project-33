@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -119,8 +120,8 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
 
   const isStart = type === 'start';
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col animate-fade-in" style={{ height: '100dvh' }}>
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black flex flex-col animate-fade-in" style={{ height: '100dvh', top: 0, left: 0, right: 0, bottom: 0 }}>
 
       {/* Шапка */}
       <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-safe-top">
@@ -215,6 +216,7 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

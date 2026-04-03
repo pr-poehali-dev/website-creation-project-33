@@ -163,28 +163,30 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
       </div>
 
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Подтверждение выбора</DialogTitle>
-            <DialogDescription>
-              Вы выбрали организацию: <strong>{pendingOrg?.name}</strong>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleCancel}
-              className="border-gray-300 text-gray-700 hover:bg-gray-50"
-            >
-              Отмена
-            </Button>
+        <DialogContent className="max-w-xs rounded-2xl p-0 overflow-hidden border-0 shadow-2xl">
+          <div className="bg-[#001f54] px-6 pt-6 pb-5 text-white">
+            <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mb-4">
+              <Icon name="Building2" size={20} className="text-white" />
+            </div>
+            <DialogTitle className="text-white text-lg font-bold mb-1">Начать работу?</DialogTitle>
+            <p className="text-white/70 text-sm">Вы выбрали площадку</p>
+            <p className="text-white font-semibold text-base mt-0.5">{pendingOrg?.name}</p>
+          </div>
+          <div className="px-6 py-5 bg-white space-y-2">
             <Button
               onClick={handleConfirm}
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white"
+              className="w-full h-12 bg-[#001f54] hover:bg-[#002b6b] text-white rounded-xl font-semibold text-base touch-manipulation"
             >
               Подтвердить
             </Button>
-          </DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={handleCancel}
+              className="w-full h-11 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl font-medium touch-manipulation"
+            >
+              Отмена
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

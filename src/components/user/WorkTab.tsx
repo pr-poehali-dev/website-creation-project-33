@@ -263,29 +263,29 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         <button
           onClick={startRecording}
           disabled={isRecording}
-          className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center touch-manipulation"
+          className="w-32 h-32 sm:w-40 sm:h-40 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
           style={{
-            background: isRecording
-              ? 'radial-gradient(circle at 35% 35%, rgba(99,102,241,0.5), rgba(15,23,42,0.85))'
-              : 'radial-gradient(circle at 35% 35%, rgba(96,165,250,0.45), rgba(15,23,42,0.80))',
-            boxShadow: isRecording
-              ? '0 0 0 1.5px rgba(99,102,241,0.6), 0 0 32px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.15)'
-              : '0 0 0 1.5px rgba(96,165,250,0.55), 0 0 40px rgba(96,165,250,0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
-            backdropFilter: 'blur(12px)',
+            backgroundColor: isRecording ? '#1e40af' : '#3b82f6',
+          }}
+          onMouseEnter={(e) => {
+            if (!isRecording) {
+              e.currentTarget.style.backgroundColor = '#1e40af';
+              e.currentTarget.style.transform = 'scale(1.05)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isRecording) {
+              e.currentTarget.style.backgroundColor = '#3b82f6';
+              e.currentTarget.style.transform = 'scale(1)';
+            }
           }}
         >
-          {/* Блик сверху */}
-          <div
-            className="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-5 rounded-full pointer-events-none"
-            style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)' }}
-          />
-          {/* Волны */}
-          <div className="flex items-center gap-1.5 z-10">
-            <div className="w-1.5 bg-white/90 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '0ms', animationDuration: '900ms' }} />
-            <div className="w-1.5 bg-white/90 rounded-full animate-pulse" style={{ height: '30px', animationDelay: '150ms', animationDuration: '900ms' }} />
-            <div className="w-1.5 bg-white/90 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '300ms', animationDuration: '900ms' }} />
-            <div className="w-1.5 bg-white/90 rounded-full animate-pulse" style={{ height: '34px', animationDelay: '450ms', animationDuration: '900ms' }} />
-            <div className="w-1.5 bg-white/90 rounded-full animate-pulse" style={{ height: '20px', animationDelay: '600ms', animationDuration: '900ms' }} />
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '20px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '32px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '24px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '36px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
+            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '22px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
           </div>
         </button>
       </div>

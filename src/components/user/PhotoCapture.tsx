@@ -148,16 +148,18 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
     if (acc && acc.id !== 'none' && acc.scale > 0 && lm.length > 0) {
       const W = overlay.width;
       const H = overlay.height;
-      // зеркалим X (видео уже зеркальное через CSS)
-      const pt = (i: number) => ({ x: (1 - lm[i].x) * W, y: lm[i].y * H });
+
+      // MediaPipe даёт координаты в оригинальном (незеркальном) пространстве
+      // Overlay CSS зеркалит canvas, поэтому рисуем в оригинальных координатах
+      const pt = (i: number) => ({ x: lm[i].x * W, y: lm[i].y * H });
 
       const lEye  = pt(IDX_LEFT_EYE);
       const rEye  = pt(IDX_RIGHT_EYE);
       const faceW = Math.abs(pt(IDX_LEFT_CHEEK).x - pt(IDX_RIGHT_CHEEK).x);
       const fontSize = faceW * acc.scale;
 
-      // Угол по линии глаз (зеркало уже учтено в pt())
-      const angle = Math.atan2(rEye.y - lEye.y, rEye.x - lEye.x);
+      // Угол по линии глаз
+      const angle = Math.atan2(lEye.y - rEye.y, lEye.x - rEye.x);
 
       let anchor;
       switch (acc.anchor) {
@@ -170,8 +172,9 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
       ctx.save();
       ctx.translate(anchor.x, anchor.y);
       ctx.rotate(angle);
-      // offsetY применяем ПОСЛЕ rotate — вдоль оси лица, не экрана
       ctx.translate(0, faceW * acc.offsetY);
+      // Зеркалим эмодзи локально — иначе они отражаются CSS зеркалом канваса
+      ctx.scale(-1, 1);
       ctx.font = `${fontSize}px serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -215,15 +218,19 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Зеркало
+    // Рисуем видео зеркально (selfie)
     ctx.save();
     ctx.scale(-1, 1);
     ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
     ctx.restore();
 
-    // Аксессуар поверх
+    // Overlay рисуется в оригинальных координатах MediaPipe,
+    // но CSS зеркалит его — поэтому при съёмке рисуем его тоже зеркально
     if (overlay && selectedId !== 'none') {
-      ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(overlay, -canvas.width, 0, canvas.width, canvas.height);
+      ctx.restore();
     }
 
     setCapturedPhoto(canvas.toDataURL('image/jpeg', 0.9));
@@ -302,7 +309,8 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
         {!capturedPhoto ? (
           <>
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
-            <canvas ref={overlayRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+            {/* Overlay зеркалим так же как видео — координаты MediaPipe совпадают */}
+            <canvas ref={overlayRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ transform: 'scaleX(-1)' }} />
             {!cameraReady && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <Icon name="Loader2" size={40} className="text-white/50 animate-spin" />

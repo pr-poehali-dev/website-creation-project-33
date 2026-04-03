@@ -120,7 +120,7 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
   const isStart = type === 'start';
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-black flex flex-col animate-fade-in" style={{ height: '100dvh' }}>
 
       {/* Шапка */}
       <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-safe-top">

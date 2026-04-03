@@ -21,35 +21,19 @@ interface Accessory {
 }
 
 const ACCESSORIES: Accessory[] = [
-  { id: 'none',      emoji: '✕',  label: 'Без',        anchor: 'face',     offsetY: 0,     scale: 0    },
-  // якорь forehead — offsetY отрицательный = ВЫШЕ лба
-  { id: 'crown',     emoji: '👑',  label: 'Корона',     anchor: 'forehead', offsetY: -0.35, scale: 0.85 },
-  { id: 'hat',       emoji: '🎩',  label: 'Цилиндр',   anchor: 'forehead', offsetY: -0.4,  scale: 0.95 },
-  { id: 'cowboy',    emoji: '🤠',  label: 'Ковбой',     anchor: 'forehead', offsetY: -0.35, scale: 1.0  },
-  { id: 'santa',     emoji: '🎅',  label: 'Мороз',      anchor: 'forehead', offsetY: -0.3,  scale: 0.95 },
-  { id: 'party',     emoji: '🥳',  label: 'Праздник',   anchor: 'forehead', offsetY: -0.35, scale: 0.85 },
-  { id: 'horns',     emoji: '😈',  label: 'Рожки',      anchor: 'forehead', offsetY: -0.35, scale: 0.85 },
-  { id: 'unicorn',   emoji: '🦄',  label: 'Единорог',   anchor: 'forehead', offsetY: -0.4,  scale: 0.9  },
-  { id: 'fire',      emoji: '🔥',  label: 'Огонь',      anchor: 'forehead', offsetY: -0.4,  scale: 0.7  },
-  { id: 'rainbow',   emoji: '🌈',  label: 'Радуга',     anchor: 'forehead', offsetY: -0.45, scale: 1.0  },
-  { id: 'star',      emoji: '⭐',  label: 'Звезда',     anchor: 'forehead', offsetY: -0.35, scale: 0.55 },
-  { id: 'flower',    emoji: '🌸',  label: 'Цветок',     anchor: 'forehead', offsetY: -0.3,  scale: 0.6  },
-  { id: 'lightning', emoji: '⚡',  label: 'Молния',     anchor: 'forehead', offsetY: -0.35, scale: 0.6  },
-  { id: 'cat',       emoji: '🐱',  label: 'Кошка',      anchor: 'forehead', offsetY: -0.35, scale: 0.85 },
-  // якорь nose
-  { id: 'cool',      emoji: '🕶️',  label: 'Очки',       anchor: 'nose',     offsetY: -0.05, scale: 0.85 },
-  { id: 'butterfly', emoji: '🦋',  label: 'Бабочка',    anchor: 'nose',     offsetY: -0.05, scale: 0.75 },
-  { id: 'sunglasses',emoji: '😎',  label: 'Крутой',     anchor: 'nose',     offsetY: -0.05, scale: 0.9  },
-  // якорь chin
-  { id: 'beard',     emoji: '🧔',  label: 'Борода',     anchor: 'chin',     offsetY: 0.15,  scale: 0.85 },
-  // якорь face (центр между глазами)
-  { id: 'alien',     emoji: '👽',  label: 'Пришелец',   anchor: 'face',     offsetY: 0,     scale: 1.0  },
-  { id: 'clown',     emoji: '🤡',  label: 'Клоун',      anchor: 'face',     offsetY: 0,     scale: 1.0  },
-  { id: 'ghost',     emoji: '👻',  label: 'Призрак',    anchor: 'face',     offsetY: 0,     scale: 1.1  },
-  { id: 'robot',     emoji: '🤖',  label: 'Робот',      anchor: 'face',     offsetY: 0,     scale: 1.0  },
-  { id: 'pumpkin',   emoji: '🎃',  label: 'Тыква',      anchor: 'face',     offsetY: 0,     scale: 1.0  },
-  { id: 'dog',       emoji: '🐶',  label: 'Собака',     anchor: 'face',     offsetY: 0,     scale: 1.0  },
-  { id: 'money',     emoji: '🤑',  label: 'Деньги',     anchor: 'face',     offsetY: 0,     scale: 1.0  },
+  { id: 'none',   emoji: '✕',  label: 'Без',       anchor: 'face',     offsetY: 0,     scale: 0    },
+  { id: 'crown',  emoji: '👑',  label: 'Корона',    anchor: 'forehead', offsetY: -0.55, scale: 0.9  },
+  { id: 'hat',    emoji: '🎩',  label: 'Цилиндр',   anchor: 'forehead', offsetY: -0.65, scale: 1.0  },
+  { id: 'cowboy', emoji: '🤠',  label: 'Ковбой',    anchor: 'forehead', offsetY: -0.55, scale: 1.1  },
+  { id: 'santa',  emoji: '🎅',  label: 'Мороз',     anchor: 'forehead', offsetY: -0.5,  scale: 1.0  },
+  { id: 'party',  emoji: '🎉',  label: 'Праздник',  anchor: 'forehead', offsetY: -0.5,  scale: 0.8  },
+  { id: 'horns',  emoji: '😈',  label: 'Рожки',     anchor: 'forehead', offsetY: -0.55, scale: 0.9  },
+  { id: 'cool',   emoji: '😎',  label: 'Очки',      anchor: 'nose',     offsetY: -0.1,  scale: 0.9  },
+  { id: 'beard',  emoji: '🧔',  label: 'Борода',    anchor: 'chin',     offsetY: 0.2,   scale: 0.9  },
+  { id: 'alien',  emoji: '👽',  label: 'Пришелец',  anchor: 'face',     offsetY: 0,     scale: 1.1  },
+  { id: 'clown',  emoji: '🤡',  label: 'Клоун',     anchor: 'face',     offsetY: 0,     scale: 1.1  },
+  { id: 'ghost',  emoji: '👻',  label: 'Призрак',   anchor: 'face',     offsetY: 0,     scale: 1.2  },
+  { id: 'robot',  emoji: '🤖',  label: 'Робот',     anchor: 'face',     offsetY: 0,     scale: 1.1  },
 ];
 
 // Индексы ключевых точек MediaPipe Face Mesh
@@ -152,42 +136,26 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
     if (acc && acc.id !== 'none' && acc.scale > 0 && lm.length > 0) {
       const W = overlay.width;
       const H = overlay.height;
-
-      // Видео и overlay оба имеют CSS scaleX(-1), поэтому координаты зеркалим
+      // зеркалим X (видео уже зеркальное через CSS)
       const pt = (i: number) => ({ x: (1 - lm[i].x) * W, y: lm[i].y * H });
 
-      const forehead  = pt(IDX_FOREHEAD);
-      const noseTip   = pt(IDX_NOSE_TIP);
-      const chin      = pt(IDX_CHIN);
       const lEye      = pt(IDX_LEFT_EYE);
       const rEye      = pt(IDX_RIGHT_EYE);
-      const lCheek    = pt(IDX_LEFT_CHEEK);
-      const rCheek    = pt(IDX_RIGHT_CHEEK);
+      const faceW     = Math.abs(pt(IDX_LEFT_CHEEK).x - pt(IDX_RIGHT_CHEEK).x);
+      const fontSize  = faceW * acc.scale;
+      const angle     = Math.atan2(rEye.y - lEye.y, rEye.x - lEye.x);
 
-      const faceW    = Math.abs(lCheek.x - rCheek.x);
-      const faceH    = Math.abs(forehead.y - chin.y);
-      const fontSize = faceW * acc.scale;
-      const centerX  = (lEye.x + rEye.x) / 2;
-      const eyeY     = (lEye.y + rEye.y) / 2;
-
-      // Угол наклона головы
-      const angle = Math.atan2(rEye.y - lEye.y, rEye.x - lEye.x);
-
-      // Якорная точка в экранных координатах
-      let ax: number, ay: number;
+      let anchor;
       switch (acc.anchor) {
-        case 'forehead': ax = forehead.x; ay = forehead.y; break;
-        case 'nose':     ax = noseTip.x;  ay = noseTip.y;  break;
-        case 'chin':     ax = chin.x;     ay = chin.y;     break;
-        default:         ax = centerX;    ay = eyeY;       break;
+        case 'forehead': anchor = pt(IDX_FOREHEAD);  break;
+        case 'nose':     anchor = pt(IDX_NOSE_TIP);  break;
+        case 'chin':     anchor = pt(IDX_CHIN);      break;
+        default:         anchor = { x: (lEye.x + rEye.x) / 2, y: (lEye.y + rEye.y) / 2 };
       }
 
       ctx.save();
-      ctx.translate(ax, ay);
+      ctx.translate(anchor.x, anchor.y + faceW * acc.offsetY);
       ctx.rotate(angle);
-      ctx.translate(0, faceH * acc.offsetY);
-      // Раззеркаливаем эмодзи — CSS canvas зеркалит их по X
-      ctx.scale(-1, 1);
       ctx.font = `${fontSize}px serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -231,19 +199,15 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Рисуем видео зеркально (selfie)
+    // Зеркало
     ctx.save();
     ctx.scale(-1, 1);
     ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
     ctx.restore();
 
-    // Overlay рисуется в оригинальных координатах MediaPipe,
-    // но CSS зеркалит его — поэтому при съёмке рисуем его тоже зеркально
+    // Аксессуар поверх
     if (overlay && selectedId !== 'none') {
-      ctx.save();
-      ctx.scale(-1, 1);
-      ctx.drawImage(overlay, -canvas.width, 0, canvas.width, canvas.height);
-      ctx.restore();
+      ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
     }
 
     setCapturedPhoto(canvas.toDataURL('image/jpeg', 0.9));
@@ -322,8 +286,7 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
         {!capturedPhoto ? (
           <>
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
-            {/* Overlay зеркалим так же как видео — координаты MediaPipe совпадают */}
-            <canvas ref={overlayRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ transform: 'scaleX(-1)' }} />
+            <canvas ref={overlayRef} className="absolute inset-0 w-full h-full pointer-events-none" />
             {!cameraReady && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <Icon name="Loader2" size={40} className="text-white/50 animate-spin" />

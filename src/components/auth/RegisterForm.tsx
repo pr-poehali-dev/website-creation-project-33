@@ -81,11 +81,7 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
           </p>
         </div>
 
-        {/* Статус-блок */}
-        <div className="bg-gray-50 rounded-xl p-4 mb-6 flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
-          <p className="text-xs text-gray-500">На рассмотрении у администратора</p>
-        </div>
+
 
         <Button
           onClick={onToggleMode}

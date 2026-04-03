@@ -7,9 +7,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface RegisterFormProps {
   onToggleMode: () => void;
+  hideToggle?: boolean;
 }
 
-export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
+export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -83,8 +84,8 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-        <div className="space-y-3 md:space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-3">
 
           {/* Имя и Фамилия */}
           <div className="grid grid-cols-2 gap-3">
@@ -241,34 +242,30 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 
         <Button 
           type="submit" 
-          className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold py-3 md:py-3 rounded-lg transition-all duration-300 shadow-lg h-12 md:h-auto text-base" 
+          className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold h-12 rounded-xl transition-all duration-200 shadow-md shadow-[#001f54]/20 text-sm" 
           disabled={loading || passwordsMismatch}
         >
           {loading ? (
-            <>
-              <Icon name="Loader2" size={18} className="mr-2 animate-spin md:w-5 md:h-5" />
-              Регистрация...
-            </>
+            <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Регистрация...</>
           ) : (
-            <>
-              <Icon name="UserPlus" size={18} className="mr-2 md:w-5 md:h-5" />
-              Зарегистрироваться
-            </>
+            'Зарегистрироваться'
           )}
         </Button>
       </form>
 
-      <div className="mt-4 md:mt-6 text-center">
-        <p className="text-[#001f54] mb-2 text-sm md:text-base">Уже есть аккаунт?</p>
-        <Button 
-          variant="ghost" 
-          onClick={onToggleMode}
-          className="text-[#001f54] hover:text-[#002b6b] hover:bg-[#001f54]/5 transition-all duration-300 h-10 md:h-auto text-sm md:text-base"
-        >
-          <Icon name="LogIn" size={16} className="mr-2" />
-          Войти
-        </Button>
-      </div>
+      {!hideToggle && (
+        <div className="mt-4 md:mt-6 text-center">
+          <p className="text-[#001f54] mb-2 text-sm md:text-base">Уже есть аккаунт?</p>
+          <Button 
+            variant="ghost" 
+            onClick={onToggleMode}
+            className="text-[#001f54] hover:text-[#002b6b] hover:bg-[#001f54]/5 transition-all duration-300 h-10 md:h-auto text-sm md:text-base"
+          >
+            <Icon name="LogIn" size={16} className="mr-2" />
+            Войти
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

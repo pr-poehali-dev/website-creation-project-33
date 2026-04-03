@@ -7,9 +7,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface LoginFormProps {
   onToggleMode: () => void;
+  hideToggle?: boolean;
 }
 
-export default function LoginForm({ onToggleMode }: LoginFormProps) {
+export default function LoginForm({ onToggleMode, hideToggle }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
   const [requires2FA, setRequires2FA] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
   const [code2FA, setCode2FA] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
   const { login, verify2FA } = useAuth();
 
@@ -28,10 +30,8 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
     const result = await login(email, password);
     
     if (result.success) {
-      // Вход успешен
       setLoading(false);
     } else if (result.requires_2fa) {
-      // Требуется 2FA
       setRequires2FA(true);
       setUserId(result.user_id);
       setError('');
@@ -66,64 +66,51 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
     return (
       <div>
         <div className="mb-6 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#001f54]/10 rounded-full mb-4">
-            <Icon name="Shield" size={32} className="text-[#001f54]" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#001f54]/10 rounded-2xl mb-4">
+            <Icon name="Shield" size={28} className="text-[#001f54]" />
           </div>
-          <h3 className="text-lg font-semibold text-[#001f54] mb-2">
+          <h3 className="text-lg font-bold text-[#001f54] mb-1">
             Двухфакторная аутентификация
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-500">
             Код отправлен в Telegram
           </p>
         </div>
 
-        <form onSubmit={handle2FASubmit} className="space-y-4 md:space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="code" className="text-[#001f54] font-medium text-sm md:text-base">
+        <form onSubmit={handle2FASubmit} className="space-y-5">
+          <div className="space-y-1.5">
+            <Label htmlFor="code" className="text-gray-700 font-medium text-sm">
               Код подтверждения
             </Label>
-            <div className="relative">
-              <Icon 
-                name="Key" 
-                size={18} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-5 md:h-5" 
-              />
-              <Input
-                id="code"
-                type="text"
-                value={code2FA}
-                onChange={(e) => setCode2FA(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base text-center tracking-widest text-2xl font-bold"
-                placeholder="000000"
-                maxLength={6}
-                required
-                autoFocus
-              />
-            </div>
+            <Input
+              id="code"
+              type="text"
+              value={code2FA}
+              onChange={(e) => setCode2FA(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              className="h-14 bg-gray-50 border-gray-200 text-[#001f54] placeholder:text-gray-300 focus:border-[#001f54] focus:ring-[#001f54]/10 text-center tracking-[0.5em] text-2xl font-bold rounded-xl"
+              placeholder="——————"
+              maxLength={6}
+              required
+              autoFocus
+            />
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm text-center p-3 rounded-lg">
-              <Icon name="AlertCircle" size={16} className="inline mr-2" />
+            <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 text-sm p-3 rounded-xl">
+              <Icon name="AlertCircle" size={16} />
               {error}
             </div>
           )}
 
           <Button 
             type="submit" 
-            className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold py-3 md:py-3 rounded-lg transition-all duration-300 shadow-lg h-12 md:h-auto text-base" 
+            className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold h-12 rounded-xl transition-all duration-200 shadow-md shadow-[#001f54]/20 text-sm" 
             disabled={loading || code2FA.length !== 6}
           >
             {loading ? (
-              <>
-                <Icon name="Loader2" size={18} className="mr-2 animate-spin md:w-5 md:h-5" />
-                Проверка...
-              </>
+              <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Проверка...</>
             ) : (
-              <>
-                <Icon name="Check" size={18} className="mr-2 md:w-5 md:h-5" />
-                Подтвердить
-              </>
+              <><Icon name="Check" size={16} className="mr-2" />Подтвердить</>
             )}
           </Button>
 
@@ -135,9 +122,9 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
               setCode2FA('');
               setError('');
             }}
-            className="w-full text-[#001f54] hover:bg-[#001f54]/5"
+            className="w-full text-gray-500 hover:text-[#001f54] hover:bg-gray-50 rounded-xl h-10 text-sm"
           >
-            <Icon name="ArrowLeft" size={16} className="mr-2" />
+            <Icon name="ArrowLeft" size={14} className="mr-2" />
             Назад
           </Button>
         </form>
@@ -147,89 +134,93 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-        <div className="space-y-3 md:space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-[#001f54] font-medium text-sm md:text-base">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-gray-700 font-medium text-sm">
               Email
             </Label>
             <div className="relative">
               <Icon 
                 name="Mail" 
-                size={18} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-5 md:h-5" 
+                size={16} 
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" 
               />
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
+                className="pl-10 h-12 bg-gray-50 border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/10 rounded-xl text-sm transition-all"
                 placeholder="your@email.com"
                 required
               />
             </div>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-[#001f54] font-medium text-sm md:text-base">
+          <div className="space-y-1.5">
+            <Label htmlFor="password" className="text-gray-700 font-medium text-sm">
               Пароль
             </Label>
             <div className="relative">
               <Icon 
                 name="Lock" 
-                size={18} 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 md:w-5 md:h-5" 
+                size={16} 
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" 
               />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
+                className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/10 rounded-xl text-sm transition-all"
                 placeholder="••••••••"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#001f54] transition-colors"
+                tabIndex={-1}
+              >
+                <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={16} />
+              </button>
             </div>
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm text-center p-3 rounded-lg">
-            <Icon name="AlertCircle" size={16} className="inline mr-2" />
+          <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 text-sm p-3 rounded-xl">
+            <Icon name="AlertCircle" size={16} />
             {error}
           </div>
         )}
 
         <Button 
           type="submit" 
-          className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold py-3 md:py-3 rounded-lg transition-all duration-300 shadow-lg h-12 md:h-auto text-base" 
+          className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold h-12 rounded-xl transition-all duration-200 shadow-md shadow-[#001f54]/20 text-sm" 
           disabled={loading}
         >
           {loading ? (
-            <>
-              <Icon name="Loader2" size={18} className="mr-2 animate-spin md:w-5 md:h-5" />
-              Вход...
-            </>
+            <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Вход...</>
           ) : (
-            <>
-              <Icon name="LogIn" size={18} className="mr-2 md:w-5 md:h-5" />
-              Войти
-            </>
+            'Войти'
           )}
         </Button>
       </form>
 
-      <div className="mt-4 md:mt-6 text-center">
-        <Button 
-          variant="ghost" 
-          onClick={onToggleMode}
-          className="text-[#001f54] hover:text-[#002b6b] hover:bg-[#001f54]/5 transition-all duration-300 h-10 md:h-auto text-sm md:text-base"
-        >
-          <Icon name="UserPlus" size={16} className="mr-2" />
-          Зарегистрироваться
-        </Button>
-      </div>
+      {!hideToggle && (
+        <div className="mt-5 text-center">
+          <Button 
+            variant="ghost" 
+            onClick={onToggleMode}
+            className="text-[#001f54] hover:text-[#002b6b] hover:bg-[#001f54]/5 transition-all rounded-xl text-sm h-10"
+          >
+            <Icon name="UserPlus" size={14} className="mr-2" />
+            Зарегистрироваться
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

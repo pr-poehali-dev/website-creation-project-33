@@ -136,7 +136,7 @@ export default function LoginForm({ onToggleMode, hideToggle }: LoginFormProps) 
     <div>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-4">
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 animate-fade-up" style={{ animationDelay: '0.05s' }}>
             <Label htmlFor="email" className="text-gray-700 font-medium text-sm">
               Email
             </Label>
@@ -151,14 +151,14 @@ export default function LoginForm({ onToggleMode, hideToggle }: LoginFormProps) 
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 h-12 bg-gray-50 border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/10 rounded-xl text-sm transition-all"
+                className="pl-10 h-12 bg-gray-50 border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/10 rounded-xl text-sm transition-all duration-200 hover:border-gray-300 focus:scale-[1.01]"
                 placeholder=""
                 required
               />
             </div>
           </div>
           
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 animate-fade-up" style={{ animationDelay: '0.12s' }}>
             <Label htmlFor="password" className="text-gray-700 font-medium text-sm">
               Пароль
             </Label>
@@ -173,14 +173,14 @@ export default function LoginForm({ onToggleMode, hideToggle }: LoginFormProps) 
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/10 rounded-xl text-sm transition-all"
+                className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/10 rounded-xl text-sm transition-all duration-200 hover:border-gray-300 focus:scale-[1.01]"
                 placeholder=""
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#001f54] transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#001f54] transition-colors duration-200"
                 tabIndex={-1}
               >
                 <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={16} />
@@ -190,23 +190,25 @@ export default function LoginForm({ onToggleMode, hideToggle }: LoginFormProps) 
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 text-sm p-3 rounded-xl">
+          <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 text-sm p-3 rounded-xl animate-fade-down">
             <Icon name="AlertCircle" size={16} />
             {error}
           </div>
         )}
 
-        <Button 
-          type="submit" 
-          className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold h-12 rounded-xl transition-all duration-200 shadow-md shadow-[#001f54]/20 text-sm" 
-          disabled={loading}
-        >
-          {loading ? (
-            <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Вход...</>
-          ) : (
-            'Войти'
-          )}
-        </Button>
+        <div className="animate-fade-up" style={{ animationDelay: '0.2s' }}>
+          <Button 
+            type="submit" 
+            className="w-full bg-[#001f54] hover:bg-[#002b6b] active:scale-[0.98] text-white font-semibold h-12 rounded-xl transition-all duration-200 shadow-md shadow-[#001f54]/20 hover:shadow-lg hover:shadow-[#001f54]/30 text-sm" 
+            disabled={loading}
+          >
+            {loading ? (
+              <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Вход...</>
+            ) : (
+              'Войти'
+            )}
+          </Button>
+        </div>
       </form>
 
       {!hideToggle && (

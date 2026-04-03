@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import PhotoCapture from './PhotoCapture';
 
 const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
@@ -16,6 +17,7 @@ interface StartTabProps {
 }
 
 export default function StartTab({ onOrganizationSelect }: StartTabProps) {
+  const { logout } = useAuth();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [selectedOrgId, setSelectedOrgId] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -93,13 +95,22 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
     <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-4 pt-12 sm:pt-28 pb-8">
       <div className="w-full max-w-sm animate-fade-up">
 
-        <div className="mb-5 sm:mb-8 animate-fade-down" style={{ animationDelay: '0.05s' }}>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
-            Выбор организации
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Выберите площадку для начала работы
-          </p>
+        <div className="mb-5 sm:mb-8 animate-fade-down flex items-start justify-between" style={{ animationDelay: '0.05s' }}>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
+              Выбор организации
+            </h1>
+            <p className="text-gray-500 text-sm">
+              Выберите площадку для начала работы
+            </p>
+          </div>
+          <button
+            onClick={logout}
+            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#001f54] transition-colors mt-1 touch-manipulation"
+          >
+            <Icon name="LogOut" size={16} />
+            <span className="hidden sm:inline">Выйти</span>
+          </button>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 animate-fade-up" style={{ animationDelay: '0.15s' }}>

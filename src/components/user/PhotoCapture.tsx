@@ -11,212 +11,159 @@ interface PhotoCaptureProps {
   organizationId: number;
 }
 
-interface Accessory {
+interface Sticker {
   id: string;
   emoji: string;
-  label: string;
-  anchor: 'forehead' | 'nose' | 'chin' | 'face';
-  offsetY: number;
-  scale: number;
+  x: number;
+  y: number;
+  size: number;
 }
 
-const ACCESSORIES: Accessory[] = [
-  { id: 'none',   emoji: '✕',  label: 'Без',       anchor: 'face',     offsetY: 0,     scale: 0    },
-  { id: 'crown',  emoji: '👑',  label: 'Корона',    anchor: 'forehead', offsetY: -0.55, scale: 0.9  },
-  { id: 'hat',    emoji: '🎩',  label: 'Цилиндр',   anchor: 'forehead', offsetY: -0.65, scale: 1.0  },
-  { id: 'cowboy', emoji: '🤠',  label: 'Ковбой',    anchor: 'forehead', offsetY: -0.55, scale: 1.1  },
-  { id: 'santa',  emoji: '🎅',  label: 'Мороз',     anchor: 'forehead', offsetY: -0.5,  scale: 1.0  },
-  { id: 'party',  emoji: '🎉',  label: 'Праздник',  anchor: 'forehead', offsetY: -0.5,  scale: 0.8  },
-  { id: 'horns',  emoji: '😈',  label: 'Рожки',     anchor: 'forehead', offsetY: -0.55, scale: 0.9  },
-  { id: 'cool',   emoji: '😎',  label: 'Очки',      anchor: 'nose',     offsetY: -0.1,  scale: 0.9  },
-  { id: 'beard',  emoji: '🧔',  label: 'Борода',    anchor: 'chin',     offsetY: 0.2,   scale: 0.9  },
-  { id: 'alien',  emoji: '👽',  label: 'Пришелец',  anchor: 'face',     offsetY: 0,     scale: 1.1  },
-  { id: 'clown',  emoji: '🤡',  label: 'Клоун',     anchor: 'face',     offsetY: 0,     scale: 1.1  },
-  { id: 'ghost',  emoji: '👻',  label: 'Призрак',   anchor: 'face',     offsetY: 0,     scale: 1.2  },
-  { id: 'robot',  emoji: '🤖',  label: 'Робот',     anchor: 'face',     offsetY: 0,     scale: 1.1  },
+const ACCESSORIES = [
+  { id: 'none', emoji: '🚫', label: 'Без фильтра' },
+  { id: 'cowboy', emoji: '🤠', label: 'Ковбой' },
+  { id: 'party', emoji: '🥳', label: 'Праздник' },
+  { id: 'alien', emoji: '👽', label: 'Пришелец' },
+  { id: 'clown', emoji: '🤡', label: 'Клоун' },
+  { id: 'cool', emoji: '😎', label: 'Крутой' },
+  { id: 'devil', emoji: '😈', label: 'Чертёнок' },
+  { id: 'robot', emoji: '🤖', label: 'Робот' },
+  { id: 'ghost', emoji: '👻', label: 'Привидение' },
+  { id: 'crown', emoji: '👑', label: 'Корона' },
+  { id: 'hat', emoji: '🎩', label: 'Цилиндр' },
+  { id: 'santa', emoji: '🎅', label: 'Дед Мороз' },
 ];
-
-// Индексы ключевых точек MediaPipe Face Mesh
-const IDX_FOREHEAD   = 10;
-const IDX_NOSE_TIP   = 1;
-const IDX_LEFT_EYE   = 33;
-const IDX_RIGHT_EYE  = 263;
-const IDX_CHIN       = 152;
-const IDX_LEFT_CHEEK = 234;
-const IDX_RIGHT_CHEEK= 454;
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-declare global {
-  interface Window { FaceMesh: any; }
-}
 
 export default function PhotoCapture({ open, onOpenChange, onSuccess, type, organizationId }: PhotoCaptureProps) {
   const { user } = useAuth();
-  const [isSending, setIsSending]        = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
-  const [stream, setStream]              = useState<MediaStream | null>(null);
-  const [cameraReady, setCameraReady]    = useState(false);
-  const [selectedId, setSelectedId]      = useState('none');
-  const [faceDetected, setFaceDetected]  = useState(false);
-  const [modelLoading, setModelLoading]  = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [selectedAccessory, setSelectedAccessory] = useState<string>('none');
+  const [stickers, setStickers] = useState<Sticker[]>([]);
+  const [dragging, setDragging] = useState<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
 
-  const videoRef    = useRef<HTMLVideoElement>(null);
-  const canvasRef   = useRef<HTMLCanvasElement>(null);
-  const overlayRef  = useRef<HTMLCanvasElement>(null);
-  const faceMeshRef = useRef<any>(null);
-  const rafRef      = useRef<number>(0);
-  const landmarksRef = useRef<any[]>([]);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const viewRef = useRef<HTMLDivElement>(null);
 
-  /* ── Камера ─────────────────────────────────────────────── */
   const startCamera = async () => {
     setCameraReady(false);
     try {
-      const ms = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false,
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 1920 }, height: { ideal: 1080 } },
+        audio: false
       });
       if (videoRef.current) {
-        videoRef.current.srcObject = ms;
+        videoRef.current.srcObject = mediaStream;
         videoRef.current.onloadedmetadata = () => setCameraReady(true);
       }
-      setStream(ms);
+      setStream(mediaStream);
     } catch {
-      toast({ title: 'Ошибка', description: 'Нет доступа к камере', variant: 'destructive' });
+      toast({ title: 'Ошибка', description: 'Не удалось получить доступ к камере', variant: 'destructive' });
     }
   };
 
   const stopCamera = () => {
-    cancelAnimationFrame(rafRef.current);
     if (stream) { stream.getTracks().forEach(t => t.stop()); setStream(null); }
     if (videoRef.current) videoRef.current.srcObject = null;
     setCameraReady(false);
-    landmarksRef.current = [];
   };
 
-  /* ── MediaPipe FaceMesh ──────────────────────────────────── */
-  const initFaceMesh = useCallback(async () => {
-    if (faceMeshRef.current || !window.FaceMesh) return;
-    setModelLoading(true);
-    try {
-      const fm = new window.FaceMesh({
-        locateFile: (f: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
-      });
-      fm.setOptions({ maxNumFaces: 1, refineLandmarks: false, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-      fm.onResults((res: any) => {
-        if (res.multiFaceLandmarks?.length > 0) {
-          landmarksRef.current = res.multiFaceLandmarks[0];
-          setFaceDetected(true);
-        } else {
-          landmarksRef.current = [];
-          setFaceDetected(false);
-        }
-      });
-      await fm.initialize();
-      faceMeshRef.current = fm;
-    } finally {
-      setModelLoading(false);
-    }
-  }, []);
+  // Добавить стикер по центру при выборе
+  const handleSelectAccessory = (id: string) => {
+    setSelectedAccessory(id);
+    if (id === 'none') { setStickers([]); return; }
+    const acc = ACCESSORIES.find(a => a.id === id);
+    if (!acc) return;
+    const container = viewRef.current;
+    const cx = container ? container.clientWidth / 2 : 150;
+    const cy = container ? container.clientHeight / 2 - 60 : 200;
+    setStickers(prev => {
+      const existing = prev.find(s => s.id === id);
+      if (existing) return prev;
+      return [...prev, { id, emoji: acc.emoji, x: cx, y: cy, size: 80 }];
+    });
+  };
 
-  /* ── Цикл отрисовки AR ───────────────────────────────────── */
-  const drawLoop = useCallback(() => {
-    const overlay = overlayRef.current;
-    const video   = videoRef.current;
-    if (!overlay || !video) return;
+  // Touch drag
+  const onTouchStart = useCallback((e: React.TouchEvent, id: string) => {
+    e.stopPropagation();
+    const touch = e.touches[0];
+    const sticker = stickers.find(s => s.id === id);
+    if (!sticker) return;
+    setDragging({ id, startX: touch.clientX, startY: touch.clientY, origX: sticker.x, origY: sticker.y });
+  }, [stickers]);
 
-    overlay.width  = video.clientWidth;
-    overlay.height = video.clientHeight;
-    const ctx = overlay.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, overlay.width, overlay.height);
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!dragging) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - dragging.startX;
+    const dy = touch.clientY - dragging.startY;
+    setStickers(prev => prev.map(s => s.id === dragging.id ? { ...s, x: dragging.origX + dx, y: dragging.origY + dy } : s));
+  }, [dragging]);
 
-    const acc = ACCESSORIES.find(a => a.id === selectedId);
-    const lm  = landmarksRef.current;
+  const onTouchEnd = useCallback(() => setDragging(null), []);
 
-    if (acc && acc.id !== 'none' && acc.scale > 0 && lm.length > 0) {
-      const W = overlay.width;
-      const H = overlay.height;
-      // зеркалим X (видео уже зеркальное через CSS)
-      const pt = (i: number) => ({ x: (1 - lm[i].x) * W, y: lm[i].y * H });
+  // Mouse drag (desktop)
+  const onMouseDown = useCallback((e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const sticker = stickers.find(s => s.id === id);
+    if (!sticker) return;
+    setDragging({ id, startX: e.clientX, startY: e.clientY, origX: sticker.x, origY: sticker.y });
+  }, [stickers]);
 
-      const lEye      = pt(IDX_LEFT_EYE);
-      const rEye      = pt(IDX_RIGHT_EYE);
-      const faceW     = Math.abs(pt(IDX_LEFT_CHEEK).x - pt(IDX_RIGHT_CHEEK).x);
-      const fontSize  = faceW * acc.scale;
-      const angle     = Math.atan2(rEye.y - lEye.y, rEye.x - lEye.x);
-
-      let anchor;
-      switch (acc.anchor) {
-        case 'forehead': anchor = pt(IDX_FOREHEAD);  break;
-        case 'nose':     anchor = pt(IDX_NOSE_TIP);  break;
-        case 'chin':     anchor = pt(IDX_CHIN);      break;
-        default:         anchor = { x: (lEye.x + rEye.x) / 2, y: (lEye.y + rEye.y) / 2 };
-      }
-
-      ctx.save();
-      ctx.translate(anchor.x, anchor.y + faceW * acc.offsetY);
-      ctx.rotate(angle);
-      ctx.font = `${fontSize}px serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(acc.emoji, 0, 0);
-      ctx.restore();
-    }
-
-    if (faceMeshRef.current && video.readyState >= 2) {
-      faceMeshRef.current.send({ image: video }).catch(() => {});
-    }
-
-    rafRef.current = requestAnimationFrame(drawLoop);
-  }, [selectedId]);
-
-  /* ── Запуск/остановка AR при смене фильтра ───────────────── */
   useEffect(() => {
-    if (!cameraReady) return;
-    if (selectedId !== 'none') {
-      initFaceMesh().then(() => {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = requestAnimationFrame(drawLoop);
-      });
-    } else {
-      cancelAnimationFrame(rafRef.current);
-      setFaceDetected(false);
-      const overlay = overlayRef.current;
-      if (overlay) overlay.getContext('2d')?.clearRect(0, 0, overlay.width, overlay.height);
-    }
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [cameraReady, selectedId, drawLoop]);
+    if (!dragging) return;
+    const onMove = (e: MouseEvent) => {
+      const dx = e.clientX - dragging.startX;
+      const dy = e.clientY - dragging.startY;
+      setStickers(prev => prev.map(s => s.id === dragging.id ? { ...s, x: dragging.origX + dx, y: dragging.origY + dy } : s));
+    };
+    const onUp = () => setDragging(null);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+  }, [dragging]);
 
-  /* ── Съёмка: видео + AR overlay → jpeg ──────────────────── */
   const takePhoto = () => {
-    const video   = videoRef.current;
-    const canvas  = canvasRef.current;
-    const overlay = overlayRef.current;
-    if (!video || !canvas) return;
+    if (!videoRef.current || !canvasRef.current || !viewRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const container = viewRef.current;
 
-    canvas.width  = video.videoWidth;
+    canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Зеркало
+    // Зеркалим (selfie)
     ctx.save();
     ctx.scale(-1, 1);
     ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
     ctx.restore();
 
-    // Аксессуар поверх
-    if (overlay && selectedId !== 'none') {
-      ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
-    }
+    // Рисуем стикеры
+    const scaleX = canvas.width / container.clientWidth;
+    const scaleY = canvas.height / container.clientHeight;
+    stickers.forEach(s => {
+      const fontSize = s.size * Math.min(scaleX, scaleY);
+      ctx.font = `${fontSize}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(s.emoji, s.x * scaleX, s.y * scaleY);
+    });
 
     setCapturedPhoto(canvas.toDataURL('image/jpeg', 0.9));
     stopCamera();
   };
 
-  const retakePhoto = () => { setCapturedPhoto(null); startCamera(); };
+  const retakePhoto = () => {
+    setCapturedPhoto(null);
+    startCamera();
+  };
 
-  /* ── Отправка ────────────────────────────────────────────── */
   const sendPhoto = async () => {
     if (!capturedPhoto) return;
     setIsSending(true);
@@ -224,40 +171,54 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
       const userId = user?.id?.toString();
       if (!userId) throw new Error('Не найден ID пользователя');
 
-      const res = await fetch('https://functions.poehali.dev/b2eda591-8c66-4dff-95c4-c345ac48703f', {
+      const response = await fetch('https://functions.poehali.dev/b2eda591-8c66-4dff-95c4-c345ac48703f', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
-        body: JSON.stringify({ photo_data: capturedPhoto.split(',')[1], photo_type: type, organization_id: organizationId }),
+        body: JSON.stringify({
+          photo_data: capturedPhoto.split(',')[1],
+          photo_type: type,
+          organization_id: organizationId,
+        }),
       });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Ошибка' }));
-        if (res.status === 409 && err.error === 'active_shift_exists') {
-          setIsSending(false); setCapturedPhoto(null); onOpenChange(false);
-          toast({ title: 'Смена уже открыта', description: 'Закройте текущую смену.', variant: 'destructive' });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Ошибка отправки' }));
+        if (response.status === 409 && errorData.error === 'active_shift_exists') {
+          setIsSending(false);
+          setCapturedPhoto(null);
+          onOpenChange(false);
+          toast({ title: 'Смена уже открыта', description: 'Закройте текущую смену перед началом новой.', variant: 'destructive' });
           return;
         }
-        throw new Error(err.error || 'Не удалось отправить');
+        throw new Error(errorData.error || 'Не удалось отправить фото');
       }
 
-      const data = await res.json();
-      setIsSending(false); setCapturedPhoto(null); setSelectedId('none');
-      if (type === 'end' && data.contacts_today !== undefined) onSuccess(data.contacts_today);
-      else onSuccess();
+      const resultData = await response.json();
+      setIsSending(false);
+      setCapturedPhoto(null);
+      setStickers([]);
+      setSelectedAccessory('none');
+      if (type === 'end' && resultData.contacts_today !== undefined) {
+        onSuccess(resultData.contacts_today);
+      } else {
+        onSuccess();
+      }
       onOpenChange(false);
     } catch (err) {
       setIsSending(false);
-      toast({ title: 'Ошибка', description: err instanceof Error ? err.message : 'Ошибка', variant: 'destructive' });
+      toast({ title: 'Ошибка', description: err instanceof Error ? err.message : 'Не удалось отправить фото', variant: 'destructive' });
     }
   };
 
   useEffect(() => {
     if (open && !capturedPhoto) startCamera();
-    else if (!open) { stopCamera(); setCapturedPhoto(null); setSelectedId('none'); setFaceDetected(false); }
+    else if (!open) { stopCamera(); setCapturedPhoto(null); setStickers([]); setSelectedAccessory('none'); }
     return () => stopCamera();
   }, [open]);
 
   if (!open) return null;
+
+  const isStart = type === 'start';
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col animate-fade-in">
@@ -265,71 +226,105 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
       {/* Шапка */}
       <div className="absolute top-0 left-0 right-0 z-20 px-4 pt-4">
         <div className="flex items-center justify-between">
-          <button onClick={() => onOpenChange(false)} className="w-10 h-10 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-white">
+          <button
+            onClick={() => onOpenChange(false)}
+            className="w-10 h-10 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-white"
+          >
             <Icon name="X" size={20} />
           </button>
           <div className="text-center">
-            <p className="text-white font-semibold text-sm">{type === 'start' ? 'Начало смены' : 'Окончание смены'}</p>
+            <p className="text-white font-semibold text-sm">{isStart ? 'Начало смены' : 'Окончание смены'}</p>
             <p className="text-white/60 text-xs mt-0.5">
-              {capturedPhoto ? 'Проверьте фото'
-                : modelLoading ? '⏳ Загрузка AR...'
-                : selectedId !== 'none' ? (faceDetected ? '✦ Лицо обнаружено' : '○ Ищу лицо...')
-                : 'Выбери фильтр и снимай'}
+              {capturedPhoto ? 'Проверьте фото' : 'Выбери аксессуар и снимай'}
             </p>
           </div>
           <div className="w-10" />
         </div>
       </div>
 
-      {/* Видео + AR */}
-      <div className="flex-1 relative overflow-hidden">
+      {/* Камера / Фото + стикеры */}
+      <div
+        ref={viewRef}
+        className="flex-1 relative overflow-hidden"
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {!capturedPhoto ? (
           <>
-            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
-            <canvas ref={overlayRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+              style={{ transform: 'scaleX(-1)' }}
+            />
             {!cameraReady && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <Icon name="Loader2" size={40} className="text-white/50 animate-spin" />
-              </div>
-            )}
-            {cameraReady && selectedId !== 'none' && (
-              <div className={`absolute top-20 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-medium transition-all ${faceDetected ? 'bg-green-500/80 text-white' : 'bg-black/40 text-white/60'}`}>
-                {faceDetected ? '● Лицо найдено' : '○ Ищу лицо...'}
               </div>
             )}
           </>
         ) : (
           <img src={capturedPhoto} alt="Фото" className="w-full h-full object-cover" />
         )}
+
+        {/* Стикеры поверх камеры (только до съёмки) */}
+        {!capturedPhoto && stickers.map(s => (
+          <div
+            key={s.id}
+            onTouchStart={(e) => onTouchStart(e, s.id)}
+            onMouseDown={(e) => onMouseDown(e, s.id)}
+            className="absolute select-none cursor-grab active:cursor-grabbing"
+            style={{
+              left: s.x - s.size / 2,
+              top: s.y - s.size / 2,
+              fontSize: s.size,
+              lineHeight: 1,
+              touchAction: 'none',
+              userSelect: 'none',
+            }}
+          >
+            {s.emoji}
+          </div>
+        ))}
+
         <canvas ref={canvasRef} className="hidden" />
       </div>
 
-      {/* Нижняя панель */}
+      {/* Панель аксессуаров + кнопки */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent pt-8">
 
+        {/* Выбор аксессуаров (только до съёмки) */}
         {!capturedPhoto && cameraReady && (
-          <div className="px-4 mb-5">
-            <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="px-4 mb-4">
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {ACCESSORIES.map(acc => (
                 <button
                   key={acc.id}
-                  onClick={() => setSelectedId(acc.id)}
-                  className={`flex-shrink-0 flex flex-col items-center gap-1 transition-all active:scale-95 ${selectedId === acc.id ? 'scale-110' : ''}`}
+                  onClick={() => handleSelectAccessory(acc.id)}
+                  className={`flex-shrink-0 w-14 h-14 rounded-2xl flex flex-col items-center justify-center transition-all ${
+                    selectedAccessory === acc.id
+                      ? 'bg-white/30 ring-2 ring-white scale-110'
+                      : 'bg-white/10 active:scale-95'
+                  }`}
                 >
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all ${selectedId === acc.id ? 'bg-white/30 ring-2 ring-white' : 'bg-white/10'}`}>
-                    {acc.emoji}
-                  </div>
-                  <span className="text-white/60 text-[10px]">{acc.label}</span>
+                  <span className="text-2xl">{acc.emoji}</span>
                 </button>
               ))}
             </div>
           </div>
         )}
 
+        {/* Кнопки действий */}
         <div className="px-6 pb-10">
           {!capturedPhoto ? (
             <div className="flex items-center justify-center">
-              <button onClick={takePhoto} disabled={!cameraReady} className="w-20 h-20 rounded-full bg-white disabled:bg-white/40 flex items-center justify-center shadow-2xl active:scale-95 transition-transform">
+              <button
+                onClick={takePhoto}
+                disabled={!cameraReady}
+                className="w-20 h-20 rounded-full bg-white disabled:bg-white/40 flex items-center justify-center shadow-2xl active:scale-95 transition-transform"
+              >
                 <div className="w-16 h-16 rounded-full border-2 border-black/10 bg-white flex items-center justify-center">
                   <Icon name="Camera" size={28} className="text-[#001f54]" />
                 </div>
@@ -337,13 +332,24 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
             </div>
           ) : (
             <div className="flex gap-4">
-              <button onClick={retakePhoto} disabled={isSending} className="flex-1 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/20 text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform">
-                <Icon name="RotateCcw" size={18} />Переснять
+              <button
+                onClick={retakePhoto}
+                disabled={isSending}
+                className="flex-1 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/20 text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+              >
+                <Icon name="RotateCcw" size={18} />
+                Переснять
               </button>
-              <button onClick={sendPhoto} disabled={isSending} className="flex-1 h-14 rounded-2xl bg-white text-[#001f54] font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-60 shadow-lg">
-                {isSending
-                  ? <><Icon name="Loader2" size={18} className="animate-spin" />Отправка...</>
-                  : <><Icon name="Check" size={18} />Отправить</>}
+              <button
+                onClick={sendPhoto}
+                disabled={isSending}
+                className="flex-1 h-14 rounded-2xl bg-white text-[#001f54] font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-60 shadow-lg"
+              >
+                {isSending ? (
+                  <><Icon name="Loader2" size={18} className="animate-spin" />Отправка...</>
+                ) : (
+                  <><Icon name="Check" size={18} />Отправить</>
+                )}
               </button>
             </div>
           )}

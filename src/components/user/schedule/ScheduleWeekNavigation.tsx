@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface ScheduleWeekNavigationProps {
@@ -19,33 +18,31 @@ export default function ScheduleWeekNavigation({
   isUkrainian
 }: ScheduleWeekNavigationProps) {
   return (
-    <div className="flex items-center justify-between gap-3 bg-gray-50 p-3 rounded-lg border-2 border-gray-200">
-      <Button
+    <div className="flex items-center justify-between gap-3">
+      <button
         onClick={onPrevious}
         disabled={currentWeekIndex === 0 || loading}
-        variant="outline"
-        size="sm"
-        className="border-[#001f54] text-[#001f54] hover:bg-[#001f54] hover:text-white"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-500 hover:text-[#001f54] hover:border-[#001f54]/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium touch-manipulation"
       >
-        <Icon name="ChevronLeft" size={16} className="md:mr-1" />
-        <span className="hidden md:inline">{isUkrainian ? 'Попередній' : 'Предыдущая'}</span>
-      </Button>
-      
+        <Icon name="ChevronLeft" size={16} />
+        <span className="hidden sm:inline">{isUkrainian ? 'Попередній' : 'Назад'}</span>
+      </button>
+
       <div className="text-center">
-        <p className="text-sm md:text-base font-bold text-[#001f54]">{weeks[currentWeekIndex].label}</p>
-        <p className="text-[10px] md:text-xs text-gray-500">{isUkrainian ? 'Тиждень' : 'Неделя'} {currentWeekIndex + 1} {isUkrainian ? 'з' : 'из'} {weeks.length}</p>
+        <p className="text-sm font-bold text-[#001f54]">{weeks[currentWeekIndex].label}</p>
+        <p className="text-xs text-gray-400">
+          {isUkrainian ? 'Тиждень' : 'Неделя'} {currentWeekIndex + 1} {isUkrainian ? 'з' : 'из'} {weeks.length}
+        </p>
       </div>
-      
-      <Button
+
+      <button
         onClick={onNext}
         disabled={currentWeekIndex === weeks.length - 1 || loading}
-        variant="outline"
-        size="sm"
-        className="border-[#001f54] text-[#001f54] hover:bg-[#001f54] hover:text-white"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-500 hover:text-[#001f54] hover:border-[#001f54]/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium touch-manipulation"
       >
-        <span className="hidden md:inline">{isUkrainian ? 'Наступний' : 'Следующая'}</span>
-        <Icon name="ChevronRight" size={16} className="md:ml-1" />
-      </Button>
+        <span className="hidden sm:inline">{isUkrainian ? 'Наступний' : 'Вперёд'}</span>
+        <Icon name="ChevronRight" size={16} />
+      </button>
     </div>
   );
 }

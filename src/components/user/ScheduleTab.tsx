@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
@@ -289,22 +288,7 @@ export default function ScheduleTab() {
         </Button>
       </div>
 
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <Icon name="Info" size={20} className="text-blue-600 mt-0.5" />
-            <div className="text-sm text-gray-700">
-              <p className="font-semibold mb-2">Как заполнить график:</p>
-              <ul className="space-y-1 text-xs">
-                <li>• Будни: выберите смены с 12:00-16:00 или 16:00-20:00</li>
-                <li>• Выходные: смены с 11:00-15:00 или 15:00-19:00</li>
-                <li>• Можно выбрать обе смены в один день</li>
-                <li>• Не забудьте нажать "Подтвердить график" для сохранения</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }

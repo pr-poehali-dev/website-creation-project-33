@@ -106,6 +106,10 @@ export default function UserDashboard() {
     console.log('✅ State reset: organization=null, tab=start');
   };
 
+  if (currentView === 'start') {
+    return <StartTab onOrganizationSelect={handleOrganizationSelect} />;
+  }
+
   return (
     <div 
       className="min-h-screen p-3 md:p-6 bg-white"
@@ -135,10 +139,6 @@ export default function UserDashboard() {
           open={aiHelperOpen}
           onOpenChange={setAiHelperOpen}
         />
-
-        {currentView === 'start' && (
-          <StartTab onOrganizationSelect={handleOrganizationSelect} />
-        )}
 
         {currentView === 'tiles' && selectedOrganization && (
           <>

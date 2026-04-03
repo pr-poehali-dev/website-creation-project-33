@@ -115,17 +115,12 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
                 Фамилия
               </Label>
               <div className="relative">
-                <Icon 
-                  name="User" 
-                  size={18} 
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
-                />
                 <Input
                   id="lastName"
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
+                  className="bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
                   placeholder=""
                   required
                 />

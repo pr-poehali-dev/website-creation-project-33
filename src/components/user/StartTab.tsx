@@ -92,25 +92,24 @@ export default function StartTab({ onOrganizationSelect }: StartTabProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-4 pt-12 sm:pt-28 pb-8">
+    <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-4 pt-12 sm:pt-28 pb-8 relative">
+      <button
+        onClick={logout}
+        className="absolute top-4 right-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium touch-manipulation"
+      >
+        <Icon name="LogOut" size={15} />
+        <span>Выйти</span>
+      </button>
+
       <div className="w-full max-w-sm animate-fade-up">
 
-        <div className="mb-5 sm:mb-8 animate-fade-down flex items-start justify-between" style={{ animationDelay: '0.05s' }}>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
-              Выбор организации
-            </h1>
-            <p className="text-gray-500 text-sm">
-              Выберите площадку для начала работы
-            </p>
-          </div>
-          <button
-            onClick={logout}
-            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#001f54] transition-colors mt-1 touch-manipulation"
-          >
-            <Icon name="LogOut" size={16} />
-            <span className="hidden sm:inline">Выйти</span>
-          </button>
+        <div className="mb-5 sm:mb-8 animate-fade-down" style={{ animationDelay: '0.05s' }}>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
+            Выбор организации
+          </h1>
+          <p className="text-gray-500 text-sm">
+            Выберите площадку для начала работы
+          </p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 animate-fade-up" style={{ animationDelay: '0.15s' }}>

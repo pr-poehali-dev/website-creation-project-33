@@ -112,26 +112,26 @@ export default function UserDashboard() {
 
   if (currentView === 'schedule') {
     return (
-      <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-4 pt-12 sm:pt-16 pb-8 relative">
+      <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-3 sm:px-4 pt-16 pb-8 relative">
         <button
           onClick={() => setCurrentView(selectedOrganization ? 'tiles' : 'start')}
-          className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium touch-manipulation"
+          className="absolute top-4 left-3 sm:left-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium touch-manipulation"
         >
           <Icon name="ArrowLeft" size={15} />
           <span>Назад</span>
         </button>
 
-        <div className="w-full max-w-2xl animate-fade-up">
-          <div className="mb-5 sm:mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
+        <div className="w-full max-w-lg animate-fade-up">
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-3xl font-bold text-[#001f54] mb-0.5">
               График работы
             </h1>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-xs sm:text-sm">
               Выберите удобные промежутки времени на неделю
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6">
+          <div className="bg-white rounded-2xl shadow-sm p-3 sm:p-5">
             <ScheduleTab />
           </div>
         </div>

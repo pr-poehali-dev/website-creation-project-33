@@ -237,19 +237,22 @@ export default function ScheduleTab() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <ScheduleWeekNavigation
-          currentWeekIndex={currentWeekIndex}
-          weeks={weeks}
-          onPrevious={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
-          onNext={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
-          loading={loading}
-          isUkrainian={isUkrainian}
-        />
-        <Badge className="bg-[#001f54] text-white px-3 py-1.5 text-sm flex-shrink-0">
-          {getSelectedCount()} {isUkrainian ? 'змін' : 'смен'}
-        </Badge>
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="flex-1">
+          <ScheduleWeekNavigation
+            currentWeekIndex={currentWeekIndex}
+            weeks={weeks}
+            onPrevious={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
+            onNext={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
+            loading={loading}
+            isUkrainian={isUkrainian}
+          />
+        </div>
+        <div className="bg-[#001f54] text-white px-3 py-2 rounded-xl text-xs font-semibold flex-shrink-0 text-center leading-tight">
+          <span className="text-base font-bold block">{getSelectedCount()}</span>
+          <span className="opacity-70">{isUkrainian ? 'змін' : 'смен'}</span>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -266,26 +269,23 @@ export default function ScheduleTab() {
         ))}
       </div>
 
-      <div className="flex items-center justify-between pt-2">
-        {saved ? (
-          <Badge className="bg-green-500 text-white px-3 py-1.5 flex items-center gap-1.5">
-            <Icon name="Check" size={14} />
-            {isUkrainian ? 'Збережено' : 'Сохранено'}
-          </Badge>
-        ) : (
-          <span className="text-xs text-gray-400">Выберите удобные смены</span>
-        )}
+      <div className="pt-1 space-y-2">
         <Button
           onClick={saveSchedule}
           disabled={saving || getSelectedCount() === 0}
-          className="bg-[#001f54] hover:bg-[#002b6b] text-white px-6 h-11 rounded-xl font-semibold transition-all duration-200 touch-manipulation"
+          className="w-full h-12 bg-[#001f54] hover:bg-[#002b6b] text-white rounded-xl font-semibold text-base transition-all duration-200 touch-manipulation"
         >
           {saving ? (
             <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />{isUkrainian ? 'Збереження...' : 'Сохранение...'}</>
+          ) : saved ? (
+            <><Icon name="Check" size={16} className="mr-2" />{isUkrainian ? 'Збережено!' : 'Сохранено!'}</>
           ) : (
-            <><Icon name="Save" size={16} className="mr-2" />{isUkrainian ? 'Зберегти' : 'Сохранить'}</>
+            <><Icon name="Save" size={16} className="mr-2" />{isUkrainian ? 'Зберегти графік' : 'Сохранить график'}</>
           )}
         </Button>
+        {!saved && getSelectedCount() === 0 && (
+          <p className="text-center text-xs text-gray-400">Выберите хотя бы одну смену</p>
+        )}
       </div>
 
 

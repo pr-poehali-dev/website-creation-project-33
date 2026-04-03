@@ -53,7 +53,7 @@ export default function ScheduleDayCard({
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-      <div className="flex items-center gap-3 px-4 pt-4 pb-3">
+      <div className="flex items-center gap-3 px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3">
         <div className={`w-11 h-11 rounded-xl ${accentColor} text-white flex flex-col items-center justify-center font-bold flex-shrink-0`}>
           <span className="text-[9px] leading-none opacity-80">{day.dayName}</span>
           <span className="text-sm font-bold leading-tight">
@@ -66,21 +66,21 @@ export default function ScheduleDayCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 px-4 pb-4">
+      <div className="grid grid-cols-2 gap-2 px-3 sm:px-4 pb-3 sm:pb-4">
         {day.slots.map((slot, slotIndex) => (
           <button
             key={slot.time}
             onClick={() => onToggleSlot(dayIndex, slotIndex)}
-            className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 touch-manipulation ${
+            className={`flex items-center justify-center gap-1.5 py-4 sm:py-3 rounded-xl text-sm font-medium transition-all duration-200 touch-manipulation active:scale-95 ${
               slot.selected
                 ? day.isWeekend
                   ? 'bg-orange-500 text-white'
                   : 'bg-[#001f54] text-white'
-                : 'bg-gray-50 text-gray-500 border border-gray-200 hover:border-[#001f54]/30 hover:text-[#001f54]'
+                : 'bg-gray-50 text-gray-500 border border-gray-200 active:bg-gray-100'
             }`}
           >
-            <Icon name="Clock" size={13} className="opacity-70" />
-            {slot.label}
+            <Icon name="Clock" size={13} className="opacity-70 flex-shrink-0" />
+            <span>{slot.label}</span>
           </button>
         ))}
       </div>

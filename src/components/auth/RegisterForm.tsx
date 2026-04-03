@@ -105,7 +105,7 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
-                  placeholder="Иван"
+                  placeholder=""
                   required
                 />
               </div>
@@ -126,7 +126,7 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
-                  placeholder="Петров"
+                  placeholder=""
                   required
                 />
               </div>
@@ -150,7 +150,7 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
-                placeholder="your@email.com"
+                placeholder=""
                 required
               />
             </div>
@@ -173,12 +173,12 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
-                placeholder="••••••••"
+                placeholder=""
                 required
                 minLength={6}
               />
             </div>
-            <p className="text-[#001f54]/70 text-xs md:text-sm">Минимум 6 символов</p>
+
           </div>
 
           {/* Повторите пароль */}
@@ -204,7 +204,7 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
                     ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
                     : 'border-gray-200 focus:border-[#001f54] focus:ring-[#001f54]/20'
                 }`}
-                placeholder="••••••••"
+                placeholder=""
                 required
               />
               {confirmPassword.length > 0 && (
@@ -220,16 +220,7 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
                 </div>
               )}
             </div>
-            <div className={`overflow-hidden transition-all duration-300 ${
-              passwordsMismatch ? 'max-h-6 opacity-100' : 'max-h-0 opacity-0'
-            }`}>
-              <p className="text-red-500 text-xs">Пароли не совпадают</p>
-            </div>
-            <div className={`overflow-hidden transition-all duration-300 ${
-              passwordsMatch ? 'max-h-6 opacity-100' : 'max-h-0 opacity-0'
-            }`}>
-              <p className="text-green-600 text-xs">Пароли совпадают</p>
-            </div>
+
           </div>
         </div>
 

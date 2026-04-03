@@ -152,7 +152,7 @@ export default function LoginForm({ onToggleMode, hideToggle }: LoginFormProps) 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10 h-12 bg-gray-50 border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/10 rounded-xl text-sm transition-all"
-                placeholder="your@email.com"
+                placeholder=""
                 required
               />
             </div>
@@ -174,7 +174,7 @@ export default function LoginForm({ onToggleMode, hideToggle }: LoginFormProps) 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/10 rounded-xl text-sm transition-all"
-                placeholder="••••••••"
+                placeholder=""
                 required
               />
               <button

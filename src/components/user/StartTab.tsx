@@ -94,22 +94,22 @@ export default function StartTab({ onOrganizationSelect, onOpenSchedule }: Start
 
   return (
     <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-4 pt-12 sm:pt-28 pb-8 relative">
-      <div className="absolute top-4 right-4 flex items-center gap-2">
+      <div className="absolute top-4 right-3 sm:right-4 flex items-center gap-2">
         {onOpenSchedule && (
           <button
             onClick={onOpenSchedule}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium touch-manipulation"
+            className="flex items-center gap-2 px-3 py-2.5 sm:py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md active:scale-95 transition-all duration-200 text-sm font-medium touch-manipulation"
           >
-            <Icon name="CalendarDays" size={15} />
-            <span>График</span>
+            <Icon name="CalendarDays" size={16} />
+            <span className="hidden sm:inline">График</span>
           </button>
         )}
         <button
           onClick={logout}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium touch-manipulation"
+          className="flex items-center gap-2 px-3 py-2.5 sm:py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md active:scale-95 transition-all duration-200 text-sm font-medium touch-manipulation"
         >
-          <Icon name="LogOut" size={15} />
-          <span>Выйти</span>
+          <Icon name="LogOut" size={16} />
+          <span className="hidden sm:inline">Выйти</span>
         </button>
       </div>
 

@@ -5,6 +5,7 @@ import DateTabs from './DateTabs';
 import LeadCard from './LeadCard';
 import { Lead } from './types';
 import { findDuplicatePhones, hasDuplicatePhone } from './phoneUtils';
+import { formatMoscowTime } from '@/utils/timeFormat';
 
 interface UserLeadsModalProps {
   userName: string | null;
@@ -38,9 +39,9 @@ export default function UserLeadsModal({
   const approachLeads = leads.filter(l => l.lead_type === 'подход');
   const filteredLeads = activeTab === 'contacts' ? contactLeads : approachLeads;
 
-  // Группировка отфильтрованных лидов по датам
+  // Группировка отфильтрованных лидов по датам (тот же формат DD.MM.YYYY что и groupedLeads)
   const filteredGrouped = filteredLeads.reduce((acc, lead) => {
-    const date = new Date(lead.created_at).toLocaleDateString('ru-RU', { timeZone: 'Europe/Moscow' });
+    const date = formatMoscowTime(lead.created_at, 'date');
     if (!acc[date]) acc[date] = [];
     acc[date].push(lead);
     return acc;

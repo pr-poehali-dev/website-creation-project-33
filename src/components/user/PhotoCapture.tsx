@@ -21,19 +21,31 @@ interface Accessory {
 }
 
 const ACCESSORIES: Accessory[] = [
-  { id: 'none',   emoji: '✕',  label: 'Без',       anchor: 'face',     offsetY: 0,     scale: 0    },
-  { id: 'crown',  emoji: '👑',  label: 'Корона',    anchor: 'forehead', offsetY: -0.55, scale: 0.9  },
-  { id: 'hat',    emoji: '🎩',  label: 'Цилиндр',   anchor: 'forehead', offsetY: -0.65, scale: 1.0  },
-  { id: 'cowboy', emoji: '🤠',  label: 'Ковбой',    anchor: 'forehead', offsetY: -0.55, scale: 1.1  },
-  { id: 'santa',  emoji: '🎅',  label: 'Мороз',     anchor: 'forehead', offsetY: -0.5,  scale: 1.0  },
-  { id: 'party',  emoji: '🎉',  label: 'Праздник',  anchor: 'forehead', offsetY: -0.5,  scale: 0.8  },
-  { id: 'horns',  emoji: '😈',  label: 'Рожки',     anchor: 'forehead', offsetY: -0.55, scale: 0.9  },
-  { id: 'cool',   emoji: '😎',  label: 'Очки',      anchor: 'nose',     offsetY: -0.1,  scale: 0.9  },
-  { id: 'beard',  emoji: '🧔',  label: 'Борода',    anchor: 'chin',     offsetY: 0.2,   scale: 0.9  },
-  { id: 'alien',  emoji: '👽',  label: 'Пришелец',  anchor: 'face',     offsetY: 0,     scale: 1.1  },
-  { id: 'clown',  emoji: '🤡',  label: 'Клоун',     anchor: 'face',     offsetY: 0,     scale: 1.1  },
-  { id: 'ghost',  emoji: '👻',  label: 'Призрак',   anchor: 'face',     offsetY: 0,     scale: 1.2  },
-  { id: 'robot',  emoji: '🤖',  label: 'Робот',     anchor: 'face',     offsetY: 0,     scale: 1.1  },
+  { id: 'none',      emoji: '✕',  label: 'Без',        anchor: 'face',     offsetY: 0,     scale: 0    },
+  { id: 'crown',     emoji: '👑',  label: 'Корона',     anchor: 'forehead', offsetY: -0.7,  scale: 0.85 },
+  { id: 'hat',       emoji: '🎩',  label: 'Цилиндр',   anchor: 'forehead', offsetY: -0.75, scale: 0.95 },
+  { id: 'cowboy',    emoji: '🤠',  label: 'Ковбой',     anchor: 'forehead', offsetY: -0.7,  scale: 1.0  },
+  { id: 'santa',     emoji: '🎅',  label: 'Мороз',      anchor: 'forehead', offsetY: -0.65, scale: 0.95 },
+  { id: 'party',     emoji: '🥳',  label: 'Праздник',   anchor: 'forehead', offsetY: -0.65, scale: 0.85 },
+  { id: 'horns',     emoji: '😈',  label: 'Рожки',      anchor: 'forehead', offsetY: -0.65, scale: 0.85 },
+  { id: 'cool',      emoji: '🕶️',  label: 'Очки',       anchor: 'nose',     offsetY: -0.15, scale: 0.85 },
+  { id: 'beard',     emoji: '🧔',  label: 'Борода',     anchor: 'chin',     offsetY: 0.3,   scale: 0.85 },
+  { id: 'alien',     emoji: '👽',  label: 'Пришелец',   anchor: 'face',     offsetY: 0,     scale: 1.0  },
+  { id: 'clown',     emoji: '🤡',  label: 'Клоун',      anchor: 'face',     offsetY: 0,     scale: 1.0  },
+  { id: 'ghost',     emoji: '👻',  label: 'Призрак',    anchor: 'face',     offsetY: 0,     scale: 1.1  },
+  { id: 'robot',     emoji: '🤖',  label: 'Робот',      anchor: 'face',     offsetY: 0,     scale: 1.0  },
+  { id: 'butterfly', emoji: '🦋',  label: 'Бабочка',    anchor: 'nose',     offsetY: -0.05, scale: 0.75 },
+  { id: 'flower',    emoji: '🌸',  label: 'Цветок',     anchor: 'forehead', offsetY: -0.6,  scale: 0.6  },
+  { id: 'fire',      emoji: '🔥',  label: 'Огонь',      anchor: 'forehead', offsetY: -0.7,  scale: 0.7  },
+  { id: 'rainbow',   emoji: '🌈',  label: 'Радуга',     anchor: 'forehead', offsetY: -0.8,  scale: 1.0  },
+  { id: 'sunglasses',emoji: '😎',  label: 'Крутой',     anchor: 'nose',     offsetY: -0.1,  scale: 0.9  },
+  { id: 'unicorn',   emoji: '🦄',  label: 'Единорог',   anchor: 'forehead', offsetY: -0.75, scale: 0.9  },
+  { id: 'pumpkin',   emoji: '🎃',  label: 'Тыква',      anchor: 'face',     offsetY: 0,     scale: 1.0  },
+  { id: 'star',      emoji: '⭐',  label: 'Звезда',     anchor: 'forehead', offsetY: -0.65, scale: 0.55 },
+  { id: 'lightning', emoji: '⚡',  label: 'Молния',     anchor: 'forehead', offsetY: -0.6,  scale: 0.6  },
+  { id: 'cat',       emoji: '🐱',  label: 'Кошка',      anchor: 'forehead', offsetY: -0.65, scale: 0.85 },
+  { id: 'dog',       emoji: '🐶',  label: 'Собака',     anchor: 'face',     offsetY: 0,     scale: 1.0  },
+  { id: 'money',     emoji: '🤑',  label: 'Деньги',     anchor: 'face',     offsetY: 0,     scale: 1.0  },
 ];
 
 // Индексы ключевых точек MediaPipe Face Mesh
@@ -139,23 +151,27 @@ export default function PhotoCapture({ open, onOpenChange, onSuccess, type, orga
       // зеркалим X (видео уже зеркальное через CSS)
       const pt = (i: number) => ({ x: (1 - lm[i].x) * W, y: lm[i].y * H });
 
-      const lEye      = pt(IDX_LEFT_EYE);
-      const rEye      = pt(IDX_RIGHT_EYE);
-      const faceW     = Math.abs(pt(IDX_LEFT_CHEEK).x - pt(IDX_RIGHT_CHEEK).x);
-      const fontSize  = faceW * acc.scale;
-      const angle     = Math.atan2(rEye.y - lEye.y, rEye.x - lEye.x);
+      const lEye  = pt(IDX_LEFT_EYE);
+      const rEye  = pt(IDX_RIGHT_EYE);
+      const faceW = Math.abs(pt(IDX_LEFT_CHEEK).x - pt(IDX_RIGHT_CHEEK).x);
+      const fontSize = faceW * acc.scale;
+
+      // Угол по линии глаз (зеркало уже учтено в pt())
+      const angle = Math.atan2(rEye.y - lEye.y, rEye.x - lEye.x);
 
       let anchor;
       switch (acc.anchor) {
-        case 'forehead': anchor = pt(IDX_FOREHEAD);  break;
-        case 'nose':     anchor = pt(IDX_NOSE_TIP);  break;
-        case 'chin':     anchor = pt(IDX_CHIN);      break;
+        case 'forehead': anchor = pt(IDX_FOREHEAD); break;
+        case 'nose':     anchor = pt(IDX_NOSE_TIP); break;
+        case 'chin':     anchor = pt(IDX_CHIN);     break;
         default:         anchor = { x: (lEye.x + rEye.x) / 2, y: (lEye.y + rEye.y) / 2 };
       }
 
       ctx.save();
-      ctx.translate(anchor.x, anchor.y + faceW * acc.offsetY);
+      ctx.translate(anchor.x, anchor.y);
       ctx.rotate(angle);
+      // offsetY применяем ПОСЛЕ rotate — вдоль оси лица, не экрана
+      ctx.translate(0, faceW * acc.offsetY);
       ctx.font = `${fontSize}px serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';

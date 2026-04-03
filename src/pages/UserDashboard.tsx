@@ -107,7 +107,7 @@ export default function UserDashboard() {
   };
 
   if (currentView === 'start') {
-    return <StartTab onOrganizationSelect={handleOrganizationSelect} />;
+    return <StartTab onOrganizationSelect={handleOrganizationSelect} onOpenSchedule={() => setCurrentView('schedule')} />;
   }
 
   return (

@@ -238,76 +238,56 @@ export default function ScheduleTab() {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-white border-2 border-[#001f54]/10 shadow-lg">
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-4 mb-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl md:text-2xl font-bold text-[#001f54] flex items-center gap-2">
-                  <Icon name="Calendar" size={24} className="md:w-7 md:h-7" />
-                  {isUkrainian ? 'Графік роботи' : 'График работы'}
-                </h2>
-                <p className="text-xs md:text-sm text-gray-600 mt-1">
-                  {isUkrainian ? 'Виберіть зручні проміжки часу на тиждень' : 'Выберите удобные промежутки времени на неделю'}
-                </p>
-              </div>
-              <Badge className="bg-[#001f54] text-white text-sm md:text-lg px-3 md:px-4 py-1 md:py-2">
-                {getSelectedCount()} {isUkrainian ? 'змін' : 'смен'}
-              </Badge>
-            </div>
-            
-            <ScheduleWeekNavigation
-              currentWeekIndex={currentWeekIndex}
-              weeks={weeks}
-              onPrevious={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
-              onNext={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
-              loading={loading}
-              isUkrainian={isUkrainian}
-            />
-          </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <ScheduleWeekNavigation
+          currentWeekIndex={currentWeekIndex}
+          weeks={weeks}
+          onPrevious={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
+          onNext={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
+          loading={loading}
+          isUkrainian={isUkrainian}
+        />
+        <Badge className="bg-[#001f54] text-white px-3 py-1.5 text-sm flex-shrink-0">
+          {getSelectedCount()} {isUkrainian ? 'змін' : 'смен'}
+        </Badge>
+      </div>
 
-          <div className="space-y-3">
-            {schedule.map((day, dayIndex) => (
-              <ScheduleDayCard
-                key={day.date}
-                day={day}
-                dayIndex={dayIndex}
-                workShifts={workShifts}
-                workComment={workComments[day.date]}
-                onToggleSlot={toggleSlot}
-                isUkrainian={isUkrainian}
-              />
-            ))}
-          </div>
+      <div className="space-y-2">
+        {schedule.map((day, dayIndex) => (
+          <ScheduleDayCard
+            key={day.date}
+            day={day}
+            dayIndex={dayIndex}
+            workShifts={workShifts}
+            workComment={workComments[day.date]}
+            onToggleSlot={toggleSlot}
+            isUkrainian={isUkrainian}
+          />
+        ))}
+      </div>
 
-          <div className="mt-6 flex flex-col md:flex-row justify-end gap-3">
-            {saved && (
-              <Badge className="bg-green-500 text-white px-3 md:px-4 py-2 flex items-center gap-2 justify-center">
-                <Icon name="Check" size={16} />
-                {isUkrainian ? 'Збережено' : 'Сохранено'}
-              </Badge>
-            )}
-            <Button
-              onClick={saveSchedule}
-              disabled={saving || getSelectedCount() === 0}
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white px-6 md:px-8 py-4 md:py-6 text-base md:text-lg shadow-lg hover:scale-105 transition-all duration-300 w-full md:w-auto"
-            >
-              {saving ? (
-                <>
-                  <Icon name="Loader2" size={18} className="mr-2 animate-spin md:w-5 md:h-5" />
-                  {isUkrainian ? 'Збереження...' : 'Сохранение...'}
-                </>
-              ) : (
-                <>
-                  <Icon name="Save" size={18} className="mr-2 md:w-5 md:h-5" />
-                  {isUkrainian ? 'Підтвердити графік' : 'Подтвердить график'}
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-between pt-2">
+        {saved ? (
+          <Badge className="bg-green-500 text-white px-3 py-1.5 flex items-center gap-1.5">
+            <Icon name="Check" size={14} />
+            {isUkrainian ? 'Збережено' : 'Сохранено'}
+          </Badge>
+        ) : (
+          <span className="text-xs text-gray-400">Выберите удобные смены</span>
+        )}
+        <Button
+          onClick={saveSchedule}
+          disabled={saving || getSelectedCount() === 0}
+          className="bg-[#001f54] hover:bg-[#002b6b] text-white px-6 h-11 rounded-xl font-semibold transition-all duration-200 touch-manipulation"
+        >
+          {saving ? (
+            <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />{isUkrainian ? 'Збереження...' : 'Сохранение...'}</>
+          ) : (
+            <><Icon name="Save" size={16} className="mr-2" />{isUkrainian ? 'Зберегти' : 'Сохранить'}</>
+          )}
+        </Button>
+      </div>
 
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
         <CardContent className="p-4">

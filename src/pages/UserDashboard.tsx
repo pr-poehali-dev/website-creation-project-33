@@ -110,6 +110,35 @@ export default function UserDashboard() {
     return <StartTab onOrganizationSelect={handleOrganizationSelect} onOpenSchedule={() => setCurrentView('schedule')} />;
   }
 
+  if (currentView === 'schedule') {
+    return (
+      <div className="min-h-screen bg-[#f0f2f8] flex flex-col items-center justify-start px-4 pt-12 sm:pt-16 pb-8 relative">
+        <button
+          onClick={() => setCurrentView(selectedOrganization ? 'tiles' : 'start')}
+          className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium touch-manipulation"
+        >
+          <Icon name="ArrowLeft" size={15} />
+          <span>Назад</span>
+        </button>
+
+        <div className="w-full max-w-2xl animate-fade-up">
+          <div className="mb-5 sm:mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#001f54] mb-1">
+              График работы
+            </h1>
+            <p className="text-gray-500 text-sm">
+              Выберите удобные промежутки времени на неделю
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6">
+            <ScheduleTab />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
       className="min-h-screen p-3 md:p-6 bg-white"
@@ -287,19 +316,6 @@ export default function UserDashboard() {
               </button>
             </div>
             <NewWorkTab />
-          </div>
-        )}
-
-        {currentView === 'schedule' && (
-          <div className="space-y-4">
-            <button
-              onClick={() => setCurrentView(selectedOrganization ? 'tiles' : 'start')}
-              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
-            >
-              <Icon name="ArrowLeft" size={20} />
-              <span className="text-lg">Назад</span>
-            </button>
-            <ScheduleTab />
           </div>
         )}
 

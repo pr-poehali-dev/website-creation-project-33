@@ -60,21 +60,36 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
 
   if (pendingApproval) {
     return (
-      <div className="text-center space-y-4 py-6">
-        <div className="w-20 h-20 mx-auto bg-amber-100 rounded-full flex items-center justify-center">
-          <Icon name="Clock" size={40} className="text-amber-600" />
+      <div className="animate-fade-up">
+        {/* Иконка */}
+        <div className="flex justify-center mb-6">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-2xl bg-[#001f54] flex items-center justify-center shadow-lg shadow-[#001f54]/30">
+              <Icon name="SendHorizonal" size={32} className="text-white" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center shadow-md">
+              <Icon name="Check" size={14} className="text-white" />
+            </div>
+          </div>
         </div>
-        <div className="space-y-2">
-          <h3 className="text-xl font-bold text-[#001f54]">Заявка отправлена!</h3>
-          <p className="text-gray-600 px-4">
-            Ваша заявка на регистрацию ожидает одобрения администратора. 
-            Вы получите доступ после проверки.
+
+        {/* Текст */}
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-bold text-[#001f54] mb-2">Заявка отправлена</h3>
+          <p className="text-gray-500 text-sm leading-relaxed">
+            Администратор рассмотрит вашу заявку и откроет доступ. Ожидайте уведомления.
           </p>
         </div>
+
+        {/* Статус-блок */}
+        <div className="bg-gray-50 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
+          <p className="text-xs text-gray-500">На рассмотрении у администратора</p>
+        </div>
+
         <Button
           onClick={onToggleMode}
-          variant="outline"
-          className="border-[#001f54] text-[#001f54] hover:bg-[#001f54]/5"
+          className="w-full bg-[#001f54] hover:bg-[#002b6b] text-white font-semibold h-12 rounded-xl transition-all duration-200 shadow-md shadow-[#001f54]/20 text-sm"
         >
           Вернуться к входу
         </Button>
@@ -146,6 +161,7 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10 bg-white border-gray-200 text-[#001f54] placeholder:text-gray-400 focus:border-[#001f54] focus:ring-[#001f54]/20 h-12 md:h-auto text-base"
                 placeholder=""
+                autoComplete="off"
                 required
               />
             </div>

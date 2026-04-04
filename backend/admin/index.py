@@ -1938,7 +1938,6 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     day, month, year = date.split('.')
                     date_iso = f"{year}-{month}-{day}"
                     # Московское 00:00 = UTC 21:00 предыдущего дня, московское 23:59 = UTC 20:59 текущего дня
-                    from datetime import datetime, timedelta
                     msk_start = datetime.strptime(date_iso, '%Y-%m-%d')
                     msk_end = msk_start + timedelta(days=1)
                     utc_start = msk_start - timedelta(hours=3)

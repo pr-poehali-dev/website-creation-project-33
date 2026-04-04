@@ -714,33 +714,46 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
             return leads
 
 def get_user_approaches(user_id: int) -> List[Dict[str, Any]]:
-    """Получить подходы пользователя из таблицы leads (поле approaches)"""
+    """Получить подходы пользователя: кнопки 'Отменить' из leads + контакты из leads_analytics (контакт = тоже подход)"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+            # 1. Подходы из таблицы leads (нажатия кнопки - approaches > 0)
             cur.execute("""
-                SELECT l.id, l.created_at, l.approaches, o.name as organization_name
+                SELECT l.id, l.created_at, o.name as organization_name, 'подход' as lead_type
                 FROM t_p24058207_website_creation_pro.leads l
                 LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
                 WHERE l.user_id = %s AND l.approaches > 0
-                ORDER BY l.created_at DESC
             """, (user_id,))
-            
+            rows_approaches = cur.fetchall()
+
+            # 2. Контакты из leads_analytics (контакт тоже является подходом)
+            cur.execute("""
+                SELECT la.id, la.created_at, o.name as organization_name, 'контакт' as lead_type
+                FROM t_p24058207_website_creation_pro.leads_analytics la
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON la.organization_id = o.id
+                WHERE la.user_id = %s AND la.lead_type = 'контакт'
+            """, (user_id,))
+            rows_contacts = cur.fetchall()
+
+            all_rows = list(rows_approaches) + list(rows_contacts)
             approaches = []
-            for row in cur.fetchall():
+            for row in all_rows:
                 created_at = None
                 if row[1]:
                     try:
                         created_at = get_moscow_time_from_utc(row[1]).isoformat()
                     except Exception:
                         created_at = row[1].isoformat() if hasattr(row[1], 'isoformat') else str(row[1])
-                
+
                 approaches.append({
                     'id': row[0],
                     'created_at': created_at,
-                    'approaches': row[2],
-                    'lead_type': 'подход',
-                    'organization_name': row[3],
+                    'lead_type': row[3],
+                    'organization_name': row[2],
                 })
+
+            # Сортируем по дате DESC
+            approaches.sort(key=lambda x: x['created_at'] or '', reverse=True)
             return approaches
 
 def get_user_work_time(user_id: int) -> List[Dict[str, Any]]:

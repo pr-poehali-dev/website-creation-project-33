@@ -202,32 +202,39 @@ export default function UserLeadsModal({
               {/* Подходы */}
               {activeTab === 'approaches' && selectedDate && currentDateApproaches && (
                 <div className="space-y-3">
-                  {currentDateApproaches.map((item) => (
-                    <div key={item.id} className="border-2 border-slate-700 rounded-lg p-3 md:p-4 bg-slate-800/50">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-yellow-500 flex-shrink-0">
-                          <Icon name="User" size={16} className="text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-slate-100 text-sm font-medium mb-1">
-                            {formatMoscowTime(item.created_at, 'datetime')}
+                  {currentDateApproaches.map((item) => {
+                    const isContact = item.lead_type === 'контакт';
+                    return (
+                      <div key={`${item.lead_type}-${item.id}`} className="border-2 border-slate-700 rounded-lg p-3 md:p-4 bg-slate-800/50">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg flex-shrink-0 ${isContact ? 'bg-blue-500' : 'bg-yellow-500'}`}>
+                            <Icon name={isContact ? 'Phone' : 'User'} size={16} className="text-white" />
                           </div>
-                          <div className="flex flex-wrap gap-2">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-xs font-medium text-yellow-300">
-                              <Icon name="User" size={12} />
-                              подход
-                            </span>
-                            {item.organization_name && (
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-900/30 border border-cyan-600/30 rounded-full text-xs font-medium text-cyan-400">
-                                <Icon name="Building2" size={12} />
-                                {item.organization_name}
+                          <div className="flex-1 min-w-0">
+                            <div className="text-slate-100 text-sm font-medium mb-1">
+                              {formatMoscowTime(item.created_at, 'datetime')}
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+                                isContact
+                                  ? 'bg-blue-500/20 border border-blue-500/30 text-blue-300'
+                                  : 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-300'
+                              }`}>
+                                <Icon name={isContact ? 'Phone' : 'User'} size={12} />
+                                {item.lead_type}
                               </span>
-                            )}
+                              {item.organization_name && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-900/30 border border-cyan-600/30 rounded-full text-xs font-medium text-cyan-400">
+                                  <Icon name="Building2" size={12} />
+                                  {item.organization_name}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

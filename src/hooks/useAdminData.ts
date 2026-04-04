@@ -235,9 +235,10 @@ export function useDeleteApproach() {
     mutationFn: async ({ id, leadType }: { id: number; leadType: string }) => {
       const action = leadType === 'контакт' ? 'delete_approach_lead' : 'delete_approach';
       const param = leadType === 'контакт' ? 'lead_id' : 'approach_id';
-      const response = await fetch(`${ADMIN_API}?action=${action}&${param}=${id}`, {
+      const response = await fetch(ADMIN_API, {
         method: 'DELETE',
-        headers: { 'X-Session-Token': getSessionToken() },
+        headers: { 'Content-Type': 'application/json', 'X-Session-Token': getSessionToken() },
+        body: JSON.stringify({ action, [param]: id }),
       });
       if (!response.ok) throw new Error('Failed to delete approach');
       return response.json();
@@ -254,9 +255,10 @@ export function useDeleteApproachesByDate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ userId, date }: { userId: number; date: string }) => {
-      const response = await fetch(`${ADMIN_API}?action=delete_approaches_by_date&user_id=${userId}&date=${date}`, {
+      const response = await fetch(ADMIN_API, {
         method: 'DELETE',
-        headers: { 'X-Session-Token': getSessionToken() },
+        headers: { 'Content-Type': 'application/json', 'X-Session-Token': getSessionToken() },
+        body: JSON.stringify({ action: 'delete_approaches_by_date', user_id: userId, date }),
       });
       if (!response.ok) throw new Error('Failed to delete approaches by date');
       return response.json();

@@ -124,8 +124,8 @@ export default function OrganizationStatsFilters({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => setSelectedWeekIndex(prev => Math.max(0, prev - 1))}
-              disabled={selectedWeekIndex === 0}
+              onClick={() => setSelectedWeekIndex(prev => Math.min(availableWeeks.length - 1, prev + 1))}
+              disabled={selectedWeekIndex >= availableWeeks.length - 1}
               variant="outline"
               size="sm"
               className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
@@ -136,8 +136,8 @@ export default function OrganizationStatsFilters({
               {availableWeeks[selectedWeekIndex]?.label}
             </span>
             <Button
-              onClick={() => setSelectedWeekIndex(prev => Math.min(availableWeeks.length - 1, prev + 1))}
-              disabled={selectedWeekIndex >= availableWeeks.length - 1}
+              onClick={() => setSelectedWeekIndex(prev => Math.max(0, prev - 1))}
+              disabled={selectedWeekIndex === 0}
               variant="outline"
               size="sm"
               className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
@@ -157,8 +157,8 @@ export default function OrganizationStatsFilters({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => setSelectedMonthIndex(prev => Math.max(0, prev - 1))}
-              disabled={selectedMonthIndex === 0}
+              onClick={() => setSelectedMonthIndex(prev => Math.min(availableMonths.length - 1, prev + 1))}
+              disabled={selectedMonthIndex >= availableMonths.length - 1}
               variant="outline"
               size="sm"
               className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
@@ -169,8 +169,8 @@ export default function OrganizationStatsFilters({
               {availableMonths[selectedMonthIndex]?.label}
             </span>
             <Button
-              onClick={() => setSelectedMonthIndex(prev => Math.min(availableMonths.length - 1, prev + 1))}
-              disabled={selectedMonthIndex >= availableMonths.length - 1}
+              onClick={() => setSelectedMonthIndex(prev => Math.max(0, prev - 1))}
+              disabled={selectedMonthIndex === 0}
               variant="outline"
               size="sm"
               className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"

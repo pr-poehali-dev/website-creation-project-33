@@ -1898,6 +1898,68 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'body': json.dumps({'error': 'Неверный формат user_id'})
                 }
 
+        elif action == 'delete_approach':
+            # Удаление одного подхода из leads
+            method = event.get('httpMethod', 'GET')
+            if method == 'DELETE':
+                approach_id = event.get('queryStringParameters', {}).get('approach_id')
+                if not approach_id:
+                    return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'approach_id required'})}
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads WHERE id = %s", (int(approach_id),))
+                        conn.commit()
+                return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True})}
+
+        elif action == 'delete_approach_lead':
+            # Удаление одного контакта из leads_analytics (через таб подходов)
+            method = event.get('httpMethod', 'GET')
+            if method == 'DELETE':
+                lead_id = event.get('queryStringParameters', {}).get('lead_id')
+                if not lead_id:
+                    return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'lead_id required'})}
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("DELETE FROM t_p24058207_website_creation_pro.leads_analytics WHERE id = %s", (int(lead_id),))
+                        conn.commit()
+                return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True})}
+
+        elif action == 'delete_approaches_by_date':
+            # Удаление всех подходов за дату (из leads + leads_analytics)
+            method = event.get('httpMethod', 'GET')
+            if method == 'DELETE':
+                params = event.get('queryStringParameters', {})
+                user_id = params.get('user_id')
+                date = params.get('date')  # формат DD.MM.YYYY
+                if not user_id or not date:
+                    return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'user_id and date required'})}
+                # Конвертируем DD.MM.YYYY в диапазон дат UTC
+                try:
+                    day, month, year = date.split('.')
+                    date_iso = f"{year}-{month}-{day}"
+                    # Московское 00:00 = UTC 21:00 предыдущего дня, московское 23:59 = UTC 20:59 текущего дня
+                    from datetime import datetime, timedelta
+                    msk_start = datetime.strptime(date_iso, '%Y-%m-%d')
+                    msk_end = msk_start + timedelta(days=1)
+                    utc_start = msk_start - timedelta(hours=3)
+                    utc_end = msk_end - timedelta(hours=3)
+                except Exception:
+                    return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'Invalid date format'})}
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("""
+                            DELETE FROM t_p24058207_website_creation_pro.leads
+                            WHERE user_id = %s AND approaches > 0
+                            AND created_at >= %s AND created_at < %s
+                        """, (int(user_id), utc_start, utc_end))
+                        cur.execute("""
+                            DELETE FROM t_p24058207_website_creation_pro.leads_analytics
+                            WHERE user_id = %s AND lead_type = 'контакт'
+                            AND created_at >= %s AND created_at < %s
+                        """, (int(user_id), utc_start, utc_end))
+                        conn.commit()
+                return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True})}
+
         elif action == 'user_work_time':
             user_id = event.get('queryStringParameters', {}).get('user_id')
             if not user_id:

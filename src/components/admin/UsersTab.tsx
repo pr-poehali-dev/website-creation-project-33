@@ -7,7 +7,7 @@ import UserCard from './UserCard';
 import UserLeadsModal from './UserLeadsModal';
 import { User, Lead } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
-import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate } from '@/hooks/useAdminData';
+import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate, useDeleteApproach, useDeleteApproachesByDate } from '@/hooks/useAdminData';
 
 interface UsersTabProps {
   enabled?: boolean;
@@ -24,6 +24,8 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const activateUserMutation = useActivateUser();
   const deleteLeadMutation = useDeleteLead();
   const deleteLeadsByDateMutation = useDeleteLeadsByDate();
+  const deleteApproachMutation = useDeleteApproach();
+  const deleteApproachesByDateMutation = useDeleteApproachesByDate();
   
   const [editingUser, setEditingUser] = useState<number | null>(null);
   const [newName, setNewName] = useState('');
@@ -76,6 +78,18 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
 
     const result = await deleteLeadsByDateMutation.mutateAsync({ userId: selectedUser.id, date: isoDate });
     alert(`Удалено лидов: ${result.deleted_count}`);
+    setSelectedDate(null);
+  };
+
+  const deleteApproach = async (id: number, leadType: string) => {
+    if (!confirm('Удалить этот подход?')) return;
+    await deleteApproachMutation.mutateAsync({ id, leadType });
+  };
+
+  const deleteApproachesByDate = async (date: string) => {
+    if (!selectedUser) return;
+    if (!confirm(`Удалить все подходы за ${date}? Это действие нельзя отменить.`)) return;
+    await deleteApproachesByDateMutation.mutateAsync({ userId: selectedUser.id, date });
     setSelectedDate(null);
   };
 
@@ -256,6 +270,8 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
         onDateSelect={setSelectedDate}
         onDeleteLead={deleteLead}
         onDeleteDate={deleteLeadsByDate}
+        onDeleteApproach={deleteApproach}
+        onDeleteApproachesByDate={deleteApproachesByDate}
         onClose={() => {
           setSelectedUser(null);
           setSelectedDate(null);

@@ -229,6 +229,46 @@ export function useDeleteLeadsByDate() {
   });
 }
 
+export function useDeleteApproach() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, leadType }: { id: number; leadType: string }) => {
+      const action = leadType === 'контакт' ? 'delete_approach_lead' : 'delete_approach';
+      const param = leadType === 'контакт' ? 'lead_id' : 'approach_id';
+      const response = await fetch(`${ADMIN_API}?action=${action}&${param}=${id}`, {
+        method: 'DELETE',
+        headers: { 'X-Session-Token': getSessionToken() },
+      });
+      if (!response.ok) throw new Error('Failed to delete approach');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userApproaches'] });
+      queryClient.invalidateQueries({ queryKey: ['userLeads'] });
+      queryClient.invalidateQueries({ queryKey: ['stats'] });
+    },
+  });
+}
+
+export function useDeleteApproachesByDate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ userId, date }: { userId: number; date: string }) => {
+      const response = await fetch(`${ADMIN_API}?action=delete_approaches_by_date&user_id=${userId}&date=${date}`, {
+        method: 'DELETE',
+        headers: { 'X-Session-Token': getSessionToken() },
+      });
+      if (!response.ok) throw new Error('Failed to delete approaches by date');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userApproaches'] });
+      queryClient.invalidateQueries({ queryKey: ['userLeads'] });
+      queryClient.invalidateQueries({ queryKey: ['stats'] });
+    },
+  });
+}
+
 export function useDeleteUser() {
   const queryClient = useQueryClient();
   

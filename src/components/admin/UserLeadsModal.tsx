@@ -25,6 +25,8 @@ interface UserLeadsModalProps {
   onDateSelect: (date: string) => void;
   onDeleteLead: (leadId: number) => void;
   onDeleteDate?: (date: string) => void;
+  onDeleteApproach?: (id: number, leadType: string) => void;
+  onDeleteApproachesByDate?: (date: string) => void;
   onClose: () => void;
 }
 
@@ -38,6 +40,8 @@ export default function UserLeadsModal({
   onDateSelect,
   onDeleteLead,
   onDeleteDate,
+  onDeleteApproach,
+  onDeleteApproachesByDate,
   onClose,
 }: UserLeadsModalProps) {
   const [activeTab, setActiveTab] = useState<'contacts' | 'approaches'>('contacts');
@@ -176,7 +180,7 @@ export default function UserLeadsModal({
                 leadsCounts={leadsCounts}
                 datesWithDuplicates={datesWithDuplicates}
                 onDateSelect={handleDateClick}
-                onDeleteDate={activeTab === 'contacts' ? onDeleteDate : undefined}
+                onDeleteDate={activeTab === 'contacts' ? onDeleteDate : onDeleteApproachesByDate}
               />
 
               {/* Контакты */}
@@ -206,31 +210,41 @@ export default function UserLeadsModal({
                     const isContact = item.lead_type === 'контакт';
                     return (
                       <div key={`${item.lead_type}-${item.id}`} className="border-2 border-slate-700 rounded-lg p-3 md:p-4 bg-slate-800/50">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg flex-shrink-0 ${isContact ? 'bg-blue-500' : 'bg-yellow-500'}`}>
-                            <Icon name={isContact ? 'Phone' : 'User'} size={16} className="text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-slate-100 text-sm font-medium mb-1">
-                              {formatMoscowTime(item.created_at, 'datetime')}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className={`p-2 rounded-lg flex-shrink-0 ${isContact ? 'bg-blue-500' : 'bg-yellow-500'}`}>
+                              <Icon name={isContact ? 'Phone' : 'User'} size={16} className="text-white" />
                             </div>
-                            <div className="flex flex-wrap gap-2">
-                              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-                                isContact
-                                  ? 'bg-blue-500/20 border border-blue-500/30 text-blue-300'
-                                  : 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-300'
-                              }`}>
-                                <Icon name={isContact ? 'Phone' : 'User'} size={12} />
-                                {item.lead_type}
-                              </span>
-                              {item.organization_name && (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-900/30 border border-cyan-600/30 rounded-full text-xs font-medium text-cyan-400">
-                                  <Icon name="Building2" size={12} />
-                                  {item.organization_name}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-slate-100 text-sm font-medium mb-1">
+                                {formatMoscowTime(item.created_at, 'datetime')}
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+                                  isContact
+                                    ? 'bg-blue-500/20 border border-blue-500/30 text-blue-300'
+                                    : 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-300'
+                                }`}>
+                                  <Icon name={isContact ? 'Phone' : 'User'} size={12} />
+                                  {item.lead_type}
                                 </span>
-                              )}
+                                {item.organization_name && (
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-900/30 border border-cyan-600/30 rounded-full text-xs font-medium text-cyan-400">
+                                    <Icon name="Building2" size={12} />
+                                    {item.organization_name}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
+                          {onDeleteApproach && (
+                            <button
+                              onClick={() => onDeleteApproach(item.id, item.lead_type)}
+                              className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-red-900/30 text-red-400 transition-colors flex-shrink-0"
+                            >
+                              <Icon name="Trash2" size={16} />
+                            </button>
+                          )}
                         </div>
                       </div>
                     );

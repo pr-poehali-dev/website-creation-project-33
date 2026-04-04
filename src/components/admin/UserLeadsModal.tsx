@@ -7,9 +7,18 @@ import { Lead } from './types';
 import { findDuplicatePhones, hasDuplicatePhone } from './phoneUtils';
 import { formatMoscowTime } from '@/utils/timeFormat';
 
+interface ApproachItem {
+  id: number;
+  created_at: string;
+  approaches: number;
+  lead_type: string;
+  organization_name?: string;
+}
+
 interface UserLeadsModalProps {
   userName: string | null;
   leads: Lead[];
+  approaches?: ApproachItem[];
   isLoading: boolean;
   selectedDate: string | null;
   groupedLeads: Record<string, Lead[]>;
@@ -22,6 +31,7 @@ interface UserLeadsModalProps {
 export default function UserLeadsModal({
   userName,
   leads,
+  approaches = [],
   isLoading,
   selectedDate,
   groupedLeads,
@@ -34,21 +44,24 @@ export default function UserLeadsModal({
 
   if (!userName) return null;
 
-  // Фильтрация по типу таба
   const contactLeads = leads.filter(l => l.lead_type !== 'подход');
-  const approachLeads = leads.filter(l => l.lead_type === 'подход');
-  const filteredLeads = activeTab === 'contacts' ? contactLeads : approachLeads;
 
-  // Группировка отфильтрованных лидов по датам (тот же формат DD.MM.YYYY что и groupedLeads)
-  const filteredGrouped = filteredLeads.reduce((acc, lead) => {
-    const date = formatMoscowTime(lead.created_at, 'date');
+  // Группировка подходов по датам
+  const approachesGrouped = approaches.reduce((acc, item) => {
+    const date = formatMoscowTime(item.created_at, 'date');
     if (!acc[date]) acc[date] = [];
-    acc[date].push(lead);
+    acc[date].push(item);
+    return acc;
+  }, {} as Record<string, ApproachItem[]>);
+
+  // Для контактов используем groupedLeads (только не-подходы)
+  const contactsGrouped = Object.keys(groupedLeads).reduce((acc, date) => {
+    const filtered = groupedLeads[date].filter(l => l.lead_type !== 'подход');
+    if (filtered.length > 0) acc[date] = filtered;
     return acc;
   }, {} as Record<string, Lead[]>);
 
-  // Для дат используем filteredGrouped если он заполнен, иначе groupedLeads
-  const activeGrouped = Object.keys(filteredGrouped).length > 0 ? filteredGrouped : {};
+  const activeGrouped = activeTab === 'contacts' ? contactsGrouped : approachesGrouped;
 
   const sortedDates = Object.keys(activeGrouped).sort((a, b) => {
     const dateA = a.split('.').reverse().join('-');
@@ -61,18 +74,24 @@ export default function UserLeadsModal({
     return acc;
   }, {} as Record<string, number>);
 
-  const datesWithDuplicates = Object.keys(activeGrouped).reduce((acc, date) => {
-    const leadsForDate = activeGrouped[date];
-    const duplicatePhones = findDuplicatePhones(leadsForDate);
-    acc[date] = duplicatePhones.size > 0;
-    return acc;
-  }, {} as Record<string, boolean>);
+  const datesWithDuplicates = activeTab === 'contacts'
+    ? Object.keys(contactsGrouped).reduce((acc, date) => {
+        const duplicatePhones = findDuplicatePhones(contactsGrouped[date]);
+        acc[date] = duplicatePhones.size > 0;
+        return acc;
+      }, {} as Record<string, boolean>)
+    : {};
 
   const handleDateClick = (date: string) => {
     onDateSelect(selectedDate === date ? '' : date);
   };
 
-  const currentDateLeads = selectedDate && activeGrouped[selectedDate] ? activeGrouped[selectedDate] : null;
+  const currentDateLeads = activeTab === 'contacts' && selectedDate && contactsGrouped[selectedDate]
+    ? contactsGrouped[selectedDate]
+    : null;
+  const currentDateApproaches = activeTab === 'approaches' && selectedDate && approachesGrouped[selectedDate]
+    ? approachesGrouped[selectedDate]
+    : null;
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
@@ -86,7 +105,7 @@ export default function UserLeadsModal({
               <p className="text-sm text-slate-400 mt-0.5">
                 {activeTab === 'contacts'
                   ? `Контактов: ${contactLeads.length}`
-                  : `Подходов: ${approachLeads.length}`}
+                  : `Подходов: ${approaches.length}`}
               </p>
             </div>
             <Button
@@ -126,7 +145,7 @@ export default function UserLeadsModal({
               <Icon name="User" size={14} />
               Подходы
               <span className={`text-xs px-1.5 py-0.5 rounded-full ${activeTab === 'approaches' ? 'bg-white/20' : 'bg-slate-700'}`}>
-                {approachLeads.length}
+                {approaches.length}
               </span>
             </button>
           </div>
@@ -140,7 +159,7 @@ export default function UserLeadsModal({
                 Загрузка...
               </div>
             </div>
-          ) : filteredLeads.length === 0 ? (
+          ) : sortedDates.length === 0 ? (
             <div className="border-2 border-slate-700 rounded-lg p-4 bg-slate-800/50">
               <div className="text-center text-slate-400">
                 <Icon name={activeTab === 'contacts' ? 'Phone' : 'User'} size={20} className="mx-auto mb-2 opacity-60" />
@@ -157,10 +176,11 @@ export default function UserLeadsModal({
                 leadsCounts={leadsCounts}
                 datesWithDuplicates={datesWithDuplicates}
                 onDateSelect={handleDateClick}
-                onDeleteDate={onDeleteDate}
+                onDeleteDate={activeTab === 'contacts' ? onDeleteDate : undefined}
               />
 
-              {selectedDate && currentDateLeads && (
+              {/* Контакты */}
+              {activeTab === 'contacts' && selectedDate && currentDateLeads && (
                 <div className="space-y-3">
                   {(() => {
                     const duplicatePhones = findDuplicatePhones(currentDateLeads);
@@ -176,6 +196,38 @@ export default function UserLeadsModal({
                       );
                     });
                   })()}
+                </div>
+              )}
+
+              {/* Подходы */}
+              {activeTab === 'approaches' && selectedDate && currentDateApproaches && (
+                <div className="space-y-3">
+                  {currentDateApproaches.map((item) => (
+                    <div key={item.id} className="border-2 border-slate-700 rounded-lg p-3 md:p-4 bg-slate-800/50">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-yellow-500 flex-shrink-0">
+                          <Icon name="User" size={16} className="text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-slate-100 text-sm font-medium mb-1">
+                            {formatMoscowTime(item.created_at, 'datetime')}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-xs font-medium text-yellow-300">
+                              <Icon name="User" size={12} />
+                              подход
+                            </span>
+                            {item.organization_name && (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-900/30 border border-cyan-600/30 rounded-full text-xs font-medium text-cyan-400">
+                                <Icon name="Building2" size={12} />
+                                {item.organization_name}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

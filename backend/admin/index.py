@@ -713,6 +713,36 @@ def get_user_leads(user_id: int) -> List[Dict[str, Any]]:
                 })
             return leads
 
+def get_user_approaches(user_id: int) -> List[Dict[str, Any]]:
+    """Получить подходы пользователя из таблицы leads (поле approaches)"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT l.id, l.created_at, l.approaches, o.name as organization_name
+                FROM t_p24058207_website_creation_pro.leads l
+                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
+                WHERE l.user_id = %s AND l.approaches > 0
+                ORDER BY l.created_at DESC
+            """, (user_id,))
+            
+            approaches = []
+            for row in cur.fetchall():
+                created_at = None
+                if row[1]:
+                    try:
+                        created_at = get_moscow_time_from_utc(row[1]).isoformat()
+                    except Exception:
+                        created_at = row[1].isoformat() if hasattr(row[1], 'isoformat') else str(row[1])
+                
+                approaches.append({
+                    'id': row[0],
+                    'created_at': created_at,
+                    'approaches': row[2],
+                    'lead_type': 'подход',
+                    'organization_name': row[3],
+                })
+            return approaches
+
 def get_user_work_time(user_id: int) -> List[Dict[str, Any]]:
     """Получить данные о времени работы промоутера за каждый день на основе видео открытия/закрытия смены"""
     with get_db_connection() as conn:
@@ -1832,6 +1862,29 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'body': json.dumps({'error': 'Неверный формат user_id'})
                 }
         
+        elif action == 'user_approaches':
+            user_id = event.get('queryStringParameters', {}).get('user_id')
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Требуется user_id'})
+                }
+            try:
+                user_id = int(user_id)
+                approaches = get_user_approaches(user_id)
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'approaches': approaches})
+                }
+            except ValueError:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Неверный формат user_id'})
+                }
+
         elif action == 'user_work_time':
             user_id = event.get('queryStringParameters', {}).get('user_id')
             if not user_id:

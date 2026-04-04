@@ -7,7 +7,7 @@ import UserCard from './UserCard';
 import UserLeadsModal from './UserLeadsModal';
 import { User, Lead } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
-import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useDeleteLead, useDeleteLeadsByDate } from '@/hooks/useAdminData';
+import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate } from '@/hooks/useAdminData';
 
 interface UsersTabProps {
   enabled?: boolean;
@@ -29,6 +29,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const [newName, setNewName] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { data: userLeads = [], isLoading: leadsLoading } = useUserLeads(selectedUser?.id || null);
+  const { data: userApproaches = [] } = useUserApproaches(selectedUser?.id || null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showAllActive, setShowAllActive] = useState(false);
   const [showAllInactive, setShowAllInactive] = useState(false);
@@ -248,6 +249,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
       <UserLeadsModal
         userName={selectedUser?.name || null}
         leads={userLeads}
+        approaches={userApproaches}
         isLoading={leadsLoading}
         selectedDate={selectedDate}
         groupedLeads={groupedLeads}

@@ -95,6 +95,25 @@ export function useUserLeads(userId: number | null) {
   });
 }
 
+export function useUserApproaches(userId: number | null) {
+  return useQuery({
+    queryKey: ['userApproaches', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const response = await fetch(`${ADMIN_API}?action=user_approaches&user_id=${userId}`, {
+        headers: {
+          'X-Session-Token': getSessionToken(),
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch user approaches');
+      const data = await response.json();
+      return data.approaches || [];
+    },
+    enabled: !!userId,
+    staleTime: 30000,
+  });
+}
+
 export function useDailyUserStats(date: string | null) {
   return useQuery({
     queryKey: ['dailyUserStats', date],

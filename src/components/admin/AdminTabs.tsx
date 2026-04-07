@@ -22,10 +22,10 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="flex w-full admin-card h-12 md:h-14 p-1 overflow-x-auto overflow-y-hidden gap-1 scrollbar-thin">
+      <TabsList className="flex w-full admin-card h-12 md:h-14 p-1 overflow-x-auto overflow-y-hidden gap-1 scrollbar-thin flex-nowrap">
         <TabsTrigger 
           value="pending" 
-          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium shrink-0 whitespace-nowrap justify-center px-3"
           title="Заявки"
         >
           <Icon name="UserCheck" size={16} />

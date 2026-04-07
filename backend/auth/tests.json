@@ -7,6 +7,23 @@
       "expectedStatus": 200
     },
     {
+      "name": "Test register with senior_id",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "register",
+        "email": "test_senior_check@example.com",
+        "password": "testpass1",
+        "name": "Test User",
+        "senior_id": null
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
       "name": "Test user login",
       "method": "POST",
       "path": "/",

@@ -86,6 +86,15 @@ export default function DayCard({
     }
   }, [isExpanded, activeTab, loadTrainingEntries]);
 
+  const handleDeleteEntry = async (id: string) => {
+    await fetch(TRAINING_API, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ action: 'delete_entry', id: parseInt(id) }),
+    });
+    setTrainingEntries(prev => prev.filter(e => e.id !== id));
+  };
+
   const isSuccessful = stats && stats.expected > 0 && stats.actual >= stats.expected;
   const badgeCount = trainingEntries.length;
 
@@ -194,7 +203,10 @@ export default function DayCard({
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-bold text-violet-400 w-4 flex-shrink-0">{index + 1}</span>
                         <Icon name="UserCheck" size={13} className="text-cyan-400 flex-shrink-0" />
-                        <span className="text-sm font-semibold text-slate-100">{entry.seniorName}</span>
+                        <span className="text-sm font-semibold text-slate-100 flex-1">{entry.seniorName}</span>
+                        <button onClick={() => handleDeleteEntry(entry.id)} className="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-red-400 transition-colors flex-shrink-0">
+                          <Icon name="X" size={14} />
+                        </button>
                       </div>
                       <div className="flex items-center gap-2 pl-6">
                         <Icon name="User" size={13} className="text-violet-400 flex-shrink-0" />

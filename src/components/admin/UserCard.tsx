@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,19 @@ import { User } from './types';
 import { formatLastSeen } from '@/utils/timeFormat';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+
+const SENIORS_KEY = 'training_seniors_list';
+const SENIORS_MAP_KEY = 'promoter_seniors_map';
+
+function loadSeniors(): string[] {
+  try { return JSON.parse(localStorage.getItem(SENIORS_KEY) || '[]'); } catch { return []; }
+}
+function loadSeniorsMap(): Record<number, string> {
+  try { return JSON.parse(localStorage.getItem(SENIORS_MAP_KEY) || '{}'); } catch { return {}; }
+}
+function saveSeniorsMap(map: Record<number, string>) {
+  localStorage.setItem(SENIORS_MAP_KEY, JSON.stringify(map));
+}
 
 interface UserCardProps {
   user: User;
@@ -37,6 +50,29 @@ export default function UserCard({
   const [uploadingQR, setUploadingQR] = useState(false);
   const [blockingUser, setBlockingUser] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [showSeniorDropdown, setShowSeniorDropdown] = useState(false);
+  const [seniors, setSeniors] = useState<string[]>([]);
+  const [assignedSenior, setAssignedSenior] = useState<string>('');
+
+  useEffect(() => {
+    setSeniors(loadSeniors());
+    const map = loadSeniorsMap();
+    setAssignedSenior(map[user.id] || '');
+  }, [user.id]);
+
+  const handleAssignSenior = (seniorName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const map = loadSeniorsMap();
+    if (seniorName === '') {
+      delete map[user.id];
+    } else {
+      map[user.id] = seniorName;
+    }
+    saveSeniorsMap(map);
+    setAssignedSenior(seniorName);
+    setShowSeniorDropdown(false);
+    toast({ title: seniorName ? `Старший назначен: ${seniorName}` : 'Старший снят' });
+  };
 
   const handleQRUpload = async (file: File) => {
     setUploadingQR(true);
@@ -156,6 +192,9 @@ export default function UserCard({
             {user.registration_ip && (
               <p className="text-slate-500 text-xs">IP: {user.registration_ip}</p>
             )}
+            {assignedSenior && (
+              <p className="text-cyan-400 text-xs mt-0.5">Старший: {assignedSenior}</p>
+            )}
           </div>
         </div>
 
@@ -225,6 +264,47 @@ export default function UserCard({
                     e.target.value = '';
                   }}
                 />
+                <div className="relative">
+                  <Button
+                    size="sm"
+                    onClick={(e) => { e.stopPropagation(); setShowSeniorDropdown(p => !p); }}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                    title="Назначить старшего"
+                  >
+                    <Icon name="Star" size={12} className="md:w-[14px] md:h-[14px]" />
+                  </Button>
+                  {showSeniorDropdown && (
+                    <div
+                      className="absolute right-0 top-10 z-50 bg-slate-800 border border-slate-600 rounded-xl shadow-xl min-w-[160px] py-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {seniors.length === 0 && (
+                        <div className="px-3 py-2 text-slate-400 text-xs">Нет старших в списке</div>
+                      )}
+                      {seniors.map((name) => (
+                        <button
+                          key={name}
+                          onClick={(e) => handleAssignSenior(name, e)}
+                          className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-700 transition-colors ${assignedSenior === name ? 'text-cyan-400 font-medium' : 'text-slate-200'}`}
+                        >
+                          {assignedSenior === name && <Icon name="Check" size={12} className="inline mr-1" />}
+                          {name}
+                        </button>
+                      ))}
+                      {assignedSenior && (
+                        <>
+                          <div className="border-t border-slate-700 my-1" />
+                          <button
+                            onClick={(e) => handleAssignSenior('', e)}
+                            className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-slate-700 transition-colors"
+                          >
+                            Снять старшего
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <Button 
                   size="sm" 
                   onClick={onStartEdit}

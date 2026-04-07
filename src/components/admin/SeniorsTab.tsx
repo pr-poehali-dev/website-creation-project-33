@@ -99,8 +99,91 @@ export default function SeniorsTab() {
     setExpandedSenior(prev => prev === name ? null : name);
   };
 
+  const [migrating, setMigrating] = useState(false);
+  const [migrateResult, setMigrateResult] = useState<string | null>(null);
+
+  const handleMigrateFromLocalStorage = async () => {
+    setMigrating(true);
+    setMigrateResult(null);
+    try {
+      // 1. Мигрируем старших
+      const localSeniors: string[] = (() => {
+        try { return JSON.parse(localStorage.getItem('training_seniors_list') || '[]'); } catch { return []; }
+      })();
+      let seniorsAdded = 0;
+      for (const name of localSeniors) {
+        if (name && !seniors.includes(name)) {
+          await fetch(TRAINING_API, {
+            method: 'POST', headers: authHeaders(),
+            body: JSON.stringify({ action: 'add_senior', name }),
+          });
+          seniorsAdded++;
+        }
+      }
+
+      // 2. Мигрируем записи обучения (ищем все ключи training_YYYY-MM-DD)
+      const keys = Object.keys(localStorage).filter(k => /^training_\d{4}-\d{2}-\d{2}$/.test(k));
+      let entriesAdded = 0;
+      for (const key of keys) {
+        const date = key.replace('training_', '');
+        let localEntries: Array<{seniorName: string; promoterName: string; promoterPhone?: string; organization?: string; time?: string; comment?: string}> = [];
+        try { localEntries = JSON.parse(localStorage.getItem(key) || '[]'); } catch { continue; }
+        for (const entry of localEntries) {
+          if (!entry.seniorName || !entry.promoterName) continue;
+          await fetch(TRAINING_API, {
+            method: 'POST', headers: authHeaders(),
+            body: JSON.stringify({
+              action: 'add_entry',
+              date,
+              seniorName: entry.seniorName,
+              promoterName: entry.promoterName,
+              promoterPhone: entry.promoterPhone || '',
+              organization: entry.organization || '',
+              time: entry.time || '',
+              comment: entry.comment || '',
+            }),
+          });
+          entriesAdded++;
+        }
+      }
+
+      await fetchSeniors();
+      setMigrateResult(`Готово! Перенесено: ${seniorsAdded} старших, ${entriesAdded} записей обучения.`);
+    } catch {
+      setMigrateResult('Ошибка при переносе. Попробуйте ещё раз.');
+    }
+    setMigrating(false);
+  };
+
+  // Проверяем, есть ли данные в localStorage для миграции
+  const hasLocalData = (() => {
+    const hasSeniors = (() => { try { return JSON.parse(localStorage.getItem('training_seniors_list') || '[]').length > 0; } catch { return false; } })();
+    const hasEntries = Object.keys(localStorage).some(k => /^training_\d{4}-\d{2}-\d{2}$/.test(k));
+    return hasSeniors || hasEntries;
+  })();
+
   return (
     <div className="space-y-6">
+      {hasLocalData && !migrateResult && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+          <Icon name="AlertTriangle" size={18} className="text-amber-500 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-amber-800 mb-1">Найдены локальные данные обучения</p>
+            <p className="text-xs text-amber-600 mb-3">Старые записи хранятся только в этом браузере. Перенесите их в общую базу, чтобы все администраторы их видели.</p>
+            <button onClick={handleMigrateFromLocalStorage} disabled={migrating}
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+              {migrating ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
+              {migrating ? 'Переношу...' : 'Перенести в базу данных'}
+            </button>
+          </div>
+        </div>
+      )}
+      {migrateResult && (
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3">
+          <Icon name="CheckCircle" size={18} className="text-green-500 flex-shrink-0" />
+          <p className="text-sm text-green-800">{migrateResult}</p>
+        </div>
+      )}
       <div className="admin-card p-6 rounded-2xl">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-800">Список старших</h2>

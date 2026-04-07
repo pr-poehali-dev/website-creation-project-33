@@ -62,9 +62,14 @@ export default function TeamScheduleView({
     setShowAddModal({date, slotTime, slotLabel});
   };
 
-  const daysWithWorkers = weekDays.filter(day => 
-    day.slots.some(slot => getUsersWorkingOnSlot(day.date, slot.time).length > 0)
-  );
+  const daysWithWorkers = weekDays.filter(day => {
+    const hasWorkers = day.slots.some(slot => getUsersWorkingOnSlot(day.date, slot.time).length > 0);
+    const hasTraining = (() => {
+      try { return JSON.parse(localStorage.getItem(`training_${day.date}`) || '[]').length > 0; }
+      catch { return false; }
+    })();
+    return hasWorkers || hasTraining;
+  });
 
   const weekTotals = dayStats.reduce(
     (acc, stat) => ({

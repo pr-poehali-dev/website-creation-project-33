@@ -113,8 +113,8 @@ export default function DailyModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
-      <div className="bg-slate-900 rounded-t-2xl sm:rounded-xl max-w-2xl w-full max-h-[85dvh] sm:max-h-[90vh] overflow-hidden shadow-2xl border-2 border-slate-700 flex flex-col">
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-slate-900 rounded-xl max-w-2xl w-full max-h-[85dvh] overflow-hidden shadow-2xl border-2 border-slate-700 flex flex-col">
         <div className="flex-shrink-0 bg-slate-800 border-b border-slate-700 p-3 sm:p-4 md:p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">

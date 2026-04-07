@@ -1,22 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import UserCard from './UserCard';
 import UserLeadsModal from './UserLeadsModal';
-import { User, Lead } from './types';
+import { User, Lead, ADMIN_API } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
 import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate, useDeleteApproach, useDeleteApproachesByDate } from '@/hooks/useAdminData';
+
+const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
 
 interface UsersTabProps {
   enabled?: boolean;
 }
 
 export default function UsersTab({ enabled = true }: UsersTabProps) {
-  const { data: usersData, isLoading: loading } = useUsers(enabled);
+  const { data: usersData, isLoading: loading, refetch: refetchUsers } = useUsers(enabled);
   const activeUsers = usersData?.active || [];
   const inactiveUsers = usersData?.inactive || [];
+  const [seniors, setSeniors] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    fetch(`${TRAINING_API}?action=get_seniors`)
+      .then(r => r.json())
+      .then(d => { if (d.seniors) setSeniors(d.seniors); })
+      .catch(() => {});
+  }, []);
+
+  const handleSetSenior = async (userId: number, seniorId: number | null) => {
+    await fetch(ADMIN_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Session-Token': localStorage.getItem('session_token') || '' },
+      body: JSON.stringify({ action: 'set_senior', user_id: userId, senior_id: seniorId }),
+    });
+    refetchUsers();
+  };
   
   console.log('👤 Active users with IP:', activeUsers.map(u => ({ name: u.name, ip: u.registration_ip })));
   const updateUserNameMutation = useUpdateUserName();
@@ -235,6 +254,8 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
                   onUpdateName={() => updateUserName(user.id, newName)}
                   onDeleteUser={() => deleteUser(user.id)}
                   onEditNameChange={setNewName}
+                  seniors={seniors}
+                  onSetSenior={handleSetSenior}
                 />
               ))}
               {hasMoreActiveUsers && !showAllActive && (

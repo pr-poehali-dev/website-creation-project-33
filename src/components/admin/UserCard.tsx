@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -7,19 +7,6 @@ import { User } from './types';
 import { formatLastSeen } from '@/utils/timeFormat';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-
-const SENIORS_KEY = 'training_seniors_list';
-const SENIORS_MAP_KEY = 'promoter_seniors_map';
-
-function loadSeniors(): string[] {
-  try { return JSON.parse(localStorage.getItem(SENIORS_KEY) || '[]'); } catch { return []; }
-}
-function loadSeniorsMap(): Record<number, string> {
-  try { return JSON.parse(localStorage.getItem(SENIORS_MAP_KEY) || '{}'); } catch { return {}; }
-}
-function saveSeniorsMap(map: Record<number, string>) {
-  localStorage.setItem(SENIORS_MAP_KEY, JSON.stringify(map));
-}
 
 interface UserCardProps {
   user: User;
@@ -32,6 +19,8 @@ interface UserCardProps {
   onUpdateName: () => void;
   onDeleteUser: () => void;
   onEditNameChange: (name: string) => void;
+  seniors?: { id: number; name: string }[];
+  onSetSenior?: (userId: number, seniorId: number | null) => void;
 }
 
 export default function UserCard({
@@ -45,31 +34,18 @@ export default function UserCard({
   onUpdateName,
   onDeleteUser,
   onEditNameChange,
+  seniors = [],
+  onSetSenior,
 }: UserCardProps) {
   const { user: authUser } = useAuth();
   const [uploadingQR, setUploadingQR] = useState(false);
   const [blockingUser, setBlockingUser] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showSeniorDropdown, setShowSeniorDropdown] = useState(false);
-  const [seniors, setSeniors] = useState<string[]>([]);
-  const [assignedSenior, setAssignedSenior] = useState<string>('');
 
-  useEffect(() => {
-    setSeniors(loadSeniors());
-    const map = loadSeniorsMap();
-    setAssignedSenior(map[user.id] || '');
-  }, [user.id]);
-
-  const handleAssignSenior = (seniorName: string, e: React.MouseEvent) => {
+  const handleAssignSenior = (seniorId: number | null, seniorName: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const map = loadSeniorsMap();
-    if (seniorName === '') {
-      delete map[user.id];
-    } else {
-      map[user.id] = seniorName;
-    }
-    saveSeniorsMap(map);
-    setAssignedSenior(seniorName);
+    onSetSenior?.(user.id, seniorId);
     setShowSeniorDropdown(false);
     toast({ title: seniorName ? `Старший назначен: ${seniorName}` : 'Старший снят' });
   };
@@ -192,8 +168,8 @@ export default function UserCard({
             {user.registration_ip && (
               <p className="text-slate-500 text-xs">IP: {user.registration_ip}</p>
             )}
-            {assignedSenior && (
-              <p className="text-cyan-400 text-xs mt-0.5">Старший: {assignedSenior}</p>
+            {user.senior_name && (
+              <p className="text-cyan-400 text-xs mt-0.5">Старший: {user.senior_name}</p>
             )}
           </div>
         </div>
@@ -275,27 +251,28 @@ export default function UserCard({
                   </Button>
                   {showSeniorDropdown && (
                     <div
-                      className="absolute right-0 top-10 z-50 bg-slate-800 border border-slate-600 rounded-xl shadow-xl min-w-[160px] py-1"
+                      className="absolute right-0 top-10 z-50 bg-slate-800 border border-slate-600 rounded-xl shadow-xl min-w-[180px] py-1"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {seniors.length === 0 && (
-                        <div className="px-3 py-2 text-slate-400 text-xs">Нет старших в списке</div>
+                      {seniors.length === 0 ? (
+                        <div className="px-3 py-2 text-slate-400 text-xs">Загрузка старших...</div>
+                      ) : (
+                        seniors.map((s) => (
+                          <button
+                            key={s.id}
+                            onClick={(e) => handleAssignSenior(s.id, s.name, e)}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-700 transition-colors ${user.senior_id === s.id ? 'text-cyan-400 font-medium' : 'text-slate-200'}`}
+                          >
+                            {user.senior_id === s.id && <Icon name="Check" size={12} className="inline mr-1" />}
+                            {s.name}
+                          </button>
+                        ))
                       )}
-                      {seniors.map((name) => (
-                        <button
-                          key={name}
-                          onClick={(e) => handleAssignSenior(name, e)}
-                          className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-700 transition-colors ${assignedSenior === name ? 'text-cyan-400 font-medium' : 'text-slate-200'}`}
-                        >
-                          {assignedSenior === name && <Icon name="Check" size={12} className="inline mr-1" />}
-                          {name}
-                        </button>
-                      ))}
-                      {assignedSenior && (
+                      {user.senior_id && (
                         <>
                           <div className="border-t border-slate-700 my-1" />
                           <button
-                            onClick={(e) => handleAssignSenior('', e)}
+                            onClick={(e) => handleAssignSenior(null, '', e)}
                             className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-slate-700 transition-colors"
                           >
                             Снять старшего

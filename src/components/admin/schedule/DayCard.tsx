@@ -67,14 +67,6 @@ export default function DayCard({
   const [activeTab, setActiveTab] = useState<'department' | 'training'>('department');
   const [trainingEntries, setTrainingEntries] = useState<TrainingEntry[]>([]);
   const [loadingTraining, setLoadingTraining] = useState(false);
-  const [migrating, setMigrating] = useState(false);
-  const [migrateDone, setMigrateDone] = useState(false);
-
-  // Локальные данные для этого дня
-  const localEntries: TrainingEntry[] = (() => {
-    try { return JSON.parse(localStorage.getItem(`training_${day.date}`) || '[]'); } catch { return []; }
-  })();
-  const hasLocalData = localEntries.length > 0;
 
   const loadTrainingEntries = useCallback(async () => {
     setLoadingTraining(true);
@@ -94,37 +86,8 @@ export default function DayCard({
     }
   }, [isExpanded, activeTab, loadTrainingEntries]);
 
-  const handleMigrate = async () => {
-    setMigrating(true);
-    try {
-      for (const entry of localEntries) {
-        if (!entry.seniorName || !entry.promoterName) continue;
-        await fetch(TRAINING_API, {
-          method: 'POST',
-          headers: authHeaders(),
-          body: JSON.stringify({
-            action: 'add_entry',
-            date: day.date,
-            seniorName: entry.seniorName,
-            promoterName: entry.promoterName,
-            promoterPhone: entry.promoterPhone || '',
-            organization: entry.organization || '',
-            time: entry.time || '',
-            comment: entry.comment || '',
-          }),
-        });
-      }
-      await loadTrainingEntries();
-      setMigrateDone(true);
-    } finally {
-      setMigrating(false);
-    }
-  };
-
   const isSuccessful = stats && stats.expected > 0 && stats.actual >= stats.expected;
-
-  // Считаем записи для бейджа: приоритет — из БД, иначе из локала
-  const badgeCount = trainingEntries.length > 0 ? trainingEntries.length : localEntries.length;
+  const badgeCount = trainingEntries.length;
 
   return (
     <Card className={`border border-slate-700/50 md:border-2 shadow-sm transition-all ${isSuccessful ? 'bg-emerald-500/10 md:border-emerald-500/50' : 'bg-slate-800/50 md:border-slate-700/50'}`}>
@@ -214,35 +177,12 @@ export default function DayCard({
             {/* Таб Обучение */}
             {activeTab === 'training' && (
               <div className="space-y-2">
-                {/* Баннер миграции */}
-                {hasLocalData && !migrateDone && trainingEntries.length === 0 && (
-                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 flex items-start gap-2.5">
-                    <Icon name="AlertTriangle" size={15} className="text-amber-400 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-amber-300 mb-1">Найдены локальные данные ({localEntries.length} зап.)</p>
-                      <p className="text-[10px] text-amber-500/80 mb-2">Эти записи видны только в этом браузере. Перенесите их в общую базу.</p>
-                      <button onClick={handleMigrate} disabled={migrating}
-                        className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 disabled:bg-amber-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
-                        {migrating ? <Icon name="Loader2" size={12} className="animate-spin" /> : <Icon name="Upload" size={12} />}
-                        {migrating ? 'Переношу...' : 'Перенести в базу'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {migrateDone && (
-                  <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 flex items-center gap-2">
-                    <Icon name="CheckCircle" size={14} className="text-green-400 flex-shrink-0" />
-                    <p className="text-xs text-green-300">Перенесено! Теперь данные видны всем администраторам.</p>
-                  </div>
-                )}
-
                 {loadingTraining ? (
                   <div className="flex items-center justify-center gap-2 py-6 text-slate-500">
                     <Icon name="Loader2" size={16} className="animate-spin" />
                     <span className="text-xs">Загрузка...</span>
                   </div>
-                ) : trainingEntries.length === 0 && !hasLocalData ? (
+                ) : trainingEntries.length === 0 ? (
                   <div className="text-center py-6 text-slate-500">
                     <Icon name="GraduationCap" size={32} className="mx-auto mb-2 opacity-40" />
                     <p className="text-xs">Нет записей об обучении</p>

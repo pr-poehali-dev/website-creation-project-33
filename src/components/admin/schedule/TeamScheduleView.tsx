@@ -156,6 +156,7 @@ export default function TeamScheduleView({
         <TrainingModal
           date={trainingModal.date}
           dayNameFull={trainingModal.dayNameFull}
+          organizations={allOrganizations.map(o => o.name)}
           onClose={() => setTrainingModal(null)}
         />
       )}

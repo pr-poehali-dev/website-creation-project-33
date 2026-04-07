@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 interface TrainingModalProps {
   date: string;
   dayNameFull: string;
+  organizations: string[];
   onClose: () => void;
 }
 
@@ -12,7 +13,7 @@ interface TrainingEntry {
   seniorName: string;
   promoterName: string;
   promoterPhone: string;
-  location: string;
+  organization: string;
   time: string;
   comment: string;
 }
@@ -28,7 +29,7 @@ function saveSeniors(list: string[]) {
   localStorage.setItem(SENIORS_KEY, JSON.stringify(list));
 }
 
-export default function TrainingModal({ date, dayNameFull, onClose }: TrainingModalProps) {
+export default function TrainingModal({ date, dayNameFull, organizations, onClose }: TrainingModalProps) {
   const storageKey = `training_${date}`;
   const saved = localStorage.getItem(storageKey);
   const initialEntries: TrainingEntry[] = saved ? JSON.parse(saved) : [];
@@ -38,7 +39,7 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
     seniorName: '',
     promoterName: '',
     promoterPhone: '',
-    location: '',
+    organization: '',
     time: '',
     comment: '',
   });
@@ -48,12 +49,19 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
   const [showSeniorDropdown, setShowSeniorDropdown] = useState(false);
   const [newSeniorInput, setNewSeniorInput] = useState('');
   const [showAddSenior, setShowAddSenior] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const seniorRef = useRef<HTMLDivElement>(null);
+
+  const [showOrgDropdown, setShowOrgDropdown] = useState(false);
+  const [orgSearch, setOrgSearch] = useState('');
+  const orgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (seniorRef.current && !seniorRef.current.contains(e.target as Node)) {
         setShowSeniorDropdown(false);
+      }
+      if (orgRef.current && !orgRef.current.contains(e.target as Node)) {
+        setShowOrgDropdown(false);
       }
     };
     document.addEventListener('mousedown', handleClick);
@@ -79,6 +87,10 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
     saveSeniors(updated);
   };
 
+  const filteredOrgs = organizations.filter(o =>
+    o.toLowerCase().includes(orgSearch.toLowerCase())
+  );
+
   const saveToStorage = (updated: TrainingEntry[]) => {
     localStorage.setItem(storageKey, JSON.stringify(updated));
   };
@@ -101,7 +113,7 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
 
     setEntries(updated);
     saveToStorage(updated);
-    setForm({ seniorName: '', promoterName: '', promoterPhone: '', location: '', time: '', comment: '' });
+    setForm({ seniorName: '', promoterName: '', promoterPhone: '', organization: '', time: '', comment: '' });
   };
 
   const handleEdit = (entry: TrainingEntry) => {
@@ -110,7 +122,7 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
       seniorName: entry.seniorName,
       promoterName: entry.promoterName,
       promoterPhone: entry.promoterPhone,
-      location: entry.location,
+      organization: entry.organization,
       time: entry.time,
       comment: entry.comment,
     });
@@ -124,7 +136,7 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
 
   const cancelEdit = () => {
     setEditingId(null);
-    setForm({ seniorName: '', promoterName: '', promoterPhone: '', location: '', time: '', comment: '' });
+    setForm({ seniorName: '', promoterName: '', promoterPhone: '', organization: '', time: '', comment: '' });
   };
 
   const inputClass = "w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500";
@@ -150,10 +162,10 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
               {editingId ? 'Редактировать запись' : 'Новая запись'}
             </h3>
 
-            {/* Поле Старший */}
+            {/* Старший */}
             <div>
               <label className={labelClass}>Старший *</label>
-              <div className="relative" ref={dropdownRef}>
+              <div className="relative" ref={seniorRef}>
                 <div
                   className={`${inputClass} flex items-center justify-between cursor-pointer`}
                   onClick={() => setShowSeniorDropdown(p => !p)}
@@ -191,7 +203,6 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
                     ) : (
                       <div className="px-3 py-3 text-sm text-slate-500 text-center">Список пуст</div>
                     )}
-
                     <div className="border-t border-slate-700">
                       {showAddSenior ? (
                         <div className="p-2 flex gap-2">
@@ -226,6 +237,7 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
               </div>
             </div>
 
+            {/* Стажер */}
             <div>
               <label className={labelClass}>Стажер *</label>
               <input
@@ -237,6 +249,7 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
               />
             </div>
 
+            {/* Телефон */}
             <div>
               <label className={labelClass}>Телефон стажера</label>
               <input
@@ -248,17 +261,64 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
               />
             </div>
 
+            {/* Организация */}
             <div>
-              <label className={labelClass}>Локация</label>
-              <input
-                type="text"
-                value={form.location}
-                onChange={e => handleChange('location', e.target.value)}
-                placeholder="Место встречи"
-                className={inputClass}
-              />
+              <label className={labelClass}>Организация</label>
+              <div className="relative" ref={orgRef}>
+                <div
+                  className={`${inputClass} flex items-center justify-between cursor-pointer`}
+                  onClick={() => { setShowOrgDropdown(p => !p); setOrgSearch(''); }}
+                >
+                  <span className={form.organization ? 'text-slate-100' : 'text-slate-500'}>
+                    {form.organization || 'Выбрать организацию'}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {form.organization && (
+                      <button
+                        onClick={e => { e.stopPropagation(); setForm(prev => ({ ...prev, organization: '' })); }}
+                        className="text-slate-500 hover:text-slate-300"
+                      >
+                        <Icon name="X" size={13} />
+                      </button>
+                    )}
+                    <Icon name={showOrgDropdown ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400" />
+                  </div>
+                </div>
+
+                {showOrgDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-xl shadow-xl z-20 overflow-hidden">
+                    <div className="p-2 border-b border-slate-700">
+                      <input
+                        type="text"
+                        value={orgSearch}
+                        onChange={e => setOrgSearch(e.target.value)}
+                        placeholder="Поиск..."
+                        autoFocus
+                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                    <div className="max-h-52 overflow-y-auto">
+                      {filteredOrgs.length > 0 ? filteredOrgs.map(org => (
+                        <div
+                          key={org}
+                          className={`px-3 py-2.5 text-sm cursor-pointer transition-colors ${form.organization === org ? 'bg-cyan-600/20 text-cyan-400' : 'text-slate-100 hover:bg-slate-700'}`}
+                          onClick={() => {
+                            setForm(prev => ({ ...prev, organization: org }));
+                            setShowOrgDropdown(false);
+                          }}
+                        >
+                          {org}
+                        </div>
+                      )) : (
+                        <div className="px-3 py-3 text-sm text-slate-500 text-center">Ничего не найдено</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
+            {/* Время */}
             <div>
               <label className={labelClass}>Время стажировки</label>
               <input
@@ -271,6 +331,7 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
               />
             </div>
 
+            {/* Комментарии */}
             <div>
               <label className={labelClass}>Комментарии</label>
               <textarea
@@ -322,12 +383,12 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
                           <span className="text-xs text-slate-400">{entry.promoterPhone}</span>
                         </div>
                       )}
-                      {(entry.location || entry.time) && (
+                      {(entry.organization || entry.time) && (
                         <div className="flex items-center gap-4 flex-wrap">
-                          {entry.location && (
+                          {entry.organization && (
                             <div className="flex items-center gap-1.5">
-                              <Icon name="MapPin" size={12} className="text-slate-500 flex-shrink-0" />
-                              <span className="text-xs text-slate-400">{entry.location}</span>
+                              <Icon name="Building2" size={12} className="text-slate-500 flex-shrink-0" />
+                              <span className="text-xs text-slate-400">{entry.organization}</span>
                             </div>
                           )}
                           {entry.time && (

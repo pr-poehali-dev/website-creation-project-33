@@ -114,8 +114,8 @@ export default function DailyModal({
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
-      <div className="bg-slate-900 rounded-t-2xl sm:rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl border-2 border-slate-700">
-        <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-3 sm:p-4 md:p-6">
+      <div className="bg-slate-900 rounded-t-2xl sm:rounded-xl max-w-2xl w-full max-h-[85dvh] sm:max-h-[90vh] overflow-hidden shadow-2xl border-2 border-slate-700 flex flex-col">
+        <div className="flex-shrink-0 bg-slate-800 border-b border-slate-700 p-3 sm:p-4 md:p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h3 className="text-base sm:text-xl md:text-2xl font-bold text-slate-100 truncate">
@@ -138,7 +138,7 @@ export default function DailyModal({
           </div>
         </div>
         
-        <div className="p-3 sm:p-4 md:p-6 overflow-y-auto">
+        <div className="p-3 sm:p-4 md:p-6 overflow-y-auto flex-1" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
           {dailyLoading ? (
             <div className="text-center text-slate-300 flex items-center justify-center gap-3 py-8">
               <Icon name="Loader2" size={20} className="animate-spin sm:w-6 sm:h-6 text-cyan-400" />

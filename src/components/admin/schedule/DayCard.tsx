@@ -162,11 +162,13 @@ export default function DayCard({
                 ) : (
                   trainingEntries.map((entry, index) => (
                     <div key={entry.id} className="bg-slate-900/60 rounded-xl p-3 border border-slate-700 space-y-1.5">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-bold text-violet-400 w-4">{index + 1}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-violet-400 w-4 flex-shrink-0">{index + 1}</span>
                         <Icon name="UserCheck" size={13} className="text-cyan-400 flex-shrink-0" />
                         <span className="text-sm font-semibold text-slate-100">{entry.seniorName}</span>
-                        <span className="text-slate-500 text-xs">→</span>
+                      </div>
+                      <div className="flex items-center gap-2 pl-6">
+                        <Icon name="User" size={13} className="text-violet-400 flex-shrink-0" />
                         <span className="text-sm text-slate-200">{entry.promoterName}</span>
                       </div>
                       {entry.promoterPhone && (

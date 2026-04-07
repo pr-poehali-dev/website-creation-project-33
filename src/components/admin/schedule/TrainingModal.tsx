@@ -336,14 +336,34 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
             {/* Время */}
             <div>
               <label className={labelClass}>Время стажировки</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={form.time}
-                onChange={e => handleChange('time', e.target.value)}
-                placeholder="Например: 10:00"
-                className={inputClass}
-              />
+              <div className="flex gap-2">
+                <select
+                  value={form.time.split(':')[0] || ''}
+                  onChange={e => {
+                    const mins = form.time.split(':')[1] || '00';
+                    handleChange('time', e.target.value ? `${e.target.value}:${mins}` : '');
+                  }}
+                  className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500"
+                >
+                  <option value="">Часы</option>
+                  {Array.from({length: 24}, (_, i) => String(i).padStart(2, '0')).map(h => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
+                <select
+                  value={form.time.split(':')[1] || ''}
+                  onChange={e => {
+                    const hrs = form.time.split(':')[0] || '00';
+                    handleChange('time', e.target.value ? `${hrs}:${e.target.value}` : '');
+                  }}
+                  className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500"
+                >
+                  <option value="">Минуты</option>
+                  {['00','05','10','15','20','25','30','35','40','45','50','55'].map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Комментарии */}

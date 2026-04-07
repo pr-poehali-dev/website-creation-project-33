@@ -18,7 +18,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<LoginResult>;
   verify2FA: (userId: number, code: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string) => Promise<boolean>;
+  register: (email: string, password: string, name: string, seniorId?: number) => Promise<boolean | 'pending' | { error: string }>;
   logout: () => void;
   loading: boolean;
 }
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (email: string, password: string, name: string): Promise<boolean | 'pending' | { error: string }> => {
+  const register = async (email: string, password: string, name: string, seniorId?: number): Promise<boolean | 'pending' | { error: string }> => {
     try {
       const response = await fetch(API_BASE, {
         method: 'POST',
@@ -160,6 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email,
           password,
           name,
+          senior_id: seniorId || null,
         }),
       });
 

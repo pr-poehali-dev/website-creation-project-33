@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
+
+const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
 
 interface RegisterFormProps {
   onToggleMode: () => void;
@@ -19,8 +21,19 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [pendingApproval, setPendingApproval] = useState(false);
+  const [seniors, setSeniors] = useState<{ id: number; name: string }[]>([]);
+  const [selectedSeniorId, setSelectedSeniorId] = useState<number | ''>('');
   
   const { register } = useAuth();
+
+  useEffect(() => {
+    fetch(`${TRAINING_API}?action=get_seniors`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.seniors) setSeniors(d.seniors);
+      })
+      .catch(() => {});
+  }, []);
 
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
   const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword;
@@ -43,7 +56,7 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
     }
 
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
-    const result = await register(email, password, fullName);
+    const result = await register(email, password, fullName, selectedSeniorId !== '' ? selectedSeniorId : undefined);
     
     if (result === 'pending') {
       setPendingApproval(true);
@@ -163,6 +176,30 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
             </div>
           </div>
           
+          {/* Старший */}
+          {seniors.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="senior" className="text-[#001f54] font-medium text-sm md:text-base">
+                Старший
+              </Label>
+              <div className="relative">
+                <Icon name="UserCheck" size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" />
+                <select
+                  id="senior"
+                  value={selectedSeniorId}
+                  onChange={(e) => setSelectedSeniorId(e.target.value !== '' ? Number(e.target.value) : '')}
+                  className="w-full pl-10 pr-4 h-12 md:h-auto bg-white border border-gray-200 rounded-md text-[#001f54] text-base focus:outline-none focus:border-[#001f54] focus:ring-2 focus:ring-[#001f54]/20 appearance-none cursor-pointer"
+                >
+                  <option value="">— Выберите старшего —</option>
+                  {seniors.map(s => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+                <Icon name="ChevronDown" size={16} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+          )}
+
           {/* Пароль */}
           <div className="space-y-2">
             <Label htmlFor="password" className="text-[#001f54] font-medium text-sm md:text-base">

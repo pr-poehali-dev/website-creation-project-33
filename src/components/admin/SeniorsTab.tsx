@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
+import { useUsers } from '@/hooks/useAdminData';
+import { User } from './types';
 
 const SENIORS_KEY = 'training_seniors_list';
 const SENIORS_MAP_KEY = 'promoter_seniors_map';
@@ -19,14 +21,18 @@ export default function SeniorsTab() {
   const [seniorsMap, setSeniorsMap] = useState<Record<number, string>>({});
   const [newName, setNewName] = useState('');
   const [error, setError] = useState('');
+  const [expandedSenior, setExpandedSenior] = useState<string | null>(null);
+
+  const { data: usersData, isLoading } = useUsers(true);
+  const allUsers: User[] = [...(usersData?.active || []), ...(usersData?.inactive || [])];
 
   useEffect(() => {
     setSeniors(loadSeniors());
     setSeniorsMap(loadSeniorsMap());
   }, []);
 
-  const getPromoterCount = (seniorName: string): number => {
-    return Object.values(seniorsMap).filter(s => s === seniorName).length;
+  const getPromoters = (seniorName: string): User[] => {
+    return allUsers.filter(u => seniorsMap[u.id] === seniorName);
   };
 
   const handleAdd = () => {
@@ -44,10 +50,15 @@ export default function SeniorsTab() {
     const updated = seniors.filter(s => s !== name);
     setSeniors(updated);
     saveSeniors(updated);
+    if (expandedSenior === name) setExpandedSenior(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleAdd();
+  };
+
+  const toggleExpand = (name: string) => {
+    setExpandedSenior(prev => prev === name ? null : name);
   };
 
   const totalAssigned = Object.keys(seniorsMap).length;
@@ -91,34 +102,94 @@ export default function SeniorsTab() {
         ) : (
           <ul className="divide-y divide-slate-100 mt-4">
             {seniors.map((name, idx) => {
-              const count = getPromoterCount(name);
+              const promoters = getPromoters(name);
+              const count = promoters.length;
+              const totalShifts = promoters.reduce((sum, u) => sum + (u.shifts_count || 0), 0);
+              const totalContacts = promoters.reduce((sum, u) => sum + (u.lead_count || 0), 0);
+              const isExpanded = expandedSenior === name;
+
               return (
-                <li key={idx} className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm flex-shrink-0">
-                      {name.charAt(0).toUpperCase()}
+                <li key={idx} className="py-3">
+                  <div
+                    className="flex items-center justify-between cursor-pointer hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors"
+                    onClick={() => toggleExpand(name)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm flex-shrink-0">
+                        {name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-slate-800 text-sm font-medium">{name}</p>
+                        <p className="text-slate-400 text-xs">
+                          {count > 0 ? `Промоутеров: ${count}` : 'Нет промоутеров'}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-slate-800 text-sm font-medium">{name}</p>
-                      <p className="text-slate-400 text-xs">
-                        {count > 0 ? `Промоутеров: ${count}` : 'Нет промоутеров'}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      {count > 0 && (
+                        <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                          {count}
+                        </span>
+                      )}
+                      <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400" />
+                      <button
+                        onClick={e => { e.stopPropagation(); handleDelete(name); }}
+                        className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                        title="Удалить"
+                      >
+                        <Icon name="Trash2" size={16} />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {count > 0 && (
-                      <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                        {count}
-                      </span>
-                    )}
-                    <button
-                      onClick={() => handleDelete(name)}
-                      className="text-slate-400 hover:text-red-500 transition-colors p-1"
-                      title="Удалить"
-                    >
-                      <Icon name="Trash2" size={16} />
-                    </button>
-                  </div>
+
+                  {isExpanded && (
+                    <div className="mt-3 ml-3 space-y-3">
+                      {/* Итоговая статистика */}
+                      {count > 0 && (
+                        <div className="flex gap-3 mb-2">
+                          <div className="flex-1 bg-slate-50 rounded-xl p-3 text-center">
+                            <p className="text-xl font-bold text-slate-800">{totalShifts}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">Смен всего</p>
+                          </div>
+                          <div className="flex-1 bg-slate-50 rounded-xl p-3 text-center">
+                            <p className="text-xl font-bold text-blue-600">{totalContacts}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">Контактов всего</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Список промоутеров */}
+                      {isLoading ? (
+                        <div className="flex items-center gap-2 text-slate-400 text-sm py-2">
+                          <Icon name="Loader2" size={14} className="animate-spin" />
+                          Загрузка...
+                        </div>
+                      ) : count === 0 ? (
+                        <p className="text-slate-400 text-sm py-2">Нет назначенных промоутеров</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {promoters.map(u => (
+                            <div key={u.id} className="flex items-center justify-between bg-slate-50 rounded-xl px-3 py-2">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${u.is_online ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
+                                <span className="text-sm text-slate-800 font-medium">{u.name}</span>
+                              </div>
+                              <div className="flex items-center gap-3 text-xs text-slate-500">
+                                <span className="flex items-center gap-1">
+                                  <Icon name="Calendar" size={12} />
+                                  {u.shifts_count || 0} смен
+                                </span>
+                                <span className="flex items-center gap-1 text-blue-600 font-medium">
+                                  <Icon name="Users" size={12} />
+                                  {u.lead_count || 0} контактов
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </li>
               );
             })}

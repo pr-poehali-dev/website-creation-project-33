@@ -116,18 +116,18 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
             </div>
 
             <div>
-              <label className={labelClass}>Промоутер *</label>
+              <label className={labelClass}>Стажер *</label>
               <input
                 type="text"
                 value={form.promoterName}
                 onChange={e => handleChange('promoterName', e.target.value)}
-                placeholder="Имя промоутера"
+                placeholder="Имя стажера"
                 className={inputClass}
               />
             </div>
 
             <div>
-              <label className={labelClass}>Телефон промоутера</label>
+              <label className={labelClass}>Телефон стажера</label>
               <input
                 type="tel"
                 value={form.promoterPhone}
@@ -151,9 +151,11 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
             <div>
               <label className={labelClass}>Время</label>
               <input
-                type="time"
+                type="text"
+                inputMode="numeric"
                 value={form.time}
                 onChange={e => handleChange('time', e.target.value)}
+                placeholder="Например: 10:00"
                 className={inputClass}
               />
             </div>

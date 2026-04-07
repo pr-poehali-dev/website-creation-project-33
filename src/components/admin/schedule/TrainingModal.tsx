@@ -149,7 +149,7 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
             </div>
 
             <div>
-              <label className={labelClass}>Время</label>
+              <label className={labelClass}>Время стажировки</label>
               <input
                 type="text"
                 inputMode="numeric"

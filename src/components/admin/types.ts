@@ -16,6 +16,8 @@ export interface User {
   location_country?: string;
   registration_ip?: string;
   is_active?: boolean;
+  senior_id?: number | null;
+  senior_name?: string | null;
 }
 
 export interface Lead {

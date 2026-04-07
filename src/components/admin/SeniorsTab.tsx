@@ -1,19 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '@/components/ui/icon';
 import { useUsers } from '@/hooks/useAdminData';
-import { User } from './types';
+import { User, ADMIN_API } from './types';
 
 const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
-const SENIORS_MAP_KEY = 'promoter_seniors_map';
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
     'X-Session-Token': localStorage.getItem('session_token') || '',
   };
-}
-function loadSeniorsMap(): Record<number, string> {
-  try { return JSON.parse(localStorage.getItem(SENIORS_MAP_KEY) || '{}'); } catch { return {}; }
 }
 
 function avgPerShift(u: User): number {
@@ -23,81 +19,86 @@ function avgPerShift(u: User): number {
 }
 
 export default function SeniorsTab() {
-  const [seniors, setSeniors] = useState<string[]>([]);
-  const [seniorsMap, setSeniorsMap] = useState<Record<number, string>>({});
+  const [seniors, setSeniors] = useState<{ id: number; name: string }[]>([]);
   const [newName, setNewName] = useState('');
   const [error, setError] = useState('');
-  const [expandedSenior, setExpandedSenior] = useState<string | null>(null);
-  const [editingSenior, setEditingSenior] = useState<string | null>(null);
+  const [expandedSeniorId, setExpandedSeniorId] = useState<number | null>(null);
+  const [editingSeniorId, setEditingSeniorId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
 
-  const { data: usersData, isLoading } = useUsers(true);
+  const { data: usersData, isLoading, refetch } = useUsers(true);
   const allUsers: User[] = [...(usersData?.active || []), ...(usersData?.inactive || [])];
 
   const fetchSeniors = useCallback(async () => {
     const res = await fetch(`${TRAINING_API}?action=get_seniors`, { headers: authHeaders() });
     const data = await res.json();
-    if (data.seniors) setSeniors(data.seniors.map((s: { name: string }) => s.name));
+    if (data.seniors) setSeniors(data.seniors);
   }, []);
 
   useEffect(() => {
     fetchSeniors();
-    setSeniorsMap(loadSeniorsMap());
   }, []);
 
-  const getPromoters = (seniorName: string): User[] => {
+  const getPromoters = (seniorId: number): User[] => {
     return allUsers
-      .filter(u => seniorsMap[u.id] === seniorName)
+      .filter(u => u.senior_id === seniorId)
       .sort((a, b) => avgPerShift(a) - avgPerShift(b));
   };
 
   const handleAdd = async () => {
     const name = newName.trim();
     if (!name) return;
-    if (seniors.includes(name)) { setError('Такой старший уже есть в списке'); return; }
-    await fetch(TRAINING_API, {
+    if (seniors.some(s => s.name === name)) { setError('Такой старший уже есть в списке'); return; }
+    const res = await fetch(TRAINING_API, {
       method: 'POST', headers: authHeaders(),
       body: JSON.stringify({ action: 'add_senior', name }),
     });
-    setSeniors(prev => [...prev, name].sort());
+    const data = await res.json();
+    if (data.senior) setSeniors(prev => [...prev, data.senior].sort((a, b) => a.name.localeCompare(b.name)));
     setNewName('');
     setError('');
   };
 
-  const handleRename = async (oldName: string) => {
+  const handleRename = async (senior: { id: number; name: string }) => {
     const trimmed = editName.trim();
-    if (!trimmed || trimmed === oldName) { setEditingSenior(null); return; }
-    if (seniors.includes(trimmed)) { setError('Такое имя уже есть'); return; }
+    if (!trimmed || trimmed === senior.name) { setEditingSeniorId(null); return; }
+    if (seniors.some(s => s.name === trimmed && s.id !== senior.id)) { setError('Такое имя уже есть'); return; }
     await fetch(TRAINING_API, {
       method: 'POST', headers: authHeaders(),
-      body: JSON.stringify({ action: 'rename_senior', old_name: oldName, new_name: trimmed }),
+      body: JSON.stringify({ action: 'rename_senior', old_name: senior.name, new_name: trimmed }),
     });
-    setSeniors(prev => prev.map(s => s === oldName ? trimmed : s));
-    const map = loadSeniorsMap();
-    Object.keys(map).forEach(k => { if (map[+k] === oldName) map[+k] = trimmed; });
-    localStorage.setItem(SENIORS_MAP_KEY, JSON.stringify(map));
-    setSeniorsMap(map);
-    setEditingSenior(null);
+    setSeniors(prev => prev.map(s => s.id === senior.id ? { ...s, name: trimmed } : s));
+    setEditingSeniorId(null);
     setEditName('');
     setError('');
   };
 
-  const handleDelete = async (name: string) => {
+  const handleDelete = async (senior: { id: number; name: string }) => {
     await fetch(TRAINING_API, {
       method: 'POST', headers: authHeaders(),
-      body: JSON.stringify({ action: 'delete_senior', name }),
+      body: JSON.stringify({ action: 'delete_senior', name: senior.name }),
     });
-    setSeniors(prev => prev.filter(s => s !== name));
-    if (expandedSenior === name) setExpandedSenior(null);
+    setSeniors(prev => prev.filter(s => s.id !== senior.id));
+    if (expandedSeniorId === senior.id) setExpandedSeniorId(null);
+  };
+
+  const handleSetSenior = async (userId: number, seniorId: number | null) => {
+    await fetch(ADMIN_API, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ action: 'set_senior', user_id: userId, senior_id: seniorId }),
+    });
+    refetch?.();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleAdd();
   };
 
-  const toggleExpand = (name: string) => {
-    setExpandedSenior(prev => prev === name ? null : name);
+  const toggleExpand = (id: number) => {
+    setExpandedSeniorId(prev => prev === id ? null : id);
   };
+
+  const unassignedUsers = allUsers.filter(u => !u.senior_id && !u.is_admin);
 
   return (
     <div className="space-y-6">
@@ -132,24 +133,24 @@ export default function SeniorsTab() {
           </div>
         ) : (
           <ul className="divide-y divide-slate-100 mt-4">
-            {seniors.map((name, idx) => {
-              const promoters = getPromoters(name);
+            {seniors.map((senior) => {
+              const promoters = getPromoters(senior.id);
               const count = promoters.length;
               const totalShifts = promoters.reduce((sum, u) => sum + (u.shifts_count || 0), 0);
               const totalContacts = promoters.reduce((sum, u) => sum + (u.lead_count || 0), 0);
               const seniorAvg = totalShifts > 0 ? Math.round((totalContacts / totalShifts) * 10) / 10 : 0;
-              const isExpanded = expandedSenior === name;
-              const isEditing = editingSenior === name;
+              const isExpanded = expandedSeniorId === senior.id;
+              const isEditing = editingSeniorId === senior.id;
 
               return (
-                <li key={idx} className="py-3">
+                <li key={senior.id} className="py-3">
                   <div
                     className="flex items-center justify-between hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors"
-                    onClick={() => !isEditing && toggleExpand(name)}
+                    onClick={() => !isEditing && toggleExpand(senior.id)}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
                       <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm flex-shrink-0">
-                        {name.charAt(0).toUpperCase()}
+                        {senior.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
                         {isEditing ? (
@@ -157,12 +158,12 @@ export default function SeniorsTab() {
                             autoFocus
                             value={editName}
                             onChange={e => setEditName(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') handleRename(name); if (e.key === 'Escape') setEditingSenior(null); }}
+                            onKeyDown={e => { if (e.key === 'Enter') handleRename(senior); if (e.key === 'Escape') setEditingSeniorId(null); }}
                             onClick={e => e.stopPropagation()}
                             className="w-full border border-blue-400 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         ) : (
-                          <p className="text-slate-800 text-sm font-medium truncate">{name}</p>
+                          <p className="text-slate-800 text-sm font-medium truncate">{senior.name}</p>
                         )}
                         {!isEditing && (
                           <div className="flex items-center gap-3 mt-0.5">
@@ -189,20 +190,20 @@ export default function SeniorsTab() {
                     <div className="flex items-center gap-1 flex-shrink-0 ml-2" onClick={e => e.stopPropagation()}>
                       {isEditing ? (
                         <>
-                          <button onClick={() => handleRename(name)} className="text-green-500 hover:text-green-600 transition-colors p-1" title="Сохранить">
+                          <button onClick={() => handleRename(senior)} className="text-green-500 hover:text-green-600 transition-colors p-1" title="Сохранить">
                             <Icon name="Check" size={16} />
                           </button>
-                          <button onClick={() => setEditingSenior(null)} className="text-slate-400 hover:text-slate-600 transition-colors p-1" title="Отмена">
+                          <button onClick={() => setEditingSeniorId(null)} className="text-slate-400 hover:text-slate-600 transition-colors p-1" title="Отмена">
                             <Icon name="X" size={16} />
                           </button>
                         </>
                       ) : (
                         <>
-                          <button onClick={() => { setEditingSenior(name); setEditName(name); setError(''); }} className="text-slate-400 hover:text-blue-500 transition-colors p-1" title="Переименовать">
+                          <button onClick={() => { setEditingSeniorId(senior.id); setEditName(senior.name); setError(''); }} className="text-slate-400 hover:text-blue-500 transition-colors p-1" title="Переименовать">
                             <Icon name="Pencil" size={15} />
                           </button>
-                          <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400 cursor-pointer" onClick={() => toggleExpand(name)} />
-                          <button onClick={() => handleDelete(name)} className="text-slate-400 hover:text-red-500 transition-colors p-1" title="Удалить">
+                          <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400 cursor-pointer" onClick={() => toggleExpand(senior.id)} />
+                          <button onClick={() => handleDelete(senior)} className="text-slate-400 hover:text-red-500 transition-colors p-1" title="Удалить">
                             <Icon name="Trash2" size={16} />
                           </button>
                         </>
@@ -221,18 +222,17 @@ export default function SeniorsTab() {
                         <p className="text-slate-400 text-sm py-2 px-2">Нет назначенных промоутеров</p>
                       ) : (
                         <>
-                          {/* Шапка таблицы */}
-                          <div className="grid grid-cols-[1fr_48px_48px_52px] gap-2 px-3 pb-1">
+                          <div className="grid grid-cols-[1fr_48px_48px_52px_32px] gap-2 px-3 pb-1">
                             <span className="text-xs text-slate-400">Промоутер</span>
                             <span className="text-xs text-slate-400 text-center">Смен</span>
                             <span className="text-xs text-slate-400 text-center">Конт.</span>
                             <span className="text-xs text-purple-400 text-center">Ср/см</span>
+                            <span></span>
                           </div>
-                          {/* Строки промоутеров */}
                           {promoters.map(u => {
                             const avg = avgPerShift(u);
                             return (
-                              <div key={u.id} className="grid grid-cols-[1fr_48px_48px_52px] gap-2 items-center bg-slate-50 rounded-xl px-3 py-2">
+                              <div key={u.id} className="grid grid-cols-[1fr_48px_48px_52px_32px] gap-2 items-center bg-slate-50 rounded-xl px-3 py-2">
                                 <div className="flex items-center gap-2 min-w-0">
                                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${u.is_online ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
                                   <span className="text-sm text-slate-800 truncate">{u.name}</span>
@@ -240,17 +240,41 @@ export default function SeniorsTab() {
                                 <span className="text-sm text-slate-600 text-center">{u.shifts_count || 0}</span>
                                 <span className="text-sm text-blue-600 font-medium text-center">{u.lead_count || 0}</span>
                                 <span className="text-sm text-purple-600 font-semibold text-center">{avg}</span>
+                                <button onClick={() => handleSetSenior(u.id, null)} className="text-slate-300 hover:text-red-400 transition-colors" title="Открепить">
+                                  <Icon name="X" size={14} />
+                                </button>
                               </div>
                             );
                           })}
-                          {/* Итоговая строка */}
-                          <div className="grid grid-cols-[1fr_48px_48px_52px] gap-2 items-center border-t border-slate-200 pt-2 px-3 mt-1">
+                          <div className="grid grid-cols-[1fr_48px_48px_52px_32px] gap-2 items-center border-t border-slate-200 pt-2 px-3 mt-1">
                             <span className="text-xs font-semibold text-slate-600">Итого</span>
                             <span className="text-sm font-bold text-slate-700 text-center">{totalShifts}</span>
                             <span className="text-sm font-bold text-blue-700 text-center">{totalContacts}</span>
                             <span className="text-sm font-bold text-purple-700 text-center">{seniorAvg}</span>
+                            <span></span>
                           </div>
                         </>
+                      )}
+
+                      {/* Добавить промоутера */}
+                      {unassignedUsers.length > 0 && (
+                        <div className="pt-2 px-1">
+                          <select
+                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            defaultValue=""
+                            onChange={e => {
+                              if (e.target.value) {
+                                handleSetSenior(Number(e.target.value), senior.id);
+                                e.target.value = '';
+                              }
+                            }}
+                          >
+                            <option value="" disabled>+ Добавить промоутера</option>
+                            {unassignedUsers.map(u => (
+                              <option key={u.id} value={u.id}>{u.name}</option>
+                            ))}
+                          </select>
+                        </div>
                       )}
                     </div>
                   )}

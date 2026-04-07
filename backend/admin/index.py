@@ -58,11 +58,12 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                        CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online,
                        COUNT(l.id) as lead_count,
                        u.latitude, u.longitude, u.location_city, u.location_country,
-                       u.registration_ip, u.is_active
+                       u.registration_ip, u.is_active, u.senior_id, s.name as senior_name
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
+                LEFT JOIN t_p24058207_website_creation_pro.training_seniors s ON u.senior_id = s.id
                 WHERE u.is_active = %s
-                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country, u.registration_ip, u.is_active
+                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country, u.registration_ip, u.is_active, u.senior_id, s.name
                 ORDER BY u.created_at DESC
             """, (online_threshold, is_active))
             
@@ -82,7 +83,9 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                     'location_city': row[10],
                     'location_country': row[11],
                     'registration_ip': row[12],
-                    'is_active': row[13]
+                    'is_active': row[13],
+                    'senior_id': row[14],
+                    'senior_name': row[15]
                 })
             
             # Получаем ВСЕ лиды для активных пользователей одним запросом
@@ -2186,7 +2189,21 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
         action = body_data.get('action')
         print(f'📮 POST action: {action}, body: {body_data}')
         
-        if action == 'approve_user':
+        if action == 'set_senior':
+            user_id = body_data.get('user_id')
+            senior_id = body_data.get('senior_id')
+            if not user_id:
+                return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'user_id обязателен'})}
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "UPDATE t_p24058207_website_creation_pro.users SET senior_id = %s WHERE id = %s",
+                        (senior_id, user_id)
+                    )
+                    conn.commit()
+            return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True})}
+
+        elif action == 'approve_user':
             user_id = body_data.get('user_id')
             
             if not user_id:

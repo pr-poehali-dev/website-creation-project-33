@@ -16,6 +16,7 @@ import AccountingStats from './AccountingStats';
 import TodayWorkersCounter from './TodayWorkersCounter';
 import ClientsTab from './ClientsTab';
 import TelegramBotTab from './TelegramBotTab';
+import SeniorsTab from './SeniorsTab';
 
 
 interface AdminMetroTilesProps {
@@ -26,7 +27,7 @@ interface AdminMetroTilesProps {
 }
 
 type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram';
-type StatsSubView = 'users' | 'rating' | 'organizations';
+type StatsSubView = 'users' | 'rating' | 'organizations' | 'seniors';
 
 const NavButton = ({ 
   icon, 
@@ -157,11 +158,22 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
           >
             Организации
           </button>
+          <button
+            onClick={() => setStatsSubView('seniors')}
+            className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl transition-all text-xs md:text-sm font-medium whitespace-nowrap ${
+              statsSubView === 'seniors' 
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg border-0' 
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Старшие
+          </button>
         </div>
 
         {statsSubView === 'users' && <UsersTab enabled={true} />}
         {statsSubView === 'rating' && <StatsTab enabled={true} />}
         {statsSubView === 'organizations' && <OrganizationsTab enabled={true} />}
+        {statsSubView === 'seniors' && <SeniorsTab />}
       </div>
     );
   }

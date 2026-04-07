@@ -80,18 +80,11 @@ export default function SeniorsTab() {
     setExpandedSenior(prev => prev === name ? null : name);
   };
 
-  const totalAssigned = Object.keys(seniorsMap).length;
-
   return (
     <div className="space-y-6">
       <div className="admin-card p-6 rounded-2xl">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-800">Список старших</h2>
-          {totalAssigned > 0 && (
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-              Назначено промоутеров: {totalAssigned}
-            </span>
-          )}
         </div>
 
         <div className="flex gap-2 mb-2">
@@ -153,18 +146,24 @@ export default function SeniorsTab() {
                           <p className="text-slate-800 text-sm font-medium truncate">{name}</p>
                         )}
                         {!isEditing && (
-                          <p className="text-slate-400 text-xs">
-                            {count > 0 ? `Промоутеров: ${count}` : 'Нет промоутеров'}
-                          </p>
+                          <div className="flex items-center gap-3 mt-0.5">
+                            <span className="text-slate-500 text-xs flex items-center gap-1">
+                              <Icon name="Users" size={11} />
+                              {count}
+                            </span>
+                            <span className="text-slate-500 text-xs flex items-center gap-1">
+                              <Icon name="Calendar" size={11} />
+                              {totalShifts}
+                            </span>
+                            <span className="text-blue-600 text-xs font-medium flex items-center gap-1">
+                              <Icon name="Phone" size={11} />
+                              {totalContacts}
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0 ml-2" onClick={e => e.stopPropagation()}>
-                      {!isEditing && count > 0 && (
-                        <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full mr-1">
-                          {count}
-                        </span>
-                      )}
                       {isEditing ? (
                         <>
                           <button onClick={() => handleRename(name)} className="text-green-500 hover:text-green-600 transition-colors p-1" title="Сохранить">

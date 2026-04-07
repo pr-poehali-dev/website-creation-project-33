@@ -255,8 +255,7 @@ export default function ScheduleAnalyticsTab() {
 
       {trainingModalOpen && (
         <TrainingModal
-          date={weeks[currentWeekIndex].start}
-          dayNameFull="Обучение"
+          weekDays={weekDays.map(d => ({ date: d.date, dayNameFull: d.dayNameFull, dayName: d.dayName }))}
           onClose={() => setTrainingModalOpen(false)}
         />
       )}

@@ -1,9 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 
-interface TrainingModalProps {
+interface WeekDay {
   date: string;
   dayNameFull: string;
+  dayName: string;
+}
+
+interface TrainingModalProps {
+  weekDays: WeekDay[];
   organizations?: string[];
   onClose: () => void;
 }
@@ -24,19 +29,27 @@ function loadSeniors(): string[] {
   const saved = localStorage.getItem(SENIORS_KEY);
   return saved ? JSON.parse(saved) : [];
 }
-
 function saveSeniors(list: string[]) {
   localStorage.setItem(SENIORS_KEY, JSON.stringify(list));
 }
+function loadEntries(date: string): TrainingEntry[] {
+  try { return JSON.parse(localStorage.getItem(`training_${date}`) || '[]'); }
+  catch { return []; }
+}
+function saveEntries(date: string, entries: TrainingEntry[]) {
+  localStorage.setItem(`training_${date}`, JSON.stringify(entries));
+}
 
-export default function TrainingModal({ date, dayNameFull, organizations: orgsProp, onClose }: TrainingModalProps) {
-  const storageKey = `training_${date}`;
-  const saved = localStorage.getItem(storageKey);
-  const initialEntries: TrainingEntry[] = saved ? JSON.parse(saved) : [];
+const DAY_NAMES: Record<string, string> = {
+  'Понедельник': 'Пн', 'Вторник': 'Вт', 'Среда': 'Ср',
+  'Четверг': 'Чт', 'Пятница': 'Пт', 'Суббота': 'Сб', 'Воскресенье': 'Вс'
+};
 
-  const [entries, setEntries] = useState<TrainingEntry[]>(initialEntries);
+export default function TrainingModal({ weekDays, organizations: orgsProp, onClose }: TrainingModalProps) {
+  const [selectedDate, setSelectedDate] = useState(weekDays[0]?.date || '');
+  const [entries, setEntries] = useState<TrainingEntry[]>(() => loadEntries(weekDays[0]?.date || ''));
+
   const [loadedOrgs, setLoadedOrgs] = useState<string[]>(orgsProp ?? []);
-
   useEffect(() => {
     if (orgsProp && orgsProp.length > 0) return;
     fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_organizations', {
@@ -44,20 +57,14 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
     })
       .then(r => r.json())
       .then(data => {
-        if (data.organizations) {
-          setLoadedOrgs(data.organizations.map((o: {name: string}) => o.name).sort());
-        }
+        if (data.organizations)
+          setLoadedOrgs(data.organizations.map((o: { name: string }) => o.name).sort());
       })
       .catch(() => {});
   }, []);
-  const [form, setForm] = useState({
-    seniorName: '',
-    promoterName: '',
-    promoterPhone: '',
-    organization: '',
-    time: '',
-    comment: '',
-  });
+
+  const emptyForm = { seniorName: '', promoterName: '', promoterPhone: '', organization: '', time: '', comment: '' };
+  const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [seniors, setSeniors] = useState<string[]>(loadSeniors);
@@ -72,16 +79,21 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (seniorRef.current && !seniorRef.current.contains(e.target as Node)) {
+      if (seniorRef.current && !seniorRef.current.contains(e.target as Node))
         setShowSeniorDropdown(false);
-      }
-      if (orgRef.current && !orgRef.current.contains(e.target as Node)) {
+      if (orgRef.current && !orgRef.current.contains(e.target as Node))
         setShowOrgDropdown(false);
-      }
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
+
+  const handleDateChange = (date: string) => {
+    setSelectedDate(date);
+    setEntries(loadEntries(date));
+    setEditingId(null);
+    setForm(emptyForm);
+  };
 
   const handleAddSenior = () => {
     const name = newSeniorInput.trim();
@@ -102,58 +114,38 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
     saveSeniors(updated);
   };
 
-  const filteredOrgs = loadedOrgs.filter(o =>
-    o.toLowerCase().includes(orgSearch.toLowerCase())
-  );
+  const filteredOrgs = loadedOrgs.filter(o => o.toLowerCase().includes(orgSearch.toLowerCase()));
 
-  const saveToStorage = (updated: TrainingEntry[]) => {
-    localStorage.setItem(storageKey, JSON.stringify(updated));
-  };
-
-  const handleChange = (field: string, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }));
-  };
+  const handleChange = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
   const handleSubmit = () => {
-    if (!form.seniorName.trim() || !form.promoterName.trim()) return;
-
+    if (!form.seniorName.trim() || !form.promoterName.trim() || !selectedDate) return;
     let updated: TrainingEntry[];
     if (editingId) {
       updated = entries.map(e => e.id === editingId ? { ...form, id: editingId } : e);
       setEditingId(null);
     } else {
-      const newEntry: TrainingEntry = { ...form, id: Date.now().toString() };
-      updated = [...entries, newEntry];
+      updated = [...entries, { ...form, id: Date.now().toString() }];
     }
-
     setEntries(updated);
-    saveToStorage(updated);
-    setForm({ seniorName: '', promoterName: '', promoterPhone: '', organization: '', time: '', comment: '' });
+    saveEntries(selectedDate, updated);
+    setForm(emptyForm);
   };
 
   const handleEdit = (entry: TrainingEntry) => {
     setEditingId(entry.id);
-    setForm({
-      seniorName: entry.seniorName,
-      promoterName: entry.promoterName,
-      promoterPhone: entry.promoterPhone,
-      organization: entry.organization,
-      time: entry.time,
-      comment: entry.comment,
-    });
+    setForm({ seniorName: entry.seniorName, promoterName: entry.promoterName, promoterPhone: entry.promoterPhone, organization: entry.organization, time: entry.time, comment: entry.comment });
   };
 
   const handleDelete = (id: string) => {
     const updated = entries.filter(e => e.id !== id);
     setEntries(updated);
-    saveToStorage(updated);
+    saveEntries(selectedDate, updated);
   };
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setForm({ seniorName: '', promoterName: '', promoterPhone: '', organization: '', time: '', comment: '' });
-  };
+  const cancelEdit = () => { setEditingId(null); setForm(emptyForm); };
 
+  const selectedDay = weekDays.find(d => d.date === selectedDate);
   const inputClass = "w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500";
   const labelClass = "text-xs text-slate-400 mb-1.5 block";
 
@@ -163,8 +155,8 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
 
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700 flex-shrink-0">
           <div>
-            <h2 className="text-base font-bold text-slate-100">Обучение</h2>
-            <p className="text-xs text-slate-400">{dayNameFull}, {date}</p>
+            <h2 className="text-base font-bold text-slate-100">Добавить обучение</h2>
+            {selectedDay && <p className="text-xs text-slate-400">{selectedDay.dayNameFull}, {selectedDate}</p>}
           </div>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors">
             <Icon name="X" size={20} />
@@ -176,6 +168,28 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
             <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-wide">
               {editingId ? 'Редактировать запись' : 'Новая запись'}
             </h3>
+
+            {/* Дата */}
+            <div>
+              <label className={labelClass}>Дата *</label>
+              <div className="grid grid-cols-7 gap-1">
+                {weekDays.map(day => {
+                  const isSelected = day.date === selectedDate;
+                  const dayNum = new Date(day.date).getDate();
+                  const shortName = DAY_NAMES[day.dayNameFull] || day.dayName;
+                  return (
+                    <button
+                      key={day.date}
+                      onClick={() => handleDateChange(day.date)}
+                      className={`flex flex-col items-center py-2 px-1 rounded-lg text-center transition-all ${isSelected ? 'bg-violet-600 text-white' : 'bg-slate-900 text-slate-400 hover:bg-slate-700 hover:text-slate-200'}`}
+                    >
+                      <span className="text-[10px] font-semibold">{shortName}</span>
+                      <span className="text-sm font-bold">{dayNum}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             {/* Старший */}
             <div>
@@ -190,26 +204,15 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
                   </span>
                   <Icon name={showSeniorDropdown ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400 flex-shrink-0" />
                 </div>
-
                 {showSeniorDropdown && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-xl shadow-xl z-20 overflow-hidden">
                     {seniors.length > 0 ? (
                       <div className="max-h-48 overflow-y-auto">
                         {seniors.map(name => (
-                          <div
-                            key={name}
-                            className="flex items-center justify-between px-3 py-2.5 hover:bg-slate-700 active:bg-slate-600 cursor-pointer transition-colors"
-                            onClick={() => {
-                              setForm(prev => ({ ...prev, seniorName: name }));
-                              setShowSeniorDropdown(false);
-                              setShowAddSenior(false);
-                            }}
-                          >
+                          <div key={name} className="flex items-center justify-between px-3 py-2.5 hover:bg-slate-700 active:bg-slate-600 cursor-pointer transition-colors"
+                            onClick={() => { setForm(prev => ({ ...prev, seniorName: name })); setShowSeniorDropdown(false); setShowAddSenior(false); }}>
                             <span className="text-sm text-slate-100">{name}</span>
-                            <button
-                              onClick={(e) => handleDeleteSenior(name, e)}
-                              className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors"
-                            >
+                            <button onClick={(e) => handleDeleteSenior(name, e)} className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors">
                               <Icon name="X" size={12} />
                             </button>
                           </div>
@@ -221,27 +224,15 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
                     <div className="border-t border-slate-700">
                       {showAddSenior ? (
                         <div className="p-2 flex gap-2">
-                          <input
-                            type="text"
-                            value={newSeniorInput}
-                            onChange={e => setNewSeniorInput(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && handleAddSenior()}
-                            placeholder="Имя старшего"
-                            autoFocus
-                            className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-                          />
-                          <button
-                            onClick={handleAddSenior}
-                            className="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm rounded-lg transition-colors"
-                          >
+                          <input type="text" value={newSeniorInput} onChange={e => setNewSeniorInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleAddSenior()} placeholder="Имя старшего" autoFocus
+                            className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500" />
+                          <button onClick={handleAddSenior} className="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm rounded-lg transition-colors">
                             <Icon name="Check" size={16} />
                           </button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => setShowAddSenior(true)}
-                          className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-cyan-400 hover:bg-slate-700 transition-colors"
-                        >
+                        <button onClick={() => setShowAddSenior(true)} className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-cyan-400 hover:bg-slate-700 transition-colors">
                           <Icon name="Plus" size={15} />
                           Добавить нового старшего
                         </button>
@@ -255,78 +246,46 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
             {/* Стажер */}
             <div>
               <label className={labelClass}>Стажер *</label>
-              <input
-                type="text"
-                value={form.promoterName}
-                onChange={e => handleChange('promoterName', e.target.value)}
-                placeholder="Имя стажера"
-                className={inputClass}
-              />
+              <input type="text" value={form.promoterName} onChange={e => handleChange('promoterName', e.target.value)} placeholder="Имя стажера" className={inputClass} />
             </div>
 
             {/* Телефон */}
             <div>
               <label className={labelClass}>Телефон стажера</label>
-              <input
-                type="tel"
-                value={form.promoterPhone}
-                onChange={e => handleChange('promoterPhone', e.target.value)}
-                placeholder="+7 999 000-00-00"
-                className={inputClass}
-              />
+              <input type="tel" value={form.promoterPhone} onChange={e => handleChange('promoterPhone', e.target.value)} placeholder="+7 999 000-00-00" className={inputClass} />
             </div>
 
             {/* Организация */}
             <div>
               <label className={labelClass}>Организация</label>
               <div className="relative" ref={orgRef}>
-                <div
-                  className={`${inputClass} flex items-center justify-between cursor-pointer`}
-                  onClick={() => { setShowOrgDropdown(p => !p); setOrgSearch(''); }}
-                >
+                <div className={`${inputClass} flex items-center justify-between cursor-pointer`}
+                  onClick={() => { setShowOrgDropdown(p => !p); setOrgSearch(''); }}>
                   <span className={form.organization ? 'text-slate-100' : 'text-slate-500'}>
                     {form.organization || 'Выбрать организацию'}
                   </span>
                   <div className="flex items-center gap-1">
                     {form.organization && (
-                      <button
-                        onClick={e => { e.stopPropagation(); setForm(prev => ({ ...prev, organization: '' })); }}
-                        className="text-slate-500 hover:text-slate-300"
-                      >
+                      <button onClick={e => { e.stopPropagation(); setForm(prev => ({ ...prev, organization: '' })); }} className="text-slate-500 hover:text-slate-300">
                         <Icon name="X" size={13} />
                       </button>
                     )}
                     <Icon name={showOrgDropdown ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400" />
                   </div>
                 </div>
-
                 {showOrgDropdown && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-xl shadow-xl z-20 overflow-hidden">
                     <div className="p-2 border-b border-slate-700">
-                      <input
-                        type="text"
-                        value={orgSearch}
-                        onChange={e => setOrgSearch(e.target.value)}
-                        placeholder="Поиск..."
-                        autoFocus
-                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-                      />
+                      <input type="text" value={orgSearch} onChange={e => setOrgSearch(e.target.value)} placeholder="Поиск..." autoFocus
+                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500" />
                     </div>
                     <div className="max-h-52 overflow-y-auto">
                       {filteredOrgs.length > 0 ? filteredOrgs.map(org => (
-                        <div
-                          key={org}
-                          className={`px-3 py-2.5 text-sm cursor-pointer transition-colors ${form.organization === org ? 'bg-cyan-600/20 text-cyan-400' : 'text-slate-100 hover:bg-slate-700'}`}
-                          onClick={() => {
-                            setForm(prev => ({ ...prev, organization: org }));
-                            setShowOrgDropdown(false);
-                          }}
-                        >
+                        <div key={org} className={`px-3 py-2.5 text-sm cursor-pointer transition-colors ${form.organization === org ? 'bg-cyan-600/20 text-cyan-400' : 'text-slate-100 hover:bg-slate-700'}`}
+                          onClick={() => { setForm(prev => ({ ...prev, organization: org })); setShowOrgDropdown(false); }}>
                           {org}
                         </div>
-                      )) : (
-                        <div className="px-3 py-3 text-sm text-slate-500 text-center">Ничего не найдено</div>
-                      )}
+                      )) : <div className="px-3 py-3 text-sm text-slate-500 text-center">Ничего не найдено</div>}
                     </div>
                   </div>
                 )}
@@ -337,31 +296,17 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
             <div>
               <label className={labelClass}>Время стажировки</label>
               <div className="flex gap-2">
-                <select
-                  value={form.time.split(':')[0] || ''}
-                  onChange={e => {
-                    const mins = form.time.split(':')[1] || '00';
-                    handleChange('time', e.target.value ? `${e.target.value}:${mins}` : '');
-                  }}
-                  className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500"
-                >
+                <select value={form.time.split(':')[0] || ''}
+                  onChange={e => { const mins = form.time.split(':')[1] || '00'; handleChange('time', e.target.value ? `${e.target.value}:${mins}` : ''); }}
+                  className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
                   <option value="">Часы</option>
-                  {Array.from({length: 24}, (_, i) => String(i).padStart(2, '0')).map(h => (
-                    <option key={h} value={h}>{h}</option>
-                  ))}
+                  {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
-                <select
-                  value={form.time.split(':')[1] || ''}
-                  onChange={e => {
-                    const hrs = form.time.split(':')[0] || '00';
-                    handleChange('time', e.target.value ? `${hrs}:${e.target.value}` : '');
-                  }}
-                  className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500"
-                >
+                <select value={form.time.split(':')[1] || ''}
+                  onChange={e => { const hrs = form.time.split(':')[0] || '00'; handleChange('time', e.target.value ? `${hrs}:${e.target.value}` : ''); }}
+                  className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
                   <option value="">Минуты</option>
-                  {['00','05','10','15','20','25','30','35','40','45','50','55'].map(m => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
+                  {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
             </div>
@@ -369,57 +314,49 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
             {/* Комментарии */}
             <div>
               <label className={labelClass}>Комментарии</label>
-              <textarea
-                value={form.comment}
-                onChange={e => handleChange('comment', e.target.value)}
-                placeholder="Дополнительная информация..."
-                rows={3}
-                className={`${inputClass} resize-none`}
-              />
+              <textarea value={form.comment} onChange={e => handleChange('comment', e.target.value)} placeholder="Дополнительная информация..." rows={3} className={`${inputClass} resize-none`} />
             </div>
 
             <div className="flex gap-2 pt-1">
-              <button
-                onClick={handleSubmit}
-                disabled={!form.seniorName.trim() || !form.promoterName.trim()}
-                className="flex-1 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 disabled:bg-slate-700 disabled:text-slate-500 text-white text-sm font-semibold py-3 rounded-xl transition-colors"
-              >
+              <button onClick={handleSubmit} disabled={!form.seniorName.trim() || !form.promoterName.trim() || !selectedDate}
+                className="flex-1 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 disabled:bg-slate-700 disabled:text-slate-500 text-white text-sm font-semibold py-3 rounded-xl transition-colors">
                 {editingId ? 'Сохранить' : 'Добавить'}
               </button>
               {editingId && (
-                <button
-                  onClick={cancelEdit}
-                  className="px-5 bg-slate-700 hover:bg-slate-600 active:bg-slate-800 text-slate-300 text-sm font-semibold py-3 rounded-xl transition-colors"
-                >
+                <button onClick={cancelEdit} className="px-5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-semibold py-3 rounded-xl transition-colors">
                   Отмена
                 </button>
               )}
             </div>
           </div>
 
+          {/* Список записей для выбранного дня */}
           {entries.length > 0 && (
             <div className="space-y-2">
               <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide px-1">
-                Записи ({entries.length})
+                Записи на {selectedDay?.dayNameFull} ({entries.length})
               </h3>
-              {entries.map(entry => (
-                <div key={entry.id} className="bg-slate-800/60 rounded-xl p-3 border border-slate-700 space-y-2">
+              {entries.map((entry, index) => (
+                <div key={entry.id} className="bg-slate-800/60 rounded-xl p-3 border border-slate-700 space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0 space-y-1.5">
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-violet-400 w-4 flex-shrink-0">{index + 1}</span>
                         <Icon name="UserCheck" size={13} className="text-cyan-400 flex-shrink-0" />
                         <span className="text-sm font-semibold text-slate-100">{entry.seniorName}</span>
-                        <span className="text-slate-500">→</span>
+                      </div>
+                      <div className="flex items-center gap-2 pl-6">
+                        <Icon name="User" size={13} className="text-violet-400 flex-shrink-0" />
                         <span className="text-sm text-slate-200">{entry.promoterName}</span>
                       </div>
                       {entry.promoterPhone && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 pl-6">
                           <Icon name="Phone" size={12} className="text-slate-500 flex-shrink-0" />
                           <span className="text-xs text-slate-400">{entry.promoterPhone}</span>
                         </div>
                       )}
                       {(entry.organization || entry.time) && (
-                        <div className="flex items-center gap-4 flex-wrap">
+                        <div className="flex items-center gap-4 flex-wrap pl-6">
                           {entry.organization && (
                             <div className="flex items-center gap-1.5">
                               <Icon name="Building2" size={12} className="text-slate-500 flex-shrink-0" />
@@ -435,23 +372,17 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
                         </div>
                       )}
                       {entry.comment && (
-                        <div className="flex items-start gap-1.5">
+                        <div className="flex items-start gap-1.5 pl-6">
                           <Icon name="MessageSquare" size={12} className="text-slate-500 flex-shrink-0 mt-0.5" />
                           <span className="text-xs text-slate-400">{entry.comment}</span>
                         </div>
                       )}
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
-                      <button
-                        onClick={() => handleEdit(entry)}
-                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-cyan-400 transition-colors"
-                      >
+                      <button onClick={() => handleEdit(entry)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-cyan-400 transition-colors">
                         <Icon name="Pencil" size={14} />
                       </button>
-                      <button
-                        onClick={() => handleDelete(entry.id)}
-                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors"
-                      >
+                      <button onClick={() => handleDelete(entry.id)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors">
                         <Icon name="Trash2" size={14} />
                       </button>
                     </div>
@@ -464,7 +395,7 @@ export default function TrainingModal({ date, dayNameFull, organizations: orgsPr
           {entries.length === 0 && (
             <div className="text-center py-8 text-slate-500">
               <Icon name="GraduationCap" size={36} className="mx-auto mb-2 opacity-40" />
-              <p className="text-sm">Нет записей об обучении</p>
+              <p className="text-sm">Нет записей на {selectedDay?.dayNameFull}</p>
             </div>
           )}
         </div>

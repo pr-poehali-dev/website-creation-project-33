@@ -4,7 +4,6 @@ import Icon from '@/components/ui/icon';
 import { UserStats } from './types';
 import OrganizationsStatsSection from './daily-modal/OrganizationsStatsSection';
 import PromoterCard from './daily-modal/PromoterCard';
-import OrganizationDetailModal from './daily-modal/OrganizationDetailModal';
 import LeadsDetailModal from './daily-modal/LeadsDetailModal';
 
 interface DetailedLead {
@@ -33,7 +32,6 @@ export default function DailyModal({
   const [comments, setComments] = React.useState<Record<string, {location?: string, flyers?: string}>>({});
   const [savingComment, setSavingComment] = React.useState<string | null>(null);
   const [leadsModalUser, setLeadsModalUser] = React.useState<string | null>(null);
-  const [selectedOrganization, setSelectedOrganization] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (selectedDate) {
@@ -149,7 +147,6 @@ export default function DailyModal({
           ) : dailyUserStats.length > 0 ? (
             <OrganizationsStatsSection 
               dailyUserStats={dailyUserStats}
-              onOrganizationClick={setSelectedOrganization}
             />
           ) : (
             <div className="text-center text-slate-300 py-8">
@@ -160,15 +157,6 @@ export default function DailyModal({
           )}
         </div>
       </div>
-
-      {selectedOrganization && (
-        <OrganizationDetailModal
-          organizationName={selectedOrganization}
-          selectedDate={selectedDate}
-          dailyUserStats={dailyUserStats}
-          onClose={() => setSelectedOrganization(null)}
-        />
-      )}
 
       {leadsModalUser && (
         <LeadsDetailModal

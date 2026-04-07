@@ -190,7 +190,7 @@ export default function RegisterForm({ onToggleMode, hideToggle }: RegisterFormP
                   onChange={(e) => setSelectedSeniorId(e.target.value !== '' ? Number(e.target.value) : '')}
                   className="w-full pl-10 pr-4 h-12 md:h-auto bg-white border border-gray-200 rounded-md text-[#001f54] text-base focus:outline-none focus:border-[#001f54] focus:ring-2 focus:ring-[#001f54]/20 appearance-none cursor-pointer"
                 >
-                  <option value="">— Выберите старшего —</option>
+                  <option value="">Выберите старшего</option>
                   {seniors.map(s => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}

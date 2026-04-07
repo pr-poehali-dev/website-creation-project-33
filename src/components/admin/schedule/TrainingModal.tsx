@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon';
 interface TrainingModalProps {
   date: string;
   dayNameFull: string;
-  organizations: string[];
+  organizations?: string[];
   onClose: () => void;
 }
 
@@ -29,12 +29,27 @@ function saveSeniors(list: string[]) {
   localStorage.setItem(SENIORS_KEY, JSON.stringify(list));
 }
 
-export default function TrainingModal({ date, dayNameFull, organizations, onClose }: TrainingModalProps) {
+export default function TrainingModal({ date, dayNameFull, organizations: orgsProp, onClose }: TrainingModalProps) {
   const storageKey = `training_${date}`;
   const saved = localStorage.getItem(storageKey);
   const initialEntries: TrainingEntry[] = saved ? JSON.parse(saved) : [];
 
   const [entries, setEntries] = useState<TrainingEntry[]>(initialEntries);
+  const [loadedOrgs, setLoadedOrgs] = useState<string[]>(orgsProp ?? []);
+
+  useEffect(() => {
+    if (orgsProp && orgsProp.length > 0) return;
+    fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_organizations', {
+      headers: { 'X-Session-Token': localStorage.getItem('session_token') || '' }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.organizations) {
+          setLoadedOrgs(data.organizations.map((o: {name: string}) => o.name).sort());
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [form, setForm] = useState({
     seniorName: '',
     promoterName: '',
@@ -87,7 +102,7 @@ export default function TrainingModal({ date, dayNameFull, organizations, onClos
     saveSeniors(updated);
   };
 
-  const filteredOrgs = organizations.filter(o =>
+  const filteredOrgs = loadedOrgs.filter(o =>
     o.toLowerCase().includes(orgSearch.toLowerCase())
   );
 

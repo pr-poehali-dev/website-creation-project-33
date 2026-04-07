@@ -10,6 +10,7 @@ interface ScheduleHeaderProps {
   weeks: Week[];
   loading: boolean;
   onOpenAddShift?: () => void;
+  onOpenAddTraining?: () => void;
 }
 
 export default function ScheduleHeader({
@@ -19,7 +20,8 @@ export default function ScheduleHeader({
   setCurrentWeekIndex,
   weeks,
   loading,
-  onOpenAddShift
+  onOpenAddShift,
+  onOpenAddTraining,
 }: ScheduleHeaderProps) {
   return (
     <div className="flex flex-col gap-4 mb-6">
@@ -49,16 +51,28 @@ export default function ScheduleHeader({
               Индивидуально
             </Button>
           </div>
-          {onOpenAddShift && (
-            <Button
-              onClick={onOpenAddShift}
-              className="bg-green-600 hover:bg-green-700 text-white text-xs md:text-sm w-full sm:w-auto"
-              size="sm"
-            >
-              <Icon name="CalendarPlus" size={16} className="mr-1 md:mr-2" />
-              Добавить смену
-            </Button>
-          )}
+          <div className="flex flex-col gap-2 w-full sm:w-auto">
+            {onOpenAddShift && (
+              <Button
+                onClick={onOpenAddShift}
+                className="bg-green-600 hover:bg-green-700 text-white text-xs md:text-sm w-full sm:w-auto"
+                size="sm"
+              >
+                <Icon name="CalendarPlus" size={16} className="mr-1 md:mr-2" />
+                Добавить смену
+              </Button>
+            )}
+            {onOpenAddTraining && (
+              <Button
+                onClick={onOpenAddTraining}
+                className="bg-violet-600 hover:bg-violet-700 text-white text-xs md:text-sm w-full sm:w-auto"
+                size="sm"
+              >
+                <Icon name="GraduationCap" size={16} className="mr-1 md:mr-2" />
+                Добавить обучение
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

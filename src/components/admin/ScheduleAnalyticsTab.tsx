@@ -8,6 +8,7 @@ import TeamScheduleView from './schedule/TeamScheduleView';
 import IndividualScheduleView from './schedule/IndividualScheduleView';
 import DeleteConfirmDialog from './schedule/DeleteConfirmDialog';
 import AddShiftModal from './AddShiftModal';
+import TrainingModal from './schedule/TrainingModal';
 
 export default function ScheduleAnalyticsTab() {
   const weeks = getAllWeeksUntilEndOfYear();
@@ -22,6 +23,7 @@ export default function ScheduleAnalyticsTab() {
   const [dayStats, setDayStats] = useState<DayStats[]>([]);
   const [addingSlot, setAddingSlot] = useState<DeleteSlotState | null>(null);
   const [addShiftModalOpen, setAddShiftModalOpen] = useState(false);
+  const [trainingModalOpen, setTrainingModalOpen] = useState(false);
 
   useEffect(() => {
     const days = initializeWeekDays(weeks[currentWeekIndex].start);
@@ -209,6 +211,7 @@ export default function ScheduleAnalyticsTab() {
             weeks={weeks}
             loading={loading}
             onOpenAddShift={() => setAddShiftModalOpen(true)}
+            onOpenAddTraining={() => setTrainingModalOpen(true)}
           />
 
           {view === 'team' && (
@@ -249,6 +252,14 @@ export default function ScheduleAnalyticsTab() {
         userStats={schedules.map(s => ({ name: s.first_name + ' ' + s.last_name, id: s.user_id }))}
         onShiftAdded={() => loadAllSchedules(weekDays)}
       />
+
+      {trainingModalOpen && (
+        <TrainingModal
+          date={weeks[currentWeekIndex].start}
+          dayNameFull="Обучение"
+          onClose={() => setTrainingModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

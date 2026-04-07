@@ -10,6 +10,7 @@ import AdminChatTab from './AdminChatTab';
 import OrganizationsTab from './OrganizationsTab';
 import ArchiveTab from './ArchiveTab';
 import AccountingTab from './AccountingTab';
+import SeniorsTab from './SeniorsTab';
 
 interface AdminTabsProps {
   unreadCount: number;
@@ -63,6 +64,14 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
           <span className="hidden lg:inline">Организации</span>
         </TabsTrigger>
         <TabsTrigger 
+          value="seniors" 
+          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
+          title="Старшие"
+        >
+          <Icon name="Star" size={16} />
+          <span className="hidden lg:inline">Старшие</span>
+        </TabsTrigger>
+        <TabsTrigger 
           value="archive" 
           className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
           title="Архив"
@@ -106,6 +115,10 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
 
       <TabsContent value="organizations">
         <OrganizationsTab enabled={activeTab === 'organizations'} />
+      </TabsContent>
+
+      <TabsContent value="seniors">
+        <SeniorsTab />
       </TabsContent>
 
       <TabsContent value="archive">

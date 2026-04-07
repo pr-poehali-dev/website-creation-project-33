@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '@/components/ui/icon';
 import { useUsers } from '@/hooks/useAdminData';
 import { User } from './types';
 
-const SENIORS_KEY = 'training_seniors_list';
+const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
 const SENIORS_MAP_KEY = 'promoter_seniors_map';
 
-function loadSeniors(): string[] {
-  try { return JSON.parse(localStorage.getItem(SENIORS_KEY) || '[]'); } catch { return []; }
-}
-function saveSeniors(list: string[]) {
-  localStorage.setItem(SENIORS_KEY, JSON.stringify(list));
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'X-Session-Token': localStorage.getItem('session_token') || '',
+  };
 }
 function loadSeniorsMap(): Record<number, string> {
   try { return JSON.parse(localStorage.getItem(SENIORS_MAP_KEY) || '{}'); } catch { return {}; }
@@ -34,8 +34,14 @@ export default function SeniorsTab() {
   const { data: usersData, isLoading } = useUsers(true);
   const allUsers: User[] = [...(usersData?.active || []), ...(usersData?.inactive || [])];
 
+  const fetchSeniors = useCallback(async () => {
+    const res = await fetch(`${TRAINING_API}?action=get_seniors`, { headers: authHeaders() });
+    const data = await res.json();
+    if (data.seniors) setSeniors(data.seniors.map((s: { name: string }) => s.name));
+  }, []);
+
   useEffect(() => {
-    setSeniors(loadSeniors());
+    fetchSeniors();
     setSeniorsMap(loadSeniorsMap());
   }, []);
 
@@ -45,24 +51,28 @@ export default function SeniorsTab() {
       .sort((a, b) => avgPerShift(a) - avgPerShift(b));
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const name = newName.trim();
     if (!name) return;
     if (seniors.includes(name)) { setError('Такой старший уже есть в списке'); return; }
-    const updated = [...seniors, name];
-    setSeniors(updated);
-    saveSeniors(updated);
+    await fetch(TRAINING_API, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ action: 'add_senior', name }),
+    });
+    setSeniors(prev => [...prev, name].sort());
     setNewName('');
     setError('');
   };
 
-  const handleRename = (oldName: string) => {
+  const handleRename = async (oldName: string) => {
     const trimmed = editName.trim();
     if (!trimmed || trimmed === oldName) { setEditingSenior(null); return; }
     if (seniors.includes(trimmed)) { setError('Такое имя уже есть'); return; }
-    const updated = seniors.map(s => s === oldName ? trimmed : s);
-    setSeniors(updated);
-    saveSeniors(updated);
+    await fetch(TRAINING_API, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ action: 'rename_senior', old_name: oldName, new_name: trimmed }),
+    });
+    setSeniors(prev => prev.map(s => s === oldName ? trimmed : s));
     const map = loadSeniorsMap();
     Object.keys(map).forEach(k => { if (map[+k] === oldName) map[+k] = trimmed; });
     localStorage.setItem(SENIORS_MAP_KEY, JSON.stringify(map));
@@ -72,10 +82,12 @@ export default function SeniorsTab() {
     setError('');
   };
 
-  const handleDelete = (name: string) => {
-    const updated = seniors.filter(s => s !== name);
-    setSeniors(updated);
-    saveSeniors(updated);
+  const handleDelete = async (name: string) => {
+    await fetch(TRAINING_API, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ action: 'delete_senior', name }),
+    });
+    setSeniors(prev => prev.filter(s => s !== name));
     if (expandedSenior === name) setExpandedSenior(null);
   };
 

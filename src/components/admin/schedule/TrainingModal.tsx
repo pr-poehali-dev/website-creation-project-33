@@ -1,5 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Icon from '@/components/ui/icon';
+
+const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'X-Session-Token': localStorage.getItem('session_token') || '',
+  };
+}
 
 interface WeekDay {
   date: string;
@@ -23,23 +32,6 @@ interface TrainingEntry {
   comment: string;
 }
 
-const SENIORS_KEY = 'training_seniors_list';
-
-function loadSeniors(): string[] {
-  const saved = localStorage.getItem(SENIORS_KEY);
-  return saved ? JSON.parse(saved) : [];
-}
-function saveSeniors(list: string[]) {
-  localStorage.setItem(SENIORS_KEY, JSON.stringify(list));
-}
-function loadEntries(date: string): TrainingEntry[] {
-  try { return JSON.parse(localStorage.getItem(`training_${date}`) || '[]'); }
-  catch { return []; }
-}
-function saveEntries(date: string, entries: TrainingEntry[]) {
-  localStorage.setItem(`training_${date}`, JSON.stringify(entries));
-}
-
 const DAY_NAMES: Record<string, string> = {
   'Понедельник': 'Пн', 'Вторник': 'Вт', 'Среда': 'Ср',
   'Четверг': 'Чт', 'Пятница': 'Пт', 'Суббота': 'Сб', 'Воскресенье': 'Вс'
@@ -47,27 +39,17 @@ const DAY_NAMES: Record<string, string> = {
 
 export default function TrainingModal({ weekDays, organizations: orgsProp, onClose }: TrainingModalProps) {
   const [selectedDate, setSelectedDate] = useState(weekDays[0]?.date || '');
-  const [entries, setEntries] = useState<TrainingEntry[]>(() => loadEntries(weekDays[0]?.date || ''));
+  const [entries, setEntries] = useState<TrainingEntry[]>([]);
+  const [loadingEntries, setLoadingEntries] = useState(false);
 
   const [loadedOrgs, setLoadedOrgs] = useState<string[]>(orgsProp ?? []);
-  useEffect(() => {
-    if (orgsProp && orgsProp.length > 0) return;
-    fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_organizations', {
-      headers: { 'X-Session-Token': localStorage.getItem('session_token') || '' }
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.organizations)
-          setLoadedOrgs(data.organizations.map((o: { name: string }) => o.name).sort());
-      })
-      .catch(() => {});
-  }, []);
+  const [seniors, setSeniors] = useState<string[]>([]);
 
   const emptyForm = { seniorName: '', promoterName: '', promoterPhone: '', organization: '', time: '', comment: '' };
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  const [seniors, setSeniors] = useState<string[]>(loadSeniors);
   const [showSeniorDropdown, setShowSeniorDropdown] = useState(false);
   const [newSeniorInput, setNewSeniorInput] = useState('');
   const [showAddSenior, setShowAddSenior] = useState(false);
@@ -77,12 +59,40 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
   const [orgSearch, setOrgSearch] = useState('');
   const orgRef = useRef<HTMLDivElement>(null);
 
+  // Загрузка старших с сервера
+  const loadSeniors = useCallback(async () => {
+    const res = await fetch(`${TRAINING_API}?action=get_seniors`, { headers: authHeaders() });
+    const data = await res.json();
+    if (data.seniors) setSeniors(data.seniors.map((s: { name: string }) => s.name));
+  }, []);
+
+  // Загрузка записей для даты
+  const loadEntries = useCallback(async (date: string) => {
+    setLoadingEntries(true);
+    const res = await fetch(`${TRAINING_API}?action=get_entries&date=${date}`, { headers: authHeaders() });
+    const data = await res.json();
+    setEntries(data.entries || []);
+    setLoadingEntries(false);
+  }, []);
+
+  useEffect(() => {
+    loadSeniors();
+    if (weekDays[0]?.date) loadEntries(weekDays[0].date);
+  }, []);
+
+  useEffect(() => {
+    if (orgsProp && orgsProp.length > 0) { setLoadedOrgs(orgsProp); return; }
+    fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_organizations', {
+      headers: { 'X-Session-Token': localStorage.getItem('session_token') || '' }
+    }).then(r => r.json()).then(data => {
+      if (data.organizations) setLoadedOrgs(data.organizations.map((o: { name: string }) => o.name).sort());
+    }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (seniorRef.current && !seniorRef.current.contains(e.target as Node))
-        setShowSeniorDropdown(false);
-      if (orgRef.current && !orgRef.current.contains(e.target as Node))
-        setShowOrgDropdown(false);
+      if (seniorRef.current && !seniorRef.current.contains(e.target as Node)) setShowSeniorDropdown(false);
+      if (orgRef.current && !orgRef.current.contains(e.target as Node)) setShowOrgDropdown(false);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -90,46 +100,59 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
 
   const handleDateChange = (date: string) => {
     setSelectedDate(date);
-    setEntries(loadEntries(date));
+    loadEntries(date);
     setEditingId(null);
     setForm(emptyForm);
   };
 
-  const handleAddSenior = () => {
+  const handleAddSenior = async () => {
     const name = newSeniorInput.trim();
     if (!name || seniors.includes(name)) return;
-    const updated = [...seniors, name];
-    setSeniors(updated);
-    saveSeniors(updated);
+    await fetch(TRAINING_API, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ action: 'add_senior', name }),
+    });
+    setSeniors(prev => [...prev, name].sort());
     setForm(prev => ({ ...prev, seniorName: name }));
     setNewSeniorInput('');
     setShowAddSenior(false);
     setShowSeniorDropdown(false);
   };
 
-  const handleDeleteSenior = (name: string, e: React.MouseEvent) => {
+  const handleDeleteSenior = async (name: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const updated = seniors.filter(s => s !== name);
-    setSeniors(updated);
-    saveSeniors(updated);
+    await fetch(TRAINING_API, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ action: 'delete_senior', name }),
+    });
+    setSeniors(prev => prev.filter(s => s !== name));
   };
 
   const filteredOrgs = loadedOrgs.filter(o => o.toLowerCase().includes(orgSearch.toLowerCase()));
-
   const handleChange = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.seniorName.trim() || !form.promoterName.trim() || !selectedDate) return;
-    let updated: TrainingEntry[];
+    setSaving(true);
     if (editingId) {
-      updated = entries.map(e => e.id === editingId ? { ...form, id: editingId } : e);
+      await fetch(TRAINING_API, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ action: 'update_entry', id: parseInt(editingId), ...form }),
+      });
       setEditingId(null);
     } else {
-      updated = [...entries, { ...form, id: Date.now().toString() }];
+      await fetch(TRAINING_API, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ action: 'add_entry', date: selectedDate, ...form }),
+      });
     }
-    setEntries(updated);
-    saveEntries(selectedDate, updated);
+    await loadEntries(selectedDate);
     setForm(emptyForm);
+    setSaving(false);
   };
 
   const handleEdit = (entry: TrainingEntry) => {
@@ -137,10 +160,13 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
     setForm({ seniorName: entry.seniorName, promoterName: entry.promoterName, promoterPhone: entry.promoterPhone, organization: entry.organization, time: entry.time, comment: entry.comment });
   };
 
-  const handleDelete = (id: string) => {
-    const updated = entries.filter(e => e.id !== id);
-    setEntries(updated);
-    saveEntries(selectedDate, updated);
+  const handleDelete = async (id: string) => {
+    await fetch(TRAINING_API, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ action: 'delete_entry', id: parseInt(id) }),
+    });
+    await loadEntries(selectedDate);
   };
 
   const cancelEdit = () => { setEditingId(null); setForm(emptyForm); };
@@ -178,11 +204,8 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
                   const dayNum = new Date(day.date).getDate();
                   const shortName = DAY_NAMES[day.dayNameFull] || day.dayName;
                   return (
-                    <button
-                      key={day.date}
-                      onClick={() => handleDateChange(day.date)}
-                      className={`flex flex-col items-center py-2 px-1 rounded-lg text-center transition-all ${isSelected ? 'bg-violet-600 text-white' : 'bg-slate-900 text-slate-400 hover:bg-slate-700 hover:text-slate-200'}`}
-                    >
+                    <button key={day.date} onClick={() => handleDateChange(day.date)}
+                      className={`flex flex-col items-center py-2 px-1 rounded-lg text-center transition-all ${isSelected ? 'bg-violet-600 text-white' : 'bg-slate-900 text-slate-400 hover:bg-slate-700 hover:text-slate-200'}`}>
                       <span className="text-[10px] font-semibold">{shortName}</span>
                       <span className="text-sm font-bold">{dayNum}</span>
                     </button>
@@ -195,10 +218,7 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
             <div>
               <label className={labelClass}>Старший *</label>
               <div className="relative" ref={seniorRef}>
-                <div
-                  className={`${inputClass} flex items-center justify-between cursor-pointer`}
-                  onClick={() => setShowSeniorDropdown(p => !p)}
-                >
+                <div className={`${inputClass} flex items-center justify-between cursor-pointer`} onClick={() => setShowSeniorDropdown(p => !p)}>
                   <span className={form.seniorName ? 'text-slate-100' : 'text-slate-500'}>
                     {form.seniorName || 'Выбрать старшего'}
                   </span>
@@ -318,8 +338,9 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
             </div>
 
             <div className="flex gap-2 pt-1">
-              <button onClick={handleSubmit} disabled={!form.seniorName.trim() || !form.promoterName.trim() || !selectedDate}
-                className="flex-1 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 disabled:bg-slate-700 disabled:text-slate-500 text-white text-sm font-semibold py-3 rounded-xl transition-colors">
+              <button onClick={handleSubmit} disabled={!form.seniorName.trim() || !form.promoterName.trim() || !selectedDate || saving}
+                className="flex-1 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 disabled:bg-slate-700 disabled:text-slate-500 text-white text-sm font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+                {saving && <Icon name="Loader2" size={14} className="animate-spin" />}
                 {editingId ? 'Сохранить' : 'Добавить'}
               </button>
               {editingId && (
@@ -330,8 +351,13 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
             </div>
           </div>
 
-          {/* Список записей для выбранного дня */}
-          {entries.length > 0 && (
+          {/* Список записей */}
+          {loadingEntries ? (
+            <div className="flex items-center justify-center gap-2 py-8 text-slate-500">
+              <Icon name="Loader2" size={18} className="animate-spin" />
+              <span className="text-sm">Загрузка...</span>
+            </div>
+          ) : entries.length > 0 ? (
             <div className="space-y-2">
               <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide px-1">
                 Записи на {selectedDay?.dayNameFull} ({entries.length})
@@ -390,9 +416,7 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
                 </div>
               ))}
             </div>
-          )}
-
-          {entries.length === 0 && (
+          ) : (
             <div className="text-center py-8 text-slate-500">
               <Icon name="GraduationCap" size={36} className="mx-auto mb-2 opacity-40" />
               <p className="text-sm">Нет записей на {selectedDay?.dayNameFull}</p>

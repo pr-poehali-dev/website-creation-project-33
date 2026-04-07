@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Get seniors",
+      "method": "GET",
+      "path": "/?action=get_seniors",
+      "expectedStatus": 200,
+      "expectedBody": {"seniors": []},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get entries",
+      "method": "GET",
+      "path": "/?action=get_entries&date=2026-01-01",
+      "expectedStatus": 200,
+      "expectedBody": {"entries": []},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { DaySchedule, UserSchedule, DeleteSlotState, DayStats, OrganizationData } from './types';
@@ -22,6 +23,7 @@ interface DayCardProps {
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
+  onOpenTraining: (date: string, dayNameFull: string) => void;
 }
 
 export default function DayCard({
@@ -42,8 +44,10 @@ export default function DayCard({
   onCommentBlur,
   onRemoveSlot,
   onAddSlot,
-  deletingSlot
+  deletingSlot,
+  onOpenTraining,
 }: DayCardProps) {
+  const [activeTab, setActiveTab] = useState<'department' | 'training'>('department');
   const isSuccessful = stats && stats.expected > 0 && stats.actual >= stats.expected;
   
   return (
@@ -84,32 +88,53 @@ export default function DayCard({
 
         {isExpanded && (
           <div className="mt-2 md:mt-3 pt-2 md:pt-3 border-t border-slate-700/50">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2 lg:gap-3">
-              {day.slots.map(slot => {
-                const workers = getUsersWorkingOnSlot(day.date, slot.time);
-
-                return (
-                  <TimeSlotCard
-                    key={slot.time}
-                    slot={slot}
-                    workers={workers}
-                    dayDate={day.date}
-                    workComments={workComments}
-                    savingComment={savingComment}
-                    allLocations={allLocations}
-                    allOrganizations={allOrganizations}
-                    userOrgStats={userOrgStats}
-                    recommendedLocations={recommendedLocations}
-                    loadingProgress={loadingProgress}
-                    onCommentChange={onCommentChange}
-                    onCommentBlur={onCommentBlur}
-                    onRemoveSlot={onRemoveSlot}
-                    onAddSlot={onAddSlot}
-                    deletingSlot={deletingSlot}
-                  />
-                );
-              })}
+            <div className="flex gap-1 mb-3 bg-slate-800/60 rounded-lg p-0.5">
+              <button
+                onClick={() => setActiveTab('department')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all ${activeTab === 'department' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                <Icon name="Users" size={13} />
+                Отдел
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('training');
+                  onOpenTraining(day.date, day.dayNameFull);
+                }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all ${activeTab === 'training' ? 'bg-violet-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                <Icon name="GraduationCap" size={13} />
+                Обучение
+              </button>
             </div>
+
+            {activeTab === 'department' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2 lg:gap-3">
+                {day.slots.map(slot => {
+                  const workers = getUsersWorkingOnSlot(day.date, slot.time);
+                  return (
+                    <TimeSlotCard
+                      key={slot.time}
+                      slot={slot}
+                      workers={workers}
+                      dayDate={day.date}
+                      workComments={workComments}
+                      savingComment={savingComment}
+                      allLocations={allLocations}
+                      allOrganizations={allOrganizations}
+                      userOrgStats={userOrgStats}
+                      recommendedLocations={recommendedLocations}
+                      loadingProgress={loadingProgress}
+                      onCommentChange={onCommentChange}
+                      onCommentBlur={onCommentBlur}
+                      onRemoveSlot={onRemoveSlot}
+                      onAddSlot={onAddSlot}
+                      deletingSlot={deletingSlot}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </CardContent>

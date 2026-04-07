@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { DaySchedule, UserSchedule, DeleteSlotState, DayStats } from './types';
 import { useScheduleData } from './useScheduleData';
 import WeekCalendar from './WeekCalendar';
 import DayCard from './DayCard';
 import AddPromoterModal from './AddPromoterModal';
+import TrainingModal from './TrainingModal';
 
 interface TeamScheduleViewProps {
   weekDays: DaySchedule[];
@@ -28,6 +29,7 @@ export default function TeamScheduleView({
 }: TeamScheduleViewProps) {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
+  const [trainingModal, setTrainingModal] = useState<{date: string, dayNameFull: string} | null>(null);
 
   const {
     workComments,
@@ -122,6 +124,7 @@ export default function TeamScheduleView({
             onRemoveSlot={confirmRemoveSlot}
             onAddSlot={handleAddSlotClick}
             deletingSlot={deletingSlot}
+            onOpenTraining={(date, dayNameFull) => setTrainingModal({ date, dayNameFull })}
           />
         );
       })}
@@ -146,6 +149,14 @@ export default function TeamScheduleView({
           addingSlot={addingSlot}
           onAddSlot={addSlot}
           onClose={() => setShowAddModal(null)}
+        />
+      )}
+
+      {trainingModal && (
+        <TrainingModal
+          date={trainingModal.date}
+          dayNameFull={trainingModal.dayNameFull}
+          onClose={() => setTrainingModal(null)}
         />
       )}
     </div>

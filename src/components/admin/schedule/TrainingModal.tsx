@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 
 interface TrainingModalProps {
@@ -17,6 +17,17 @@ interface TrainingEntry {
   comment: string;
 }
 
+const SENIORS_KEY = 'training_seniors_list';
+
+function loadSeniors(): string[] {
+  const saved = localStorage.getItem(SENIORS_KEY);
+  return saved ? JSON.parse(saved) : [];
+}
+
+function saveSeniors(list: string[]) {
+  localStorage.setItem(SENIORS_KEY, JSON.stringify(list));
+}
+
 export default function TrainingModal({ date, dayNameFull, onClose }: TrainingModalProps) {
   const storageKey = `training_${date}`;
   const saved = localStorage.getItem(storageKey);
@@ -32,6 +43,41 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
     comment: '',
   });
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [seniors, setSeniors] = useState<string[]>(loadSeniors);
+  const [showSeniorDropdown, setShowSeniorDropdown] = useState(false);
+  const [newSeniorInput, setNewSeniorInput] = useState('');
+  const [showAddSenior, setShowAddSenior] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowSeniorDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const handleAddSenior = () => {
+    const name = newSeniorInput.trim();
+    if (!name || seniors.includes(name)) return;
+    const updated = [...seniors, name];
+    setSeniors(updated);
+    saveSeniors(updated);
+    setForm(prev => ({ ...prev, seniorName: name }));
+    setNewSeniorInput('');
+    setShowAddSenior(false);
+    setShowSeniorDropdown(false);
+  };
+
+  const handleDeleteSenior = (name: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = seniors.filter(s => s !== name);
+    setSeniors(updated);
+    saveSeniors(updated);
+  };
 
   const saveToStorage = (updated: TrainingEntry[]) => {
     localStorage.setItem(storageKey, JSON.stringify(updated));
@@ -104,15 +150,80 @@ export default function TrainingModal({ date, dayNameFull, onClose }: TrainingMo
               {editingId ? 'Редактировать запись' : 'Новая запись'}
             </h3>
 
+            {/* Поле Старший */}
             <div>
               <label className={labelClass}>Старший *</label>
-              <input
-                type="text"
-                value={form.seniorName}
-                onChange={e => handleChange('seniorName', e.target.value)}
-                placeholder="Имя старшего"
-                className={inputClass}
-              />
+              <div className="relative" ref={dropdownRef}>
+                <div
+                  className={`${inputClass} flex items-center justify-between cursor-pointer`}
+                  onClick={() => setShowSeniorDropdown(p => !p)}
+                >
+                  <span className={form.seniorName ? 'text-slate-100' : 'text-slate-500'}>
+                    {form.seniorName || 'Выбрать старшего'}
+                  </span>
+                  <Icon name={showSeniorDropdown ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400 flex-shrink-0" />
+                </div>
+
+                {showSeniorDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-xl shadow-xl z-20 overflow-hidden">
+                    {seniors.length > 0 ? (
+                      <div className="max-h-48 overflow-y-auto">
+                        {seniors.map(name => (
+                          <div
+                            key={name}
+                            className="flex items-center justify-between px-3 py-2.5 hover:bg-slate-700 active:bg-slate-600 cursor-pointer transition-colors"
+                            onClick={() => {
+                              setForm(prev => ({ ...prev, seniorName: name }));
+                              setShowSeniorDropdown(false);
+                              setShowAddSenior(false);
+                            }}
+                          >
+                            <span className="text-sm text-slate-100">{name}</span>
+                            <button
+                              onClick={(e) => handleDeleteSenior(name, e)}
+                              className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors"
+                            >
+                              <Icon name="X" size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="px-3 py-3 text-sm text-slate-500 text-center">Список пуст</div>
+                    )}
+
+                    <div className="border-t border-slate-700">
+                      {showAddSenior ? (
+                        <div className="p-2 flex gap-2">
+                          <input
+                            type="text"
+                            value={newSeniorInput}
+                            onChange={e => setNewSeniorInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleAddSenior()}
+                            placeholder="Имя старшего"
+                            autoFocus
+                            className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                          />
+                          <button
+                            onClick={handleAddSenior}
+                            className="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm rounded-lg transition-colors"
+                          >
+                            <Icon name="Check" size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setShowAddSenior(true)}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-cyan-400 hover:bg-slate-700 transition-colors"
+                        >
+                          <Icon name="Plus" size={15} />
+                          Добавить нового старшего
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>

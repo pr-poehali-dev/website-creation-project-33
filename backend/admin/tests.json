@@ -9,6 +9,14 @@
       "bodyMatcher": "partial"
     },
     {
+      "name": "Test set_senior without token",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "set_senior", "user_id": 1, "senior_id": 1},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    },
+    {
       "name": "Test admin access without token",
       "method": "GET",
       "path": "/?action=users",

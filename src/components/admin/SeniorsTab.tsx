@@ -22,6 +22,8 @@ export default function SeniorsTab() {
   const [newName, setNewName] = useState('');
   const [error, setError] = useState('');
   const [expandedSenior, setExpandedSenior] = useState<string | null>(null);
+  const [editingSenior, setEditingSenior] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
 
   const { data: usersData, isLoading } = useUsers(true);
   const allUsers: User[] = [...(usersData?.active || []), ...(usersData?.inactive || [])];
@@ -43,6 +45,23 @@ export default function SeniorsTab() {
     setSeniors(updated);
     saveSeniors(updated);
     setNewName('');
+    setError('');
+  };
+
+  const handleRename = (oldName: string) => {
+    const trimmed = editName.trim();
+    if (!trimmed || trimmed === oldName) { setEditingSenior(null); return; }
+    if (seniors.includes(trimmed)) { setError('Такое имя уже есть'); return; }
+    const updated = seniors.map(s => s === oldName ? trimmed : s);
+    setSeniors(updated);
+    saveSeniors(updated);
+    // Обновляем карту промоутеров
+    const map = loadSeniorsMap();
+    Object.keys(map).forEach(k => { if (map[+k] === oldName) map[+k] = trimmed; });
+    localStorage.setItem(SENIORS_MAP_KEY, JSON.stringify(map));
+    setSeniorsMap(map);
+    setEditingSenior(null);
+    setEditName('');
     setError('');
   };
 
@@ -108,37 +127,64 @@ export default function SeniorsTab() {
               const totalContacts = promoters.reduce((sum, u) => sum + (u.lead_count || 0), 0);
               const isExpanded = expandedSenior === name;
 
+              const isEditing = editingSenior === name;
+
               return (
                 <li key={idx} className="py-3">
                   <div
-                    className="flex items-center justify-between cursor-pointer hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors"
-                    onClick={() => toggleExpand(name)}
+                    className="flex items-center justify-between hover:bg-slate-50 rounded-lg px-2 -mx-2 transition-colors"
+                    onClick={() => !isEditing && toggleExpand(name)}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
                       <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm flex-shrink-0">
                         {name.charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <p className="text-slate-800 text-sm font-medium">{name}</p>
-                        <p className="text-slate-400 text-xs">
-                          {count > 0 ? `Промоутеров: ${count}` : 'Нет промоутеров'}
-                        </p>
+                      <div className="flex-1 min-w-0">
+                        {isEditing ? (
+                          <input
+                            autoFocus
+                            value={editName}
+                            onChange={e => setEditName(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') handleRename(name); if (e.key === 'Escape') setEditingSenior(null); }}
+                            onClick={e => e.stopPropagation()}
+                            className="w-full border border-blue-400 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        ) : (
+                          <p className="text-slate-800 text-sm font-medium truncate">{name}</p>
+                        )}
+                        {!isEditing && (
+                          <p className="text-slate-400 text-xs">
+                            {count > 0 ? `Промоутеров: ${count}` : 'Нет промоутеров'}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {count > 0 && (
-                        <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <div className="flex items-center gap-1 flex-shrink-0 ml-2" onClick={e => e.stopPropagation()}>
+                      {!isEditing && count > 0 && (
+                        <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full mr-1">
                           {count}
                         </span>
                       )}
-                      <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400" />
-                      <button
-                        onClick={e => { e.stopPropagation(); handleDelete(name); }}
-                        className="text-slate-400 hover:text-red-500 transition-colors p-1"
-                        title="Удалить"
-                      >
-                        <Icon name="Trash2" size={16} />
-                      </button>
+                      {isEditing ? (
+                        <>
+                          <button onClick={() => handleRename(name)} className="text-green-500 hover:text-green-600 transition-colors p-1" title="Сохранить">
+                            <Icon name="Check" size={16} />
+                          </button>
+                          <button onClick={() => setEditingSenior(null)} className="text-slate-400 hover:text-slate-600 transition-colors p-1" title="Отмена">
+                            <Icon name="X" size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => { setEditingSenior(name); setEditName(name); setError(''); }} className="text-slate-400 hover:text-blue-500 transition-colors p-1" title="Переименовать">
+                            <Icon name="Pencil" size={15} />
+                          </button>
+                          <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400 cursor-pointer" onClick={() => toggleExpand(name)} />
+                          <button onClick={() => handleDelete(name)} className="text-slate-400 hover:text-red-500 transition-colors p-1" title="Удалить">
+                            <Icon name="Trash2" size={16} />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
 

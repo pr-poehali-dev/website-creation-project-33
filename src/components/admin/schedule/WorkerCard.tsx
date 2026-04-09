@@ -181,17 +181,17 @@ export default function WorkerCard({
       </div>
       
       <div className="space-y-1 ml-2">
-        <div className="relative flex items-center gap-1">
-          <div className="relative flex-1 flex items-center gap-1">
+        <div className="flex items-center gap-1">
+          <div className="flex-1 flex items-center gap-1 min-w-0">
             {currentOrganization ? (
               <>
-                <div className="flex-1 text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border border-slate-600 text-slate-200 rounded-md flex items-center">
+                <div className="flex-1 text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border border-slate-600 text-slate-200 rounded-md flex items-center min-w-0">
                   <span className="truncate">{currentOrganization}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => onCommentChange(workerName, dayDate, 'organization', '')}
-                  className="p-1 hover:bg-red-500/20 rounded transition-colors"
+                  className="p-1 hover:bg-red-500/20 rounded transition-colors flex-shrink-0"
                   title="Удалить организацию"
                 >
                   <Icon name="X" size={12} className="text-red-400" />
@@ -208,9 +208,11 @@ export default function WorkerCard({
               </button>
             )}
           </div>
-          {currentOrganization && savingComment !== commentKey && (
-            <Icon name="Building2" size={12} className="text-cyan-400 flex-shrink-0" />
-          )}
+          <div className="w-4 flex-shrink-0 flex items-center justify-center">
+            {currentOrganization && savingComment !== commentKey && (
+              <Icon name="Building2" size={12} className="text-cyan-400" />
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-1">
@@ -234,9 +236,11 @@ export default function WorkerCard({
               ))}
             </SelectContent>
           </Select>
-          {currentLocationType && savingComment !== commentKey && (
-            <Icon name="MapPin" size={12} className="text-emerald-400 flex-shrink-0" />
-          )}
+          <div className="w-4 flex-shrink-0 flex items-center justify-center">
+            {currentLocationType && savingComment !== commentKey && (
+              <Icon name="MapPin" size={12} className="text-emerald-400" />
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-1">
@@ -258,9 +262,11 @@ export default function WorkerCard({
                 : 'bg-slate-800/50'
             }`}
           />
-          {currentLocationDetails && savingComment !== commentKey && (
-            <Icon name="Navigation" size={12} className="text-blue-400 flex-shrink-0" />
-          )}
+          <div className="w-4 flex-shrink-0 flex items-center justify-center">
+            {currentLocationDetails && savingComment !== commentKey && (
+              <Icon name="Navigation" size={12} className="text-blue-400" />
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-1">
@@ -282,9 +288,11 @@ export default function WorkerCard({
                 : 'bg-slate-800/50'
             }`}
           />
-          {currentFlyers && savingComment !== commentKey && (
-            <Icon name="FileText" size={12} className="text-amber-400 flex-shrink-0" />
-          )}
+          <div className="w-4 flex-shrink-0 flex items-center justify-center">
+            {currentFlyers && savingComment !== commentKey && (
+              <Icon name="FileText" size={12} className="text-amber-400" />
+            )}
+          </div>
         </div>
         
         <button

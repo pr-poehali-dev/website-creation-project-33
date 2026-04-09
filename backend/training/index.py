@@ -124,11 +124,67 @@ def handler(event: dict, context) -> dict:
 
         # ---- KPD ----
         if action == 'get_senior_kpd':
+            from datetime import timedelta, date as date_type
             senior_id = params.get('senior_id') or body.get('senior_id')
             if not senior_id:
                 return err('senior_id required')
 
-            # Обучения по дням (регистрации новых промоутеров с этим старшим)
+            msk = timedelta(hours=3)
+
+            # Все стажёры этого старшего
+            cur.execute(f'''
+                SELECT u.id, u.name, u.created_at, u.is_active
+                FROM {SCHEMA}.users u
+                WHERE u.senior_id = %s
+                ORDER BY u.created_at DESC
+            ''', (senior_id,))
+            trainee_rows = cur.fetchall()
+            user_ids = [r[0] for r in trainee_rows]
+
+            # Все лиды стажёров + даты МСК
+            leads_by_user = {}  # user_id -> list of msk_date
+            shifts_by_user = {}  # user_id -> set of (msk_date, org_id)
+            if user_ids:
+                placeholders = ','.join(str(uid) for uid in user_ids)
+                cur.execute(f'''
+                    SELECT user_id, created_at, organization_id
+                    FROM {SCHEMA}.leads_analytics
+                    WHERE user_id IN ({placeholders}) AND is_active = true
+                ''')
+                for uid, created_at, org_id in cur.fetchall():
+                    if created_at:
+                        if hasattr(created_at, 'tzinfo') and created_at.tzinfo:
+                            msk_date = (created_at + msk).date()
+                        else:
+                            msk_date = created_at.date()
+                        leads_by_user.setdefault(uid, []).append(msk_date)
+                        shifts_by_user.setdefault(uid, set()).add((msk_date, org_id))
+
+            def trainee_info(r, lead_dates=None):
+                uid, name, created_at, is_active = r
+                if lead_dates is None:
+                    cnt = len(leads_by_user.get(uid, []))
+                else:
+                    cnt = len(lead_dates)
+                return {
+                    'id': uid,
+                    'name': name,
+                    'registered_at': str(created_at),
+                    'is_active': is_active,
+                    'lead_count': cnt,
+                    'shifts_count': len(shifts_by_user.get(uid, set())),
+                }
+
+            def period_summary(trainees_list):
+                total_leads = sum(t['lead_count'] for t in trainees_list)
+                inactive = sum(1 for t in trainees_list if not t['is_active'])
+                return {
+                    'trainees_count': len(trainees_list),
+                    'inactive_count': inactive,
+                    'total_leads': total_leads,
+                }
+
+            # --- by_day ---
             cur.execute(f'''
                 SELECT DATE(created_at) as day, COUNT(*) as cnt
                 FROM {SCHEMA}.users
@@ -137,9 +193,26 @@ def handler(event: dict, context) -> dict:
                 ORDER BY day DESC
                 LIMIT 90
             ''', (senior_id,))
-            by_day = [{'date': str(r[0]), 'count': r[1]} for r in cur.fetchall()]
+            day_rows = cur.fetchall()
 
-            # Обучения по неделям
+            by_day = []
+            for day_date, cnt in day_rows:
+                day_trainees = []
+                for r in trainee_rows:
+                    uid = r[0]
+                    reg_date = r[2].date() if hasattr(r[2], 'date') else date_type.fromisoformat(str(r[2])[:10])
+                    if reg_date == day_date:
+                        # контакты этого стажёра за этот день
+                        day_leads = [d for d in leads_by_user.get(uid, []) if d == day_date]
+                        day_trainees.append(trainee_info(r, day_leads))
+                by_day.append({
+                    'date': str(day_date),
+                    'count': cnt,
+                    'trainees': day_trainees,
+                    'summary': period_summary(day_trainees),
+                })
+
+            # --- by_week ---
             cur.execute(f'''
                 SELECT DATE_TRUNC('week', created_at)::date as week_start, COUNT(*) as cnt
                 FROM {SCHEMA}.users
@@ -148,9 +221,26 @@ def handler(event: dict, context) -> dict:
                 ORDER BY week_start DESC
                 LIMIT 12
             ''', (senior_id,))
-            by_week = [{'week_start': str(r[0]), 'count': r[1]} for r in cur.fetchall()]
+            week_rows = cur.fetchall()
 
-            # Обучения по месяцам
+            by_week = []
+            for week_start, cnt in week_rows:
+                week_end = week_start + timedelta(days=6)
+                week_trainees = []
+                for r in trainee_rows:
+                    uid = r[0]
+                    reg_date = r[2].date() if hasattr(r[2], 'date') else date_type.fromisoformat(str(r[2])[:10])
+                    if week_start <= reg_date <= week_end:
+                        week_leads = [d for d in leads_by_user.get(uid, []) if week_start <= d <= week_end]
+                        week_trainees.append(trainee_info(r, week_leads))
+                by_week.append({
+                    'week_start': str(week_start),
+                    'count': cnt,
+                    'trainees': week_trainees,
+                    'summary': period_summary(week_trainees),
+                })
+
+            # --- by_month ---
             cur.execute(f'''
                 SELECT DATE_TRUNC('month', created_at)::date as month_start, COUNT(*) as cnt
                 FROM {SCHEMA}.users
@@ -159,45 +249,26 @@ def handler(event: dict, context) -> dict:
                 ORDER BY month_start DESC
                 LIMIT 12
             ''', (senior_id,))
-            by_month = [{'month_start': str(r[0]), 'count': r[1]} for r in cur.fetchall()]
+            month_rows = cur.fetchall()
 
-            # Список стажёров с контактами и сменами (включая деактивированных)
-            # lead_count и shifts_count берём из leads_analytics (как в разделе Команда)
-            cur.execute(f'''
-                SELECT u.id, u.name, u.created_at, u.is_active,
-                       COUNT(l.id) as lead_count
-                FROM {SCHEMA}.users u
-                LEFT JOIN {SCHEMA}.leads_analytics l ON l.user_id = u.id AND l.is_active = true
-                WHERE u.senior_id = %s
-                GROUP BY u.id, u.name, u.created_at, u.is_active
-                ORDER BY u.created_at DESC
-            ''', (senior_id,))
-            rows = cur.fetchall()
+            by_month = []
+            for month_start, cnt in month_rows:
+                next_month = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
+                month_trainees = []
+                for r in trainee_rows:
+                    uid = r[0]
+                    reg_date = r[2].date() if hasattr(r[2], 'date') else date_type.fromisoformat(str(r[2])[:10])
+                    if month_start <= reg_date < next_month:
+                        month_leads = [d for d in leads_by_user.get(uid, []) if month_start <= d < next_month]
+                        month_trainees.append(trainee_info(r, month_leads))
+                by_month.append({
+                    'month_start': str(month_start),
+                    'count': cnt,
+                    'trainees': month_trainees,
+                    'summary': period_summary(month_trainees),
+                })
 
-            # Считаем смены как уникальные пары (дата_мск, organization_id) из leads_analytics
-            user_ids = [r[0] for r in rows]
-            shifts_map = {}
-            if user_ids:
-                placeholders = ','.join(str(uid) for uid in user_ids)
-                cur.execute(f'''
-                    SELECT user_id, created_at, organization_id
-                    FROM {SCHEMA}.leads_analytics
-                    WHERE user_id IN ({placeholders}) AND is_active = true
-                ''')
-                from datetime import timezone, timedelta
-                msk = timedelta(hours=3)
-                for uid, created_at, org_id in cur.fetchall():
-                    if created_at:
-                        if hasattr(created_at, 'tzinfo') and created_at.tzinfo:
-                            msk_date = (created_at + msk).date()
-                        else:
-                            msk_date = (created_at + msk).date()
-                        shifts_map.setdefault(uid, set()).add((msk_date, org_id))
-
-            trainees = [{'id': r[0], 'name': r[1], 'registered_at': str(r[2]), 'is_active': r[3],
-                         'lead_count': r[4], 'shifts_count': len(shifts_map.get(r[0], set()))} for r in rows]
-
-            return ok({'by_day': by_day, 'by_week': by_week, 'by_month': by_month, 'trainees': trainees})
+            return ok({'by_day': by_day, 'by_week': by_week, 'by_month': by_month})
 
         return err('unknown action')
 

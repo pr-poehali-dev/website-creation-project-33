@@ -147,7 +147,7 @@ export default function SeniorCard({
               />
             )}
             {tab === 'kpd' && (
-              <SeniorKpdSection seniorId={senior.id} traineesFromTeam={promoters} />
+              <SeniorKpdSection seniorId={senior.id} />
             )}
           </div>
         </div>

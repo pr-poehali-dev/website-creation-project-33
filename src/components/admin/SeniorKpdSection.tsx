@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
-import { User } from './types';
-import { TRAINING_API, authHeaders, KpdData, fmtDay, fmtWeek, fmtMonth } from './seniors-utils';
+import { TRAINING_API, authHeaders, KpdData, KpdTrainee, KpdSummary, fmtDay, fmtWeek, fmtMonth } from './seniors-utils';
 
 interface Props {
   seniorId: number;
-  traineesFromTeam: User[];
 }
 
-export default function SeniorKpdSection({ seniorId, traineesFromTeam }: Props) {
+export default function SeniorKpdSection({ seniorId }: Props) {
   const [kpd, setKpd] = useState<KpdData | null>(null);
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState<'day' | 'week' | 'month'>('day');
@@ -39,22 +37,8 @@ export default function SeniorKpdSection({ seniorId, traineesFromTeam }: Props) 
     return fmtMonth(item.month_start!);
   };
 
-  const getTraineesForPeriod = (item: { date?: string; week_start?: string; month_start?: string }) => {
-    return kpd.trainees.filter(t => {
-      const reg = new Date(t.registered_at);
-      if (period === 'day') {
-        return fmtDay(t.registered_at) === fmtDay(item.date!);
-      }
-      if (period === 'week') {
-        const ws = new Date(item.week_start!);
-        const we = new Date(item.week_start!);
-        we.setDate(we.getDate() + 6);
-        return reg >= ws && reg <= we;
-      }
-      const ms = new Date(item.month_start!);
-      return reg.getFullYear() === ms.getFullYear() && reg.getMonth() === ms.getMonth();
-    });
-  };
+  const getKey = (item: { date?: string; week_start?: string; month_start?: string }, i: number) =>
+    item.date || item.week_start || item.month_start || String(i);
 
   const togglePeriod = (key: string) => setOpenPeriod(p => p === key ? null : key);
 
@@ -85,12 +69,14 @@ export default function SeniorKpdSection({ seniorId, traineesFromTeam }: Props) 
         ) : (
           <div className="space-y-2">
             {periodData.map((item, i) => {
-              const key = item.date || item.week_start || item.month_start || String(i);
+              const key = getKey(item as { date?: string; week_start?: string; month_start?: string }, i);
               const isOpen = openPeriod === key;
-              const trainees = getTraineesForPeriod(item as { date?: string; week_start?: string; month_start?: string });
+              const trainees: KpdTrainee[] = (item as { trainees: KpdTrainee[] }).trainees || [];
+              const summary: KpdSummary = (item as { summary: KpdSummary }).summary || { trainees_count: 0, inactive_count: 0, total_leads: 0 };
 
               return (
                 <div key={key} className="rounded-xl overflow-hidden border border-slate-100">
+                  {/* Заголовок периода */}
                   <button
                     className={`w-full flex items-center justify-between px-4 py-3 transition-colors ${isOpen ? 'bg-blue-50' : 'bg-white hover:bg-slate-50'}`}
                     onClick={() => togglePeriod(key)}
@@ -106,8 +92,10 @@ export default function SeniorKpdSection({ seniorId, traineesFromTeam }: Props) 
                     </span>
                   </button>
 
+                  {/* Раскрытая панель */}
                   {isOpen && (
                     <div className="border-t border-slate-100 bg-slate-50/50">
+                      {/* Список стажёров */}
                       {trainees.length === 0 ? (
                         <p className="text-xs text-slate-400 text-center py-3">Нет стажёров</p>
                       ) : (
@@ -119,20 +107,35 @@ export default function SeniorKpdSection({ seniorId, traineesFromTeam }: Props) 
                                 <span className="text-sm text-slate-700 truncate">{t.name}</span>
                                 {!t.is_active && <span className="text-[10px] text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded-full flex-shrink-0">архив</span>}
                               </div>
-                              <div className="flex items-center gap-3 flex-shrink-0 ml-3">
-                                <span className="text-xs text-slate-500 flex items-center gap-1">
-                                  <Icon name="Calendar" size={11} />
-                                  {t.shifts_count}
-                                </span>
-                                <span className="text-xs font-semibold text-blue-600 flex items-center gap-1">
-                                  <Icon name="Phone" size={11} />
-                                  {t.lead_count}
-                                </span>
-                              </div>
+                              <span className="text-xs font-semibold text-blue-600 flex items-center gap-1 flex-shrink-0 ml-3">
+                                <Icon name="Phone" size={11} />
+                                {t.lead_count}
+                              </span>
                             </div>
                           ))}
                         </div>
                       )}
+
+                      {/* Итог периода */}
+                      <div className="mx-3 mb-3 mt-2 rounded-xl bg-white border border-slate-100 px-4 py-3">
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Итог периода</div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex flex-col items-center flex-1">
+                            <span className="text-base font-bold text-slate-800">{summary.trainees_count}</span>
+                            <span className="text-[10px] text-slate-400 text-center leading-tight">Стажёров</span>
+                          </div>
+                          <div className="w-px h-8 bg-slate-100" />
+                          <div className="flex flex-col items-center flex-1">
+                            <span className="text-base font-bold text-red-500">{summary.inactive_count}</span>
+                            <span className="text-[10px] text-slate-400 text-center leading-tight">Слив</span>
+                          </div>
+                          <div className="w-px h-8 bg-slate-100" />
+                          <div className="flex flex-col items-center flex-1">
+                            <span className="text-base font-bold text-blue-600">{summary.total_leads}</span>
+                            <span className="text-[10px] text-slate-400 text-center leading-tight">Контактов</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -141,7 +144,6 @@ export default function SeniorKpdSection({ seniorId, traineesFromTeam }: Props) 
           </div>
         )}
       </div>
-
     </div>
   );
 }

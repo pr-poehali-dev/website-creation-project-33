@@ -29,11 +29,46 @@ export const STATUS_STYLES = {
   green:  { row: 'bg-emerald-50/60 border border-emerald-100', dot: 'bg-emerald-400', badge: 'bg-emerald-100 text-emerald-700' },
 };
 
+export interface KpdTrainee {
+  id: number;
+  name: string;
+  registered_at: string;
+  is_active: boolean;
+  lead_count: number;
+  shifts_count: number;
+}
+
+export interface KpdSummary {
+  trainees_count: number;
+  inactive_count: number;
+  total_leads: number;
+}
+
+export interface KpdPeriodDay {
+  date: string;
+  count: number;
+  trainees: KpdTrainee[];
+  summary: KpdSummary;
+}
+
+export interface KpdPeriodWeek {
+  week_start: string;
+  count: number;
+  trainees: KpdTrainee[];
+  summary: KpdSummary;
+}
+
+export interface KpdPeriodMonth {
+  month_start: string;
+  count: number;
+  trainees: KpdTrainee[];
+  summary: KpdSummary;
+}
+
 export interface KpdData {
-  by_day:   { date: string; count: number }[];
-  by_week:  { week_start: string; count: number }[];
-  by_month: { month_start: string; count: number }[];
-  trainees: { id: number; name: string; registered_at: string; is_active: boolean; lead_count: number; shifts_count: number }[];
+  by_day:   KpdPeriodDay[];
+  by_week:  KpdPeriodWeek[];
+  by_month: KpdPeriodMonth[];
 }
 
 export function fmtDay(s: string) {

@@ -137,7 +137,7 @@ export default function SeniorKpdSection({ seniorId }: Props) {
                           <div className="w-px h-8 bg-slate-100" />
                           <div className="flex flex-col items-center flex-1">
                             <span className="text-base font-bold text-emerald-600">{summary.total_kms ?? 0}₽</span>
-                            <span className="text-[10px] text-slate-400 text-center leading-tight">КМС</span>
+                            <span className="text-[10px] text-slate-400 text-center leading-tight">Прибыль</span>
                           </div>
                         </div>
                       </div>

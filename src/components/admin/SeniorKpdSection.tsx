@@ -72,7 +72,7 @@ export default function SeniorKpdSection({ seniorId }: Props) {
               const key = getKey(item as { date?: string; week_start?: string; month_start?: string }, i);
               const isOpen = openPeriod === key;
               const trainees: KpdTrainee[] = (item as { trainees: KpdTrainee[] }).trainees || [];
-              const summary: KpdSummary = (item as { summary: KpdSummary }).summary || { trainees_count: 0, inactive_count: 0, total_leads: 0 };
+              const summary: KpdSummary = (item as { summary: KpdSummary }).summary || { trainees_count: 0, inactive_count: 0, total_leads: 0, total_kms: 0 };
 
               return (
                 <div key={key} className="rounded-xl overflow-hidden border border-slate-100">
@@ -133,6 +133,11 @@ export default function SeniorKpdSection({ seniorId }: Props) {
                           <div className="flex flex-col items-center flex-1">
                             <span className="text-base font-bold text-blue-600">{summary.total_leads}</span>
                             <span className="text-[10px] text-slate-400 text-center leading-tight">Контактов</span>
+                          </div>
+                          <div className="w-px h-8 bg-slate-100" />
+                          <div className="flex flex-col items-center flex-1">
+                            <span className="text-base font-bold text-emerald-600">{summary.total_kms ?? 0}₽</span>
+                            <span className="text-[10px] text-slate-400 text-center leading-tight">КМС</span>
                           </div>
                         </div>
                       </div>

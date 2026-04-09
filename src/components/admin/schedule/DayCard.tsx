@@ -114,7 +114,7 @@ export default function DayCard({
               <p className="font-semibold text-slate-100 text-xs md:text-base">{day.dayNameFull}</p>
               <p className="text-[10px] md:text-xs text-slate-400">{day.date}</p>
             </div>
-            {stats && stats.expected > 0 && (
+            {stats && (
               <span className={`text-[10px] md:text-xs ml-1 md:ml-2 px-1.5 md:px-2 py-0.5 md:py-1 rounded ${isSuccessful ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 bg-slate-700/50'}`}>
                 {stats.expected} / {stats.actual}
               </span>

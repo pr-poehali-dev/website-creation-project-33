@@ -95,7 +95,7 @@ export default function DayCard({
     setTrainingEntries(prev => prev.filter(e => e.id !== id));
   };
 
-  const isSuccessful = stats && stats.expected > 0 && stats.actual >= stats.expected;
+  const isSuccessful = stats && stats.actual > 0 && (stats.expected === 0 || stats.actual >= stats.expected);
   const badgeCount = trainingEntries.length;
 
   return (

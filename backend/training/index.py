@@ -132,7 +132,7 @@ def handler(event: dict, context) -> dict:
             cur.execute(f'''
                 SELECT DATE(created_at) as day, COUNT(*) as cnt
                 FROM {SCHEMA}.users
-                WHERE senior_id = %s AND is_active = true
+                WHERE senior_id = %s
                 GROUP BY DATE(created_at)
                 ORDER BY day DESC
                 LIMIT 90
@@ -143,7 +143,7 @@ def handler(event: dict, context) -> dict:
             cur.execute(f'''
                 SELECT DATE_TRUNC('week', created_at)::date as week_start, COUNT(*) as cnt
                 FROM {SCHEMA}.users
-                WHERE senior_id = %s AND is_active = true
+                WHERE senior_id = %s
                 GROUP BY DATE_TRUNC('week', created_at)
                 ORDER BY week_start DESC
                 LIMIT 12
@@ -154,26 +154,26 @@ def handler(event: dict, context) -> dict:
             cur.execute(f'''
                 SELECT DATE_TRUNC('month', created_at)::date as month_start, COUNT(*) as cnt
                 FROM {SCHEMA}.users
-                WHERE senior_id = %s AND is_active = true
+                WHERE senior_id = %s
                 GROUP BY DATE_TRUNC('month', created_at)
                 ORDER BY month_start DESC
                 LIMIT 12
             ''', (senior_id,))
             by_month = [{'month_start': str(r[0]), 'count': r[1]} for r in cur.fetchall()]
 
-            # Список стажёров с контактами и сменами
+            # Список стажёров с контактами и сменами (включая деактивированных)
             cur.execute(f'''
-                SELECT u.id, u.name, u.created_at,
+                SELECT u.id, u.name, u.created_at, u.is_active,
                        COUNT(DISTINCT l.id) as lead_count,
                        COUNT(DISTINCT sh.id) as shifts_count
                 FROM {SCHEMA}.users u
                 LEFT JOIN {SCHEMA}.leads l ON l.user_id = u.id
                 LEFT JOIN {SCHEMA}.work_shifts sh ON sh.user_id = u.id
-                WHERE u.senior_id = %s AND u.is_active = true
-                GROUP BY u.id, u.name, u.created_at
+                WHERE u.senior_id = %s
+                GROUP BY u.id, u.name, u.created_at, u.is_active
                 ORDER BY u.created_at DESC
             ''', (senior_id,))
-            trainees = [{'id': r[0], 'name': r[1], 'registered_at': str(r[2]), 'lead_count': r[3], 'shifts_count': r[4]} for r in cur.fetchall()]
+            trainees = [{'id': r[0], 'name': r[1], 'registered_at': str(r[2]), 'is_active': r[3], 'lead_count': r[4], 'shifts_count': r[5]} for r in cur.fetchall()]
 
             return ok({'by_day': by_day, 'by_week': by_week, 'by_month': by_month, 'trainees': trainees})
 

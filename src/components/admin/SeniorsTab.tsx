@@ -38,7 +38,7 @@ interface KpdData {
   by_day: { date: string; count: number }[];
   by_week: { week_start: string; count: number }[];
   by_month: { month_start: string; count: number }[];
-  trainees: { id: number; name: string; registered_at: string; lead_count: number; shifts_count: number }[];
+  trainees: { id: number; name: string; registered_at: string; is_active: boolean; lead_count: number; shifts_count: number }[];
 }
 
 function formatDate(dateStr: string): string {
@@ -148,8 +148,11 @@ function KpdSection({ seniorId }: { seniorId: number }) {
             </div>
             <div className="space-y-1.5 max-h-56 overflow-y-auto">
               {kpd.trainees.map(t => (
-                <div key={t.id} className="grid grid-cols-[1fr_48px_52px_56px] gap-2 items-center bg-slate-50 rounded-xl px-3 py-2">
-                  <span className="text-sm text-slate-800 truncate">{t.name}</span>
+                <div key={t.id} className={`grid grid-cols-[1fr_48px_52px_56px] gap-2 items-center rounded-xl px-3 py-2 ${t.is_active ? 'bg-slate-50' : 'bg-slate-100 opacity-60'}`}>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="text-sm text-slate-800 truncate">{t.name}</span>
+                    {!t.is_active && <span className="text-xs text-slate-400 flex-shrink-0">архив</span>}
+                  </div>
                   <span className="text-sm text-slate-600 text-center">{t.shifts_count}</span>
                   <span className="text-sm text-blue-600 font-medium text-center">{t.lead_count}</span>
                   <span className="text-xs text-slate-400 text-right">{formatDate(t.registered_at)}</span>

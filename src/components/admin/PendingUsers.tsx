@@ -20,6 +20,7 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [processingUserId, setProcessingUserId] = useState<number | null>(null);
+  const [confirmRejectId, setConfirmRejectId] = useState<number | null>(null);
 
   const loadPendingUsers = async () => {
     setIsLoading(true);
@@ -76,10 +77,6 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
   };
 
   const handleReject = async (userId: number) => {
-    if (!confirm('Вы уверены? Пользователь будет удалён, а его IP заблокирован.')) {
-      return;
-    }
-    
     setProcessingUserId(userId);
     try {
       const response = await fetch(
@@ -185,38 +182,61 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
                     </div>
                   </div>
                   
-                  <div className="flex gap-2 w-full md:w-auto">
-                    <Button
-                      onClick={() => handleApprove(user.id)}
-                      disabled={processingUserId === user.id}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 flex-1 md:flex-none text-sm md:text-base h-9 md:h-10 font-semibold"
-                      size="sm"
-                    >
-                      {processingUserId === user.id ? (
-                        <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
-                      ) : (
-                        <>
-                          <Icon name="Check" size={14} className="md:w-4 md:h-4" />
-                          <span className="ml-1 md:ml-2">Одобрить</span>
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      onClick={() => handleReject(user.id)}
-                      disabled={processingUserId === user.id}
-                      className="bg-red-600 hover:bg-red-700 text-white border-0 flex-1 md:flex-none text-sm md:text-base h-9 md:h-10 font-semibold"
-                      size="sm"
-                    >
-                      {processingUserId === user.id ? (
-                        <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
-                      ) : (
-                        <>
-                          <Icon name="X" size={14} className="md:w-4 md:h-4" />
-                          <span className="ml-1 md:ml-2">Отклонить</span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                  {confirmRejectId === user.id ? (
+                    <div className="flex flex-col gap-2 w-full">
+                      <p className="text-xs text-amber-300 font-medium">Пользователь будет удалён. Подтвердить?</p>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => { setConfirmRejectId(null); handleReject(user.id); }}
+                          className="bg-red-600 hover:bg-red-700 text-white border-0 flex-1 h-9 font-semibold text-sm"
+                          size="sm"
+                        >
+                          <Icon name="Trash2" size={14} />
+                          <span className="ml-1">Да, удалить</span>
+                        </Button>
+                        <Button
+                          onClick={() => setConfirmRejectId(null)}
+                          className="bg-slate-600 hover:bg-slate-700 text-white border-0 flex-1 h-9 font-semibold text-sm"
+                          size="sm"
+                        >
+                          Отмена
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 w-full md:w-auto">
+                      <Button
+                        onClick={() => handleApprove(user.id)}
+                        disabled={processingUserId === user.id}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 flex-1 md:flex-none text-sm md:text-base h-9 md:h-10 font-semibold"
+                        size="sm"
+                      >
+                        {processingUserId === user.id ? (
+                          <Icon name="Loader2" size={14} className="animate-spin" />
+                        ) : (
+                          <>
+                            <Icon name="Check" size={14} />
+                            <span className="ml-1 md:ml-2">Одобрить</span>
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        onClick={() => setConfirmRejectId(user.id)}
+                        disabled={processingUserId === user.id}
+                        className="bg-red-600 hover:bg-red-700 text-white border-0 flex-1 md:flex-none text-sm md:text-base h-9 md:h-10 font-semibold"
+                        size="sm"
+                      >
+                        {processingUserId === user.id ? (
+                          <Icon name="Loader2" size={14} className="animate-spin" />
+                        ) : (
+                          <>
+                            <Icon name="X" size={14} />
+                            <span className="ml-1 md:ml-2">Отклонить</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

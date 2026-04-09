@@ -42,6 +42,7 @@ export interface KpdSummary {
   trainees_count: number;
   inactive_count: number;
   total_leads: number;
+  total_kms: number;
 }
 
 export interface KpdPeriodDay {

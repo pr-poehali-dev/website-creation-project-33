@@ -141,17 +141,27 @@ def handler(event: dict, context) -> dict:
             trainee_rows = cur.fetchall()
             user_ids = [r[0] for r in trainee_rows]
 
-            # Все лиды стажёров + даты МСК
+            # Все лиды стажёров + даты МСК + данные для КМС
             leads_by_user = {}  # user_id -> list of msk_date
             shifts_by_user = {}  # user_id -> set of (msk_date, org_id)
+            # shift_kms_data: (user_id, msk_date, org_id) -> {contacts, contact_rate, payment_type, shift_date_str}
+            shift_kms_data = {}
+
             if user_ids:
                 placeholders = ','.join(str(uid) for uid in user_ids)
                 cur.execute(f'''
-                    SELECT user_id, created_at, organization_id
-                    FROM {SCHEMA}.leads_analytics
-                    WHERE user_id IN ({placeholders}) AND is_active = true
+                    SELECT la.user_id, la.created_at, la.organization_id,
+                           COALESCE(orp.contact_rate, o.contact_rate, 0) as contact_rate,
+                           COALESCE(o.payment_type, 'cash') as payment_type
+                    FROM {SCHEMA}.leads_analytics la
+                    LEFT JOIN {SCHEMA}.organizations o ON o.id = la.organization_id
+                    LEFT JOIN {SCHEMA}.organization_rate_periods orp
+                        ON orp.organization_id = la.organization_id
+                        AND la.created_at::date >= orp.start_date
+                        AND (orp.end_date IS NULL OR la.created_at::date <= orp.end_date)
+                    WHERE la.user_id IN ({placeholders}) AND la.is_active = true
                 ''')
-                for uid, created_at, org_id in cur.fetchall():
+                for uid, created_at, org_id, contact_rate, payment_type in cur.fetchall():
                     if created_at:
                         if hasattr(created_at, 'tzinfo') and created_at.tzinfo:
                             msk_date = (created_at + msk).date()
@@ -159,8 +169,44 @@ def handler(event: dict, context) -> dict:
                             msk_date = created_at.date()
                         leads_by_user.setdefault(uid, []).append(msk_date)
                         shifts_by_user.setdefault(uid, set()).add((msk_date, org_id))
+                        key = (uid, msk_date, org_id)
+                        if key not in shift_kms_data:
+                            shift_kms_data[key] = {
+                                'contacts': 0,
+                                'contact_rate': float(contact_rate) if contact_rate else 0,
+                                'payment_type': payment_type,
+                                'date_str': str(msk_date),
+                            }
+                        shift_kms_data[key]['contacts'] += 1
 
-            def trainee_info(r, lead_dates=None):
+            def calc_kms_for_shift(uid, contacts, contact_rate, payment_type, shift_date_str):
+                # Зарплата промоутера
+                if str(shift_date_str) < '2025-10-01':
+                    salary = contacts * 200
+                elif contacts >= 10:
+                    salary = contacts * 300
+                else:
+                    salary = contacts * 200
+                revenue = contacts * contact_rate
+                tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
+                after_tax = revenue - tax
+                net_profit = after_tax - salary
+                return round(net_profit / 2)
+
+            def calc_kms_for_period(uid, date_filter_fn):
+                total = 0
+                for (u, d, org), data in shift_kms_data.items():
+                    if u != uid:
+                        continue
+                    if not date_filter_fn(d):
+                        continue
+                    total += calc_kms_for_shift(
+                        uid, data['contacts'], data['contact_rate'],
+                        data['payment_type'], data['date_str']
+                    )
+                return max(0, total)
+
+            def trainee_info(r, lead_dates=None, kms=0):
                 uid, name, created_at, is_active = r
                 if lead_dates is None:
                     cnt = len(leads_by_user.get(uid, []))
@@ -173,15 +219,18 @@ def handler(event: dict, context) -> dict:
                     'is_active': is_active,
                     'lead_count': cnt,
                     'shifts_count': len(shifts_by_user.get(uid, set())),
+                    'kms': kms,
                 }
 
             def period_summary(trainees_list):
                 total_leads = sum(t['lead_count'] for t in trainees_list)
+                total_kms = sum(t['kms'] for t in trainees_list)
                 inactive = sum(1 for t in trainees_list if not t['is_active'])
                 return {
                     'trainees_count': len(trainees_list),
                     'inactive_count': inactive,
                     'total_leads': total_leads,
+                    'total_kms': total_kms,
                 }
 
             # --- by_day ---
@@ -202,9 +251,9 @@ def handler(event: dict, context) -> dict:
                     uid = r[0]
                     reg_date = r[2].date() if hasattr(r[2], 'date') else date_type.fromisoformat(str(r[2])[:10])
                     if reg_date == day_date:
-                        # контакты этого стажёра за этот день
                         day_leads = [d for d in leads_by_user.get(uid, []) if d == day_date]
-                        day_trainees.append(trainee_info(r, day_leads))
+                        kms = calc_kms_for_period(uid, lambda d, dd=day_date: d == dd)
+                        day_trainees.append(trainee_info(r, day_leads, kms))
                 by_day.append({
                     'date': str(day_date),
                     'count': cnt,
@@ -232,7 +281,8 @@ def handler(event: dict, context) -> dict:
                     reg_date = r[2].date() if hasattr(r[2], 'date') else date_type.fromisoformat(str(r[2])[:10])
                     if week_start <= reg_date <= week_end:
                         week_leads = [d for d in leads_by_user.get(uid, []) if week_start <= d <= week_end]
-                        week_trainees.append(trainee_info(r, week_leads))
+                        kms = calc_kms_for_period(uid, lambda d, ws=week_start, we=week_end: ws <= d <= we)
+                        week_trainees.append(trainee_info(r, week_leads, kms))
                 by_week.append({
                     'week_start': str(week_start),
                     'count': cnt,
@@ -260,7 +310,8 @@ def handler(event: dict, context) -> dict:
                     reg_date = r[2].date() if hasattr(r[2], 'date') else date_type.fromisoformat(str(r[2])[:10])
                     if month_start <= reg_date < next_month:
                         month_leads = [d for d in leads_by_user.get(uid, []) if month_start <= d < next_month]
-                        month_trainees.append(trainee_info(r, month_leads))
+                        kms = calc_kms_for_period(uid, lambda d, ms=month_start, nm=next_month: ms <= d < nm)
+                        month_trainees.append(trainee_info(r, month_leads, kms))
                 by_month.append({
                     'month_start': str(month_start),
                     'count': cnt,

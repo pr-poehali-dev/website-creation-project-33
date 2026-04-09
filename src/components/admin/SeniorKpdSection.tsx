@@ -105,7 +105,7 @@ export default function SeniorKpdSection({ seniorId }: Props) {
                               <div className="flex items-center gap-2 min-w-0">
                                 <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${t.is_active ? 'bg-emerald-400' : 'bg-slate-300'}`} />
                                 <span className="text-sm text-slate-700 truncate">{t.name}</span>
-                                {!t.is_active && <span className="text-[10px] text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded-full flex-shrink-0">архив</span>}
+                                {!t.is_active && <span className="text-[10px] text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded-full flex-shrink-0">слив</span>}
                               </div>
                               <span className="text-xs font-semibold text-blue-600 flex items-center gap-1 flex-shrink-0 ml-3">
                                 <Icon name="Phone" size={11} />

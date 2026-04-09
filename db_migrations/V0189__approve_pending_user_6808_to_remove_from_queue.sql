@@ -1,0 +1,1 @@
+UPDATE t_p24058207_website_creation_pro.users SET is_approved = TRUE WHERE id = 6808;

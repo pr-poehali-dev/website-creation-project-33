@@ -164,6 +164,16 @@ export default function WorkerCard({
                 ~{avgContacts.toFixed(1)}
               </span>
             )}
+            {currentOrganization && (
+              <button
+                type="button"
+                onClick={() => onCommentChange(workerName, dayDate, 'organization', '')}
+                className="p-0.5 hover:bg-red-500/20 rounded transition-colors"
+                title="Очистить организацию"
+              >
+                <Icon name="X" size={11} className="text-red-400" />
+              </button>
+            )}
           </div>
         </div>
         <button
@@ -196,18 +206,6 @@ export default function WorkerCard({
               <Icon name="Plus" size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
             </button>
           )}
-          <div className="w-4 flex-shrink-0 flex items-center justify-center">
-            {currentOrganization ? (
-              <button
-                type="button"
-                onClick={() => onCommentChange(workerName, dayDate, 'organization', '')}
-                className="hover:bg-red-500/20 rounded transition-colors"
-                title="Удалить организацию"
-              >
-                <Icon name="X" size={12} className="text-red-400" />
-              </button>
-            ) : null}
-          </div>
           <div className="w-4 flex-shrink-0 flex items-center justify-center">
             {currentOrganization && savingComment !== commentKey && (
               <Icon name="Building2" size={12} className="text-cyan-400" />

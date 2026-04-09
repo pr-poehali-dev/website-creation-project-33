@@ -124,6 +124,12 @@ export default function DayCard({
                 <Icon name="Check" size={14} className="text-white md:w-4 md:h-4" />
               </div>
             )}
+            {badgeCount > 0 && (
+              <div className="flex items-center gap-0.5 ml-1 bg-violet-600/30 text-violet-400 px-1.5 py-0.5 rounded-full">
+                <Icon name="GraduationCap" size={10} />
+                <span className="text-[10px]">{badgeCount}</span>
+              </div>
+            )}
           </div>
           <Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={18} className="text-slate-400 md:w-5 md:h-5" />
         </div>

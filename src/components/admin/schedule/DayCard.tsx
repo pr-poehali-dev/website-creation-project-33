@@ -36,6 +36,7 @@ interface DayCardProps {
   recommendedLocations: Record<string, Record<string, string[]>>;
   actualStats: Record<string, {contacts: number, revenue: number}>;
   loadingProgress?: number;
+  trainingCount?: number;
   onToggleDay: (date: string) => void;
   onCommentChange: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
   onCommentBlur: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
@@ -57,6 +58,7 @@ export default function DayCard({
   recommendedLocations,
   actualStats,
   loadingProgress,
+  trainingCount = 0,
   onToggleDay,
   onCommentChange,
   onCommentBlur,
@@ -124,10 +126,10 @@ export default function DayCard({
                 <Icon name="Check" size={14} className="text-white md:w-4 md:h-4" />
               </div>
             )}
-            {badgeCount > 0 && (
+            {trainingCount > 0 && (
               <div className="flex items-center gap-0.5 ml-1 bg-violet-600/30 text-violet-400 px-1.5 py-0.5 rounded-full">
                 <Icon name="GraduationCap" size={10} />
-                <span className="text-[10px]">{badgeCount}</span>
+                <span className="text-[10px]">{trainingCount}</span>
               </div>
             )}
           </div>

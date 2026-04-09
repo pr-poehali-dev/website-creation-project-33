@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DaySchedule, UserSchedule, DeleteSlotState, DayStats } from './types';
 import { useScheduleData } from './useScheduleData';
 import WeekCalendar from './WeekCalendar';
@@ -28,6 +28,25 @@ export default function TeamScheduleView({
 }: TeamScheduleViewProps) {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
+  const [trainingCounts, setTrainingCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!weekDays.length) return;
+    const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
+    const headers = { 'Content-Type': 'application/json', 'X-Session-Token': localStorage.getItem('session_token') || '' };
+    Promise.all(
+      weekDays.map(day =>
+        fetch(`${TRAINING_API}?action=get_entries&date=${day.date}`, { headers })
+          .then(r => r.json())
+          .then(data => ({ date: day.date, count: (data.entries || []).length }))
+          .catch(() => ({ date: day.date, count: 0 }))
+      )
+    ).then(results => {
+      const counts: Record<string, number> = {};
+      results.forEach(r => { counts[r.date] = r.count; });
+      setTrainingCounts(counts);
+    });
+  }, [weekDays]);
 
   const {
     workComments,
@@ -112,6 +131,7 @@ export default function TeamScheduleView({
             day={day}
             isExpanded={isExpanded}
             stats={stats}
+            trainingCount={trainingCounts[day.date] ?? 0}
             getUsersWorkingOnSlot={getUsersWorkingOnSlot}
             workComments={workComments}
             savingComment={savingComment}

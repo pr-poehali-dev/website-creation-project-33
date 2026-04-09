@@ -182,31 +182,31 @@ export default function WorkerCard({
       
       <div className="space-y-1 ml-2">
         <div className="flex items-center gap-1">
-          <div className="flex-1 flex items-center gap-1 min-w-0">
+          {currentOrganization ? (
+            <div className="flex-1 text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border border-slate-600 text-slate-200 rounded-md flex items-center min-w-0">
+              <span className="truncate">{currentOrganization}</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowOrgSelectionModal(true)}
+              className="flex-1 text-left text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border border-slate-600 text-slate-500 rounded-md hover:bg-slate-700/50 flex items-center justify-between group"
+            >
+              <span>Организация</span>
+              <Icon name="Plus" size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+            </button>
+          )}
+          <div className="w-4 flex-shrink-0 flex items-center justify-center">
             {currentOrganization ? (
-              <>
-                <div className="flex-1 text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border border-slate-600 text-slate-200 rounded-md flex items-center min-w-0">
-                  <span className="truncate">{currentOrganization}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onCommentChange(workerName, dayDate, 'organization', '')}
-                  className="p-1 hover:bg-red-500/20 rounded transition-colors flex-shrink-0"
-                  title="Удалить организацию"
-                >
-                  <Icon name="X" size={12} className="text-red-400" />
-                </button>
-              </>
-            ) : (
               <button
                 type="button"
-                onClick={() => setShowOrgSelectionModal(true)}
-                className="flex-1 text-left text-[10px] md:text-xs h-6 md:h-7 px-2 bg-slate-800/50 border border-slate-600 text-slate-500 rounded-md hover:bg-slate-700/50 flex items-center justify-between group"
+                onClick={() => onCommentChange(workerName, dayDate, 'organization', '')}
+                className="hover:bg-red-500/20 rounded transition-colors"
+                title="Удалить организацию"
               >
-                <span>Организация</span>
-                <Icon name="Plus" size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+                <Icon name="X" size={12} className="text-red-400" />
               </button>
-            )}
+            ) : null}
           </div>
           <div className="w-4 flex-shrink-0 flex items-center justify-center">
             {currentOrganization && savingComment !== commentKey && (

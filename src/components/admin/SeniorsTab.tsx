@@ -4,6 +4,7 @@ import { useUsers } from '@/hooks/useAdminData';
 import { User, ADMIN_API } from './types';
 import { TRAINING_API, authHeaders, avgPerShift } from './seniors-utils';
 import SeniorCard from './SeniorCard';
+import EmpireKpdSection from './EmpireKpdSection';
 
 export default function SeniorsTab() {
   const [seniors, setSeniors] = useState<{ id: number; name: string }[]>([]);
@@ -88,6 +89,9 @@ export default function SeniorsTab() {
         </div>
         {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
       </div>
+
+      {/* Империя Промо — общая сводка КПД */}
+      <EmpireKpdSection />
 
       {/* Список старших */}
       {seniors.length === 0 ? (

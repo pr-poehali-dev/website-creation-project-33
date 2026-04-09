@@ -126,7 +126,14 @@ export default function SeniorKpdSection({ seniorId }: Props) {
                           </div>
                           <div className="w-px h-8 bg-slate-100" />
                           <div className="flex flex-col items-center flex-1">
-                            <span className="text-base font-bold text-red-500">{summary.inactive_count}</span>
+                            <span className="text-base font-bold text-red-500">
+                              {summary.inactive_count}
+                              {summary.trainees_count > 0 && (
+                                <span className="text-xs font-normal text-red-400 ml-0.5">
+                                  ({Math.round(summary.inactive_count / summary.trainees_count * 100)}%)
+                                </span>
+                              )}
+                            </span>
                             <span className="text-[10px] text-slate-400 text-center leading-tight">Слив</span>
                           </div>
                           <div className="w-px h-8 bg-slate-100" />

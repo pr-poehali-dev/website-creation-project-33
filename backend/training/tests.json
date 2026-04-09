@@ -15,6 +15,14 @@
       "expectedStatus": 200,
       "expectedBody": {"entries": []},
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get senior KPD",
+      "method": "GET",
+      "path": "/?action=get_senior_kpd&senior_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {"by_day": [], "by_week": [], "by_month": [], "trainees": []},
+      "bodyMatcher": "partial"
     }
   ]
 }

@@ -122,6 +122,61 @@ def handler(event: dict, context) -> dict:
             conn.commit()
             return ok({'ok': True})
 
+        # ---- KPD ----
+        if action == 'get_senior_kpd':
+            senior_id = params.get('senior_id') or body.get('senior_id')
+            if not senior_id:
+                return err('senior_id required')
+
+            # Обучения по дням (регистрации новых промоутеров с этим старшим)
+            cur.execute(f'''
+                SELECT DATE(created_at) as day, COUNT(*) as cnt
+                FROM {SCHEMA}.users
+                WHERE senior_id = %s AND is_active = true
+                GROUP BY DATE(created_at)
+                ORDER BY day DESC
+                LIMIT 90
+            ''', (senior_id,))
+            by_day = [{'date': str(r[0]), 'count': r[1]} for r in cur.fetchall()]
+
+            # Обучения по неделям
+            cur.execute(f'''
+                SELECT DATE_TRUNC('week', created_at)::date as week_start, COUNT(*) as cnt
+                FROM {SCHEMA}.users
+                WHERE senior_id = %s AND is_active = true
+                GROUP BY DATE_TRUNC('week', created_at)
+                ORDER BY week_start DESC
+                LIMIT 12
+            ''', (senior_id,))
+            by_week = [{'week_start': str(r[0]), 'count': r[1]} for r in cur.fetchall()]
+
+            # Обучения по месяцам
+            cur.execute(f'''
+                SELECT DATE_TRUNC('month', created_at)::date as month_start, COUNT(*) as cnt
+                FROM {SCHEMA}.users
+                WHERE senior_id = %s AND is_active = true
+                GROUP BY DATE_TRUNC('month', created_at)
+                ORDER BY month_start DESC
+                LIMIT 12
+            ''', (senior_id,))
+            by_month = [{'month_start': str(r[0]), 'count': r[1]} for r in cur.fetchall()]
+
+            # Список стажёров с контактами и сменами
+            cur.execute(f'''
+                SELECT u.id, u.name, u.created_at,
+                       COUNT(DISTINCT l.id) as lead_count,
+                       COUNT(DISTINCT sh.id) as shifts_count
+                FROM {SCHEMA}.users u
+                LEFT JOIN {SCHEMA}.leads l ON l.user_id = u.id
+                LEFT JOIN {SCHEMA}.work_shifts sh ON sh.user_id = u.id
+                WHERE u.senior_id = %s AND u.is_active = true
+                GROUP BY u.id, u.name, u.created_at
+                ORDER BY u.created_at DESC
+            ''', (senior_id,))
+            trainees = [{'id': r[0], 'name': r[1], 'registered_at': str(r[2]), 'lead_count': r[3], 'shifts_count': r[4]} for r in cur.fetchall()]
+
+            return ok({'by_day': by_day, 'by_week': by_week, 'by_month': by_month, 'trainees': trainees})
+
         return err('unknown action')
 
     finally:

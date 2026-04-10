@@ -176,10 +176,22 @@ def handler(event: dict, context) -> dict:
                                 'contact_rate': float(contact_rate) if contact_rate else 0,
                                 'payment_type': payment_type,
                                 'date_str': str(msk_date),
+                                'expense': 0,
                             }
                         shift_kms_data[key]['contacts'] += 1
 
-            def calc_kms_for_shift(uid, contacts, contact_rate, payment_type, shift_date_str):
+                # Подтягиваем расходы из accounting_expenses
+                cur.execute(f'''
+                    SELECT user_id, work_date, organization_id, COALESCE(expense_amount, 0)
+                    FROM {SCHEMA}.accounting_expenses
+                    WHERE user_id IN ({placeholders})
+                ''')
+                for uid, work_date, org_id, expense in cur.fetchall():
+                    key = (uid, work_date, org_id)
+                    if key in shift_kms_data:
+                        shift_kms_data[key]['expense'] = int(expense)
+
+            def calc_kms_for_shift(uid, contacts, contact_rate, payment_type, shift_date_str, expense=0):
                 # Зарплата промоутера
                 if str(shift_date_str) < '2025-10-01':
                     salary = contacts * 200
@@ -190,7 +202,7 @@ def handler(event: dict, context) -> dict:
                 revenue = contacts * contact_rate
                 tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
                 after_tax = revenue - tax
-                net_profit = after_tax - salary
+                net_profit = after_tax - salary - expense
                 return round(net_profit / 2)
 
             def calc_kms_for_period(uid, date_filter_fn):
@@ -202,7 +214,8 @@ def handler(event: dict, context) -> dict:
                         continue
                     total += calc_kms_for_shift(
                         uid, data['contacts'], data['contact_rate'],
-                        data['payment_type'], data['date_str']
+                        data['payment_type'], data['date_str'],
+                        data.get('expense', 0)
                     )
                 return max(0, total)
 

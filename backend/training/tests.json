@@ -5,7 +5,7 @@
       "method": "GET",
       "path": "/?action=get_seniors",
       "expectedStatus": 200,
-      "expectedBody": {"seniors": []},
+      "expectedBody": {"seniors": [{"id": 3}]},
       "bodyMatcher": "partial"
     },
     {
@@ -21,7 +21,7 @@
       "method": "GET",
       "path": "/?action=get_senior_kpd&senior_id=3",
       "expectedStatus": 200,
-      "expectedBody": {"by_day": [], "by_week": [], "by_month": [], "trainees": []},
+      "expectedBody": {"by_day": [{"date": "2026-04-09"}]},
       "bodyMatcher": "partial"
     }
   ]

@@ -16,7 +16,7 @@ export default function SeniorsTab() {
   const [activeTab, setActiveTab] = useState<Record<number, 'team' | 'kpd'>>({});
 
   const { data: usersData, isLoading, refetch } = useUsers(true);
-  const allUsers: User[] = [...(usersData?.active || []), ...(usersData?.inactive || [])];
+  const allUsers: User[] = usersData?.active || [];
 
   const fetchSeniors = useCallback(async () => {
     const res = await fetch(`${TRAINING_API}?action=get_seniors`, { headers: authHeaders() });

@@ -152,7 +152,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute(f'''
                     SELECT la.user_id, la.created_at, la.organization_id,
                            COALESCE(orp.contact_rate, o.contact_rate, 0) as contact_rate,
-                           COALESCE(o.payment_type, 'cash') as payment_type
+                           COALESCE(orp.payment_type, o.payment_type, 'cash') as payment_type
                     FROM {SCHEMA}.leads_analytics la
                     LEFT JOIN {SCHEMA}.organizations o ON o.id = la.organization_id
                     LEFT JOIN {SCHEMA}.organization_rate_periods orp
@@ -358,7 +358,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute(f'''
                     SELECT la.user_id, la.created_at, la.organization_id,
                            COALESCE(orp.contact_rate, o.contact_rate, 0) as contact_rate,
-                           COALESCE(o.payment_type, 'cash') as payment_type
+                           COALESCE(orp.payment_type, o.payment_type, 'cash') as payment_type
                     FROM {SCHEMA}.leads_analytics la
                     LEFT JOIN {SCHEMA}.organizations o ON o.id = la.organization_id
                     LEFT JOIN {SCHEMA}.organization_rate_periods orp

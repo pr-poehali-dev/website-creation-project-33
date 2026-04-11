@@ -83,10 +83,7 @@ export default function TeamScheduleView({
 
   const daysWithWorkers = weekDays.filter(day => {
     const hasWorkers = day.slots.some(slot => getUsersWorkingOnSlot(day.date, slot.time).length > 0);
-    const hasTraining = (() => {
-      try { return JSON.parse(localStorage.getItem(`training_${day.date}`) || '[]').length > 0; }
-      catch { return false; }
-    })();
+    const hasTraining = (trainingCounts[day.date] ?? 0) > 0;
     return hasWorkers || hasTraining;
   });
 

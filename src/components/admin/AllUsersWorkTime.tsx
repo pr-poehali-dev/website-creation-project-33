@@ -11,6 +11,8 @@ interface WorkTimeData {
   end_time: string;
   hours_worked: string;
   leads_count: number;
+  organization_id: number;
+  is_open: boolean;
 }
 
 interface AllUsersWorkTimeProps {
@@ -27,6 +29,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
   const [workTimeData, setWorkTimeData] = useState<WorkTimeData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingShift, setDeletingShift] = useState<string | null>(null);
+  const [closingShift, setClosingShift] = useState<string | null>(null);
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
@@ -110,6 +113,38 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
       alert('Ошибка при удалении смены');
     } finally {
       setDeletingShift(null);
+    }
+  };
+
+  const handleCloseShift = async (userId: number, workDate: string, organizationId: number) => {
+    if (!confirm('Закрыть смену сейчас? Время окончания будет установлено на текущий момент.')) return;
+
+    const shiftKey = `close-${userId}-${workDate}`;
+    setClosingShift(shiftKey);
+
+    const [day, month] = workDate.split('.');
+    const year = new Date().getFullYear();
+    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Session-Token': sessionToken },
+          body: JSON.stringify({ action: 'close_shift', user_id: userId, work_date: formattedDate, organization_id: organizationId }),
+        }
+      );
+      const result = await response.json();
+      if (result.success) {
+        await loadWorkTime();
+      } else {
+        alert(result.error || 'Ошибка при закрытии смены');
+      }
+    } catch (error) {
+      alert('Ошибка при закрытии смены');
+    } finally {
+      setClosingShift(null);
     }
   };
 
@@ -301,6 +336,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                     {shifts.map((shift, index) => {
                       const shiftKey = `${shift.user_id}-${shift.date}`;
                       const isDeleting = deletingShift === shiftKey;
+                      const isClosing = closingShift === `close-${shift.user_id}-${shift.date}`;
 
                       return (
                         <div 
@@ -317,6 +353,25 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
                                 <Icon name="MessageSquare" size={10} className="md:w-3 md:h-3" />
                                 <span>{shift.leads_count}</span>
                               </div>
+                              {shift.is_open && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCloseShift(shift.user_id, shift.date, shift.organization_id);
+                                  }}
+                                  disabled={isClosing}
+                                  title="Закрыть смену"
+                                  className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-amber-500/20"
+                                >
+                                  {isClosing ? (
+                                    <Icon name="Loader2" size={12} className="animate-spin text-slate-400 md:w-[14px] md:h-[14px]" />
+                                  ) : (
+                                    <Icon name="LogOut" size={12} className="text-amber-400 md:w-[14px] md:h-[14px]" />
+                                  )}
+                                </Button>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="sm"

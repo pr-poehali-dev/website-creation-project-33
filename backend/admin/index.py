@@ -930,7 +930,9 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                     'start_time': start_time_str,
                     'end_time': end_time_str,
                     'hours_worked': hours_worked,
-                    'leads_count': leads_count
+                    'leads_count': leads_count,
+                    'organization_id': organization_id,
+                    'is_open': shift_end is None and shift_start is not None
                 })
             
             return work_time_data
@@ -2752,7 +2754,31 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     'headers': headers,
                     'body': json.dumps({'error': f'Ошибка удаления смены: {str(e)}'})
                 }
-        
+
+        elif action == 'close_shift':
+            target_user_id = body_data.get('user_id')
+            work_date = body_data.get('work_date')
+            organization_id = body_data.get('organization_id')
+
+            if not target_user_id or not work_date or not organization_id:
+                return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'user_id, work_date и organization_id обязательны'})}
+
+            if not user['is_admin']:
+                return {'statusCode': 403, 'headers': headers, 'body': json.dumps({'error': 'Только админ может закрывать смены'})}
+
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("""
+                            INSERT INTO t_p24058207_website_creation_pro.shift_videos
+                            (user_id, organization_id, video_type, work_date, created_at)
+                            VALUES (%s, %s, 'end', %s, NOW())
+                        """, (target_user_id, organization_id, work_date))
+                        conn.commit()
+                return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True})}
+            except Exception as e:
+                return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': f'Ошибка закрытия смены: {str(e)}'})}
+
         elif action == 'update_work_shift':
             old_user_id = body_data.get('old_user_id')
             old_work_date = body_data.get('old_work_date')

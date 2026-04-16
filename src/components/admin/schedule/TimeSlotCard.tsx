@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { UserSchedule, DeleteSlotState, OrganizationData } from './types';
 import { isMaximKorelsky } from './utils';
@@ -41,29 +40,39 @@ export default function TimeSlotCard({
 }: TimeSlotCardProps) {
   const hasMaxim = workers.some(w => isMaximKorelsky(w.first_name, w.last_name));
 
+  const accentColor = hasMaxim
+    ? { ring: 'ring-purple-500/20', bg: 'bg-purple-500/8', dot: 'bg-purple-400', text: 'text-purple-400', badge: 'bg-purple-500/20 text-purple-300', addBtn: 'text-purple-400 hover:text-purple-300 hover:bg-purple-500/15' }
+    : { ring: 'ring-emerald-500/20', bg: 'bg-emerald-500/8', dot: 'bg-emerald-400', text: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-300', addBtn: 'text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/15' };
+
   return (
-    <div className={`${hasMaxim ? 'bg-purple-500/10 border border-purple-500/50 md:border-2' : 'bg-emerald-500/10 border border-emerald-500/50 md:border-2'} p-1.5 md:p-2 lg:p-3 rounded-lg`}>
-      <div className="flex items-center justify-between mb-1.5 md:mb-2 min-w-0">
-        <span className={`text-[10px] md:text-xs lg:text-sm font-semibold ${hasMaxim ? 'text-purple-400' : 'text-emerald-400'} truncate flex-1 min-w-0`}>
-          <Icon name="Clock" size={10} className={`${hasMaxim ? 'text-purple-400' : 'text-emerald-400'} inline mr-0.5 md:mr-1 md:w-3 md:h-3 lg:w-[14px] lg:h-[14px] flex-shrink-0`} />
-          {slot.label}
-        </span>
-        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0 ml-1">
-          <Badge className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 ${hasMaxim ? 'bg-purple-600' : 'bg-emerald-600'} flex-shrink-0`}>
+    <div className={`rounded-xl ring-1 ${accentColor.ring} ${accentColor.bg} overflow-hidden`}>
+      {/* Slot header */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800/60">
+        <div className="flex items-center gap-2">
+          <div className={`w-1.5 h-1.5 rounded-full ${accentColor.dot} flex-shrink-0`} />
+          <span className={`text-xs font-semibold ${accentColor.text}`}>
+            <Icon name="Clock" size={11} className={`${accentColor.text} inline mr-1`} />
+            {slot.label}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${accentColor.badge}`}>
             {workers.length}
-          </Badge>
+          </span>
           <button
             onClick={() => onAddSlot(dayDate, slot.time, slot.label)}
-            className="text-emerald-400 hover:text-emerald-300 flex-shrink-0"
+            className={`w-6 h-6 flex items-center justify-center rounded-lg transition-all ${accentColor.addBtn}`}
             title="Добавить промоутера"
           >
-            <Icon name="Plus" size={14} className="md:w-4 md:h-4" />
+            <Icon name="Plus" size={14} />
           </button>
         </div>
       </div>
-      <div className="space-y-0.5 md:space-y-1">
+
+      {/* Workers */}
+      <div className="px-2.5 py-2 space-y-2">
         {workers.length === 0 ? (
-          <p className="text-[10px] md:text-xs text-slate-500 italic">Нет промоутеров</p>
+          <p className="text-[10px] text-slate-600 italic py-1">Нет промоутеров</p>
         ) : (
           workers.map(worker => {
             const workerName = `${worker.first_name} ${worker.last_name}`;

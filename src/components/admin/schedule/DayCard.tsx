@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { DaySchedule, UserSchedule, DeleteSlotState, DayStats, OrganizationData } from './types';
 import TimeSlotCard from './TimeSlotCard';
@@ -81,7 +80,6 @@ export default function DayCard({
     }
   }, [day.date]);
 
-  // Загружаем при раскрытии таба обучение
   useEffect(() => {
     if (isExpanded && activeTab === 'training') {
       loadTrainingEntries();
@@ -100,162 +98,214 @@ export default function DayCard({
   const isSuccessful = stats && stats.actual > 0 && (stats.expected === 0 || stats.actual >= stats.expected);
   const badgeCount = trainingEntries.length;
 
+  const fillPercent = stats && stats.expected > 0
+    ? Math.min(100, Math.round((stats.actual / stats.expected) * 100))
+    : 0;
+
   return (
-    <Card className={`border border-slate-700/50 md:border-2 shadow-sm transition-all ${isSuccessful ? 'bg-emerald-500/10 md:border-emerald-500/50' : 'bg-slate-800/50 md:border-slate-700/50'}`}>
-      <CardContent className="p-2 md:p-4">
-        <div
-          className={`flex items-center justify-between cursor-pointer -m-2 md:-m-4 p-2 md:p-4 rounded-lg transition-colors ${isSuccessful ? 'hover:bg-emerald-500/20' : 'hover:bg-slate-700/50'}`}
-          onClick={() => onToggleDay(day.date)}
-        >
-          <div className="flex items-center gap-1.5 md:gap-2">
-            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg ${isSuccessful ? 'bg-emerald-500' : day.isWeekend ? 'bg-orange-500' : 'bg-cyan-600'} text-white flex flex-col items-center justify-center font-bold text-[9px] md:text-xs`}>
-              <span>{day.dayName}</span>
-              <span className="text-xs md:text-sm">{new Date(day.date).getDate()}</span>
-            </div>
-            <div>
-              <p className="font-semibold text-slate-100 text-xs md:text-base">{day.dayNameFull}</p>
-              <p className="text-[10px] md:text-xs text-slate-400">{day.date}</p>
-            </div>
-            {stats && (
-              <span className={`text-[10px] md:text-xs ml-1 md:ml-2 px-1.5 md:px-2 py-0.5 md:py-1 rounded ${isSuccessful ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 bg-slate-700/50'}`}>
-                {stats.expected} / {stats.actual}
-              </span>
-            )}
-            {isSuccessful && (
-              <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-emerald-500 flex items-center justify-center ml-0.5 md:ml-1 animate-in zoom-in-50 duration-500">
-                <Icon name="Check" size={14} className="text-white md:w-4 md:h-4" />
-              </div>
-            )}
-            {trainingCount > 0 && (
-              <div className="flex items-center gap-0.5 ml-1 bg-violet-600/30 text-violet-400 px-1.5 py-0.5 rounded-full">
-                <Icon name="GraduationCap" size={10} />
-                <span className="text-[10px]">{trainingCount}</span>
-              </div>
-            )}
+    <div className={`rounded-2xl overflow-hidden transition-all duration-300 ${
+      isSuccessful
+        ? 'bg-gradient-to-br from-emerald-950/80 to-slate-900/90 ring-1 ring-emerald-500/30'
+        : 'bg-gradient-to-br from-slate-900/90 to-slate-800/60 ring-1 ring-slate-700/40'
+    }`}>
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-4 py-3 cursor-pointer select-none group"
+        onClick={() => onToggleDay(day.date)}
+      >
+        <div className="flex items-center gap-3">
+          {/* Day badge */}
+          <div className={`relative w-11 h-11 rounded-xl flex flex-col items-center justify-center font-bold shadow-lg flex-shrink-0 ${
+            isSuccessful
+              ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white'
+              : day.isWeekend
+                ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white'
+                : 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white'
+          }`}>
+            <span className="text-[9px] uppercase tracking-wider opacity-80">{day.dayName}</span>
+            <span className="text-base leading-none">{new Date(day.date).getDate()}</span>
           </div>
-          <Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={18} className="text-slate-400 md:w-5 md:h-5" />
+
+          <div>
+            <p className="font-semibold text-slate-100 text-sm md:text-base leading-tight">{day.dayNameFull}</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">{day.date}</p>
+          </div>
+
+          {/* Stats pill */}
+          {stats && (
+            <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
+              isSuccessful
+                ? 'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30'
+                : 'bg-slate-700/50 text-slate-300 ring-1 ring-slate-600/30'
+            }`}>
+              <span>{stats.actual}</span>
+              <span className="opacity-40">/</span>
+              <span className="opacity-60">{stats.expected}</span>
+            </div>
+          )}
+
+          {isSuccessful && (
+            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <Icon name="Check" size={13} className="text-white" />
+            </div>
+          )}
+
+          {trainingCount > 0 && (
+            <div className="flex items-center gap-1 bg-violet-500/15 text-violet-400 px-2 py-1 rounded-full ring-1 ring-violet-500/25">
+              <Icon name="GraduationCap" size={11} />
+              <span className="text-[10px] font-semibold">{trainingCount}</span>
+            </div>
+          )}
         </div>
 
-        {isExpanded && (
-          <div className="mt-2 md:mt-3 pt-2 md:pt-3 border-t border-slate-700/50">
+        <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+          isExpanded ? 'bg-slate-700/60' : 'bg-transparent group-hover:bg-slate-700/40'
+        }`}>
+          <Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={16} className="text-slate-400" />
+        </div>
+      </div>
 
-            {/* Табы */}
-            <div className="flex gap-1 mb-3 bg-slate-800/60 rounded-lg p-0.5">
-              <button
-                onClick={() => setActiveTab('department')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all ${activeTab === 'department' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
-              >
-                <Icon name="Users" size={13} />
-                Отдел
-              </button>
-              <button
-                onClick={() => setActiveTab('training')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all ${activeTab === 'training' ? 'bg-violet-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
-              >
-                <Icon name="GraduationCap" size={13} />
-                Обучение
-                {badgeCount > 0 && (
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${activeTab === 'training' ? 'bg-white/20' : 'bg-violet-600/30 text-violet-400'}`}>
-                    {badgeCount}
-                  </span>
-                )}
-              </button>
-            </div>
+      {/* Progress bar — thin line under header */}
+      {stats && stats.expected > 0 && (
+        <div className="h-0.5 bg-slate-800/80 mx-4">
+          <div
+            className={`h-full rounded-full transition-all duration-700 ${isSuccessful ? 'bg-emerald-400' : 'bg-cyan-500'}`}
+            style={{ width: `${fillPercent}%` }}
+          />
+        </div>
+      )}
 
-            {/* Таб Отдел */}
-            {activeTab === 'department' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2 lg:gap-3">
-                {day.slots.map(slot => {
-                  const workers = getUsersWorkingOnSlot(day.date, slot.time);
-                  return (
-                    <TimeSlotCard
-                      key={slot.time}
-                      slot={slot}
-                      workers={workers}
-                      dayDate={day.date}
-                      workComments={workComments}
-                      savingComment={savingComment}
-                      allLocations={allLocations}
-                      allOrganizations={allOrganizations}
-                      userOrgStats={userOrgStats}
-                      recommendedLocations={recommendedLocations}
-                      loadingProgress={loadingProgress}
-                      onCommentChange={onCommentChange}
-                      onCommentBlur={onCommentBlur}
-                      onRemoveSlot={onRemoveSlot}
-                      onAddSlot={onAddSlot}
-                      deletingSlot={deletingSlot}
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Таб Обучение */}
-            {activeTab === 'training' && (
-              <div className="space-y-2">
-                {loadingTraining ? (
-                  <div className="flex items-center justify-center gap-2 py-6 text-slate-500">
-                    <Icon name="Loader2" size={16} className="animate-spin" />
-                    <span className="text-xs">Загрузка...</span>
-                  </div>
-                ) : trainingEntries.length === 0 ? (
-                  <div className="text-center py-6 text-slate-500">
-                    <Icon name="GraduationCap" size={32} className="mx-auto mb-2 opacity-40" />
-                    <p className="text-xs">Нет записей об обучении</p>
-                    <p className="text-[10px] text-slate-600 mt-1">Добавьте через кнопку «Добавить обучение»</p>
-                  </div>
-                ) : (
-                  trainingEntries.map((entry, index) => (
-                    <div key={entry.id} className="bg-slate-900/60 rounded-xl p-3 border border-slate-700 space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-violet-400 w-4 flex-shrink-0">{index + 1}</span>
-                        <Icon name="UserCheck" size={13} className="text-cyan-400 flex-shrink-0" />
-                        <span className="text-sm font-semibold text-slate-100 flex-1">{entry.seniorName}</span>
-                        <button onClick={() => handleDeleteEntry(entry.id)} className="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-red-400 transition-colors flex-shrink-0">
-                          <Icon name="X" size={14} />
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-2 pl-6">
-                        <Icon name="User" size={13} className="text-violet-400 flex-shrink-0" />
-                        <span className="text-sm text-slate-200">{entry.promoterName}</span>
-                      </div>
-                      {entry.promoterPhone && (
-                        <div className="flex items-center gap-2">
-                          <Icon name="Phone" size={11} className="text-slate-500 flex-shrink-0" />
-                          <span className="text-xs text-slate-400">{entry.promoterPhone}</span>
-                        </div>
-                      )}
-                      {(entry.organization || entry.time) && (
-                        <div className="flex items-center gap-4 flex-wrap">
-                          {entry.organization && (
-                            <div className="flex items-center gap-1.5">
-                              <Icon name="Building2" size={11} className="text-slate-500 flex-shrink-0" />
-                              <span className="text-xs text-slate-400">{entry.organization}</span>
-                            </div>
-                          )}
-                          {entry.time && (
-                            <div className="flex items-center gap-1.5">
-                              <Icon name="Clock" size={11} className="text-slate-500 flex-shrink-0" />
-                              <span className="text-xs text-slate-400">{entry.time}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      {entry.comment && (
-                        <div className="flex items-start gap-1.5">
-                          <Icon name="MessageSquare" size={11} className="text-slate-500 flex-shrink-0 mt-0.5" />
-                          <span className="text-xs text-slate-400">{entry.comment}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+      {/* Expanded content */}
+      {isExpanded && (
+        <div className="px-3 pb-3 pt-2 md:px-4 md:pb-4">
+          {/* Tabs */}
+          <div className="flex gap-1 mb-3 bg-slate-950/50 rounded-xl p-1">
+            <button
+              onClick={() => setActiveTab('department')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                activeTab === 'department'
+                  ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Icon name="Users" size={12} />
+              Отдел
+            </button>
+            <button
+              onClick={() => setActiveTab('training')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                activeTab === 'training'
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Icon name="GraduationCap" size={12} />
+              Обучение
+              {badgeCount > 0 && (
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                  activeTab === 'training' ? 'bg-white/20' : 'bg-violet-600/30 text-violet-400'
+                }`}>
+                  {badgeCount}
+                </span>
+              )}
+            </button>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Отдел tab */}
+          {activeTab === 'department' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:gap-3">
+              {day.slots.map(slot => {
+                const workers = getUsersWorkingOnSlot(day.date, slot.time);
+                return (
+                  <TimeSlotCard
+                    key={slot.time}
+                    slot={slot}
+                    workers={workers}
+                    dayDate={day.date}
+                    workComments={workComments}
+                    savingComment={savingComment}
+                    allLocations={allLocations}
+                    allOrganizations={allOrganizations}
+                    userOrgStats={userOrgStats}
+                    recommendedLocations={recommendedLocations}
+                    loadingProgress={loadingProgress}
+                    onCommentChange={onCommentChange}
+                    onCommentBlur={onCommentBlur}
+                    onRemoveSlot={onRemoveSlot}
+                    onAddSlot={onAddSlot}
+                    deletingSlot={deletingSlot}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          {/* Обучение tab */}
+          {activeTab === 'training' && (
+            <div className="space-y-2">
+              {loadingTraining ? (
+                <div className="flex items-center justify-center gap-2 py-8 text-slate-500">
+                  <Icon name="Loader2" size={16} className="animate-spin" />
+                  <span className="text-xs">Загрузка...</span>
+                </div>
+              ) : trainingEntries.length === 0 ? (
+                <div className="text-center py-8 text-slate-600">
+                  <Icon name="GraduationCap" size={28} className="mx-auto mb-2 opacity-30" />
+                  <p className="text-xs">Нет записей об обучении</p>
+                </div>
+              ) : (
+                trainingEntries.map((entry, index) => (
+                  <div key={entry.id} className="bg-slate-900/70 rounded-xl p-3 ring-1 ring-slate-700/50 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-violet-400 w-4 flex-shrink-0">{index + 1}</span>
+                      <Icon name="UserCheck" size={13} className="text-cyan-400 flex-shrink-0" />
+                      <span className="text-sm font-semibold text-slate-100 flex-1">{entry.seniorName}</span>
+                      <button
+                        onClick={() => handleDeleteEntry(entry.id)}
+                        className="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-red-400 transition-colors flex-shrink-0 rounded-md hover:bg-red-400/10"
+                      >
+                        <Icon name="X" size={13} />
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 pl-6">
+                      <Icon name="User" size={12} className="text-violet-400 flex-shrink-0" />
+                      <span className="text-sm text-slate-300">{entry.promoterName}</span>
+                    </div>
+                    {entry.promoterPhone && (
+                      <div className="flex items-center gap-2 pl-6">
+                        <Icon name="Phone" size={11} className="text-slate-600 flex-shrink-0" />
+                        <span className="text-xs text-slate-500">{entry.promoterPhone}</span>
+                      </div>
+                    )}
+                    {(entry.organization || entry.time) && (
+                      <div className="flex items-center gap-4 flex-wrap pl-6">
+                        {entry.organization && (
+                          <div className="flex items-center gap-1.5">
+                            <Icon name="Building2" size={11} className="text-slate-600 flex-shrink-0" />
+                            <span className="text-xs text-slate-500">{entry.organization}</span>
+                          </div>
+                        )}
+                        {entry.time && (
+                          <div className="flex items-center gap-1.5">
+                            <Icon name="Clock" size={11} className="text-slate-600 flex-shrink-0" />
+                            <span className="text-xs text-slate-500">{entry.time}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {entry.comment && (
+                      <div className="flex items-start gap-1.5 pl-6">
+                        <Icon name="MessageSquare" size={11} className="text-slate-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-xs text-slate-500">{entry.comment}</span>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

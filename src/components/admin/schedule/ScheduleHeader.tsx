@@ -72,26 +72,24 @@ export default function ScheduleHeader({
           <button
             onClick={() => setView('team')}
             title="Общий"
-            className={`flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-all duration-200 px-2 py-1.5 md:px-4 ${
+            className={`flex items-center justify-center rounded-lg text-xs font-semibold transition-all duration-200 w-8 h-8 ${
               view === 'team'
                 ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
-            <Icon name="Users" size={13} />
-            <span className="hidden md:inline">Общий</span>
+            <Icon name="Users" size={14} />
           </button>
           <button
             onClick={() => setView('individual')}
             title="Индивидуально"
-            className={`flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-all duration-200 px-2 py-1.5 md:px-4 ${
+            className={`flex items-center justify-center rounded-lg text-xs font-semibold transition-all duration-200 w-8 h-8 ${
               view === 'individual'
                 ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
-            <Icon name="User" size={13} />
-            <span className="hidden md:inline">Индивидуально</span>
+            <Icon name="User" size={14} />
           </button>
         </div>
 
@@ -101,20 +99,18 @@ export default function ScheduleHeader({
             <button
               onClick={onOpenAddShift}
               title="Добавить смену"
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all shadow-md shadow-emerald-900/30 px-2 py-1.5 md:px-3"
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md shadow-emerald-900/30"
             >
-              <Icon name="CalendarPlus" size={13} />
-              <span className="hidden md:inline">Добавить смену</span>
+              <Icon name="CalendarPlus" size={14} />
             </button>
           )}
           {onOpenAddTraining && (
             <button
               onClick={onOpenAddTraining}
               title="Добавить обучение"
-              className="flex items-center gap-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all shadow-md shadow-violet-900/30 px-2 py-1.5 md:px-3"
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition-all shadow-md shadow-violet-900/30"
             >
-              <Icon name="GraduationCap" size={13} />
-              <span className="hidden md:inline">Добавить обучение</span>
+              <Icon name="GraduationCap" size={14} />
             </button>
           )}
         </div>

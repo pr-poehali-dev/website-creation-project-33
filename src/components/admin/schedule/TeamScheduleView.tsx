@@ -97,20 +97,16 @@ export default function TeamScheduleView({
   return (
     <div className="space-y-4">
       {loadingProgress > 0 && loadingProgress < 100 && (
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-slate-300">Загрузка статистики...</span>
-                <span className="text-sm font-bold text-cyan-400">{loadingProgress}%</span>
-              </div>
-              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
-                  style={{ width: `${loadingProgress}%` }}
-                />
-              </div>
-            </div>
+        <div className="bg-slate-900/60 ring-1 ring-slate-700/40 rounded-2xl p-3 md:p-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs text-slate-400">Загрузка статистики...</span>
+            <span className="text-xs font-bold text-cyan-400">{loadingProgress}%</span>
+          </div>
+          <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300 rounded-full"
+              style={{ width: `${loadingProgress}%` }}
+            />
           </div>
         </div>
       )}

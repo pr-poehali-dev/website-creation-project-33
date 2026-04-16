@@ -33,39 +33,37 @@ export default function ScheduleHeader({
           График работы
         </h2>
 
-        <div className="flex items-center gap-1.5">
-          {/* View toggle */}
-          <div className="flex gap-1 bg-slate-900/60 ring-1 ring-slate-700/40 rounded-xl p-1">
-            <button
-              onClick={() => setView('team')}
-              title="Общий"
-              className={`flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 ${
-                view === 'team'
-                  ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Icon name="Users" size={14} />
-            </button>
-            <button
-              onClick={() => setView('individual')}
-              title="Индивидуально"
-              className={`flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 ${
-                view === 'individual'
-                  ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Icon name="User" size={14} />
-            </button>
-          </div>
+        <div className="flex items-center gap-1 bg-slate-900/60 ring-1 ring-slate-700/40 rounded-xl p-1">
+          <button
+            onClick={() => setView('team')}
+            title="Общий"
+            className={`flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 ${
+              view === 'team'
+                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <Icon name="Users" size={14} />
+          </button>
+          <button
+            onClick={() => setView('individual')}
+            title="Индивидуально"
+            className={`flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 ${
+              view === 'individual'
+                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <Icon name="User" size={14} />
+          </button>
 
-          {/* Action buttons */}
+          <div className="w-px h-5 bg-slate-700/60 mx-0.5" />
+
           {onOpenAddShift && (
             <button
               onClick={onOpenAddShift}
               title="Добавить смену"
-              className="w-8 h-8 flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md shadow-emerald-900/30"
+              className="flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-emerald-400 hover:text-emerald-300 hover:bg-slate-800/50"
             >
               <Icon name="CalendarPlus" size={14} />
             </button>
@@ -74,7 +72,7 @@ export default function ScheduleHeader({
             <button
               onClick={onOpenAddTraining}
               title="Добавить обучение"
-              className="w-8 h-8 flex items-center justify-center rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition-all shadow-md shadow-violet-900/30"
+              className="flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-violet-400 hover:text-violet-300 hover:bg-slate-800/50"
             >
               <Icon name="GraduationCap" size={14} />
             </button>

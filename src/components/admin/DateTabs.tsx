@@ -72,7 +72,7 @@ export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDu
             {onDeleteDate && (
               <button
                 onClick={(e) => handleDelete(e, date)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-red-700 shadow-lg"
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 text-white rounded-full hidden sm:flex opacity-0 group-hover:opacity-100 transition-opacity duration-200 items-center justify-center hover:bg-red-700 shadow-lg"
                 title="Удалить все лиды за этот день"
               >
                 <Icon name="Trash2" size={12} />

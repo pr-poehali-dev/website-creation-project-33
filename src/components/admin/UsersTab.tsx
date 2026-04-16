@@ -8,6 +8,7 @@ import UserLeadsModal from './UserLeadsModal';
 import { User, Lead, ADMIN_API } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
 import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate, useDeleteApproach, useDeleteApproachesByDate, useAddContact } from '@/hooks/useAdminData';
+import { useToast } from '@/hooks/use-toast';
 
 const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
 
@@ -16,6 +17,7 @@ interface UsersTabProps {
 }
 
 export default function UsersTab({ enabled = true }: UsersTabProps) {
+  const { toast } = useToast();
   const { data: usersData, isLoading: loading, refetch: refetchUsers } = useUsers(enabled);
   const activeUsers = usersData?.active || [];
   const inactiveUsers = usersData?.inactive || [];
@@ -124,7 +126,13 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
     }
     const [day, month, year] = date.split('.');
     const workDate = `${year}-${month}-${day}`;
-    await addContactMutation.mutateAsync({ userId: selectedUser.id, workDate, count });
+    const result = await addContactMutation.mutateAsync({ userId: selectedUser.id, workDate, count });
+    if (result?.success) {
+      toast({
+        title: 'Контакты добавлены',
+        description: `+${count} контакт${count === 1 ? '' : count < 5 ? 'а' : 'ов'} за ${date} для ${selectedUser.name}`,
+      });
+    }
   };
 
   const handleUserClick = (user: User) => {

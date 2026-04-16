@@ -133,7 +133,7 @@ export default function DayCard({
 
           {/* Stats pill */}
           {stats && (
-            <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
+            <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs font-semibold ${
               isSuccessful
                 ? 'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30'
                 : 'bg-slate-700/50 text-slate-300 ring-1 ring-slate-600/30'

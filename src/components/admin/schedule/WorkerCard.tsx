@@ -166,7 +166,7 @@ export default function WorkerCard({
                 <span className="text-slate-400">~{avgContacts.toFixed(1)}</span>
                 {actualContacts !== null && (
                   <>
-                    <span className="text-slate-600">/</span>
+                    <span className="text-slate-300 font-bold">/</span>
                     <span className={actualContacts >= Math.round(avgContacts) ? 'text-green-400' : 'text-orange-400'}>
                       {actualContacts}
                     </span>

@@ -2,18 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
-
-interface WorkTimeData {
-  user_id: number;
-  user_name: string;
-  date: string;
-  start_time: string;
-  end_time: string;
-  hours_worked: string;
-  leads_count: number;
-  organization_id: number;
-  is_open: boolean;
-}
+import WorkTimeDateGroup from './WorkTimeDateGroup';
+import WorkTimeAddModal from './WorkTimeAddModal';
+import { WorkTimeData } from './WorkTimeShiftCard';
 
 interface AllUsersWorkTimeProps {
   sessionToken: string;
@@ -161,7 +152,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
       );
       const data = await response.json();
       if (data.users) {
-        const formattedUsers = data.users.map((u: any) => ({
+        const formattedUsers = data.users.map((u: { id: number; name?: string }) => ({
           id: u.id,
           first_name: u.name?.split(' ')[0] || '',
           last_name: u.name?.split(' ')[1] || ''
@@ -201,7 +192,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
 
       const result = await response.json();
       console.log('Add shift response:', response.status, result);
-      
+
       if (response.ok && result.success) {
         setShowAddModal(false);
         setSelectedUser(null);
@@ -223,7 +214,7 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
   useEffect(() => {
     loadWorkTime();
     loadUsers();
-    
+
     const interval = setInterval(() => {
       loadWorkTime();
     }, 30000);
@@ -304,228 +295,38 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
           </div>
         ) : (
           <div className="space-y-4">
-            {sortedDates.map((date) => {
-              const shifts = groupedByDate[date];
-              const totalLeads = shifts.reduce((sum, shift) => sum + shift.leads_count, 0);
-              const isExpanded = expandedDates.has(date);
-              
-              return (
-                <div key={date} className="border-2 border-slate-600 rounded-xl overflow-hidden bg-slate-800/50">
-                  <div 
-                    className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 cursor-pointer hover:bg-slate-800/70 transition-colors gap-2"
-                    onClick={() => toggleDate(date)}
-                  >
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <Icon 
-                        name={isExpanded ? "ChevronDown" : "ChevronRight"} 
-                        size={18} 
-                        className="text-cyan-400 transition-transform md:w-5 md:h-5" 
-                      />
-                      <Icon name="Calendar" size={18} className="text-cyan-400 md:w-5 md:h-5" />
-                      <span className="font-bold text-slate-100 text-sm md:text-base">{date}</span>
-                      <span className="text-xs md:text-sm text-slate-400">({shifts.length})</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs md:text-sm text-slate-300 bg-slate-700 px-2 py-1 md:px-3 rounded-lg ml-7 md:ml-0">
-                      <Icon name="MessageSquare" size={12} className="md:w-[14px] md:h-[14px] text-cyan-400" />
-                      <span>{totalLeads} лидов</span>
-                    </div>
-                  </div>
-                  
-                  {isExpanded && (
-                    <div className="space-y-2 p-3 md:p-4 pt-0">
-                    {shifts.map((shift, index) => {
-                      const shiftKey = `${shift.user_id}-${shift.date}`;
-                      const isDeleting = deletingShift === shiftKey;
-                      const isClosing = closingShift === `close-${shift.user_id}-${shift.date}`;
-
-                      return (
-                        <div 
-                          key={index} 
-                          className="bg-slate-700/50 rounded-lg p-2.5 md:p-3 border border-slate-600"
-                        >
-                          <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-                            <div className="flex items-center gap-1.5 md:gap-2">
-                              <Icon name="User" size={12} className="text-slate-400 md:w-[14px] md:h-[14px]" />
-                              <span className="font-medium text-slate-100 text-xs md:text-sm">{shift.user_name}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 md:gap-2">
-                              <div className="flex items-center gap-0.5 md:gap-1 text-[10px] md:text-xs text-slate-400">
-                                <Icon name="MessageSquare" size={10} className="md:w-3 md:h-3" />
-                                <span>{shift.leads_count}</span>
-                              </div>
-                              {shift.is_open && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleCloseShift(shift.user_id, shift.date, shift.organization_id);
-                                  }}
-                                  disabled={isClosing}
-                                  title="Закрыть смену"
-                                  className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-amber-500/20"
-                                >
-                                  {isClosing ? (
-                                    <Icon name="Loader2" size={12} className="animate-spin text-slate-400 md:w-[14px] md:h-[14px]" />
-                                  ) : (
-                                    <Icon name="LogOut" size={12} className="text-amber-400 md:w-[14px] md:h-[14px]" />
-                                  )}
-                                </Button>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteShift(shift.user_id, shift.date);
-                                }}
-                                disabled={isDeleting}
-                                className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-red-500/20"
-                              >
-                                {isDeleting ? (
-                                  <Icon name="Loader2" size={12} className="animate-spin text-slate-400 md:w-[14px] md:h-[14px]" />
-                                ) : (
-                                  <Icon name="Trash2" size={12} className="text-red-400 md:w-[14px] md:h-[14px]" />
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                      
-                      <div className="grid grid-cols-3 gap-2 md:gap-3 text-xs md:text-sm">
-                        <div className="flex flex-col">
-                          <span className="text-slate-400 text-[10px] md:text-xs mb-0.5 md:mb-1">Начало</span>
-                          <div className="flex items-center gap-1 md:gap-1.5 text-slate-100 font-medium">
-                            <Icon name="LogIn" size={12} className="text-emerald-400 md:w-[14px] md:h-[14px]" />
-                            <span className="text-[11px] md:text-sm">{shift.start_time}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex flex-col">
-                          <span className="text-slate-400 text-[10px] md:text-xs mb-0.5 md:mb-1">Окончание</span>
-                          <div className="flex items-center gap-1 md:gap-1.5 text-slate-100 font-medium">
-                            <Icon name="LogOut" size={12} className="text-red-400 md:w-[14px] md:h-[14px]" />
-                            <span className="text-[11px] md:text-sm">{shift.end_time}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex flex-col">
-                          <span className="text-slate-400 text-[10px] md:text-xs mb-0.5 md:mb-1">Отработано</span>
-                          <div className="flex items-center gap-1 md:gap-1.5 text-slate-100 font-bold">
-                            <Icon name="Timer" size={12} className="text-cyan-400 md:w-[14px] md:h-[14px]" />
-                            <span className="text-[10px] md:text-xs">{shift.hours_worked}</span>
-                          </div>
-                        </div>
-                      </div>
-                      </div>
-                    );
-                  })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {sortedDates.map((date) => (
+              <WorkTimeDateGroup
+                key={date}
+                date={date}
+                shifts={groupedByDate[date]}
+                isExpanded={expandedDates.has(date)}
+                deletingShift={deletingShift}
+                closingShift={closingShift}
+                onToggle={toggleDate}
+                onDelete={handleDeleteShift}
+                onClose={handleCloseShift}
+              />
+            ))}
           </div>
         )}
       </CardContent>
 
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <Card className="w-full max-w-md rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base sm:text-lg text-slate-100">Добавить смену</CardTitle>
-                <button 
-                  onClick={() => setShowAddModal(false)} 
-                  className="text-slate-400 hover:text-slate-200 p-1"
-                >
-                  <Icon name="X" size={20} />
-                </button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 sm:space-y-4">
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
-                  Промоутер
-                </label>
-                <select
-                  value={selectedUser || ''}
-                  onChange={(e) => setSelectedUser(Number(e.target.value))}
-                  className="w-full p-2.5 sm:p-2 text-sm border-2 border-slate-600 bg-slate-800 text-slate-100 rounded-lg focus:border-cyan-500 focus:outline-none"
-                >
-                  <option value="">Выберите промоутера</option>
-                  {users.map(user => (
-                    <option key={user.id} value={user.id}>
-                      {user.first_name} {user.last_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
-                  Дата
-                </label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full p-2.5 sm:p-2 text-sm border-2 border-slate-600 bg-slate-800 text-slate-100 rounded-lg focus:border-cyan-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
-                    Время открытия
-                  </label>
-                  <input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full p-2.5 sm:p-2 text-sm border-2 border-slate-600 bg-slate-800 text-slate-100 rounded-lg focus:border-cyan-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
-                    Время закрытия
-                  </label>
-                  <input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full p-2.5 sm:p-2 text-sm border-2 border-slate-600 bg-slate-800 text-slate-100 rounded-lg focus:border-cyan-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                <Button
-                  onClick={handleAddShift}
-                  disabled={isSubmitting || !selectedUser || !selectedDate || !startTime || !endTime}
-                  className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm py-2.5 font-semibold"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                      Добавление...
-                    </>
-                  ) : (
-                    'Добавить'
-                  )}
-                </Button>
-                <Button
-                  onClick={() => setShowAddModal(false)}
-                  variant="outline"
-                  disabled={isSubmitting}
-                  className="sm:flex-none text-sm py-2.5 border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700"
-                >
-                  Отмена
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <WorkTimeAddModal
+          users={users}
+          selectedUser={selectedUser}
+          selectedDate={selectedDate}
+          startTime={startTime}
+          endTime={endTime}
+          isSubmitting={isSubmitting}
+          onSelectUser={setSelectedUser}
+          onSelectDate={setSelectedDate}
+          onStartTime={setStartTime}
+          onEndTime={setEndTime}
+          onSubmit={handleAddShift}
+          onClose={() => setShowAddModal(false)}
+        />
       )}
     </Card>
   );

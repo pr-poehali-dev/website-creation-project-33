@@ -30,7 +30,7 @@ export default function WeekCalendar({ weekDays }: WeekCalendarProps) {
             </span>
             <span className="text-sm md:text-2xl font-bold leading-none">
               <span className={isToday
-                ? 'text-cyan-300 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]'
+                ? 'text-cyan-400'
                 : day.isWeekend ? 'text-orange-300' : 'text-slate-200'
               }>{dayNum}</span><span className={`text-[10px] md:text-sm font-normal ml-0.5 ${
                 isToday ? 'text-cyan-500' : 'text-slate-600'

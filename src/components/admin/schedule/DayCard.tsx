@@ -98,10 +98,6 @@ export default function DayCard({
   const isSuccessful = stats && stats.actual > 0 && (stats.expected === 0 || stats.actual >= stats.expected);
   const badgeCount = trainingEntries.length;
 
-  const fillPercent = stats && stats.expected > 0
-    ? Math.min(100, Math.round((stats.actual / stats.expected) * 100))
-    : 0;
-
   return (
     <div className={`rounded-2xl overflow-hidden transition-all duration-300 ${
       isSuccessful
@@ -165,15 +161,7 @@ export default function DayCard({
         </div>
       </div>
 
-      {/* Progress bar — thin line under header */}
-      {stats && stats.expected > 0 && (
-        <div className="h-0.5 bg-slate-800/80 mx-4">
-          <div
-            className={`h-full rounded-full transition-all duration-700 ${isSuccessful ? 'bg-emerald-400' : 'bg-cyan-500'}`}
-            style={{ width: `${fillPercent}%` }}
-          />
-        </div>
-      )}
+
 
       {/* Expanded content */}
       {isExpanded && (

@@ -1,0 +1,1 @@
+UPDATE t_p24058207_website_creation_pro.work_shifts SET shift_end = '2026-04-14 18:00:00+03', updated_at = NOW() WHERE id = 924 AND shift_end IS NULL;

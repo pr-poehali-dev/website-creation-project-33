@@ -217,9 +217,7 @@ export default function WorkerCard({
             </button>
           )}
           <div className="w-4 flex-shrink-0 flex items-center justify-center">
-            {currentOrganization && savingComment !== commentKey && (
-              <Icon name="Building2" size={12} className="text-cyan-400" />
-            )}
+            <Icon name="Building2" size={12} className="text-cyan-400" />
           </div>
         </div>
         
@@ -245,9 +243,7 @@ export default function WorkerCard({
             </SelectContent>
           </Select>
           <div className="w-4 flex-shrink-0 flex items-center justify-center">
-            {currentLocationType && savingComment !== commentKey && (
-              <Icon name="MapPin" size={12} className="text-emerald-400" />
-            )}
+            <Icon name="MapPin" size={12} className="text-emerald-400" />
           </div>
         </div>
         
@@ -271,9 +267,7 @@ export default function WorkerCard({
             }`}
           />
           <div className="w-4 flex-shrink-0 flex items-center justify-center">
-            {currentLocationDetails && savingComment !== commentKey && (
-              <Icon name="Navigation" size={12} className="text-blue-400" />
-            )}
+            <Icon name="Navigation" size={12} className="text-blue-400" />
           </div>
         </div>
         
@@ -297,27 +291,28 @@ export default function WorkerCard({
             }`}
           />
           <div className="w-4 flex-shrink-0 flex items-center justify-center">
-            {currentFlyers && savingComment !== commentKey && (
-              <Icon name="FileText" size={12} className="text-amber-400" />
-            )}
+            <Icon name="FileText" size={12} className="text-amber-400" />
           </div>
         </div>
         
-        <button
-          onClick={handleSave}
-          disabled={savingComment === commentKey}
-          className="w-full px-2 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 text-white rounded text-[10px] md:text-xs h-6 md:h-7 flex items-center justify-center gap-1"
-          title="Сохранить"
-        >
-          {savingComment === commentKey ? (
-            <Icon name="Loader2" size={12} className="animate-spin" />
-          ) : (
-            <>
-              <Icon name="Check" size={12} />
-              <span>Сохранить</span>
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleSave}
+            disabled={savingComment === commentKey}
+            className="flex-1 px-2 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 text-white rounded text-[10px] md:text-xs h-6 md:h-7 flex items-center justify-center gap-1"
+            title="Сохранить"
+          >
+            {savingComment === commentKey ? (
+              <Icon name="Loader2" size={12} className="animate-spin" />
+            ) : (
+              <>
+                <Icon name="Check" size={12} />
+                <span>Сохранить</span>
+              </>
+            )}
+          </button>
+          <div className="w-4 flex-shrink-0" />
+        </div>
       </div>
       
       {showOrgStatsModal && (

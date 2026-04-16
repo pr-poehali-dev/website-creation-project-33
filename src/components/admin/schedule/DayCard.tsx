@@ -244,61 +244,75 @@ export default function DayCard({
           {activeTab === 'training' && (
             <div className="space-y-2">
               {loadingTraining ? (
-                <div className="flex items-center justify-center gap-2 py-8 text-slate-500">
+                <div className="flex items-center justify-center gap-2 py-10 text-slate-600">
                   <Icon name="Loader2" size={16} className="animate-spin" />
                   <span className="text-xs">Загрузка...</span>
                 </div>
               ) : trainingEntries.length === 0 ? (
-                <div className="text-center py-8 text-slate-600">
-                  <Icon name="GraduationCap" size={28} className="mx-auto mb-2 opacity-30" />
+                <div className="flex flex-col items-center justify-center py-10 text-slate-700">
+                  <Icon name="GraduationCap" size={28} className="mb-2 opacity-25" />
                   <p className="text-xs">Нет записей об обучении</p>
                 </div>
               ) : (
                 trainingEntries.map((entry, index) => (
-                  <div key={entry.id} className="bg-slate-900/70 rounded-xl p-3 ring-1 ring-slate-700/50 space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-violet-400 w-4 flex-shrink-0">{index + 1}</span>
+                  <div key={entry.id} className="group rounded-2xl overflow-hidden ring-1 ring-violet-500/15 bg-violet-500/5">
+                    {/* Заголовок карточки: номер + старший + удалить */}
+                    <div className="flex items-center gap-2.5 px-3 py-2.5 border-b border-violet-500/10">
+                      <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-[9px] font-bold text-violet-400">{index + 1}</span>
+                      </div>
                       <Icon name="UserCheck" size={13} className="text-cyan-400 flex-shrink-0" />
-                      <span className="text-sm font-semibold text-slate-100 flex-1">{entry.seniorName}</span>
+                      <span className="text-xs md:text-sm font-semibold text-slate-100 flex-1 truncate">{entry.seniorName}</span>
                       <button
                         onClick={() => handleDeleteEntry(entry.id)}
-                        className="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-red-400 transition-colors flex-shrink-0 rounded-md hover:bg-red-400/10"
+                        className="w-6 h-6 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all flex-shrink-0"
                       >
-                        <Icon name="X" size={13} />
+                        <Icon name="X" size={12} />
                       </button>
                     </div>
-                    <div className="flex items-center gap-2 pl-6">
-                      <Icon name="User" size={12} className="text-violet-400 flex-shrink-0" />
-                      <span className="text-sm text-slate-300">{entry.promoterName}</span>
+
+                    {/* Тело карточки */}
+                    <div className="px-3 py-2 space-y-1.5">
+                      {/* Промоутер */}
+                      <div className="flex items-center gap-2">
+                        <Icon name="User" size={11} className="text-violet-400/70 flex-shrink-0" />
+                        <span className="text-xs text-slate-300 font-medium">{entry.promoterName}</span>
+                      </div>
+
+                      {/* Телефон */}
+                      {entry.promoterPhone && (
+                        <div className="flex items-center gap-2">
+                          <Icon name="Phone" size={11} className="text-slate-600 flex-shrink-0" />
+                          <span className="text-xs text-slate-500">{entry.promoterPhone}</span>
+                        </div>
+                      )}
+
+                      {/* Организация + время в одну строку */}
+                      {(entry.organization || entry.time) && (
+                        <div className="flex items-center gap-3 flex-wrap">
+                          {entry.organization && (
+                            <div className="flex items-center gap-1.5">
+                              <Icon name="Building2" size={11} className="text-slate-600 flex-shrink-0" />
+                              <span className="text-xs text-slate-500">{entry.organization}</span>
+                            </div>
+                          )}
+                          {entry.time && (
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-800/60 ring-1 ring-slate-700/40">
+                              <Icon name="Clock" size={10} className="text-slate-500 flex-shrink-0" />
+                              <span className="text-[10px] text-slate-400 font-medium">{entry.time}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Комментарий */}
+                      {entry.comment && (
+                        <div className="flex items-start gap-1.5 mt-0.5 pt-1.5 border-t border-slate-800/60">
+                          <Icon name="MessageSquare" size={10} className="text-slate-600 flex-shrink-0 mt-0.5" />
+                          <span className="text-[10px] text-slate-500 leading-relaxed">{entry.comment}</span>
+                        </div>
+                      )}
                     </div>
-                    {entry.promoterPhone && (
-                      <div className="flex items-center gap-2 pl-6">
-                        <Icon name="Phone" size={11} className="text-slate-600 flex-shrink-0" />
-                        <span className="text-xs text-slate-500">{entry.promoterPhone}</span>
-                      </div>
-                    )}
-                    {(entry.organization || entry.time) && (
-                      <div className="flex items-center gap-4 flex-wrap pl-6">
-                        {entry.organization && (
-                          <div className="flex items-center gap-1.5">
-                            <Icon name="Building2" size={11} className="text-slate-600 flex-shrink-0" />
-                            <span className="text-xs text-slate-500">{entry.organization}</span>
-                          </div>
-                        )}
-                        {entry.time && (
-                          <div className="flex items-center gap-1.5">
-                            <Icon name="Clock" size={11} className="text-slate-600 flex-shrink-0" />
-                            <span className="text-xs text-slate-500">{entry.time}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {entry.comment && (
-                      <div className="flex items-start gap-1.5 pl-6">
-                        <Icon name="MessageSquare" size={11} className="text-slate-600 flex-shrink-0 mt-0.5" />
-                        <span className="text-xs text-slate-500">{entry.comment}</span>
-                      </div>
-                    )}
                   </div>
                 ))
               )}

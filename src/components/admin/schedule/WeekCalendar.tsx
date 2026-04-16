@@ -17,7 +17,7 @@ export default function WeekCalendar({ weekDays }: WeekCalendarProps) {
         return (
           <div
             key={day.date}
-            className={`relative flex flex-col items-center py-2 md:py-3 rounded-2xl transition-all ${
+            className={`relative flex flex-col items-center py-2.5 md:py-3.5 rounded-2xl transition-all ${
               isToday
                 ? 'bg-cyan-500 shadow-lg shadow-cyan-500/25'
                 : day.isWeekend
@@ -25,24 +25,21 @@ export default function WeekCalendar({ weekDays }: WeekCalendarProps) {
                   : 'bg-slate-800/60 ring-1 ring-slate-700/30'
             }`}
           >
-            <span className={`text-[9px] md:text-[10px] font-semibold uppercase tracking-widest mb-1 ${
+            <span className={`text-[9px] md:text-[10px] font-semibold uppercase tracking-widest mb-1.5 ${
               isToday ? 'text-cyan-100' : day.isWeekend ? 'text-orange-400/70' : 'text-slate-500'
             }`}>
               {day.dayName}
             </span>
-            <span className={`text-sm md:text-xl font-bold leading-none ${
+            <span className={`text-sm md:text-2xl font-bold leading-none ${
               isToday ? 'text-white' : day.isWeekend ? 'text-orange-300' : 'text-slate-200'
             }`}>
-              {dayNum}
-            </span>
-            <span className={`text-[9px] md:text-[10px] mt-0.5 ${
-              isToday ? 'text-cyan-200' : 'text-slate-600'
-            }`}>
-              .{month}
+              {dayNum}<span className={`text-[10px] md:text-sm font-normal ml-0.5 ${
+                isToday ? 'text-cyan-200' : 'text-slate-600'
+              }`}>.{month}</span>
             </span>
 
             {isToday && (
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-cyan-300" />
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-cyan-300" />
             )}
           </div>
         );

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DaySchedule, UserSchedule, DeleteSlotState, DayStats } from './types';
 import { useScheduleData } from './useScheduleData';
-import WeekCalendar from './WeekCalendar';
 import DayCard from './DayCard';
 import AddPromoterModal from './AddPromoterModal';
 
@@ -97,8 +96,6 @@ export default function TeamScheduleView({
 
   return (
     <div className="space-y-4">
-      <WeekCalendar weekDays={weekDays} />
-
       {loadingProgress > 0 && loadingProgress < 100 && (
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
           <div className="flex items-center gap-3">

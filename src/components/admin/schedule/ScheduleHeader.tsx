@@ -8,6 +8,7 @@ interface ScheduleHeaderProps {
   setCurrentWeekIndex: (index: number) => void;
   weeks: Week[];
   loading: boolean;
+  weekDaysCalendar?: React.ReactNode;
   onOpenAddShift?: () => void;
   onOpenAddTraining?: () => void;
 }
@@ -19,70 +20,19 @@ export default function ScheduleHeader({
   setCurrentWeekIndex,
   weeks,
   loading,
+  weekDaysCalendar,
   onOpenAddShift,
   onOpenAddTraining,
 }: ScheduleHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 mb-6">
+    <div className="flex flex-col gap-3 mb-6">
 
-      {/* Top row: title + action buttons */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-lg md:text-xl font-bold text-slate-100 tracking-tight">
-            График работы
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">отдел промо</p>
-        </div>
+      {/* 1. Заголовок */}
+      <h2 className="text-lg md:text-xl font-bold text-slate-100 tracking-tight">
+        График работы
+      </h2>
 
-        <div className="flex flex-col gap-1.5 flex-shrink-0">
-          {onOpenAddShift && (
-            <button
-              onClick={onOpenAddShift}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all shadow-md shadow-emerald-900/30"
-            >
-              <Icon name="CalendarPlus" size={13} />
-              Добавить смену
-            </button>
-          )}
-          {onOpenAddTraining && (
-            <button
-              onClick={onOpenAddTraining}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all shadow-md shadow-violet-900/30"
-            >
-              <Icon name="GraduationCap" size={13} />
-              Добавить обучение
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* View toggle */}
-      <div className="flex gap-1 bg-slate-900/60 ring-1 ring-slate-700/40 rounded-xl p-1 self-start">
-        <button
-          onClick={() => setView('team')}
-          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-            view === 'team'
-              ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-          }`}
-        >
-          <Icon name="Users" size={13} />
-          Общий
-        </button>
-        <button
-          onClick={() => setView('individual')}
-          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-            view === 'individual'
-              ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-          }`}
-        >
-          <Icon name="User" size={13} />
-          Индивидуально
-        </button>
-      </div>
-
-      {/* Week navigation */}
+      {/* 2. Навигация по неделям */}
       <div className="flex items-center gap-3">
         <button
           onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
@@ -108,6 +58,60 @@ export default function ScheduleHeader({
         >
           <Icon name="ChevronRight" size={16} />
         </button>
+      </div>
+
+      {/* 3. Мини-календарь */}
+      {weekDaysCalendar && (
+        <div>{weekDaysCalendar}</div>
+      )}
+
+      {/* 4. Переключатель вида + кнопки действий */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex gap-1 bg-slate-900/60 ring-1 ring-slate-700/40 rounded-xl p-1">
+          <button
+            onClick={() => setView('team')}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+              view === 'team'
+                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <Icon name="Users" size={13} />
+            Общий
+          </button>
+          <button
+            onClick={() => setView('individual')}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+              view === 'individual'
+                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <Icon name="User" size={13} />
+            Индивидуально
+          </button>
+        </div>
+
+        <div className="flex gap-2 flex-shrink-0">
+          {onOpenAddShift && (
+            <button
+              onClick={onOpenAddShift}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all shadow-md shadow-emerald-900/30"
+            >
+              <Icon name="CalendarPlus" size={13} />
+              Добавить смену
+            </button>
+          )}
+          {onOpenAddTraining && (
+            <button
+              onClick={onOpenAddTraining}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all shadow-md shadow-violet-900/30"
+            >
+              <Icon name="GraduationCap" size={13} />
+              Добавить обучение
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

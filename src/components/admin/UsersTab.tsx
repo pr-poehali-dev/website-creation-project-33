@@ -7,7 +7,7 @@ import UserCard from './UserCard';
 import UserLeadsModal from './UserLeadsModal';
 import { User, Lead, ADMIN_API } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
-import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate, useDeleteApproach, useDeleteApproachesByDate } from '@/hooks/useAdminData';
+import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate, useDeleteApproach, useDeleteApproachesByDate, useAddContact } from '@/hooks/useAdminData';
 
 const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
 
@@ -45,6 +45,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const deleteLeadsByDateMutation = useDeleteLeadsByDate();
   const deleteApproachMutation = useDeleteApproach();
   const deleteApproachesByDateMutation = useDeleteApproachesByDate();
+  const addContactMutation = useAddContact();
   
   const [editingUser, setEditingUser] = useState<number | null>(null);
   const [newName, setNewName] = useState('');
@@ -110,6 +111,20 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
     if (!confirm(`Удалить все подходы за ${date}? Это действие нельзя отменить.`)) return;
     await deleteApproachesByDateMutation.mutateAsync({ userId: selectedUser.id, date });
     setSelectedDate(null);
+  };
+
+  const addContactByDate = async (date: string) => {
+    if (!selectedUser) return;
+    const countStr = prompt(`Сколько контактов добавить за ${date}?`, '1');
+    if (countStr === null) return;
+    const count = parseInt(countStr, 10);
+    if (isNaN(count) || count < 1) {
+      alert('Введите корректное число');
+      return;
+    }
+    const [day, month, year] = date.split('.');
+    const workDate = `${year}-${month}-${day}`;
+    await addContactMutation.mutateAsync({ userId: selectedUser.id, workDate, count });
   };
 
   const handleUserClick = (user: User) => {
@@ -293,6 +308,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
         onDeleteDate={deleteLeadsByDate}
         onDeleteApproach={deleteApproach}
         onDeleteApproachesByDate={deleteApproachesByDate}
+        onAddContact={addContactByDate}
         onClose={() => {
           setSelectedUser(null);
           setSelectedDate(null);

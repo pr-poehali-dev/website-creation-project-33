@@ -385,3 +385,23 @@ export function useMonthlyContacts(enabled = true) {
     staleTime: 300000,
   });
 }
+
+export function useAddContact() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ userId, workDate, count }: { userId: number; workDate: string; count: number }) => {
+      const response = await fetch(ADMIN_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Session-Token': getSessionToken() },
+        body: JSON.stringify({ action: 'add_contact', user_id: userId, work_date: workDate, count }),
+      });
+      if (!response.ok) throw new Error('Failed to add contact');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userLeads'] });
+      queryClient.invalidateQueries({ queryKey: ['stats'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}

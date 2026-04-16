@@ -9,13 +9,21 @@ interface DateTabsProps {
   datesWithDuplicates: Record<string, boolean>;
   onDateSelect: (date: string) => void;
   onDeleteDate?: (date: string) => void;
+  onAddContact?: (date: string) => void;
 }
 
-export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDuplicates, onDateSelect, onDeleteDate }: DateTabsProps) {
+export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDuplicates, onDateSelect, onDeleteDate, onAddContact }: DateTabsProps) {
   const handleDelete = (e: React.MouseEvent, date: string) => {
     e.stopPropagation();
     if (onDeleteDate) {
       onDeleteDate(date);
+    }
+  };
+
+  const handleAddContact = (e: React.MouseEvent, date: string) => {
+    e.stopPropagation();
+    if (onAddContact) {
+      onAddContact(date);
     }
   };
 
@@ -52,6 +60,15 @@ export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDu
                 </Badge>
               </div>
             </button>
+            {onAddContact && (
+              <button
+                onClick={(e) => handleAddContact(e, date)}
+                className="absolute -top-2 -left-2 w-6 h-6 bg-green-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-green-500 shadow-lg"
+                title="Добавить контакт за этот день"
+              >
+                <Icon name="Plus" size={12} />
+              </button>
+            )}
             {onDeleteDate && (
               <button
                 onClick={(e) => handleDelete(e, date)}

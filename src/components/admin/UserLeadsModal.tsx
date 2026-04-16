@@ -27,6 +27,7 @@ interface UserLeadsModalProps {
   onDeleteDate?: (date: string) => void;
   onDeleteApproach?: (id: number, leadType: string) => void;
   onDeleteApproachesByDate?: (date: string) => void;
+  onAddContact?: (date: string) => void;
   onClose: () => void;
 }
 
@@ -42,6 +43,7 @@ export default function UserLeadsModal({
   onDeleteDate,
   onDeleteApproach,
   onDeleteApproachesByDate,
+  onAddContact,
   onClose,
 }: UserLeadsModalProps) {
   const [activeTab, setActiveTab] = useState<'contacts' | 'approaches'>('contacts');
@@ -181,6 +183,7 @@ export default function UserLeadsModal({
                 datesWithDuplicates={datesWithDuplicates}
                 onDateSelect={handleDateClick}
                 onDeleteDate={activeTab === 'contacts' ? onDeleteDate : onDeleteApproachesByDate}
+                onAddContact={activeTab === 'contacts' ? onAddContact : undefined}
               />
 
               {/* Контакты */}

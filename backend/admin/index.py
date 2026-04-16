@@ -3332,6 +3332,29 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     conn.commit()
             return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True})}
 
+        elif action == 'add_contact':
+            user_id_add = body_data.get('user_id')
+            work_date = body_data.get('work_date')
+            count = int(body_data.get('count', 1))
+            if not user_id_add or not work_date:
+                return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'user_id and work_date required'})}
+            try:
+                date_obj = datetime.strptime(work_date, '%Y-%m-%d')
+                utc_time = date_obj.replace(hour=12, minute=0, second=0) - timedelta(hours=3)
+            except Exception:
+                return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'Invalid date format, expected YYYY-MM-DD'})}
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    for _ in range(count):
+                        cur.execute(
+                            """INSERT INTO t_p24058207_website_creation_pro.leads_analytics
+                            (user_id, lead_type, lead_result, telegram_message_id, organization_id, created_at)
+                            VALUES (%s, 'контакт', '', NULL, NULL, %s)""",
+                            (int(user_id_add), utc_time)
+                        )
+                    conn.commit()
+            return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True, 'added': count})}
+
     return {
         'statusCode': 405,
         'headers': headers,

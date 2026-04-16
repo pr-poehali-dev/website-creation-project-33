@@ -33,7 +33,7 @@ export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDu
         const leadsCount = leadsCounts[date];
         const hasDuplicates = datesWithDuplicates[date];
         return (
-          <div key={date} className="relative group">
+          <div key={date} className="relative group flex items-center gap-1">
             <button
               onClick={() => onDateSelect(date)}
               className={`px-3 md:px-4 py-2 rounded-lg border-2 transition-all duration-300 text-sm md:text-base font-medium ${
@@ -63,7 +63,7 @@ export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDu
             {onAddContact && (
               <button
                 onClick={(e) => handleAddContact(e, date)}
-                className="absolute -top-2 -left-2 w-6 h-6 bg-green-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-green-500 shadow-lg"
+                className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-500 active:bg-green-700 shadow transition-colors flex-shrink-0"
                 title="Добавить контакт за этот день"
               >
                 <Icon name="Plus" size={12} />

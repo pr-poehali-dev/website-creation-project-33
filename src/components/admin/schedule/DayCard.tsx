@@ -139,8 +139,8 @@ export default function DayCard({
                 : 'bg-slate-700/50 text-slate-300 ring-1 ring-slate-600/30'
             }`}>
               <span>{stats.actual}</span>
-              <span className="opacity-40">/</span>
-              <span className="opacity-60">{stats.expected}</span>
+              <span className="text-slate-400 font-bold">/</span>
+              <span className="text-slate-300">{stats.expected}</span>
             </div>
           )}
 

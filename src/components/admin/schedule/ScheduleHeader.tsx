@@ -66,49 +66,55 @@ export default function ScheduleHeader({
       )}
 
       {/* 4. Переключатель вида + кнопки действий */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div className="flex items-center justify-between gap-2">
+        {/* View toggle */}
         <div className="flex gap-1 bg-slate-900/60 ring-1 ring-slate-700/40 rounded-xl p-1">
           <button
             onClick={() => setView('team')}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+            title="Общий"
+            className={`flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-all duration-200 px-2 py-1.5 md:px-4 ${
               view === 'team'
                 ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
             <Icon name="Users" size={13} />
-            Общий
+            <span className="hidden md:inline">Общий</span>
           </button>
           <button
             onClick={() => setView('individual')}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+            title="Индивидуально"
+            className={`flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-all duration-200 px-2 py-1.5 md:px-4 ${
               view === 'individual'
                 ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
             <Icon name="User" size={13} />
-            Индивидуально
+            <span className="hidden md:inline">Индивидуально</span>
           </button>
         </div>
 
-        <div className="flex gap-2 flex-shrink-0">
+        {/* Action buttons */}
+        <div className="flex gap-1.5 flex-shrink-0">
           {onOpenAddShift && (
             <button
               onClick={onOpenAddShift}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all shadow-md shadow-emerald-900/30"
+              title="Добавить смену"
+              className="flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all shadow-md shadow-emerald-900/30 px-2 py-1.5 md:px-3"
             >
               <Icon name="CalendarPlus" size={13} />
-              Добавить смену
+              <span className="hidden md:inline">Добавить смену</span>
             </button>
           )}
           {onOpenAddTraining && (
             <button
               onClick={onOpenAddTraining}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all shadow-md shadow-violet-900/30"
+              title="Добавить обучение"
+              className="flex items-center gap-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all shadow-md shadow-violet-900/30 px-2 py-1.5 md:px-3"
             >
               <Icon name="GraduationCap" size={13} />
-              Добавить обучение
+              <span className="hidden md:inline">Добавить обучение</span>
             </button>
           )}
         </div>

@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import UserCard from './UserCard';
 import UserLeadsModal from './UserLeadsModal';
+import AddContactModal from './AddContactModal';
 import { User, Lead, ADMIN_API } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
-import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate, useDeleteApproach, useDeleteApproachesByDate, useAddContact } from '@/hooks/useAdminData';
+import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate, useDeleteApproach, useDeleteApproachesByDate, useAddContact, useOrganizations } from '@/hooks/useAdminData';
 import { useToast } from '@/hooks/use-toast';
 
 const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
@@ -48,7 +49,8 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const deleteApproachMutation = useDeleteApproach();
   const deleteApproachesByDateMutation = useDeleteApproachesByDate();
   const addContactMutation = useAddContact();
-  
+  const { data: organizations = [] } = useOrganizations(enabled);
+
   const [editingUser, setEditingUser] = useState<number | null>(null);
   const [newName, setNewName] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -58,6 +60,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const [showAllActive, setShowAllActive] = useState(false);
   const [showAllInactive, setShowAllInactive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [addContactDate, setAddContactDate] = useState<string | null>(null);
   const [inactiveSearchQuery, setInactiveSearchQuery] = useState('');
 
 
@@ -115,22 +118,21 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
     setSelectedDate(null);
   };
 
-  const addContactByDate = async (date: string) => {
+  const addContactByDate = (date: string) => {
     if (!selectedUser) return;
-    const countStr = prompt(`Сколько контактов добавить за ${date}?`, '1');
-    if (countStr === null) return;
-    const count = parseInt(countStr, 10);
-    if (isNaN(count) || count < 1) {
-      alert('Введите корректное число');
-      return;
-    }
-    const [day, month, year] = date.split('.');
+    setAddContactDate(date);
+  };
+
+  const handleAddContactConfirm = async (count: number, organizationId: number | null) => {
+    if (!selectedUser || !addContactDate) return;
+    const [day, month, year] = addContactDate.split('.');
     const workDate = `${year}-${month}-${day}`;
-    const result = await addContactMutation.mutateAsync({ userId: selectedUser.id, workDate, count });
+    const result = await addContactMutation.mutateAsync({ userId: selectedUser.id, workDate, count, organizationId });
     if (result?.success) {
+      setAddContactDate(null);
       toast({
         title: 'Контакты добавлены',
-        description: `+${count} контакт${count === 1 ? '' : count < 5 ? 'а' : 'ов'} за ${date} для ${selectedUser.name}`,
+        description: `+${count} контакт${count === 1 ? '' : count < 5 ? 'а' : 'ов'} за ${addContactDate} для ${selectedUser.name}`,
       });
     }
   };
@@ -322,6 +324,17 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
           setSelectedDate(null);
         }}
       />
+
+      {addContactDate && selectedUser && (
+        <AddContactModal
+          date={addContactDate}
+          userName={selectedUser.name}
+          organizations={organizations}
+          isSubmitting={addContactMutation.isPending}
+          onConfirm={handleAddContactConfirm}
+          onClose={() => setAddContactDate(null)}
+        />
+      )}
     </Card>
 
     {inactiveUsers.length > 0 && (

@@ -389,11 +389,11 @@ export function useMonthlyContacts(enabled = true) {
 export function useAddContact() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ userId, workDate, count }: { userId: number; workDate: string; count: number }) => {
+    mutationFn: async ({ userId, workDate, count, organizationId }: { userId: number; workDate: string; count: number; organizationId: number | null }) => {
       const response = await fetch(ADMIN_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Session-Token': getSessionToken() },
-        body: JSON.stringify({ action: 'add_contact', user_id: userId, work_date: workDate, count }),
+        body: JSON.stringify({ action: 'add_contact', user_id: userId, work_date: workDate, count, organization_id: organizationId }),
       });
       if (!response.ok) throw new Error('Failed to add contact');
       return response.json();

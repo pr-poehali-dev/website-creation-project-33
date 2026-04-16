@@ -74,7 +74,7 @@ export default function ScheduleHeader({
               title="Добавить обучение"
               className="flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-violet-400 hover:text-violet-300 hover:bg-slate-800/50"
             >
-              <Icon name="GraduationCap" size={14} />
+              <Icon name="BookPlus" size={14} />
             </button>
           )}
         </div>

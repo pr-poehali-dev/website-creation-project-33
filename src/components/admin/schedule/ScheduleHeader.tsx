@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Week } from './types';
 
@@ -25,86 +24,90 @@ export default function ScheduleHeader({
 }: ScheduleHeaderProps) {
   return (
     <div className="flex flex-col gap-4 mb-6">
-      <div className="flex flex-col gap-3">
-        <h2 className="text-xl md:text-2xl font-bold text-slate-100 flex items-center gap-2">
-          <Icon name="Calendar" size={24} className="text-cyan-400 md:w-7 md:h-7" />
-          График работы отдела
-        </h2>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="flex gap-2 flex-1">
-            <Button
-              onClick={() => setView('team')}
-              variant={view === 'team' ? 'default' : 'outline'}
-              className={`text-xs md:text-sm flex-1 sm:flex-initial ${view === 'team' ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : 'bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200'}`}
-              size="sm"
+
+      {/* Top row: title + action buttons */}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg md:text-xl font-bold text-slate-100 tracking-tight">
+            График работы
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">отдел промо</p>
+        </div>
+
+        <div className="flex flex-col gap-1.5 flex-shrink-0">
+          {onOpenAddShift && (
+            <button
+              onClick={onOpenAddShift}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-all shadow-md shadow-emerald-900/30"
             >
-              <Icon name="Users" size={16} className="mr-1 md:mr-2" />
-              Общий
-            </Button>
-            <Button
-              onClick={() => setView('individual')}
-              variant={view === 'individual' ? 'default' : 'outline'}
-              className={`text-xs md:text-sm flex-1 sm:flex-initial ${view === 'individual' ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : 'bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200'}`}
-              size="sm"
+              <Icon name="CalendarPlus" size={13} />
+              Добавить смену
+            </button>
+          )}
+          {onOpenAddTraining && (
+            <button
+              onClick={onOpenAddTraining}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all shadow-md shadow-violet-900/30"
             >
-              <Icon name="User" size={16} className="mr-1 md:mr-2" />
-              Индивидуально
-            </Button>
-          </div>
-          <div className="flex flex-col gap-2 w-full sm:w-auto">
-            {onOpenAddShift && (
-              <Button
-                onClick={onOpenAddShift}
-                className="bg-green-600 hover:bg-green-700 text-white text-xs md:text-sm w-full sm:w-auto"
-                size="sm"
-              >
-                <Icon name="CalendarPlus" size={16} className="mr-1 md:mr-2" />
-                Добавить смену
-              </Button>
-            )}
-            {onOpenAddTraining && (
-              <Button
-                onClick={onOpenAddTraining}
-                className="bg-violet-600 hover:bg-violet-700 text-white text-xs md:text-sm w-full sm:w-auto"
-                size="sm"
-              >
-                <Icon name="GraduationCap" size={16} className="mr-1 md:mr-2" />
-                Добавить обучение
-              </Button>
-            )}
-          </div>
+              <Icon name="GraduationCap" size={13} />
+              Добавить обучение
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 bg-slate-800/50 p-3 rounded-lg border-2 border-slate-700/50">
-        <Button
-          onClick={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
+      {/* View toggle */}
+      <div className="flex gap-1 bg-slate-900/60 ring-1 ring-slate-700/40 rounded-xl p-1 self-start">
+        <button
+          onClick={() => setView('team')}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+            view === 'team'
+              ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+          }`}
+        >
+          <Icon name="Users" size={13} />
+          Общий
+        </button>
+        <button
+          onClick={() => setView('individual')}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+            view === 'individual'
+              ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+          }`}
+        >
+          <Icon name="User" size={13} />
+          Индивидуально
+        </button>
+      </div>
+
+      {/* Week navigation */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
           disabled={currentWeekIndex === 0 || loading}
-          variant="outline"
-          size="sm"
-          className="bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200 disabled:opacity-30"
+          className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-900/60 ring-1 ring-slate-700/40 text-slate-400 hover:text-slate-200 hover:bg-slate-800/70 disabled:opacity-25 transition-all flex-shrink-0"
         >
           <Icon name="ChevronLeft" size={16} />
-        </Button>
+        </button>
 
-        <div className="text-center">
-          <p className="text-sm md:text-base font-semibold text-slate-100">
-            {weeks[currentWeekIndex].label}
+        <div className="flex-1 text-center">
+          <p className="text-sm font-semibold text-slate-100">
+            {weeks[currentWeekIndex]?.label}
           </p>
-          <p className="text-xs text-slate-400">
+          <p className="text-[10px] text-slate-600 mt-0.5">
             Неделя {currentWeekIndex + 1} из {weeks.length}
           </p>
         </div>
 
-        <Button
-          onClick={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
+        <button
+          onClick={() => setCurrentWeekIndex(Math.min(weeks.length - 1, currentWeekIndex + 1))}
           disabled={currentWeekIndex === weeks.length - 1 || loading}
-          variant="outline"
-          size="sm"
-          className="bg-slate-800/50 hover:bg-slate-700/50 border-slate-600 text-slate-200 disabled:opacity-30"
+          className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-900/60 ring-1 ring-slate-700/40 text-slate-400 hover:text-slate-200 hover:bg-slate-800/70 disabled:opacity-25 transition-all flex-shrink-0"
         >
           <Icon name="ChevronRight" size={16} />
-        </Button>
+        </button>
       </div>
     </div>
   );

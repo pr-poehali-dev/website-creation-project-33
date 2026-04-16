@@ -4,19 +4,49 @@ interface WeekCalendarProps {
   weekDays: DaySchedule[];
 }
 
+const TODAY = new Date().toISOString().slice(0, 10);
+
 export default function WeekCalendar({ weekDays }: WeekCalendarProps) {
   return (
-    <div className="grid grid-cols-7 gap-0.5 md:gap-1 lg:gap-2">
-      {weekDays.map(day => (
-        <div key={day.date} className={`p-1 md:p-2 lg:p-3 rounded-md md:rounded-lg text-center border md:border-2 ${day.isWeekend ? 'bg-orange-500/10 border-orange-500/50' : 'bg-cyan-500/10 border-cyan-500/50'}`}>
-          <div className={`text-[9px] md:text-[10px] lg:text-xs font-semibold mb-0.5 md:mb-1 ${day.isWeekend ? 'text-orange-400' : 'text-cyan-400'}`}>
-            {day.dayName}
+    <div className="grid grid-cols-7 gap-1 md:gap-1.5">
+      {weekDays.map(day => {
+        const isToday = day.date === TODAY;
+        const dayNum = new Date(day.date).getDate();
+        const month = (new Date(day.date).getMonth() + 1).toString().padStart(2, '0');
+
+        return (
+          <div
+            key={day.date}
+            className={`relative flex flex-col items-center py-2 md:py-3 rounded-2xl transition-all ${
+              isToday
+                ? 'bg-cyan-500 shadow-lg shadow-cyan-500/25'
+                : day.isWeekend
+                  ? 'bg-slate-800/60 ring-1 ring-orange-500/20'
+                  : 'bg-slate-800/60 ring-1 ring-slate-700/30'
+            }`}
+          >
+            <span className={`text-[9px] md:text-[10px] font-semibold uppercase tracking-widest mb-1 ${
+              isToday ? 'text-cyan-100' : day.isWeekend ? 'text-orange-400/70' : 'text-slate-500'
+            }`}>
+              {day.dayName}
+            </span>
+            <span className={`text-sm md:text-xl font-bold leading-none ${
+              isToday ? 'text-white' : day.isWeekend ? 'text-orange-300' : 'text-slate-200'
+            }`}>
+              {dayNum}
+            </span>
+            <span className={`text-[9px] md:text-[10px] mt-0.5 ${
+              isToday ? 'text-cyan-200' : 'text-slate-600'
+            }`}>
+              .{month}
+            </span>
+
+            {isToday && (
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-cyan-300" />
+            )}
           </div>
-          <div className="text-[10px] md:text-xs lg:text-lg font-bold text-slate-100">
-            {new Date(day.date).getDate()}.{(new Date(day.date).getMonth() + 1).toString().padStart(2, '0')}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

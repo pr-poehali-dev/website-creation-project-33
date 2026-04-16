@@ -90,62 +90,59 @@ export default function IndividualScheduleView({
                 }`}
               >
                 {/* Day badge */}
-                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl flex flex-col items-center justify-center font-bold flex-shrink-0 shadow-md ${
+                <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center font-bold flex-shrink-0 shadow-md ${
                   day.isWeekend
                     ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white'
                     : isMaxim
                       ? 'bg-gradient-to-br from-purple-500 to-purple-700 text-white'
                       : 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white'
                 }`}>
-                  <span className="text-[9px] md:text-[10px] uppercase tracking-wider opacity-80">{day.dayName}</span>
-                  <span className="text-base md:text-lg leading-none">
-                    {dayNum}<span className="text-[9px] md:text-[10px] font-normal opacity-70">.{month}</span>
+                  <span className="text-[9px] uppercase tracking-wider opacity-80">{day.dayName}</span>
+                  <span className="text-base leading-none">
+                    {dayNum}<span className="text-[9px] font-normal opacity-70">.{month}</span>
                   </span>
                 </div>
 
-                {/* Day info */}
+                {/* Day info + slots */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-slate-100 text-sm md:text-base leading-tight">{day.dayNameFull}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{day.date}</p>
-                </div>
+                  <p className="font-semibold text-slate-100 text-sm leading-tight">{day.dayNameFull}</p>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {activeSlots.map(slot => {
+                      const isDeleting = deletingSlot?.userId === selectedUserData.user_id
+                        && deletingSlot?.date === day.date
+                        && deletingSlot?.slot === slot.time;
 
-                {/* Slots */}
-                <div className="flex flex-wrap gap-1.5 justify-end flex-shrink-0">
-                  {activeSlots.map(slot => {
-                    const isDeleting = deletingSlot?.userId === selectedUserData.user_id
-                      && deletingSlot?.date === day.date
-                      && deletingSlot?.slot === slot.time;
-
-                    return (
-                      <div key={slot.time} className="relative group flex items-center">
-                        <div className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold ${
-                          isMaxim
-                            ? 'bg-purple-500/20 text-purple-300 ring-1 ring-purple-500/30'
-                            : 'bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/30'
-                        }`}>
-                          <Icon name="Clock" size={11} />
-                          <span className="whitespace-nowrap">{slot.label}</span>
-                          <button
-                            onClick={() => confirmRemoveSlot(
-                              selectedUserData.user_id,
-                              `${selectedUserData.first_name} ${selectedUserData.last_name}`,
-                              day.date,
-                              slot.time,
-                              slot.label
-                            )}
-                            disabled={isDeleting}
-                            className="ml-0.5 w-4 h-4 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 hover:bg-red-500/20 transition-all disabled:opacity-50"
-                            title="Удалить смену"
-                          >
-                            {isDeleting
-                              ? <Icon name="Loader2" size={10} className="animate-spin text-red-400" />
-                              : <Icon name="X" size={10} className="text-red-400" />
-                            }
-                          </button>
+                      return (
+                        <div key={slot.time} className="relative group flex items-center">
+                          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold ${
+                            isMaxim
+                              ? 'bg-purple-500/20 text-purple-300 ring-1 ring-purple-500/30'
+                              : 'bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/30'
+                          }`}>
+                            <Icon name="Clock" size={11} />
+                            <span className="whitespace-nowrap">{slot.label}</span>
+                            <button
+                              onClick={() => confirmRemoveSlot(
+                                selectedUserData.user_id,
+                                `${selectedUserData.first_name} ${selectedUserData.last_name}`,
+                                day.date,
+                                slot.time,
+                                slot.label
+                              )}
+                              disabled={isDeleting}
+                              className="ml-0.5 w-4 h-4 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 hover:bg-red-500/20 transition-all disabled:opacity-50"
+                              title="Удалить смену"
+                            >
+                              {isDeleting
+                                ? <Icon name="Loader2" size={10} className="animate-spin text-red-400" />
+                                : <Icon name="X" size={10} className="text-red-400" />
+                              }
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             );

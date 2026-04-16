@@ -60,6 +60,8 @@ export default function WorkerCard({
   
   // Вычисляем средний показатель ДО текущей даты (не включая её)
   const avgContacts = calculateAvgBeforeDate(worker.daily_contacts, dayDate);
+  // Фактический результат за этот день
+  const actualContacts = worker.daily_contacts?.find(d => d.date === dayDate)?.count ?? null;
   const commentKey = `${workerName}-${dayDate}`;
   
   const commentData = workComments[dayDate]?.[workerName] || {};
@@ -160,8 +162,16 @@ export default function WorkerCard({
               • {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
             </span>
             {avgContacts !== undefined && avgContacts !== null && (
-              <span className="text-[9px] md:text-[10px] text-slate-400 bg-slate-700/50 px-1.5 py-0.5 rounded">
-                ~{avgContacts.toFixed(1)}
+              <span className="text-[9px] md:text-[10px] bg-slate-700/50 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                <span className="text-slate-400">~{avgContacts.toFixed(1)}</span>
+                {actualContacts !== null && (
+                  <>
+                    <span className="text-slate-600">/</span>
+                    <span className={actualContacts >= Math.round(avgContacts) ? 'text-green-400' : 'text-orange-400'}>
+                      {actualContacts}
+                    </span>
+                  </>
+                )}
               </span>
             )}
             {currentOrganization && (

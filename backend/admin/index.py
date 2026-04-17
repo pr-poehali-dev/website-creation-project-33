@@ -2774,6 +2774,14 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             (user_id, organization_id, video_type, work_date, created_at)
                             VALUES (%s, %s, 'end', %s, NOW())
                         """, (target_user_id, organization_id, work_date))
+                        cur.execute("""
+                            UPDATE t_p24058207_website_creation_pro.work_shifts
+                            SET shift_end = NOW(), updated_at = NOW()
+                            WHERE user_id = %s
+                            AND organization_id = %s
+                            AND shift_date = %s
+                            AND shift_end IS NULL
+                        """, (target_user_id, organization_id, work_date))
                         conn.commit()
                 return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True})}
             except Exception as e:

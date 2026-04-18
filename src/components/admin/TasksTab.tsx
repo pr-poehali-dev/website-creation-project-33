@@ -192,12 +192,12 @@ export default function TasksTab() {
               <div>
                 <label className="text-xs text-slate-500 mb-1 block">Классификация</label>
                 <div className="flex gap-2">
-                  <Select value={String(fCat)} onValueChange={v => setFCat(v ? Number(v) : '')}>
+                  <Select value={fCat === '' ? '_none' : String(fCat)} onValueChange={v => setFCat(v === '_none' ? '' : Number(v))}>
                     <SelectTrigger className="flex-1 h-9 bg-slate-900/60 ring-1 ring-slate-700/60 border-0 text-slate-200 rounded-lg text-sm focus:ring-cyan-500/50 focus:ring-2">
                       <SelectValue placeholder="— не указана —" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700">
-                      <SelectItem value="" className="text-slate-400 focus:bg-slate-700">— не указана —</SelectItem>
+                      <SelectItem value="_none" className="text-slate-400 focus:bg-slate-700">— не указана —</SelectItem>
                       {categories.map(c => <SelectItem key={c.id} value={String(c.id)} className="text-slate-200 focus:bg-slate-700 focus:text-white">{c.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
@@ -241,36 +241,36 @@ export default function TasksTab() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Ответственный</label>
-              <Select value={fResp2} onValueChange={setFResp2}>
+              <Select value={fResp2 || '_all'} onValueChange={v => setFResp2(v === '_all' ? '' : v)}>
                 <SelectTrigger className="h-8 bg-slate-800/60 ring-1 ring-slate-700/50 border-0 text-slate-300 rounded-lg text-xs">
                   <SelectValue placeholder="Все" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
+                  <SelectItem value="_all" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
                   {RESPONSIBLES.map(r => <SelectItem key={r} value={r} className="text-slate-200 focus:bg-slate-700 focus:text-white text-xs">{r}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Классификация</label>
-              <Select value={fCat2} onValueChange={setFCat2}>
+              <Select value={fCat2 || '_all'} onValueChange={v => setFCat2(v === '_all' ? '' : v)}>
                 <SelectTrigger className="h-8 bg-slate-800/60 ring-1 ring-slate-700/50 border-0 text-slate-300 rounded-lg text-xs">
                   <SelectValue placeholder="Все" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
+                  <SelectItem value="_all" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
                   {categories.map(c => <SelectItem key={c.id} value={String(c.id)} className="text-slate-200 focus:bg-slate-700 focus:text-white text-xs">{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Статус</label>
-              <Select value={fStatus} onValueChange={setFStatus}>
+              <Select value={fStatus || '_all'} onValueChange={v => setFStatus(v === '_all' ? '' : v)}>
                 <SelectTrigger className="h-8 bg-slate-800/60 ring-1 ring-slate-700/50 border-0 text-slate-300 rounded-lg text-xs">
                   <SelectValue placeholder="Все" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
+                  <SelectItem value="_all" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
                   <SelectItem value="pending" className="text-red-300 focus:bg-slate-700 text-xs">Не выполнена</SelectItem>
                   <SelectItem value="in_progress" className="text-yellow-300 focus:bg-slate-700 text-xs">В процессе</SelectItem>
                   <SelectItem value="done" className="text-emerald-300 focus:bg-slate-700 text-xs">Выполнена</SelectItem>

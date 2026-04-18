@@ -186,89 +186,67 @@ export default function UserDashboard() {
                 }} />
               </div>
             )}
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-              <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100">
                 <button
                   onClick={() => setCurrentView('work')}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
-                      <Icon name="Briefcase" size={20} className="text-blue-500" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Работа</div>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <Icon name="Briefcase" size={17} className="text-gray-400" />
+                    <span className="font-medium text-gray-800">Работа</span>
                   </div>
-                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
                 </button>
 
                 <button
                   onClick={() => setCurrentView('work-new')}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
-                      <Icon name="Video" size={20} className="text-blue-500" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Работа NEW</div>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <Icon name="Video" size={17} className="text-gray-400" />
+                    <span className="font-medium text-gray-800">Работа NEW</span>
                   </div>
-                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
                 </button>
 
                 <button
                   onClick={() => setCurrentView('schedule')}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
-                      <Icon name="Calendar" size={20} className="text-blue-500" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">График</div>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <Icon name="Calendar" size={17} className="text-gray-400" />
+                    <span className="font-medium text-gray-800">График</span>
                   </div>
-                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
                 </button>
 
                 <button
                   onClick={() => setCurrentView('training')}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
-                      <Icon name="GraduationCap" size={20} className="text-blue-500" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Обучение</div>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <Icon name="GraduationCap" size={17} className="text-gray-400" />
+                    <span className="font-medium text-gray-800">Обучение</span>
                   </div>
-                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
                 </button>
 
                 <button
                   onClick={() => setChatOpen(true)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 hover:border-l-4 hover:border-l-blue-400 transition-all duration-200 group"
+                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors relative">
-                      <Icon name="MessageCircle" size={20} className="text-blue-500" />
-                      {unreadCount > 0 && (
-                        <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[18px]">
-                          {unreadCount}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="text-left">
-                      <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Чат</div>
-                    </div>
+                  <div className="flex items-center gap-3 relative">
+                    <Icon name="MessageCircle" size={17} className="text-gray-400" />
+                    <span className="font-medium text-gray-800">Чат</span>
+                    {unreadCount > 0 && (
+                      <Badge className="bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[18px]">
+                        {unreadCount}
+                      </Badge>
+                    )}
                   </div>
-                  <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
                 </button>
               </div>
-            </div>
           </>
         )}
 

@@ -72,7 +72,8 @@ export default function IndividualScheduleView({
                 <Icon name="CheckCircle" size={13} />
                 {new Date(selectedUserData.submitted_at).toLocaleString('ru-RU', {
                   day: '2-digit', month: '2-digit',
-                  hour: '2-digit', minute: '2-digit'
+                  hour: '2-digit', minute: '2-digit',
+                  timeZone: 'Europe/Moscow'
                 })}
               </div>
             ) : (

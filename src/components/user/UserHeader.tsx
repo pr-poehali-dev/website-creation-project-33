@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
@@ -27,155 +26,64 @@ export default function UserHeader({
   groupUnreadCount,
   selectedOrganization,
   organizationName,
-  todayContacts,
-  totalContacts
 }: UserHeaderProps) {
   return (
-    <>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-6 p-4 rounded-xl relative overflow-hidden shadow-xl" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
-        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%)'}} />
-        
-        {selectedOrganization ? (
-          <>
-            {/* With Organization Selected */}
-            <div className="flex items-center justify-between relative z-10">
-              <div className="flex flex-col">
-                <span className="text-xl font-bold text-white drop-shadow-lg leading-tight tracking-wide">ИМПЕРИЯ</span>
-                <span className="text-xs text-white/80 drop-shadow leading-tight">рекламное агентство</span>
-              </div>
-              <div className="flex gap-1">
-                {onChangeOrganization && (
-                  <Button 
-                    onClick={onChangeOrganization}
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
-                    size="sm"
-                    variant="outline"
-                  >
-                    <Icon name="RefreshCw" size={14} className="text-white" />
-                  </Button>
-                )}
-                <Button 
-                  onClick={onOpenAI} 
-                  className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
-                  size="sm"
-                >
-                  <Icon name="Sparkles" size={14} className="text-white" />
-                </Button>
-                <Button 
-                  onClick={onOpenSchedule} 
-                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
-                  size="sm"
-                  variant="outline"
-                >
-                  <Icon name="Calendar" size={14} className="text-white" />
-                </Button>
-                <Button 
-                  onClick={onLogout} 
-                  className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 px-2 py-1.5 h-8"
-                  size="sm"
-                >
-                  <Icon name="LogOut" size={14} className="text-white" />
-                </Button>
-              </div>
-            </div>
-            </>
-          ) : (
-            <>
-              {/* Without Organization - Logo left, Buttons right */}
-              <div className="flex items-center justify-between w-full relative z-10">
-                <div className="flex flex-col">
-                  <span className="text-xl font-bold text-white drop-shadow-lg leading-tight tracking-wide">ИМПЕРИЯ</span>
-                  <span className="text-xs text-white/80 drop-shadow leading-tight">рекламное агентство</span>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={onOpenAI} 
-                    className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 px-3 py-2"
-                    size="sm"
-                  >
-                    <Icon name="Sparkles" size={16} className="text-white" />
-                  </Button>
-                  <Button 
-                    onClick={onOpenSchedule} 
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 px-3 py-2"
-                    size="sm"
-                    variant="outline"
-                  >
-                    <Icon name="Calendar" size={16} className="text-white" />
-                  </Button>
-                  <Button 
-                    onClick={onLogout} 
-                    className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 px-3 py-2"
-                    size="sm"
-                  >
-                    <Icon name="LogOut" size={16} className="text-white" />
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
+    <header className="mb-6 flex items-center justify-between px-1">
+      {/* Logo */}
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-[#001f54] flex items-center justify-center flex-shrink-0">
+          <span className="text-white text-xs font-black tracking-tight">И</span>
+        </div>
+        <div>
+          <div className="text-base font-bold text-[#001f54] tracking-wide leading-none">ИМПЕРИЯ</div>
+          <div className="text-[11px] text-gray-400 leading-none mt-0.5">рекламное агентство</div>
+        </div>
       </div>
 
-      {/* Desktop Header */}
-      <div className="hidden md:flex justify-center items-center mb-8 p-10 rounded-2xl relative overflow-hidden shadow-xl min-h-[120px]" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
-        <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, #86efac 0%, transparent 50%), radial-gradient(circle at 80% 20%, #6ee7b7 0%, transparent 40%)'}} />
-        <div className="flex flex-col absolute left-6 z-10">
-          <span className="text-5xl font-bold text-white drop-shadow-2xl tracking-widest leading-tight">ИМПЕРИЯ</span>
-          <span className="text-base text-white/85 drop-shadow leading-tight tracking-wide">рекламное агентство</span>
-        </div>
-        <div className="flex items-center gap-3 absolute right-6 z-10">
-          {selectedOrganization && (
-            <>
-              <Button 
-                onClick={onOpenChat} 
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl relative px-3"
-                variant="outline"
-                size="sm"
-              >
-                <Icon name="MessageCircle" size={18} className="text-white" />
-                {(unreadCount + groupUnreadCount) > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 min-w-[20px] bg-red-500 hover:bg-red-500 text-white text-xs px-1">
-                    {unreadCount + groupUnreadCount}
-                  </Badge>
-                )}
-              </Button>
-              {onChangeOrganization && (
-                <Button 
-                  onClick={onChangeOrganization}
-                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl px-3"
-                  variant="outline"
-                  size="sm"
-                >
-                  <Icon name="RefreshCw" size={18} className="text-white" />
-                </Button>
+      {/* Actions */}
+      <div className="flex items-center gap-1.5">
+        {selectedOrganization && (
+          <>
+            <button
+              onClick={onOpenChat}
+              className="relative w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            >
+              <Icon name="MessageCircle" size={17} className="text-gray-600" />
+              {(unreadCount + groupUnreadCount) > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-4 min-w-[16px] bg-red-500 text-white text-[10px] px-1 leading-none">
+                  {unreadCount + groupUnreadCount}
+                </Badge>
               )}
-            </>
-          )}
-          <Button 
-            onClick={onOpenAI} 
-            className="bg-purple-600/40 hover:bg-purple-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl px-3"
-            size="sm"
-          >
-            <Icon name="Sparkles" size={18} className="text-white" />
-          </Button>
-          <Button 
-            onClick={onOpenSchedule} 
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl px-3"
-            variant="outline"
-            size="sm"
-          >
-            <Icon name="Calendar" size={18} className="text-white" />
-          </Button>
-          <Button 
-            onClick={onLogout} 
-            className="bg-red-600/40 hover:bg-red-600/60 backdrop-blur-sm text-white border-2 border-pink-300/60 shadow-xl px-3"
-            size="sm"
-          >
-            <Icon name="LogOut" size={18} className="text-white" />
-          </Button>
-        </div>
+            </button>
+            {onChangeOrganization && (
+              <button
+                onClick={onChangeOrganization}
+                className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              >
+                <Icon name="RefreshCw" size={15} className="text-gray-600" />
+              </button>
+            )}
+          </>
+        )}
+        <button
+          onClick={onOpenAI}
+          className="w-9 h-9 rounded-xl bg-[#001f54] hover:bg-[#002a72] flex items-center justify-center transition-colors"
+        >
+          <Icon name="Sparkles" size={15} className="text-white" />
+        </button>
+        <button
+          onClick={onOpenSchedule}
+          className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+        >
+          <Icon name="Calendar" size={17} className="text-gray-600" />
+        </button>
+        <button
+          onClick={onLogout}
+          className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-red-50 flex items-center justify-center transition-colors group"
+        >
+          <Icon name="LogOut" size={16} className="text-gray-500 group-hover:text-red-500 transition-colors" />
+        </button>
       </div>
-    </>
+    </header>
   );
 }

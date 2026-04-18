@@ -37,6 +37,7 @@ export default function TasksTab() {
   const [showForm, setShowForm]     = useState(false);
   const [saving, setSaving]         = useState(false);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // форма
   const [fText, setFText]       = useState('');
@@ -84,6 +85,14 @@ export default function TasksTab() {
       setFText(''); setFResp(''); setFCat(''); setShowForm(false);
       await reloadTasks();
     } finally { setSaving(false); }
+  };
+
+  const deleteTask = async (id: number) => {
+    setDeletingId(id);
+    try {
+      await fetch(`${TASKS_API}?id=${id}`, { method: 'DELETE' });
+      setTasks(p => p.filter(t => t.id !== id));
+    } finally { setDeletingId(null); }
   };
 
   const changeStatus = async (id: number, s: TaskStatus) => {
@@ -259,6 +268,7 @@ export default function TasksTab() {
             {filtered.map((task, idx) => {
               const cfg = STATUS_CONFIG[task.status];
               const isUpd = updatingId === task.id;
+              const isDel = deletingId === task.id;
               return (
                 <div key={task.id}
                   className="group flex items-start gap-3 p-4 bg-slate-800/40 ring-1 ring-slate-700/40 rounded-xl hover:ring-slate-600/60 hover:bg-slate-800/60 transition-all duration-200"
@@ -278,9 +288,20 @@ export default function TasksTab() {
                           <Icon name="Tag" size={9} />{task.category_name}
                         </span>
                       )}
-                      <span className="ml-auto text-[11px] text-slate-600 flex items-center gap-1">
+                      <span className="text-[11px] text-slate-600 flex items-center gap-1">
                         <Icon name="User" size={10} />{task.responsible}
                       </span>
+                      <button
+                        onClick={() => deleteTask(task.id)}
+                        disabled={isDel}
+                        className="ml-auto opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all"
+                        title="Удалить задачу"
+                      >
+                        {isDel
+                          ? <Icon name="Loader2" size={12} className="animate-spin text-red-400" />
+                          : <Icon name="Trash2" size={12} />
+                        }
+                      </button>
                     </div>
 
                     <p className={`text-sm leading-relaxed mb-2.5 ${task.status === 'done' ? 'line-through text-slate-600' : 'text-slate-200'}`}>

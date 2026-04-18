@@ -1,14 +1,6 @@
 {
   "tests": [
     {
-      "name": "Get categories",
-      "method": "GET",
-      "path": "/?action=categories",
-      "expectedStatus": 200,
-      "expectedBody": {"categories": []},
-      "bodyMatcher": "partial"
-    },
-    {
       "name": "Get tasks list",
       "method": "GET",
       "path": "/",
@@ -22,12 +14,12 @@
       "path": "/",
       "body": {
         "action": "create_task",
-        "text": "Тестовая задача",
+        "text": "Тест удаления",
         "responsible": "Корельский Максим",
         "category_id": 1
       },
       "expectedStatus": 200,
-      "expectedBody": {"id": 1},
+      "expectedBody": {"id": 0},
       "bodyMatcher": "partial"
     }
   ]

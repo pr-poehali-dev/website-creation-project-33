@@ -131,6 +131,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             conn.commit()
             return _ok({'updated': True})
 
+        elif method == 'DELETE':
+            params = event.get('queryStringParameters') or {}
+            task_id = params.get('id')
+            if not task_id:
+                return _err(400, 'id required')
+            cur.execute('DELETE FROM tasks WHERE id=%s', (int(task_id),))
+            conn.commit()
+            return _ok({'deleted': True})
+
         else:
             return _err(405, 'Method not allowed')
 

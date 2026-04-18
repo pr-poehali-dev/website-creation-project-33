@@ -288,10 +288,12 @@ export default function UserDashboard() {
               </>
             ) : (
               <>
-                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
-                  setTodayContacts(stats.today_contacts);
-                  setTotalContacts(stats.total_contacts);
-                }} />
+                <div className="hidden">
+                  <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
+                    setTodayContacts(stats.today_contacts);
+                    setTotalContacts(stats.total_contacts);
+                  }} />
+                </div>
                 <WorkTab
                   selectedOrganizationId={selectedOrganization}
                   organizationName={organizationName}

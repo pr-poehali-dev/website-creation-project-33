@@ -262,31 +262,33 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   return (
     <div className="flex flex-col gap-5">
 
-      {/* Header row: back + org */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"
-        >
-          <Icon name="ArrowLeft" size={16} />
-          Назад
-        </button>
-        <div className="flex items-center gap-1.5 bg-gray-100 rounded-xl px-3 py-1.5 max-w-[180px]">
-          <Icon name="MapPin" size={13} className="text-[#001f54] flex-shrink-0" />
-          <span className="text-[#001f54] text-xs font-semibold truncate">{organizationName}</span>
-        </div>
-      </div>
+      {/* Back button */}
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1.5 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium w-fit"
+      >
+        <Icon name="ArrowLeft" size={16} />
+        Назад
+      </button>
 
       {/* Stats card */}
-      <div className="bg-[#001f54] rounded-2xl p-5 flex items-center justify-between">
-        <div>
-          <p className="text-blue-200 text-xs mb-1">Сегодня</p>
-          <p className="text-white text-4xl font-bold leading-none">{todayContactsCount}</p>
+      <div className="bg-[#001f54] rounded-2xl p-5">
+        {/* Org name */}
+        <div className="flex items-center gap-1.5 mb-4">
+          <Icon name="MapPin" size={13} className="text-blue-300 flex-shrink-0" />
+          <span className="text-blue-200 text-sm font-medium truncate">{organizationName}</span>
         </div>
-        <div className="w-px h-10 bg-white/10" />
-        <div className="text-right">
-          <p className="text-blue-200 text-xs mb-1">Всего</p>
-          <p className="text-white text-4xl font-bold leading-none">{totalContactsCount}</p>
+        {/* Counters */}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-blue-300 text-xs mb-1">Сегодня</p>
+            <p className="text-white text-4xl font-bold leading-none">{todayContactsCount}</p>
+          </div>
+          <div className="w-px h-10 bg-white/10" />
+          <div className="text-right">
+            <p className="text-blue-300 text-xs mb-1">Всего</p>
+            <p className="text-white text-4xl font-bold leading-none">{totalContactsCount}</p>
+          </div>
         </div>
       </div>
 

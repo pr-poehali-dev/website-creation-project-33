@@ -17,6 +17,7 @@ import TodayWorkersCounter from './TodayWorkersCounter';
 import ClientsTab from './ClientsTab';
 import TelegramBotTab from './TelegramBotTab';
 import SeniorsTab from './SeniorsTab';
+import TasksTab from './TasksTab';
 
 
 interface AdminMetroTilesProps {
@@ -26,7 +27,7 @@ interface AdminMetroTilesProps {
   onViewChange: (view: TileView) => void;
 }
 
-type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram';
+type TileView = 'tiles' | 'requests' | 'tasks' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram';
 type StatsSubView = 'users' | 'rating' | 'organizations' | 'seniors';
 
 const NavButton = ({ 
@@ -70,6 +71,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   const navigationItems = [
     { view: 'tiles' as TileView, icon: 'Home', label: 'Домой' },
     { view: 'requests' as TileView, icon: 'UserCheck', label: 'Заявки' },
+    { view: 'tasks' as TileView, icon: 'ClipboardList', label: 'Задачи' },
     { view: 'accounting' as TileView, icon: 'Calculator', label: 'Бух.учет' },
     { view: 'stats' as TileView, icon: 'BarChart3', label: 'Статистика' },
     { view: 'chat' as TileView, icon: 'MessageCircle', label: 'Чат', badge: unreadCount },
@@ -106,6 +108,12 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
       </div>
     </div>
   );
+
+  if (currentView === 'tasks') {
+    return renderWithSidebar(
+      <TasksTab />
+    );
+  }
 
   if (currentView === 'requests') {
     return renderWithSidebar(
@@ -217,6 +225,21 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
             </div>
             <div className="text-left">
               <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Заявки</div>
+            </div>
+          </div>
+        </button>
+
+        {/* Задачи */}
+        <button
+          onClick={() => handleViewChange('tasks')}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-cyan-50 hover:border-l-4 hover:border-l-cyan-400 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-cyan-50 group-hover:bg-cyan-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="ClipboardList" size={20} className="text-cyan-500" />
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-gray-800 group-hover:text-cyan-700 transition-colors">Задачи</div>
             </div>
           </div>
         </button>

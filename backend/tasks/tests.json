@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Get categories",
+      "method": "GET",
+      "path": "/?action=categories",
+      "expectedStatus": 200,
+      "expectedBody": {"categories": []},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get tasks list",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"tasks": []},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create task",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "create_task",
+        "text": "Тестовая задача",
+        "responsible": "Корельский Максим",
+        "category_id": 1
+      },
+      "expectedStatus": 200,
+      "expectedBody": {"id": 1},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

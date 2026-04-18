@@ -5,7 +5,7 @@ import AdminAccessDenied from './AdminAccessDenied';
 import AdminHeader from './AdminHeader';
 import AdminMetroTiles from './AdminMetroTiles';
 
-type TileView = 'tiles' | 'requests' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients';
+type TileView = 'tiles' | 'requests' | 'tasks' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram';
 
 export default function AdminPanel() {
   const { logout, user } = useAuth();

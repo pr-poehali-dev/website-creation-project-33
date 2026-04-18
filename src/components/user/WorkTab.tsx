@@ -262,32 +262,31 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   return (
     <div className="flex flex-col gap-5">
 
-      {/* Stats card */}
-      <div className="bg-[#001f54] rounded-2xl px-5 py-4">
-        {/* Top row: back + org name */}
-        <div className="flex items-center justify-between mb-3">
-          <button
-            onClick={onBack}
-            className="flex items-center gap-1.5 text-blue-200 hover:text-white transition-colors text-sm font-medium"
-          >
-            <Icon name="ArrowLeft" size={16} />
-            Назад
-          </button>
-          <div className="flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 max-w-[160px]">
-            <Icon name="Building2" size={13} className="text-blue-200 flex-shrink-0" />
-            <span className="text-white text-xs font-medium truncate">{organizationName}</span>
-          </div>
+      {/* Header row: back + org */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"
+        >
+          <Icon name="ArrowLeft" size={16} />
+          Назад
+        </button>
+        <div className="flex items-center gap-1.5 bg-gray-100 rounded-xl px-3 py-1.5 max-w-[180px]">
+          <Icon name="MapPin" size={13} className="text-[#001f54] flex-shrink-0" />
+          <span className="text-[#001f54] text-xs font-semibold truncate">{organizationName}</span>
         </div>
-        {/* Bottom row: stats */}
-        <div className="flex items-end justify-between">
-          <div>
-            <p className="text-blue-200 text-xs font-medium mb-0.5">Контактов сегодня</p>
-            <p className="text-white text-3xl font-bold leading-none">{todayContactsCount}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-blue-200 text-xs font-medium mb-0.5">Всего</p>
-            <p className="text-white text-xl font-semibold leading-none">{totalContactsCount}</p>
-          </div>
+      </div>
+
+      {/* Stats card */}
+      <div className="bg-[#001f54] rounded-2xl p-5 flex items-center justify-between">
+        <div>
+          <p className="text-blue-200 text-xs mb-1">Сегодня</p>
+          <p className="text-white text-4xl font-bold leading-none">{todayContactsCount}</p>
+        </div>
+        <div className="w-px h-10 bg-white/10" />
+        <div className="text-right">
+          <p className="text-blue-200 text-xs mb-1">Всего</p>
+          <p className="text-white text-4xl font-bold leading-none">{totalContactsCount}</p>
         </div>
       </div>
 

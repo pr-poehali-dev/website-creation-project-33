@@ -312,10 +312,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           className="relative w-36 h-36 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' }}
         >
-          {/* Pulse ring */}
-          {!isRecording && (
-            <span className="absolute inset-0 rounded-full bg-blue-400 opacity-20 animate-ping" />
-          )}
+
           <div className="flex items-end gap-1 h-10">
             {[18, 28, 22, 34, 20, 30, 16].map((h, i) => (
               <div

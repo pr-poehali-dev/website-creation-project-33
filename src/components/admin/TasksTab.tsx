@@ -441,7 +441,8 @@ export default function TasksTab() {
                   </div>
 
                   {/* ── Раскрывающийся блок действий ── */}
-                  <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                  <div className="overflow-hidden">
                     <div className="border-t border-slate-700/50 mx-4" />
                     <div className="p-4 pt-3 space-y-2">
 
@@ -515,6 +516,7 @@ export default function TasksTab() {
                         ))
                       )}
                     </div>
+                  </div>
                   </div>
                 </div>
               );

@@ -96,6 +96,9 @@ export default {
 				'fade-up': 'fade-up 0.4s ease-out both',
 				'fade-in': 'fade-in 0.3s ease-out both',
 				'fade-down': 'fade-down 0.35s ease-out both',
+			},
+			transitionProperty: {
+				'grid': 'grid-template-rows, opacity',
 			}
 		}
 	},

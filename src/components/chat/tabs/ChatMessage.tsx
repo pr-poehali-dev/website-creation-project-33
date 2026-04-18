@@ -193,8 +193,8 @@ export default function ChatMessage({ msg, currentUserId, isGroup }: ChatMessage
             </div>
           )}
 
-          {/* Time for media-only messages */}
-          {!msg.message && (
+          {/* Time for media-only messages (not audio — it has its own time) */}
+          {!msg.message && msg.media_type !== 'audio' && (
             <div className={`flex items-center gap-1 mt-1 justify-end`}>
               <span className={`text-[10px] ${isOwn ? 'text-white/40' : 'text-gray-400'}`}>
                 {formatMoscowTime(msg.created_at)}

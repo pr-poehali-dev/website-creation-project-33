@@ -262,32 +262,42 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   return (
     <div className="flex flex-col gap-5">
 
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1.5 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium w-fit"
-      >
-        <Icon name="ArrowLeft" size={16} />
-        Назад
-      </button>
+      {/* Top row: back + blue card */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium flex-shrink-0"
+        >
+          <Icon name="ArrowLeft" size={16} />
+          Назад
+        </button>
 
-      {/* Stats card */}
-      <div className="bg-[#001f54] rounded-2xl px-5 py-4 flex items-center justify-between gap-3">
-        {/* Org */}
-        <div className="flex items-center gap-1.5 min-w-0">
-          <Icon name="MapPin" size={13} className="text-blue-300 flex-shrink-0" />
-          <span className="text-blue-200 text-sm font-medium truncate">{organizationName}</span>
-        </div>
-        {/* Counters */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="text-right">
-            <p className="text-blue-300 text-[10px] leading-none mb-0.5">Сегодня</p>
-            <p className="text-white text-xl font-bold leading-none">{todayContactsCount}</p>
+        {/* Stats card */}
+        <div className="bg-[#001f54] rounded-2xl px-4 py-3 flex items-center justify-between gap-2 flex-1 min-w-0">
+          {/* Org */}
+          <div className="flex items-center gap-1 min-w-0">
+            <Icon name="MapPin" size={12} className="text-blue-300 flex-shrink-0" />
+            <span className="text-blue-200 text-xs font-medium truncate">{organizationName}</span>
           </div>
-          <div className="w-px h-8 bg-white/20" />
-          <div className="text-right">
-            <p className="text-blue-300 text-[10px] leading-none mb-0.5">Всего</p>
-            <p className="text-white text-xl font-bold leading-none">{totalContactsCount}</p>
+          {/* Counters + end shift */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="text-right">
+              <p className="text-blue-300 text-[9px] leading-none mb-0.5">Сегодня</p>
+              <p className="text-white text-base font-bold leading-none">{todayContactsCount}</p>
+            </div>
+            <div className="w-px h-6 bg-white/20" />
+            <div className="text-right">
+              <p className="text-blue-300 text-[9px] leading-none mb-0.5">Всего</p>
+              <p className="text-white text-base font-bold leading-none">{totalContactsCount}</p>
+            </div>
+            <div className="w-px h-6 bg-white/20" />
+            <button
+              onClick={() => setEndShiftPhotoOpen(true)}
+              className="w-7 h-7 rounded-lg bg-red-500 hover:bg-red-600 active:scale-95 flex items-center justify-center transition-all"
+              title="Завершить смену"
+            >
+              <Icon name="LogOut" size={13} className="text-white" />
+            </button>
           </div>
         </div>
       </div>
@@ -355,12 +365,15 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         onOpenChange={setQrModalOpen} 
       />
 
-      <EndShiftSection
-        endShiftPhotoOpen={endShiftPhotoOpen}
-        setEndShiftPhotoOpen={setEndShiftPhotoOpen}
-        onShiftEnd={onShiftEnd}
-        organizationId={selectedOrganizationId}
-      />
+      {selectedOrganizationId && (
+        <EndShiftSection
+          endShiftPhotoOpen={endShiftPhotoOpen}
+          setEndShiftPhotoOpen={setEndShiftPhotoOpen}
+          onShiftEnd={onShiftEnd}
+          organizationId={selectedOrganizationId}
+          hideButton
+        />
+      )}
 
       <BlockedUserModal
         open={blockedUserModalOpen}

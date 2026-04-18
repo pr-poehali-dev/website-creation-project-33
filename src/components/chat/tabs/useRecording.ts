@@ -12,9 +12,12 @@ export function useRecording() {
   const startRecording = useCallback(async (onRecordingComplete: (file: File) => void) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { 
-        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
-      });
+
+      // iOS Safari supports only audio/mp4, Chrome/Firefox prefer audio/webm
+      const mimeTypes = ['audio/mp4', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg'];
+      const supportedMime = mimeTypes.find(m => MediaRecorder.isTypeSupported(m)) || '';
+      const recorderOptions = supportedMime ? { mimeType: supportedMime } : {};
+      const recorder = new MediaRecorder(stream, recorderOptions);
       const chunks: Blob[] = [];
 
       recorder.ondataavailable = (e) => {
@@ -24,8 +27,10 @@ export function useRecording() {
       };
 
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: recorder.mimeType });
-        const file = new File([blob], `recording-${Date.now()}.webm`, { type: recorder.mimeType });
+        const mime = recorder.mimeType || supportedMime || 'audio/mp4';
+        const ext = mime.includes('mp4') || mime.includes('aac') ? 'mp4' : mime.includes('ogg') ? 'ogg' : 'webm';
+        const blob = new Blob(chunks, { type: mime });
+        const file = new File([blob], `recording-${Date.now()}.${ext}`, { type: mime });
         onRecordingComplete(file);
         
         stream.getTracks().forEach(track => track.stop());

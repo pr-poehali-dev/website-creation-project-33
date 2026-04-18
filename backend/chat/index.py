@@ -274,7 +274,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             media_url = None
             if media_data and media_type:
                 if media_type == 'audio':
-                    media_url = f'data:audio/webm;base64,{media_data}'
+                    # Определяем реальный формат по magic bytes
+                    import base64 as b64mod
+                    raw = b64mod.b64decode(media_data[:16])
+                    if raw[:4] == b'\x00\x00\x00\x20' or raw[4:8] == b'ftyp' or raw[:4] == b'ftyp':
+                        audio_mime = 'audio/mp4'
+                    elif raw[:4] == b'OggS':
+                        audio_mime = 'audio/ogg'
+                    elif raw[:4] == b'fLaC':
+                        audio_mime = 'audio/flac'
+                    elif raw[:3] == b'ID3' or raw[:2] == b'\xff\xfb':
+                        audio_mime = 'audio/mpeg'
+                    else:
+                        # webm signature: 0x1A45DFA3
+                        audio_mime = 'audio/mp4' if raw[:4] != b'\x1a\x45\xdf\xa3' else 'audio/webm'
+                    media_url = f'data:{audio_mime};base64,{media_data}'
                 elif media_type == 'image':
                     media_url = f'data:image/jpeg;base64,{media_data}'
                 elif media_type == 'video':

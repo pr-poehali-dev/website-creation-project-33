@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 
 const TASKS_API = 'https://functions.poehali.dev/65786d7c-38f3-4811-aad3-17cefbab2d6d';
@@ -178,21 +179,28 @@ export default function TasksTab() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-slate-500 mb-1 block">Ответственный *</label>
-                <select value={fResp} onChange={e => setFResp(e.target.value)}
-                  className="w-full h-9 px-3 bg-slate-900/60 ring-1 ring-slate-700/60 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-cyan-500/50 focus:ring-2 transition-all">
-                  <option value="">— выберите —</option>
-                  {RESPONSIBLES.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
+                <Select value={fResp} onValueChange={setFResp}>
+                  <SelectTrigger className="h-9 bg-slate-900/60 ring-1 ring-slate-700/60 border-0 text-slate-200 rounded-lg text-sm focus:ring-cyan-500/50 focus:ring-2">
+                    <SelectValue placeholder="— выберите —" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {RESPONSIBLES.map(r => <SelectItem key={r} value={r} className="text-slate-200 focus:bg-slate-700 focus:text-white">{r}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <label className="text-xs text-slate-500 mb-1 block">Классификация</label>
                 <div className="flex gap-2">
-                  <select value={fCat} onChange={e => setFCat(e.target.value ? Number(e.target.value) : '')}
-                    className="flex-1 h-9 px-3 bg-slate-900/60 ring-1 ring-slate-700/60 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-cyan-500/50 focus:ring-2 transition-all">
-                    <option value="">— не указана —</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
+                  <Select value={String(fCat)} onValueChange={v => setFCat(v ? Number(v) : '')}>
+                    <SelectTrigger className="flex-1 h-9 bg-slate-900/60 ring-1 ring-slate-700/60 border-0 text-slate-200 rounded-lg text-sm focus:ring-cyan-500/50 focus:ring-2">
+                      <SelectValue placeholder="— не указана —" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-700">
+                      <SelectItem value="" className="text-slate-400 focus:bg-slate-700">— не указана —</SelectItem>
+                      {categories.map(c => <SelectItem key={c.id} value={String(c.id)} className="text-slate-200 focus:bg-slate-700 focus:text-white">{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                   <button onClick={() => setShowCat(v => !v)}
                     className="h-9 px-3 bg-slate-900/60 ring-1 ring-slate-700/60 text-slate-500 hover:text-cyan-400 rounded-lg transition-all">
                     <Icon name="Plus" size={14} />
@@ -233,29 +241,41 @@ export default function TasksTab() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Ответственный</label>
-              <select value={fResp2} onChange={e => setFResp2(e.target.value)}
-                className="w-full h-8 px-2 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-300 rounded-lg text-xs focus:outline-none focus:ring-cyan-500/40 focus:ring-1 transition-all">
-                <option value="">Все</option>
-                {RESPONSIBLES.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
+              <Select value={fResp2} onValueChange={setFResp2}>
+                <SelectTrigger className="h-8 bg-slate-800/60 ring-1 ring-slate-700/50 border-0 text-slate-300 rounded-lg text-xs">
+                  <SelectValue placeholder="Все" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectItem value="" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
+                  {RESPONSIBLES.map(r => <SelectItem key={r} value={r} className="text-slate-200 focus:bg-slate-700 focus:text-white text-xs">{r}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Классификация</label>
-              <select value={fCat2} onChange={e => setFCat2(e.target.value)}
-                className="w-full h-8 px-2 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-300 rounded-lg text-xs focus:outline-none focus:ring-cyan-500/40 focus:ring-1 transition-all">
-                <option value="">Все</option>
-                {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
-              </select>
+              <Select value={fCat2} onValueChange={setFCat2}>
+                <SelectTrigger className="h-8 bg-slate-800/60 ring-1 ring-slate-700/50 border-0 text-slate-300 rounded-lg text-xs">
+                  <SelectValue placeholder="Все" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectItem value="" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
+                  {categories.map(c => <SelectItem key={c.id} value={String(c.id)} className="text-slate-200 focus:bg-slate-700 focus:text-white text-xs">{c.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Статус</label>
-              <select value={fStatus} onChange={e => setFStatus(e.target.value)}
-                className="w-full h-8 px-2 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-300 rounded-lg text-xs focus:outline-none focus:ring-cyan-500/40 focus:ring-1 transition-all">
-                <option value="">Все</option>
-                <option value="pending">Не выполнена</option>
-                <option value="in_progress">В процессе</option>
-                <option value="done">Выполнена</option>
-              </select>
+              <Select value={fStatus} onValueChange={setFStatus}>
+                <SelectTrigger className="h-8 bg-slate-800/60 ring-1 ring-slate-700/50 border-0 text-slate-300 rounded-lg text-xs">
+                  <SelectValue placeholder="Все" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectItem value="" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
+                  <SelectItem value="pending" className="text-red-300 focus:bg-slate-700 text-xs">Не выполнена</SelectItem>
+                  <SelectItem value="in_progress" className="text-yellow-300 focus:bg-slate-700 text-xs">В процессе</SelectItem>
+                  <SelectItem value="done" className="text-emerald-300 focus:bg-slate-700 text-xs">Выполнена</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           {(fResp2 || fCat2 || fStatus) && (

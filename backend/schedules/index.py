@@ -164,29 +164,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
         if admin_override:
             if has_any_slot:
-                # Есть смены — сохраняем, submitted_at не трогаем
                 cur.execute("""
                     INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
-                    VALUES (%s, %s, %s, CURRENT_TIMESTAMP, NOW() AT TIME ZONE 'Europe/Moscow')
+                    VALUES (%s, %s, %s, NOW(), NOW())
                     ON CONFLICT (user_id, week_start_date)
-                    DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP
+                    DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = NOW()
                 """, (int(user_id), week_start, json.dumps(schedule_data)))
             else:
                 # Смен не осталось — сбрасываем submitted_at, промоутер может снова заполнить
                 cur.execute("""
                     INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
-                    VALUES (%s, %s, %s, CURRENT_TIMESTAMP, NULL)
+                    VALUES (%s, %s, %s, NOW(), NULL)
                     ON CONFLICT (user_id, week_start_date)
-                    DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP, submitted_at = NULL
+                    DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = NOW(), submitted_at = NULL
                 """, (int(user_id), week_start, json.dumps(schedule_data)))
         else:
-            # Промоутер сохраняет — проставляем submitted_at
+            # Промоутер сохраняет — проставляем submitted_at (UTC, фронт конвертирует в МСК)
             cur.execute("""
                 INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
-                VALUES (%s, %s, %s, CURRENT_TIMESTAMP, NOW() AT TIME ZONE 'Europe/Moscow')
+                VALUES (%s, %s, %s, NOW(), NOW())
                 ON CONFLICT (user_id, week_start_date)
-                DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP,
-                    submitted_at = COALESCE(t_p24058207_website_creation_pro.promoter_schedules.submitted_at, NOW() AT TIME ZONE 'Europe/Moscow')
+                DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = NOW(),
+                    submitted_at = COALESCE(t_p24058207_website_creation_pro.promoter_schedules.submitted_at, NOW())
             """, (int(user_id), week_start, json.dumps(schedule_data)))
 
         cur.execute(

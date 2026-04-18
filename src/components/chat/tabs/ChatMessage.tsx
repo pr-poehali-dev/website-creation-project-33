@@ -21,7 +21,7 @@ interface ChatMessageProps {
   isGroup: boolean;
 }
 
-function AudioPlayer({ src, isOwn }: { src: string; isOwn: boolean }) {
+function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boolean; sentAt: string; isRead: boolean }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -102,10 +102,20 @@ function AudioPlayer({ src, isOwn }: { src: string; isOwn: boolean }) {
           />
         </div>
 
-        {/* Time */}
-        <span className={`text-[10px] ${isOwn ? 'text-white/60' : 'text-gray-400'}`}>
-          {playing || currentTime > 0 ? fmt(currentTime) : fmt(duration)}
-        </span>
+        {/* Audio time + sent time inline */}
+        <div className="flex items-center justify-between gap-2">
+          <span className={`text-[10px] ${isOwn ? 'text-white/60' : 'text-gray-400'}`}>
+            {playing || currentTime > 0 ? fmt(currentTime) : fmt(duration)}
+          </span>
+          <span className={`text-[10px] flex items-center gap-0.5 ${isOwn ? 'text-white/40' : 'text-gray-400'}`}>
+            {sentAt}
+            {isOwn && (
+              <span className={isRead ? 'text-blue-300' : ''}>
+                {isRead ? ' ✓✓' : ' ✓'}
+              </span>
+            )}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -145,7 +155,7 @@ export default function ChatMessage({ msg, currentUserId, isGroup }: ChatMessage
         >
           {/* Audio */}
           {msg.media_url && msg.media_type === 'audio' && (
-            <AudioPlayer src={msg.media_url} isOwn={isOwn} />
+            <AudioPlayer src={msg.media_url} isOwn={isOwn} sentAt={formatMoscowTime(msg.created_at)} isRead={msg.is_read} />
           )}
 
           {/* Image */}

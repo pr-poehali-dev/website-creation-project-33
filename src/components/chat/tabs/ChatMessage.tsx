@@ -166,24 +166,36 @@ export default function ChatMessage({ msg, currentUserId, isGroup }: ChatMessage
             </div>
           )}
 
-          {/* Text */}
+          {/* Text + time inline */}
           {msg.message && (
             <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
               <AnimatedMessage text={msg.message} />
+              <span className="inline-flex items-center gap-0.5 ml-1.5 align-bottom translate-y-[1px]">
+                <span className={`text-[10px] ${isOwn ? 'text-white/40' : 'text-gray-400'}`}>
+                  {formatMoscowTime(msg.created_at)}
+                </span>
+                {isOwn && (
+                  <span className={`text-[10px] leading-none ${msg.is_read ? 'text-blue-300' : 'text-white/40'}`}>
+                    {msg.is_read ? '✓✓' : '✓'}
+                  </span>
+                )}
+              </span>
             </div>
           )}
 
-          {/* Time + read */}
-          <div className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-            <span className={`text-[10px] ${isOwn ? 'text-white/40' : 'text-gray-400'}`}>
-              {formatMoscowTime(msg.created_at)}
-            </span>
-            {isOwn && (
-              <span className={`text-[11px] leading-none ${msg.is_read ? 'text-blue-300' : 'text-white/40'}`}>
-                {msg.is_read ? '✓✓' : '✓'}
+          {/* Time for media-only messages */}
+          {!msg.message && (
+            <div className={`flex items-center gap-1 mt-1 justify-end`}>
+              <span className={`text-[10px] ${isOwn ? 'text-white/40' : 'text-gray-400'}`}>
+                {formatMoscowTime(msg.created_at)}
               </span>
-            )}
-          </div>
+              {isOwn && (
+                <span className={`text-[10px] leading-none ${msg.is_read ? 'text-blue-300' : 'text-white/40'}`}>
+                  {msg.is_read ? '✓✓' : '✓'}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

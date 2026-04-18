@@ -13,21 +13,15 @@ interface WorkerCardProps {
   dayDate: string;
   slotTime: string;
   slotLabel: string;
-  workComments: Record<string, Record<string, {
-    location?: string;
-    flyers?: string;
-    organization?: string;
-    location_type?: string;
-    location_details?: string;
-  }>>;
+  workComments: Record<string, Record<string, unknown>>;
   savingComment: string | null;
   allLocations: string[];
   allOrganizations: OrganizationData[];
   recommendedOrgs: string[];
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
   loadingProgress?: number;
-  onCommentChange: (userName: string, date: string, field: string, value: string) => void;
-  onCommentBlur: (userName: string, date: string, field: string, value: string) => void;
+  onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
+  onCommentBlur: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
 }
@@ -60,24 +54,26 @@ export default function WorkerCard({
 
   const avgContacts = calculateAvgBeforeDate(worker.daily_contacts, dayDate);
   const actualContacts = worker.daily_contacts?.find(d => d.date === dayDate)?.count ?? null;
-  const commentKey = `${workerName}-${dayDate}`;
+  const commentKey = `${workerName}-${dayDate}-${slotLabel}`;
 
-  const commentData = workComments[dayDate]?.[workerName] || {};
+  // Данные читаем по конкретной смене (slotLabel = "12:00-16:00")
+  const userComments = workComments[dayDate]?.[workerName] as Record<string, {organization?: string; location_type?: string; location_details?: string; flyers?: string; location?: string}> | undefined;
+  const commentData = (userComments?.[slotLabel]) || {};
   const currentOrganization = commentData.organization || '';
   const currentLocationType = commentData.location_type || '';
   const currentLocationDetails = commentData.location_details || '';
   const currentFlyers = commentData.flyers || '';
 
   const handleOrgSelect = (org: string) => {
-    onCommentChange(workerName, dayDate, 'organization', org);
+    onCommentChange(workerName, dayDate, 'organization', org, slotLabel);
     setShowOrgSelectionModal(false);
   };
 
   const handleSave = () => {
-    onCommentBlur(workerName, dayDate, 'organization', currentOrganization);
-    onCommentBlur(workerName, dayDate, 'location_type', currentLocationType);
-    onCommentBlur(workerName, dayDate, 'location_details', currentLocationDetails);
-    onCommentBlur(workerName, dayDate, 'flyers', currentFlyers);
+    onCommentBlur(workerName, dayDate, 'organization', currentOrganization, slotLabel);
+    onCommentBlur(workerName, dayDate, 'location_type', currentLocationType, slotLabel);
+    onCommentBlur(workerName, dayDate, 'location_details', currentLocationDetails, slotLabel);
+    onCommentBlur(workerName, dayDate, 'flyers', currentFlyers, slotLabel);
   };
 
   const selectedOrgStats = currentOrganization
@@ -150,7 +146,7 @@ export default function WorkerCard({
           {currentOrganization && (
             <button
               type="button"
-              onClick={() => onCommentChange(workerName, dayDate, 'organization', '')}
+              onClick={() => onCommentChange(workerName, dayDate, 'organization', '', slotLabel)}
               className="w-4 h-4 flex items-center justify-center rounded-md hover:bg-red-500/15 transition-colors flex-shrink-0"
               title="Очистить организацию"
             >
@@ -199,7 +195,7 @@ export default function WorkerCard({
         <div className="flex items-center gap-1">
           <Select
             value={currentLocationType}
-            onValueChange={(value) => onCommentChange(workerName, dayDate, 'location_type', value)}
+            onValueChange={(value) => onCommentChange(workerName, dayDate, 'location_type', value, slotLabel)}
             disabled={!currentOrganization}
           >
             <SelectTrigger className={`h-7 text-[10px] md:text-xs px-2 ring-1 border-0 rounded-lg transition-all ${
@@ -228,7 +224,7 @@ export default function WorkerCard({
             type="text"
             placeholder="Адрес / Детали"
             value={currentLocationDetails}
-            onChange={(e) => onCommentChange(workerName, dayDate, 'location_details', e.target.value)}
+            onChange={(e) => onCommentChange(workerName, dayDate, 'location_details', e.target.value, slotLabel)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSave(); } }}
             disabled={!currentOrganization}
             className={`h-7 text-[10px] md:text-xs px-2 border-0 ring-1 rounded-lg transition-all ${
@@ -248,7 +244,7 @@ export default function WorkerCard({
             type="text"
             placeholder="Листовки"
             value={currentFlyers}
-            onChange={(e) => onCommentChange(workerName, dayDate, 'flyers', e.target.value)}
+            onChange={(e) => onCommentChange(workerName, dayDate, 'flyers', e.target.value, slotLabel)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSave(); } }}
             disabled={!currentOrganization}
             className={`h-7 text-[10px] md:text-xs px-2 border-0 ring-1 rounded-lg transition-all ${

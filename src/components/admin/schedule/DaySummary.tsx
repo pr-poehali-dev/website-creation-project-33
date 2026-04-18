@@ -3,17 +3,29 @@ import { DaySchedule, UserSchedule, OrganizationData } from './types';
 interface DaySummaryProps {
   day: DaySchedule;
   getUsersWorkingOnSlot: (date: string, slotTime: string) => UserSchedule[];
-  workComments: Record<string, Record<string, {
-    location?: string;
-    flyers?: string;
-    organization?: string;
-    location_type?: string;
-    location_details?: string;
-  }>>;
+  workComments: Record<string, Record<string, unknown>>;
   allOrganizations: OrganizationData[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
   recommendedLocations: Record<string, Record<string, string>>;
   actualStats: Record<string, {contacts: number, revenue: number}>;
+}
+
+type ShiftData = { organization?: string; location_type?: string; location_details?: string; flyers?: string; location?: string };
+
+// Получить первую заполненную организацию промоутера за день (из любой смены)
+function getFirstOrganization(userEntry: unknown): string {
+  if (!userEntry || typeof userEntry !== 'object') return '';
+  const obj = userEntry as Record<string, unknown>;
+  // Если есть ключи смен (напр. "12:00-16:00") — ищем в них
+  for (const key of Object.keys(obj)) {
+    const val = obj[key];
+    if (val && typeof val === 'object' && 'organization' in val) {
+      return (val as ShiftData).organization || '';
+    }
+  }
+  // legacy: организация прямо в объекте
+  if ('organization' in obj) return (obj as ShiftData).organization || '';
+  return '';
 }
 
 // Функция расчёта дохода КМС (копия из WorkerCard)
@@ -68,7 +80,7 @@ export default function DaySummary({
   allWorkers.forEach(worker => {
     const workerName = `${worker.first_name} ${worker.last_name}`;
     const recommendedOrg = recommendedLocations[workerName]?.[day.date] || '';
-    const selectedOrg = workComments[day.date]?.[workerName]?.organization || '';
+    const selectedOrg = getFirstOrganization(workComments[day.date]?.[workerName]);
     const orgStats = userOrgStats[workerName] || [];
     
     // Общий средний показатель промоутера

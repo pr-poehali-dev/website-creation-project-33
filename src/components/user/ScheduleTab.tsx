@@ -40,13 +40,14 @@ export default function ScheduleTab() {
   const [isLocked, setIsLocked] = useState(false);
   const [submittedAt, setSubmittedAt] = useState<string | null>(null);
   const isUkrainian = user?.name === 'Виктор Кобыляцкий';
-  const [workComments, setWorkComments] = useState<Record<string, {
+  // Комментарии: { date: { shiftTime: { organization, location_type, ... } } }
+  const [workComments, setWorkComments] = useState<Record<string, Record<string, {
     location?: string;
     flyers?: string;
     organization?: string;
     location_type?: string;
     location_details?: string;
-  }>>({});
+  }>>>({});
   const [workShifts, setWorkShifts] = useState<WorkShift[]>([]);
 
   // Сброс на текущую неделю при монтировании компонента
@@ -127,13 +128,7 @@ export default function ScheduleTab() {
     
     try {
       const startDate = new Date(weeks[currentWeekIndex].start);
-      const comments: Record<string, {
-        location?: string;
-        flyers?: string;
-        organization?: string;
-        location_type?: string;
-        location_details?: string;
-      }> = {};
+      const comments: Record<string, Record<string, { location?: string; flyers?: string; organization?: string; location_type?: string; location_details?: string }>> = {};
       
       for (let i = 0; i < 7; i++) {
         const currentDate = new Date(startDate);
@@ -147,6 +142,7 @@ export default function ScheduleTab() {
         if (response.ok) {
           const data = await response.json();
           if (data.comments && data.comments[user.name]) {
+            // Бэкенд возвращает { shiftTime: { ...data } }
             comments[dateStr] = data.comments[user.name];
           }
         }
@@ -269,7 +265,7 @@ export default function ScheduleTab() {
             day={day}
             dayIndex={dayIndex}
             workShifts={workShifts}
-            workComment={workComments[day.date]}
+            workComments={workComments[day.date] || {}}
             onToggleSlot={toggleSlot}
             isUkrainian={isUkrainian}
           />

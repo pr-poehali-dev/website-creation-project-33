@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import { DaySchedule, UserSchedule, OrganizationData } from './types';
 
+type ShiftData = {
+  location?: string;
+  flyers?: string;
+  organization?: string;
+  location_type?: string;
+  location_details?: string;
+};
+
+// workComments[date][userName][shiftTime] — отдельные данные для каждой смены
+type WorkComments = Record<string, Record<string, Record<string, ShiftData> & ShiftData>>;
+
 export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule[], orgLimits?: Map<string, number>) {
-  const [workComments, setWorkComments] = useState<Record<string, Record<string, {
-    location?: string;
-    flyers?: string;
-    organization?: string;
-    location_type?: string;
-    location_details?: string;
-  }>>>({});
+  const [workComments, setWorkComments] = useState<WorkComments>({});
   const [savingComment, setSavingComment] = useState<string | null>(null);
   const [allLocations, setAllLocations] = useState<string[]>([]);
   const [allOrganizations, setAllOrganizations] = useState<OrganizationData[]>([]);
@@ -325,7 +330,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
   };
 
   const loadWorkComments = async () => {
-    const comments: Record<string, Record<string, string>> = {};
+    const comments: WorkComments = {};
     
     for (const day of weekDays) {
       try {
@@ -336,6 +341,8 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
         if (response.ok) {
           const data = await response.json();
           if (data.comments) {
+            // Бэкенд возвращает: { userName: { shiftTime: {...data} } }
+            // или для старых записей без смены: { userName: {...data} }
             comments[day.date] = data.comments;
           }
         }
@@ -347,12 +354,18 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     setWorkComments(comments);
   };
 
-  const saveComment = async (userName: string, date: string, field: string, value: string) => {
-    const key = `${userName}-${date}`;
-    console.log(`💾 Сохранение данных: ${userName} | ${date} | ${field}: "${value}"`);
+  // shiftTime — время смены, напр. "12:00-16:00". Если не передано — обратная совместимость
+  const saveComment = async (userName: string, date: string, field: string, value: string, shiftTime?: string) => {
+    const key = `${userName}-${date}-${shiftTime || ''}`;
+    console.log(`💾 Сохранение данных: ${userName} | ${date} | смена: ${shiftTime} | ${field}: "${value}"`);
     setSavingComment(key);
     
-    const currentData = workComments[date]?.[userName] || {};
+    // Получаем текущие данные для конкретной смены
+    const userComments = workComments[date]?.[userName] || {};
+    const currentData: ShiftData = shiftTime
+      ? ((userComments as Record<string, ShiftData>)[shiftTime] || {})
+      : (userComments as ShiftData);
+
     const updatedData = {
       location_comment: currentData.location || '',
       flyers_comment: field === 'flyers' ? value : (currentData.flyers || ''),
@@ -370,6 +383,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
           body: JSON.stringify({
             user_name: userName,
             work_date: date,
+            shift_time: shiftTime || null,
             ...updatedData
           })
         }
@@ -378,19 +392,26 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
       if (response.ok) {
         const result = await response.json();
         console.log(`✅ Данные сохранены:`, result);
-        setWorkComments(prev => ({
-          ...prev,
-          [date]: {
-            ...prev[date],
-            [userName]: {
-              location: updatedData.location_comment,
-              flyers: updatedData.flyers_comment,
-              organization: updatedData.organization,
-              location_type: updatedData.location_type,
-              location_details: updatedData.location_details
+        const newShiftData: ShiftData = {
+          location: updatedData.location_comment,
+          flyers: updatedData.flyers_comment,
+          organization: updatedData.organization,
+          location_type: updatedData.location_type,
+          location_details: updatedData.location_details
+        };
+        setWorkComments(prev => {
+          const prevUser = prev[date]?.[userName] || {};
+          const updatedUser = shiftTime
+            ? { ...prevUser, [shiftTime]: newShiftData }
+            : { ...prevUser, ...newShiftData };
+          return {
+            ...prev,
+            [date]: {
+              ...prev[date],
+              [userName]: updatedUser
             }
-          }
-        }));
+          };
+        });
       } else {
         console.error(`❌ Ошибка сохранения: ${response.status}`, await response.text());
       }
@@ -401,17 +422,27 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     }
   };
 
-  const updateComment = (userName: string, date: string, field: string, value: string) => {
+  const updateComment = (userName: string, date: string, field: string, value: string, shiftTime?: string) => {
     setWorkComments(prev => {
-      const currentData = prev[date]?.[userName] || {};
+      const prevUser = prev[date]?.[userName] || {};
+      if (shiftTime) {
+        const prevShift = (prevUser as Record<string, ShiftData>)[shiftTime] || {};
+        return {
+          ...prev,
+          [date]: {
+            ...prev[date],
+            [userName]: {
+              ...prevUser,
+              [shiftTime]: { ...prevShift, [field]: value }
+            }
+          }
+        };
+      }
       return {
         ...prev,
         [date]: {
           ...prev[date],
-          [userName]: {
-            ...currentData,
-            [field]: value
-          }
+          [userName]: { ...prevUser, [field]: value }
         }
       };
     });

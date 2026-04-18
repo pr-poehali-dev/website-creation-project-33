@@ -11,17 +11,50 @@
       "bodyMatcher": "partial"
     },
     {
-      "name": "Save location comment",
+      "name": "Save location comment for shift 1",
       "method": "POST",
       "path": "/",
       "body": {
         "user_name": "Test User",
         "work_date": "2025-10-20",
-        "location_comment": "Бульвар Дмитрия Донского"
+        "shift_time": "12:00-16:00",
+        "organization": "ТЦ Мега",
+        "location_type": "ТЦ",
+        "location_details": "ул. Ленина 1",
+        "flyers_comment": "100 листовок"
       },
       "expectedStatus": 200,
       "expectedBody": {
         "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Save location comment for shift 2",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "user_name": "Test User",
+        "work_date": "2025-10-20",
+        "shift_time": "16:00-20:00",
+        "organization": "Школа №5",
+        "location_type": "Школа",
+        "location_details": "ул. Пушкина 5",
+        "flyers_comment": "50 листовок"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get two shifts separately for same date",
+      "method": "GET",
+      "path": "/?work_date=2025-10-20",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "comments": {}
       },
       "bodyMatcher": "partial"
     }

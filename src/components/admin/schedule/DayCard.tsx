@@ -27,7 +27,7 @@ interface DayCardProps {
   isExpanded: boolean;
   stats?: DayStats;
   getUsersWorkingOnSlot: (date: string, slotTime: string) => UserSchedule[];
-  workComments: Record<string, Record<string, {location?: string, flyers?: string}>>;
+  workComments: Record<string, Record<string, unknown>>;
   savingComment: string | null;
   allLocations: string[];
   allOrganizations: OrganizationData[];
@@ -37,8 +37,8 @@ interface DayCardProps {
   loadingProgress?: number;
   trainingCount?: number;
   onToggleDay: (date: string) => void;
-  onCommentChange: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
-  onCommentBlur: (userName: string, date: string, field: 'location' | 'flyers', value: string) => void;
+  onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
+  onCommentBlur: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;

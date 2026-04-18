@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Message, UserChat } from './types';
@@ -53,37 +52,36 @@ export default function ChatWindow({
   onTyping,
 }: ChatWindowProps) {
   return (
-    <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl md:col-span-2 flex flex-col h-full shadow-2xl">
-      <CardHeader className="border-b border-slate-700">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-sm md:text-base text-slate-100">
-            <Icon name="MessageCircle" size={18} className="md:w-5 md:h-5 text-cyan-400" />
-            <span className="truncate">{selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}</span>
-          </CardTitle>
-          {selectedUser && messages.length > 0 && (
-            <Button
-              onClick={onClearChat}
-              disabled={isDeleting}
-              variant="destructive"
-              size="sm"
-              className="h-8 px-2 md:px-3"
-            >
-              {isDeleting ? (
-                <Icon name="Loader2" size={14} className="animate-spin md:mr-2 md:w-4 md:h-4" />
-              ) : (
-                <Icon name="Trash2" size={14} className="md:mr-2 md:w-4 md:h-4" />
-              )}
-              <span className="hidden md:inline">Очистить чат</span>
-            </Button>
-          )}
+    <div className="bg-white rounded-2xl border border-gray-100 md:col-span-2 flex flex-col h-full shadow-sm">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+          <Icon name="MessageCircle" size={18} className="text-[#001f54]" />
+          <span className="truncate">{selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}</span>
         </div>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-0">
+        {selectedUser && messages.length > 0 && (
+          <Button
+            onClick={onClearChat}
+            disabled={isDeleting}
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 md:px-3 text-red-500 hover:text-red-600 hover:bg-red-50"
+          >
+            {isDeleting ? (
+              <Icon name="Loader2" size={14} className="animate-spin md:mr-2" />
+            ) : (
+              <Icon name="Trash2" size={14} className="md:mr-2" />
+            )}
+            <span className="hidden md:inline">Очистить чат</span>
+          </Button>
+        )}
+      </div>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
         {!selectedUser ? (
-          <div className="flex-1 flex items-center justify-center text-slate-400 p-4 md:p-6">
+          <div className="flex-1 flex items-center justify-center text-gray-400 p-6">
             <div className="text-center">
-              <Icon name="MessageCircleOff" size={40} className="mx-auto mb-3 md:mb-4 opacity-50 md:w-12 md:h-12" />
-              <p className="text-xs md:text-sm">Выберите пользователя для начала общения</p>
+              <Icon name="MessageCircleOff" size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Выберите пользователя для начала общения</p>
             </div>
           </div>
         ) : (
@@ -113,7 +111,7 @@ export default function ChatWindow({
             />
           </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

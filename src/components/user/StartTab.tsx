@@ -92,9 +92,9 @@ export default function StartTab({ onOrganizationSelect, onOpenSchedule }: Start
   }
 
   return (
-    <div className="flex flex-col items-center justify-start px-4 pt-4 pb-8 relative">
+    <div className="flex flex-col items-center justify-start px-4 pt-4 relative min-h-[calc(100vh-120px)]">
 
-      <div className="w-full max-w-sm animate-fade-up">
+      <div className="w-full max-w-sm animate-fade-up flex-1">
 
         <div className="mb-5 animate-fade-down" style={{ animationDelay: '0.05s' }}>
           <h1 className="text-2xl font-bold text-[#001f54] mb-1 text-center">
@@ -188,10 +188,11 @@ export default function StartTab({ onOrganizationSelect, onOpenSchedule }: Start
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6 animate-fade-in" style={{ animationDelay: '0.25s' }}>
-          © {new Date().getFullYear()} Империя Промо. Все права защищены.
-        </p>
       </div>
+
+      <p className="text-center text-xs text-gray-400 py-4 mt-auto animate-fade-in" style={{ animationDelay: '0.25s' }}>
+        © {new Date().getFullYear()} Империя Промо. Все права защищены.
+      </p>
 
       {pendingOrg && (
         <PhotoCapture

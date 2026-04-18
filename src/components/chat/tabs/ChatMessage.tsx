@@ -152,7 +152,11 @@ function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boole
 }
 
 export default function ChatMessage({ msg, currentUserId, isGroup, onDeleted }: ChatMessageProps) {
-  const isOwn = msg.user_id === currentUserId;
+  // В личном чате: своё сообщение = отправлено пользователем (не админом)
+  // В групповом: своё = совпадает user_id и не от админа
+  const isOwn = isGroup
+    ? msg.user_id === currentUserId && !msg.is_from_admin
+    : !msg.is_from_admin;
   const senderName = msg.is_from_admin ? 'Администратор' : (msg.user_name || 'Промоутер');
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [deleting, setDeleting] = useState(false);

@@ -268,7 +268,7 @@ export default function UserDashboard() {
                 }
                 .group:hover .icon-shake { animation: shake 0.4s ease; }
               `}</style>
-            <p className="text-center text-xs text-gray-400 mt-auto pt-8">
+            <p className="fixed bottom-4 left-0 right-0 text-center text-xs text-gray-400">
               © {new Date().getFullYear()} Империя Промо. Все права защищены.
             </p>
           </>

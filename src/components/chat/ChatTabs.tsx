@@ -55,8 +55,8 @@ export default function ChatTabs({ open, onOpenChange, organizationId }: ChatTab
           {/* Tabs */}
           <div className="flex px-4 pt-3 pb-0 gap-1 bg-white">
             {([
-              { key: 'personal', label: 'Личный', icon: 'User' },
-              { key: 'group', label: 'Групповой', icon: 'Users' },
+              { key: 'personal', label: 'Администратор', icon: 'User' },
+              { key: 'group', label: 'Группа', icon: 'Users' },
             ] as const).map(tab => (
               <button
                 key={tab.key}

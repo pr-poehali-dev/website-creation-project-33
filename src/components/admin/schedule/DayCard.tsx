@@ -106,30 +106,30 @@ export default function DayCard({
     }`}>
       {/* Header */}
       <div
-        className="flex items-center justify-between px-4 py-3 cursor-pointer select-none group"
+        className="flex items-center justify-between px-3 py-2.5 cursor-pointer select-none group"
         onClick={() => onToggleDay(day.date)}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           {/* Day badge */}
-          <div className={`relative w-11 h-11 rounded-xl flex flex-col items-center justify-center font-bold shadow-lg flex-shrink-0 ${
+          <div className={`relative w-10 h-10 rounded-xl flex flex-col items-center justify-center font-bold shadow-lg flex-shrink-0 ${
             isSuccessful
               ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white'
               : day.isWeekend
                 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white'
                 : 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white'
           }`}>
-            <span className="text-[9px] uppercase tracking-wider opacity-80">{day.dayName}</span>
-            <span className="text-base leading-none">{new Date(day.date).getDate()}</span>
+            <span className="text-[8px] uppercase tracking-wider opacity-80">{day.dayName}</span>
+            <span className="text-sm leading-none">{new Date(day.date).getDate()}</span>
           </div>
 
-          <div>
-            <p className="font-semibold text-slate-100 text-sm md:text-base leading-tight">{day.dayNameFull}</p>
+          <div className="flex-shrink-0">
+            <p className="font-semibold text-slate-100 text-sm leading-tight">{day.dayNameFull}</p>
             <p className="text-[10px] text-slate-500 mt-0.5">{day.date}</p>
           </div>
 
           {/* Stats pill */}
           {stats && (
-            <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs font-semibold ${
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
               isSuccessful
                 ? 'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30'
                 : 'bg-slate-700/50 text-slate-300 ring-1 ring-slate-600/30'
@@ -141,30 +141,30 @@ export default function DayCard({
           )}
 
           {stats && stats.workersCount > 0 && (
-            <div className="flex items-center gap-1 bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded-full ring-1 ring-cyan-500/20">
-              <Icon name="Users" size={11} />
+            <div className="flex items-center gap-1 bg-cyan-500/10 text-cyan-400 px-1.5 py-1 rounded-full ring-1 ring-cyan-500/20 flex-shrink-0">
+              <Icon name="Users" size={10} />
               <span className="text-[10px] font-semibold">{stats.workersCount}</span>
             </div>
           )}
 
           {isSuccessful && (
-            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-              <Icon name="Check" size={13} className="text-white" />
+            <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
+              <Icon name="Check" size={11} className="text-white" />
             </div>
           )}
 
           {trainingCount > 0 && (
-            <div className="flex items-center gap-1 bg-violet-500/15 text-violet-400 px-2 py-1 rounded-full ring-1 ring-violet-500/25">
-              <Icon name="GraduationCap" size={11} />
+            <div className="flex items-center gap-1 bg-violet-500/15 text-violet-400 px-1.5 py-1 rounded-full ring-1 ring-violet-500/25 flex-shrink-0">
+              <Icon name="GraduationCap" size={10} />
               <span className="text-[10px] font-semibold">{trainingCount}</span>
             </div>
           )}
         </div>
 
-        <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+        <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all flex-shrink-0 ml-1 ${
           isExpanded ? 'bg-slate-700/60' : 'bg-transparent group-hover:bg-slate-700/40'
         }`}>
-          <Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={16} className="text-slate-400" />
+          <Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={14} className="text-slate-400" />
         </div>
       </div>
 

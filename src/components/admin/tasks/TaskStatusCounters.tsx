@@ -8,25 +8,23 @@ interface TaskStatusCountersProps {
 
 export default function TaskStatusCounters({ counts, filterStatus, onToggle }: TaskStatusCountersProps) {
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="flex items-center gap-3 flex-wrap">
       {(['pending', 'in_progress', 'done'] as const).map(s => {
         const cfg = STATUS_CONFIG[s];
+        const active = filterStatus === s;
         return (
           <button
             key={s}
             onClick={() => onToggle(s)}
-            className={`rounded-2xl p-4 text-left border transition-all duration-200 hover:shadow-md ${
-              filterStatus === s
-                ? `${cfg.bg} ${cfg.border} border shadow-sm`
-                : 'bg-white border-gray-100 hover:border-gray-200'
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold ring-1 transition-all duration-200 ${
+              active
+                ? cfg.color + ' scale-105'
+                : 'bg-slate-800/40 text-slate-400 ring-slate-700/40 hover:ring-slate-600/50 hover:text-slate-300'
             }`}
           >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center mb-2 ${cfg.bg}`}>
-              <span className={`text-lg font-bold ${cfg.text}`}>{counts[s]}</span>
-            </div>
-            <p className={`text-xs font-semibold ${filterStatus === s ? cfg.text : 'text-gray-500'}`}>
-              {cfg.label}
-            </p>
+            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+            {cfg.label}
+            <span className={`ml-0.5 font-bold ${active ? '' : 'text-slate-500'}`}>{counts[s]}</span>
           </button>
         );
       })}

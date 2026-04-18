@@ -10,73 +10,68 @@ interface TaskCardProps {
 
 export default function TaskCard({ task, index, isUpdating, onStatusChange }: TaskCardProps) {
   const cfg = STATUS_CONFIG[task.status];
-  const avatarCls = AVATAR_COLORS[task.responsible] || 'bg-gray-100 text-gray-600';
+  const avatarCls = AVATAR_COLORS[task.responsible] || 'bg-slate-700 text-slate-300';
 
   return (
     <div
-      className="group bg-white border border-gray-100 rounded-2xl p-4 hover:border-gray-200 hover:shadow-md transition-all duration-200"
+      className="bg-slate-900/70 ring-1 ring-slate-700/40 rounded-2xl p-4 hover:ring-slate-600/60 transition-all duration-300 hover:shadow-lg hover:shadow-slate-900/50"
       style={{
         animationName: 'fadeSlideIn',
         animationDuration: '300ms',
-        animationDelay: `${index * 30}ms`,
+        animationDelay: `${index * 40}ms`,
         animationFillMode: 'both',
       }}
     >
       <div className="flex items-start gap-3">
         {/* Цветная полоска */}
-        <div className={`w-1 self-stretch rounded-full flex-shrink-0 ${cfg.bar} opacity-70`} />
+        <div className={`w-1 self-stretch rounded-full flex-shrink-0 ${cfg.bar}`} />
 
         <div className="flex-1 min-w-0">
           {/* Строка 1: статус + категория */}
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+          <div className="flex items-center flex-wrap gap-2 mb-2">
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold ring-1 ${cfg.color}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
               {cfg.label}
             </span>
             {task.category_name && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-gray-50 text-gray-500 border border-gray-100">
-                <Icon name="Hash" size={10} />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-medium bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20">
+                <Icon name="Tag" size={10} />
                 {task.category_name}
               </span>
             )}
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-medium bg-slate-800/60 text-slate-400 ring-1 ring-slate-700/50 ml-auto">
+              <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${avatarCls}`}>
+                {getInitials(task.responsible)}
+              </div>
+              {task.responsible}
+            </span>
           </div>
 
           {/* Текст */}
-          <p className={`text-sm leading-relaxed font-medium mb-3 ${task.status === 'done' ? 'line-through text-gray-300' : 'text-gray-800'}`}>
+          <p className={`text-sm leading-relaxed mb-3 ${task.status === 'done' ? 'line-through text-slate-500' : 'text-slate-200'}`}>
             {task.text}
           </p>
 
-          {/* Строка 3: дата + ответственный + кнопки */}
+          {/* Строка: дата + кнопки статуса */}
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="flex items-center gap-3">
-              {/* Аватар ответственного */}
-              <div className="flex items-center gap-1.5">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${avatarCls}`}>
-                  {getInitials(task.responsible)}
-                </div>
-                <span className="text-xs text-gray-400">{task.responsible}</span>
-              </div>
-              <span className="text-[11px] text-gray-300 flex items-center gap-1">
-                <Icon name="Clock" size={10} />
-                {formatDate(task.created_at)}
-              </span>
-            </div>
+            <span className="text-[10px] text-slate-600 flex items-center gap-1">
+              <Icon name="Clock" size={10} />
+              {formatDate(task.created_at)}
+            </span>
 
-            {/* Кнопки смены статуса */}
             <div className="flex items-center gap-1">
               {isUpdating ? (
-                <div className="w-5 h-5 border-2 border-gray-200 border-t-gray-500 rounded-full animate-spin" />
+                <Icon name="Loader2" size={14} className="animate-spin text-slate-400" />
               ) : (
                 (['pending', 'in_progress', 'done'] as const).map(s => (
                   <button
                     key={s}
                     onClick={() => onStatusChange(task.id, s)}
                     disabled={task.status === s}
-                    title={STATUS_CONFIG[s].label}
-                    className={`h-7 px-2.5 rounded-lg text-[10px] font-semibold transition-all duration-150 ${
+                    className={`h-7 px-2.5 rounded-lg text-[10px] font-semibold transition-all duration-200 ${
                       task.status === s
-                        ? STATUS_CONFIG[s].activeBg + ' cursor-default shadow-sm'
-                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
+                        ? `ring-1 ${STATUS_CONFIG[s].color} cursor-default`
+                        : 'bg-slate-800/50 text-slate-500 hover:bg-slate-700/50 ring-1 ring-slate-700/30 hover:text-slate-300'
                     }`}
                   >
                     {STATUS_CONFIG[s].label}

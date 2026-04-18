@@ -69,13 +69,16 @@ export default function TasksTab() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 animate-in fade-in duration-500">
 
       {/* ── Шапка ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Задачи</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+            <Icon name="ClipboardList" size={20} className="text-cyan-400" />
+            Задачи
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
             {filteredTasks.length !== tasks.length
               ? `${filteredTasks.length} из ${tasks.length}`
               : `${tasks.length} задач`}
@@ -83,17 +86,13 @@ export default function TasksTab() {
         </div>
         <button
           onClick={() => setShowForm(v => !v)}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold shadow-sm transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
             showForm
-              ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-md'
+              ? 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              : 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105'
           }`}
         >
-          <Icon
-            name={showForm ? 'X' : 'Plus'}
-            size={16}
-            className={`transition-transform duration-200 ${showForm ? 'rotate-90' : ''}`}
-          />
+          <Icon name={showForm ? 'X' : 'Plus'} size={16} className={`transition-transform duration-300 ${showForm ? 'rotate-90' : ''}`} />
           {showForm ? 'Отмена' : 'Новая задача'}
         </button>
       </div>
@@ -122,25 +121,22 @@ export default function TasksTab() {
         filterStatus={filterStatus}
         onResponsibleChange={setFilterResponsible}
         onCategoryChange={setFilterCategory}
+        onStatusChange={setFilterStatus}
         onReset={() => { setFilterResponsible(''); setFilterCategory(''); setFilterStatus(''); }}
       />
 
       {/* ── Список задач ── */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <div className="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
-          <p className="text-sm text-gray-400">Загрузка...</p>
+        <div className="flex items-center justify-center py-12">
+          <Icon name="Loader2" size={28} className="animate-spin text-cyan-400" />
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center">
-            <Icon name="ClipboardList" size={24} className="text-gray-300" />
-          </div>
-          <p className="text-sm font-medium text-gray-400">Задач не найдено</p>
-          <p className="text-xs text-gray-300">Попробуйте изменить фильтры</p>
+        <div className="text-center py-12 text-slate-500">
+          <Icon name="ClipboardList" size={36} className="mx-auto mb-3 opacity-30" />
+          <p className="text-sm">Задач не найдено</p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {filteredTasks.map((task, idx) => (
             <TaskCard
               key={task.id}

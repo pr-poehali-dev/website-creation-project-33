@@ -8,6 +8,7 @@ interface TaskFiltersProps {
   filterStatus: string;
   onResponsibleChange: (v: string) => void;
   onCategoryChange: (v: string) => void;
+  onStatusChange: (v: string) => void;
   onReset: () => void;
 }
 
@@ -18,64 +19,53 @@ export default function TaskFilters({
   filterStatus,
   onResponsibleChange,
   onCategoryChange,
+  onStatusChange,
   onReset,
 }: TaskFiltersProps) {
   const hasActiveFilters = !!(filterResponsible || filterCategory || filterStatus);
 
   return (
-    <div className="flex flex-wrap gap-2 items-center">
-      <span className="text-xs font-medium text-gray-400 flex items-center gap-1.5 mr-1">
-        <Icon name="SlidersHorizontal" size={13} />
-        Фильтр:
-      </span>
-
-      {/* Ответственный */}
-      <div className="flex gap-1 flex-wrap">
-        {['', ...RESPONSIBLES].map(r => (
+    <div className="bg-slate-900/60 ring-1 ring-slate-700/40 rounded-2xl p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Icon name="Filter" size={14} className="text-slate-400" />
+        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Фильтры</span>
+        {hasActiveFilters && (
           <button
-            key={r}
-            onClick={() => onResponsibleChange(r)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 ${
-              filterResponsible === r
-                ? 'bg-gray-900 text-white'
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-            }`}
+            onClick={onReset}
+            className="ml-auto text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-1"
           >
-            {r || 'Все'}
+            <Icon name="X" size={12} /> Сбросить
           </button>
-        ))}
+        )}
       </div>
-
-      <div className="w-px h-5 bg-gray-200 mx-1 hidden md:block" />
-
-      {/* Классификация */}
-      <div className="flex gap-1 flex-wrap">
-        {['', ...categories.map(c => c.name)].map((name, i) => {
-          const catId = i === 0 ? '' : String(categories[i - 1]?.id);
-          return (
-            <button
-              key={name}
-              onClick={() => onCategoryChange(catId)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 ${
-                filterCategory === catId
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-              }`}
-            >
-              {name || 'Все категории'}
-            </button>
-          );
-        })}
-      </div>
-
-      {hasActiveFilters && (
-        <button
-          onClick={onReset}
-          className="ml-auto flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <select
+          value={filterResponsible}
+          onChange={e => onResponsibleChange(e.target.value)}
+          className="h-9 px-3 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-300 rounded-xl text-xs focus:outline-none focus:ring-cyan-500/50 focus:ring-2 transition-all"
         >
-          <Icon name="X" size={12} /> Сбросить
-        </button>
-      )}
+          <option value="">Все ответственные</option>
+          {RESPONSIBLES.map(r => <option key={r} value={r}>{r}</option>)}
+        </select>
+        <select
+          value={filterCategory}
+          onChange={e => onCategoryChange(e.target.value)}
+          className="h-9 px-3 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-300 rounded-xl text-xs focus:outline-none focus:ring-cyan-500/50 focus:ring-2 transition-all"
+        >
+          <option value="">Все классификации</option>
+          {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
+        </select>
+        <select
+          value={filterStatus}
+          onChange={e => onStatusChange(e.target.value)}
+          className="h-9 px-3 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-300 rounded-xl text-xs focus:outline-none focus:ring-cyan-500/50 focus:ring-2 transition-all"
+        >
+          <option value="">Все статусы</option>
+          <option value="pending">Не выполнена</option>
+          <option value="in_progress">В процессе</option>
+          <option value="done">Выполнена</option>
+        </select>
+      </div>
     </div>
   );
 }

@@ -18,6 +18,7 @@ interface ChatWindowProps {
   userTyping: boolean;
   fileInputRef: React.RefObject<HTMLInputElement>;
   scrollRef: React.RefObject<HTMLDivElement>;
+  onBack?: () => void;
   onClearChat: () => void;
   onSendMessage: () => void;
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -50,28 +51,37 @@ export default function ChatWindow({
   onStopRecording,
   onKeyPress,
   onTyping,
+  onBack,
 }: ChatWindowProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 md:col-span-2 flex flex-col h-full shadow-sm">
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-          <Icon name="MessageCircle" size={18} className="text-[#001f54]" />
-          <span className="truncate">{selectedUser ? `Чат с ${selectedUser.name}` : 'Выберите диалог'}</span>
+        <div className="flex items-center gap-2 min-w-0">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-8 h-8 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors flex-shrink-0"
+            >
+              <Icon name="ArrowLeft" size={18} />
+            </button>
+          )}
+          <span className="text-sm font-semibold text-gray-800 truncate">
+            {selectedUser ? selectedUser.name : 'Выберите диалог'}
+          </span>
         </div>
         {selectedUser && messages.length > 0 && (
           <Button
             onClick={onClearChat}
             disabled={isDeleting}
             variant="ghost"
-            size="sm"
-            className="h-8 px-2 md:px-3 text-red-500 hover:text-red-600 hover:bg-red-50"
+            size="icon"
+            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 flex-shrink-0"
           >
             {isDeleting ? (
-              <Icon name="Loader2" size={14} className="animate-spin md:mr-2" />
+              <Icon name="Loader2" size={16} className="animate-spin" />
             ) : (
-              <Icon name="Trash2" size={14} className="md:mr-2" />
+              <Icon name="Trash2" size={16} />
             )}
-            <span className="hidden md:inline">Очистить чат</span>
           </Button>
         )}
       </div>

@@ -356,31 +356,6 @@ export default function AdminChatTab() {
           />
         ) : (
           <div className="flex flex-col h-[calc(100vh-140px)]">
-            <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center gap-3">
-              <Button
-                onClick={() => setSelectedUser(null)}
-                variant="ghost"
-                size="icon"
-                className="shrink-0 glass-button text-gray-900"
-              >
-                <Icon name="ArrowLeft" size={20} />
-              </Button>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate text-gray-900">{selectedUser.name}</p>
-                <p className="text-xs text-gray-500 truncate">{selectedUser.email}</p>
-              </div>
-              {messages.length > 0 && (
-                <Button
-                  onClick={clearChat}
-                  disabled={isDeleting}
-                  variant="ghost"
-                  size="icon"
-                  className="text-red-500 shrink-0"
-                >
-                  <Icon name="Trash2" size={18} />
-                </Button>
-              )}
-            </div>
             <ChatWindow
               selectedUser={selectedUser}
               messages={messages}
@@ -395,6 +370,7 @@ export default function AdminChatTab() {
               userTyping={userTyping}
               fileInputRef={fileInputRef}
               scrollRef={scrollRef}
+              onBack={() => setSelectedUser(null)}
               onClearChat={clearChat}
               onSendMessage={sendMessage}
               onFileSelect={handleFileSelect}

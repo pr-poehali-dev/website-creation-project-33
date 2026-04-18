@@ -151,22 +151,54 @@ function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boole
 export default function ChatMessages({ messages, selectedUser, isLoading, userTyping, scrollRef, currentAdminId, onMessageDeleted }: ChatMessagesProps) {
   const [menu, setMenu] = useState<{ x: number; y: number; msgId: number; isOwn: boolean } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const longPressRef = useRef<NodeJS.Timeout | null>(null);
+  const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (!menu) return;
-    const close = (e: MouseEvent) => {
+    const close = (e: MouseEvent | TouchEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenu(null);
     };
     document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
+    document.addEventListener('touchstart', close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('touchstart', close);
+    };
   }, [menu]);
 
-  const openMenu = (e: React.MouseEvent | React.TouchEvent, msgId: number, isOwn: boolean) => {
-    e.preventDefault();
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setMenu({ x: rect.left, y: rect.top, msgId, isOwn });
+  const openMenu = (clientX: number, clientY: number, msgId: number, isOwn: boolean) => {
+    setMenu({ x: clientX, y: clientY, msgId, isOwn });
   };
+
+  const makeTouchHandlers = (msgId: number, isOwn: boolean) => ({
+    onTouchStart: (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+      longPressRef.current = setTimeout(() => {
+        if (touchStartPos.current) openMenu(touch.clientX, touch.clientY, msgId, isOwn);
+      }, 500);
+    },
+    onTouchMove: (e: React.TouchEvent) => {
+      if (!touchStartPos.current || !longPressRef.current) return;
+      const touch = e.touches[0];
+      const dx = Math.abs(touch.clientX - touchStartPos.current.x);
+      const dy = Math.abs(touch.clientY - touchStartPos.current.y);
+      if (dx > 8 || dy > 8) { clearTimeout(longPressRef.current); longPressRef.current = null; }
+    },
+    onTouchEnd: () => {
+      if (longPressRef.current) { clearTimeout(longPressRef.current); longPressRef.current = null; }
+      touchStartPos.current = null;
+    },
+    onTouchCancel: () => {
+      if (longPressRef.current) { clearTimeout(longPressRef.current); longPressRef.current = null; }
+      touchStartPos.current = null;
+    },
+    onContextMenu: (e: React.MouseEvent) => {
+      e.preventDefault();
+      openMenu(e.clientX, e.clientY, msgId, isOwn);
+    },
+  });
 
   const deleteMsg = async (scope: 'self' | 'all') => {
     if (!menu || !currentAdminId) return;
@@ -240,15 +272,12 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
                   )}
 
                   <div
-                    className={`relative px-3 py-2.5 cursor-pointer select-none ${
+                    className={`relative px-3 py-2.5 select-none ${
                       isOwn
                         ? 'bg-[#001f54] text-white rounded-2xl rounded-br-sm shadow-sm'
                         : 'bg-[#e8edf5] text-gray-900 rounded-2xl rounded-bl-sm'
                     }`}
-                    onContextMenu={(e) => openMenu(e, msg.id, isOwn)}
-                    onTouchStart={(e) => { longPressRef.current = setTimeout(() => openMenu(e, msg.id, isOwn), 500); }}
-                    onTouchEnd={() => { if (longPressRef.current) clearTimeout(longPressRef.current); }}
-                    onTouchMove={() => { if (longPressRef.current) clearTimeout(longPressRef.current); }}
+                    {...makeTouchHandlers(msg.id, isOwn)}
                   >
                     {msg.media_url && msg.media_type === 'audio' && (
                       <AudioPlayer src={msg.media_url} isOwn={isOwn} sentAt={formatMoscowTime(msg.created_at)} isRead={msg.is_read} />
@@ -330,8 +359,11 @@ export default function ChatMessages({ messages, selectedUser, isLoading, userTy
       {menu && (
         <div
           ref={menuRef}
-          className="fixed z-50 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden min-w-[180px]"
-          style={{ left: Math.min(menu.x, window.innerWidth - 200), top: Math.min(menu.y, window.innerHeight - 120) }}
+          className="fixed z-50 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden min-w-[190px]"
+          style={{
+            left: Math.min(Math.max(menu.x - 95, 8), window.innerWidth - 206),
+            top: menu.y + 120 > window.innerHeight ? menu.y - 110 : menu.y + 8,
+          }}
         >
           <button
             onClick={() => deleteMsg('self')}

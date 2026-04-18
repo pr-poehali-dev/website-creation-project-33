@@ -143,28 +143,59 @@ export default function ChatMessage({ msg, currentUserId, isGroup, onDeleted }: 
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const longPressRef = useRef<NodeJS.Timeout | null>(null);
+  const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!menu) return;
-    const close = (e: MouseEvent) => {
+    const close = (e: MouseEvent | TouchEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenu(null);
     };
     document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
+    document.addEventListener('touchstart', close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('touchstart', close);
+    };
   }, [menu]);
 
-  const openMenu = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setMenu({ x: rect.left, y: rect.top });
+  const openMenu = (clientX: number, clientY: number) => {
+    setMenu({ x: clientX, y: clientY });
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    longPressRef.current = setTimeout(() => openMenu(e), 500);
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    longPressRef.current = setTimeout(() => {
+      if (touchStartPos.current) {
+        openMenu(touch.clientX, touch.clientY);
+      }
+    }, 500);
   };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartPos.current || !longPressRef.current) return;
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - touchStartPos.current.x);
+    const dy = Math.abs(touch.clientY - touchStartPos.current.y);
+    if (dx > 8 || dy > 8) {
+      clearTimeout(longPressRef.current);
+      longPressRef.current = null;
+    }
+  };
+
   const handleTouchEnd = () => {
-    if (longPressRef.current) clearTimeout(longPressRef.current);
+    if (longPressRef.current) {
+      clearTimeout(longPressRef.current);
+      longPressRef.current = null;
+    }
+    touchStartPos.current = null;
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    openMenu(e.clientX, e.clientY);
   };
 
   const deleteMsg = async (scope: 'self' | 'all') => {
@@ -205,15 +236,17 @@ export default function ChatMessage({ msg, currentUserId, isGroup, onDeleted }: 
         )}
 
         <div
-          className={`relative px-3 py-2.5 cursor-pointer select-none ${
+          ref={bubbleRef}
+          className={`relative px-3 py-2.5 select-none ${
             isOwn
               ? 'bg-[#001f54] text-white rounded-2xl rounded-br-sm shadow-sm'
               : 'bg-[#e8edf5] text-gray-900 rounded-2xl rounded-bl-sm'
           }`}
-          onContextMenu={openMenu}
+          onContextMenu={handleContextMenu}
           onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          onTouchMove={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
         >
           {/* Audio */}
           {msg.media_url && msg.media_type === 'audio' && (
@@ -277,8 +310,11 @@ export default function ChatMessage({ msg, currentUserId, isGroup, onDeleted }: 
       {menu && (
         <div
           ref={menuRef}
-          className="fixed z-50 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden min-w-[180px]"
-          style={{ left: Math.min(menu.x, window.innerWidth - 200), top: Math.min(menu.y, window.innerHeight - 120) }}
+          className="fixed z-50 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden min-w-[190px]"
+          style={{
+            left: Math.min(Math.max(menu.x - 95, 8), window.innerWidth - 206),
+            top: menu.y + 120 > window.innerHeight ? menu.y - 110 : menu.y + 8,
+          }}
         >
           <button
             onClick={() => deleteMsg('self')}

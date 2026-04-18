@@ -70,7 +70,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor.execute("""
                     SELECT cm.*, u.name as user_name, u.avatar_url as user_avatar
                     FROM t_p24058207_website_creation_pro.chat_messages cm
-                    JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
+                    LEFT JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
                     WHERE cm.is_group = TRUE
                     ORDER BY cm.created_at ASC
                 """)
@@ -174,11 +174,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 is_group = query_params.get('is_group') == 'true'
                 
                 if is_group:
-                    # Пользователь получает все групповые сообщения
+                    # Пользователь получает ВСЕ групповые сообщения без ограничений по дате
                     cursor.execute("""
                         SELECT cm.*, u.name as user_name, u.avatar_url as user_avatar
                         FROM t_p24058207_website_creation_pro.chat_messages cm
-                        JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
+                        LEFT JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
                         WHERE cm.is_group = TRUE
                         ORDER BY cm.created_at ASC
                     """)

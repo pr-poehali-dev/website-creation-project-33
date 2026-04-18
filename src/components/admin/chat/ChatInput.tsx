@@ -98,14 +98,14 @@ export default function ChatInput({
       {isRecording && (
         <div className="flex items-center gap-3 px-4 py-2.5 bg-white">
           <div className="relative flex-shrink-0">
-            <div className="w-2 h-2 bg-red-500 rounded-full" />
-            <div className="absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-60" />
+            <div className="w-2 h-2 bg-[#001f54] rounded-full" />
+            <div className="absolute inset-0 w-2 h-2 bg-[#001f54] rounded-full animate-ping opacity-60" />
           </div>
           <div className="flex items-center gap-[3px] flex-1">
             {[0.4,0.7,1,0.6,0.9,0.5,0.8,0.4,0.7,1,0.6,0.85,0.5,0.75,0.4,0.9,0.6,1,0.5,0.7].map((h, i) => (
               <div
                 key={i}
-                className="w-[3px] bg-red-400 rounded-full"
+                className="w-[3px] bg-[#003a8c] rounded-full"
                 style={{
                   height: `${Math.round(h * 18) + 4}px`,
                   animation: 'waveBar 0.8s ease-in-out infinite',

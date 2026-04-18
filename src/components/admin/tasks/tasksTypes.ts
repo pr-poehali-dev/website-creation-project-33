@@ -5,24 +5,30 @@ export const RESPONSIBLES = ['Корельский Максим', 'Виктор 
 export const STATUS_CONFIG = {
   pending: {
     label: 'Не выполнена',
-    color: 'bg-red-500/15 text-red-400 ring-red-500/30',
-    dot: 'bg-red-400',
+    bg: 'bg-red-50',
+    text: 'text-red-600',
+    border: 'border-red-200',
+    dot: 'bg-red-500',
     activeBg: 'bg-red-500 text-white',
     bar: 'bg-red-400',
     order: 0,
   },
   in_progress: {
     label: 'В процессе',
-    color: 'bg-yellow-500/15 text-yellow-400 ring-yellow-500/30',
-    dot: 'bg-yellow-400',
-    activeBg: 'bg-yellow-400 text-white',
-    bar: 'bg-yellow-400',
+    bg: 'bg-amber-50',
+    text: 'text-amber-600',
+    border: 'border-amber-200',
+    dot: 'bg-amber-400',
+    activeBg: 'bg-amber-400 text-white',
+    bar: 'bg-amber-400',
     order: 1,
   },
   done: {
     label: 'Выполнена',
-    color: 'bg-emerald-500/15 text-emerald-400 ring-emerald-500/30',
-    dot: 'bg-emerald-400',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-600',
+    border: 'border-emerald-200',
+    dot: 'bg-emerald-500',
     activeBg: 'bg-emerald-500 text-white',
     bar: 'bg-emerald-400',
     order: 2,
@@ -48,8 +54,8 @@ export interface Category {
 }
 
 export const AVATAR_COLORS: Record<string, string> = {
-  'Корельский Максим': 'bg-violet-500/20 text-violet-300',
-  'Виктор Кобыляцкий': 'bg-blue-500/20 text-blue-300',
+  'Корельский Максим': 'bg-violet-100 text-violet-700',
+  'Виктор Кобыляцкий': 'bg-blue-100 text-blue-700',
 };
 
 export function getInitials(name: string) {

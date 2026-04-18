@@ -44,18 +44,22 @@ export default function AccountingStats({ sessionToken, compact }: AccountingSta
         const data = await response.json();
         const shifts: ShiftRecord[] = data.shifts || [];
         
-        const moscowTime = new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' });
-        const [month, day, year] = moscowTime.split('/');
-        const todayStr = `${year}-${month}-${day}`;
+        const toMoscowDateStr = (date: Date): string => {
+          return date.toLocaleDateString('en-CA', { timeZone: 'Europe/Moscow' });
+        };
+        
+        const now = new Date();
+        const todayStr = toMoscowDateStr(now);
+        
+        const yesterdayDate = new Date(now);
+        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+        const yesterdayStr = toMoscowDateStr(yesterdayDate);
+        
+        const dayBeforeYesterdayDate = new Date(now);
+        dayBeforeYesterdayDate.setDate(dayBeforeYesterdayDate.getDate() - 2);
+        const dayBeforeYesterdayStr = toMoscowDateStr(dayBeforeYesterdayDate);
         
         const todayDate = new Date(todayStr);
-        const yesterday = new Date(todayDate);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-        
-        const dayBeforeYesterday = new Date(todayDate);
-        dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
-        const dayBeforeYesterdayStr = dayBeforeYesterday.toISOString().split('T')[0];
         
         const currentMonth = todayDate.getMonth();
         const currentYear = todayDate.getFullYear();

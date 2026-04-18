@@ -125,6 +125,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         user_id = body_data.get('user_id')
         week_start = body_data.get('week_start_date')
         schedule_data = body_data.get('schedule')
+        admin_override = body_data.get('admin_override', False)
         
         if not user_id or not week_start or not schedule_data:
             return {
@@ -136,22 +137,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Проверяем — уже был сохранён (submitted_at проставлен)?
-        cur.execute(
-            "SELECT submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
-            (int(user_id), week_start)
-        )
-        existing = cur.fetchone()
-        if existing and existing[0] is not None:
-            cur.close()
-            conn.close()
-            return {
-                'statusCode': 403,
-                'headers': headers,
-                'body': json.dumps({'error': 'График уже сохранён и заблокирован для редактирования', 'is_locked': True})
-            }
+        # Проверяем блокировку — только для промоутера (не для admin_override)
+        if not admin_override:
+            cur.execute(
+                "SELECT submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
+                (int(user_id), week_start)
+            )
+            existing = cur.fetchone()
+            if existing and existing[0] is not None:
+                cur.close()
+                conn.close()
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'График уже сохранён и заблокирован для редактирования', 'is_locked': True})
+                }
         
-        # Upsert schedule + проставляем submitted_at при первом сохранении
+        # Upsert schedule + проставляем submitted_at при первом сохранении (не перезаписываем при admin_override)
         cur.execute("""
             INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
             VALUES (%s, %s, %s, CURRENT_TIMESTAMP, NOW() AT TIME ZONE 'Europe/Moscow')

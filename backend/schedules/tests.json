@@ -10,7 +10,8 @@
         "schedule": {
           "2025-10-20": {"slot1": true, "slot2": false},
           "2025-10-21": {"slot1": false, "slot2": true}
-        }
+        },
+        "admin_override": true
       },
       "expectedStatus": 200,
       "expectedBody": {

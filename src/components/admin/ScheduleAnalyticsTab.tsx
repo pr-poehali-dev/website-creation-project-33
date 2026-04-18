@@ -173,7 +173,8 @@ export default function ScheduleAnalyticsTab() {
         body: JSON.stringify({
           user_id: userId,
           week_start_date: weeks[currentWeekIndex].start,
-          schedule: updatedSchedule
+          schedule: updatedSchedule,
+          admin_override: true
         })
       });
 

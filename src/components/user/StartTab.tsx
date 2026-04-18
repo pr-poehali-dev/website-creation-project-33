@@ -15,9 +15,10 @@ interface Organization {
 interface StartTabProps {
   onOrganizationSelect: (orgId: number, orgName: string) => void;
   onOpenSchedule?: () => void;
+  onBack?: () => void;
 }
 
-export default function StartTab({ onOrganizationSelect, onOpenSchedule }: StartTabProps) {
+export default function StartTab({ onOrganizationSelect, onOpenSchedule, onBack }: StartTabProps) {
   const { logout } = useAuth();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [selectedOrgId, setSelectedOrgId] = useState<string>('');
@@ -96,11 +97,18 @@ export default function StartTab({ onOrganizationSelect, onOpenSchedule }: Start
 
       <div className="w-full max-w-sm animate-fade-up flex-1">
 
-        <div className="mb-5 animate-fade-down" style={{ animationDelay: '0.05s' }}>
-          <h1 className="text-2xl font-bold text-[#001f54] mb-1 text-center">
+        <div className="mb-5 animate-fade-down flex items-center gap-2" style={{ animationDelay: '0.05s' }}>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors flex-shrink-0"
+            >
+              <Icon name="ArrowLeft" size={20} />
+            </button>
+          )}
+          <h1 className="text-2xl font-bold text-[#001f54] flex-1 text-center pr-9">
             Выбор организации
           </h1>
-
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 animate-fade-up" style={{ animationDelay: '0.15s' }}>

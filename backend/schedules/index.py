@@ -153,22 +153,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'График уже сохранён и заблокирован для редактирования', 'is_locked': True})
                 }
         
-        # Upsert schedule + проставляем submitted_at при первом сохранении (не перезаписываем при admin_override)
-        cur.execute("""
-            INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
-            VALUES (%s, %s, %s, CURRENT_TIMESTAMP, NOW() AT TIME ZONE 'Europe/Moscow')
-            ON CONFLICT (user_id, week_start_date)
-            DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP,
-                submitted_at = COALESCE(t_p24058207_website_creation_pro.promoter_schedules.submitted_at, NOW() AT TIME ZONE 'Europe/Moscow')
-        """, (int(user_id), week_start, json.dumps(schedule_data)))
-        
+        # Если admin_override — проверяем, остались ли выбранные слоты
+        # Если все слоты false — сбрасываем submitted_at (разблокируем промоутера)
+        has_any_slot = any(
+            slot_val
+            for day_data in schedule_data.values()
+            if isinstance(day_data, dict)
+            for slot_val in day_data.values()
+        )
+
+        if admin_override:
+            if has_any_slot:
+                # Есть смены — сохраняем, submitted_at не трогаем
+                cur.execute("""
+                    INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
+                    VALUES (%s, %s, %s, CURRENT_TIMESTAMP, NOW() AT TIME ZONE 'Europe/Moscow')
+                    ON CONFLICT (user_id, week_start_date)
+                    DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP
+                """, (int(user_id), week_start, json.dumps(schedule_data)))
+            else:
+                # Смен не осталось — сбрасываем submitted_at, промоутер может снова заполнить
+                cur.execute("""
+                    INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
+                    VALUES (%s, %s, %s, CURRENT_TIMESTAMP, NULL)
+                    ON CONFLICT (user_id, week_start_date)
+                    DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP, submitted_at = NULL
+                """, (int(user_id), week_start, json.dumps(schedule_data)))
+        else:
+            # Промоутер сохраняет — проставляем submitted_at
+            cur.execute("""
+                INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
+                VALUES (%s, %s, %s, CURRENT_TIMESTAMP, NOW() AT TIME ZONE 'Europe/Moscow')
+                ON CONFLICT (user_id, week_start_date)
+                DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP,
+                    submitted_at = COALESCE(t_p24058207_website_creation_pro.promoter_schedules.submitted_at, NOW() AT TIME ZONE 'Europe/Moscow')
+            """, (int(user_id), week_start, json.dumps(schedule_data)))
+
         cur.execute(
             "SELECT submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
             (int(user_id), week_start)
         )
         saved_row = cur.fetchone()
         submitted_at = saved_row[0].isoformat() if saved_row and saved_row[0] else None
-        
+        is_locked = submitted_at is not None
+
         conn.commit()
         cur.close()
         conn.close()
@@ -176,7 +204,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 200,
             'headers': headers,
-            'body': json.dumps({'success': True, 'submitted_at': submitted_at, 'is_locked': True})
+            'body': json.dumps({'success': True, 'submitted_at': submitted_at, 'is_locked': is_locked})
         }
     
     # GET all schedules for a week (admin view)

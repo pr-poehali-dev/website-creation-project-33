@@ -146,7 +146,7 @@ export default function UserDashboard() {
   return (
     <div className="min-h-screen p-3 md:p-6 pb-10 bg-white flex flex-col">
       <div className="max-w-6xl mx-auto w-full flex-1">
-        {!(currentView === 'work' && !selectedOrganization) && (
+        {!(currentView === 'work') && (
           <UserHeader 
             onLogout={logout}
             onOpenChat={() => setChatOpen(true)}
@@ -272,38 +272,37 @@ export default function UserDashboard() {
 
         {currentView === 'work' && (
           <div className="space-y-4">
-            <div className="flex justify-between items-center gap-3 mb-4">
-              <button
-                onClick={() => setCurrentView('tiles')}
-                className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors flex-shrink-0"
-              >
-                <Icon name="ArrowLeft" size={20} />
-                <span className="text-lg">Назад</span>
-              </button>
-              {organizationName && selectedOrganization && (
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Badge className="bg-[#001f54]/10 text-[#001f54] border-0 text-sm px-2 py-1 max-w-[140px] truncate">
-                    <Icon name="Building2" size={14} className="mr-1 flex-shrink-0" />
-                    <span className="truncate">{organizationName}</span>
-                  </Badge>
-                  <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => setTodayContacts(stats.today_contacts)} />
-                </div>
-              )}
-            </div>
             {!selectedOrganization ? (
-              <StartTab
-                onOrganizationSelect={handleOrganizationSelect}
-                onOpenSchedule={() => setCurrentView('schedule')}
-              />
+              <>
+                <button
+                  onClick={() => setCurrentView('tiles')}
+                  className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  <Icon name="ArrowLeft" size={20} />
+                  <span className="text-lg">Назад</span>
+                </button>
+                <StartTab
+                  onOrganizationSelect={handleOrganizationSelect}
+                  onOpenSchedule={() => setCurrentView('schedule')}
+                />
+              </>
             ) : (
-              <WorkTab 
-                selectedOrganizationId={selectedOrganization} 
-                organizationName={organizationName}
-                onChangeOrganization={handleChangeOrganization}
-                todayContactsCount={todayContacts}
-                onContactAdded={() => contactsCounterRef.current?.refresh()}
-                onShiftEnd={handleChangeOrganization}
-              />
+              <>
+                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
+                  setTodayContacts(stats.today_contacts);
+                  setTotalContacts(stats.total_contacts);
+                }} />
+                <WorkTab
+                  selectedOrganizationId={selectedOrganization}
+                  organizationName={organizationName}
+                  onChangeOrganization={handleChangeOrganization}
+                  todayContactsCount={todayContacts}
+                  totalContactsCount={totalContacts}
+                  onContactAdded={() => contactsCounterRef.current?.refresh()}
+                  onShiftEnd={handleChangeOrganization}
+                  onBack={() => setCurrentView('tiles')}
+                />
+              </>
             )}
           </div>
         )}

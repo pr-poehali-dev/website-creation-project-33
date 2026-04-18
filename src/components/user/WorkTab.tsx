@@ -14,11 +14,13 @@ interface WorkTabProps {
   organizationName: string;
   onChangeOrganization: () => void;
   todayContactsCount: number;
+  totalContactsCount?: number;
   onContactAdded?: () => void;
   onShiftEnd?: () => void;
+  onBack?: () => void;
 }
 
-export default function WorkTab({ selectedOrganizationId, organizationName, onChangeOrganization, todayContactsCount, onContactAdded, onShiftEnd }: WorkTabProps) {
+export default function WorkTab({ selectedOrganizationId, organizationName, onChangeOrganization, todayContactsCount, totalContactsCount = 0, onContactAdded, onShiftEnd, onBack }: WorkTabProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [parentName, setParentName] = useState(() => localStorage.getItem('parent_name_draft') || '');
@@ -261,13 +263,31 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     <div className="flex flex-col gap-5">
 
       {/* Stats card */}
-      <div className="bg-[#001f54] rounded-2xl px-5 py-4 flex items-center justify-between">
-        <div>
-          <p className="text-blue-200 text-xs font-medium mb-0.5">Контактов сегодня</p>
-          <p className="text-white text-3xl font-bold leading-none">{todayContactsCount}</p>
+      <div className="bg-[#001f54] rounded-2xl px-5 py-4">
+        {/* Top row: back + org name */}
+        <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-blue-200 hover:text-white transition-colors text-sm font-medium"
+          >
+            <Icon name="ArrowLeft" size={16} />
+            Назад
+          </button>
+          <div className="flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 max-w-[160px]">
+            <Icon name="Building2" size={13} className="text-blue-200 flex-shrink-0" />
+            <span className="text-white text-xs font-medium truncate">{organizationName}</span>
+          </div>
         </div>
-        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
-          <Icon name="Users" size={22} className="text-white" />
+        {/* Bottom row: stats */}
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-blue-200 text-xs font-medium mb-0.5">Контактов сегодня</p>
+            <p className="text-white text-3xl font-bold leading-none">{todayContactsCount}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-blue-200 text-xs font-medium mb-0.5">Всего</p>
+            <p className="text-white text-xl font-semibold leading-none">{totalContactsCount}</p>
+          </div>
         </div>
       </div>
 

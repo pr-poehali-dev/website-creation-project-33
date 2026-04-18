@@ -198,7 +198,6 @@ export default function UserDashboard() {
                     </div>
                     <div className="text-left">
                       <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Работа</div>
-                      <div className="text-xs text-gray-400">Лиды и контакты</div>
                     </div>
                   </div>
                   <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
@@ -214,7 +213,6 @@ export default function UserDashboard() {
                     </div>
                     <div className="text-left">
                       <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Работа NEW</div>
-                      <div className="text-xs text-gray-400">Видео-лиды</div>
                     </div>
                   </div>
                   <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
@@ -230,7 +228,6 @@ export default function UserDashboard() {
                     </div>
                     <div className="text-left">
                       <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">График</div>
-                      <div className="text-xs text-gray-400">Расписание смен</div>
                     </div>
                   </div>
                   <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
@@ -246,7 +243,6 @@ export default function UserDashboard() {
                     </div>
                     <div className="text-left">
                       <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Обучение</div>
-                      <div className="text-xs text-gray-400">Материалы и тесты</div>
                     </div>
                   </div>
                   <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
@@ -267,7 +263,6 @@ export default function UserDashboard() {
                     </div>
                     <div className="text-left">
                       <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Чат</div>
-                      <div className="text-xs text-gray-400">Связь с администратором</div>
                     </div>
                   </div>
                   <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />

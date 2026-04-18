@@ -116,11 +116,13 @@ export default function AccountingStats({ sessionToken, compact }: AccountingSta
 
   const calculateChange = (current: number, previous: number) => {
     if (previous === 0 && current === 0) return { percent: 0, isPositive: true };
-    if (previous === 0) return { percent: 999, isPositive: true };
-    const percentChange = ((current - previous) / previous) * 100;
+    if (previous === 0) return { percent: 999, isPositive: current > 0 };
+    const isPositive = current >= previous;
+    const base = Math.abs(previous);
+    const percentChange = ((current - previous) / base) * 100;
     return {
       percent: Math.abs(Math.round(percentChange)),
-      isPositive: percentChange >= 0
+      isPositive
     };
   };
 

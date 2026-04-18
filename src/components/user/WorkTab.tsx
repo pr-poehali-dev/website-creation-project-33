@@ -258,37 +258,54 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <div className="flex justify-center">
+    <div className="flex flex-col gap-5">
+
+      {/* Stats card */}
+      <div className="bg-[#001f54] rounded-2xl px-5 py-4 flex items-center justify-between">
+        <div>
+          <p className="text-blue-200 text-xs font-medium mb-0.5">Контактов сегодня</p>
+          <p className="text-white text-3xl font-bold leading-none">{todayContactsCount}</p>
+        </div>
+        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+          <Icon name="Users" size={22} className="text-white" />
+        </div>
+      </div>
+
+      {/* Record button */}
+      <div className="flex flex-col items-center gap-3 py-6">
         <button
           onClick={startRecording}
           disabled={isRecording}
-          className="w-32 h-32 sm:w-40 sm:h-40 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
-          style={{
-            backgroundColor: isRecording ? '#1e40af' : '#3b82f6',
-          }}
-          onMouseEnter={(e) => {
-            if (!isRecording) {
-              e.currentTarget.style.backgroundColor = '#1e40af';
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isRecording) {
-              e.currentTarget.style.backgroundColor = '#3b82f6';
-              e.currentTarget.style.transform = 'scale(1)';
-            }
-          }}
+          className="relative w-36 h-36 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' }}
         >
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '20px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
-            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '32px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
-            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '24px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
-            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '36px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
-            <div className="w-2 bg-white rounded-full animate-pulse" style={{ height: '22px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+          {/* Pulse ring */}
+          {!isRecording && (
+            <span className="absolute inset-0 rounded-full bg-blue-400 opacity-20 animate-ping" />
+          )}
+          <div className="flex items-end gap-1 h-10">
+            {[18, 28, 22, 34, 20, 30, 16].map((h, i) => (
+              <div
+                key={i}
+                className="w-1.5 bg-white rounded-full"
+                style={{
+                  height: `${h}px`,
+                  animation: 'waveBar 1s ease-in-out infinite',
+                  animationDelay: `${i * 0.1}s`,
+                }}
+              />
+            ))}
           </div>
         </button>
+        <p className="text-sm text-gray-500 font-medium">Нажмите, чтобы записать контакт</p>
       </div>
+
+      <style>{`
+        @keyframes waveBar {
+          0%, 100% { transform: scaleY(1); }
+          50% { transform: scaleY(0.5); }
+        }
+      `}</style>
 
       <NotebookModal
         open={notebookModalOpen}

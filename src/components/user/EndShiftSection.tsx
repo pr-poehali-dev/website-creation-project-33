@@ -16,19 +16,17 @@ export default function EndShiftSection({
 }: EndShiftSectionProps) {
   return (
     <>
-      <div className="flex justify-center">
+      <div className="rounded-2xl border border-red-100 bg-red-50/50 p-4 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold text-gray-800">Завершить смену</p>
+          <p className="text-xs text-gray-400 mt-0.5">Сделайте фото для отчёта</p>
+        </div>
         <button
           onClick={() => setEndShiftPhotoOpen(true)}
-          className="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white font-bold text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center gap-2 sm:gap-3"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+          className="flex items-center gap-2 bg-red-500 hover:bg-red-600 active:scale-95 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all"
         >
-          <Icon name="LogOut" size={22} className="sm:w-[24px] sm:h-[24px]" />
-          <span>Завершить смену</span>
+          <Icon name="LogOut" size={16} />
+          Завершить
         </button>
       </div>
 

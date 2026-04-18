@@ -26,6 +26,14 @@ interface Task {
 
 interface Category { id: number; name: string; }
 
+interface TaskAction {
+  id: number;
+  comment: string;
+  is_done: boolean;
+  done_at: string | null;
+  created_at: string;
+}
+
 function fmt(iso: string) {
   try { return new Date(iso).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
   catch { return iso; }
@@ -39,6 +47,16 @@ export default function TasksTab() {
   const [saving, setSaving]         = useState(false);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  // раскрытые задачи и их действия
+  const [expandedId, setExpandedId]   = useState<number | null>(null);
+  const [actions, setActions]         = useState<Record<number, TaskAction[]>>({});
+  const [actionsLoading, setActionsLoading] = useState<number | null>(null);
+  // форма нового действия
+  const [showActionForm, setShowActionForm] = useState<number | null>(null);
+  const [actionText, setActionText]   = useState('');
+  const [savingAction, setSavingAction] = useState(false);
+  const [togglingAction, setTogglingAction] = useState<number | null>(null);
 
   // форма
   const [fText, setFText]       = useState('');
@@ -94,6 +112,45 @@ export default function TasksTab() {
       await fetch(`${TASKS_API}?id=${id}`, { method: 'DELETE' });
       setTasks(p => p.filter(t => t.id !== id));
     } finally { setDeletingId(null); }
+  };
+
+  const toggleExpand = async (taskId: number) => {
+    if (expandedId === taskId) { setExpandedId(null); return; }
+    setExpandedId(taskId);
+    if (actions[taskId]) return;
+    setActionsLoading(taskId);
+    try {
+      const d = await (await fetch(`${TASKS_API}?action=actions&task_id=${taskId}`)).json();
+      setActions(p => ({ ...p, [taskId]: d.actions || [] }));
+    } finally { setActionsLoading(null); }
+  };
+
+  const addAction = async (taskId: number) => {
+    if (!actionText.trim()) return;
+    setSavingAction(true);
+    try {
+      const d = await (await fetch(TASKS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create_action', task_id: taskId, comment: actionText.trim() })
+      })).json();
+      setActions(p => ({ ...p, [taskId]: [...(p[taskId] || []), { id: d.id, comment: actionText.trim(), is_done: false, done_at: null, created_at: d.created_at }] }));
+      setActionText('');
+      setShowActionForm(null);
+    } finally { setSavingAction(false); }
+  };
+
+  const toggleActionDone = async (taskId: number, actionId: number, isDone: boolean) => {
+    setTogglingAction(actionId);
+    try {
+      await fetch(TASKS_API, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action_id: actionId, is_done: isDone })
+      });
+      const now = new Date().toISOString();
+      setActions(p => ({ ...p, [taskId]: (p[taskId] || []).map(a => a.id === actionId ? { ...a, is_done: isDone, done_at: isDone ? now : null } : a) }));
+    } finally { setTogglingAction(null); }
   };
 
   const changeStatus = async (id: number, s: TaskStatus) => {
@@ -298,65 +355,165 @@ export default function TasksTab() {
               const cfg = STATUS_CONFIG[task.status];
               const isUpd = updatingId === task.id;
               const isDel = deletingId === task.id;
+              const isExpanded = expandedId === task.id;
+              const taskActions = actions[task.id] || [];
+              const isLoadingActions = actionsLoading === task.id;
+              const doneCount = taskActions.filter(a => a.is_done).length;
+
               return (
                 <div key={task.id}
-                  className="group flex items-start gap-3 p-4 bg-slate-800/40 ring-1 ring-slate-700/40 rounded-xl hover:ring-slate-600/60 hover:bg-slate-800/60 transition-all duration-200"
+                  className="bg-slate-800/40 ring-1 ring-slate-700/40 rounded-xl overflow-hidden transition-all duration-200 hover:ring-slate-600/60"
                   style={{ animationName: 'fsi', animationDuration: '250ms', animationDelay: `${idx * 30}ms`, animationFillMode: 'both' }}>
 
-                  {/* цветная полоска */}
-                  <div className={`w-0.5 self-stretch rounded-full flex-shrink-0 ${cfg.bar}`} />
+                  {/* ── Шапка карточки (кликабельная) ── */}
+                  <div
+                    className="group flex items-start gap-3 p-4 cursor-pointer select-none"
+                    onClick={() => toggleExpand(task.id)}
+                  >
+                    <div className={`w-0.5 self-stretch rounded-full flex-shrink-0 ${cfg.bar}`} />
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold ring-1 ${cfg.badge}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                        {cfg.label}
-                      </span>
-                      {task.category_name && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20">
-                          <Icon name="Tag" size={9} />{task.category_name}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold ring-1 ${cfg.badge}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                          {cfg.label}
                         </span>
-                      )}
-                      <span className="text-[11px] text-slate-600 flex items-center gap-1">
-                        <Icon name="User" size={10} />{task.responsible}
-                      </span>
-                      <button
-                        onClick={() => deleteTask(task.id)}
-                        disabled={isDel}
-                        className="ml-auto opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all"
-                        title="Удалить задачу"
-                      >
-                        {isDel
-                          ? <Icon name="Loader2" size={12} className="animate-spin text-red-400" />
-                          : <Icon name="Trash2" size={12} />
-                        }
-                      </button>
-                    </div>
-
-                    <p className={`text-sm leading-relaxed mb-2.5 ${task.status === 'done' ? 'line-through text-slate-600' : 'text-slate-200'}`}>
-                      {task.text}
-                    </p>
-
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="text-[10px] text-slate-700 flex items-center gap-1">
-                        <Icon name="Clock" size={9} />{fmt(task.created_at)}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        {isUpd ? (
-                          <Icon name="Loader2" size={13} className="animate-spin text-slate-500" />
-                        ) : (
-                          (['pending', 'in_progress', 'done'] as const).map(s => (
-                            <button key={s} onClick={() => changeStatus(task.id, s)} disabled={task.status === s}
-                              className={`h-6 px-2 rounded-md text-[10px] font-semibold transition-all duration-150 ${
-                                task.status === s
-                                  ? STATUS_CONFIG[s].badge + ' ring-1 cursor-default'
-                                  : 'bg-slate-700/50 text-slate-500 ring-1 ring-slate-700/30 hover:bg-slate-700 hover:text-slate-300'
-                              }`}>
-                              {STATUS_CONFIG[s].label}
-                            </button>
-                          ))
+                        {task.category_name && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20">
+                            <Icon name="Tag" size={9} />{task.category_name}
+                          </span>
                         )}
+                        <span className="text-[11px] text-slate-600 flex items-center gap-1">
+                          <Icon name="User" size={10} />{task.responsible}
+                        </span>
+                        {taskActions.length > 0 && (
+                          <span className="text-[10px] text-slate-500 flex items-center gap-1 ml-1">
+                            <Icon name="CheckSquare" size={9} />{doneCount}/{taskActions.length}
+                          </span>
+                        )}
+                        {/* кнопки справа */}
+                        <div className="ml-auto flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                          <button
+                            onClick={() => { setShowActionForm(showActionForm === task.id ? null : task.id); setActionText(''); if (expandedId !== task.id) toggleExpand(task.id); }}
+                            className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-slate-600 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all"
+                            title="Добавить действие"
+                          >
+                            <Icon name="ListPlus" size={12} />
+                          </button>
+                          <button
+                            onClick={() => deleteTask(task.id)}
+                            disabled={isDel}
+                            className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all"
+                            title="Удалить задачу"
+                          >
+                            {isDel ? <Icon name="Loader2" size={12} className="animate-spin text-red-400" /> : <Icon name="Trash2" size={12} />}
+                          </button>
+                          <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={13} className="text-slate-600 ml-1" />
+                        </div>
                       </div>
+
+                      <p className={`text-sm leading-relaxed mb-2.5 ${task.status === 'done' ? 'line-through text-slate-600' : 'text-slate-200'}`}>
+                        {task.text}
+                      </p>
+
+                      <div className="flex items-center justify-between gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
+                        <span className="text-[10px] text-slate-700 flex items-center gap-1">
+                          <Icon name="Clock" size={9} />{fmt(task.created_at)}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          {isUpd ? (
+                            <Icon name="Loader2" size={13} className="animate-spin text-slate-500" />
+                          ) : (
+                            (['pending', 'in_progress', 'done'] as const).map(s => (
+                              <button key={s} onClick={() => changeStatus(task.id, s)} disabled={task.status === s}
+                                className={`h-6 px-2 rounded-md text-[10px] font-semibold transition-all duration-150 ${
+                                  task.status === s
+                                    ? STATUS_CONFIG[s].badge + ' ring-1 cursor-default'
+                                    : 'bg-slate-700/50 text-slate-500 ring-1 ring-slate-700/30 hover:bg-slate-700 hover:text-slate-300'
+                                }`}>
+                                {STATUS_CONFIG[s].label}
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Раскрывающийся блок действий ── */}
+                  <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <div className="border-t border-slate-700/50 mx-4" />
+                    <div className="p-4 pt-3 space-y-2">
+
+                      {/* Форма добавления действия */}
+                      {showActionForm === task.id && (
+                        <div className="flex gap-2 mb-3">
+                          <input
+                            value={actionText}
+                            onChange={e => setActionText(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && addAction(task.id)}
+                            placeholder="Описание действия..."
+                            autoFocus
+                            className="flex-1 h-8 px-3 bg-slate-900/60 ring-1 ring-slate-700/60 text-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
+                          />
+                          <button
+                            onClick={() => addAction(task.id)}
+                            disabled={savingAction || !actionText.trim()}
+                            className="h-8 px-3 bg-cyan-500/20 text-cyan-400 ring-1 ring-cyan-500/30 rounded-lg text-xs font-semibold hover:bg-cyan-500/30 disabled:opacity-40 transition-all"
+                          >
+                            {savingAction ? <Icon name="Loader2" size={12} className="animate-spin" /> : 'Добавить'}
+                          </button>
+                          <button onClick={() => setShowActionForm(null)} className="h-8 px-2 text-slate-600 hover:text-slate-400 transition-colors">
+                            <Icon name="X" size={13} />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Список действий */}
+                      {isLoadingActions ? (
+                        <div className="flex items-center justify-center py-4">
+                          <Icon name="Loader2" size={16} className="animate-spin text-slate-500" />
+                        </div>
+                      ) : taskActions.length === 0 ? (
+                        <p className="text-xs text-slate-600 text-center py-3">Нет действий. Нажмите <Icon name="ListPlus" size={11} className="inline mx-1" /> чтобы добавить.</p>
+                      ) : (
+                        taskActions.map(action => (
+                          <div key={action.id} className="flex items-start gap-2.5 p-2.5 bg-slate-900/40 rounded-lg ring-1 ring-slate-700/30">
+                            {/* Чекбокс */}
+                            <button
+                              onClick={() => toggleActionDone(task.id, action.id, !action.is_done)}
+                              disabled={togglingAction === action.id}
+                              className="mt-0.5 flex-shrink-0 w-4 h-4 rounded flex items-center justify-center transition-all"
+                            >
+                              {togglingAction === action.id ? (
+                                <Icon name="Loader2" size={12} className="animate-spin text-slate-500" />
+                              ) : action.is_done ? (
+                                <div className="w-4 h-4 rounded bg-emerald-500/20 ring-1 ring-emerald-500/40 flex items-center justify-center">
+                                  <Icon name="Check" size={10} className="text-emerald-400" />
+                                </div>
+                              ) : (
+                                <div className="w-4 h-4 rounded ring-1 ring-slate-600 bg-slate-800 hover:ring-slate-500 transition-all" />
+                              )}
+                            </button>
+
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-xs leading-relaxed ${action.is_done ? 'line-through text-slate-600' : 'text-slate-300'}`}>
+                                {action.comment}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] text-slate-700">
+                                  добавлено {fmt(action.created_at)}
+                                </span>
+                                {action.is_done && action.done_at && (
+                                  <span className="text-[10px] text-emerald-700 flex items-center gap-0.5">
+                                    <Icon name="CheckCircle" size={9} /> выполнено {fmt(action.done_at)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>

@@ -5,11 +5,13 @@ from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Управление задачами: CRUD для задач и категорий.
-    GET /  — список задач (фильтры: responsible, category_id, status)
+    Управление задачами: CRUD для задач, категорий и действий.
+    GET /  — список задач
     GET /?action=categories — список категорий
-    POST / — создать задачу или категорию
-    PUT / — обновить статус задачи
+    GET /?action=actions&task_id=X — действия по задаче
+    POST / action=create_task|create_category|create_action
+    PUT / — обновить статус задачи или действия (action_id)
+    DELETE /?id=X — удалить задачу
     '''
     method = event.get('httpMethod', 'GET')
 
@@ -37,6 +39,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute('SELECT id, name FROM task_categories ORDER BY name')
                 cats = [{'id': r[0], 'name': r[1]} for r in cur.fetchall()]
                 return _ok({'categories': cats})
+
+            if action == 'actions':
+                task_id = params.get('task_id')
+                if not task_id:
+                    return _err(400, 'task_id required')
+                cur.execute(
+                    'SELECT id, comment, is_done, done_at, created_at FROM task_actions WHERE task_id=%s ORDER BY created_at ASC',
+                    (int(task_id),)
+                )
+                actions = [{
+                    'id': r[0], 'comment': r[1], 'is_done': r[2],
+                    'done_at': r[3].isoformat() if r[3] else None,
+                    'created_at': r[4].isoformat() if r[4] else None
+                } for r in cur.fetchall()]
+                return _ok({'actions': actions})
 
             # Список задач с фильтрами, сортировка: pending > in_progress > done, внутри — по дате DESC
             responsible = params.get('responsible', '')
@@ -88,6 +105,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body = json.loads(event.get('body') or '{}')
             action = body.get('action', 'create_task')
 
+            if action == 'create_action':
+                task_id = body.get('task_id')
+                comment = body.get('comment', '').strip()
+                if not task_id or not comment:
+                    return _err(400, 'task_id and comment required')
+                cur.execute(
+                    'INSERT INTO task_actions (task_id, comment) VALUES (%s, %s) RETURNING id, created_at',
+                    (task_id, comment)
+                )
+                row = cur.fetchone()
+                conn.commit()
+                return _ok({'id': row[0], 'created_at': row[1].isoformat()})
+
             if action == 'create_category':
                 name = body.get('name', '').strip()
                 if not name:
@@ -118,6 +148,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
         elif method == 'PUT':
             body = json.loads(event.get('body') or '{}')
+
+            # Обновление действия (чекбокс)
+            if body.get('action_id'):
+                action_id = body['action_id']
+                is_done = body.get('is_done', False)
+                done_at = 'CURRENT_TIMESTAMP' if is_done else 'NULL'
+                cur.execute(
+                    f'UPDATE task_actions SET is_done=%s, done_at={done_at} WHERE id=%s',
+                    (is_done, action_id)
+                )
+                conn.commit()
+                return _ok({'updated': True})
+
+            # Обновление статуса задачи
             task_id = body.get('id')
             status = body.get('status')
 

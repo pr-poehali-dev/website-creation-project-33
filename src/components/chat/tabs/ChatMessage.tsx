@@ -313,7 +313,8 @@ export default function ChatMessage({ msg, currentUserId, isGroup, onDeleted }: 
           className="fixed z-50 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden min-w-[190px]"
           style={{
             left: Math.min(Math.max(menu.x - 95, 8), window.innerWidth - 206),
-            top: menu.y + 120 > window.innerHeight ? menu.y - 110 : menu.y + 8,
+            bottom: Math.max(window.innerHeight - menu.y + 8, 80),
+            top: 'auto',
           }}
         >
           <button

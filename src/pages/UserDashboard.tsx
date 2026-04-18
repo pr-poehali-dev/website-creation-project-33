@@ -148,19 +148,21 @@ export default function UserDashboard() {
       className="min-h-screen p-3 md:p-6 bg-white"
     >
       <div className="max-w-6xl mx-auto">
-        <UserHeader 
-          onLogout={logout}
-          onOpenChat={() => setChatOpen(true)}
-          onOpenAI={() => setAiHelperOpen(true)}
-          onOpenSchedule={() => setCurrentView('schedule')}
-          onChangeOrganization={handleChangeOrganization}
-          unreadCount={unreadCount}
-          groupUnreadCount={groupUnreadCount}
-          selectedOrganization={selectedOrganization}
-          organizationName={organizationName}
-          todayContacts={todayContacts}
-          totalContacts={totalContacts}
-        />
+        {!(currentView === 'work' && !selectedOrganization) && (
+          <UserHeader 
+            onLogout={logout}
+            onOpenChat={() => setChatOpen(true)}
+            onOpenAI={() => setAiHelperOpen(true)}
+            onOpenSchedule={() => setCurrentView('schedule')}
+            onChangeOrganization={handleChangeOrganization}
+            unreadCount={unreadCount}
+            groupUnreadCount={groupUnreadCount}
+            selectedOrganization={selectedOrganization}
+            organizationName={organizationName}
+            todayContacts={todayContacts}
+            totalContacts={totalContacts}
+          />
+        )}
 
         <ChatTabs 
           open={chatOpen} 

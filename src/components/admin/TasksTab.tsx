@@ -225,34 +225,43 @@ export default function TasksTab() {
         </div>
 
         {/* ── Фильтры ── */}
-        <div className="flex flex-wrap gap-2 items-center p-3 bg-slate-800/30 ring-1 ring-slate-700/30 rounded-xl">
-          <Icon name="Filter" size={13} className="text-slate-500" />
-          <span className="text-xs text-slate-500 mr-1">Фильтр:</span>
-
-          <select value={fResp2} onChange={e => setFResp2(e.target.value)}
-            className="h-7 px-2 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-400 rounded-lg text-xs focus:outline-none focus:ring-cyan-500/40 focus:ring-1 transition-all">
-            <option value="">Все ответственные</option>
-            {RESPONSIBLES.map(r => <option key={r} value={r}>{r}</option>)}
-          </select>
-
-          <select value={fCat2} onChange={e => setFCat2(e.target.value)}
-            className="h-7 px-2 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-400 rounded-lg text-xs focus:outline-none focus:ring-cyan-500/40 focus:ring-1 transition-all">
-            <option value="">Все классификации</option>
-            {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
-          </select>
-
-          <select value={fStatus} onChange={e => setFStatus(e.target.value)}
-            className="h-7 px-2 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-400 rounded-lg text-xs focus:outline-none focus:ring-cyan-500/40 focus:ring-1 transition-all">
-            <option value="">Все статусы</option>
-            <option value="pending">Не выполнена</option>
-            <option value="in_progress">В процессе</option>
-            <option value="done">Выполнена</option>
-          </select>
-
+        <div className="p-3 bg-slate-800/30 ring-1 ring-slate-700/30 rounded-xl">
+          <div className="flex items-center gap-1.5 mb-3">
+            <Icon name="Filter" size={12} className="text-slate-500" />
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Фильтры</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Ответственный</label>
+              <select value={fResp2} onChange={e => setFResp2(e.target.value)}
+                className="w-full h-8 px-2 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-300 rounded-lg text-xs focus:outline-none focus:ring-cyan-500/40 focus:ring-1 transition-all">
+                <option value="">Все</option>
+                {RESPONSIBLES.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Классификация</label>
+              <select value={fCat2} onChange={e => setFCat2(e.target.value)}
+                className="w-full h-8 px-2 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-300 rounded-lg text-xs focus:outline-none focus:ring-cyan-500/40 focus:ring-1 transition-all">
+                <option value="">Все</option>
+                {categories.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Статус</label>
+              <select value={fStatus} onChange={e => setFStatus(e.target.value)}
+                className="w-full h-8 px-2 bg-slate-800/60 ring-1 ring-slate-700/50 text-slate-300 rounded-lg text-xs focus:outline-none focus:ring-cyan-500/40 focus:ring-1 transition-all">
+                <option value="">Все</option>
+                <option value="pending">Не выполнена</option>
+                <option value="in_progress">В процессе</option>
+                <option value="done">Выполнена</option>
+              </select>
+            </div>
+          </div>
           {(fResp2 || fCat2 || fStatus) && (
             <button onClick={() => { setFResp2(''); setFCat2(''); setFStatus(''); }}
-              className="ml-auto flex items-center gap-1 text-xs text-slate-600 hover:text-red-400 transition-colors">
-              <Icon name="X" size={11} /> Сбросить
+              className="mt-2 flex items-center gap-1 text-xs text-slate-600 hover:text-red-400 transition-colors">
+              <Icon name="X" size={11} /> Сбросить фильтры
             </button>
           )}
         </div>

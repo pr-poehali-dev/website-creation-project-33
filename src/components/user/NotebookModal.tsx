@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
@@ -37,6 +38,17 @@ export default function NotebookModal({
   onSend,
   onQRClick
 }: NotebookModalProps) {
+  const [phoneError, setPhoneError] = useState(false);
+
+  const handleSend = () => {
+    if (phone.length < 10) {
+      setPhoneError(true);
+      return;
+    }
+    setPhoneError(false);
+    onSend();
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-white !border-0 shadow-2xl rounded-2xl p-4 sm:p-6">
@@ -65,7 +77,7 @@ export default function NotebookModal({
                   <Icon name="X" size={20} />
                 </button>
                 <button
-                  onClick={onSend}
+                  onClick={handleSend}
                   disabled={isLoading}
                   className="p-2 rounded-xl bg-[#0088cc] hover:bg-[#006699] text-white transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-xl"
                   title="Отправить в Telegram"
@@ -134,15 +146,24 @@ export default function NotebookModal({
                         const value = e.target.value.replace(/[^0-9]/g, '');
                         if (value.length <= 10) {
                           setPhone(value);
+                          if (value.length >= 10) setPhoneError(false);
                         }
                       }}
                       placeholder="9001234567"
-                      className="bg-white !border-2 !border-blue-500 text-gray-900 placeholder:text-gray-400 focus:!border-blue-500 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12 pl-9"
+                      className={`bg-white !border-2 text-gray-900 placeholder:text-gray-400 focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!outline-none !outline-none transition-all duration-300 text-sm sm:text-base rounded-xl h-11 sm:h-12 pl-9 ${
+                        phoneError ? '!border-red-500' : '!border-blue-500 focus:!border-blue-500'
+                      }`}
                       style={{ outline: 'none', boxShadow: 'none' }}
                       type="tel"
                       maxLength={10}
                     />
                   </div>
+                  {phoneError && (
+                    <div className="mt-1.5 flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-lg px-2.5 py-1.5">
+                      <Icon name="AlertCircle" size={13} className="text-red-500 flex-shrink-0" />
+                      <p className="text-xs text-red-600 font-medium">Введите 10 цифр номера (без +7)</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

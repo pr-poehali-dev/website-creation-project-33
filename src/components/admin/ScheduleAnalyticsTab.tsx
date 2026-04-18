@@ -60,7 +60,8 @@ export default function ScheduleAnalyticsTab() {
       return {
         date: day.date,
         expected: Math.round(expected),
-        actual: actualContactsMap[day.date] || 0
+        actual: actualContactsMap[day.date] || 0,
+        workersCount: uniqueWorkers.size
       };
     });
 

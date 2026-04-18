@@ -26,6 +26,7 @@ export interface DayStats {
   date: string;
   expected: number;
   actual: number;
+  workersCount: number;
 }
 
 export interface Week {

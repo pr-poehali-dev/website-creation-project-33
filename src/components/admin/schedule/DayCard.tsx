@@ -140,6 +140,13 @@ export default function DayCard({
             </div>
           )}
 
+          {stats && stats.workersCount > 0 && (
+            <div className="flex items-center gap-1 bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded-full ring-1 ring-cyan-500/20">
+              <Icon name="Users" size={11} />
+              <span className="text-[10px] font-semibold">{stats.workersCount}</span>
+            </div>
+          )}
+
           {isSuccessful && (
             <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
               <Icon name="Check" size={13} className="text-white" />

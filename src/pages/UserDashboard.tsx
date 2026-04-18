@@ -26,21 +26,19 @@ export default function UserDashboard() {
     const saved = localStorage.getItem('selected_organization_id');
     return saved ? parseInt(saved) : null;
   });
-  const [activeTab, setActiveTab] = useState<string>(selectedOrganization ? 'work' : 'tiles');
+  const [activeTab, setActiveTab] = useState<string>('tiles');
   const [backgroundImage, setBackgroundImage] = useState<string>('');
   const [todayContacts, setTodayContacts] = useState<number>(0);
   const [totalContacts, setTotalContacts] = useState<number>(0);
   const contactsCounterRef = useRef<ContactsCounterRef>(null);
-  const [currentView, setCurrentView] = useState<'tiles' | 'start' | 'work' | 'work-new' | 'schedule' | 'training'>(selectedOrganization ? 'tiles' : 'start');
+  const [currentView, setCurrentView] = useState<'tiles' | 'start' | 'work' | 'work-new' | 'schedule' | 'training'>('tiles');
 
   useEffect(() => {
     if (selectedOrganization) {
       localStorage.setItem('selected_organization_id', selectedOrganization.toString());
-      setCurrentView('tiles');
       fetchOrganizationName();
     } else {
       localStorage.removeItem('selected_organization_id');
-      setCurrentView('start');
       setOrganizationName('');
     }
   }, [selectedOrganization]);
@@ -99,16 +97,9 @@ export default function UserDashboard() {
   };
 
   const handleChangeOrganization = () => {
-    console.log('🔄 handleChangeOrganization called');
     setSelectedOrganization(null);
-    setCurrentView('start');
     setBackgroundImage('');
-    console.log('✅ State reset: organization=null, tab=start');
   };
-
-  if (currentView === 'start') {
-    return <StartTab onOrganizationSelect={handleOrganizationSelect} onOpenSchedule={() => setCurrentView('schedule')} />;
-  }
 
   if (currentView === 'schedule') {
     return (
@@ -116,7 +107,7 @@ export default function UserDashboard() {
 
         {/* Десктоп: кнопка назад в левом верхнем углу */}
         <button
-          onClick={() => setCurrentView(selectedOrganization ? 'tiles' : 'start')}
+          onClick={() => setCurrentView('tiles')}
           className="hidden sm:flex absolute top-4 left-4 items-center gap-2 px-3 py-2 rounded-xl bg-white shadow-sm text-gray-500 hover:text-[#001f54] hover:shadow-md transition-all duration-200 text-sm font-medium"
         >
           <Icon name="ArrowLeft" size={15} />
@@ -136,7 +127,7 @@ export default function UserDashboard() {
                 </p>
               </div>
               <button
-                onClick={() => setCurrentView(selectedOrganization ? 'tiles' : 'start')}
+                onClick={() => setCurrentView('tiles')}
                 className="flex sm:hidden items-center px-3 py-2.5 rounded-xl bg-white shadow-sm text-gray-500 active:scale-95 transition-all duration-200 flex-shrink-0 mt-1 touch-manipulation"
               >
                 <Icon name="ArrowLeft" size={16} />
@@ -182,9 +173,9 @@ export default function UserDashboard() {
           onOpenChange={setAiHelperOpen}
         />
 
-        {currentView === 'tiles' && selectedOrganization && (
+        {currentView === 'tiles' && (
           <>
-            {organizationName && (
+            {organizationName && selectedOrganization && (
               <div className="mb-4 flex items-center gap-2 px-1">
                 <Icon name="Building2" size={16} className="text-gray-400" />
                 <span className="text-sm text-gray-500">{organizationName}</span>
@@ -296,7 +287,7 @@ export default function UserDashboard() {
                 <Icon name="ArrowLeft" size={20} />
                 <span className="text-lg">Назад</span>
               </button>
-              {organizationName && (
+              {organizationName && selectedOrganization && (
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Badge className="bg-[#001f54]/10 text-[#001f54] border-0 text-sm px-2 py-1 max-w-[140px] truncate">
                     <Icon name="Building2" size={14} className="mr-1 flex-shrink-0" />
@@ -306,14 +297,21 @@ export default function UserDashboard() {
                 </div>
               )}
             </div>
-            <WorkTab 
-              selectedOrganizationId={selectedOrganization} 
-              organizationName={organizationName}
-              onChangeOrganization={handleChangeOrganization}
-              todayContactsCount={todayContacts}
-              onContactAdded={() => contactsCounterRef.current?.refresh()}
-              onShiftEnd={handleChangeOrganization}
-            />
+            {!selectedOrganization ? (
+              <StartTab
+                onOrganizationSelect={handleOrganizationSelect}
+                onOpenSchedule={() => setCurrentView('schedule')}
+              />
+            ) : (
+              <WorkTab 
+                selectedOrganizationId={selectedOrganization} 
+                organizationName={organizationName}
+                onChangeOrganization={handleChangeOrganization}
+                todayContactsCount={todayContacts}
+                onContactAdded={() => contactsCounterRef.current?.refresh()}
+                onShiftEnd={handleChangeOrganization}
+              />
+            )}
           </div>
         )}
 

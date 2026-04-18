@@ -271,9 +271,10 @@ export default function GroupChatTab({
       <ScrollArea className="flex-1 p-4">
         <ChatMessagesList
           messages={messages}
+          scrollRef={scrollRef}
           isLoading={isLoading}
-          adminTyping={false}
-          userId={user?.id}
+          isGroup={true}
+          currentUserId={user?.id}
         />
         <div ref={scrollRef} />
       </ScrollArea>

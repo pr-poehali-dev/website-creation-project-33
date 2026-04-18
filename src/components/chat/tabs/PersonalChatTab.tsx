@@ -269,11 +269,11 @@ export default function PersonalChatTab({
       <ScrollArea className="flex-1 p-4">
         <ChatMessagesList
           messages={messages}
+          scrollRef={scrollRef}
           isLoading={isLoading}
-          adminTyping={adminTyping}
-          userId={user?.id}
+          isGroup={false}
+          currentUserId={user?.id}
         />
-        <div ref={scrollRef} />
       </ScrollArea>
 
       <ChatInput

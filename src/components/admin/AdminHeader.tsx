@@ -10,57 +10,35 @@ interface AdminHeaderProps {
 
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false }: AdminHeaderProps) {
   return (
-    <>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;700;800&display=swap');`}</style>
-
-      {/* Mobile Header */}
-      <div className="md:hidden mb-6 rounded-2xl overflow-hidden shadow-lg" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
-        <div className="px-4 py-3 flex items-center justify-between">
-          <div>
-              <div style={{fontFamily: 'Raleway, sans-serif', fontWeight: 800, fontSize: 22, color: '#fff', letterSpacing: '0.1em', lineHeight: 1}}>ИМПЕРИЯ</div>
-
-          </div>
-          <div className="flex gap-1.5">
-            {showHomeButton && onGoHome && (
-              <button onClick={onGoHome} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/20" style={{background: 'rgba(255,255,255,0.1)'}}>
-                <Icon name="Home" size={14} className="text-white/80" />
-              </button>
-            )}
-            <button onClick={onOpenGoogleSheets} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/20" style={{background: 'rgba(255,255,255,0.1)'}}>
-              <Icon name="Sheet" size={14} className="text-white/80" />
-            </button>
-            <button onClick={onLogout} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all" style={{background: 'rgba(239,68,68,0.25)'}}>
-              <Icon name="LogOut" size={14} className="text-red-300" />
-            </button>
-          </div>
-        </div>
-        <div className="h-px mx-4" style={{background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)'}} />
+    <header className="mb-6 flex items-center justify-between px-1">
+      <div>
+        <div className="text-base font-bold text-[#001f54] tracking-wide leading-none">ИМПЕРИЯ ПРОМО</div>
+        <div className="text-[11px] text-gray-400 leading-none mt-0.5">рекламное агентство</div>
       </div>
 
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-8 rounded-2xl overflow-hidden shadow-xl" style={{background: 'linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0d2d5a 100%)'}}>
-        <div className="px-8 py-6 flex items-center justify-between">
-          <div>
-            <div style={{fontFamily: 'Raleway, sans-serif', fontWeight: 800, fontSize: 44, color: '#fff', letterSpacing: '0.1em', lineHeight: 1}}>ИМПЕРИЯ</div>
-
-          </div>
-          <div className="flex items-center gap-2">
-            {showHomeButton && onGoHome && (
-              <button onClick={onGoHome} className="h-9 px-3 rounded-xl flex items-center gap-2 transition-all hover:bg-white/20" style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)'}}>
-                <Icon name="Home" size={15} className="text-white/80" />
-              </button>
-            )}
-            <button onClick={onOpenGoogleSheets} className="h-9 px-4 rounded-xl flex items-center gap-2 transition-all duration-200 hover:bg-white/25 hover:scale-105 hover:shadow-lg active:scale-95" style={{background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)'}}>
-              <Icon name="Sheet" size={15} className="text-white/80" />
-              <span style={{fontFamily: 'Montserrat, sans-serif', fontWeight: 500, fontSize: 13, color: 'rgba(255,255,255,0.8)'}}>Google Таблицы</span>
-            </button>
-            <button onClick={onLogout} className="h-9 px-3 rounded-xl flex items-center gap-2 transition-all duration-200 hover:bg-red-500/40 hover:scale-105 hover:shadow-lg active:scale-95" style={{background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.25)'}}>
-              <Icon name="LogOut" size={15} className="text-red-300" />
-            </button>
-          </div>
-        </div>
-        <div className="h-px mx-6" style={{background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)'}} />
+      <div className="flex items-center gap-1.5">
+        {showHomeButton && onGoHome && (
+          <button
+            onClick={onGoHome}
+            className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+          >
+            <Icon name="Home" size={16} className="text-gray-600" />
+          </button>
+        )}
+        <button
+          onClick={onOpenGoogleSheets}
+          className="h-9 px-3 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center gap-2 transition-colors"
+        >
+          <Icon name="Sheet" size={15} className="text-gray-600" />
+          <span className="text-sm font-medium text-gray-600 hidden sm:inline">Google Таблицы</span>
+        </button>
+        <button
+          onClick={onLogout}
+          className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-red-50 flex items-center justify-center transition-colors group"
+        >
+          <Icon name="LogOut" size={16} className="text-gray-500 group-hover:text-red-500 transition-colors" />
+        </button>
       </div>
-    </>
+    </header>
   );
 }

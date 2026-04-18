@@ -272,22 +272,22 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       </button>
 
       {/* Stats card */}
-      <div className="bg-[#001f54] rounded-2xl p-5">
-        {/* Org name */}
-        <div className="flex items-center gap-1.5 mb-4">
+      <div className="bg-[#001f54] rounded-2xl px-5 py-4 flex items-center justify-between gap-3">
+        {/* Org */}
+        <div className="flex items-center gap-1.5 min-w-0">
           <Icon name="MapPin" size={13} className="text-blue-300 flex-shrink-0" />
           <span className="text-blue-200 text-sm font-medium truncate">{organizationName}</span>
         </div>
         {/* Counters */}
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-blue-300 text-xs mb-1">Сегодня</p>
-            <p className="text-white text-4xl font-bold leading-none">{todayContactsCount}</p>
-          </div>
-          <div className="w-px h-10 bg-white/10" />
+        <div className="flex items-center gap-3 flex-shrink-0">
           <div className="text-right">
-            <p className="text-blue-300 text-xs mb-1">Всего</p>
-            <p className="text-white text-4xl font-bold leading-none">{totalContactsCount}</p>
+            <p className="text-blue-300 text-[10px] leading-none mb-0.5">Сегодня</p>
+            <p className="text-white text-xl font-bold leading-none">{todayContactsCount}</p>
+          </div>
+          <div className="w-px h-8 bg-white/20" />
+          <div className="text-right">
+            <p className="text-blue-300 text-[10px] leading-none mb-0.5">Всего</p>
+            <p className="text-white text-xl font-bold leading-none">{totalContactsCount}</p>
           </div>
         </div>
       </div>
@@ -318,7 +318,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
             ))}
           </div>
         </button>
-        <p className="text-sm text-gray-500 font-medium">Нажмите, чтобы записать контакт</p>
+
       </div>
 
       <style>{`

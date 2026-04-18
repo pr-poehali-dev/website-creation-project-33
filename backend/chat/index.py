@@ -232,10 +232,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         """, (user_id,))
                         conn.commit()
                     
-                    # Получаем статус печатает для админа (user_id = 1 - админ)
+                    # Получаем статус печатает для любого из администраторов
                     cursor.execute("""
-                        SELECT is_typing FROM t_p24058207_website_creation_pro.typing_status 
-                        WHERE user_id = 1
+                        SELECT ts.is_typing FROM t_p24058207_website_creation_pro.typing_status ts
+                        JOIN t_p24058207_website_creation_pro.users u ON ts.user_id = u.id
+                        WHERE u.is_admin = TRUE AND ts.is_typing = TRUE
+                        LIMIT 1
                     """)
                     typing_row = cursor.fetchone()
                     admin_typing = typing_row['is_typing'] if typing_row else False
@@ -277,13 +279,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     media_url = f'data:video/mp4;base64,{media_data}'
             
             if is_admin and is_group:
-                # Админ отправляет групповое сообщение (сохраняем как сообщение от админа с is_group=TRUE)
-                # user_id=1 для админа, но это групповое сообщение
+                # Админ отправляет групповое сообщение
                 cursor.execute("""
                     INSERT INTO t_p24058207_website_creation_pro.chat_messages (user_id, message, is_from_admin, media_type, media_url, is_group)
-                    VALUES (1, %s, TRUE, %s, %s, TRUE)
+                    VALUES (%s, %s, TRUE, %s, %s, TRUE)
                     RETURNING id, created_at
-                """, (message or '', media_type, media_url))
+                """, (user_id, message or '', media_type, media_url))
             elif is_admin and target_user_id:
                 # Админ отправляет личное сообщение пользователю
                 cursor.execute("""

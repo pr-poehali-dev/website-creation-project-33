@@ -187,66 +187,42 @@ export default function UserDashboard() {
               </div>
             )}
             <div className="divide-y divide-gray-100">
-                <button
-                  onClick={() => setCurrentView('work')}
-                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon name="Briefcase" size={17} className="text-gray-400" />
-                    <span className="font-medium text-gray-800">Работа</span>
-                  </div>
-                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
-                </button>
-
-                <button
-                  onClick={() => setCurrentView('work-new')}
-                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon name="Video" size={17} className="text-gray-400" />
-                    <span className="font-medium text-gray-800">Работа NEW</span>
-                  </div>
-                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
-                </button>
-
-                <button
-                  onClick={() => setCurrentView('schedule')}
-                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon name="Calendar" size={17} className="text-gray-400" />
-                    <span className="font-medium text-gray-800">График</span>
-                  </div>
-                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
-                </button>
-
-                <button
-                  onClick={() => setCurrentView('training')}
-                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon name="GraduationCap" size={17} className="text-gray-400" />
-                    <span className="font-medium text-gray-800">Обучение</span>
-                  </div>
-                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
-                </button>
-
-                <button
-                  onClick={() => setChatOpen(true)}
-                  className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
-                >
-                  <div className="flex items-center gap-3 relative">
-                    <Icon name="MessageCircle" size={17} className="text-gray-400" />
-                    <span className="font-medium text-gray-800">Чат</span>
-                    {unreadCount > 0 && (
-                      <Badge className="bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[18px]">
-                        {unreadCount}
-                      </Badge>
-                    )}
-                  </div>
-                  <Icon name="ChevronRight" size={15} className="text-gray-300" />
-                </button>
+                {[
+                  { label: 'Работа', icon: 'Briefcase', action: () => setCurrentView('work') },
+                  { label: 'Работа NEW', icon: 'Video', action: () => setCurrentView('work-new') },
+                  { label: 'График', icon: 'Calendar', action: () => setCurrentView('schedule') },
+                  { label: 'Обучение', icon: 'GraduationCap', action: () => setCurrentView('training') },
+                  { label: 'Чат', icon: 'MessageCircle', action: () => setChatOpen(true), badge: unreadCount > 0 ? unreadCount : null },
+                ].map((item, i) => (
+                  <button
+                    key={item.label}
+                    onClick={item.action}
+                    className="w-full py-3.5 flex items-center justify-between hover:bg-gray-50 rounded-xl px-2 transition-colors group"
+                    style={{
+                      opacity: 0,
+                      animation: `fadeSlideIn 0.3s ease forwards`,
+                      animationDelay: `${i * 60}ms`,
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon name={item.icon} size={17} className="text-gray-400" />
+                      <span className="font-medium text-gray-800">{item.label}</span>
+                      {item.badge && (
+                        <Badge className="bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[18px]">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </div>
+                    <Icon name="ChevronRight" size={15} className="text-gray-300" />
+                  </button>
+                ))}
               </div>
+              <style>{`
+                @keyframes fadeSlideIn {
+                  from { opacity: 0; transform: translateY(10px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+              `}</style>
           </>
         )}
 

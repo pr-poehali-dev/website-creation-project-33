@@ -147,16 +147,16 @@ export default function DayCard({
             </div>
           )}
 
-          {isSuccessful && (
-            <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
-              <Icon name="Check" size={11} className="text-white" />
-            </div>
-          )}
-
           {trainingCount > 0 && (
             <div className="flex items-center gap-1 bg-violet-500/15 text-violet-400 px-1.5 py-1 rounded-full ring-1 ring-violet-500/25 flex-shrink-0">
               <Icon name="GraduationCap" size={10} />
               <span className="text-[10px] font-semibold">{trainingCount}</span>
+            </div>
+          )}
+
+          {isSuccessful && (
+            <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
+              <Icon name="Check" size={11} className="text-white" />
             </div>
           )}
         </div>

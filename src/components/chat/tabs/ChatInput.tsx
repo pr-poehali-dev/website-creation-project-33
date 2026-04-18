@@ -1,182 +1,181 @@
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 
 interface ChatInputProps {
   newMessage: string;
   setNewMessage: (msg: string) => void;
-  handleTyping: () => void;
-  sendMessage: () => void;
+  onTyping: () => void;
+  onSendMessage: () => void;
   isSending: boolean;
   selectedFile: File | null;
   previewUrl: string | null;
   fileInputRef: React.RefObject<HTMLInputElement>;
-  handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  cancelFile: () => void;
-  isGroup: boolean;
+  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemoveFile: () => void;
   isRecording: boolean;
   recordingTime?: number;
-  startRecording: () => void;
-  stopRecording: () => void;
+  onStartRecording: () => void;
+  onStopRecording: () => void;
+  onCancelRecording?: () => void;
   showEmojiPicker: boolean;
   setShowEmojiPicker: (show: boolean) => void;
   emojiPickerRef: React.RefObject<HTMLDivElement>;
-  handleEmojiClick: (emojiData: EmojiClickData) => void;
+  onEmojiClick: (emojiData: EmojiClickData) => void;
 }
 
 export default function ChatInput({
   newMessage,
   setNewMessage,
-  handleTyping,
-  sendMessage,
+  onTyping,
+  onSendMessage,
   isSending,
   selectedFile,
   previewUrl,
   fileInputRef,
-  handleFileSelect,
-  cancelFile,
-  isGroup,
+  onFileSelect,
+  onRemoveFile,
   isRecording,
   recordingTime = 0,
-  startRecording,
-  stopRecording,
+  onStartRecording,
+  onStopRecording,
+  onCancelRecording,
   showEmojiPicker,
   setShowEmojiPicker,
   emojiPickerRef,
-  handleEmojiClick,
+  onEmojiClick,
 }: ChatInputProps) {
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+  const canSend = !isSending && (!!newMessage.trim() || !!selectedFile);
+
   return (
-    <>
-      {previewUrl && (
-        <div className="px-4 py-2 border-t bg-gray-50">
+    <div className="border-t border-gray-100 bg-white relative">
+
+      {/* Image/video preview */}
+      {previewUrl && selectedFile && !selectedFile.type.startsWith('audio/') && (
+        <div className="px-4 pt-3">
           <div className="relative inline-block">
-            {selectedFile?.type.startsWith('image/') && (
-              <img src={previewUrl} alt="Preview" className="max-h-20 rounded" />
+            {selectedFile.type.startsWith('image/') && (
+              <img src={previewUrl} alt="Preview" className="max-h-24 rounded-xl object-cover" />
             )}
-            {selectedFile?.type.startsWith('video/') && (
-              <video src={previewUrl} className="max-h-20 rounded" />
+            {selectedFile.type.startsWith('video/') && (
+              <video src={previewUrl} className="max-h-24 rounded-xl" />
             )}
-            <Button
-              size="sm"
-              variant="destructive"
-              className="absolute -top-2 -right-2"
-              onClick={cancelFile}
+            <button
+              onClick={onRemoveFile}
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center"
             >
-              <Icon name="X" size={16} />
-            </Button>
+              <Icon name="X" size={11} className="text-white" />
+            </button>
           </div>
         </div>
       )}
 
-      {selectedFile && selectedFile.type.startsWith('audio/') && (
-        <div className="px-4 py-2 border-t bg-gray-50 flex items-center gap-2">
-          <Icon name="Mic" size={16} />
-          <span className="text-sm">Голосовое сообщение готово</span>
-          <Button size="sm" variant="ghost" onClick={cancelFile}>
-            <Icon name="X" size={16} />
-          </Button>
+      {/* Audio preview */}
+      {selectedFile?.type.startsWith('audio/') && (
+        <div className="mx-4 mt-3 flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2">
+          <div className="w-7 h-7 rounded-full bg-[#001f54] flex items-center justify-center">
+            <Icon name="Mic" size={13} className="text-white" />
+          </div>
+          <span className="text-sm text-gray-600 flex-1">Голосовое сообщение</span>
+          <button onClick={onRemoveFile} className="text-gray-400 hover:text-red-500 transition-colors">
+            <Icon name="X" size={14} />
+          </button>
         </div>
       )}
 
+      {/* Recording indicator */}
       {isRecording && (
-        <div className="px-4 py-2 border-t bg-red-50 flex items-center gap-2">
-          <div className="flex items-center gap-2 flex-1">
-            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-            <span className="text-sm font-medium text-red-600">
-              Идет запись: {formatTime(recordingTime)}
-            </span>
-          </div>
-          <span className="text-xs text-gray-500">макс. 2 мин</span>
+        <div className="mx-4 mt-3 flex items-center gap-2 bg-red-50 rounded-xl px-3 py-2">
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+          <span className="text-sm font-medium text-red-600 flex-1">
+            Запись: {formatTime(recordingTime)}
+          </span>
+          <span className="text-xs text-gray-400">макс. 2 мин</span>
         </div>
       )}
 
-      <div className="p-4 border-t bg-white relative">
-        <div className="flex gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,video/*"
-            className="hidden"
-            onChange={handleFileSelect}
-          />
-          
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            disabled={isSending || isRecording}
-          >
-            <Icon name="Smile" size={20} />
-          </Button>
-          
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isSending || selectedFile !== null || isRecording}
-          >
-            <Icon name="Paperclip" size={20} />
-          </Button>
+      {/* Input row */}
+      <div className="flex items-end gap-2 px-3 py-3">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,video/*"
+          className="hidden"
+          onChange={onFileSelect}
+        />
 
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={isRecording ? stopRecording : startRecording}
-            disabled={isSending || selectedFile !== null}
-            className={isRecording ? 'text-red-500 bg-red-100' : ''}
-          >
-            <Icon name="Mic" size={20} />
-          </Button>
+        {/* Emoji */}
+        <button
+          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          disabled={isSending || isRecording}
+          className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0 disabled:opacity-40"
+        >
+          <Icon name="Smile" size={20} />
+        </button>
 
-          <Textarea
-            value={newMessage}
-            onChange={(e) => {
-              setNewMessage(e.target.value);
-              handleTyping();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-            placeholder="Написать сообщение..."
-            className="min-h-[40px] max-h-[120px] resize-none"
+        {/* Attach */}
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isSending || !!selectedFile || isRecording}
+          className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0 disabled:opacity-40"
+        >
+          <Icon name="Paperclip" size={20} />
+        </button>
+
+        {/* Textarea */}
+        <textarea
+          value={newMessage}
+          onChange={(e) => { setNewMessage(e.target.value); onTyping(); }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSendMessage(); }
+          }}
+          placeholder="Сообщение..."
+          rows={1}
+          disabled={isSending}
+          className="flex-1 resize-none bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none focus:border-[#001f54]/30 focus:ring-2 focus:ring-[#001f54]/10 transition-all max-h-28 leading-5 disabled:opacity-60"
+          onInput={(e) => {
+            const t = e.currentTarget;
+            t.style.height = 'auto';
+            t.style.height = Math.min(t.scrollHeight, 112) + 'px';
+          }}
+        />
+
+        {/* Send / Mic */}
+        {canSend ? (
+          <button
+            onClick={onSendMessage}
             disabled={isSending}
-          />
-
-          <Button
-            onClick={sendMessage}
-            disabled={isSending || (!newMessage.trim() && !selectedFile)}
+            className="w-10 h-10 flex items-center justify-center rounded-2xl bg-[#001f54] hover:bg-[#001f54]/80 text-white transition-colors flex-shrink-0 disabled:opacity-60 shadow-sm"
           >
-            {isSending ? (
-              <Icon name="Loader2" className="animate-spin" size={20} />
-            ) : (
-              <Icon name="Send" size={20} />
-            )}
-          </Button>
-        </div>
-        
-        {/* Emoji Picker */}
-        {showEmojiPicker && (
-          <div 
-            ref={emojiPickerRef} 
-            className="absolute bottom-20 left-4 z-50 shadow-2xl rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200"
+            {isSending
+              ? <Icon name="Loader2" size={18} className="animate-spin" />
+              : <Icon name="Send" size={17} />
+            }
+          </button>
+        ) : (
+          <button
+            onClick={isRecording ? onStopRecording : onStartRecording}
+            disabled={isSending || !!selectedFile}
+            className={`w-10 h-10 flex items-center justify-center rounded-2xl transition-colors flex-shrink-0 disabled:opacity-40 ${
+              isRecording
+                ? 'bg-red-500 hover:bg-red-600 text-white shadow-sm'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-500'
+            }`}
           >
-            <EmojiPicker 
-              onEmojiClick={handleEmojiClick} 
-              width={300} 
-              height={400} 
-            />
-          </div>
+            <Icon name="Mic" size={18} />
+          </button>
         )}
       </div>
-    </>
+
+      {/* Emoji Picker */}
+      {showEmojiPicker && (
+        <div
+          ref={emojiPickerRef}
+          className="absolute bottom-full left-4 z-50 shadow-2xl rounded-2xl overflow-hidden mb-2"
+        >
+          <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={380} />
+        </div>
+      )}
+    </div>
   );
 }

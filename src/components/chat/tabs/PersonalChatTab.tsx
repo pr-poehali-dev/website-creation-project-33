@@ -266,7 +266,7 @@ export default function PersonalChatTab({
 
   return (
     <>
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4 bg-gray-50/60">
         <ChatMessagesList
           messages={messages}
           isLoading={isLoading}

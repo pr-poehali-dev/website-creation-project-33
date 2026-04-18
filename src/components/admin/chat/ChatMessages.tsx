@@ -57,6 +57,7 @@ function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boole
   const rafRef = useRef<number>(0);
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
+  const [error, setError] = useState(false);
 
   const fmt = (s: number) => {
     if (!isFinite(s) || isNaN(s)) return '0:00';
@@ -75,7 +76,12 @@ function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boole
   const toggle = () => {
     const a = audioRef.current;
     if (!a) return;
-    if (a.paused) { a.play(); } else { a.pause(); }
+    if (a.paused) {
+      const p = a.play();
+      if (p !== undefined) p.catch(() => setError(true));
+    } else {
+      a.pause();
+    }
   };
 
   useEffect(() => {
@@ -89,30 +95,37 @@ function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boole
       if (progressRef.current) progressRef.current.style.width = '0%';
       if (timeRef.current) timeRef.current.textContent = fmt(a.duration);
     };
-    const onMeta = () => setDuration(a.duration || 0);
+    const onMeta = () => { if (a.duration) setDuration(a.duration); };
+    const onDuration = () => { if (a.duration) setDuration(a.duration); };
+    const onErr = () => setError(true);
     a.addEventListener('play', onPlay);
     a.addEventListener('pause', onPause);
     a.addEventListener('ended', onEnded);
     a.addEventListener('loadedmetadata', onMeta);
+    a.addEventListener('durationchange', onDuration);
+    a.addEventListener('error', onErr);
     return () => {
       cancelAnimationFrame(rafRef.current);
       a.removeEventListener('play', onPlay);
       a.removeEventListener('pause', onPause);
       a.removeEventListener('ended', onEnded);
       a.removeEventListener('loadedmetadata', onMeta);
+      a.removeEventListener('durationchange', onDuration);
+      a.removeEventListener('error', onErr);
     };
   }, []);
 
-  const seek = (e: React.MouseEvent<HTMLDivElement>) => {
+  const seek = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     const a = audioRef.current;
     if (!a || !a.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    a.currentTime = ((e.clientX - rect.left) / rect.width) * a.duration;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    a.currentTime = ((clientX - rect.left) / rect.width) * a.duration;
   };
 
   return (
     <div className="flex items-center gap-2.5 min-w-[180px]">
-      <audio ref={audioRef} src={src} preload="metadata" />
+      <audio ref={audioRef} src={src} preload="none" playsInline />
       <button
         onClick={toggle}
         className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${

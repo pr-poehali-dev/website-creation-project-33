@@ -188,11 +188,11 @@ export default function UserDashboard() {
             )}
             <div className="divide-y divide-gray-100">
                 {[
-                  { label: 'Работа', icon: 'Briefcase', action: () => setCurrentView('work') },
-                  { label: 'Работа NEW', icon: 'Video', action: () => setCurrentView('work-new') },
-                  { label: 'График', icon: 'Calendar', action: () => setCurrentView('schedule') },
-                  { label: 'Обучение', icon: 'GraduationCap', action: () => setCurrentView('training') },
-                  { label: 'Чат', icon: 'MessageCircle', action: () => setChatOpen(true), badge: unreadCount > 0 ? unreadCount : null },
+                  { label: 'Работа', icon: 'Briefcase', action: () => setCurrentView('work'), iconAnim: 'icon-bounce' },
+                  { label: 'Работа NEW', icon: 'Video', action: () => setCurrentView('work-new'), iconAnim: 'icon-pulse' },
+                  { label: 'График', icon: 'Calendar', action: () => setCurrentView('schedule'), iconAnim: 'icon-swing' },
+                  { label: 'Обучение', icon: 'GraduationCap', action: () => setCurrentView('training'), iconAnim: 'icon-nod' },
+                  { label: 'Чат', icon: 'MessageCircle', action: () => setChatOpen(true), iconAnim: 'icon-shake', badge: unreadCount > 0 ? unreadCount : null },
                 ].map((item, i) => (
                   <button
                     key={item.label}
@@ -205,7 +205,9 @@ export default function UserDashboard() {
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      <Icon name={item.icon} size={17} className="text-gray-400" />
+                      <span className={`icon-wrap ${item.iconAnim}`}>
+                        <Icon name={item.icon} size={17} className="text-gray-400" />
+                      </span>
                       <span className="font-medium text-gray-800">{item.label}</span>
                       {item.badge && (
                         <Badge className="bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[18px]">
@@ -222,6 +224,47 @@ export default function UserDashboard() {
                   from { opacity: 0; transform: translateY(10px); }
                   to { opacity: 1; transform: translateY(0); }
                 }
+                .icon-wrap { display: inline-flex; transition: transform 0.2s ease; }
+
+                /* Briefcase — подпрыгивает */
+                @keyframes bounce {
+                  0%,100% { transform: translateY(0); }
+                  40% { transform: translateY(-4px); }
+                  70% { transform: translateY(-2px); }
+                }
+                .group:hover .icon-bounce { animation: bounce 0.5s ease; }
+
+                /* Video — пульсирует масштаб */
+                @keyframes pulse-scale {
+                  0%,100% { transform: scale(1); }
+                  50% { transform: scale(1.3); }
+                }
+                .group:hover .icon-pulse { animation: pulse-scale 0.4s ease; }
+
+                /* Calendar — покачивается */
+                @keyframes swing {
+                  0%,100% { transform: rotate(0deg); }
+                  25% { transform: rotate(-12deg); }
+                  75% { transform: rotate(12deg); }
+                }
+                .group:hover .icon-swing { animation: swing 0.4s ease; }
+
+                /* GraduationCap — кивает */
+                @keyframes nod {
+                  0%,100% { transform: rotateX(0deg); }
+                  50% { transform: translateY(3px); }
+                }
+                .group:hover .icon-nod { animation: nod 0.4s ease; }
+
+                /* MessageCircle — трясётся */
+                @keyframes shake {
+                  0%,100% { transform: translateX(0); }
+                  20% { transform: translateX(-3px); }
+                  40% { transform: translateX(3px); }
+                  60% { transform: translateX(-2px); }
+                  80% { transform: translateX(2px); }
+                }
+                .group:hover .icon-shake { animation: shake 0.4s ease; }
               `}</style>
           </>
         )}

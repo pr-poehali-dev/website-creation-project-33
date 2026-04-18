@@ -23,51 +23,63 @@ interface ChatMessageProps {
 
 function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boolean; sentAt: string; isRead: boolean }) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const timeRef = useRef<HTMLSpanElement>(null);
+  const rafRef = useRef<number>(0);
   const [playing, setPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  const fmt = (s: number) => {
+    if (!isFinite(s) || isNaN(s)) return '0:00';
+    return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+  };
+
+  // Update progress bar and time directly via DOM — no re-renders, buttery smooth
+  const tick = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    const pct = a.duration > 0 ? (a.currentTime / a.duration) * 100 : 0;
+    if (progressRef.current) progressRef.current.style.width = `${pct}%`;
+    if (timeRef.current) timeRef.current.textContent = fmt(a.currentTime);
+    rafRef.current = requestAnimationFrame(tick);
+  };
 
   const toggle = () => {
     const a = audioRef.current;
     if (!a) return;
-    if (playing) { a.pause(); } else { a.play(); }
+    if (a.paused) { a.play(); } else { a.pause(); }
   };
 
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
-    const onPlay = () => setPlaying(true);
-    const onPause = () => setPlaying(false);
-    const onEnded = () => { setPlaying(false); setCurrentTime(0); };
-    const onTime = () => setCurrentTime(a.currentTime);
+    const onPlay = () => { setPlaying(true); rafRef.current = requestAnimationFrame(tick); };
+    const onPause = () => { setPlaying(false); cancelAnimationFrame(rafRef.current); };
+    const onEnded = () => {
+      setPlaying(false);
+      cancelAnimationFrame(rafRef.current);
+      if (progressRef.current) progressRef.current.style.width = '0%';
+      if (timeRef.current) timeRef.current.textContent = fmt(a.duration);
+    };
     const onMeta = () => setDuration(a.duration || 0);
     a.addEventListener('play', onPlay);
     a.addEventListener('pause', onPause);
     a.addEventListener('ended', onEnded);
-    a.addEventListener('timeupdate', onTime);
     a.addEventListener('loadedmetadata', onMeta);
     return () => {
+      cancelAnimationFrame(rafRef.current);
       a.removeEventListener('play', onPlay);
       a.removeEventListener('pause', onPause);
       a.removeEventListener('ended', onEnded);
-      a.removeEventListener('timeupdate', onTime);
       a.removeEventListener('loadedmetadata', onMeta);
     };
   }, []);
 
-  const fmt = (s: number) => {
-    if (!isFinite(s)) return '0:00';
-    return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
-  };
-
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-
   const seek = (e: React.MouseEvent<HTMLDivElement>) => {
     const a = audioRef.current;
-    if (!a || !duration) return;
+    if (!a || !a.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const ratio = (e.clientX - rect.left) / rect.width;
-    a.currentTime = ratio * duration;
+    a.currentTime = ((e.clientX - rect.left) / rect.width) * a.duration;
   };
 
   return (
@@ -87,7 +99,7 @@ function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boole
       </button>
 
       <div className="flex flex-col gap-1 flex-1 min-w-0">
-        {/* Waveform / progress bar */}
+        {/* Progress bar */}
         <div
           className={`relative h-2 rounded-full cursor-pointer overflow-hidden ${
             isOwn ? 'bg-white/20' : 'bg-gray-200'
@@ -95,17 +107,18 @@ function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boole
           onClick={seek}
         >
           <div
-            className={`absolute left-0 top-0 h-full rounded-full transition-all ${
+            ref={progressRef}
+            className={`absolute left-0 top-0 h-full rounded-full ${
               isOwn ? 'bg-white/80' : 'bg-[#001f54]'
             }`}
-            style={{ width: `${progress}%` }}
+            style={{ width: '0%' }}
           />
         </div>
 
         {/* Audio time + sent time inline */}
         <div className="flex items-center justify-between gap-2">
-          <span className={`text-[10px] ${isOwn ? 'text-white/60' : 'text-gray-400'}`}>
-            {playing || currentTime > 0 ? fmt(currentTime) : fmt(duration)}
+          <span ref={timeRef} className={`text-[10px] ${isOwn ? 'text-white/60' : 'text-gray-400'}`}>
+            {fmt(duration)}
           </span>
           <span className={`text-[10px] flex items-center gap-0.5 ${isOwn ? 'text-white/40' : 'text-gray-400'}`}>
             {sentAt}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Message, UserChat, CHAT_API_URL, MAX_FILE_SIZE, MAX_RECORDING_TIME } from './chat/types';
+import { uploadChatMedia } from '@/utils/uploadChatMedia';
 import UserList from './chat/UserList';
 import ChatWindow from './chat/ChatWindow';
 import { Button } from '@/components/ui/button';
@@ -130,33 +131,21 @@ export default function AdminChatTab() {
 
     setIsSending(true);
     try {
-      let media_data = null;
-      let media_type = null;
+      let media_url: string | null = null;
+      let media_type: string | null = null;
 
       if (selectedFile) {
-        const reader = new FileReader();
-        const base64Promise = new Promise<string>((resolve, reject) => {
-          reader.onload = () => {
-            const base64 = (reader.result as string).split(',')[1];
-            resolve(base64);
-          };
-          reader.onerror = reject;
-        });
-        reader.readAsDataURL(selectedFile);
-        media_data = await base64Promise;
+        if (selectedFile.type.startsWith('audio/')) media_type = 'audio';
+        else if (selectedFile.type.startsWith('image/')) media_type = 'image';
+        else if (selectedFile.type.startsWith('video/')) media_type = 'video';
 
-        if (selectedFile.type.startsWith('audio/')) {
-          media_type = 'audio';
-        } else if (selectedFile.type.startsWith('image/')) {
-          media_type = 'image';
-        } else if (selectedFile.type.startsWith('video/')) {
-          media_type = 'video';
-        }
+        const uploaded = await uploadChatMedia(selectedFile, user.id);
+        media_url = uploaded.url;
       }
 
       const bodyData: Record<string, unknown> = {
         message: newMessage.trim(),
-        media_data,
+        media_url,
         media_type,
       };
 

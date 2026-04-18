@@ -260,39 +260,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             target_user_id = body_data.get('user_id')  # Только для админа
             is_group = body_data.get('is_group', False)  # Групповое сообщение
             media_type = body_data.get('media_type')  # audio, image, video
-            media_data = body_data.get('media_data')  # base64 encoded
+            media_url = body_data.get('media_url')    # CDN URL (already uploaded)
             
             # Сообщение или медиа обязательно
-            if not message and not media_data:
+            if not message and not media_url:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'error': 'Message or media is required'})
                 }
-            
-            # Формируем медиа URL (data URI для встраивания)
-            media_url = None
-            if media_data and media_type:
-                if media_type == 'audio':
-                    # Определяем реальный формат по magic bytes
-                    import base64 as b64mod
-                    raw = b64mod.b64decode(media_data[:16])
-                    if raw[:4] == b'\x00\x00\x00\x20' or raw[4:8] == b'ftyp' or raw[:4] == b'ftyp':
-                        audio_mime = 'audio/mp4'
-                    elif raw[:4] == b'OggS':
-                        audio_mime = 'audio/ogg'
-                    elif raw[:4] == b'fLaC':
-                        audio_mime = 'audio/flac'
-                    elif raw[:3] == b'ID3' or raw[:2] == b'\xff\xfb':
-                        audio_mime = 'audio/mpeg'
-                    else:
-                        # webm signature: 0x1A45DFA3
-                        audio_mime = 'audio/mp4' if raw[:4] != b'\x1a\x45\xdf\xa3' else 'audio/webm'
-                    media_url = f'data:{audio_mime};base64,{media_data}'
-                elif media_type == 'image':
-                    media_url = f'data:image/jpeg;base64,{media_data}'
-                elif media_type == 'video':
-                    media_url = f'data:video/mp4;base64,{media_data}'
             
             if is_admin and is_group:
                 # Админ отправляет групповое сообщение

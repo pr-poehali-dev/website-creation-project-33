@@ -37,6 +37,8 @@ export default function ScheduleTab() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const [submittedAt, setSubmittedAt] = useState<string | null>(null);
   const isUkrainian = user?.name === 'Виктор Кобыляцкий';
   const [workComments, setWorkComments] = useState<Record<string, {
     location?: string;
@@ -110,6 +112,8 @@ export default function ScheduleTab() {
         if (data.work_shifts) {
           setWorkShifts(data.work_shifts);
         }
+        setIsLocked(data.is_locked || false);
+        setSubmittedAt(data.submitted_at || null);
       }
     } catch (error) {
       console.error('Error loading schedule:', error);
@@ -154,7 +158,7 @@ export default function ScheduleTab() {
     }
   };
 
-  const updateScheduleFromData = (scheduleData: any) => {
+  const updateScheduleFromData = (scheduleData: Record<string, Record<string, boolean>>) => {
     setSchedule(prev => prev.map(day => {
       const dayData = scheduleData[day.date];
       if (dayData) {
@@ -171,6 +175,7 @@ export default function ScheduleTab() {
   };
 
   const toggleSlot = (dayIndex: number, slotIndex: number) => {
+    if (isLocked) return;
     setSchedule(prev => prev.map((day, dIdx) => {
       if (dIdx === dayIndex) {
         return {
@@ -186,11 +191,11 @@ export default function ScheduleTab() {
   };
 
   const saveSchedule = async () => {
-    if (!user?.id) return;
+    if (!user?.id || isLocked) return;
     
     setSaving(true);
     try {
-      const scheduleData: any = {};
+      const scheduleData: Record<string, Record<string, boolean>> = {};
       schedule.forEach(day => {
         scheduleData[day.date] = {
           slot1: day.slots[0].selected,
@@ -212,8 +217,10 @@ export default function ScheduleTab() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setIsLocked(true);
+        setSubmittedAt(data.submitted_at || null);
         setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
       }
     } catch (error) {
       console.error('Error saving schedule:', error);
@@ -270,20 +277,33 @@ export default function ScheduleTab() {
       </div>
 
       <div className="pt-1 space-y-2">
-        <Button
-          onClick={saveSchedule}
-          disabled={saving || getSelectedCount() === 0}
-          className="w-full h-12 bg-[#001f54] hover:bg-[#002b6b] text-white rounded-xl font-semibold text-base transition-all duration-200 touch-manipulation"
-        >
-          {saving ? (
-            <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />{isUkrainian ? 'Збереження...' : 'Сохранение...'}</>
-          ) : saved ? (
-            <><Icon name="Check" size={16} className="mr-2" />{isUkrainian ? 'Збережено!' : 'Сохранено!'}</>
-          ) : (
-            <><Icon name="Save" size={16} className="mr-2" />{isUkrainian ? 'Зберегти графік' : 'Сохранить график'}</>
-          )}
-        </Button>
-        {!saved && getSelectedCount() === 0 && (
+        {isLocked && submittedAt ? (
+          <div className="w-full h-12 bg-green-50 border border-green-200 rounded-xl flex items-center justify-center gap-2">
+            <Icon name="LockKeyhole" size={15} className="text-green-600" />
+            <span className="text-sm font-medium text-green-700">
+              График сохранён{' '}
+              {new Date(submittedAt).toLocaleString('ru-RU', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+              })}
+            </span>
+          </div>
+        ) : (
+          <Button
+            onClick={saveSchedule}
+            disabled={saving || getSelectedCount() === 0}
+            className="w-full h-12 bg-[#001f54] hover:bg-[#002b6b] text-white rounded-xl font-semibold text-base transition-all duration-200 touch-manipulation"
+          >
+            {saving ? (
+              <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />{isUkrainian ? 'Збереження...' : 'Сохранение...'}</>
+            ) : saved ? (
+              <><Icon name="Check" size={16} className="mr-2" />{isUkrainian ? 'Збережено!' : 'Сохранено!'}</>
+            ) : (
+              <><Icon name="Save" size={16} className="mr-2" />{isUkrainian ? 'Зберегти графік' : 'Сохранить график'}</>
+            )}
+          </Button>
+        )}
+        {!isLocked && !saved && getSelectedCount() === 0 && (
           <p className="text-center text-xs text-gray-400">Выберите хотя бы одну смену</p>
         )}
       </div>

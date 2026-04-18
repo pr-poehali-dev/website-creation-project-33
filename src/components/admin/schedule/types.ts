@@ -8,9 +8,10 @@ export interface UserSchedule {
   first_name: string;
   last_name: string;
   email: string;
-  schedule: any;
+  schedule: Record<string, Record<string, boolean>>;
   avg_per_shift?: number;
   daily_contacts?: Array<{date: string, count: number}>;
+  submitted_at?: string | null;
 }
 
 export interface DaySchedule {

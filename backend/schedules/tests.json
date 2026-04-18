@@ -24,7 +24,7 @@
       "path": "/?user_id=1&week_start=2025-10-20",
       "expectedStatus": 200,
       "expectedBody": {
-        "week_start_date": "string"
+        "is_locked": true
       },
       "bodyMatcher": "partial"
     }

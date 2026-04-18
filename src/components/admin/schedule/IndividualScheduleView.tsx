@@ -58,13 +58,29 @@ export default function IndividualScheduleView({
         </Select>
 
         {selectedUserData && (
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold flex-shrink-0 ${
-            isMaxim
-              ? 'bg-purple-500/15 text-purple-300 ring-1 ring-purple-500/30'
-              : 'bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-500/30'
-          }`}>
-            <Icon name="CalendarDays" size={14} />
-            {totalShifts} {totalShifts === 1 ? 'смена' : totalShifts < 5 ? 'смены' : 'смен'}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold flex-shrink-0 ${
+              isMaxim
+                ? 'bg-purple-500/15 text-purple-300 ring-1 ring-purple-500/30'
+                : 'bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-500/30'
+            }`}>
+              <Icon name="CalendarDays" size={14} />
+              {totalShifts} {totalShifts === 1 ? 'смена' : totalShifts < 5 ? 'смены' : 'смен'}
+            </div>
+            {selectedUserData.submitted_at ? (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/20 flex-shrink-0">
+                <Icon name="CheckCircle" size={13} />
+                {new Date(selectedUserData.submitted_at).toLocaleString('ru-RU', {
+                  day: '2-digit', month: '2-digit',
+                  hour: '2-digit', minute: '2-digit'
+                })}
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-slate-500 bg-slate-800/50 ring-1 ring-slate-700/30 flex-shrink-0">
+                <Icon name="Clock" size={13} />
+                Не сохранён
+              </div>
+            )}
           </div>
         )}
       </div>

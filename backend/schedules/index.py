@@ -85,15 +85,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 })
         
         if week_start:
-            # Get specific week
             cur.execute(
-                "SELECT schedule_data, week_start_date FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
+                "SELECT schedule_data, week_start_date, submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
                 (int(user_id), week_start)
             )
         else:
-            # Get current week
             cur.execute(
-                "SELECT schedule_data, week_start_date FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s ORDER BY week_start_date DESC LIMIT 1",
+                "SELECT schedule_data, week_start_date, submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s ORDER BY week_start_date DESC LIMIT 1",
                 (int(user_id),)
             )
         
@@ -102,12 +100,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn.close()
         
         if row:
+            submitted_at = row[2].isoformat() if row[2] else None
             return {
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({
                     'schedule': row[0],
                     'week_start_date': row[1].isoformat(),
+                    'submitted_at': submitted_at,
+                    'is_locked': submitted_at is not None,
                     'work_shifts': work_shifts
                 })
             }
@@ -115,7 +116,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 200,
                 'headers': headers,
-                'body': json.dumps({'schedule': None, 'work_shifts': work_shifts})
+                'body': json.dumps({'schedule': None, 'submitted_at': None, 'is_locked': False, 'work_shifts': work_shifts})
             }
     
     # POST - save/update schedule
@@ -135,13 +136,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Upsert schedule
+        # Проверяем — уже был сохранён (submitted_at проставлен)?
+        cur.execute(
+            "SELECT submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
+            (int(user_id), week_start)
+        )
+        existing = cur.fetchone()
+        if existing and existing[0] is not None:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 403,
+                'headers': headers,
+                'body': json.dumps({'error': 'График уже сохранён и заблокирован для редактирования', 'is_locked': True})
+            }
+        
+        # Upsert schedule + проставляем submitted_at при первом сохранении
         cur.execute("""
-            INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at)
-            VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+            INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
+            VALUES (%s, %s, %s, CURRENT_TIMESTAMP, NOW() AT TIME ZONE 'Europe/Moscow')
             ON CONFLICT (user_id, week_start_date)
-            DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP
+            DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = CURRENT_TIMESTAMP,
+                submitted_at = COALESCE(t_p24058207_website_creation_pro.promoter_schedules.submitted_at, NOW() AT TIME ZONE 'Europe/Moscow')
         """, (int(user_id), week_start, json.dumps(schedule_data)))
+        
+        cur.execute(
+            "SELECT submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
+            (int(user_id), week_start)
+        )
+        saved_row = cur.fetchone()
+        submitted_at = saved_row[0].isoformat() if saved_row and saved_row[0] else None
         
         conn.commit()
         cur.close()
@@ -150,7 +174,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 200,
             'headers': headers,
-            'body': json.dumps({'success': True, 'message': 'Schedule saved'})
+            'body': json.dumps({'success': True, 'submitted_at': submitted_at, 'is_locked': True})
         }
     
     # GET all schedules for a week (admin view)
@@ -170,7 +194,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Получаем графики промоутеров
         cur.execute("""
-            SELECT u.id, COALESCE(ps.schedule_data, '{}'::jsonb), %s, u.name, u.email
+            SELECT u.id, COALESCE(ps.schedule_data, '{}'::jsonb), %s, u.name, u.email, ps.submitted_at
             FROM t_p24058207_website_creation_pro.users u
             LEFT JOIN t_p24058207_website_creation_pro.promoter_schedules ps 
                 ON u.id = ps.user_id AND ps.week_start_date = %s
@@ -240,6 +264,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         schedules = []
         for row in rows:
             user_id = row[0]
+            submitted_at = row[5].isoformat() if row[5] else None
             schedules.append({
                 'user_id': user_id,
                 'schedule': row[1],
@@ -248,7 +273,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'last_name': row[3].split()[1] if row[3] and len(row[3].split()) > 1 else '',
                 'email': row[4],
                 'avg_per_shift': stats_map.get(user_id, 0),
-                'daily_contacts': user_daily_stats.get(user_id, [])
+                'daily_contacts': user_daily_stats.get(user_id, []),
+                'submitted_at': submitted_at
             })
         
         return {

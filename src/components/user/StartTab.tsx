@@ -190,10 +190,6 @@ export default function StartTab({ onOrganizationSelect, onOpenSchedule }: Start
 
       </div>
 
-      <p className="text-center text-xs text-gray-400 py-4 mt-auto animate-fade-in" style={{ animationDelay: '0.25s' }}>
-        © {new Date().getFullYear()} Империя Промо. Все права защищены.
-      </p>
-
       {pendingOrg && (
         <PhotoCapture
           open={photoCaptureOpen}

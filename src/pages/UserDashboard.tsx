@@ -144,10 +144,8 @@ export default function UserDashboard() {
   }
 
   return (
-    <div 
-      className="min-h-screen p-3 md:p-6 bg-white"
-    >
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen p-3 md:p-6 pb-10 bg-white flex flex-col">
+      <div className="max-w-6xl mx-auto w-full flex-1">
         {!(currentView === 'work' && !selectedOrganization) && (
           <UserHeader 
             onLogout={logout}
@@ -268,9 +266,7 @@ export default function UserDashboard() {
                 }
                 .group:hover .icon-shake { animation: shake 0.4s ease; }
               `}</style>
-            <p className="fixed bottom-4 left-0 right-0 text-center text-xs text-gray-400">
-              © {new Date().getFullYear()} Империя Промо. Все права защищены.
-            </p>
+
           </>
         )}
 
@@ -340,6 +336,9 @@ export default function UserDashboard() {
           </div>
         )}
       </div>
+      <p className="text-center text-xs text-gray-400 pt-6">
+        © {new Date().getFullYear()} Империя Промо. Все права защищены.
+      </p>
     </div>
   );
 }

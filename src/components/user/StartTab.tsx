@@ -100,9 +100,7 @@ export default function StartTab({ onOrganizationSelect, onOpenSchedule }: Start
           <h1 className="text-2xl font-bold text-[#001f54] mb-1 text-center">
             Выбор организации
           </h1>
-          <p className="text-gray-500 text-sm text-center">
-            Выберите площадку для начала работы
-          </p>
+
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 animate-fade-up" style={{ animationDelay: '0.15s' }}>

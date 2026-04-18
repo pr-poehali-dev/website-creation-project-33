@@ -94,11 +94,27 @@ export default function ChatInput({
         </div>
       )}
 
-      {/* Recording indicator */}
+      {/* Recording indicator — Telegram style */}
       {isRecording && (
-        <div className="mx-4 mt-3 flex items-center gap-2 bg-red-50 rounded-xl px-3 py-2">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-          <span className="text-sm font-medium text-red-600 flex-1">Запись...</span>
+        <div className="flex items-center gap-3 px-4 py-2.5 bg-white">
+          <div className="relative flex-shrink-0">
+            <div className="w-2 h-2 bg-red-500 rounded-full" />
+            <div className="absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-60" />
+          </div>
+          <div className="flex items-center gap-[3px] flex-1">
+            {[0.4,0.7,1,0.6,0.9,0.5,0.8,0.4,0.7,1,0.6,0.85,0.5,0.75,0.4,0.9,0.6,1,0.5,0.7].map((h, i) => (
+              <div
+                key={i}
+                className="w-[3px] bg-red-400 rounded-full"
+                style={{
+                  height: `${Math.round(h * 18) + 4}px`,
+                  animation: 'waveBar 0.8s ease-in-out infinite',
+                  animationDelay: `${(i % 5) * 0.12}s`,
+                  opacity: 0.7 + h * 0.3,
+                }}
+              />
+            ))}
+          </div>
         </div>
       )}
 

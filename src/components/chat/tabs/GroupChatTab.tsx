@@ -275,6 +275,7 @@ export default function GroupChatTab({
           isLoading={isLoading}
           isGroup={true}
           currentUserId={user?.id}
+          onMessageDeleted={(id) => setMessages(prev => prev.filter(m => m.id !== id))}
         />
         <div ref={scrollRef} />
       </ScrollArea>

@@ -71,7 +71,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT cm.*, u.name as user_name, u.avatar_url as user_avatar
                     FROM t_p24058207_website_creation_pro.chat_messages cm
                     LEFT JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
-                    WHERE cm.is_group = TRUE
+                    WHERE cm.is_group = TRUE AND cm.hidden_for_all = FALSE
                     ORDER BY cm.created_at ASC
                 """)
                 
@@ -100,7 +100,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT cm.*, u.name as user_name
                     FROM t_p24058207_website_creation_pro.chat_messages cm
                     JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
-                    WHERE cm.user_id = %s AND cm.is_group = FALSE
+                    WHERE cm.user_id = %s AND cm.is_group = FALSE AND cm.hidden_for_all = FALSE
                     ORDER BY cm.created_at ASC
                 """, (target_user_id,))
                 
@@ -179,9 +179,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         SELECT cm.*, u.name as user_name, u.avatar_url as user_avatar
                         FROM t_p24058207_website_creation_pro.chat_messages cm
                         LEFT JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
-                        WHERE cm.is_group = TRUE
+                        WHERE cm.is_group = TRUE AND cm.hidden_for_all = FALSE
+                          AND NOT (cm.user_id = %s AND cm.hidden_for_sender = TRUE)
                         ORDER BY cm.created_at ASC
-                    """)
+                    """, (user_id,))
                     
                     messages = cursor.fetchall()
                     
@@ -218,6 +219,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         FROM t_p24058207_website_creation_pro.chat_messages cm
                         JOIN t_p24058207_website_creation_pro.users u ON cm.user_id = u.id
                         WHERE cm.user_id = %s AND cm.is_group = FALSE
+                          AND cm.hidden_for_all = FALSE AND cm.hidden_for_sender = FALSE
                         ORDER BY cm.created_at ASC
                     """, (user_id,))
                 
@@ -366,7 +368,52 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif method == 'DELETE':
-            # Очистка чата (только для админа)
+            query_params = event.get('queryStringParameters') or {}
+            message_id = query_params.get('message_id')
+            scope = query_params.get('scope')  # 'self' or 'all'
+            
+            # Удаление одного сообщения
+            if message_id and scope:
+                # Проверяем, что сообщение принадлежит пользователю
+                cursor.execute("""
+                    SELECT id, user_id, is_from_admin FROM t_p24058207_website_creation_pro.chat_messages WHERE id = %s
+                """, (message_id,))
+                msg = cursor.fetchone()
+                
+                if not msg:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Message not found'})
+                    }
+                
+                # Проверка прав: своё сообщение или админ
+                is_own = (str(msg['user_id']) == str(user_id)) or (is_admin and msg['is_from_admin'])
+                
+                if scope == 'all' and not is_own:
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Cannot delete others messages for all'})
+                    }
+                
+                if scope == 'all':
+                    cursor.execute("""
+                        UPDATE t_p24058207_website_creation_pro.chat_messages SET hidden_for_all = TRUE WHERE id = %s
+                    """, (message_id,))
+                else:
+                    cursor.execute("""
+                        UPDATE t_p24058207_website_creation_pro.chat_messages SET hidden_for_sender = TRUE WHERE id = %s
+                    """, (message_id,))
+                
+                conn.commit()
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True})
+                }
+            
+            # Очистка всего чата (только для админа)
             if not is_admin:
                 return {
                     'statusCode': 403,
@@ -374,19 +421,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Forbidden'})
                 }
             
-            query_params = event.get('queryStringParameters') or {}
             target_user_id = query_params.get('user_id')
             is_group = query_params.get('is_group') == 'true'
             
             if is_group:
-                # Удаляем все групповые сообщения
                 cursor.execute("""
-                    DELETE FROM t_p24058207_website_creation_pro.chat_messages WHERE is_group = TRUE
+                    UPDATE t_p24058207_website_creation_pro.chat_messages SET hidden_for_all = TRUE WHERE is_group = TRUE
                 """)
             elif target_user_id:
-                # Удаляем ВСЕ сообщения конкретного пользователя (только личные)
                 cursor.execute("""
-                    DELETE FROM t_p24058207_website_creation_pro.chat_messages WHERE user_id = %s AND is_group = FALSE
+                    UPDATE t_p24058207_website_creation_pro.chat_messages SET hidden_for_all = TRUE WHERE user_id = %s AND is_group = FALSE
                 """, (target_user_id,))
             else:
                 return {
@@ -395,16 +439,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'user_id or is_group is required'})
                 }
             
-            deleted_count = cursor.rowcount
             conn.commit()
-            
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'success': True,
-                    'deleted_count': deleted_count
-                })
+                'body': json.dumps({'success': True})
             }
         
         return {

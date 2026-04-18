@@ -1,0 +1,2 @@
+ALTER TABLE t_p24058207_website_creation_pro.chat_messages ADD COLUMN IF NOT EXISTS hidden_for_sender BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE t_p24058207_website_creation_pro.chat_messages ADD COLUMN IF NOT EXISTS hidden_for_all BOOLEAN NOT NULL DEFAULT FALSE;

@@ -154,7 +154,7 @@ export default function AdminChatTab() {
         }
       }
 
-      const bodyData: any = {
+      const bodyData: Record<string, unknown> = {
         message: newMessage.trim(),
         media_data,
         media_type,
@@ -379,6 +379,8 @@ export default function AdminChatTab() {
               onStopRecording={stopRecording}
               onKeyPress={handleKeyPress}
               onTyping={handleTyping}
+              currentAdminId={user?.id}
+              onMessageDeleted={(id) => setMessages(prev => prev.filter(m => m.id !== id))}
             />
           </div>
         )}
@@ -413,6 +415,8 @@ export default function AdminChatTab() {
           onStopRecording={stopRecording}
           onKeyPress={handleKeyPress}
           onTyping={handleTyping}
+          currentAdminId={user?.id}
+          onMessageDeleted={(id) => setMessages(prev => prev.filter(m => m.id !== id))}
         />
       </div>
     </>

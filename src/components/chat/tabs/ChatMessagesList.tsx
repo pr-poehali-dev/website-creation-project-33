@@ -19,6 +19,7 @@ interface ChatMessagesListProps {
   isLoading: boolean;
   isGroup: boolean;
   currentUserId?: number;
+  onMessageDeleted?: (msgId: number) => void;
 }
 
 function getMoscowDateLabel(dateStr: string): string {
@@ -56,6 +57,7 @@ export default function ChatMessagesList({
   isLoading,
   isGroup,
   currentUserId,
+  onMessageDeleted,
 }: ChatMessagesListProps) {
   if (isLoading && messages.length === 0) {
     return (
@@ -98,6 +100,7 @@ export default function ChatMessagesList({
               msg={msg}
               currentUserId={currentUserId}
               isGroup={isGroup}
+              onDeleted={onMessageDeleted}
             />
           </div>
         );

@@ -273,6 +273,7 @@ export default function PersonalChatTab({
           isLoading={isLoading}
           isGroup={false}
           currentUserId={user?.id}
+          onMessageDeleted={(id) => setMessages(prev => prev.filter(m => m.id !== id))}
         />
       </ScrollArea>
 

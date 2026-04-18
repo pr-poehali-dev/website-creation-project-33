@@ -27,6 +27,8 @@ interface ChatWindowProps {
   onStopRecording: () => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
   onTyping: () => void;
+  currentAdminId?: number;
+  onMessageDeleted?: (msgId: number) => void;
 }
 
 export default function ChatWindow({
@@ -52,6 +54,8 @@ export default function ChatWindow({
   onKeyPress,
   onTyping,
   onBack,
+  currentAdminId,
+  onMessageDeleted,
 }: ChatWindowProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 md:col-span-2 flex flex-col h-full shadow-sm">
@@ -102,6 +106,8 @@ export default function ChatWindow({
               isLoading={isLoading}
               userTyping={userTyping}
               scrollRef={scrollRef}
+              currentAdminId={currentAdminId}
+              onMessageDeleted={onMessageDeleted}
             />
             <ChatInput
               newMessage={newMessage}

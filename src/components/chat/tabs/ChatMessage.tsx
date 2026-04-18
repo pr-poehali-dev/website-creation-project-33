@@ -3,6 +3,8 @@ import { formatMoscowTime } from '@/utils/timeFormat';
 import AnimatedMessage from '../AnimatedMessage';
 import Icon from '@/components/ui/icon';
 
+const CHAT_URL = 'https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c';
+
 interface Message {
   id: number;
   user_id: number;
@@ -19,6 +21,7 @@ interface ChatMessageProps {
   msg: Message;
   currentUserId?: number;
   isGroup: boolean;
+  onDeleted?: (msgId: number) => void;
 }
 
 function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boolean; sentAt: string; isRead: boolean }) {
@@ -134,9 +137,51 @@ function AudioPlayer({ src, isOwn, sentAt, isRead }: { src: string; isOwn: boole
   );
 }
 
-export default function ChatMessage({ msg, currentUserId, isGroup }: ChatMessageProps) {
+export default function ChatMessage({ msg, currentUserId, isGroup, onDeleted }: ChatMessageProps) {
   const isOwn = msg.user_id === currentUserId;
   const senderName = msg.is_from_admin ? 'Администратор' : (msg.user_name || 'Промоутер');
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const longPressRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (!menu) return;
+    const close = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenu(null);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [menu]);
+
+  const openMenu = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setMenu({ x: rect.left, y: rect.top });
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    longPressRef.current = setTimeout(() => openMenu(e), 500);
+  };
+  const handleTouchEnd = () => {
+    if (longPressRef.current) clearTimeout(longPressRef.current);
+  };
+
+  const deleteMsg = async (scope: 'self' | 'all') => {
+    setMenu(null);
+    setDeleting(true);
+    try {
+      await fetch(`${CHAT_URL}?message_id=${msg.id}&scope=${scope}`, {
+        method: 'DELETE',
+        headers: { 'X-User-Id': String(currentUserId) },
+      });
+      onDeleted?.(msg.id);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (deleting) return null;
 
   return (
     <div className={`flex items-end gap-2 mb-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
@@ -160,11 +205,15 @@ export default function ChatMessage({ msg, currentUserId, isGroup }: ChatMessage
         )}
 
         <div
-          className={`relative px-3 py-2.5 ${
+          className={`relative px-3 py-2.5 cursor-pointer select-none ${
             isOwn
               ? 'bg-[#001f54] text-white rounded-2xl rounded-br-sm shadow-sm'
               : 'bg-[#e8edf5] text-gray-900 rounded-2xl rounded-bl-sm'
           }`}
+          onContextMenu={openMenu}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onTouchMove={handleTouchEnd}
         >
           {/* Audio */}
           {msg.media_url && msg.media_type === 'audio' && (
@@ -223,6 +272,32 @@ export default function ChatMessage({ msg, currentUserId, isGroup }: ChatMessage
       </div>
 
       {isOwn && <div className="w-7 flex-shrink-0" />}
+
+      {/* Context menu */}
+      {menu && (
+        <div
+          ref={menuRef}
+          className="fixed z-50 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden min-w-[180px]"
+          style={{ left: Math.min(menu.x, window.innerWidth - 200), top: Math.min(menu.y, window.innerHeight - 120) }}
+        >
+          <button
+            onClick={() => deleteMsg('self')}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left"
+          >
+            <Icon name="EyeOff" size={16} className="text-gray-400" />
+            Удалить у себя
+          </button>
+          {isOwn && (
+            <button
+              onClick={() => deleteMsg('all')}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors text-left border-t border-gray-100"
+            >
+              <Icon name="Trash2" size={16} className="text-red-400" />
+              Удалить у всех
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

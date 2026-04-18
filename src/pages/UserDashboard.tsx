@@ -175,17 +175,7 @@ export default function UserDashboard() {
 
         {currentView === 'tiles' && (
           <>
-            {organizationName && selectedOrganization && (
-              <div className="mb-4 flex items-center gap-2 px-1">
-                <Icon name="Building2" size={16} className="text-gray-400" />
-                <span className="text-sm text-gray-500">{organizationName}</span>
-                <span className="text-sm text-gray-400">—</span>
-                <ContactsCounter ref={contactsCounterRef} onStatsChange={(stats: ContactsStats) => {
-                  setTodayContacts(stats.today_contacts);
-                  setTotalContacts(stats.total_contacts);
-                }} />
-              </div>
-            )}
+
             <div className="divide-y divide-gray-100">
                 {[
                   { label: 'Работа', icon: 'Briefcase', action: () => setCurrentView('work'), iconAnim: 'icon-bounce' },

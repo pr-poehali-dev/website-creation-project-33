@@ -30,14 +30,9 @@ export default function UserHeader({
   return (
     <header className="mb-6 flex items-center justify-between px-1">
       {/* Logo */}
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#001f54] flex items-center justify-center flex-shrink-0">
-          <span className="text-white text-xs font-black tracking-tight">И</span>
-        </div>
-        <div>
-          <div className="text-base font-bold text-[#001f54] tracking-wide leading-none">ИМПЕРИЯ</div>
-          <div className="text-[11px] text-gray-400 leading-none mt-0.5">рекламное агентство</div>
-        </div>
+      <div>
+        <div className="text-base font-bold text-[#001f54] tracking-wide leading-none">ИМПЕРИЯ ПРОМО</div>
+        <div className="text-[11px] text-gray-400 leading-none mt-0.5">рекламное агентство</div>
       </div>
 
       {/* Actions */}

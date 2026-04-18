@@ -137,11 +137,11 @@ export default function ChatMessage({ msg, currentUserId, isGroup }: ChatMessage
         )}
 
         <div
-          className={`relative shadow-sm ${
+          className={`relative px-3 py-2.5 ${
             isOwn
-              ? 'bg-[#001f54] text-white rounded-2xl rounded-br-sm'
-              : 'bg-white text-gray-900 rounded-2xl rounded-bl-sm border border-gray-100'
-          } ${msg.media_type === 'audio' ? 'px-3 py-2.5' : 'px-3.5 py-2.5'}`}
+              ? 'bg-[#001f54] text-white rounded-2xl rounded-br-sm shadow-sm'
+              : 'bg-[#e8edf5] text-gray-900 rounded-2xl rounded-bl-sm'
+          }`}
         >
           {/* Audio */}
           {msg.media_url && msg.media_type === 'audio' && (

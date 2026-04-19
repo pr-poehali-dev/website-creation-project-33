@@ -1,70 +1,27 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
-
-const TASKS_API = 'https://functions.poehali.dev/65786d7c-38f3-4811-aad3-17cefbab2d6d';
-const RESPONSIBLES = ['Корельский Максим', 'Виктор Кобыляцкий'];
-
-const STATUS_CONFIG = {
-  pending:     { label: 'Не выполнена', dot: 'bg-red-400',     badge: 'bg-red-400/15 text-red-300 ring-red-400/30',     bar: 'bg-red-400',     btn: 'bg-red-500 text-white',     order: 0 },
-  in_progress: { label: 'В процессе',   dot: 'bg-yellow-400',  badge: 'bg-yellow-400/15 text-yellow-300 ring-yellow-400/30', bar: 'bg-yellow-400', btn: 'bg-yellow-500 text-white', order: 1 },
-  done:        { label: 'Выполнена',    dot: 'bg-emerald-400', badge: 'bg-emerald-400/15 text-emerald-300 ring-emerald-400/30', bar: 'bg-emerald-400', btn: 'bg-emerald-500 text-white', order: 2 },
-} as const;
-
-type TaskStatus = keyof typeof STATUS_CONFIG;
-
-interface Task {
-  id: number;
-  text: string;
-  responsible: string;
-  category_id: number | null;
-  category_name: string | null;
-  status: TaskStatus;
-  created_at: string;
-}
-
-interface Category { id: number; name: string; }
-
-interface TaskAction {
-  id: number;
-  comment: string;
-  is_done: boolean;
-  done_at: string | null;
-  created_at: string;
-}
-
-function fmt(iso: string) {
-  try { return new Date(iso).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
-  catch { return iso; }
-}
+import { TASKS_API, STATUS_CONFIG, Task, Category, TaskAction, TaskStatus } from './tasks/tasksTypes';
+import TaskForm from './tasks/TaskForm';
+import TaskFilters from './tasks/TaskFilters';
+import TaskCard from './tasks/TaskCard';
 
 export default function TasksTab() {
   const [tasks, setTasks]           = useState<Task[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading]       = useState(true);
   const [showForm, setShowForm]     = useState(false);
-  const [saving, setSaving]         = useState(false);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // раскрытые задачи и их действия
-  const [expandedId, setExpandedId]   = useState<number | null>(null);
-  const [actions, setActions]         = useState<Record<number, TaskAction[]>>({});
-  const [actionsLoading, setActionsLoading] = useState<number | null>(null);
-  // форма нового действия
-  const [showActionForm, setShowActionForm] = useState<number | null>(null);
-  const [actionText, setActionText]   = useState('');
-  const [savingAction, setSavingAction] = useState(false);
-  const [togglingAction, setTogglingAction] = useState<number | null>(null);
-
-  // форма
-  const [fText, setFText]       = useState('');
-  const [fResp, setFResp]       = useState('');
-  const [fCat, setFCat]         = useState<number | ''>('');
-  const [newCat, setNewCat]     = useState('');
-  const [showCat, setShowCat]   = useState(false);
-  const [addingCat, setAddingCat] = useState(false);
+  const [expandedId, setExpandedId]               = useState<number | null>(null);
+  const [actions, setActions]                     = useState<Record<number, TaskAction[]>>({});
+  const [actionsLoading, setActionsLoading]       = useState<number | null>(null);
+  const [showActionForm, setShowActionForm]       = useState<number | null>(null);
+  const [actionText, setActionText]               = useState('');
+  const [savingAction, setSavingAction]           = useState(false);
+  const [togglingAction, setTogglingAction]       = useState<number | null>(null);
 
   // фильтры
   const [fResp2, setFResp2]   = useState('');
@@ -85,25 +42,6 @@ export default function TasksTab() {
   const reloadTasks = async () => {
     const d = await (await fetch(TASKS_API)).json();
     setTasks(d.tasks || []);
-  };
-
-  const addCategory = async () => {
-    if (!newCat.trim()) return;
-    setAddingCat(true);
-    try {
-      const d = await (await fetch(TASKS_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create_category', name: newCat.trim() }) })).json();
-      if (d.category) { setCategories(p => [...p, d.category]); setFCat(d.category.id); setNewCat(''); setShowCat(false); }
-    } finally { setAddingCat(false); }
-  };
-
-  const submit = async () => {
-    if (!fText.trim() || !fResp) return;
-    setSaving(true);
-    try {
-      await fetch(TASKS_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create_task', text: fText.trim(), responsible: fResp, category_id: fCat || null }) });
-      setFText(''); setFResp(''); setFCat(''); setShowForm(false);
-      await reloadTasks();
-    } finally { setSaving(false); }
   };
 
   const deleteTask = async (id: number) => {
@@ -168,7 +106,11 @@ export default function TasksTab() {
     return true;
   });
 
-  const counts = { pending: tasks.filter(t => t.status === 'pending').length, in_progress: tasks.filter(t => t.status === 'in_progress').length, done: tasks.filter(t => t.status === 'done').length };
+  const counts = {
+    pending:     tasks.filter(t => t.status === 'pending').length,
+    in_progress: tasks.filter(t => t.status === 'in_progress').length,
+    done:        tasks.filter(t => t.status === 'done').length,
+  };
 
   if (loading) {
     return (
@@ -229,119 +171,25 @@ export default function TasksTab() {
         </div>
 
         {/* ── Форма добавления ── */}
-        <div className={`overflow-hidden transition-all duration-500 ${showForm ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-          <div className="bg-slate-800/50 ring-1 ring-slate-700/50 rounded-xl p-4 space-y-3">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Новая задача</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-slate-500 mb-1 block">Ответственный *</label>
-                <Select value={fResp} onValueChange={setFResp}>
-                  <SelectTrigger className="h-9 bg-slate-900/60 ring-1 ring-slate-700/60 border-0 text-slate-200 rounded-lg text-sm focus:ring-cyan-500/50 focus:ring-2">
-                    <SelectValue placeholder="— выберите —" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    {RESPONSIBLES.map(r => <SelectItem key={r} value={r} className="text-slate-200 focus:bg-slate-700 focus:text-white">{r}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-xs text-slate-500 mb-1 block">Классификация</label>
-                <div className="flex gap-2">
-                  <Select value={fCat === '' ? '_none' : String(fCat)} onValueChange={v => setFCat(v === '_none' ? '' : Number(v))}>
-                    <SelectTrigger className="flex-1 h-9 bg-slate-900/60 ring-1 ring-slate-700/60 border-0 text-slate-200 rounded-lg text-sm focus:ring-cyan-500/50 focus:ring-2">
-                      <SelectValue placeholder="— не указана —" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
-                      <SelectItem value="_none" className="text-slate-400 focus:bg-slate-700">— не указана —</SelectItem>
-                      {categories.map(c => <SelectItem key={c.id} value={String(c.id)} className="text-slate-200 focus:bg-slate-700 focus:text-white">{c.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <button onClick={() => setShowCat(v => !v)}
-                    className="h-9 px-3 bg-slate-900/60 ring-1 ring-slate-700/60 text-slate-500 hover:text-cyan-400 rounded-lg transition-all">
-                    <Icon name="Plus" size={14} />
-                  </button>
-                </div>
-                <div className={`overflow-hidden transition-all duration-300 ${showCat ? 'max-h-12 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-                  <div className="flex gap-2">
-                    <input value={newCat} onChange={e => setNewCat(e.target.value)} onKeyDown={e => e.key === 'Enter' && addCategory()}
-                      placeholder="Название..." className="flex-1 h-8 px-3 bg-slate-900/60 ring-1 ring-slate-700/60 text-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all" />
-                    <button onClick={addCategory} disabled={addingCat || !newCat.trim()}
-                      className="h-8 px-3 bg-cyan-500/20 text-cyan-400 ring-1 ring-cyan-500/30 rounded-lg text-xs font-semibold hover:bg-cyan-500/30 disabled:opacity-40 transition-all">
-                      {addingCat ? <Icon name="Loader2" size={12} className="animate-spin" /> : 'OK'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs text-slate-500 mb-1 block">Текст задачи *</label>
-              <textarea value={fText} onChange={e => setFText(e.target.value)} placeholder="Описание задачи..." rows={3}
-                className="w-full px-3 py-2 bg-slate-900/60 ring-1 ring-slate-700/60 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all resize-none placeholder:text-slate-600" />
-            </div>
-
-            <button onClick={submit} disabled={saving || !fText.trim() || !fResp}
-              className="w-full h-9 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-cyan-500/20">
-              {saving ? <><Icon name="Loader2" size={14} className="animate-spin" /> Сохранение...</> : <><Icon name="Check" size={14} /> Добавить задачу</>}
-            </button>
-          </div>
-        </div>
+        <TaskForm
+          visible={showForm}
+          categories={categories}
+          onCategoryAdded={cat => setCategories(p => [...p, cat])}
+          onTaskCreated={reloadTasks}
+          onClose={() => setShowForm(false)}
+        />
 
         {/* ── Фильтры ── */}
-        <div className="p-3 bg-slate-800/30 ring-1 ring-slate-700/30 rounded-xl">
-          <div className="flex items-center gap-1.5 mb-3">
-            <Icon name="Filter" size={12} className="text-slate-500" />
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Фильтры</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div>
-              <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Ответственный</label>
-              <Select value={fResp2 || '_all'} onValueChange={v => setFResp2(v === '_all' ? '' : v)}>
-                <SelectTrigger className="h-8 bg-slate-800/60 ring-1 ring-slate-700/50 border-0 text-slate-300 rounded-lg text-xs">
-                  <SelectValue placeholder="Все" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="_all" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
-                  {RESPONSIBLES.map(r => <SelectItem key={r} value={r} className="text-slate-200 focus:bg-slate-700 focus:text-white text-xs">{r}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Классификация</label>
-              <Select value={fCat2 || '_all'} onValueChange={v => setFCat2(v === '_all' ? '' : v)}>
-                <SelectTrigger className="h-8 bg-slate-800/60 ring-1 ring-slate-700/50 border-0 text-slate-300 rounded-lg text-xs">
-                  <SelectValue placeholder="Все" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="_all" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
-                  {categories.map(c => <SelectItem key={c.id} value={String(c.id)} className="text-slate-200 focus:bg-slate-700 focus:text-white text-xs">{c.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-[10px] font-medium text-slate-500 mb-1 block uppercase tracking-wider">Статус</label>
-              <Select value={fStatus || '_all'} onValueChange={v => setFStatus(v === '_all' ? '' : v)}>
-                <SelectTrigger className="h-8 bg-slate-800/60 ring-1 ring-slate-700/50 border-0 text-slate-300 rounded-lg text-xs">
-                  <SelectValue placeholder="Все" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="_all" className="text-slate-400 focus:bg-slate-700 text-xs">Все</SelectItem>
-                  <SelectItem value="pending" className="text-red-300 focus:bg-slate-700 text-xs">Не выполнена</SelectItem>
-                  <SelectItem value="in_progress" className="text-yellow-300 focus:bg-slate-700 text-xs">В процессе</SelectItem>
-                  <SelectItem value="done" className="text-emerald-300 focus:bg-slate-700 text-xs">Выполнена</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          {(fResp2 || fCat2 || fStatus) && (
-            <button onClick={() => { setFResp2(''); setFCat2(''); setFStatus(''); }}
-              className="mt-2 flex items-center gap-1 text-xs text-slate-600 hover:text-red-400 transition-colors">
-              <Icon name="X" size={11} /> Сбросить фильтры
-            </button>
-          )}
-        </div>
+        <TaskFilters
+          categories={categories}
+          fResp2={fResp2}
+          fCat2={fCat2}
+          fStatus={fStatus}
+          onFResp2Change={setFResp2}
+          onFCat2Change={setFCat2}
+          onFStatusChange={setFStatus}
+          onReset={() => { setFResp2(''); setFCat2(''); setFStatus(''); }}
+        />
 
         {/* ── Список задач ── */}
         {filtered.length === 0 ? (
@@ -351,176 +199,34 @@ export default function TasksTab() {
           </div>
         ) : (
           <div className="space-y-2">
-            {filtered.map((task, idx) => {
-              const cfg = STATUS_CONFIG[task.status];
-              const isUpd = updatingId === task.id;
-              const isDel = deletingId === task.id;
-              const isExpanded = expandedId === task.id;
-              const taskActions = actions[task.id] || [];
-              const isLoadingActions = actionsLoading === task.id;
-              const doneCount = taskActions.filter(a => a.is_done).length;
-
-              return (
-                <div key={task.id}
-                  className="bg-slate-800/40 ring-1 ring-slate-700/40 rounded-xl overflow-hidden transition-all duration-200 hover:ring-slate-600/60"
-                  style={{ animationName: 'fsi', animationDuration: '250ms', animationDelay: `${idx * 30}ms`, animationFillMode: 'both' }}>
-
-                  {/* ── Шапка карточки (кликабельная) ── */}
-                  <div
-                    className="group flex items-start gap-3 p-4 cursor-pointer select-none"
-                    onClick={() => toggleExpand(task.id)}
-                  >
-                    <div className={`w-0.5 self-stretch rounded-full flex-shrink-0 ${cfg.bar}`} />
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold ring-1 ${cfg.badge}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                          {cfg.label}
-                        </span>
-                        {task.category_name && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20">
-                            <Icon name="Tag" size={9} />{task.category_name}
-                          </span>
-                        )}
-                        <span className="text-[11px] text-slate-600 flex items-center gap-1">
-                          <Icon name="User" size={10} />{task.responsible}
-                        </span>
-                        {taskActions.length > 0 && (
-                          <span className="text-[10px] text-slate-500 flex items-center gap-1 ml-1">
-                            <Icon name="CheckSquare" size={9} />{doneCount}/{taskActions.length}
-                          </span>
-                        )}
-                        {/* кнопки справа */}
-                        <div className="ml-auto flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                          <button
-                            onClick={() => { setShowActionForm(showActionForm === task.id ? null : task.id); setActionText(''); if (expandedId !== task.id) toggleExpand(task.id); }}
-                            className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-slate-600 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all"
-                            title="Добавить действие"
-                          >
-                            <Icon name="ListPlus" size={12} />
-                          </button>
-                          <button
-                            onClick={() => deleteTask(task.id)}
-                            disabled={isDel}
-                            className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all"
-                            title="Удалить задачу"
-                          >
-                            {isDel ? <Icon name="Loader2" size={12} className="animate-spin text-red-400" /> : <Icon name="Trash2" size={12} />}
-                          </button>
-                          <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={13} className="text-slate-600 ml-1" />
-                        </div>
-                      </div>
-
-                      <p className={`text-sm leading-relaxed mb-2.5 ${task.status === 'done' ? 'line-through text-slate-600' : 'text-slate-200'}`}>
-                        {task.text}
-                      </p>
-
-                      <div className="flex items-center justify-between gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
-                        <span className="text-[10px] text-slate-700 flex items-center gap-1">
-                          <Icon name="Clock" size={9} />{fmt(task.created_at)}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          {isUpd ? (
-                            <Icon name="Loader2" size={13} className="animate-spin text-slate-500" />
-                          ) : (
-                            (['pending', 'in_progress', 'done'] as const).map(s => (
-                              <button key={s} onClick={() => changeStatus(task.id, s)} disabled={task.status === s}
-                                className={`h-6 px-2 rounded-md text-[10px] font-semibold transition-all duration-150 ${
-                                  task.status === s
-                                    ? STATUS_CONFIG[s].badge + ' ring-1 cursor-default'
-                                    : 'bg-slate-700/50 text-slate-500 ring-1 ring-slate-700/30 hover:bg-slate-700 hover:text-slate-300'
-                                }`}>
-                                {STATUS_CONFIG[s].label}
-                              </button>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ── Раскрывающийся блок действий ── */}
-                  <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-                  <div className="overflow-hidden">
-                    <div className="border-t border-slate-700/50 mx-4" />
-                    <div className="p-4 pt-3 space-y-2">
-
-                      {/* Форма добавления действия */}
-                      {showActionForm === task.id && (
-                        <div className="flex gap-2 mb-3">
-                          <input
-                            value={actionText}
-                            onChange={e => setActionText(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && addAction(task.id)}
-                            placeholder="Описание действия..."
-                            autoFocus
-                            className="flex-1 h-8 px-3 bg-slate-900/60 ring-1 ring-slate-700/60 text-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
-                          />
-                          <button
-                            onClick={() => addAction(task.id)}
-                            disabled={savingAction || !actionText.trim()}
-                            className="h-8 px-3 bg-cyan-500/20 text-cyan-400 ring-1 ring-cyan-500/30 rounded-lg text-xs font-semibold hover:bg-cyan-500/30 disabled:opacity-40 transition-all"
-                          >
-                            {savingAction ? <Icon name="Loader2" size={12} className="animate-spin" /> : 'Добавить'}
-                          </button>
-                          <button onClick={() => setShowActionForm(null)} className="h-8 px-2 text-slate-600 hover:text-slate-400 transition-colors">
-                            <Icon name="X" size={13} />
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Список действий */}
-                      {isLoadingActions ? (
-                        <div className="flex items-center justify-center py-4">
-                          <Icon name="Loader2" size={16} className="animate-spin text-slate-500" />
-                        </div>
-                      ) : taskActions.length === 0 ? (
-                        <p className="text-xs text-slate-600 text-center py-3">Нет действий. Нажмите <Icon name="ListPlus" size={11} className="inline mx-1" /> чтобы добавить.</p>
-                      ) : (
-                        taskActions.map(action => (
-                          <div key={action.id} className="flex items-start gap-2.5 p-2.5 bg-slate-900/40 rounded-lg ring-1 ring-slate-700/30">
-                            {/* Чекбокс */}
-                            <button
-                              onClick={() => toggleActionDone(task.id, action.id, !action.is_done)}
-                              disabled={togglingAction === action.id}
-                              className="mt-0.5 flex-shrink-0 w-4 h-4 rounded flex items-center justify-center transition-all"
-                            >
-                              {togglingAction === action.id ? (
-                                <Icon name="Loader2" size={12} className="animate-spin text-slate-500" />
-                              ) : action.is_done ? (
-                                <div className="w-4 h-4 rounded bg-emerald-500/20 ring-1 ring-emerald-500/40 flex items-center justify-center">
-                                  <Icon name="Check" size={10} className="text-emerald-400" />
-                                </div>
-                              ) : (
-                                <div className="w-4 h-4 rounded ring-1 ring-slate-600 bg-slate-800 hover:ring-slate-500 transition-all" />
-                              )}
-                            </button>
-
-                            <div className="flex-1 min-w-0">
-                              <p className={`text-xs leading-relaxed ${action.is_done ? 'line-through text-slate-600' : 'text-slate-300'}`}>
-                                {action.comment}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[10px] text-slate-700">
-                                  добавлено {fmt(action.created_at)}
-                                </span>
-                                {action.is_done && action.done_at && (
-                                  <span className="text-[10px] text-emerald-700 flex items-center gap-0.5">
-                                    <Icon name="CheckCircle" size={9} /> выполнено {fmt(action.done_at)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                  </div>
-                </div>
-              );
-            })}
+            {filtered.map((task, idx) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                index={idx}
+                isUpdating={updatingId === task.id}
+                isDel={deletingId === task.id}
+                isExpanded={expandedId === task.id}
+                taskActions={actions[task.id] || []}
+                isLoadingActions={actionsLoading === task.id}
+                showActionForm={showActionForm === task.id}
+                actionText={actionText}
+                savingAction={savingAction}
+                togglingActionId={togglingAction}
+                onToggleExpand={() => toggleExpand(task.id)}
+                onChangeStatus={s => changeStatus(task.id, s)}
+                onDelete={() => deleteTask(task.id)}
+                onOpenActionForm={() => {
+                  setShowActionForm(showActionForm === task.id ? null : task.id);
+                  setActionText('');
+                  if (expandedId !== task.id) toggleExpand(task.id);
+                }}
+                onActionTextChange={setActionText}
+                onAddAction={() => addAction(task.id)}
+                onCloseActionForm={() => setShowActionForm(null)}
+                onToggleActionDone={(actionId, isDone) => toggleActionDone(task.id, actionId, isDone)}
+              />
+            ))}
           </div>
         )}
       </CardContent>

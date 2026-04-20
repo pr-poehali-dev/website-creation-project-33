@@ -109,8 +109,8 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                   <div className="w-full px-1 pb-1.5 space-y-0.5">
                     {dayPlans.map(plan => {
                       const shortName = plan.organization_name.includes('(')
-                        ? plan.organization_name.split('(')[1].replace(')', '').trim()
-                        : plan.organization_name.split(' ')[0];
+                        ? plan.organization_name.split('(')[0].trim()
+                        : plan.organization_name.split(' ').slice(0, 2).join(' ');
 
                       const hasNoPromoter = (plan.promoters ?? []).length === 0;
                       const isViktor = plan.senior_name?.toLowerCase().includes('кобыляцкий');

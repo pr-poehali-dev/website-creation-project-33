@@ -121,16 +121,18 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                         ? plan.organization_name.split('(')[1].replace(')', '').trim()
                         : plan.organization_name.split(' ')[0];
 
+                      const hasNoPromoter = (plan.promoters ?? []).length === 0;
+
                       return (
                         <div
                           key={plan.id}
-                          className="relative rounded-md px-1 py-0.5 text-[8px] md:text-[9px] font-semibold text-white"
+                          className="relative rounded-md px-1 py-0.5 text-[8px] md:text-[9px] font-semibold text-white flex items-center gap-0.5"
                           style={{ backgroundColor: plan.color }}
                           title={`${plan.organization_name}${plan.senior_name ? ' · ' + plan.senior_name : ''}${plan.contact_limit ? ' · ' + plan.contact_limit + ' кон.' : ''}`}
                         >
-                          <span className="block truncate leading-tight">{shortName}</span>
-                          {plan.contact_limit && (
-                            <span className="text-white/70 text-[7px] block leading-tight">{plan.contact_limit} к.</span>
+                          <span className="flex-1 truncate leading-tight">{shortName}</span>
+                          {hasNoPromoter && (
+                            <span className="text-white font-black text-[9px] leading-none flex-shrink-0">!</span>
                           )}
                         </div>
                       );

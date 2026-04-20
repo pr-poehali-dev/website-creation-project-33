@@ -7,7 +7,7 @@ import PromoterAssignModal from './PromoterAssignModal';
 const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8';
 
 const HOURS      = Array.from({ length: 14 }, (_, i) => i + 8); // 8–21
-const HOUR_H     = 60;   // px на 1 час
+const HOUR_H     = 80;   // px на 1 час
 const START_HOUR = 8;
 const TIME_LABEL_W = 56; // px — ширина колонки с временем
 const RIGHT_PAD    = 12; // px — отступ справа
@@ -137,12 +137,12 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
   return (
     <>
       <div
-        className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center sm:p-6 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       >
         <div
-          className="w-full sm:max-w-sm bg-gradient-to-br from-slate-900 to-slate-800 sm:rounded-2xl rounded-t-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
-          style={{ maxHeight: 'min(92dvh, 680px)' }}
+          className="w-full sm:max-w-3xl bg-gradient-to-br from-slate-900 to-slate-800 sm:rounded-2xl rounded-t-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
+          style={{ maxHeight: 'min(92dvh, 860px)' }}
           onClick={e => e.stopPropagation()}
         >
           {/* Ручка мобайл */}

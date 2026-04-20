@@ -281,7 +281,7 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
         {/* Шапка */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-700/50 flex-shrink-0">
           <div>
-            <h3 className="text-sm font-bold text-slate-100">Промоутеры на точке</h3>
+            <h3 className="text-sm font-bold text-slate-100">{openAddMode ? 'Выберите промоутера' : 'Промоутеры на точке'}</h3>
             <p className="text-xs text-slate-500 mt-0.5">{plan.organization_name} · {plan.time_from}–{plan.time_to}</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-700/60 transition-all">
@@ -320,48 +320,48 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
 
               {/* Выбор промоутера из списка */}
               {showAddForm && !newPromoter && (
-                <div className="bg-slate-800/50 rounded-xl ring-1 ring-slate-700/50 overflow-hidden">
-                  <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700/40">
-                    <span className="text-xs font-semibold text-slate-400">Выбери промоутера</span>
-                    <button onClick={() => setShowAddForm(false)} className="text-slate-600 hover:text-slate-400">
-                      <Icon name="X" size={13} />
-                    </button>
-                  </div>
+                <div className="space-y-2">
+                  {availablePromoters.length === 0 && (
+                    <p className="text-center text-xs text-slate-600 py-4">Нет промоутеров со сменами на этот день</p>
+                  )}
                   {availablePromoters.map(p => {
                     const freeSlots = p.slots.filter(s => !s.used);
                     const allBusy = freeSlots.length === 0;
                     return (
-                      <div key={p.id} className="border-b border-slate-700/20 last:border-0">
-                        <div className={`flex items-center gap-3 px-3 py-2.5 ${allBusy ? 'opacity-50' : ''}`}>
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${allBusy ? 'bg-slate-700 text-slate-500' : 'bg-cyan-500/20 text-cyan-300'}`}>
-                            {p.name.charAt(0)}
-                          </div>
-                          <span className={`text-sm flex-1 ${allBusy ? 'text-slate-500' : 'text-slate-200'}`}>{p.name}</span>
-                          {/* Слоты — занятые зачёркнуты, свободные кликабельны */}
-                          <div className="flex gap-1 flex-shrink-0">
-                            {p.slots.map(s => (
-                              s.used ? (
-                                <span key={s.key} className="text-[10px] text-slate-600 bg-slate-800/60 px-1.5 py-0.5 rounded line-through">
-                                  {s.label}
-                                </span>
-                              ) : (
-                                <button
-                                  key={s.key}
-                                  onClick={() => handlePickPromoter(p, s.key)}
-                                  className="text-[10px] text-cyan-300 bg-cyan-500/15 hover:bg-cyan-500/30 px-1.5 py-0.5 rounded transition-all"
-                                >
-                                  {s.label}
-                                </button>
-                              )
-                            ))}
-                          </div>
+                      <div
+                        key={p.id}
+                        onClick={() => !allBusy && handlePickPromoter(p)}
+                        className={`flex items-center gap-3 px-3 py-3 rounded-xl ring-1 transition-all ${
+                          allBusy
+                            ? 'opacity-40 ring-slate-700/30 bg-slate-800/20 cursor-not-allowed'
+                            : 'ring-slate-700/50 bg-slate-800/50 hover:bg-slate-700/50 cursor-pointer active:scale-[0.99]'
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${allBusy ? 'bg-slate-700 text-slate-500' : 'bg-cyan-500/20 text-cyan-300'}`}>
+                          {p.name.charAt(0)}
+                        </div>
+                        <span className={`text-sm font-medium flex-1 ${allBusy ? 'text-slate-500' : 'text-slate-200'}`}>{p.name}</span>
+                        {/* Слоты — занятые зачёркнуты */}
+                        <div className="flex gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                          {p.slots.map(s => (
+                            s.used ? (
+                              <span key={s.key} className="text-[10px] text-slate-600 bg-slate-800 px-1.5 py-0.5 rounded line-through">
+                                {s.label}
+                              </span>
+                            ) : (
+                              <button
+                                key={s.key}
+                                onClick={() => handlePickPromoter(p, s.key)}
+                                className="text-[10px] text-cyan-300 bg-cyan-500/15 hover:bg-cyan-500/30 px-1.5 py-0.5 rounded transition-all"
+                              >
+                                {s.label}
+                              </button>
+                            )
+                          ))}
                         </div>
                       </div>
                     );
                   })}
-                  {availablePromoters.length === 0 && (
-                    <p className="text-center text-xs text-slate-600 py-4">Нет промоутеров со сменами на этот день</p>
-                  )}
                 </div>
               )}
 

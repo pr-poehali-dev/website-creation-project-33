@@ -28,6 +28,33 @@ export default function TeamScheduleView({
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
   const [trainingCounts, setTrainingCounts] = useState<Record<string, number>>({});
+  const [promoterSlots, setPromoterSlots] = useState<Record<string, {total: number, used: number}>>({});
+
+  // Загружаем промоутеров на каждый день недели
+  useEffect(() => {
+    if (!weekDays.length) return;
+    const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8';
+    Promise.all([
+      // Загружаем планы (для подсчёта used)
+      fetch(`${PLANNING_API}?date_from=${weekDays[0].date}&date_to=${weekDays[weekDays.length-1].date}`)
+        .then(r => r.json()).then(d => d.plans || []).catch(() => []),
+      // Загружаем промоутеров по дням (total)
+      Promise.all(weekDays.map(day =>
+        fetch(`${PLANNING_API}?action=promoters&date=${day.date}`)
+          .then(r => r.json())
+          .then(d => ({ date: day.date, total: (d.promoters || []).reduce((s: number, p: {total_slots: number}) => s + p.total_slots, 0) }))
+          .catch(() => ({ date: day.date, total: 0 }))
+      ))
+    ]).then(([plans, totals]) => {
+      const map: Record<string, {total: number, used: number}> = {};
+      totals.forEach(({ date, total }: {date: string, total: number}) => {
+        const used = plans.filter((p: {date: string, promoters?: unknown[]}) => p.date === date)
+          .reduce((s: number, p: {promoters?: unknown[]}) => s + (p.promoters ?? []).length, 0);
+        map[date] = { total, used };
+      });
+      setPromoterSlots(map);
+    });
+  }, [weekDays]);
 
   useEffect(() => {
     if (!weekDays.length) return;
@@ -122,6 +149,7 @@ export default function TeamScheduleView({
             isExpanded={isExpanded}
             stats={stats}
             trainingCount={trainingCounts[day.date] ?? 0}
+            promoterSlots={promoterSlots[day.date]}
             getUsersWorkingOnSlot={getUsersWorkingOnSlot}
             workComments={workComments}
             savingComment={savingComment}

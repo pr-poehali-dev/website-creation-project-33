@@ -13,8 +13,10 @@ interface WeekCalendarInteractiveProps {
 }
 
 export default function WeekCalendarInteractive({ weekDays, weekStartDate }: WeekCalendarInteractiveProps) {
-  const [plans, setPlans]           = useState<PlanEntry[]>([]);
-  const [detailDate, setDetailDate] = useState<string | null>(null);
+  const [plans, setPlans]                     = useState<PlanEntry[]>([]);
+  const [detailDate, setDetailDate]           = useState<string | null>(null);
+  // totalSlotsByDate[date] = кол-во промежутков всех промоутеров на этот день
+  const [totalSlotsByDate, setTotalSlotsByDate] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!weekDays.length) return;
@@ -23,6 +25,23 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
     fetch(`${PLANNING_API}?date_from=${from}&date_to=${to}`)
       .then(r => r.json())
       .then(d => setPlans(d.plans || []));
+
+    // Загружаем промоутеров по каждому дню параллельно
+    Promise.all(
+      weekDays.map(day =>
+        fetch(`${PLANNING_API}?action=promoters&date=${day.date}`)
+          .then(r => r.json())
+          .then(d => ({
+            date: day.date,
+            total: (d.promoters || []).reduce((s: number, p: { total_slots: number }) => s + p.total_slots, 0),
+          }))
+          .catch(() => ({ date: day.date, total: 0 }))
+      )
+    ).then(results => {
+      const map: Record<string, number> = {};
+      results.forEach(r => { map[r.date] = r.total; });
+      setTotalSlotsByDate(map);
+    });
   }, [weekStartDate]);
 
   const handleSave = (plan: PlanEntry) => {
@@ -48,6 +67,9 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
             const dayNum  = new Date(day.date).getDate();
             const month   = (new Date(day.date).getMonth() + 1).toString().padStart(2, '0');
             const dayPlans = plans.filter(p => p.date === day.date);
+            const totalSlots = totalSlotsByDate[day.date] ?? null;
+            const usedSlots = dayPlans.reduce((s, p) => s + (p.promoters ?? []).length, 0);
+            const allFilled = totalSlots !== null && totalSlots > 0 && usedSlots >= totalSlots;
 
             return (
               <div
@@ -77,6 +99,19 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                     </span>
                   </span>
                 </div>
+
+                {/* Бейдж промоутеров */}
+                {totalSlots !== null && totalSlots > 0 && (
+                  <div className={`mx-1 mb-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold text-center ${
+                    allFilled
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : usedSlots > 0
+                        ? 'bg-amber-500/20 text-amber-400'
+                        : 'bg-slate-700/50 text-slate-500'
+                  }`}>
+                    {usedSlots}/{totalSlots}
+                  </div>
+                )}
 
                 {/* Планы */}
                 {dayPlans.length > 0 && (

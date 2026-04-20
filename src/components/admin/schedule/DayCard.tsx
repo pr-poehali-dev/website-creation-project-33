@@ -36,6 +36,7 @@ interface DayCardProps {
   actualStats: Record<string, {contacts: number, revenue: number}>;
   loadingProgress?: number;
   trainingCount?: number;
+  promoterSlots?: { total: number; used: number };
   onToggleDay: (date: string) => void;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onCommentBlur: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
@@ -58,6 +59,7 @@ export default function DayCard({
   actualStats,
   loadingProgress,
   trainingCount = 0,
+  promoterSlots,
   onToggleDay,
   onCommentChange,
   onCommentBlur,
@@ -144,6 +146,19 @@ export default function DayCard({
             <div className="flex items-center gap-1 bg-cyan-500/10 text-cyan-400 px-1.5 py-1 rounded-full ring-1 ring-cyan-500/20 flex-shrink-0">
               <Icon name="Users" size={10} />
               <span className="text-[10px] font-semibold">{stats.workersCount}</span>
+            </div>
+          )}
+
+          {promoterSlots && promoterSlots.total > 0 && (
+            <div className={`flex items-center gap-1 px-1.5 py-1 rounded-full ring-1 flex-shrink-0 ${
+              promoterSlots.used >= promoterSlots.total
+                ? 'bg-emerald-500/15 text-emerald-400 ring-emerald-500/25'
+                : promoterSlots.used > 0
+                  ? 'bg-amber-500/15 text-amber-400 ring-amber-500/25'
+                  : 'bg-slate-700/40 text-slate-500 ring-slate-600/20'
+            }`}>
+              <Icon name="UserCheck" size={10} />
+              <span className="text-[10px] font-semibold">{promoterSlots.used}/{promoterSlots.total}</span>
             </div>
           )}
 

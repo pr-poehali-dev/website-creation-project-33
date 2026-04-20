@@ -234,18 +234,20 @@ export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterA
   };
 
   const handleShowAdd = () => {
-    const firstAvailable = availablePromoters.find(p => p.available);
-    if (!firstAvailable) return;
+    setShowAddForm(true);
+    setNewPromoter(null); // список выбора, не форма
+  };
+
+  const handlePickPromoter = (p: PromoterOption) => {
     setNewPromoter({
       pp_id: -1,
-      promoter_id: firstAvailable.id,
-      promoter_name: firstAvailable.name,
+      promoter_id: p.id,
+      promoter_name: p.name,
       org_name: plan.organization_name,
       place_type: null,
       address: null,
       leaflets: null,
     });
-    setShowAddForm(true);
   };
 
   const hasAvailableToAdd = availablePromoters.some(p => p.available);
@@ -301,10 +303,48 @@ export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterA
                 />
               ))}
 
-              {/* Форма нового промоутера */}
+              {/* Выбор промоутера из списка */}
+              {showAddForm && !newPromoter && (
+                <div className="bg-slate-800/50 rounded-xl ring-1 ring-slate-700/50 overflow-hidden">
+                  <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700/40">
+                    <span className="text-xs font-semibold text-slate-400">Выбери промоутера</span>
+                    <button onClick={() => setShowAddForm(false)} className="text-slate-600 hover:text-slate-400">
+                      <Icon name="X" size={13} />
+                    </button>
+                  </div>
+                  {availablePromoters.filter(p => p.available).map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => handlePickPromoter(p)}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-700/40 transition-all text-left border-b border-slate-700/20 last:border-0"
+                    >
+                      <div className="w-7 h-7 rounded-full bg-cyan-500/20 flex items-center justify-center text-xs font-bold text-cyan-300 flex-shrink-0">
+                        {p.name.charAt(0)}
+                      </div>
+                      <span className="text-sm text-slate-200 flex-1">{p.name}</span>
+                      <div className="flex gap-1 flex-shrink-0">
+                        {p.slots.map(s => (
+                          <span key={s.key} className="text-[10px] text-slate-500 bg-slate-700/60 px-1.5 py-0.5 rounded">
+                            {s.label}
+                          </span>
+                        ))}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Форма нового промоутера (после выбора из списка) */}
               {showAddForm && newPromoter && (
                 <div>
-                  <p className="text-[11px] font-semibold text-cyan-400/80 uppercase tracking-wider mb-2">Новый промоутер</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <button onClick={() => setNewPromoter(null)} className="text-slate-600 hover:text-slate-400">
+                      <Icon name="ChevronLeft" size={14} />
+                    </button>
+                    <p className="text-[11px] font-semibold text-cyan-400/80 uppercase tracking-wider">
+                      {newPromoter.promoter_name}
+                    </p>
+                  </div>
                   <PromoterForm
                     assigned={newPromoter}
                     availablePromoters={availablePromoters}
@@ -316,7 +356,7 @@ export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterA
                 </div>
               )}
 
-              {/* Кнопка добавить ещё */}
+              {/* Кнопка добавить ещё — только когда форма закрыта */}
               {!showAddForm && hasAvailableToAdd && (
                 <button
                   onClick={handleShowAdd}

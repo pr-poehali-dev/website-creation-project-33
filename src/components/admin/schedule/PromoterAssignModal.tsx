@@ -10,7 +10,7 @@ function planTimeToSlotLabel(timeFrom: string | null, timeTo: string | null): st
   return `${timeFrom}-${timeTo}`;
 }
 
-interface PromoterSlot { key: string; label: string; from: string; to: string; }
+interface PromoterSlot { key: string; label: string; from: string; to: string; used: boolean; }
 
 interface PromoterOption {
   id: number;
@@ -29,6 +29,7 @@ interface AssignedPromoter {
   place_type: string | null;
   address: string | null;
   leaflets: string | null;
+  time_slot: string | null;
 }
 
 const PLACE_TYPES = ['ТЦ', 'Школа', 'Садик', 'Улица', 'Парк', 'Другое'];
@@ -70,7 +71,14 @@ function PromoterForm({
     leaflets !== (assigned.leaflets ?? '');
 
   const handleSave = () => {
-    onSave({ promoter_id: promoterId, org_name: orgName || null, place_type: placeType || null, address: address || null, leaflets: leaflets || null });
+    onSave({
+      promoter_id: promoterId,
+      org_name: orgName || null,
+      place_type: placeType || null,
+      address: address || null,
+      leaflets: leaflets || null,
+      time_slot: assigned.time_slot,  // сохраняем выбранный слот
+    });
   };
 
   // Доступные для выбора — те у кого есть слоты, плюс текущий
@@ -239,7 +247,9 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
     setNewPromoter(null); // список выбора, не форма
   };
 
-  const handlePickPromoter = (p: PromoterOption) => {
+  const handlePickPromoter = (p: PromoterOption, slotKey?: string) => {
+    // Определяем слот: если передан явно — берём его, иначе первый свободный
+    const chosenSlotKey = slotKey ?? p.slots.find(s => !s.used)?.key ?? null;
     setNewPromoter({
       pp_id: -1,
       promoter_id: p.id,
@@ -248,6 +258,7 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
       place_type: null,
       address: null,
       leaflets: null,
+      time_slot: chosenSlotKey,
     });
   };
 
@@ -316,25 +327,41 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
                       <Icon name="X" size={13} />
                     </button>
                   </div>
-                  {availablePromoters.filter(p => p.available).map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => handlePickPromoter(p)}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-700/40 transition-all text-left border-b border-slate-700/20 last:border-0"
-                    >
-                      <div className="w-7 h-7 rounded-full bg-cyan-500/20 flex items-center justify-center text-xs font-bold text-cyan-300 flex-shrink-0">
-                        {p.name.charAt(0)}
+                  {availablePromoters.map(p => {
+                    const freeSlots = p.slots.filter(s => !s.used);
+                    const allBusy = freeSlots.length === 0;
+                    return (
+                      <div key={p.id} className="border-b border-slate-700/20 last:border-0">
+                        <div className={`flex items-center gap-3 px-3 py-2.5 ${allBusy ? 'opacity-50' : ''}`}>
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${allBusy ? 'bg-slate-700 text-slate-500' : 'bg-cyan-500/20 text-cyan-300'}`}>
+                            {p.name.charAt(0)}
+                          </div>
+                          <span className={`text-sm flex-1 ${allBusy ? 'text-slate-500' : 'text-slate-200'}`}>{p.name}</span>
+                          {/* Слоты — занятые зачёркнуты, свободные кликабельны */}
+                          <div className="flex gap-1 flex-shrink-0">
+                            {p.slots.map(s => (
+                              s.used ? (
+                                <span key={s.key} className="text-[10px] text-slate-600 bg-slate-800/60 px-1.5 py-0.5 rounded line-through">
+                                  {s.label}
+                                </span>
+                              ) : (
+                                <button
+                                  key={s.key}
+                                  onClick={() => handlePickPromoter(p, s.key)}
+                                  className="text-[10px] text-cyan-300 bg-cyan-500/15 hover:bg-cyan-500/30 px-1.5 py-0.5 rounded transition-all"
+                                >
+                                  {s.label}
+                                </button>
+                              )
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm text-slate-200 flex-1">{p.name}</span>
-                      <div className="flex gap-1 flex-shrink-0">
-                        {p.slots.map(s => (
-                          <span key={s.key} className="text-[10px] text-slate-500 bg-slate-700/60 px-1.5 py-0.5 rounded">
-                            {s.label}
-                          </span>
-                        ))}
-                      </div>
-                    </button>
-                  ))}
+                    );
+                  })}
+                  {availablePromoters.length === 0 && (
+                    <p className="text-center text-xs text-slate-600 py-4">Нет промоутеров со сменами на этот день</p>
+                  )}
                 </div>
               )}
 
@@ -345,9 +372,16 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
                     <button onClick={() => setNewPromoter(null)} className="text-slate-600 hover:text-slate-400">
                       <Icon name="ChevronLeft" size={14} />
                     </button>
-                    <p className="text-[11px] font-semibold text-cyan-400/80 uppercase tracking-wider">
-                      {newPromoter.promoter_name}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[11px] font-semibold text-cyan-400/80 uppercase tracking-wider">
+                        {newPromoter.promoter_name}
+                      </p>
+                      {newPromoter.time_slot && (
+                        <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full">
+                          {newPromoter.time_slot === 'slot1' ? '12:00–16:00' : '16:00–20:00'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <PromoterForm
                     assigned={newPromoter}

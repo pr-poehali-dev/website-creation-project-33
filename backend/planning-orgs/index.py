@@ -47,7 +47,7 @@ SLOT_TIMES = {
 
 def get_plan_promoters(cur, plan_id):
     cur.execute(f"""
-        SELECT pp.id, pp.promoter_id, u.name, pp.org_name, pp.place_type, pp.address, pp.leaflets
+        SELECT pp.id, pp.promoter_id, u.name, pp.org_name, pp.place_type, pp.address, pp.leaflets, pp.time_slot
         FROM {SCHEMA}.plan_promoters pp
         JOIN {SCHEMA}.users u ON u.id = pp.promoter_id
         WHERE pp.plan_id = %s
@@ -62,6 +62,7 @@ def get_plan_promoters(cur, plan_id):
             'place_type': r[4],
             'address': r[5],
             'leaflets': r[6],
+            'time_slot': r[7],
         }
         for r in cur.fetchall()
     ]
@@ -151,35 +152,51 @@ def handler(event: dict, context) -> dict:
             """, (target_date, target_date, week_start, target_date, target_date))
             promoters_raw = cur.fetchall()
 
-            # Сколько раз промоутер уже назначен на этот день (через plan_promoters)
+            # Какие конкретные слоты уже заняты у каждого промоутера в этот день
             cur.execute(f"""
-                SELECT pp.promoter_id, COUNT(*) as usage_count
+                SELECT pp.promoter_id, pp.time_slot
                 FROM {SCHEMA}.plan_promoters pp
                 JOIN {SCHEMA}.planned_organizations po ON po.id = pp.plan_id
-                WHERE po.date = %s
-                GROUP BY pp.promoter_id
+                WHERE po.date = %s AND pp.time_slot IS NOT NULL
             """, (target_date,))
-            usage_map = {row[0]: row[1] for row in cur.fetchall()}
+            # used_slots_map: {user_id: set of used slot keys}
+            used_slots_map: dict = {}
+            for row in cur.fetchall():
+                uid, ts = row
+                if uid not in used_slots_map:
+                    used_slots_map[uid] = set()
+                used_slots_map[uid].add(ts)
 
             promoters = []
             for row in promoters_raw:
                 user_id, name, slot1_str, slot2_str = row
-                slot1 = slot1_str == 'true'
-                slot2 = slot2_str == 'true'
-                total_slots = (1 if slot1 else 0) + (1 if slot2 else 0)
-                used = usage_map.get(user_id, 0)
-                available_slots = []
-                if slot1:
-                    available_slots.append({'key': 'slot1', 'label': '12:00–16:00', **SLOT_TIMES['slot1']})
-                if slot2:
-                    available_slots.append({'key': 'slot2', 'label': '16:00–20:00', **SLOT_TIMES['slot2']})
+                slot1_avail = slot1_str == 'true'
+                slot2_avail = slot2_str == 'true'
+                used_keys = used_slots_map.get(user_id, set())
+
+                slots = []
+                if slot1_avail:
+                    slots.append({
+                        'key': 'slot1', 'label': '12:00–16:00',
+                        **SLOT_TIMES['slot1'],
+                        'used': 'slot1' in used_keys,
+                    })
+                if slot2_avail:
+                    slots.append({
+                        'key': 'slot2', 'label': '16:00–20:00',
+                        **SLOT_TIMES['slot2'],
+                        'used': 'slot2' in used_keys,
+                    })
+
+                total = len(slots)
+                used_count = len(used_keys)
                 promoters.append({
                     'id': user_id,
                     'name': name,
-                    'total_slots': total_slots,
-                    'used_slots': used,
-                    'available': used < total_slots,
-                    'slots': available_slots,
+                    'total_slots': total,
+                    'used_slots': used_count,
+                    'available': used_count < total,
+                    'slots': slots,
                 })
             return ok({'promoters': promoters})
 
@@ -190,11 +207,12 @@ def handler(event: dict, context) -> dict:
             if not plan_id or not promoter_id:
                 return err('plan_id and promoter_id required')
             cur.execute(
-                f"""INSERT INTO {SCHEMA}.plan_promoters (plan_id, promoter_id, org_name, place_type, address, leaflets)
-                    VALUES (%s, %s, %s, %s, %s, %s) RETURNING id""",
+                f"""INSERT INTO {SCHEMA}.plan_promoters (plan_id, promoter_id, org_name, place_type, address, leaflets, time_slot)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id""",
                 (plan_id, promoter_id,
                  body.get('org_name') or None, body.get('place_type') or None,
-                 body.get('address') or None, body.get('leaflets') or None)
+                 body.get('address') or None, body.get('leaflets') or None,
+                 body.get('time_slot') or None)
             )
             pp_id = cur.fetchone()[0]
             conn.commit()
@@ -210,7 +228,8 @@ def handler(event: dict, context) -> dict:
                 return err('pp_id required')
             fields, vals = [], []
             for fk, col in [('promoter_id','promoter_id'),('org_name','org_name'),
-                             ('place_type','place_type'),('address','address'),('leaflets','leaflets')]:
+                             ('place_type','place_type'),('address','address'),('leaflets','leaflets'),
+                             ('time_slot','time_slot')]:
                 if fk in body:
                     fields.append(f'{col} = %s')
                     vals.append(body[fk] or None)
@@ -266,7 +285,7 @@ def handler(event: dict, context) -> dict:
                 plan_ids = [r[0] for r in rows]
                 placeholders = ','.join(['%s'] * len(plan_ids))
                 cur.execute(f"""
-                    SELECT pp.id, pp.plan_id, pp.promoter_id, u.name, pp.org_name, pp.place_type, pp.address, pp.leaflets
+                    SELECT pp.id, pp.plan_id, pp.promoter_id, u.name, pp.org_name, pp.place_type, pp.address, pp.leaflets, pp.time_slot
                     FROM {SCHEMA}.plan_promoters pp
                     JOIN {SCHEMA}.users u ON u.id = pp.promoter_id
                     WHERE pp.plan_id IN ({placeholders})
@@ -280,6 +299,7 @@ def handler(event: dict, context) -> dict:
                     pmap[pid].append({
                         'pp_id': pr[0], 'promoter_id': pr[2], 'promoter_name': pr[3],
                         'org_name': pr[4], 'place_type': pr[5], 'address': pr[6], 'leaflets': pr[7],
+                        'time_slot': pr[8],
                     })
             else:
                 pmap = {}

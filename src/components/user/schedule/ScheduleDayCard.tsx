@@ -102,29 +102,29 @@ export default function ScheduleDayCard({
 
               {/* Место работы для этой конкретной смены */}
               {hasLocation && (
-                <div className="mt-1.5 space-y-1">
+                <div className="mt-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 space-y-1.5">
                   {slotComment.organization && (
-                    <div className="flex items-center gap-2 bg-purple-50 rounded-xl px-3 py-2">
-                      <Icon name="Building2" size={13} className="text-purple-500 flex-shrink-0" />
-                      <span className="text-xs text-purple-800 font-medium truncate">{slotComment.organization}</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-xs text-gray-500 flex-shrink-0">Организация:</span>
+                      <span className="text-xs text-purple-700 font-semibold">{slotComment.organization}</span>
                     </div>
                   )}
                   {slotComment.location_type && (
-                    <div className="flex items-center gap-2 bg-blue-50 rounded-xl px-3 py-2">
-                      <Icon name="MapPin" size={13} className="text-blue-500 flex-shrink-0" />
-                      <span className="text-xs text-blue-800 font-medium truncate">{slotComment.location_type}</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-xs text-gray-500 flex-shrink-0">Тип места:</span>
+                      <span className="text-xs text-blue-700 font-semibold">{slotComment.location_type}</span>
                     </div>
                   )}
                   {slotComment.location_details && (
-                    <div className="flex items-center gap-2 bg-indigo-50 rounded-xl px-3 py-2">
-                      <Icon name="Navigation" size={13} className="text-indigo-500 flex-shrink-0" />
-                      <span className="text-xs text-indigo-800 font-medium truncate">{slotComment.location_details}</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-xs text-gray-500 flex-shrink-0">Адрес филиала:</span>
+                      <span className="text-xs text-indigo-700 font-semibold">{slotComment.location_details}</span>
                     </div>
                   )}
                   {slotComment.flyers && (
-                    <div className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2">
-                      <Icon name="FileText" size={13} className="text-amber-500 flex-shrink-0" />
-                      <span className="text-xs text-amber-800 font-medium truncate">{slotComment.flyers}</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-xs text-gray-500 flex-shrink-0">Листовки:</span>
+                      <span className="text-xs text-amber-700 font-semibold">{slotComment.flyers}</span>
                     </div>
                   )}
                 </div>

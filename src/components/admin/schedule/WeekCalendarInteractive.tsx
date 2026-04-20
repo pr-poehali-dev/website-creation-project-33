@@ -15,32 +15,22 @@ interface WeekCalendarInteractiveProps {
 export default function WeekCalendarInteractive({ weekDays, weekStartDate }: WeekCalendarInteractiveProps) {
   const [plans, setPlans]                     = useState<PlanEntry[]>([]);
   const [detailDate, setDetailDate]           = useState<string | null>(null);
-  // totalSlotsByDate[date] = кол-во промежутков всех промоутеров на этот день
-  const [totalSlotsByDate, setTotalSlotsByDate] = useState<Record<string, number>>({});
+  // slotsByDate[date] = { total, used }
+  const [slotsByDate, setSlotsByDate]         = useState<Record<string, {total: number, used: number}>>({});
+
 
   useEffect(() => {
     if (!weekDays.length) return;
     const from = weekDays[0].date;
     const to = weekDays[weekDays.length - 1].date;
-    fetch(`${PLANNING_API}?date_from=${from}&date_to=${to}`)
-      .then(r => r.json())
-      .then(d => setPlans(d.plans || []));
 
-    // Загружаем промоутеров по каждому дню параллельно
-    Promise.all(
-      weekDays.map(day =>
-        fetch(`${PLANNING_API}?action=promoters&date=${day.date}`)
-          .then(r => r.json())
-          .then(d => ({
-            date: day.date,
-            total: (d.promoters || []).reduce((s: number, p: { total_slots: number }) => s + p.total_slots, 0),
-          }))
-          .catch(() => ({ date: day.date, total: 0 }))
-      )
-    ).then(results => {
-      const map: Record<string, number> = {};
-      results.forEach(r => { map[r.date] = r.total; });
-      setTotalSlotsByDate(map);
+    // Два запроса параллельно вместо 8
+    Promise.all([
+      fetch(`${PLANNING_API}?date_from=${from}&date_to=${to}`).then(r => r.json()),
+      fetch(`${PLANNING_API}?action=week_slots&date_from=${from}&date_to=${to}`).then(r => r.json()),
+    ]).then(([plansData, slotsData]) => {
+      setPlans(plansData.plans || []);
+      setSlotsByDate(slotsData.slots_by_date || {});
     });
   }, [weekStartDate]);
 
@@ -67,8 +57,9 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
             const dayNum  = new Date(day.date).getDate();
             const month   = (new Date(day.date).getMonth() + 1).toString().padStart(2, '0');
             const dayPlans = plans.filter(p => p.date === day.date);
-            const totalSlots = totalSlotsByDate[day.date] ?? null;
-            const usedSlots = dayPlans.reduce((s, p) => s + (p.promoters ?? []).length, 0);
+            const daySlots = slotsByDate[day.date];
+            const totalSlots = daySlots?.total ?? null;
+            const usedSlots = daySlots?.used ?? 0;
             const allFilled = totalSlots !== null && totalSlots > 0 && usedSlots >= totalSlots;
 
             return (

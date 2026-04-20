@@ -127,6 +127,64 @@ def handler(event: dict, context) -> dict:
             seniors = [{'id': r[0], 'name': r[1]} for r in cur.fetchall()]
             return ok({'organizations': orgs, 'seniors': seniors})
 
+        # GET week_slots — суммарные слоты промоутеров по дням за неделю (один запрос)
+        if method == 'GET' and params.get('action') == 'week_slots':
+            date_from = params.get('date_from')
+            date_to = params.get('date_to')
+            if not date_from or not date_to:
+                return err('date_from and date_to required')
+
+            # Понедельники недель в диапазоне (берём все недели)
+            from_dt = datetime.strptime(date_from, '%Y-%m-%d')
+            to_dt = datetime.strptime(date_to, '%Y-%m-%d')
+
+            # Все уникальные понедельники для дат в диапазоне
+            week_starts = set()
+            cur_dt = from_dt
+            while cur_dt <= to_dt:
+                monday = cur_dt - timedelta(days=cur_dt.weekday())
+                week_starts.add(monday.strftime('%Y-%m-%d'))
+                cur_dt += timedelta(days=1)
+
+            # Считаем total_slots на каждую дату диапазона
+            result: dict = {}
+            for ws in week_starts:
+                cur.execute(f"""
+                    SELECT
+                        d.date_val::text,
+                        COALESCE(SUM(
+                            (CASE WHEN ps.schedule_data->d.date_val->>'slot1' = 'true' THEN 1 ELSE 0 END) +
+                            (CASE WHEN ps.schedule_data->d.date_val->>'slot2' = 'true' THEN 1 ELSE 0 END)
+                        ), 0) as total_slots
+                    FROM (
+                        SELECT generate_series(%s::date, %s::date, '1 day'::interval)::date::text as date_val
+                    ) d
+                    LEFT JOIN {SCHEMA}.promoter_schedules ps ON ps.week_start_date = %s
+                        AND ps.schedule_data ? d.date_val
+                    GROUP BY d.date_val
+                """, (date_from, date_to, ws))
+                for row in cur.fetchall():
+                    date_str, total = row
+                    if date_str not in result:
+                        result[date_str] = 0
+                    result[date_str] += int(total)
+
+            # Считаем used_slots (назначенные промоутеры) за диапазон
+            cur.execute(f"""
+                SELECT po.date::text, COUNT(pp.id) as used_count
+                FROM {SCHEMA}.plan_promoters pp
+                JOIN {SCHEMA}.planned_organizations po ON po.id = pp.plan_id
+                WHERE po.date >= %s AND po.date <= %s
+                GROUP BY po.date
+            """, (date_from, date_to))
+            used: dict = {row[0]: int(row[1]) for row in cur.fetchall()}
+
+            slots_by_date = {
+                date: {'total': result.get(date, 0), 'used': used.get(date, 0)}
+                for date in result
+            }
+            return ok({'slots_by_date': slots_by_date})
+
         # GET promoters — список промоутеров со сменами на дату
         if method == 'GET' and params.get('action') == 'promoters':
             target_date = params.get('date')

@@ -240,13 +240,9 @@ def handler(event: dict, context) -> dict:
             if not row_pp:
                 return err('not found', 404)
             plan_id = row_pp[0]
-            cur.execute(f"UPDATE {SCHEMA}.plan_promoters SET promoter_id = promoter_id WHERE id = %s", (pp_id,))
-            # Помечаем как удалённый через обновление (нет DELETE прав) — используем promoter_id = NULL
-            cur.execute(f"UPDATE {SCHEMA}.plan_promoters SET org_name = '__deleted__' WHERE id = %s", (pp_id,))
+            cur.execute(f"DELETE FROM {SCHEMA}.plan_promoters WHERE id = %s", (pp_id,))
             conn.commit()
             promoters = get_plan_promoters(cur, plan_id)
-            # Фильтруем удалённые
-            promoters = [p for p in promoters if p['org_name'] != '__deleted__']
             cur.execute(SELECT_PLAN + ' WHERE po.id = %s', (plan_id,))
             row = cur.fetchone()
             return ok({'plan': row_to_plan(row, promoters)})
@@ -274,7 +270,6 @@ def handler(event: dict, context) -> dict:
                     FROM {SCHEMA}.plan_promoters pp
                     JOIN {SCHEMA}.users u ON u.id = pp.promoter_id
                     WHERE pp.plan_id IN ({placeholders})
-                      AND (pp.org_name IS NULL OR pp.org_name != '__deleted__')
                     ORDER BY pp.created_at
                 """, plan_ids)
                 pmap: dict = {}

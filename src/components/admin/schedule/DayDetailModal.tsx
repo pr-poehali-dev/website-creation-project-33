@@ -194,45 +194,31 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                 const hasTime = plan.time_from && plan.time_to;
 
                 let top: number, height: number;
-                let leftFn: (containerW: number) => number;
-                let widthFn: (containerW: number) => number;
+                // Ширина одной колонки = (вся ширина - метки - отступ) / totalCols - зазор
+                const gapPx = totalCols > 1 ? 3 : 0;
+                // left/width считаем через CSS calc, чтобы не нужен ref на контейнер
 
                 if (hasTime) {
                   const mFrom = toMin(plan.time_from!);
                   const mTo   = toMin(plan.time_to!);
                   top    = (mFrom / 60) * HOUR_H;
                   height = Math.max(((mTo - mFrom) / 60) * HOUR_H - 4, 48);
-                  // Делим доступную ширину между колонками
-                  leftFn  = w => (col / totalCols) * w;
-                  widthFn = w => w / totalCols - (totalCols > 1 ? 3 : 0);
                 } else {
-                  // Без времени — стекаем
-                  top     = idx * 72 + 4;
-                  height  = 64;
-                  leftFn  = _ => 0;
-                  widthFn = w => w;
+                  top    = idx * 72 + 4;
+                  height = 64;
                 }
 
                 return (
-                  // Внешний контейнер — абсолютный, занимает всю доступную ширину
                   <div
                     key={plan.id}
                     className="absolute"
                     style={{
                       top,
                       height,
-                      left: TIME_LABEL_W,
-                      right: RIGHT_PAD,
+                      left: `calc(${TIME_LABEL_W}px + (100% - ${TIME_LABEL_W + RIGHT_PAD}px) * ${col} / ${totalCols})`,
+                      width: `calc((100% - ${TIME_LABEL_W + RIGHT_PAD}px) / ${totalCols} - ${gapPx}px)`,
                     }}
                   >
-                    {/* Внутренний — через %  для колонок */}
-                    <div
-                      className="absolute h-full"
-                      style={{
-                        left: `${(col / totalCols) * 100}%`,
-                        width: `calc(${100 / totalCols}% - ${totalCols > 1 ? 3 : 0}px)`,
-                      }}
-                    >
                       <div
                         className="h-full rounded-xl px-2.5 py-2 shadow-md ring-1 ring-white/10 flex items-start gap-1.5"
                         style={{ backgroundColor: plan.color }}
@@ -321,7 +307,6 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                           </div>
                         </div>
                       </div>
-                    </div>
                   </div>
                 );
               })}

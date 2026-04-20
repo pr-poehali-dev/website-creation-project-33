@@ -231,11 +231,31 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
   const handleRemovePromoter = async (pp_id: number) => {
     setSavingId(pp_id);
     try {
+      // Находим промоутера до удаления чтобы очистить его организацию
+      const removedPromoter = assigned.find(a => a.pp_id === pp_id);
       const res = await fetch(`${PLANNING_API}?action=remove_promoter&pp_id=${pp_id}`, { method: 'DELETE' });
       const d = await res.json();
       if (d.plan) {
         setAssigned(d.plan.promoters || []);
         onSave(d.plan);
+        // Очищаем организацию в work_location_comments
+        if (removedPromoter) {
+          const slotLabel = planTimeToSlotLabel(plan.time_from, plan.time_to);
+          await fetch(WORK_COMMENTS_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_name: removedPromoter.promoter_name,
+              work_date: plan.date,
+              shift_time: slotLabel,
+              organization: '',
+              location_type: '',
+              location_details: '',
+              flyers_comment: '',
+              location_comment: '',
+            }),
+          });
+        }
       }
     } finally {
       setSavingId(null);

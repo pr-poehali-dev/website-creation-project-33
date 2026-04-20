@@ -1,0 +1,1 @@
+UPDATE work_location_comments SET organization = '', location_type = '', location_details = '', flyers_comment = '' WHERE work_date = '2026-04-23' AND user_name = 'Мария Рылкова' AND shift_time = '12:00-16:00';

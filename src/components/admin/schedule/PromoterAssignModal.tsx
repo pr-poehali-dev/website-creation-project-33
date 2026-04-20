@@ -271,7 +271,7 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
     >
       <div
         className="w-full sm:max-w-md bg-gradient-to-br from-slate-900 to-slate-800 sm:rounded-2xl rounded-t-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
-        style={{ maxHeight: 'min(92dvh, 680px)' }}
+        style={{ maxHeight: 'min(92dvh, 680px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Ручка */}
@@ -290,7 +290,7 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-3 pb-[env(safe-area-inset-bottom,16px)]">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-3">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <Icon name="Loader2" size={20} className="animate-spin text-cyan-400" />

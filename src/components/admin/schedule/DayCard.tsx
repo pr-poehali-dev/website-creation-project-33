@@ -129,6 +129,32 @@ export default function DayCard({
             <p className="text-[10px] text-slate-500 mt-0.5">{day.date}</p>
           </div>
 
+          {/* Stats pill */}
+          {stats && (
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
+              isSuccessful
+                ? 'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30'
+                : 'bg-slate-700/50 text-slate-300 ring-1 ring-slate-600/30'
+            }`}>
+              <span>{stats.expected}</span>
+              <span className="text-slate-400 font-bold">/</span>
+              <span>{stats.actual}</span>
+            </div>
+          )}
+
+          {stats && stats.workersCount > 0 && (
+            <div className="flex items-center gap-1 bg-cyan-500/10 text-cyan-400 px-1.5 py-1 rounded-full ring-1 ring-cyan-500/20 flex-shrink-0">
+              <Icon name="Users" size={10} />
+              <span className="text-[10px] font-semibold">{stats.workersCount}</span>
+            </div>
+          )}
+
+          {isSuccessful && (
+            <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
+              <Icon name="Check" size={11} className="text-white" />
+            </div>
+          )}
+
           {trainingCount > 0 && (
             <div className="flex items-center gap-1 bg-violet-500/15 text-violet-400 px-1.5 py-1 rounded-full ring-1 ring-violet-500/25 flex-shrink-0">
               <Icon name="GraduationCap" size={10} />

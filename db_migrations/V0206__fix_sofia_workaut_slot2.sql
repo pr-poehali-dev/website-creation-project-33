@@ -1,0 +1,1 @@
+UPDATE work_location_comments SET organization = 'Воркаут (Царицыно)' WHERE work_date = '2026-04-23' AND user_name = 'София Скропкина' AND shift_time = '16:00-20:00';

@@ -167,7 +167,22 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
   }, [plan.date]);
 
   const syncWorkComments = async (promoterName: string, data: Partial<AssignedPromoter>) => {
-    const slotLabel = planTimeToSlotLabel(plan.time_from, plan.time_to);
+    // Определяем реальный временной промежуток промоутера:
+    // slot1 = 12:00-16:00 (будни) / 11:00-15:00 (выходные)
+    // slot2 = 16:00-20:00 (будни) / 15:00-19:00 (выходные)
+    let slotLabel: string | null = null;
+    if (data.time_slot) {
+      const date = new Date(plan.date);
+      const dayOfWeek = date.getDay(); // 0=вс, 6=сб
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      if (data.time_slot === 'slot1') {
+        slotLabel = isWeekend ? '11:00-15:00' : '12:00-16:00';
+      } else if (data.time_slot === 'slot2') {
+        slotLabel = isWeekend ? '15:00-19:00' : '16:00-20:00';
+      }
+    }
+    // Fallback: если слот не задан — используем время плана
+    if (!slotLabel) slotLabel = planTimeToSlotLabel(plan.time_from, plan.time_to);
     await fetch(WORK_COMMENTS_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -231,29 +246,19 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
   const handleRemovePromoter = async (pp_id: number) => {
     setSavingId(pp_id);
     try {
-      // Находим промоутера до удаления чтобы очистить его организацию
       const removedPromoter = assigned.find(a => a.pp_id === pp_id);
       const res = await fetch(`${PLANNING_API}?action=remove_promoter&pp_id=${pp_id}`, { method: 'DELETE' });
       const d = await res.json();
       if (d.plan) {
         setAssigned(d.plan.promoters || []);
         onSave(d.plan);
-        // Очищаем организацию в work_location_comments
         if (removedPromoter) {
-          const slotLabel = planTimeToSlotLabel(plan.time_from, plan.time_to);
-          await fetch(WORK_COMMENTS_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_name: removedPromoter.promoter_name,
-              work_date: plan.date,
-              shift_time: slotLabel,
-              organization: '',
-              location_type: '',
-              location_details: '',
-              flyers_comment: '',
-              location_comment: '',
-            }),
+          await syncWorkComments(removedPromoter.promoter_name, {
+            time_slot: removedPromoter.time_slot,
+            org_name: '',
+            place_type: '',
+            address: '',
+            leaflets: '',
           });
         }
       }

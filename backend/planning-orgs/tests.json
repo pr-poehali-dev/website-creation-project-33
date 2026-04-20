@@ -15,6 +15,14 @@
       "expectedStatus": 200,
       "expectedBody": {},
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "GET promoters — список промоутеров на дату",
+      "method": "GET",
+      "path": "/?action=promoters&date=2026-04-21",
+      "expectedStatus": 200,
+      "expectedBody": {"promoters": []},
+      "bodyMatcher": "partial"
     }
   ]
 }

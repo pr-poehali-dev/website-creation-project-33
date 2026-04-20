@@ -2,14 +2,16 @@
 Планирование организаций в календаре.
 CRUD для таблицы planned_organizations.
 GET  ?date_from=YYYY-MM-DD&date_to=YYYY-MM-DD  — список планов за диапазон
-POST  — создать план
-PUT   — обновить план
-DELETE ?id=N — удалить план
 GET  ?action=meta — список организаций и старших
+GET  ?action=promoters&date=YYYY-MM-DD — промоутеры, проставившие смену на дату
+POST  — создать план
+PUT   — обновить план (в т.ч. назначить промоутера)
+DELETE ?id=N — удалить план
 """
 import json
 import os
 import psycopg2
+from datetime import datetime, date as date_type
 
 
 def get_conn():
@@ -29,11 +31,21 @@ SELECT_PLAN = f"""
     SELECT po.id, po.organization_id, o.name as org_name,
            po.date, po.senior_ts_id, ts.name as senior_name,
            po.color, po.contact_limit, po.notes, po.created_at,
-           po.time_from, po.time_to
+           po.time_from, po.time_to,
+           po.promoter_id, u.name as promoter_name,
+           po.promoter_org_name, po.promoter_place_type,
+           po.promoter_address, po.promoter_leaflets
     FROM {SCHEMA}.planned_organizations po
     JOIN {SCHEMA}.organizations o ON o.id = po.organization_id
     LEFT JOIN {SCHEMA}.training_seniors ts ON ts.id = po.senior_ts_id
+    LEFT JOIN {SCHEMA}.users u ON u.id = po.promoter_id
 """
+
+# slot1 = 12:00-16:00, slot2 = 16:00-20:00
+SLOT_TIMES = {
+    'slot1': {'from': '12:00', 'to': '16:00'},
+    'slot2': {'from': '16:00', 'to': '20:00'},
+}
 
 
 def row_to_plan(r):
@@ -50,11 +62,17 @@ def row_to_plan(r):
         'created_at': str(r[9]),
         'time_from': r[10],
         'time_to': r[11],
+        'promoter_id': r[12],
+        'promoter_name': r[13],
+        'promoter_org_name': r[14],
+        'promoter_place_type': r[15],
+        'promoter_address': r[16],
+        'promoter_leaflets': r[17],
     }
 
 
 def ok(data, status=200):
-    return {'statusCode': status, 'headers': HEADERS, 'body': json.dumps(data)}
+    return {'statusCode': status, 'headers': HEADERS, 'body': json.dumps(data, default=str)}
 
 
 def err(msg, status=400):
@@ -89,6 +107,68 @@ def handler(event: dict, context) -> dict:
 
             return ok({'organizations': orgs, 'seniors': seniors})
 
+        # GET promoters — промоутеры, у которых есть смена на указанную дату
+        # Логика: смотрим promoter_schedules, schedule_data[date][slotN] = true
+        # Возвращаем список с указанием доступных слотов и сколько раз уже использованы
+        if method == 'GET' and params.get('action') == 'promoters':
+            target_date = params.get('date')
+            if not target_date:
+                return err('date required')
+
+            # Найдём понедельник недели для этой даты
+            dt = datetime.strptime(target_date, '%Y-%m-%d')
+            monday = dt - __import__('datetime').timedelta(days=dt.weekday())
+            week_start = monday.strftime('%Y-%m-%d')
+
+            # Промоутеры с выбранными слотами на эту дату
+            cur.execute(f"""
+                SELECT ps.user_id, u.name,
+                       ps.schedule_data->%s->>'slot1' as slot1,
+                       ps.schedule_data->%s->>'slot2' as slot2
+                FROM {SCHEMA}.promoter_schedules ps
+                JOIN {SCHEMA}.users u ON u.id = ps.user_id
+                WHERE ps.week_start_date = %s
+                  AND (
+                    ps.schedule_data->%s->>'slot1' = 'true'
+                    OR ps.schedule_data->%s->>'slot2' = 'true'
+                  )
+                ORDER BY u.name
+            """, (target_date, target_date, week_start, target_date, target_date))
+
+            promoters_raw = cur.fetchall()
+
+            # Узнаём, сколько раз каждый промоутер уже назначен на этот день
+            cur.execute(f"""
+                SELECT promoter_id, COUNT(*) as usage_count
+                FROM {SCHEMA}.planned_organizations
+                WHERE date = %s AND promoter_id IS NOT NULL
+                GROUP BY promoter_id
+            """, (target_date,))
+            usage_map = {row[0]: row[1] for row in cur.fetchall()}
+
+            promoters = []
+            for row in promoters_raw:
+                user_id, name, slot1_str, slot2_str = row
+                slot1 = slot1_str == 'true'
+                slot2 = slot2_str == 'true'
+                total_slots = (1 if slot1 else 0) + (1 if slot2 else 0)
+                used = usage_map.get(user_id, 0)
+                available_slots = []
+                if slot1:
+                    available_slots.append({'key': 'slot1', 'label': '12:00–16:00', **SLOT_TIMES['slot1']})
+                if slot2:
+                    available_slots.append({'key': 'slot2', 'label': '16:00–20:00', **SLOT_TIMES['slot2']})
+                promoters.append({
+                    'id': user_id,
+                    'name': name,
+                    'total_slots': total_slots,
+                    'used_slots': used,
+                    'available': used < total_slots,
+                    'slots': available_slots,
+                })
+
+            return ok({'promoters': promoters})
+
         # GET список планов
         if method == 'GET':
             date_from = params.get('date_from')
@@ -102,7 +182,7 @@ def handler(event: dict, context) -> dict:
             if date_to:
                 sql += ' AND po.date <= %s'
                 args.append(date_to)
-            sql += ' ORDER BY po.date, COALESCE(po.time_from, \'99:99\'), po.created_at'
+            sql += " ORDER BY po.date, COALESCE(po.time_from, '99:99'), po.created_at"
 
             cur.execute(sql, args)
             return ok({'plans': [row_to_plan(r) for r in cur.fetchall()]})
@@ -120,13 +200,20 @@ def handler(event: dict, context) -> dict:
             notes = body.get('notes') or None
             time_from = body.get('time_from') or None
             time_to = body.get('time_to') or None
+            promoter_id = body.get('promoter_id') or None
+            promoter_org_name = body.get('promoter_org_name') or None
+            promoter_place_type = body.get('promoter_place_type') or None
+            promoter_address = body.get('promoter_address') or None
+            promoter_leaflets = body.get('promoter_leaflets') or None
 
             cur.execute(
                 f"""INSERT INTO {SCHEMA}.planned_organizations
-                    (organization_id, date, senior_ts_id, color, contact_limit, notes, time_from, time_to)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    (organization_id, date, senior_ts_id, color, contact_limit, notes, time_from, time_to,
+                     promoter_id, promoter_org_name, promoter_place_type, promoter_address, promoter_leaflets)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING id""",
-                (org_id, date, senior_id, color, contact_limit, notes, time_from, time_to)
+                (org_id, date, senior_id, color, contact_limit, notes, time_from, time_to,
+                 promoter_id, promoter_org_name, promoter_place_type, promoter_address, promoter_leaflets)
             )
             new_id = cur.fetchone()[0]
             conn.commit()
@@ -151,6 +238,11 @@ def handler(event: dict, context) -> dict:
                 'notes': 'notes',
                 'time_from': 'time_from',
                 'time_to': 'time_to',
+                'promoter_id': 'promoter_id',
+                'promoter_org_name': 'promoter_org_name',
+                'promoter_place_type': 'promoter_place_type',
+                'promoter_address': 'promoter_address',
+                'promoter_leaflets': 'promoter_leaflets',
             }
             for front_key, db_col in mapping.items():
                 if front_key in body:

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { PlanEntry } from '../tasks/PlanOrgModal';
 import PlanOrgModal from '../tasks/PlanOrgModal';
+import PromoterAssignModal from './PromoterAssignModal';
 
 const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8';
 
@@ -102,9 +103,10 @@ function fmtDate(d: string) {
 }
 
 export default function DayDetailModal({ date, plans, onSave, onDelete, onClose }: DayDetailModalProps) {
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [editingPlan, setEditingPlan]   = useState<PlanEntry | null>(null);
-  const [deleting, setDeleting]         = useState<number | null>(null);
+  const [addModalOpen, setAddModalOpen]           = useState(false);
+  const [editingPlan, setEditingPlan]             = useState<PlanEntry | null>(null);
+  const [deleting, setDeleting]                   = useState<number | null>(null);
+  const [promoterModal, setPromoterModal]         = useState<PlanEntry | null>(null);
 
   const handleDelete = async (id: number) => {
     setDeleting(id);
@@ -120,6 +122,11 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
     onSave(plan);
     setAddModalOpen(false);
     setEditingPlan(null);
+  };
+
+  const handlePromoterSave = (plan: PlanEntry) => {
+    onSave(plan);
+    setPromoterModal(null);
   };
 
   const layout  = computeLayout(plans);
@@ -230,10 +237,32 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                         className="h-full rounded-xl px-2.5 py-2 shadow-md ring-1 ring-white/10 flex items-start gap-1.5 overflow-hidden"
                         style={{ backgroundColor: plan.color }}
                       >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white font-bold text-[13px] leading-tight line-clamp-2">
-                            {plan.organization_name}
-                          </p>
+                        <div className="flex-1 min-w-0 flex flex-col h-full">
+                          {/* Название + кнопки */}
+                          <div className="flex items-start gap-1">
+                            <p className="text-white font-bold text-[13px] leading-tight line-clamp-2 flex-1 min-w-0">
+                              {plan.organization_name}
+                            </p>
+                            <div className="flex flex-col gap-1 flex-shrink-0">
+                              <button
+                                onClick={() => { setEditingPlan(plan); setAddModalOpen(true); }}
+                                className="w-7 h-7 rounded-lg bg-black/20 active:bg-black/40 flex items-center justify-center"
+                              >
+                                <Icon name="Pencil" size={11} className="text-white/90" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(plan.id)}
+                                disabled={deleting === plan.id}
+                                className="w-7 h-7 rounded-lg bg-black/20 active:bg-red-500/60 flex items-center justify-center disabled:opacity-50"
+                              >
+                                {deleting === plan.id
+                                  ? <Icon name="Loader2" size={11} className="text-white/80 animate-spin" />
+                                  : <Icon name="Trash2" size={11} className="text-white/90" />
+                                }
+                              </button>
+                            </div>
+                          </div>
+                          {/* Мета-строки */}
                           <div className="flex flex-col gap-0.5 mt-1">
                             {plan.time_from && plan.time_to && (
                               <span className="text-white/75 text-[11px] flex items-center gap-1">
@@ -254,24 +283,42 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                               </span>
                             )}
                           </div>
-                        </div>
-                        <div className="flex flex-col gap-1 flex-shrink-0">
-                          <button
-                            onClick={() => { setEditingPlan(plan); setAddModalOpen(true); }}
-                            className="w-7 h-7 rounded-lg bg-black/20 active:bg-black/40 flex items-center justify-center"
-                          >
-                            <Icon name="Pencil" size={11} className="text-white/90" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(plan.id)}
-                            disabled={deleting === plan.id}
-                            className="w-7 h-7 rounded-lg bg-black/20 active:bg-red-500/60 flex items-center justify-center disabled:opacity-50"
-                          >
-                            {deleting === plan.id
-                              ? <Icon name="Loader2" size={11} className="text-white/80 animate-spin" />
-                              : <Icon name="Trash2" size={11} className="text-white/90" />
-                            }
-                          </button>
+
+                          {/* Промоутер — кнопка + данные */}
+                          <div className="mt-auto pt-2">
+                            {plan.promoter_name ? (
+                              <button
+                                onClick={() => setPromoterModal(plan)}
+                                className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-black/25 hover:bg-black/35 transition-all text-left"
+                              >
+                                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
+                                  {plan.promoter_name.charAt(0)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-white/90 text-[11px] font-semibold truncate leading-tight">{plan.promoter_name}</p>
+                                  {(plan.promoter_org_name || plan.promoter_place_type) && (
+                                    <p className="text-white/60 text-[10px] truncate leading-tight">
+                                      {plan.promoter_org_name}{plan.promoter_place_type ? ` · ${plan.promoter_place_type}` : ''}
+                                    </p>
+                                  )}
+                                </div>
+                                {plan.promoter_leaflets && (
+                                  <span className="text-white/60 text-[10px] flex-shrink-0 flex items-center gap-0.5">
+                                    <Icon name="FileText" size={8} className="text-amber-300/70" />
+                                    {plan.promoter_leaflets}
+                                  </span>
+                                )}
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => setPromoterModal(plan)}
+                                className="w-full flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-black/20 hover:bg-black/30 border border-dashed border-white/20 transition-all"
+                              >
+                                <Icon name="UserPlus" size={10} className="text-white/60" />
+                                <span className="text-white/60 text-[10px]">Назначить промоутера</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -299,6 +346,14 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
           editPlan={editingPlan}
           onSave={handleSave}
           onClose={() => { setAddModalOpen(false); setEditingPlan(null); }}
+        />
+      )}
+
+      {promoterModal && (
+        <PromoterAssignModal
+          plan={promoterModal}
+          onSave={handlePromoterSave}
+          onClose={() => setPromoterModal(null)}
         />
       )}
     </>

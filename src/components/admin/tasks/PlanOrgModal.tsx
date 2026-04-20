@@ -18,6 +18,12 @@ export interface PlanEntry {
   notes: string | null;
   time_from: string | null;
   time_to: string | null;
+  promoter_id: number | null;
+  promoter_name: string | null;
+  promoter_org_name: string | null;
+  promoter_place_type: string | null;
+  promoter_address: string | null;
+  promoter_leaflets: number | null;
 }
 
 const PRESET_COLORS = [

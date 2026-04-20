@@ -52,13 +52,7 @@ def handler(event: dict, context) -> dict:
             orgs = [{'id': r[0], 'name': r[1]} for r in cur.fetchall()]
 
             cur.execute(
-                f"""SELECT DISTINCT s.id, s.name
-                    FROM {SCHEMA}.users s
-                    WHERE s.id IN (
-                        SELECT DISTINCT senior_id FROM {SCHEMA}.users
-                        WHERE senior_id IS NOT NULL
-                    )
-                    ORDER BY s.name"""
+                f"SELECT id, name FROM {SCHEMA}.training_seniors ORDER BY name"
             )
             seniors = [{'id': r[0], 'name': r[1]} for r in cur.fetchall()]
 

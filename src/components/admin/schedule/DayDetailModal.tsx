@@ -234,24 +234,24 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                       }}
                     >
                       <div
-                        className="h-full rounded-xl px-2.5 py-2 shadow-md ring-1 ring-white/10 flex items-start gap-1.5 overflow-hidden"
+                        className="h-full rounded-xl px-2.5 py-2 shadow-md ring-1 ring-white/10 flex items-start gap-1.5"
                         style={{ backgroundColor: plan.color }}
                       >
-                        <div className="flex-1 min-w-0 flex flex-col h-full">
-                          {/* Название + кнопки */}
+                        <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
+                          {/* Название */}
                           <div className="flex items-start gap-1">
                             <p className="text-white font-bold text-[13px] leading-tight line-clamp-2 flex-1 min-w-0">
                               {plan.organization_name}
                             </p>
-                            <div className="flex flex-col gap-1 flex-shrink-0">
+                            <div className="flex gap-1 flex-shrink-0">
                               <button
-                                onClick={() => { setEditingPlan(plan); setAddModalOpen(true); }}
+                                onClick={e => { e.stopPropagation(); setEditingPlan(plan); setAddModalOpen(true); }}
                                 className="w-7 h-7 rounded-lg bg-black/20 active:bg-black/40 flex items-center justify-center"
                               >
                                 <Icon name="Pencil" size={11} className="text-white/90" />
                               </button>
                               <button
-                                onClick={() => handleDelete(plan.id)}
+                                onClick={e => { e.stopPropagation(); handleDelete(plan.id); }}
                                 disabled={deleting === plan.id}
                                 className="w-7 h-7 rounded-lg bg-black/20 active:bg-red-500/60 flex items-center justify-center disabled:opacity-50"
                               >
@@ -285,10 +285,10 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                           </div>
 
                           {/* Промоутер — кнопка + данные */}
-                          <div className="mt-auto pt-2">
+                          <div className="mt-2">
                             {plan.promoter_name ? (
                               <button
-                                onClick={() => setPromoterModal(plan)}
+                                onClick={e => { e.stopPropagation(); setPromoterModal(plan); }}
                                 className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-black/25 hover:bg-black/35 transition-all text-left"
                               >
                                 <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
@@ -311,8 +311,8 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                               </button>
                             ) : (
                               <button
-                                onClick={() => setPromoterModal(plan)}
-                                className="w-full flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-black/20 hover:bg-black/30 border border-dashed border-white/20 transition-all"
+                                onClick={e => { e.stopPropagation(); setPromoterModal(plan); }}
+                                className="w-full flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-black/20 active:bg-black/30 border border-dashed border-white/20 transition-all"
                               >
                                 <Icon name="UserPlus" size={10} className="text-white/60" />
                                 <span className="text-white/60 text-[10px]">Назначить промоутера</span>

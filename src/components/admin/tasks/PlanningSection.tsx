@@ -1,137 +1,70 @@
 import { useState, useEffect } from 'react';
-import { PlannedOrganization, STORAGE_KEY } from './types';
-import { getInitialPlans, getMoscowDate, getWeekDates, getWeekLabel } from './utils';
+import { getMoscowDate, getWeekDates, getWeekLabel } from './utils';
 import WeekNavigation from './WeekNavigation';
 import WeekCalendarGrid from './WeekCalendarGrid';
-import AddOrganizationForm from './AddOrganizationForm';
-import DailyHourlyView from './DailyHourlyView';
-import HourlyPlanModal from './HourlyPlanModal';
+import PlanOrgModal, { PlanEntry } from './PlanOrgModal';
+import Icon from '@/components/ui/icon';
+
+const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8';
 
 export default function PlanningSection() {
-  const [plans, setPlans] = useState<PlannedOrganization[]>(getInitialPlans);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [showingHourlyFor, setShowingHourlyFor] = useState<string | null>(null);
-  const [addOrgMode, setAddOrgMode] = useState(false);
-  const [newOrg, setNewOrg] = useState('');
-  const [newNotes, setNewNotes] = useState('');
+  const [plans, setPlans]           = useState<PlanEntry[]>([]);
+  const [loading, setLoading]       = useState(true);
   const [weekOffset, setWeekOffset] = useState(0);
-  const [editingPlan, setEditingPlan] = useState<PlannedOrganization | null>(null);
-  const [renamingPlanId, setRenamingPlanId] = useState<number | null>(null);
-  const [renameValue, setRenameValue] = useState('');
-  const [renameNotesValue, setRenameNotesValue] = useState('');
-  const weekDates = getWeekDates(weekOffset);
   const todayStr = getMoscowDate();
-  
-  const timeSlots = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
+  const weekDates = getWeekDates(weekOffset);
 
-  useEffect(() => {
+  // Модалка
+  const [modalDate, setModalDate]     = useState<string | null>(null);
+  const [editingPlan, setEditingPlan] = useState<PlanEntry | null>(null);
+
+  // Загрузка планов на текущую неделю
+  const loadPlans = async (dates: string[]) => {
+    setLoading(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
-    } catch (error) {
-      console.error('Failed to save plans:', error);
+      const from = dates[0];
+      const to = dates[dates.length - 1];
+      const d = await (await fetch(`${PLANNING_API}?date_from=${from}&date_to=${to}`)).json();
+      setPlans(d.plans || []);
+    } finally {
+      setLoading(false);
     }
-  }, [plans]);
-
-  const addPlan = () => {
-    if (!selectedDate || !newOrg.trim()) return;
-    
-    const newPlan: PlannedOrganization = {
-      id: Date.now(),
-      organization: newOrg,
-      date: selectedDate,
-      notes: newNotes.trim() || undefined
-    };
-    
-    setPlans([...plans, newPlan]);
-    setNewOrg('');
-    setNewNotes('');
-    setSelectedDate(null);
   };
 
-  const deletePlan = (id: number) => {
-    setPlans(plans.filter(p => p.id !== id));
-  };
-  
-  const startRename = (plan: PlannedOrganization) => {
-    setRenamingPlanId(plan.id);
-    setRenameValue(plan.organization);
-    setRenameNotesValue(plan.notes || '');
-  };
-  
-  const saveRename = (id: number) => {
-    if (!renameValue.trim()) return;
-    setPlans(plans.map(p => p.id === id ? { 
-      ...p, 
-      organization: renameValue.trim(),
-      notes: renameNotesValue.trim() || undefined
-    } : p));
-    setRenamingPlanId(null);
-    setRenameValue('');
-    setRenameNotesValue('');
-  };
-  
-  const cancelRename = () => {
-    setRenamingPlanId(null);
-    setRenameValue('');
-    setRenameNotesValue('');
-  };
-  
-  const updateHourlyNote = (hour: string, note: string) => {
-    if (!editingPlan) return;
-    
-    const existingNotes = editingPlan.hourlyNotes || [];
-    const updatedNotes = existingNotes.filter(n => n.hour !== hour);
-    
-    if (note.trim()) {
-      updatedNotes.push({ hour, note });
-    }
-    
-    const updatedPlan = { ...editingPlan, hourlyNotes: updatedNotes };
-    setEditingPlan(updatedPlan);
-    setPlans(plans.map(p => p.id === editingPlan.id ? updatedPlan : p));
-  };
-  
-  const getHourlyNote = (hour: string): string => {
-    if (!editingPlan?.hourlyNotes) return '';
-    const note = editingPlan.hourlyNotes.find(n => n.hour === hour);
-    return note?.note || '';
-  };
+  useEffect(() => { loadPlans(weekDates); }, [weekOffset]);
 
-  const handleDateClick = (date: string, dayPlans: PlannedOrganization[]) => {
-    setShowingHourlyFor(date);
-  };
-
-  const handleAddOrgClick = (date: string) => {
-    setSelectedDate(date);
-    setAddOrgMode(true);
-  };
-
-  const handlePlanClick = (plan: PlannedOrganization, date: string) => {
-    setShowingHourlyFor(date);
-    setEditingPlan(plan);
-  };
-
-  const handleAddFormSubmit = () => {
-    addPlan();
-    setAddOrgMode(false);
-  };
-
-  const handleAddFormCancel = () => {
-    setSelectedDate(null);
-    setAddOrgMode(false);
-    setNewOrg('');
-    setNewNotes('');
-  };
-
-  const handleModalClose = () => {
+  const handleDateClick = (date: string) => {
     setEditingPlan(null);
-    setShowingHourlyFor(null);
+    setModalDate(date);
+  };
+
+  const handleEditPlan = (plan: PlanEntry) => {
+    setEditingPlan(plan);
+    setModalDate(plan.date);
+  };
+
+  const handleSave = (plan: PlanEntry) => {
+    setPlans(prev => {
+      const exists = prev.find(p => p.id === plan.id);
+      if (exists) return prev.map(p => p.id === plan.id ? plan : p);
+      return [...prev, plan];
+    });
+    setModalDate(null);
+    setEditingPlan(null);
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await fetch(`${PLANNING_API}?id=${id}`, { method: 'DELETE' });
+    } catch { /* ignore */ }
+    setPlans(prev => prev.filter(p => p.id !== id));
   };
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h3 className="text-lg md:text-xl font-semibold text-gray-700">Планирование на неделю</h3>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-bold text-slate-100">Планирование на неделю</h3>
+        {loading && <Icon name="Loader2" size={16} className="animate-spin text-cyan-400" />}
       </div>
 
       <WeekNavigation
@@ -145,42 +78,29 @@ export default function PlanningSection() {
         weekDates={weekDates}
         todayStr={todayStr}
         plans={plans}
-        showingHourlyFor={showingHourlyFor}
-        renamingPlanId={renamingPlanId}
-        renameValue={renameValue}
-        renameNotesValue={renameNotesValue}
         onDateClick={handleDateClick}
-        onAddOrgClick={handleAddOrgClick}
-        onPlanClick={handlePlanClick}
-        onStartRename={startRename}
-        onSaveRename={saveRename}
-        onCancelRename={cancelRename}
-        onDeletePlan={deletePlan}
-        setRenameValue={setRenameValue}
-        setRenameNotesValue={setRenameNotesValue}
+        onEditPlan={handleEditPlan}
+        onDeletePlan={handleDelete}
       />
 
-      {selectedDate && addOrgMode && (
-        <AddOrganizationForm
-          selectedDate={selectedDate}
-          newOrg={newOrg}
-          newNotes={newNotes}
-          onNewOrgChange={setNewOrg}
-          onNewNotesChange={setNewNotes}
-          onSubmit={handleAddFormSubmit}
-          onCancel={handleAddFormCancel}
-        />
+      {/* Легенда */}
+      {plans.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {Array.from(new Map(plans.map(p => [p.organization_id, p])).values()).map(p => (
+            <div key={p.organization_id} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-800/40 ring-1 ring-slate-700/40 text-xs text-slate-400">
+              <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: p.color }} />
+              {p.organization_name}
+            </div>
+          ))}
+        </div>
       )}
 
-      <DailyHourlyView plans={plans} timeSlots={timeSlots} selectedDate={showingHourlyFor} />
-
-      {editingPlan && showingHourlyFor && (
-        <HourlyPlanModal
-          editingPlan={editingPlan}
-          timeSlots={timeSlots}
-          onClose={handleModalClose}
-          onUpdateNote={updateHourlyNote}
-          getHourlyNote={getHourlyNote}
+      {modalDate && (
+        <PlanOrgModal
+          date={modalDate}
+          editPlan={editingPlan}
+          onSave={handleSave}
+          onClose={() => { setModalDate(null); setEditingPlan(null); }}
         />
       )}
     </div>

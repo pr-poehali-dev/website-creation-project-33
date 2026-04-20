@@ -38,6 +38,7 @@ interface DayCardProps {
   promoterSlots?: { total: number; used: number };
   onToggleDay: (date: string) => void;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
+  onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
@@ -59,6 +60,7 @@ export default function DayCard({
   promoterSlots,
   onToggleDay,
   onCommentChange,
+  onSaveComment,
   onRemoveSlot,
   onAddSlot,
   deletingSlot,
@@ -213,6 +215,7 @@ export default function DayCard({
                     recommendedLocations={recommendedLocations}
                     loadingProgress={loadingProgress}
                     onCommentChange={onCommentChange}
+                    onSaveComment={onSaveComment}
                     onRemoveSlot={onRemoveSlot}
                     onAddSlot={onAddSlot}
                     deletingSlot={deletingSlot}

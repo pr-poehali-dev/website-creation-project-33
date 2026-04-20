@@ -82,7 +82,9 @@ export default function TeamScheduleView({
     recommendedLocations,
     actualStats,
     loadingProgress,
-    updateComment
+    updateComment,
+    saveComment,
+    reloadWorkComments
   } = useScheduleData(weekDays, schedules, undefined);
 
   const toggleDay = (date: string) => {
@@ -154,6 +156,7 @@ export default function TeamScheduleView({
             loadingProgress={loadingProgress}
             onToggleDay={toggleDay}
             onCommentChange={updateComment}
+            onSaveComment={saveComment}
             onRemoveSlot={confirmRemoveSlot}
             onAddSlot={handleAddSlotClick}
             deletingSlot={deletingSlot}

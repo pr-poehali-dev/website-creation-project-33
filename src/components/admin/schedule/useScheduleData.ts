@@ -476,6 +476,7 @@ export function useScheduleData(weekDays: DaySchedule[], schedules: UserSchedule
     recommendedLocations,
     actualStats,
     saveComment,
-    updateComment
+    updateComment,
+    reloadWorkComments: loadWorkComments
   };
 }

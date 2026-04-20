@@ -14,6 +14,7 @@ interface TimeSlotCardProps {
   recommendedLocations: Record<string, Record<string, string[]>>;
   loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
+  onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
@@ -30,6 +31,7 @@ export default function TimeSlotCard({
   recommendedLocations,
   loadingProgress,
   onCommentChange,
+  onSaveComment,
   onRemoveSlot,
   onAddSlot,
   deletingSlot
@@ -89,6 +91,7 @@ export default function TimeSlotCard({
                 orgStats={orgStats}
                 loadingProgress={loadingProgress}
                 onCommentChange={onCommentChange}
+                onSaveComment={onSaveComment}
                 onRemoveSlot={onRemoveSlot}
                 deletingSlot={deletingSlot}
               />

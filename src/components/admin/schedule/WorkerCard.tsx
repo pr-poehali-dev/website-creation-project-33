@@ -18,6 +18,7 @@ interface WorkerCardProps {
   orgStats: Array<{organization_name: string, avg_per_shift: number}>;
   loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
+  onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
 }
@@ -34,6 +35,7 @@ export default function WorkerCard({
   orgStats,
   loadingProgress,
   onCommentChange,
+  onSaveComment,
   onRemoveSlot,
   deletingSlot
 }: WorkerCardProps) {
@@ -53,6 +55,7 @@ export default function WorkerCard({
 
   const handleOrgSelect = (org: string) => {
     onCommentChange(workerName, dayDate, 'organization', org, slotLabel);
+    onSaveComment(workerName, dayDate, 'organization', org, slotLabel);
     setShowOrgSelectionModal(false);
   };
 
@@ -141,7 +144,7 @@ export default function WorkerCard({
           {currentOrganization && (
             <button
               type="button"
-              onClick={() => onCommentChange(workerName, dayDate, 'organization', '', slotLabel)}
+              onClick={() => { onCommentChange(workerName, dayDate, 'organization', '', slotLabel); onSaveComment(workerName, dayDate, 'organization', '', slotLabel); }}
               className="w-4 h-4 flex items-center justify-center rounded-md hover:bg-red-500/15 transition-colors flex-shrink-0"
               title="Очистить организацию"
             >

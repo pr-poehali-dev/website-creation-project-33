@@ -27,13 +27,7 @@ interface PromoterOption {
   slots: PromoterSlot[];
 }
 
-const PLACE_TYPES = [
-  { value: 'school', label: 'Школа' },
-  { value: 'street', label: 'Улица' },
-  { value: 'mall', label: 'ТЦ' },
-  { value: 'park', label: 'Парк' },
-  { value: 'other', label: 'Другое' },
-];
+const PLACE_TYPES = ['ТЦ', 'Школа', 'Садик', 'Улица', 'Парк', 'Другое'];
 
 interface PromoterAssignModalProps {
   plan: PlanEntry;
@@ -240,7 +234,7 @@ export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterA
                 >
                   <option value="" className="bg-slate-800">Тип места</option>
                   {PLACE_TYPES.map(t => (
-                    <option key={t.value} value={t.value} className="bg-slate-800">{t.label}</option>
+                    <option key={t} value={t} className="bg-slate-800">{t}</option>
                   ))}
                 </select>
                 <Icon name="MapPin" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" />

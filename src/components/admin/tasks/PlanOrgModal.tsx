@@ -138,17 +138,15 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex flex-col justify-center items-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-md bg-gradient-to-br from-slate-900 to-slate-800 sm:rounded-2xl rounded-t-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col max-h-[92dvh] sm:max-h-[90vh]"
+        className="w-full max-w-md bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
+        style={{ maxHeight: 'min(90dvh, 700px)' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Ручка мобайл */}
-        <div className="flex justify-center pt-2.5 pb-1 sm:hidden">
-          <div className="w-10 h-1 rounded-full bg-slate-600" />
-        </div>
+
 
         {/* Шапка */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-700/50 flex-shrink-0">

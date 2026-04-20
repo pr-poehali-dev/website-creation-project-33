@@ -132,7 +132,7 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                         >
                           <span className="flex-1 truncate leading-tight">{shortName}</span>
                           {hasNoPromoter && (
-                            <span className="text-white font-black text-[9px] leading-none flex-shrink-0">!</span>
+                            <span className="flex-shrink-0 w-3.5 h-3.5 rounded-sm bg-red-500 flex items-center justify-center text-white font-black text-[9px] leading-none ring-1 ring-red-300/50">!</span>
                           )}
                         </div>
                       );

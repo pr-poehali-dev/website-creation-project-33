@@ -284,7 +284,14 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                                   {p.promoter_name.charAt(0)}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-white/90 text-[11px] font-semibold truncate leading-tight">{p.promoter_name}</p>
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="text-white/90 text-[11px] font-semibold truncate leading-tight flex-1 min-w-0">{p.promoter_name}</p>
+                                    {p.time_slot && (
+                                      <span className="text-white/70 text-[9px] bg-black/25 px-1.5 py-0.5 rounded flex-shrink-0 leading-tight">
+                                        {p.time_slot === 'slot1' ? '12–16' : '16–20'}
+                                      </span>
+                                    )}
+                                  </div>
                                   {(p.org_name || p.place_type) && (
                                     <p className="text-white/60 text-[10px] truncate leading-tight">
                                       {p.org_name}{p.place_type ? ` · ${p.place_type}` : ''}

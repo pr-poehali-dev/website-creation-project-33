@@ -14,6 +14,7 @@ export interface PlanPromoter {
   place_type: string | null;
   address: string | null;
   leaflets: string | null;
+  time_slot: string | null;
 }
 
 export interface PlanEntry {

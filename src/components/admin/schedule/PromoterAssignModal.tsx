@@ -68,7 +68,7 @@ export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterA
         promoter_org_name: orgName.trim() || null,
         promoter_place_type: placeType || null,
         promoter_address: address.trim() || null,
-        promoter_leaflets: leaflets ? Number(leaflets) : null,
+        promoter_leaflets: leaflets.trim() || null,
       };
       const res = await fetch(PLANNING_API, {
         method: 'PUT',
@@ -260,11 +260,10 @@ export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterA
               {/* Листовки */}
               <div className="relative">
                 <input
-                  type="number"
+                  type="text"
                   value={leaflets}
                   onChange={e => setLeaflets(e.target.value)}
-                  placeholder="Листовки (кол-во)"
-                  min={0}
+                  placeholder="Листовки"
                   className="w-full h-11 pl-3 pr-10 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
                 />
                 <Icon name="FileText" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-500/70" />

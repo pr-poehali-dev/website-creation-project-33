@@ -23,7 +23,7 @@ export interface PlanEntry {
   promoter_org_name: string | null;
   promoter_place_type: string | null;
   promoter_address: string | null;
-  promoter_leaflets: number | null;
+  promoter_leaflets: string | null;
 }
 
 const PRESET_COLORS = [

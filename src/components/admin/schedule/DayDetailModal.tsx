@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { PlanEntry } from '../tasks/PlanOrgModal';
 import PlanOrgModal from '../tasks/PlanOrgModal';
@@ -107,7 +107,23 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
   const [editingPlan, setEditingPlan]             = useState<PlanEntry | null>(null);
   const [deleting, setDeleting]                   = useState<number | null>(null);
   const [promoterModal, setPromoterModal]         = useState<PlanEntry | null>(null);
-  const [promoterModalAdd, setPromoterModalAdd]   = useState(false); // true = сразу открыть выбор
+  const [promoterModalAdd, setPromoterModalAdd]   = useState(false);
+  const [totalSlots, setTotalSlots]               = useState<number | null>(null);
+
+  // Загружаем общее кол-во промежутков промоутеров на этот день
+  useEffect(() => {
+    fetch(`${PLANNING_API}?action=promoters&date=${date}`)
+      .then(r => r.json())
+      .then(d => {
+        const promoters = d.promoters || [];
+        const total = promoters.reduce((sum: number, p: { total_slots: number }) => sum + p.total_slots, 0);
+        setTotalSlots(total);
+      })
+      .catch(() => setTotalSlots(null));
+  }, [date]);
+
+  // Считаем занятые промежутки из текущих планов
+  const usedSlots = plans.reduce((sum, plan) => sum + (plan.promoters ?? []).length, 0);
 
   const handleDelete = async (id: number) => {
     setDeleting(id);
@@ -152,7 +168,21 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
 
           {/* Шапка */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700/50 flex-shrink-0">
-            <h3 className="text-sm font-bold text-slate-100 capitalize">{fmtDate(date)}</h3>
+            <div className="flex items-center gap-3">
+              <h3 className="text-sm font-bold text-slate-100 capitalize">{fmtDate(date)}</h3>
+              {totalSlots !== null && (
+                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                  usedSlots >= totalSlots && totalSlots > 0
+                    ? 'bg-emerald-500/20 text-emerald-300'
+                    : usedSlots > 0
+                      ? 'bg-amber-500/20 text-amber-300'
+                      : 'bg-slate-700/60 text-slate-400'
+                }`}>
+                  <Icon name="Users" size={11} />
+                  <span>{usedSlots} / {totalSlots}</span>
+                </div>
+              )}
+            </div>
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-700/60 transition-all"

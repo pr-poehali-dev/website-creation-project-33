@@ -56,9 +56,8 @@ def handler(event: dict, context) -> dict:
                     FROM {SCHEMA}.users s
                     WHERE s.id IN (
                         SELECT DISTINCT senior_id FROM {SCHEMA}.users
-                        WHERE senior_id IS NOT NULL AND is_active = true
+                        WHERE senior_id IS NOT NULL
                     )
-                    OR s.is_admin = true
                     ORDER BY s.name"""
             )
             seniors = [{'id': r[0], 'name': r[1]} for r in cur.fetchall()]

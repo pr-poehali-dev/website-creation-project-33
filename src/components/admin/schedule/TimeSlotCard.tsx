@@ -8,14 +8,12 @@ interface TimeSlotCardProps {
   workers: UserSchedule[];
   dayDate: string;
   workComments: Record<string, Record<string, unknown>>;
-  savingComment: string | null;
   allLocations: string[];
   allOrganizations: OrganizationData[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
   recommendedLocations: Record<string, Record<string, string[]>>;
   loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
-  onCommentBlur: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
@@ -26,14 +24,12 @@ export default function TimeSlotCard({
   workers,
   dayDate,
   workComments,
-  savingComment,
   allLocations,
   allOrganizations,
   userOrgStats,
   recommendedLocations,
   loadingProgress,
   onCommentChange,
-  onCommentBlur,
   onRemoveSlot,
   onAddSlot,
   deletingSlot
@@ -87,14 +83,12 @@ export default function TimeSlotCard({
                 slotTime={slot.time}
                 slotLabel={slot.label}
                 workComments={workComments}
-                savingComment={savingComment}
                 allLocations={allLocations}
                 allOrganizations={allOrganizations}
                 recommendedOrgs={recommendedOrgs}
                 orgStats={orgStats}
                 loadingProgress={loadingProgress}
                 onCommentChange={onCommentChange}
-                onCommentBlur={onCommentBlur}
                 onRemoveSlot={onRemoveSlot}
                 deletingSlot={deletingSlot}
               />

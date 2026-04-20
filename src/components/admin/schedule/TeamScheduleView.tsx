@@ -76,14 +76,12 @@ export default function TeamScheduleView({
 
   const {
     workComments,
-    savingComment,
     allLocations,
     allOrganizations,
     userOrgStats,
     recommendedLocations,
     actualStats,
     loadingProgress,
-    saveComment,
     updateComment
   } = useScheduleData(weekDays, schedules, undefined);
 
@@ -97,10 +95,6 @@ export default function TeamScheduleView({
       }
       return newSet;
     });
-  };
-
-  const handleCommentBlur = (userName: string, date: string, field: string, value: string, shiftTime?: string) => {
-    saveComment(userName, date, field, value, shiftTime);
   };
 
   const handleAddSlotClick = (date: string, slotTime: string, slotLabel: string) => {
@@ -152,7 +146,6 @@ export default function TeamScheduleView({
             promoterSlots={promoterSlots[day.date]}
             getUsersWorkingOnSlot={getUsersWorkingOnSlot}
             workComments={workComments}
-            savingComment={savingComment}
             allLocations={allLocations}
             allOrganizations={allOrganizations}
             userOrgStats={userOrgStats}
@@ -161,7 +154,6 @@ export default function TeamScheduleView({
             loadingProgress={loadingProgress}
             onToggleDay={toggleDay}
             onCommentChange={updateComment}
-            onCommentBlur={handleCommentBlur}
             onRemoveSlot={confirmRemoveSlot}
             onAddSlot={handleAddSlotClick}
             deletingSlot={deletingSlot}

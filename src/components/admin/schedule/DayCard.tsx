@@ -28,7 +28,6 @@ interface DayCardProps {
   stats?: DayStats;
   getUsersWorkingOnSlot: (date: string, slotTime: string) => UserSchedule[];
   workComments: Record<string, Record<string, unknown>>;
-  savingComment: string | null;
   allLocations: string[];
   allOrganizations: OrganizationData[];
   userOrgStats: Record<string, Array<{organization_name: string, avg_per_shift: number}>>;
@@ -39,7 +38,6 @@ interface DayCardProps {
   promoterSlots?: { total: number; used: number };
   onToggleDay: (date: string) => void;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
-  onCommentBlur: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
   deletingSlot: DeleteSlotState | null;
@@ -51,7 +49,6 @@ export default function DayCard({
   stats,
   getUsersWorkingOnSlot,
   workComments,
-  savingComment,
   allLocations,
   allOrganizations,
   userOrgStats,
@@ -62,7 +59,6 @@ export default function DayCard({
   promoterSlots,
   onToggleDay,
   onCommentChange,
-  onCommentBlur,
   onRemoveSlot,
   onAddSlot,
   deletingSlot,
@@ -83,10 +79,10 @@ export default function DayCard({
   }, [day.date]);
 
   useEffect(() => {
-    if (isExpanded && activeTab === 'training') {
+    if (activeTab === 'training') {
       loadTrainingEntries();
     }
-  }, [isExpanded, activeTab, loadTrainingEntries]);
+  }, [activeTab, loadTrainingEntries]);
 
   const handleDeleteEntry = async (id: string) => {
     await fetch(TRAINING_API, {
@@ -108,8 +104,7 @@ export default function DayCard({
     }`}>
       {/* Header */}
       <div
-        className="flex items-center justify-between px-3 py-2.5 cursor-pointer select-none group"
-        onClick={() => onToggleDay(day.date)}
+        className="flex items-center justify-between px-3 py-2.5 select-none"
       >
         <div className="flex items-center gap-2 min-w-0 flex-1">
           {/* Day badge */}
@@ -163,18 +158,10 @@ export default function DayCard({
           )}
         </div>
 
-        <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all flex-shrink-0 ml-1 ${
-          isExpanded ? 'bg-slate-700/60' : 'bg-transparent group-hover:bg-slate-700/40'
-        }`}>
-          <Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={14} className="text-slate-400" />
-        </div>
       </div>
 
-
-
-      {/* Expanded content */}
-      {isExpanded && (
-        <div className="px-3 pb-3 pt-2 md:px-4 md:pb-4">
+      {/* Content always visible */}
+      <div className="px-3 pb-3 pt-2 md:px-4 md:pb-4">
           {/* Tabs */}
           <div className="flex gap-1 mb-3 bg-slate-950/50 rounded-xl p-1">
             <button
@@ -220,14 +207,12 @@ export default function DayCard({
                     workers={workers}
                     dayDate={day.date}
                     workComments={workComments}
-                    savingComment={savingComment}
                     allLocations={allLocations}
                     allOrganizations={allOrganizations}
                     userOrgStats={userOrgStats}
                     recommendedLocations={recommendedLocations}
                     loadingProgress={loadingProgress}
                     onCommentChange={onCommentChange}
-                    onCommentBlur={onCommentBlur}
                     onRemoveSlot={onRemoveSlot}
                     onAddSlot={onAddSlot}
                     deletingSlot={deletingSlot}
@@ -316,7 +301,6 @@ export default function DayCard({
             </div>
           )}
         </div>
-      )}
     </div>
   );
 }

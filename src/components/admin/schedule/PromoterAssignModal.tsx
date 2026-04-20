@@ -266,19 +266,14 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex flex-col justify-center items-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-md bg-gradient-to-br from-slate-900 to-slate-800 sm:rounded-2xl rounded-t-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
+        className="w-full max-w-md bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
         style={{ maxHeight: 'min(92dvh, 680px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Ручка */}
-        <div className="flex justify-center pt-2.5 pb-1 sm:hidden flex-shrink-0">
-          <div className="w-10 h-1 rounded-full bg-slate-600" />
-        </div>
-
         {/* Шапка */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-700/50 flex-shrink-0">
           <div>

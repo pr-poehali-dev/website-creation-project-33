@@ -5,6 +5,7 @@ import PlanOrgModal from '../tasks/PlanOrgModal';
 import PromoterAssignModal from './PromoterAssignModal';
 
 const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8';
+const WORK_COMMENTS_API = 'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2';
 
 const HOURS      = Array.from({ length: 14 }, (_, i) => i + 8); // 8–21
 const HOUR_H     = 80;   // px на 1 час

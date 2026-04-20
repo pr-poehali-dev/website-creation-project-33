@@ -160,14 +160,6 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
               <div>
                 <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Старший на точке</label>
                 <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setSeniorId('')}
-                    className={`h-10 px-3 rounded-xl text-sm font-medium transition-all ring-1 ${
-                      seniorId === '' ? 'bg-slate-600 text-slate-100 ring-slate-500' : 'bg-slate-800/40 text-slate-500 ring-slate-700/40 active:bg-slate-700'
-                    }`}
-                  >
-                    — не указан —
-                  </button>
                   {seniors.map(s => (
                     <button
                       key={s.id}

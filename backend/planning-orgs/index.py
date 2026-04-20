@@ -11,7 +11,7 @@ DELETE ?id=N — удалить план
 import json
 import os
 import psycopg2
-from datetime import datetime, date as date_type
+from datetime import datetime, date as date_type, timedelta
 
 
 def get_conn():
@@ -117,7 +117,7 @@ def handler(event: dict, context) -> dict:
 
             # Найдём понедельник недели для этой даты
             dt = datetime.strptime(target_date, '%Y-%m-%d')
-            monday = dt - __import__('datetime').timedelta(days=dt.weekday())
+            monday = dt - timedelta(days=dt.weekday())
             week_start = monday.strftime('%Y-%m-%d')
 
             # Промоутеры с выбранными слотами на эту дату

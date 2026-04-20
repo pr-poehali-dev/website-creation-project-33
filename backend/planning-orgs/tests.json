@@ -19,7 +19,7 @@
     {
       "name": "GET promoters — список промоутеров на дату",
       "method": "GET",
-      "path": "/?action=promoters&date=2026-04-21",
+      "path": "/?action=promoters&date=2099-01-01",
       "expectedStatus": 200,
       "expectedBody": {"promoters": []},
       "bodyMatcher": "partial"

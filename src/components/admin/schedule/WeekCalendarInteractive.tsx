@@ -83,6 +83,19 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                     : 'bg-slate-800/60 ring-1 ring-slate-700/30 hover:ring-slate-500/50 hover:bg-slate-800/80'
                 }`}
               >
+                {/* Бейдж промоутеров — правый верхний угол */}
+                {totalSlots !== null && totalSlots > 0 && (
+                  <div className={`absolute top-1.5 right-1.5 px-1 py-0.5 rounded text-[7px] md:text-[8px] font-bold leading-none ${
+                    allFilled
+                      ? 'bg-emerald-500/25 text-emerald-400'
+                      : usedSlots > 0
+                        ? 'bg-amber-500/25 text-amber-400'
+                        : 'bg-slate-700/60 text-slate-500'
+                  }`}>
+                    {usedSlots}/{totalSlots}
+                  </div>
+                )}
+
                 {/* День недели + число */}
                 <div className="py-2.5 md:py-3 text-center w-full px-1">
                   <span className={`text-[9px] md:text-[10px] font-semibold uppercase tracking-widest block mb-1 ${
@@ -99,19 +112,6 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                     </span>
                   </span>
                 </div>
-
-                {/* Бейдж промоутеров */}
-                {totalSlots !== null && totalSlots > 0 && (
-                  <div className={`mx-1 mb-1 px-1.5 py-0.5 rounded-md text-[8px] font-bold text-center ${
-                    allFilled
-                      ? 'bg-emerald-500/20 text-emerald-400'
-                      : usedSlots > 0
-                        ? 'bg-amber-500/20 text-amber-400'
-                        : 'bg-slate-700/50 text-slate-500'
-                  }`}>
-                    {usedSlots}/{totalSlots}
-                  </div>
-                )}
 
                 {/* Планы */}
                 {dayPlans.length > 0 && (

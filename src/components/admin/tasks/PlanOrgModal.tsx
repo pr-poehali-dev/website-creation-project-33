@@ -16,12 +16,19 @@ export interface PlanEntry {
   color: string;
   contact_limit: number | null;
   notes: string | null;
+  time_from: string | null;
+  time_to: string | null;
 }
 
 const PRESET_COLORS = [
   '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
   '#8b5cf6', '#ec4899', '#06b6d4', '#f97316',
   '#6366f1', '#14b8a6',
+];
+
+const TIME_PRESETS = [
+  { label: '12:00 – 16:00', from: '12:00', to: '16:00' },
+  { label: '16:00 – 20:00', from: '16:00', to: '20:00' },
 ];
 
 interface PlanOrgModalProps {
@@ -41,8 +48,22 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
   const [color, setColor]               = useState(editPlan?.color ?? '#3b82f6');
   const [contactLimit, setContactLimit] = useState<string>(editPlan?.contact_limit != null ? String(editPlan.contact_limit) : '');
   const [notes, setNotes]               = useState(editPlan?.notes ?? '');
+  const [timeFrom, setTimeFrom]         = useState(editPlan?.time_from ?? '');
+  const [timeTo, setTimeTo]             = useState(editPlan?.time_to ?? '');
   const [saving, setSaving]             = useState(false);
   const [orgSearch, setOrgSearch]       = useState('');
+
+  // Синхронизация при смене editPlan (например при редактировании другой записи)
+  useEffect(() => {
+    setOrgId(editPlan?.organization_id ?? '');
+    setSeniorId(editPlan?.senior_id ?? '');
+    setColor(editPlan?.color ?? '#3b82f6');
+    setContactLimit(editPlan?.contact_limit != null ? String(editPlan.contact_limit) : '');
+    setNotes(editPlan?.notes ?? '');
+    setTimeFrom(editPlan?.time_from ?? '');
+    setTimeTo(editPlan?.time_to ?? '');
+    setOrgSearch('');
+  }, [editPlan?.id]);
 
   useEffect(() => {
     fetch(`${PLANNING_API}?action=meta`)
@@ -52,6 +73,20 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
   }, []);
 
   const filteredOrgs = orgs.filter(o => o.name.toLowerCase().includes(orgSearch.toLowerCase()));
+
+  // Выбранный пресет времени
+  const activePreset = TIME_PRESETS.find(p => p.from === timeFrom && p.to === timeTo) ?? null;
+
+  const handlePreset = (p: typeof TIME_PRESETS[0]) => {
+    if (activePreset?.from === p.from) {
+      // повторный клик — снять
+      setTimeFrom('');
+      setTimeTo('');
+    } else {
+      setTimeFrom(p.from);
+      setTimeTo(p.to);
+    }
+  };
 
   const handleSave = async () => {
     if (!orgId) return;
@@ -64,12 +99,14 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
         color,
         contact_limit: contactLimit ? Number(contactLimit) : null,
         notes: notes.trim() || null,
+        time_from: timeFrom || null,
+        time_to: timeTo || null,
       };
       const res = editPlan
         ? await fetch(PLANNING_API, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editPlan.id, ...payload }) })
         : await fetch(PLANNING_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const d = await res.json();
-      onSave(d.plan);
+      if (d.plan) onSave(d.plan);
     } finally {
       setSaving(false);
     }
@@ -82,27 +119,19 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 bg-black/60 backdrop-blur-sm"
       onClick={onClose}
     >
-      {/* Bottom sheet на мобильных, центрированный модал на десктопе */}
       <div
-        className="
-          w-full sm:max-w-md
-          bg-gradient-to-br from-slate-900 to-slate-800
-          sm:rounded-2xl rounded-t-2xl
-          shadow-2xl ring-1 ring-slate-700/60
-          flex flex-col
-          max-h-[92dvh] sm:max-h-[90vh]
-        "
+        className="w-full sm:max-w-md bg-gradient-to-br from-slate-900 to-slate-800 sm:rounded-2xl rounded-t-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col max-h-[92dvh] sm:max-h-[90vh]"
         onClick={e => e.stopPropagation()}
       >
-        {/* Ручка (только мобайл) */}
+        {/* Ручка мобайл */}
         <div className="flex justify-center pt-2.5 pb-1 sm:hidden">
           <div className="w-10 h-1 rounded-full bg-slate-600" />
         </div>
 
-        {/* Шапка — фиксированная */}
+        {/* Шапка */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-700/50 flex-shrink-0">
           <div>
             <h3 className="text-sm font-bold text-slate-100">
@@ -110,15 +139,12 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
             </h3>
             <p className="text-xs text-slate-500 mt-0.5 capitalize">{fmtDate(date)}</p>
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-700/60 transition-all"
-          >
+          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-700/60 transition-all">
             <Icon name="X" size={16} />
           </button>
         </div>
 
-        {/* Скроллируемый контент */}
+        {/* Контент */}
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-5">
           {metaLoading ? (
             <div className="flex items-center justify-center py-10">
@@ -136,23 +162,57 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
                   className="w-full h-10 px-3 mb-2 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
                 />
                 <div className="max-h-44 overflow-y-auto rounded-xl bg-slate-800/40 ring-1 ring-slate-700/40 divide-y divide-slate-700/30">
-                  {filteredOrgs.length === 0 && (
-                    <p className="text-xs text-slate-600 text-center py-4">Не найдено</p>
-                  )}
+                  {filteredOrgs.length === 0 && <p className="text-xs text-slate-600 text-center py-4">Не найдено</p>}
                   {filteredOrgs.map(o => (
                     <button
                       key={o.id}
                       onClick={() => setOrgId(o.id)}
                       className={`w-full text-left px-4 py-3 text-sm transition-all ${
-                        orgId === o.id
-                          ? 'bg-cyan-500/20 text-cyan-300 font-semibold'
-                          : 'text-slate-300 hover:bg-slate-700/50 active:bg-slate-700'
+                        orgId === o.id ? 'bg-cyan-500/20 text-cyan-300 font-semibold' : 'text-slate-300 hover:bg-slate-700/50 active:bg-slate-700'
                       }`}
                     >
                       {orgId === o.id && <Icon name="Check" size={11} className="inline mr-2 text-cyan-400" />}
                       {o.name}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Время смены */}
+              <div>
+                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Время смены</label>
+                {/* Пресеты */}
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  {TIME_PRESETS.map(p => (
+                    <button
+                      key={p.from}
+                      onClick={() => handlePreset(p)}
+                      className={`h-10 px-3 rounded-xl text-sm font-medium transition-all ring-1 flex items-center justify-center gap-1.5 ${
+                        activePreset?.from === p.from
+                          ? 'bg-cyan-500/20 text-cyan-300 ring-cyan-500/40'
+                          : 'bg-slate-800/40 text-slate-400 ring-slate-700/40 active:bg-slate-700'
+                      }`}
+                    >
+                      <Icon name="Clock" size={12} className={activePreset?.from === p.from ? 'text-cyan-400' : 'text-slate-600'} />
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+                {/* Ручной ввод */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="time"
+                    value={timeFrom}
+                    onChange={e => setTimeFrom(e.target.value)}
+                    className="flex-1 h-10 px-3 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                  />
+                  <span className="text-slate-600 text-sm">—</span>
+                  <input
+                    type="time"
+                    value={timeTo}
+                    onChange={e => setTimeTo(e.target.value)}
+                    className="flex-1 h-10 px-3 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                  />
                 </div>
               </div>
 
@@ -201,17 +261,8 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
                     />
                   ))}
                   <div className="relative w-8 h-8">
-                    <input
-                      type="color"
-                      value={color}
-                      onChange={e => setColor(e.target.value)}
-                      className="absolute inset-0 w-full h-full rounded-xl cursor-pointer opacity-0"
-                      title="Свой цвет"
-                    />
-                    <div
-                      className="w-8 h-8 rounded-xl ring-1 ring-white/20 flex items-center justify-center"
-                      style={{ backgroundColor: color }}
-                    >
+                    <input type="color" value={color} onChange={e => setColor(e.target.value)} className="absolute inset-0 w-full h-full rounded-xl cursor-pointer opacity-0" />
+                    <div className="w-8 h-8 rounded-xl ring-1 ring-white/20 flex items-center justify-center" style={{ backgroundColor: color }}>
                       <Icon name="Pipette" size={12} className="text-white/70" />
                     </div>
                   </div>
@@ -233,7 +284,7 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
           )}
         </div>
 
-        {/* Кнопки — фиксированные внизу */}
+        {/* Кнопки */}
         <div className="flex gap-3 px-5 py-4 border-t border-slate-700/50 flex-shrink-0 bg-slate-900/80">
           <button
             onClick={onClose}

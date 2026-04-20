@@ -5,8 +5,15 @@ import PlanOrgModal from '../tasks/PlanOrgModal';
 
 const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8';
 
-const HOURS = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00–21:00
-const HOUR_H = 56; // высота одного часа в px
+const HOURS      = Array.from({ length: 14 }, (_, i) => i + 8); // 8–21
+const HOUR_H     = 60;   // px на 1 час
+const START_HOUR = 8;
+
+// "HH:MM" → минуты от начала шкалы
+function toMinutes(t: string): number {
+  const [h, m] = t.split(':').map(Number);
+  return (h - START_HOUR) * 60 + (m || 0);
+}
 
 interface DayDetailModalProps {
   date: string;
@@ -45,7 +52,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
     setEditingPlan(null);
   };
 
-  const CARD_H = HOUR_H - 10;
+  const totalH = HOUR_H * HOURS.length;
 
   return (
     <>
@@ -74,17 +81,13 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
             </button>
           </div>
 
-          {/* Тело: временная шкала */}
+          {/* Временная шкала */}
           <div className="flex-1 overflow-y-auto overscroll-contain">
-            <div className="relative" style={{ height: HOUR_H * HOURS.length }}>
+            <div className="relative" style={{ height: totalH }}>
 
               {/* Линии часов */}
               {HOURS.map((h, i) => (
-                <div
-                  key={h}
-                  className="absolute left-0 right-0 flex items-start"
-                  style={{ top: i * HOUR_H }}
-                >
+                <div key={h} className="absolute left-0 right-0 flex items-start" style={{ top: i * HOUR_H }}>
                   <span className="w-14 flex-shrink-0 text-right pr-3 text-[11px] text-slate-600 leading-none pt-1 select-none">
                     {h}:00
                   </span>
@@ -92,7 +95,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                 </div>
               ))}
 
-              {/* Пусто */}
+              {/* Пустое состояние */}
               {plans.length === 0 && (
                 <div
                   className="absolute left-14 right-3 flex flex-col items-center justify-center text-slate-600"
@@ -103,61 +106,84 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                 </div>
               )}
 
-              {/* Карточки */}
-              {plans.map((plan, idx) => (
-                <div
-                  key={plan.id}
-                  className="absolute left-14 right-3"
-                  style={{ top: idx * (CARD_H + 6) + 4, height: CARD_H }}
-                >
+              {/* Карточки — позиционируем по времени */}
+              {plans.map((plan, idx) => {
+                const hasTime = plan.time_from && plan.time_to;
+                let top: number;
+                let height: number;
+
+                if (hasTime) {
+                  const mFrom = toMinutes(plan.time_from!);
+                  const mTo   = toMinutes(plan.time_to!);
+                  top    = (mFrom / 60) * HOUR_H;
+                  height = Math.max(((mTo - mFrom) / 60) * HOUR_H - 4, 44);
+                } else {
+                  // без времени — стек сверху
+                  top    = idx * 68 + 4;
+                  height = 60;
+                }
+
+                return (
                   <div
-                    className="h-full rounded-xl px-3 py-2 shadow-md ring-1 ring-white/10 flex items-center gap-2"
-                    style={{ backgroundColor: plan.color }}
+                    key={plan.id}
+                    className="absolute left-14 right-3"
+                    style={{ top, height }}
                   >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white font-bold text-sm leading-tight truncate">
-                        {plan.organization_name}
-                      </p>
-                      <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                        {plan.senior_name && (
-                          <span className="text-white/80 text-xs flex items-center gap-1">
-                            <Icon name="User" size={10} className="text-white/60 flex-shrink-0" />
-                            <span className="truncate max-w-[110px]">{plan.senior_name}</span>
-                          </span>
-                        )}
-                        {plan.contact_limit && (
-                          <span className="text-white/80 text-xs flex items-center gap-1">
-                            <Icon name="Users" size={10} className="text-white/60 flex-shrink-0" />
-                            {plan.contact_limit} кон.
-                          </span>
-                        )}
+                    <div
+                      className="h-full rounded-xl px-3 py-2 shadow-md ring-1 ring-white/10 flex items-center gap-2 overflow-hidden"
+                      style={{ backgroundColor: plan.color }}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-bold text-sm leading-tight truncate">
+                          {plan.organization_name}
+                        </p>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          {plan.time_from && plan.time_to && (
+                            <span className="text-white/80 text-xs flex items-center gap-1">
+                              <Icon name="Clock" size={9} className="text-white/60 flex-shrink-0" />
+                              {plan.time_from} – {plan.time_to}
+                            </span>
+                          )}
+                          {plan.senior_name && (
+                            <span className="text-white/80 text-xs flex items-center gap-1">
+                              <Icon name="User" size={9} className="text-white/60 flex-shrink-0" />
+                              <span className="truncate max-w-[90px]">{plan.senior_name}</span>
+                            </span>
+                          )}
+                          {plan.contact_limit && (
+                            <span className="text-white/80 text-xs flex items-center gap-1">
+                              <Icon name="Users" size={9} className="text-white/60 flex-shrink-0" />
+                              {plan.contact_limit} кон.
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => { setEditingPlan(plan); setAddModalOpen(true); }}
+                          className="w-8 h-8 rounded-lg bg-black/20 active:bg-black/40 flex items-center justify-center"
+                        >
+                          <Icon name="Pencil" size={13} className="text-white/90" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(plan.id)}
+                          disabled={deleting === plan.id}
+                          className="w-8 h-8 rounded-lg bg-black/20 active:bg-red-500/60 flex items-center justify-center disabled:opacity-50"
+                        >
+                          {deleting === plan.id
+                            ? <Icon name="Loader2" size={13} className="text-white/80 animate-spin" />
+                            : <Icon name="Trash2" size={13} className="text-white/90" />
+                          }
+                        </button>
                       </div>
                     </div>
-                    <div className="flex gap-1 flex-shrink-0">
-                      <button
-                        onClick={() => { setEditingPlan(plan); setAddModalOpen(true); }}
-                        className="w-8 h-8 rounded-lg bg-black/20 active:bg-black/40 flex items-center justify-center"
-                      >
-                        <Icon name="Pencil" size={13} className="text-white/90" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(plan.id)}
-                        disabled={deleting === plan.id}
-                        className="w-8 h-8 rounded-lg bg-black/20 active:bg-red-500/60 flex items-center justify-center disabled:opacity-50"
-                      >
-                        {deleting === plan.id
-                          ? <Icon name="Loader2" size={13} className="text-white/80 animate-spin" />
-                          : <Icon name="Trash2" size={13} className="text-white/90" />
-                        }
-                      </button>
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          {/* Кнопка + внизу */}
+          {/* Кнопка + */}
           <div className="flex-shrink-0 flex justify-end px-4 py-3 border-t border-slate-700/40">
             <button
               onClick={() => { setEditingPlan(null); setAddModalOpen(true); }}

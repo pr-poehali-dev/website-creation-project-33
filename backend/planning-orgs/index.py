@@ -28,7 +28,8 @@ SCHEMA = 't_p24058207_website_creation_pro'
 SELECT_PLAN = f"""
     SELECT po.id, po.organization_id, o.name as org_name,
            po.date, po.senior_ts_id, ts.name as senior_name,
-           po.color, po.contact_limit, po.notes, po.created_at
+           po.color, po.contact_limit, po.notes, po.created_at,
+           po.time_from, po.time_to
     FROM {SCHEMA}.planned_organizations po
     JOIN {SCHEMA}.organizations o ON o.id = po.organization_id
     LEFT JOIN {SCHEMA}.training_seniors ts ON ts.id = po.senior_ts_id
@@ -47,6 +48,8 @@ def row_to_plan(r):
         'contact_limit': r[7],
         'notes': r[8],
         'created_at': str(r[9]),
+        'time_from': r[10],
+        'time_to': r[11],
     }
 
 
@@ -99,7 +102,7 @@ def handler(event: dict, context) -> dict:
             if date_to:
                 sql += ' AND po.date <= %s'
                 args.append(date_to)
-            sql += ' ORDER BY po.date, po.created_at'
+            sql += ' ORDER BY po.date, COALESCE(po.time_from, \'99:99\'), po.created_at'
 
             cur.execute(sql, args)
             return ok({'plans': [row_to_plan(r) for r in cur.fetchall()]})
@@ -115,13 +118,15 @@ def handler(event: dict, context) -> dict:
             color = body.get('color', '#3b82f6')
             contact_limit = body.get('contact_limit') or None
             notes = body.get('notes') or None
+            time_from = body.get('time_from') or None
+            time_to = body.get('time_to') or None
 
             cur.execute(
                 f"""INSERT INTO {SCHEMA}.planned_organizations
-                    (organization_id, date, senior_ts_id, color, contact_limit, notes)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    (organization_id, date, senior_ts_id, color, contact_limit, notes, time_from, time_to)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING id""",
-                (org_id, date, senior_id, color, contact_limit, notes)
+                (org_id, date, senior_id, color, contact_limit, notes, time_from, time_to)
             )
             new_id = cur.fetchone()[0]
             conn.commit()
@@ -140,10 +145,12 @@ def handler(event: dict, context) -> dict:
             mapping = {
                 'organization_id': 'organization_id',
                 'date': 'date',
-                'senior_id': 'senior_ts_id',  # фронт шлёт senior_id → пишем в senior_ts_id
+                'senior_id': 'senior_ts_id',
                 'color': 'color',
                 'contact_limit': 'contact_limit',
                 'notes': 'notes',
+                'time_from': 'time_from',
+                'time_to': 'time_to',
             }
             for front_key, db_col in mapping.items():
                 if front_key in body:

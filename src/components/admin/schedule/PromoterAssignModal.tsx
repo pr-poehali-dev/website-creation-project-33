@@ -35,6 +35,7 @@ const PLACE_TYPES = ['ТЦ', 'Школа', 'Садик', 'Улица', 'Парк
 
 interface PromoterAssignModalProps {
   plan: PlanEntry;
+  openAddMode?: boolean;
   onSave: (plan: PlanEntry) => void;
   onClose: () => void;
 }
@@ -142,12 +143,12 @@ function PromoterForm({
   );
 }
 
-export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterAssignModalProps) {
+export default function PromoterAssignModal({ plan, openAddMode = false, onSave, onClose }: PromoterAssignModalProps) {
   const [availablePromoters, setAvailablePromoters] = useState<PromoterOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [assigned, setAssigned] = useState<AssignedPromoter[]>(plan.promoters ?? []);
   const [savingId, setSavingId] = useState<number | 'new' | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(openAddMode);
   const [newPromoter, setNewPromoter] = useState<AssignedPromoter | null>(null);
 
   useEffect(() => {

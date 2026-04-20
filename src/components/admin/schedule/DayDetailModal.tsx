@@ -107,6 +107,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
   const [editingPlan, setEditingPlan]             = useState<PlanEntry | null>(null);
   const [deleting, setDeleting]                   = useState<number | null>(null);
   const [promoterModal, setPromoterModal]         = useState<PlanEntry | null>(null);
+  const [promoterModalAdd, setPromoterModalAdd]   = useState(false); // true = сразу открыть выбор
 
   const handleDelete = async (id: number) => {
     setDeleting(id);
@@ -127,6 +128,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
   const handlePromoterSave = (plan: PlanEntry) => {
     onSave(plan);
     setPromoterModal(null);
+    setPromoterModalAdd(false);
   };
 
   const layout  = computeLayout(plans);
@@ -275,7 +277,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                             {(plan.promoters ?? []).map(p => (
                               <button
                                 key={p.pp_id}
-                                onClick={e => { e.stopPropagation(); setPromoterModal(plan); }}
+                                onClick={e => { e.stopPropagation(); setPromoterModalAdd(false); setPromoterModal(plan); }}
                                 className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-black/25 hover:bg-black/35 transition-all text-left"
                               >
                                 <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
@@ -298,7 +300,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                               </button>
                             ))}
                             <button
-                              onClick={e => { e.stopPropagation(); setPromoterModal(plan); }}
+                              onClick={e => { e.stopPropagation(); setPromoterModalAdd(true); setPromoterModal(plan); }}
                               className="w-full flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-black/20 active:bg-black/30 border border-dashed border-white/20 transition-all"
                             >
                               <Icon name="UserPlus" size={10} className="text-white/60" />
@@ -339,8 +341,9 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
       {promoterModal && (
         <PromoterAssignModal
           plan={promoterModal}
+          openAddMode={promoterModalAdd}
           onSave={handlePromoterSave}
-          onClose={() => setPromoterModal(null)}
+          onClose={() => { setPromoterModal(null); setPromoterModalAdd(false); }}
         />
       )}
     </>

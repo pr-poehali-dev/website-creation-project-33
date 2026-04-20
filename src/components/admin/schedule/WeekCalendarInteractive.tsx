@@ -122,6 +122,7 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                         : plan.organization_name.split(' ')[0];
 
                       const hasNoPromoter = (plan.promoters ?? []).length === 0;
+                      const isViktor = plan.senior_name?.toLowerCase().includes('кобыляцкий');
 
                       return (
                         <div
@@ -131,6 +132,7 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                           title={`${plan.organization_name}${plan.senior_name ? ' · ' + plan.senior_name : ''}${plan.contact_limit ? ' · ' + plan.contact_limit + ' кон.' : ''}`}
                         >
                           <span className="flex-1 truncate leading-tight">{shortName}</span>
+                          {isViktor && <span className="flex-shrink-0 text-[9px] leading-none">👋</span>}
                           {hasNoPromoter && (
                             <span className="flex-shrink-0 w-3.5 h-3.5 rounded-sm bg-red-500 flex items-center justify-center text-white font-black text-[9px] leading-none ring-1 ring-red-300/50">!</span>
                           )}

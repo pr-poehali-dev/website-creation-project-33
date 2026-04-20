@@ -166,7 +166,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
 
               {/* Линии часов */}
               {HOURS.map((h, i) => (
-                <div key={h} className="absolute left-0 right-0 flex items-start" style={{ top: i * HOUR_H }}>
+                <div key={h} className="absolute left-0 right-0 flex items-start pointer-events-none" style={{ top: i * HOUR_H }}>
                   <span
                     className="flex-shrink-0 text-right pr-3 text-[11px] text-slate-600 leading-none pt-1 select-none"
                     style={{ width: TIME_LABEL_W }}
@@ -237,7 +237,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                         className="h-full rounded-xl px-2.5 py-2 shadow-md ring-1 ring-white/10 flex items-start gap-1.5"
                         style={{ backgroundColor: plan.color }}
                       >
-                        <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
+                        <div className="flex-1 min-w-0 flex flex-col h-full">
                           {/* Название */}
                           <div className="flex items-start gap-1">
                             <p className="text-white font-bold text-[13px] leading-tight line-clamp-2 flex-1 min-w-0">

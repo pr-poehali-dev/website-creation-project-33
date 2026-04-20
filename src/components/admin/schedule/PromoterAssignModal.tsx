@@ -270,7 +270,8 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-md bg-gradient-to-br from-slate-900 to-slate-800 sm:rounded-2xl rounded-t-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col max-h-[92dvh]"
+        className="w-full sm:max-w-md bg-gradient-to-br from-slate-900 to-slate-800 sm:rounded-2xl rounded-t-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
+        style={{ maxHeight: 'min(92dvh, 680px)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Ручка */}
@@ -289,7 +290,7 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-3">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-3 pb-[env(safe-area-inset-bottom,16px)]">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <Icon name="Loader2" size={20} className="animate-spin text-cyan-400" />
@@ -345,14 +346,14 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
                         <div className="flex gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
                           {p.slots.map(s => (
                             s.used ? (
-                              <span key={s.key} className="text-[10px] text-slate-600 bg-slate-800 px-1.5 py-0.5 rounded line-through">
+                              <span key={s.key} className="text-[10px] text-slate-600 bg-slate-800 px-2 py-1 rounded-lg line-through">
                                 {s.label}
                               </span>
                             ) : (
                               <button
                                 key={s.key}
                                 onClick={() => handlePickPromoter(p, s.key)}
-                                className="text-[10px] text-cyan-300 bg-cyan-500/15 hover:bg-cyan-500/30 px-1.5 py-0.5 rounded transition-all"
+                                className="text-[10px] text-cyan-300 bg-cyan-500/15 active:bg-cyan-500/40 px-2 py-1 rounded-lg transition-all"
                               >
                                 {s.label}
                               </button>

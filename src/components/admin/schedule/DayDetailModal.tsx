@@ -192,7 +192,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
           </div>
 
           {/* Мобильный список (< sm) */}
-          <div className="flex-1 overflow-y-auto overscroll-contain sm:hidden">
+          <div className="flex-1 overflow-y-auto overscroll-contain sm:hidden pb-[env(safe-area-inset-bottom,16px)]">
             {plans.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-slate-600">
                 <Icon name="CalendarDays" size={28} className="mb-2 opacity-30" />
@@ -455,7 +455,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
           </div>
 
           {/* Кнопка + */}
-          <div className="flex-shrink-0 flex justify-end px-4 py-3 border-t border-slate-700/40">
+          <div className="flex-shrink-0 flex justify-end px-4 py-3 border-t border-slate-700/40 pb-[max(12px,env(safe-area-inset-bottom))]">
             <button
               onClick={() => { setEditingPlan(null); setAddModalOpen(true); }}
               className="w-12 h-12 rounded-full bg-cyan-500 hover:bg-cyan-400 active:scale-95 shadow-lg shadow-cyan-500/30 flex items-center justify-center transition-all"

@@ -1,5 +1,5 @@
 import Icon from '@/components/ui/icon';
-import { UserSchedule, DeleteSlotState, OrganizationData } from './types';
+import { UserSchedule, OrganizationData } from './types';
 import { isMaximKorelsky } from './utils';
 import WorkerCard from './WorkerCard';
 
@@ -15,9 +15,7 @@ interface TimeSlotCardProps {
   loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
-  onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
-  deletingSlot: DeleteSlotState | null;
 }
 
 export default function TimeSlotCard({
@@ -32,9 +30,7 @@ export default function TimeSlotCard({
   loadingProgress,
   onCommentChange,
   onSaveComment,
-  onRemoveSlot,
   onAddSlot,
-  deletingSlot
 }: TimeSlotCardProps) {
   const hasMaxim = workers.some(w => isMaximKorelsky(w.first_name, w.last_name));
 
@@ -92,8 +88,6 @@ export default function TimeSlotCard({
                 loadingProgress={loadingProgress}
                 onCommentChange={onCommentChange}
                 onSaveComment={onSaveComment}
-                onRemoveSlot={onRemoveSlot}
-                deletingSlot={deletingSlot}
               />
             );
           })

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
-import { UserSchedule, DeleteSlotState, OrganizationData } from './types';
+import { UserSchedule, OrganizationData } from './types';
 import { isMaximKorelsky, calculateAvgBeforeDate } from './utils';
 import OrgStatsModal from './OrgStatsModal';
 import OrgSelectionModal from './OrgSelectionModal';
@@ -19,8 +19,6 @@ interface WorkerCardProps {
   loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
-  onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
-  deletingSlot: DeleteSlotState | null;
 }
 
 export default function WorkerCard({
@@ -36,8 +34,6 @@ export default function WorkerCard({
   loadingProgress,
   onCommentChange,
   onSaveComment,
-  onRemoveSlot,
-  deletingSlot
 }: WorkerCardProps) {
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
   const [showOrgSelectionModal, setShowOrgSelectionModal] = useState(false);
@@ -94,8 +90,6 @@ export default function WorkerCard({
   const kmsDifference = expectedKMS - bestRecommendedKMS;
   const kmsDifferencePercent = bestRecommendedKMS > 0 ? Math.round((kmsDifference / bestRecommendedKMS) * 100) : 0;
 
-  const isDeleting = deletingSlot?.userId === worker.user_id && deletingSlot?.date === dayDate && deletingSlot?.slot === slotTime;
-
   const aboveAvg = actualContacts !== null && avgContacts !== null && actualContacts >= Math.round(avgContacts);
 
   return (
@@ -141,29 +135,7 @@ export default function WorkerCard({
               + Орг.
             </button>
           )}
-          {currentOrganization && (
-            <button
-              type="button"
-              onClick={() => { onCommentChange(workerName, dayDate, 'organization', '', slotLabel); onSaveComment(workerName, dayDate, 'organization', '', slotLabel); }}
-              className="w-4 h-4 flex items-center justify-center rounded-md hover:bg-red-500/15 transition-colors flex-shrink-0"
-              title="Очистить организацию"
-            >
-              <Icon name="X" size={9} className="text-red-400/60" />
-            </button>
-          )}
         </div>
-
-        <button
-          onClick={() => onRemoveSlot(worker.user_id, workerName, dayDate, slotTime, slotLabel)}
-          disabled={isDeleting}
-          className="opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center rounded-md text-slate-600 hover:text-red-400 hover:bg-red-400/10 flex-shrink-0"
-          title="Удалить смену"
-        >
-          {isDeleting
-            ? <Icon name="Loader2" size={12} className="animate-spin text-red-400" />
-            : <Icon name="X" size={12} />
-          }
-        </button>
       </div>
 
       {showOrgStatsModal && (

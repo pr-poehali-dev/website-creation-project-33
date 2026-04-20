@@ -157,9 +157,7 @@ export default function TeamScheduleView({
             onToggleDay={toggleDay}
             onCommentChange={updateComment}
             onSaveComment={saveComment}
-            onRemoveSlot={confirmRemoveSlot}
             onAddSlot={handleAddSlotClick}
-            deletingSlot={deletingSlot}
           />
         );
       })}

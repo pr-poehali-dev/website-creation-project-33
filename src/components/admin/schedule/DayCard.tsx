@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Icon from '@/components/ui/icon';
-import { DaySchedule, UserSchedule, DeleteSlotState, DayStats, OrganizationData } from './types';
+import { DaySchedule, UserSchedule, DayStats, OrganizationData } from './types';
 import TimeSlotCard from './TimeSlotCard';
 
 const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
@@ -39,9 +39,7 @@ interface DayCardProps {
   onToggleDay: (date: string) => void;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
-  onRemoveSlot: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
-  deletingSlot: DeleteSlotState | null;
 }
 
 export default function DayCard({
@@ -61,9 +59,7 @@ export default function DayCard({
   onToggleDay,
   onCommentChange,
   onSaveComment,
-  onRemoveSlot,
   onAddSlot,
-  deletingSlot,
 }: DayCardProps) {
   const [activeTab, setActiveTab] = useState<'department' | 'training'>('department');
   const [trainingEntries, setTrainingEntries] = useState<TrainingEntry[]>([]);
@@ -216,9 +212,7 @@ export default function DayCard({
                     loadingProgress={loadingProgress}
                     onCommentChange={onCommentChange}
                     onSaveComment={onSaveComment}
-                    onRemoveSlot={onRemoveSlot}
                     onAddSlot={onAddSlot}
-                    deletingSlot={deletingSlot}
                   />
                 );
               })}

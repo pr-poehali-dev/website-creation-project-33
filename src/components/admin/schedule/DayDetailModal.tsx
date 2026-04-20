@@ -129,8 +129,34 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
   const handleDelete = async (id: number) => {
     setDeleting(id);
     try {
+      const plan = plans.find(p => p.id === id);
       await fetch(`${PLANNING_API}?id=${id}`, { method: 'DELETE' });
       onDelete(id);
+      // Очищаем организацию в work_location_comments для всех промоутеров плана
+      if (plan && (plan.promoters ?? []).length > 0) {
+        const date = new Date(plan.date);
+        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+        await Promise.all((plan.promoters ?? []).map(p => {
+          let shiftTime: string | null = null;
+          if (p.time_slot === 'slot1') shiftTime = isWeekend ? '11:00-15:00' : '12:00-16:00';
+          else if (p.time_slot === 'slot2') shiftTime = isWeekend ? '15:00-19:00' : '16:00-20:00';
+          else if (plan.time_from && plan.time_to) shiftTime = `${plan.time_from}-${plan.time_to}`;
+          return fetch(WORK_COMMENTS_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_name: p.promoter_name,
+              work_date: plan.date,
+              shift_time: shiftTime,
+              organization: '',
+              location_type: '',
+              location_details: '',
+              flyers_comment: '',
+              location_comment: '',
+            }),
+          });
+        }));
+      }
     } finally {
       setDeleting(null);
     }

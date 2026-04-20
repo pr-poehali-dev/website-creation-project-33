@@ -328,12 +328,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                                     </p>
                                   )}
                                 </div>
-                                {p.leaflets && (
-                                  <span className="text-white/60 text-[10px] flex-shrink-0 flex items-center gap-0.5">
-                                    <Icon name="FileText" size={8} className="text-amber-300/70" />
-                                    {p.leaflets}
-                                  </span>
-                                )}
+
                               </button>
                             ))}
                             <button

@@ -357,8 +357,8 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
                 </div>
               )}
 
-              {/* Кнопка добавить ещё — только когда форма закрыта */}
-              {!showAddForm && hasAvailableToAdd && (
+              {/* Кнопка добавить ещё — только в режиме добавления */}
+              {!showAddForm && hasAvailableToAdd && openAddMode && (
                 <button
                   onClick={handleShowAdd}
                   className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-slate-800/40 hover:bg-slate-700/50 ring-1 ring-dashed ring-slate-600/50 text-slate-400 hover:text-slate-300 text-sm transition-all"
@@ -366,10 +366,6 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
                   <Icon name="UserPlus" size={14} />
                   Добавить промоутера
                 </button>
-              )}
-
-              {!showAddForm && !hasAvailableToAdd && assigned.length > 0 && availablePromoters.length > 0 && (
-                <p className="text-center text-xs text-slate-600">Все доступные промоутеры назначены</p>
               )}
             </>
           )}

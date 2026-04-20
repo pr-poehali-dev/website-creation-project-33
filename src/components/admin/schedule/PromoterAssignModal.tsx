@@ -285,24 +285,27 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
             </div>
           ) : (
             <>
-              {/* Список назначенных */}
-              {assigned.length === 0 && !showAddForm && (
-                <div className="text-center py-6 text-slate-500 text-sm">
-                  <Icon name="UserX" size={24} className="mx-auto mb-2 opacity-40" />
-                  Нет назначенных промоутеров
-                </div>
+              {/* Список назначенных — только в режиме редактирования */}
+              {!openAddMode && (
+                <>
+                  {assigned.length === 0 && !showAddForm && (
+                    <div className="text-center py-6 text-slate-500 text-sm">
+                      <Icon name="UserX" size={24} className="mx-auto mb-2 opacity-40" />
+                      Нет назначенных промоутеров
+                    </div>
+                  )}
+                  {assigned.map(a => (
+                    <PromoterForm
+                      key={a.pp_id}
+                      assigned={a}
+                      availablePromoters={availablePromoters}
+                      onSave={data => handleUpdatePromoter(a.pp_id, data)}
+                      onRemove={() => handleRemovePromoter(a.pp_id)}
+                      isSaving={savingId === a.pp_id}
+                    />
+                  ))}
+                </>
               )}
-
-              {assigned.map(a => (
-                <PromoterForm
-                  key={a.pp_id}
-                  assigned={a}
-                  availablePromoters={availablePromoters}
-                  onSave={data => handleUpdatePromoter(a.pp_id, data)}
-                  onRemove={() => handleRemovePromoter(a.pp_id)}
-                  isSaving={savingId === a.pp_id}
-                />
-              ))}
 
               {/* Выбор промоутера из списка */}
               {showAddForm && !newPromoter && (

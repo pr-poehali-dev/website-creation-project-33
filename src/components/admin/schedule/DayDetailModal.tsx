@@ -270,40 +270,42 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
                             )}
                           </div>
 
-                          {/* Промоутер — кнопка + данные */}
-                          <div className="mt-2">
-                            {plan.promoter_name ? (
+                          {/* Промоутеры на точке */}
+                          <div className="mt-2 space-y-1">
+                            {(plan.promoters ?? []).map(p => (
                               <button
+                                key={p.pp_id}
                                 onClick={e => { e.stopPropagation(); setPromoterModal(plan); }}
                                 className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-black/25 hover:bg-black/35 transition-all text-left"
                               >
                                 <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
-                                  {plan.promoter_name.charAt(0)}
+                                  {p.promoter_name.charAt(0)}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-white/90 text-[11px] font-semibold truncate leading-tight">{plan.promoter_name}</p>
-                                  {(plan.promoter_org_name || plan.promoter_place_type) && (
+                                  <p className="text-white/90 text-[11px] font-semibold truncate leading-tight">{p.promoter_name}</p>
+                                  {(p.org_name || p.place_type) && (
                                     <p className="text-white/60 text-[10px] truncate leading-tight">
-                                      {plan.promoter_org_name}{plan.promoter_place_type ? ` · ${plan.promoter_place_type}` : ''}
+                                      {p.org_name}{p.place_type ? ` · ${p.place_type}` : ''}
                                     </p>
                                   )}
                                 </div>
-                                {plan.promoter_leaflets && (
+                                {p.leaflets && (
                                   <span className="text-white/60 text-[10px] flex-shrink-0 flex items-center gap-0.5">
                                     <Icon name="FileText" size={8} className="text-amber-300/70" />
-                                    {plan.promoter_leaflets}
+                                    {p.leaflets}
                                   </span>
                                 )}
                               </button>
-                            ) : (
-                              <button
-                                onClick={e => { e.stopPropagation(); setPromoterModal(plan); }}
-                                className="w-full flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-black/20 active:bg-black/30 border border-dashed border-white/20 transition-all"
-                              >
-                                <Icon name="UserPlus" size={10} className="text-white/60" />
-                                <span className="text-white/60 text-[10px]">Назначить промоутера</span>
-                              </button>
-                            )}
+                            ))}
+                            <button
+                              onClick={e => { e.stopPropagation(); setPromoterModal(plan); }}
+                              className="w-full flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-black/20 active:bg-black/30 border border-dashed border-white/20 transition-all"
+                            >
+                              <Icon name="UserPlus" size={10} className="text-white/60" />
+                              <span className="text-white/60 text-[10px]">
+                                {(plan.promoters ?? []).length > 0 ? 'Ещё промоутера' : 'Назначить промоутера'}
+                              </span>
+                            </button>
                           </div>
                         </div>
                       </div>

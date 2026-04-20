@@ -5,18 +5,12 @@ import { PlanEntry } from '../tasks/PlanOrgModal';
 const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8';
 const WORK_COMMENTS_API = 'https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2';
 
-// slot1 → "12:00-16:00", slot2 → "16:00-20:00"
 function planTimeToSlotLabel(timeFrom: string | null, timeTo: string | null): string | null {
   if (!timeFrom || !timeTo) return null;
   return `${timeFrom}-${timeTo}`;
 }
 
-interface PromoterSlot {
-  key: string;
-  label: string;
-  from: string;
-  to: string;
-}
+interface PromoterSlot { key: string; label: string; from: string; to: string; }
 
 interface PromoterOption {
   id: number;
@@ -27,6 +21,16 @@ interface PromoterOption {
   slots: PromoterSlot[];
 }
 
+interface AssignedPromoter {
+  pp_id: number;
+  promoter_id: number;
+  promoter_name: string;
+  org_name: string | null;
+  place_type: string | null;
+  address: string | null;
+  leaflets: string | null;
+}
+
 const PLACE_TYPES = ['ТЦ', 'Школа', 'Садик', 'Улица', 'Парк', 'Другое'];
 
 interface PromoterAssignModalProps {
@@ -35,72 +39,216 @@ interface PromoterAssignModalProps {
   onClose: () => void;
 }
 
-export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterAssignModalProps) {
-  const [promoters, setPromoters] = useState<PromoterOption[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+// Форма одного промоутера
+function PromoterForm({
+  assigned,
+  availablePromoters,
+  onSave,
+  onRemove,
+  isSaving,
+  isNew,
+}: {
+  assigned: AssignedPromoter;
+  availablePromoters: PromoterOption[];
+  onSave: (data: Partial<AssignedPromoter>) => void;
+  onRemove: () => void;
+  isSaving: boolean;
+  isNew?: boolean;
+}) {
+  const [promoterId, setPromoterId] = useState(assigned.promoter_id);
+  const [orgName, setOrgName] = useState(assigned.org_name ?? '');
+  const [placeType, setPlaceType] = useState(assigned.place_type ?? '');
+  const [address, setAddress] = useState(assigned.address ?? '');
+  const [leaflets, setLeaflets] = useState(assigned.leaflets ?? '');
 
-  const [selectedPromoterId, setSelectedPromoterId] = useState<number | null>(plan.promoter_id);
-  const [orgName, setOrgName] = useState(plan.promoter_org_name ?? plan.organization_name);
-  const [placeType, setPlaceType] = useState(plan.promoter_place_type ?? '');
-  const [address, setAddress] = useState(plan.promoter_address ?? '');
-  const [leaflets, setLeaflets] = useState<string>(plan.promoter_leaflets != null ? String(plan.promoter_leaflets) : '');
+  const isDirty =
+    promoterId !== assigned.promoter_id ||
+    orgName !== (assigned.org_name ?? '') ||
+    placeType !== (assigned.place_type ?? '') ||
+    address !== (assigned.address ?? '') ||
+    leaflets !== (assigned.leaflets ?? '');
+
+  const handleSave = () => {
+    onSave({ promoter_id: promoterId, org_name: orgName || null, place_type: placeType || null, address: address || null, leaflets: leaflets || null });
+  };
+
+  // Доступные для выбора — те у кого есть слоты, плюс текущий
+  const choices = availablePromoters.filter(p => p.available || p.id === assigned.promoter_id);
+
+  return (
+    <div className="bg-slate-800/50 rounded-xl ring-1 ring-slate-700/50 p-3 space-y-2">
+      {/* Выбор промоутера + кнопка удалить */}
+      <div className="flex items-center gap-2">
+        <select
+          value={promoterId}
+          onChange={e => setPromoterId(Number(e.target.value))}
+          className="flex-1 h-9 pl-2 pr-8 bg-slate-700/60 ring-1 ring-slate-600/60 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none"
+        >
+          {choices.map(p => (
+            <option key={p.id} value={p.id} className="bg-slate-800">{p.name}</option>
+          ))}
+          {/* Текущий если не в списке */}
+          {!choices.find(p => p.id === assigned.promoter_id) && (
+            <option value={assigned.promoter_id} className="bg-slate-800">{assigned.promoter_name}</option>
+          )}
+        </select>
+        <button
+          onClick={onRemove}
+          className="w-9 h-9 rounded-lg bg-red-500/10 hover:bg-red-500/25 flex items-center justify-center flex-shrink-0 transition-all"
+        >
+          <Icon name="Trash2" size={13} className="text-red-400" />
+        </button>
+      </div>
+
+      {/* Организация */}
+      <div className="relative">
+        <input value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="Организация"
+          className="w-full h-9 pl-3 pr-9 bg-slate-700/40 ring-1 ring-slate-600/40 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all" />
+        <Icon name="Building2" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600" />
+      </div>
+
+      {/* Тип места */}
+      <div className="relative">
+        <select value={placeType} onChange={e => setPlaceType(e.target.value)}
+          className="w-full h-9 pl-3 pr-9 bg-slate-700/40 ring-1 ring-slate-600/40 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
+          <option value="" className="bg-slate-800">Тип места</option>
+          {PLACE_TYPES.map(t => <option key={t} value={t} className="bg-slate-800">{t}</option>)}
+        </select>
+        <Icon name="MapPin" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" />
+      </div>
+
+      {/* Адрес */}
+      <div className="relative">
+        <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Адрес / Детали"
+          className="w-full h-9 pl-3 pr-9 bg-slate-700/40 ring-1 ring-slate-600/40 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all" />
+        <Icon name="Navigation" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600" />
+      </div>
+
+      {/* Листовки */}
+      <div className="relative">
+        <input value={leaflets} onChange={e => setLeaflets(e.target.value)} placeholder="Листовки"
+          className="w-full h-9 pl-3 pr-9 bg-slate-700/40 ring-1 ring-slate-600/40 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all" />
+        <Icon name="FileText" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-amber-500/70" />
+      </div>
+
+      {(isDirty || isNew) && (
+        <button onClick={handleSave} disabled={isSaving}
+          className="w-full h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-1.5 transition-all">
+          {isSaving ? <Icon name="Loader2" size={13} className="animate-spin" /> : <Icon name="Check" size={13} />}
+          {isNew ? 'Добавить' : 'Сохранить'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterAssignModalProps) {
+  const [availablePromoters, setAvailablePromoters] = useState<PromoterOption[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [assigned, setAssigned] = useState<AssignedPromoter[]>(plan.promoters ?? []);
+  const [savingId, setSavingId] = useState<number | 'new' | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newPromoter, setNewPromoter] = useState<AssignedPromoter | null>(null);
 
   useEffect(() => {
     fetch(`${PLANNING_API}?action=promoters&date=${plan.date}`)
       .then(r => r.json())
-      .then(d => setPromoters(d.promoters || []))
+      .then(d => setAvailablePromoters(d.promoters || []))
       .finally(() => setLoading(false));
   }, [plan.date]);
 
-  const handleSave = async () => {
-    setSaving(true);
+  const syncWorkComments = async (promoterName: string, data: Partial<AssignedPromoter>) => {
+    const slotLabel = planTimeToSlotLabel(plan.time_from, plan.time_to);
+    await fetch(WORK_COMMENTS_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_name: promoterName,
+        work_date: plan.date,
+        shift_time: slotLabel,
+        organization: data.org_name || '',
+        location_type: data.place_type || '',
+        location_details: data.address || '',
+        flyers_comment: data.leaflets || '',
+        location_comment: '',
+      }),
+    });
+  };
+
+  const handleUpdatePromoter = async (pp_id: number, data: Partial<AssignedPromoter>) => {
+    setSavingId(pp_id);
     try {
-      const body = {
-        id: plan.id,
-        promoter_id: selectedPromoterId,
-        promoter_org_name: orgName.trim() || null,
-        promoter_place_type: placeType || null,
-        promoter_address: address.trim() || null,
-        promoter_leaflets: leaflets.trim() || null,
-      };
-      const res = await fetch(PLANNING_API, {
+      const res = await fetch(PLANNING_API + '?action=update_promoter', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ pp_id, ...data }),
       });
       const d = await res.json();
       if (d.plan) {
-        // Синхронизируем данные в карточку расписания (work_location_comments)
-        if (selectedPromoterId && selectedPromoter) {
-          const slotLabel = planTimeToSlotLabel(plan.time_from, plan.time_to);
-          await fetch(WORK_COMMENTS_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_name: selectedPromoter.name,
-              work_date: plan.date,
-              shift_time: slotLabel,
-              organization: orgName.trim() || '',
-              location_type: placeType || '',
-              location_details: address.trim() || '',
-              flyers_comment: leaflets || '',
-              location_comment: '',
-            }),
-          });
-        }
+        setAssigned(d.plan.promoters || []);
         onSave(d.plan);
+        // Синхронизируем с расписанием
+        const promoter = availablePromoters.find(p => p.id === (data.promoter_id ?? assigned.find(a => a.pp_id === pp_id)?.promoter_id));
+        if (promoter) await syncWorkComments(promoter.name, data);
       }
     } finally {
-      setSaving(false);
+      setSavingId(null);
     }
   };
 
-  const selectedPromoter = promoters.find(p => p.id === selectedPromoterId);
+  const handleAddPromoter = async (data: Partial<AssignedPromoter>) => {
+    if (!data.promoter_id) return;
+    setSavingId('new');
+    try {
+      const res = await fetch(PLANNING_API + '?action=add_promoter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan_id: plan.id, ...data }),
+      });
+      const d = await res.json();
+      if (d.plan) {
+        setAssigned(d.plan.promoters || []);
+        onSave(d.plan);
+        setShowAddForm(false);
+        setNewPromoter(null);
+        const promoter = availablePromoters.find(p => p.id === data.promoter_id);
+        if (promoter) await syncWorkComments(promoter.name, data);
+      }
+    } finally {
+      setSavingId(null);
+    }
+  };
 
-  // Проверяем доступность: если уже назначен этот промоутер — разрешаем (редактирование)
-  const isPromoterAvailable = (p: PromoterOption) =>
-    p.available || p.id === plan.promoter_id;
+  const handleRemovePromoter = async (pp_id: number) => {
+    setSavingId(pp_id);
+    try {
+      const res = await fetch(`${PLANNING_API}?action=remove_promoter&pp_id=${pp_id}`, { method: 'DELETE' });
+      const d = await res.json();
+      if (d.plan) {
+        setAssigned(d.plan.promoters || []);
+        onSave(d.plan);
+      }
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const handleShowAdd = () => {
+    const firstAvailable = availablePromoters.find(p => p.available);
+    if (!firstAvailable) return;
+    setNewPromoter({
+      pp_id: -1,
+      promoter_id: firstAvailable.id,
+      promoter_name: firstAvailable.name,
+      org_name: plan.organization_name,
+      place_type: null,
+      address: null,
+      leaflets: null,
+    });
+    setShowAddForm(true);
+  };
+
+  const hasAvailableToAdd = availablePromoters.some(p => p.available);
 
   return (
     <div
@@ -119,7 +267,7 @@ export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterA
         {/* Шапка */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-700/50 flex-shrink-0">
           <div>
-            <h3 className="text-sm font-bold text-slate-100">Назначить промоутера</h3>
+            <h3 className="text-sm font-bold text-slate-100">Промоутеры на точке</h3>
             <p className="text-xs text-slate-500 mt-0.5">{plan.organization_name} · {plan.time_from}–{plan.time_to}</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-700/60 transition-all">
@@ -127,157 +275,63 @@ export default function PromoterAssignModal({ plan, onSave, onClose }: PromoterA
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-5">
-          {/* Выбор промоутера */}
-          <div>
-            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 block">
-              Промоутер
-            </label>
-            {loading ? (
-              <div className="flex items-center justify-center py-6">
-                <Icon name="Loader2" size={20} className="animate-spin text-cyan-400" />
-              </div>
-            ) : promoters.length === 0 ? (
-              <div className="text-center py-6 text-slate-500 text-sm">
-                <Icon name="UserX" size={24} className="mx-auto mb-2 opacity-40" />
-                Нет промоутеров со сменами на этот день
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {/* Кнопка "Без промоутера" */}
-                <button
-                  onClick={() => setSelectedPromoterId(null)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl ring-1 transition-all text-left ${
-                    selectedPromoterId === null
-                      ? 'bg-slate-700/60 ring-slate-500/60 text-slate-200'
-                      : 'bg-slate-800/40 ring-slate-700/40 text-slate-500 hover:bg-slate-700/30'
-                  }`}
-                >
-                  <div className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
-                    <Icon name="UserMinus" size={13} className="text-slate-400" />
-                  </div>
-                  <span className="text-sm">Без промоутера</span>
-                  {selectedPromoterId === null && <Icon name="Check" size={13} className="ml-auto text-cyan-400" />}
-                </button>
-
-                {promoters.map(p => {
-                  const available = isPromoterAvailable(p);
-                  const isSelected = selectedPromoterId === p.id;
-                  return (
-                    <button
-                      key={p.id}
-                      disabled={!available}
-                      onClick={() => available && setSelectedPromoterId(p.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl ring-1 transition-all text-left ${
-                        isSelected
-                          ? 'bg-cyan-500/15 ring-cyan-500/40 text-slate-100'
-                          : available
-                            ? 'bg-slate-800/40 ring-slate-700/40 text-slate-300 hover:bg-slate-700/30'
-                            : 'bg-slate-800/20 ring-slate-700/20 text-slate-600 opacity-50 cursor-not-allowed'
-                      }`}
-                    >
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${
-                        isSelected ? 'bg-cyan-500/30 text-cyan-300' : 'bg-slate-700 text-slate-400'
-                      }`}>
-                        {p.name.charAt(0)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{p.name}</p>
-                        <div className="flex gap-1 mt-0.5 flex-wrap">
-                          {p.slots.map(s => (
-                            <span key={s.key} className="text-[10px] text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded">
-                              {s.label}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-                        {isSelected && <Icon name="Check" size={13} className="text-cyan-400" />}
-                        {!available && (
-                          <span className="text-[10px] text-red-400/70">занят</span>
-                        )}
-                        <span className="text-[10px] text-slate-600">
-                          {p.used_slots}/{p.total_slots} исп.
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Поля задания — показываем только если промоутер выбран */}
-          {selectedPromoterId !== null && (
-            <div className="space-y-3">
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                Задание для {selectedPromoter?.name ?? ''}
-              </p>
-
-              {/* Организация */}
-              <div className="relative">
-                <input
-                  value={orgName}
-                  onChange={e => setOrgName(e.target.value)}
-                  placeholder="Организация"
-                  className="w-full h-11 pl-3 pr-10 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
-                />
-                <Icon name="Building2" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600" />
-              </div>
-
-              {/* Тип места */}
-              <div className="relative">
-                <select
-                  value={placeType}
-                  onChange={e => setPlaceType(e.target.value)}
-                  className="w-full h-11 pl-3 pr-10 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none"
-                >
-                  <option value="" className="bg-slate-800">Тип места</option>
-                  {PLACE_TYPES.map(t => (
-                    <option key={t} value={t} className="bg-slate-800">{t}</option>
-                  ))}
-                </select>
-                <Icon name="MapPin" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" />
-              </div>
-
-              {/* Адрес */}
-              <div className="relative">
-                <input
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                  placeholder="Адрес / Детали"
-                  className="w-full h-11 pl-3 pr-10 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
-                />
-                <Icon name="Navigation" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600" />
-              </div>
-
-              {/* Листовки */}
-              <div className="relative">
-                <input
-                  type="text"
-                  value={leaflets}
-                  onChange={e => setLeaflets(e.target.value)}
-                  placeholder="Листовки"
-                  className="w-full h-11 pl-3 pr-10 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
-                />
-                <Icon name="FileText" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-500/70" />
-              </div>
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-3">
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Icon name="Loader2" size={20} className="animate-spin text-cyan-400" />
             </div>
-          )}
-        </div>
+          ) : (
+            <>
+              {/* Список назначенных */}
+              {assigned.length === 0 && !showAddForm && (
+                <div className="text-center py-6 text-slate-500 text-sm">
+                  <Icon name="UserX" size={24} className="mx-auto mb-2 opacity-40" />
+                  Нет назначенных промоутеров
+                </div>
+              )}
 
-        {/* Кнопка сохранить */}
-        <div className="flex-shrink-0 px-5 py-4 border-t border-slate-700/40">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full h-12 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:scale-[0.98] disabled:opacity-50 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-cyan-500/20"
-          >
-            {saving
-              ? <><Icon name="Loader2" size={16} className="animate-spin" /> Сохраняю...</>
-              : <><Icon name="Check" size={16} /> Сохранить</>
-            }
-          </button>
+              {assigned.map(a => (
+                <PromoterForm
+                  key={a.pp_id}
+                  assigned={a}
+                  availablePromoters={availablePromoters}
+                  onSave={data => handleUpdatePromoter(a.pp_id, data)}
+                  onRemove={() => handleRemovePromoter(a.pp_id)}
+                  isSaving={savingId === a.pp_id}
+                />
+              ))}
+
+              {/* Форма нового промоутера */}
+              {showAddForm && newPromoter && (
+                <div>
+                  <p className="text-[11px] font-semibold text-cyan-400/80 uppercase tracking-wider mb-2">Новый промоутер</p>
+                  <PromoterForm
+                    assigned={newPromoter}
+                    availablePromoters={availablePromoters}
+                    onSave={handleAddPromoter}
+                    onRemove={() => { setShowAddForm(false); setNewPromoter(null); }}
+                    isSaving={savingId === 'new'}
+                    isNew
+                  />
+                </div>
+              )}
+
+              {/* Кнопка добавить ещё */}
+              {!showAddForm && hasAvailableToAdd && (
+                <button
+                  onClick={handleShowAdd}
+                  className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-slate-800/40 hover:bg-slate-700/50 ring-1 ring-dashed ring-slate-600/50 text-slate-400 hover:text-slate-300 text-sm transition-all"
+                >
+                  <Icon name="UserPlus" size={14} />
+                  Добавить промоутера
+                </button>
+              )}
+
+              {!showAddForm && !hasAvailableToAdd && assigned.length > 0 && availablePromoters.length > 0 && (
+                <p className="text-center text-xs text-slate-600">Все доступные промоутеры назначены</p>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

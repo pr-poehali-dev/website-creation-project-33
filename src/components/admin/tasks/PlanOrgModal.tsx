@@ -6,6 +6,16 @@ const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fd
 interface OrgOption { id: number; name: string; }
 interface SeniorOption { id: number; name: string; }
 
+export interface PlanPromoter {
+  pp_id: number;
+  promoter_id: number;
+  promoter_name: string;
+  org_name: string | null;
+  place_type: string | null;
+  address: string | null;
+  leaflets: string | null;
+}
+
 export interface PlanEntry {
   id: number;
   organization_id: number;
@@ -18,6 +28,8 @@ export interface PlanEntry {
   notes: string | null;
   time_from: string | null;
   time_to: string | null;
+  promoters: PlanPromoter[];
+  // legacy (первый промоутер)
   promoter_id: number | null;
   promoter_name: string | null;
   promoter_org_name: string | null;

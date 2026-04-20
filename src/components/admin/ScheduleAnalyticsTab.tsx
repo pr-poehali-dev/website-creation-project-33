@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon';
 import { UserSchedule, DaySchedule, DeleteSlotState, ConfirmDeleteState, DayStats } from './schedule/types';
 import { getAllWeeksUntilEndOfYear, initializeWeekDays, getCurrentWeekIndex, calculateAvgBeforeDate } from './schedule/utils';
 import ScheduleHeader from './schedule/ScheduleHeader';
-import WeekCalendar from './schedule/WeekCalendar';
+import WeekCalendarInteractive from './schedule/WeekCalendarInteractive';
 import TeamScheduleView from './schedule/TeamScheduleView';
 import IndividualScheduleView from './schedule/IndividualScheduleView';
 import DeleteConfirmDialog from './schedule/DeleteConfirmDialog';
@@ -213,7 +213,7 @@ export default function ScheduleAnalyticsTab() {
             setCurrentWeekIndex={setCurrentWeekIndex}
             weeks={weeks}
             loading={loading}
-            weekDaysCalendar={weekDays.length > 0 ? <WeekCalendar weekDays={weekDays} /> : undefined}
+            weekDaysCalendar={weekDays.length > 0 ? <WeekCalendarInteractive weekDays={weekDays} weekStartDate={weeks[currentWeekIndex].start} /> : undefined}
             onOpenAddShift={() => setAddShiftModalOpen(true)}
             onOpenAddTraining={() => setTrainingModalOpen(true)}
           />

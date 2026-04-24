@@ -80,63 +80,82 @@ export default function EarningsChart() {
 
   const maxNet = Math.max(...data.days.map(d => Math.abs(d.net)), 1);
 
+  // Половина высоты графика = 28px (центральная линия)
+  const CHART_HALF = 28;
+
   return (
     <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Заработок</span>
-        <span className="text-sm font-bold text-[#001f54]">{data.total_net.toLocaleString('ru-RU')} ₽</span>
-      </div>
+      {/* График + итог справа */}
+      <div className="flex items-center gap-3 mb-1">
+        <div className="flex-1 flex items-stretch gap-1" style={{ height: 64 }}>
+          {data.days.map((day) => {
+            const isSelected = selectedDay?.date === day.date;
+            const barHeight = day.net === 0 ? 3 : Math.max(5, Math.round((Math.abs(day.net) / maxNet) * CHART_HALF));
+            const hasProblems = day.fines_total > 0;
+            const isNegative = day.net < 0;
 
-      {/* Bars */}
-      <div className="flex items-end gap-1.5 h-16 mb-2">
-        {data.days.map((day) => {
-          const isSelected = selectedDay?.date === day.date;
-          const barHeight = day.net === 0 ? 4 : Math.max(6, Math.round((Math.abs(day.net) / maxNet) * 56));
-          const hasProblems = day.fines_total > 0;
-          const isNegative = day.net < 0;
+            let barColor = 'bg-[#001f54]';
+            if (day.is_future || (!day.has_shift && !day.is_today)) {
+              barColor = 'bg-gray-200';
+            } else if (isNegative) {
+              barColor = 'bg-red-400';
+            } else if (hasProblems) {
+              barColor = 'bg-orange-400';
+            }
 
-          let barColor = 'bg-[#001f54]';
-          if (day.is_future || (!day.has_shift && !day.is_today)) {
-            barColor = 'bg-gray-200';
-          } else if (isNegative) {
-            barColor = 'bg-red-400';
-          } else if (hasProblems) {
-            barColor = 'bg-orange-400';
-          } else if (day.is_today) {
-            barColor = 'bg-[#001f54]';
-          }
+            return (
+              <div
+                key={day.date}
+                className="flex-1 flex flex-col items-center cursor-pointer group"
+                onClick={() => setSelectedDay(isSelected ? null : day)}
+              >
+                {/* Верхняя половина — положительные бары растут вверх */}
+                <div className="w-full flex items-end justify-center" style={{ height: CHART_HALF }}>
+                  {!isNegative && day.net !== 0 && (
+                    <div
+                      className={`w-full rounded-t-md transition-all ${barColor} ${isSelected ? 'opacity-100' : 'opacity-70 group-hover:opacity-90'}`}
+                      style={{ height: barHeight }}
+                    />
+                  )}
+                </div>
 
-          return (
-            <div
-              key={day.date}
-              className="flex-1 flex flex-col items-center gap-1 cursor-pointer group"
-              onClick={() => setSelectedDay(isSelected ? null : day)}
-            >
-              {/* Сумма над баром */}
-              <span className={`text-[9px] font-semibold transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} ${isNegative ? 'text-red-500' : 'text-[#001f54]'}`}>
-                {day.net !== 0 ? `${day.net > 0 ? '' : '-'}${Math.abs(day.net).toLocaleString('ru-RU')}` : ''}
-              </span>
+                {/* Центральная линия */}
+                <div className="w-full h-px bg-gray-200" />
 
-              {/* Bar */}
-              <div className="w-full flex items-end justify-center" style={{ height: 56 }}>
-                <div
-                  className={`w-full rounded-t-md transition-all ${barColor} ${isSelected ? 'opacity-100' : 'opacity-70 group-hover:opacity-90'}`}
-                  style={{ height: barHeight }}
-                />
+                {/* Нижняя половина — отрицательные бары растут вниз */}
+                <div className="w-full flex items-start justify-center" style={{ height: CHART_HALF }}>
+                  {isNegative && (
+                    <div
+                      className={`w-full rounded-b-md transition-all ${barColor} ${isSelected ? 'opacity-100' : 'opacity-70 group-hover:opacity-90'}`}
+                      style={{ height: barHeight }}
+                    />
+                  )}
+                  {day.net === 0 && (
+                    <div className={`w-full rounded-md ${barColor} opacity-30`} style={{ height: 3 }} />
+                  )}
+                </div>
+
+                {/* Day label */}
+                <span className={`text-[10px] font-medium mt-0.5 ${day.is_today ? 'text-[#001f54] font-bold' : 'text-gray-400'}`}>
+                  {day.day_name}
+                </span>
+
+                {/* Dot if fines */}
+                {hasProblems && (
+                  <div className="w-1 h-1 rounded-full bg-red-400 mt-0.5" />
+                )}
               </div>
+            );
+          })}
+        </div>
 
-              {/* Day label */}
-              <span className={`text-[10px] font-medium ${day.is_today ? 'text-[#001f54] font-bold' : 'text-gray-400'}`}>
-                {day.day_name}
-              </span>
-
-              {/* Dot if fines */}
-              {hasProblems && (
-                <div className="w-1 h-1 rounded-full bg-red-400" />
-              )}
-            </div>
-          );
-        })}
+        {/* Итог справа от графика */}
+        <div className="flex flex-col items-end flex-shrink-0">
+          <span className={`text-base font-bold leading-tight ${data.total_net < 0 ? 'text-red-500' : 'text-[#001f54]'}`}>
+            {data.total_net >= 0 ? '+' : ''}{data.total_net.toLocaleString('ru-RU')} ₽
+          </span>
+          <span className="text-[10px] text-gray-400 mt-0.5">за неделю</span>
+        </div>
       </div>
 
       {/* Detail panel */}

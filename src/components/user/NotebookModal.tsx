@@ -55,10 +55,20 @@ export default function NotebookModal({
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-4 sm:space-y-6">
             <div className="flex items-center justify-between">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-blue-500 shadow-lg">
-                <Icon name="NotebookPen" size={20} className="text-white sm:w-[22px] sm:h-[22px]" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2.5 sm:p-3 rounded-xl bg-blue-500 shadow-lg">
+                  <Icon name="NotebookPen" size={22} className="text-white sm:w-6 sm:h-6" />
+                </div>
+                <button
+                  onClick={onCancel}
+                  disabled={isLoading}
+                  className="p-2.5 sm:p-3 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 disabled:opacity-50"
+                  title="Отменить"
+                >
+                  <Icon name="X" size={22} className="sm:w-6 sm:h-6" />
+                </button>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 sm:gap-3">
                 {isRecording && (
                   <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-full">
                     <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
@@ -69,23 +79,15 @@ export default function NotebookModal({
                   </div>
                 )}
                 <button
-                  onClick={onCancel}
-                  disabled={isLoading}
-                  className="p-2 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 disabled:opacity-50"
-                  title="Отменить"
-                >
-                  <Icon name="X" size={20} />
-                </button>
-                <button
                   onClick={handleSend}
                   disabled={isLoading}
-                  className="p-2 rounded-xl bg-[#0088cc] hover:bg-[#006699] text-white transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-xl"
+                  className="p-2.5 sm:p-3 rounded-xl bg-[#0088cc] hover:bg-[#006699] text-white transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-xl"
                   title="Отправить в Telegram"
                 >
                   {isLoading ? (
-                    <Icon name="Loader2" size={20} className="animate-spin" />
+                    <Icon name="Loader2" size={22} className="animate-spin sm:w-6 sm:h-6" />
                   ) : (
-                    <Icon name="Send" size={20} />
+                    <Icon name="Send" size={22} className="sm:w-6 sm:h-6" />
                   )}
                 </button>
               </div>

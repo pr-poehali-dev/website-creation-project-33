@@ -19,6 +19,7 @@
   "schedules": "https://functions.poehali.dev/13a21013-236c-4e06-a825-ee3679b130c2",
   "telegram-video": "https://functions.poehali.dev/b2eda591-8c66-4dff-95c4-c345ac48703f",
   "user-stats": "https://functions.poehali.dev/78eb7cbb-8b7c-4a62-aaa3-74d7b1e8f257",
+  "export-rating": "https://functions.poehali.dev/b5adaa83-68c7-43cf-a042-4b4b60dc8d82",
   "google-sheets": "https://functions.poehali.dev/ce92c4be-1721-49f2-95bb-4bafa6f05fc4",
   "chat": "https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c",
   "auth": "https://functions.poehali.dev/d4f30ed2-6b6b-4e8a-a691-2c364dd41e43",

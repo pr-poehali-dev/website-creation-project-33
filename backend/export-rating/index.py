@@ -83,7 +83,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         sheets_to_create = []
         existing_sheet_titles = [s['properties']['title'] for s in sheets]
         
-        for sheet_name in ['Общая статистика', 'Рейтинг по контактам', 'Рейтинг по подходам', 'Статистика по дням', 'График лидов']:
+        for sheet_name in ['Общая статистика', 'Рейтинг по контактам', 'Рейтинг по подходам', 'Статистика по дням']:
             if sheet_name not in existing_sheet_titles:
                 sheets_to_create.append({
                     'addSheet': {
@@ -180,27 +180,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body={'values': daily_data}
         ).execute()
         
-        # 5. График лидов
-        if chart_data:
-            chart_headers = ['Дата', 'Всего', 'Контакты', 'Подходы']
-            chart_rows = []
-            for point in chart_data:
-                chart_rows.append([
-                    point.get('date', ''),
-                    point.get('total', 0),
-                    point.get('contacts', 0),
-                    point.get('approaches', 0)
-                ])
-            chart_export = [chart_headers] + chart_rows
-            service.spreadsheets().values().clear(
-                spreadsheetId=sheet_id, range='График лидов!A:D'
-            ).execute()
-            service.spreadsheets().values().update(
-                spreadsheetId=sheet_id,
-                range='График лидов!A1',
-                valueInputOption='RAW',
-                body={'values': chart_export}
-            ).execute()
         
         return {
             'statusCode': 200,
@@ -212,7 +191,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({
                 'success': True,
                 'message': 'Full statistics exported to Google Sheets',
-                'sheets_created': 5,
+                'sheets_created': 4,
                 'users_exported': len(user_stats)
             })
         }

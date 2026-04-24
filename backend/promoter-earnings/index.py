@@ -163,12 +163,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
         # Запланированные слоты на этот день
         day_schedule = schedule_data.get(date_str, {}) if isinstance(schedule_data, dict) else {}
-        planned_slots = [slot for slot, val in day_schedule.items() if val]
+        planned_slots = sorted([slot for slot, val in day_schedule.items() if val])
+        two_slots_day = len(planned_slots) == 2
 
-        for slot_key in planned_slots:
+        for slot_index, slot_key in enumerate(planned_slots):
             slot_start, slot_end, slot_label = get_slot_bounds(current_date, slot_key)
             if slot_start is None:
                 continue
+
+            # Если два слота — второй слот считается продолжением работы,
+            # штраф за опоздание на открытие второго слота не начисляется
+            is_second_slot = two_slots_day and slot_index == 1
 
             # Ищем смену в этот слот (открытую в ±2ч от начала слота)
             matching_shift = None
@@ -187,8 +192,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     fines.append({'type': 'missed', 'amount': FINE_MISSED_SHIFT, 'label': f'Пропуск смены {slot_label}'})
             else:
                 shift_start_naive = matching_shift['start'].replace(tzinfo=None) if hasattr(matching_shift['start'], 'tzinfo') and matching_shift['start'].tzinfo else matching_shift['start']
-                # Штраф за опоздание (старт после slot_start)
-                if shift_start_naive > slot_start:
+                # Штраф за опоздание — только для первого слота (или если слот один)
+                if not is_second_slot and shift_start_naive > slot_start:
                     fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание {slot_label}'})
 
                 # Штраф за ранний уход (конец до slot_end)

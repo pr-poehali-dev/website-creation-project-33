@@ -196,8 +196,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if not is_second_slot and shift_start_naive > slot_start:
                     fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание {slot_label}'})
 
-                # Штраф за ранний уход (конец до slot_end)
-                if matching_shift['end'] is not None:
+                # Штраф за ранний уход — только для второго слота (или если слот один)
+                # При двух слотах ранний уход с первого не штрафуется (переход на второй)
+                is_first_of_two = two_slots_day and slot_index == 0
+                if not is_first_of_two and matching_shift['end'] is not None:
                     shift_end_naive = matching_shift['end'].replace(tzinfo=None) if hasattr(matching_shift['end'], 'tzinfo') and matching_shift['end'].tzinfo else matching_shift['end']
                     if shift_end_naive < slot_end:
                         fines.append({'type': 'early', 'amount': FINE_EARLY_END, 'label': f'Ранний уход {slot_label}'})

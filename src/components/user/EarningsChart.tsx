@@ -149,13 +149,6 @@ export default function EarningsChart() {
           })}
         </div>
 
-        {/* Итог справа от графика */}
-        <div className="flex flex-col items-end flex-shrink-0">
-          <span className={`text-base font-bold leading-tight ${data.total_net < 0 ? 'text-red-500' : 'text-[#001f54]'}`}>
-            {data.total_net >= 0 ? '+' : ''}{data.total_net.toLocaleString('ru-RU')} ₽
-          </span>
-          <span className="text-[10px] text-gray-400 mt-0.5">за неделю</span>
-        </div>
       </div>
 
       {/* Detail panel */}

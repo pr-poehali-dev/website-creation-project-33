@@ -7,7 +7,7 @@ interface DayData {
   day_name: string;
   contacts: number;
   earnings: number;
-  fines: { type: string; amount: number; label: string }[];
+  fines: { type: string; amount: number; label: string; time_info?: string }[];
   fines_total: number;
   net: number;
   has_shift: boolean;
@@ -162,11 +162,15 @@ export default function EarningsChart() {
             )}
 
             {selectedDay.fines.map((fine, i) => (
-              <div key={i} className="flex justify-between items-center">
-                <span className="text-xs text-red-500 flex items-center gap-1">
-                  <Icon name="AlertCircle" size={11} /> {fine.label}
+              <div key={i} className="flex justify-between items-start gap-2">
+                <span className="text-xs text-red-500 flex items-start gap-1">
+                  <Icon name="AlertCircle" size={11} className="mt-0.5 flex-shrink-0" />
+                  <span>
+                    {fine.label}
+                    {fine.time_info && <span className="block text-[10px] text-red-400 mt-0.5">({fine.time_info})</span>}
+                  </span>
                 </span>
-                <span className="text-xs font-medium text-red-500">−{fine.amount.toLocaleString('ru-RU')} ₽</span>
+                <span className="text-xs font-medium text-red-500 flex-shrink-0">−{fine.amount.toLocaleString('ru-RU')} ₽</span>
               </div>
             ))}
 

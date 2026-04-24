@@ -5,6 +5,7 @@ interface Fine {
   type: 'missed' | 'late' | 'early';
   amount: number;
   label: string;
+  time_info?: string;
 }
 
 interface DayData {
@@ -216,10 +217,13 @@ export default function FinesTab() {
                         {day.fines.length > 0 ? (
                           <div className="flex flex-col gap-1">
                             {day.fines.map((fine, i) => (
-                              <span key={i} className={`inline-flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-lg font-medium border ${FINE_COLORS[fine.type]}`}>
-                                <Icon name={FINE_ICONS[fine.type]} size={11} />
-                                {fine.label} · −{fine.amount} ₽
-                              </span>
+                              <div key={i} className={`inline-flex items-start gap-1.5 text-[11px] px-2 py-1.5 rounded-lg font-medium border ${FINE_COLORS[fine.type]}`}>
+                                <Icon name={FINE_ICONS[fine.type]} size={11} className="mt-0.5 flex-shrink-0" />
+                                <span className="flex-1">
+                                  {fine.label} · −{fine.amount} ₽
+                                  {fine.time_info && <span className="block font-normal opacity-75 mt-0.5">({fine.time_info})</span>}
+                                </span>
+                              </div>
                             ))}
                           </div>
                         ) : (

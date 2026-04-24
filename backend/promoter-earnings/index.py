@@ -189,19 +189,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 # Пропуск смены — показываем только после 20:00 МСК в этот день
                 day_end_msk = datetime(current_date.year, current_date.month, current_date.day, 20, 0)
                 if now_msk >= day_end_msk:
-                    fines.append({'type': 'missed', 'amount': FINE_MISSED_SHIFT, 'label': f'Пропуск смены {slot_label}'})
+                    fines.append({'type': 'missed', 'amount': FINE_MISSED_SHIFT, 'label': f'Пропуск смены {slot_label}', 'time_info': 'Смена не открыта'})
             else:
                 shift_start_naive = matching_shift['start'].replace(tzinfo=None) if hasattr(matching_shift['start'], 'tzinfo') and matching_shift['start'].tzinfo else matching_shift['start']
                 # Штраф за опоздание — только для первого слота, показываем сразу как смена открыта
                 if not is_second_slot and shift_start_naive > slot_start:
-                    fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание {slot_label}'})
+                    actual_time = shift_start_naive.strftime('%H:%M')
+                    fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание {slot_label}', 'time_info': f'открыл в {actual_time}'})
 
                 # Штраф за ранний уход — только после окончания слота по МСК
                 # При двух слотах первый слот не штрафуется за ранний уход
                 if not is_first_of_two and matching_shift['end'] is not None:
                     shift_end_naive = matching_shift['end'].replace(tzinfo=None) if hasattr(matching_shift['end'], 'tzinfo') and matching_shift['end'].tzinfo else matching_shift['end']
                     if shift_end_naive < slot_end and now_msk >= slot_end:
-                        fines.append({'type': 'early', 'amount': FINE_EARLY_END, 'label': f'Ранний уход {slot_label}'})
+                        actual_time = shift_end_naive.strftime('%H:%M')
+                        fines.append({'type': 'early', 'amount': FINE_EARLY_END, 'label': f'Ранний уход {slot_label}', 'time_info': f'закрыл в {actual_time}'})
 
         day_fines_total = sum(f['amount'] for f in fines)
         net = earnings - day_fines_total

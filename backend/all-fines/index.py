@@ -197,13 +197,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if matching_shift is None:
                     day_end_msk = datetime(current_date.year, current_date.month, current_date.day, 20, 0)
                     if now_msk >= day_end_msk:
-                        fines.append({'type': 'missed', 'amount': FINE_MISSED_SHIFT, 'label': f'Пропуск смены {slot_label}'})
+                        fines.append({'type': 'missed', 'amount': FINE_MISSED_SHIFT, 'label': f'Пропуск смены {slot_label}', 'time_info': 'Смена не открыта'})
                 else:
                     if not is_second_slot and matching_shift['start'] > slot_start:
-                        fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание {slot_label}'})
+                        actual_time = matching_shift['start'].strftime('%H:%M')
+                        fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание {slot_label}', 'time_info': f'открыл в {actual_time}'})
                     if not is_first_of_two and matching_shift['end'] is not None:
                         if matching_shift['end'] < slot_end and now_msk >= slot_end:
-                            fines.append({'type': 'early', 'amount': FINE_EARLY_END, 'label': f'Ранний уход {slot_label}'})
+                            actual_time = matching_shift['end'].strftime('%H:%M')
+                            fines.append({'type': 'early', 'amount': FINE_EARLY_END, 'label': f'Ранний уход {slot_label}', 'time_info': f'закрыл в {actual_time}'})
 
             day_fines_total = sum(f['amount'] for f in fines)
             total_earnings += earnings

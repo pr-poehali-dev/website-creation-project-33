@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET текущая неделя",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"promoters": [], "week_start": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "GET с week_start",
+      "method": "GET",
+      "path": "/?week_start=2026-04-20",
+      "expectedStatus": 200,
+      "expectedBody": {"promoters": [], "week_start": "string"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

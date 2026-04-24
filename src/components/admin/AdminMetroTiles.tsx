@@ -18,6 +18,7 @@ import ClientsTab from './ClientsTab';
 import TelegramBotTab from './TelegramBotTab';
 import SeniorsTab from './SeniorsTab';
 import TasksTab from './TasksTab';
+import FinesTab from './FinesTab';
 
 
 interface AdminMetroTilesProps {
@@ -27,7 +28,7 @@ interface AdminMetroTilesProps {
   onViewChange: (view: TileView) => void;
 }
 
-type TileView = 'tiles' | 'requests' | 'tasks' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram';
+type TileView = 'tiles' | 'requests' | 'fines' | 'tasks' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram';
 type StatsSubView = 'users' | 'rating' | 'organizations' | 'seniors';
 
 const NavButton = ({ 
@@ -71,6 +72,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   const navigationItems = [
     { view: 'tiles' as TileView, icon: 'Home', label: 'Домой' },
     { view: 'requests' as TileView, icon: 'UserCheck', label: 'Заявки' },
+    { view: 'fines' as TileView, icon: 'AlertTriangle', label: 'Штрафы' },
     { view: 'tasks' as TileView, icon: 'ClipboardList', label: 'Задачи' },
     { view: 'accounting' as TileView, icon: 'Calculator', label: 'Бух.учет' },
     { view: 'stats' as TileView, icon: 'BarChart3', label: 'Статистика' },
@@ -122,6 +124,10 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
         <AllUsersWorkTime sessionToken={sessionToken} />
       </div>
     );
+  }
+
+  if (currentView === 'fines') {
+    return renderWithSidebar(<FinesTab />);
   }
 
   if (currentView === 'accounting') {
@@ -225,6 +231,21 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
             </div>
             <div className="text-left">
               <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Заявки</div>
+            </div>
+          </div>
+        </button>
+
+        {/* Штрафы */}
+        <button
+          onClick={() => handleViewChange('fines')}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-red-50 hover:border-l-4 hover:border-l-red-400 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-red-50 group-hover:bg-red-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="AlertTriangle" size={20} className="text-red-500" />
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-gray-800 group-hover:text-red-700 transition-colors">Штрафы</div>
             </div>
           </div>
         </button>

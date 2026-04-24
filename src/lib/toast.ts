@@ -9,17 +9,13 @@ interface ToastOptions {
 
 function toast(options: ToastOptions) {
   const { title, description, variant, duration = 3000 } = options
+  const message = title || description || ''
+  const opts = { duration, ...(description && title ? { description } : {}) }
 
   if (variant === 'destructive') {
-    sonnerToast.error(description || title || '', {
-      duration,
-      ...(description && title ? { description } : {}),
-    })
+    sonnerToast.error(message, opts)
   } else {
-    sonnerToast.success(description || title || '', {
-      duration,
-      ...(description && title ? { description } : {}),
-    })
+    sonnerToast.success(message, opts)
   }
 }
 

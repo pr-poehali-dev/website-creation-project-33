@@ -219,8 +219,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'fines_total': day_fines_total,
             'net': net,
             'has_shift': len(day_shifts) > 0,
-            'is_today': current_date == date.today(),
-            'is_future': current_date > date.today(),
+            'is_today': current_date == now_msk.date(),
+            'is_future': current_date > now_msk.date(),
         })
 
     return {

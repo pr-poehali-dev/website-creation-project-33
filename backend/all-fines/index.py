@@ -30,9 +30,9 @@ def calculate_salary(contacts: int, shift_date_str: str, user_id: int, org_name:
     d = date.fromisoformat(shift_date_str)
     if d < cutoff:
         return contacts * 200
-    if contacts <= 10:
-        return contacts * 200
-    return 10 * 200 + (contacts - 10) * 300
+    if contacts >= 10:
+        return contacts * 300
+    return contacts * 200
 
 
 def get_slot_bounds(day_date: date, slot_key: str):

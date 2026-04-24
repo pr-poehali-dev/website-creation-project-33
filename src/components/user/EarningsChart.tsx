@@ -24,18 +24,19 @@ interface EarningsData {
 }
 
 function getCurrentWeekStart(): string {
-  const today = new Date();
-  const day = today.getDay();
+  const now = new Date();
+  // MSK = UTC+3
+  const msk = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+  const day = msk.getUTCDay();
   const diff = day === 0 ? -6 : 1 - day;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() + diff);
-  return monday.toISOString().split('T')[0];
+  msk.setUTCDate(msk.getUTCDate() + diff);
+  return msk.toISOString().split('T')[0];
 }
 
 export default function EarningsChart() {
   const { user } = useAuth();
   const [data, setData] = useState<EarningsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null);
 
   useEffect(() => {
@@ -63,17 +64,17 @@ export default function EarningsChart() {
     }
   };
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100">
-        <div className="h-24 flex items-center justify-center">
+        <div className="h-16 flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-[#001f54] border-t-transparent rounded-full animate-spin" />
         </div>
       </div>
     );
   }
 
-  if (!data || data.days.every(d => d.net === 0 && !d.has_shift && d.fines.length === 0)) {
+  if (!data) {
     return null;
   }
 

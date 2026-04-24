@@ -13,12 +13,12 @@ from datetime import datetime, timedelta, date
 
 SLOT_SCHEDULE = {
     'weekday': {
-        'slot1': {'start': (12, 0), 'end': (16, 0)},
-        'slot2': {'start': (16, 0), 'end': (20, 0)},
+        'slot1': {'start': (12, 0), 'end': (16, 0), 'label': '12:00-16:00'},
+        'slot2': {'start': (16, 0), 'end': (20, 0), 'label': '16:00-20:00'},
     },
     'weekend': {
-        'slot1': {'start': (11, 0), 'end': (15, 0)},
-        'slot2': {'start': (15, 0), 'end': (19, 0)},
+        'slot1': {'start': (12, 0), 'end': (16, 0), 'label': '12:00-16:00'},
+        'slot2': {'start': (16, 0), 'end': (20, 0), 'label': '16:00-20:00'},
     }
 }
 
@@ -46,10 +46,10 @@ def get_slot_bounds(day_date: date, slot_key: str):
     day_type = 'weekend' if is_weekend else 'weekday'
     slot = SLOT_SCHEDULE[day_type].get(slot_key)
     if not slot:
-        return None, None
+        return None, None, ''
     start = datetime(day_date.year, day_date.month, day_date.day, slot['start'][0], slot['start'][1])
     end = datetime(day_date.year, day_date.month, day_date.day, slot['end'][0], slot['end'][1])
-    return start, end
+    return start, end, slot['label']
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -166,7 +166,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         planned_slots = [slot for slot, val in day_schedule.items() if val]
 
         for slot_key in planned_slots:
-            slot_start, slot_end = get_slot_bounds(current_date, slot_key)
+            slot_start, slot_end, slot_label = get_slot_bounds(current_date, slot_key)
             if slot_start is None:
                 continue
 
@@ -184,18 +184,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if matching_shift is None:
                 # Штраф за пропуск смены (если день уже прошёл)
                 if current_date < date.today():
-                    fines.append({'type': 'missed', 'amount': FINE_MISSED_SHIFT, 'label': f'Пропуск смены ({slot_key})'})
+                    fines.append({'type': 'missed', 'amount': FINE_MISSED_SHIFT, 'label': f'Пропуск смены {slot_label}'})
             else:
                 shift_start_naive = matching_shift['start'].replace(tzinfo=None) if hasattr(matching_shift['start'], 'tzinfo') and matching_shift['start'].tzinfo else matching_shift['start']
                 # Штраф за опоздание (старт после slot_start)
                 if shift_start_naive > slot_start:
-                    fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание ({slot_key})'})
+                    fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание {slot_label}'})
 
                 # Штраф за ранний уход (конец до slot_end)
                 if matching_shift['end'] is not None:
                     shift_end_naive = matching_shift['end'].replace(tzinfo=None) if hasattr(matching_shift['end'], 'tzinfo') and matching_shift['end'].tzinfo else matching_shift['end']
                     if shift_end_naive < slot_end:
-                        fines.append({'type': 'early', 'amount': FINE_EARLY_END, 'label': f'Ранний уход ({slot_key})'})
+                        fines.append({'type': 'early', 'amount': FINE_EARLY_END, 'label': f'Ранний уход {slot_label}'})
 
         day_fines_total = sum(f['amount'] for f in fines)
         net = earnings - day_fines_total

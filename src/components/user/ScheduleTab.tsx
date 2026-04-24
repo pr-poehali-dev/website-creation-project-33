@@ -78,10 +78,7 @@ export default function ScheduleTab() {
         dayName: dayNames[i],
         dayNameFull: dayNamesFull[i],
         isWeekend,
-        slots: isWeekend ? [
-          { label: '11:00-15:00', time: 'slot1', selected: false },
-          { label: '15:00-19:00', time: 'slot2', selected: false }
-        ] : [
+        slots: [
           { label: '12:00-16:00', time: 'slot1', selected: false },
           { label: '16:00-20:00', time: 'slot2', selected: false }
         ]

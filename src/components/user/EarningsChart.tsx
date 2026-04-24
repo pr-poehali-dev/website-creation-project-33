@@ -186,12 +186,34 @@ export default function EarningsChart() {
       )}
 
       {/* Footer stats */}
-      {data.total_fines > 0 && (
-        <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">
-          <span className="text-xs text-red-500 flex items-center gap-1">
-            <Icon name="AlertCircle" size={11} /> Штрафы за неделю
-          </span>
-          <span className="text-xs font-semibold text-red-500">−{data.total_fines.toLocaleString('ru-RU')} ₽</span>
+      {(data.total_earnings > 0 || data.total_fines > 0) && (
+        <div className="mt-3 pt-2 border-t border-gray-100 flex flex-col gap-1">
+          {data.total_earnings > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500 flex items-center gap-1">
+                <Icon name="TrendingUp" size={11} /> Доход за неделю
+              </span>
+              <span className="text-xs font-semibold text-gray-700">+{data.total_earnings.toLocaleString('ru-RU')} ₽</span>
+            </div>
+          )}
+          {data.total_fines > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-red-500 flex items-center gap-1">
+                <Icon name="AlertCircle" size={11} /> Штрафы за неделю
+              </span>
+              <span className="text-xs font-semibold text-red-500">−{data.total_fines.toLocaleString('ru-RU')} ₽</span>
+            </div>
+          )}
+          {data.total_fines > 0 && (
+            <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+              <span className="text-xs text-gray-600 flex items-center gap-1 font-medium">
+                <Icon name="Wallet" size={11} /> Итого за неделю
+              </span>
+              <span className={`text-xs font-bold ${data.total_net < 0 ? 'text-red-600' : 'text-gray-800'}`}>
+                {data.total_net >= 0 ? '+' : ''}{data.total_net.toLocaleString('ru-RU')} ₽
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>

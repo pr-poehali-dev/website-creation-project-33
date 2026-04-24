@@ -14,6 +14,7 @@ import NewWorkTab from '@/components/user/NewWorkTab';
 import TrainingTab from '@/components/user/TrainingTab';
 import ScheduleTab from '@/components/user/ScheduleTab';
 import ContactsCounter, { ContactsStats, ContactsCounterRef } from '@/components/user/ContactsCounter';
+import EarningsChart from '@/components/user/EarningsChart';
 
 export default function UserDashboard() {
   const { user, logout } = useAuth();
@@ -175,6 +176,7 @@ export default function UserDashboard() {
 
         {currentView === 'tiles' && (
           <>
+            <EarningsChart />
 
             <div className="divide-y divide-gray-100">
                 {[

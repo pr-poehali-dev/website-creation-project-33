@@ -8,7 +8,7 @@ interface ToastOptions {
 }
 
 function toast(options: ToastOptions) {
-  const { title, description, variant, duration = 3000 } = options
+  const { title, description, variant, duration = 1000 } = options
   const message = title || description || ''
   const opts = { duration, ...(description && title ? { description } : {}) }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import ClientsChart from './clients/ClientsChart';
 
 interface ClientsTabProps {

@@ -1,6 +1,6 @@
 import React from 'react';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 
 interface ArchiveCsvUploadProps {
   sessionToken: string;

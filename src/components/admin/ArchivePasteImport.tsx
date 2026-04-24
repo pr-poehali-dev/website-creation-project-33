@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 
 interface ArchivePasteImportProps {
   sessionToken: string;

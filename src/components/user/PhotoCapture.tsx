@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface PhotoCaptureProps {

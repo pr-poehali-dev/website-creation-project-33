@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import { ShiftRecord, User, Organization, NewShiftData } from './accounting/types';
 import ShiftTable from './accounting/ShiftTable';
 import AddShiftModal from './accounting/AddShiftModal';

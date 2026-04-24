@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 
 interface ArchiveManualImportProps {
   sessionToken: string;

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import NotebookModal from './NotebookModal';

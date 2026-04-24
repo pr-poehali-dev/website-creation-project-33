@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import UserAvatar from '@/components/chat/UserAvatar';
 
 interface AvatarUploadProps {

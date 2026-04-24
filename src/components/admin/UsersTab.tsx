@@ -9,7 +9,7 @@ import AddContactModal from './AddContactModal';
 import { User, Lead, ADMIN_API } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
 import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate, useDeleteApproach, useDeleteApproachesByDate, useAddContact, useOrganizations } from '@/hooks/useAdminData';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/lib/toast';
 
 const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
 

@@ -8,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import { useOrganizations } from '@/hooks/useAdminData';
 
 interface AddShiftModalProps {

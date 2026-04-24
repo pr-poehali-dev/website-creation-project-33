@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import { EmojiClickData } from 'emoji-picker-react';
 import ChatMessagesList from './ChatMessagesList';
 import ChatInput from './ChatInput';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import StatsOverview from './StatsOverview';
 import UsersRanking from './UsersRanking';
 import DailyStatsCard from './DailyStatsCard';

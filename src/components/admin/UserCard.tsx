@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { User } from './types';
 import { formatLastSeen } from '@/utils/timeFormat';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface UserCardProps {

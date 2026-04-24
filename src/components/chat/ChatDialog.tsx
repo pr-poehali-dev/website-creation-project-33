@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/lib/toast';
 import { formatMoscowTime } from '@/utils/timeFormat';
 import ProfileModal from '@/components/user/ProfileModal';
 

@@ -3,12 +3,11 @@ import { DaySchedule } from './types';
 import Icon from '@/components/ui/icon';
 import { PlanEntry } from '../tasks/PlanOrgModal';
 import DayDetailModal from './DayDetailModal';
+import { getMoscowDate } from './utils';
 
 const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8';
-const now = new Date();
-const mskOffset = 3 * 60;
-const mskDate = new Date(now.getTime() + (mskOffset + now.getTimezoneOffset()) * 60000);
-const TODAY = mskDate.toISOString().slice(0, 10);
+const _msk = getMoscowDate();
+const TODAY = `${_msk.getFullYear()}-${String(_msk.getMonth() + 1).padStart(2, '0')}-${String(_msk.getDate()).padStart(2, '0')}`;
 
 interface WeekCalendarInteractiveProps {
   weekDays: DaySchedule[];

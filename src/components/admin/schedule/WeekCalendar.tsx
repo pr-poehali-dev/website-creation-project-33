@@ -1,13 +1,12 @@
 import { DaySchedule } from './types';
+import { getMoscowDate } from './utils';
 
 interface WeekCalendarProps {
   weekDays: DaySchedule[];
 }
 
-const now = new Date();
-const mskOffset = 3 * 60;
-const mskDate = new Date(now.getTime() + (mskOffset + now.getTimezoneOffset()) * 60000);
-const TODAY = mskDate.toISOString().slice(0, 10);
+const _msk = getMoscowDate();
+const TODAY = `${_msk.getFullYear()}-${String(_msk.getMonth() + 1).padStart(2, '0')}-${String(_msk.getDate()).padStart(2, '0')}`;
 
 export default function WeekCalendar({ weekDays }: WeekCalendarProps) {
   return (

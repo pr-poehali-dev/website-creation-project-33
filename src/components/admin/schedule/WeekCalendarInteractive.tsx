@@ -5,7 +5,10 @@ import { PlanEntry } from '../tasks/PlanOrgModal';
 import DayDetailModal from './DayDetailModal';
 
 const PLANNING_API = 'https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8';
-const TODAY = new Date().toISOString().slice(0, 10);
+const now = new Date();
+const mskOffset = 3 * 60;
+const mskDate = new Date(now.getTime() + (mskOffset + now.getTimezoneOffset()) * 60000);
+const TODAY = mskDate.toISOString().slice(0, 10);
 
 interface WeekCalendarInteractiveProps {
   weekDays: DaySchedule[];

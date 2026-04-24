@@ -141,6 +141,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur.close()
     conn.close()
 
+    # Текущее время по МСК (UTC+3)
+    now_msk = datetime.utcnow() + timedelta(hours=3)
+
     day_names = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
     days_result = []
     total_earnings = 0
@@ -149,12 +152,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     for i in range(7):
         current_date = week_start_date + timedelta(days=i)
         date_str = current_date.isoformat()
-        is_weekend = current_date.weekday() >= 5
 
         contacts = contacts_by_day.get(date_str, 0)
         day_shifts = shifts_by_day.get(date_str, [])
 
-        # Определяем организацию (из смены или None)
         org_name = day_shifts[0]['org_name'] if day_shifts else 'Неизвестно'
         compensation = sum(s['compensation'] for s in day_shifts)
 
@@ -171,9 +172,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if slot_start is None:
                 continue
 
-            # Если два слота — второй слот считается продолжением работы,
-            # штраф за опоздание на открытие второго слота не начисляется
             is_second_slot = two_slots_day and slot_index == 1
+            is_first_of_two = two_slots_day and slot_index == 0
 
             # Ищем смену в этот слот (открытую в ±2ч от начала слота)
             matching_shift = None
@@ -181,27 +181,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if s['start'] is None:
                     continue
                 shift_start_naive = s['start'].replace(tzinfo=None) if hasattr(s['start'], 'tzinfo') and s['start'].tzinfo else s['start']
-                # Смена относится к этому слоту если старт в пределах слота ±2ч
                 if slot_start - timedelta(hours=2) <= shift_start_naive <= slot_end:
                     matching_shift = s
                     break
 
             if matching_shift is None:
-                # Штраф за пропуск смены (если день уже прошёл)
-                if current_date < date.today():
+                # Пропуск смены — показываем только после 20:00 МСК в этот день
+                day_end_msk = datetime(current_date.year, current_date.month, current_date.day, 20, 0)
+                if now_msk >= day_end_msk:
                     fines.append({'type': 'missed', 'amount': FINE_MISSED_SHIFT, 'label': f'Пропуск смены {slot_label}'})
             else:
                 shift_start_naive = matching_shift['start'].replace(tzinfo=None) if hasattr(matching_shift['start'], 'tzinfo') and matching_shift['start'].tzinfo else matching_shift['start']
-                # Штраф за опоздание — только для первого слота (или если слот один)
+                # Штраф за опоздание — только для первого слота, показываем сразу как смена открыта
                 if not is_second_slot and shift_start_naive > slot_start:
                     fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание {slot_label}'})
 
-                # Штраф за ранний уход — только для второго слота (или если слот один)
-                # При двух слотах ранний уход с первого не штрафуется (переход на второй)
-                is_first_of_two = two_slots_day and slot_index == 0
+                # Штраф за ранний уход — только после окончания слота по МСК
+                # При двух слотах первый слот не штрафуется за ранний уход
                 if not is_first_of_two and matching_shift['end'] is not None:
                     shift_end_naive = matching_shift['end'].replace(tzinfo=None) if hasattr(matching_shift['end'], 'tzinfo') and matching_shift['end'].tzinfo else matching_shift['end']
-                    if shift_end_naive < slot_end:
+                    if shift_end_naive < slot_end and now_msk >= slot_end:
                         fines.append({'type': 'early', 'amount': FINE_EARLY_END, 'label': f'Ранний уход {slot_label}'})
 
         day_fines_total = sum(f['amount'] for f in fines)

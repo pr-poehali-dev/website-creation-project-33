@@ -103,7 +103,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if not tokens:
         return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'ok': True, 'sent': 0, 'total': 0})}
 
-    sa_json = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON', '{}'))
+    raw = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON', '{}')
+    sa_json = json.loads(raw) if isinstance(raw, str) else raw
+    if not isinstance(sa_json, dict):
+        return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': f'FIREBASE_SERVICE_ACCOUNT_JSON имеет неверный формат: {type(sa_json).__name__}. Ожидается JSON объект.'})}
     project_id = sa_json.get('project_id', 'imperia-promo')
 
     access_token = get_access_token()

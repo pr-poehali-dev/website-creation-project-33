@@ -73,10 +73,7 @@ export const initializeWeekDays = (weekStart: string): DaySchedule[] => {
       dayName: dayNames[i],
       dayNameFull: dayNamesFull[i],
       isWeekend,
-      slots: isWeekend ? [
-        { label: '11:00-15:00', time: 'slot1' },
-        { label: '15:00-19:00', time: 'slot2' }
-      ] : [
+      slots: [
         { label: '12:00-16:00', time: 'slot1' },
         { label: '16:00-20:00', time: 'slot2' }
       ]

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface User {
   id: number;
@@ -30,6 +31,8 @@ const API_BASE = 'https://functions.poehali.dev/d4f30ed2-6b6b-4e8a-a691-2c364dd4
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  usePushNotifications(user?.id ?? null);
 
   const getSessionToken = () => localStorage.getItem('session_token');
   const setSessionToken = (token: string) => localStorage.setItem('session_token', token);
@@ -186,6 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     removeSessionToken();
     localStorage.removeItem('selected_organization');
     localStorage.removeItem('last_org_reset');
+    localStorage.removeItem('fcm_token');
     setUser(null);
   };
 

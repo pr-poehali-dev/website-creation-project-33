@@ -1,4 +1,6 @@
 {
+  "push-send": "https://functions.poehali.dev/180d47b5-051e-4c3c-9861-3025f7d82986",
+  "push-subscribe": "https://functions.poehali.dev/0742cff3-bd80-4025-9b3e-029d5d82c960",
   "all-fines": "https://functions.poehali.dev/5bc9ec24-af65-4ab1-ba3b-2d43b1803637",
   "promoter-earnings": "https://functions.poehali.dev/db9c0dd3-cb0d-4986-8fa4-bb89c1b4fa00",
   "planning-orgs": "https://functions.poehali.dev/0476e6f3-5f78-4770-9742-11fda4ba89c8",

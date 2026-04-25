@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Unauthorized without user id",
+      "method": "POST",
+      "path": "/",
+      "body": {"token": "test_token"},
+      "expectedStatus": 401
+    }
+  ]
+}

@@ -1,15 +1,8 @@
 import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
+import { useAuth } from '@/contexts/AuthContext';
 
-const VAPID_PUBLIC_KEY = 'BG6Ttkt-fQpV58ujGgbAgbelZZdBnVjelhL5pfMcRBCXNepszkFPcPSgQ...20AqVrf8WTYYHR7M_QOw9YrLH5SE';
-const FIREBASE_CONFIG = {
-  apiKey: 'AIzaSyCQNZuXt4IrVe5PADZ9tW-u0c_jZ1kitqw',
-  authDomain: 'imperia-promo.firebaseapp.com',
-  projectId: 'imperia-promo',
-  storageBucket: 'imperia-promo.firebasestorage.app',
-  messagingSenderId: '71242293605',
-  appId: '1:71242293605:web:00010f9ccf89330ac0c18c',
-};
+const PUSH_SEND_URL = 'https://functions.poehali.dev/180d47b5-051e-4c3c-9861-3025f7d82986';
 
 interface NotificationsModalProps {
   onClose: () => void;
@@ -17,14 +10,8 @@ interface NotificationsModalProps {
 
 type Status = 'idle' | 'loading' | 'subscribed' | 'error' | 'sending' | 'sent';
 
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = atob(base64);
-  return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
-}
-
 export default function NotificationsModal({ onClose }: NotificationsModalProps) {
+  const { user } = useAuth();
   const [status, setStatus] = useState<Status>('idle');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [title, setTitle] = useState('');
@@ -32,66 +19,41 @@ export default function NotificationsModal({ onClose }: NotificationsModalProps)
   const [error, setError] = useState('');
 
   useEffect(() => {
-    checkSubscription();
+    const token = localStorage.getItem('fcm_token');
+    setIsSubscribed(!!token);
+    if (token) setStatus('subscribed');
   }, []);
 
-  const checkSubscription = async () => {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.getSubscription();
-    setIsSubscribed(!!sub);
-  };
-
-  const subscribe = async () => {
-    setStatus('loading');
-    setError('');
-    try {
-      if (!('serviceWorker' in navigator)) throw new Error('Service Worker не поддерживается');
-      const permission = await Notification.requestPermission();
-      if (permission !== 'granted') throw new Error('Разрешение на уведомления отклонено');
-
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      });
-
-      localStorage.setItem('push_subscription', JSON.stringify(sub));
-      setIsSubscribed(true);
-      setStatus('subscribed');
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Ошибка подписки');
-      setStatus('error');
-    }
-  };
-
-  const unsubscribe = async () => {
-    setStatus('loading');
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.getSubscription();
-    if (sub) await sub.unsubscribe();
-    localStorage.removeItem('push_subscription');
-    setIsSubscribed(false);
-    setStatus('idle');
-  };
-
   const sendNotification = async () => {
-    if (!title.trim()) return;
+    if (!title.trim() || !user) return;
     setStatus('sending');
     setError('');
     try {
-      await new Promise(r => setTimeout(r, 800));
-      setStatus('sent');
-      setTitle('');
-      setBody('');
-      setTimeout(() => setStatus('subscribed'), 2000);
+      const res = await fetch(PUSH_SEND_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': String(user.id),
+        },
+        body: JSON.stringify({ title: title.trim(), body: body.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus('sent');
+        setTitle('');
+        setBody('');
+        setTimeout(() => setStatus('subscribed'), 2500);
+      } else {
+        setError(data.error || 'Ошибка отправки');
+        setStatus('error');
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Ошибка отправки');
       setStatus('error');
     }
   };
 
-  const supported = 'serviceWorker' in navigator && 'PushManager' in window;
+  const supported = 'serviceWorker' in navigator && 'Notification' in window;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -122,25 +84,14 @@ export default function NotificationsModal({ onClose }: NotificationsModalProps)
                     {isSubscribed ? 'Уведомления включены' : 'Уведомления выключены'}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {isSubscribed ? 'Этот браузер получит уведомления' : 'Нажмите, чтобы подписаться'}
+                    {isSubscribed ? 'Этот браузер получит уведомления' : 'Разрешение не выдано или браузер не поддерживает'}
                   </div>
                 </div>
-                <button
-                  onClick={isSubscribed ? unsubscribe : subscribe}
-                  disabled={status === 'loading'}
-                  className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                    isSubscribed
-                      ? 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                      : 'bg-[#001f54] hover:bg-[#002a70] text-white'
-                  }`}
-                >
-                  {status === 'loading' ? '...' : isSubscribed ? 'Отключить' : 'Включить'}
-                </button>
               </div>
 
               {isSubscribed && (
                 <div className="space-y-3">
-                  <div className="text-sm font-medium text-gray-700">Отправить уведомление</div>
+                  <div className="text-sm font-medium text-gray-700">Отправить всем промоутерам</div>
                   <input
                     value={title}
                     onChange={e => setTitle(e.target.value)}
@@ -163,11 +114,8 @@ export default function NotificationsModal({ onClose }: NotificationsModalProps)
                         : 'bg-[#001f54] hover:bg-[#002a70] text-white disabled:opacity-40'
                     }`}
                   >
-                    {status === 'sending' ? 'Отправляю...' : status === 'sent' ? '✓ Отправлено' : 'Отправить'}
+                    {status === 'sending' ? 'Отправляю...' : status === 'sent' ? '✓ Отправлено' : 'Отправить всем'}
                   </button>
-                  <p className="text-xs text-amber-600 bg-amber-50 rounded-lg p-2 text-center">
-                    Отправка будет доступна после подключения Service Account
-                  </p>
                 </div>
               )}
 

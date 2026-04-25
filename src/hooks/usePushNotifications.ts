@@ -41,17 +41,25 @@ export async function subscribeToPush(userId: number, onStep?: (s: string) => vo
     };
   }
 
-  step('Ожидаю Service Worker...');
+  step('Регистрирую Service Worker...');
   let sw: ServiceWorkerRegistration;
   try {
-    const swTimeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Service Worker не готов за 10 сек — попробуй перезагрузить страницу (Ctrl+Shift+R)')), 10000)
-    );
-    sw = await Promise.race([navigator.serviceWorker.ready, swTimeout]);
+    sw = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+    step(`SW зарегистрирован: ${sw.scope}`);
+    // Ждём активации если нужно
+    if (sw.installing || sw.waiting) {
+      step('Жду активации SW...');
+      await new Promise<void>((resolve) => {
+        const target = sw.installing ?? sw.waiting!;
+        target.addEventListener('statechange', function handler() {
+          if (this.state === 'activated') { resolve(); }
+        });
+        setTimeout(resolve, 5000);
+      });
+    }
   } catch (e) {
-    return { ok: false, step: 'sw', detail: `${e}` };
+    return { ok: false, step: 'sw', detail: `Ошибка регистрации SW: ${e}` };
   }
-  step(`SW готов: ${sw.scope}`);
 
   step('Инициализирую Firebase...');
   let app;

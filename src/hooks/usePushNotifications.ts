@@ -61,12 +61,16 @@ export async function subscribeToPush(userId: number): Promise<PushResult> {
 
   let token: string;
   try {
-    token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
+    const tokenPromise = getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Timeout: getToken завис на 15 сек. Вероятно неверный VAPID ключ. Возьми его в Firebase Console → Project Settings → Cloud Messaging → Web Push certificates → Key pair')), 15000)
+    );
+    token = await Promise.race([tokenPromise, timeoutPromise]);
   } catch (e) {
-    return { ok: false, step: 'fcm_token', detail: `Ошибка получения FCM токена: ${e}` };
+    return { ok: false, step: 'fcm_token', detail: `${e}` };
   }
   if (!token)
-    return { ok: false, step: 'fcm_token', detail: 'FCM вернул пустой токен' };
+    return { ok: false, step: 'fcm_token', detail: 'FCM вернул пустой токен. Проверь VAPID ключ в Firebase Console → Project Settings → Cloud Messaging → Web Push certificates' };
 
   try {
     const res = await fetch(PUSH_SUBSCRIBE_URL, {

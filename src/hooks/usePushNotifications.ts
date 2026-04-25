@@ -14,44 +14,82 @@ const FIREBASE_CONFIG = {
 const VAPID_KEY = 'BG6Ttkt-fQpV58ujGgbAgbelZZdBnVjelhL5pfMcRBCXNepszkFPcPSgQ20AqVrf8WTYYHR7M_QOw9YrLH5SE';
 const PUSH_SUBSCRIBE_URL = 'https://functions.poehali.dev/0742cff3-bd80-4025-9b3e-029d5d82c960';
 
-export async function subscribeToPush(userId: number): Promise<boolean> {
+export type PushResult =
+  | { ok: true; token: string }
+  | { ok: false; step: string; detail: string };
+
+export async function subscribeToPush(userId: number): Promise<PushResult> {
+  if (!('Notification' in window))
+    return { ok: false, step: 'browser', detail: 'Браузер не поддерживает уведомления' };
+  if (!('serviceWorker' in navigator))
+    return { ok: false, step: 'browser', detail: 'Service Worker не поддерживается' };
+
+  let permission: NotificationPermission;
   try {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) return false;
+    permission = await Notification.requestPermission();
+  } catch (e) {
+    return { ok: false, step: 'permission', detail: String(e) };
+  }
+  if (permission !== 'granted') {
+    return {
+      ok: false,
+      step: 'permission',
+      detail: `Разрешение: "${permission}". Разрешите уведомления через иконку замка в адресной строке браузера.`,
+    };
+  }
 
-    const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
-    const messaging = getMessaging(app);
+  let sw: ServiceWorkerRegistration;
+  try {
+    sw = await navigator.serviceWorker.ready;
+  } catch (e) {
+    return { ok: false, step: 'sw', detail: `Service Worker не готов: ${e}` };
+  }
 
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') return false;
+  let app;
+  try {
+    app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+  } catch (e) {
+    return { ok: false, step: 'firebase_init', detail: String(e) };
+  }
 
-    await navigator.serviceWorker.ready;
+  let messaging;
+  try {
+    messaging = getMessaging(app);
+  } catch (e) {
+    return { ok: false, step: 'messaging', detail: String(e) };
+  }
 
-    const token = await getToken(messaging, { vapidKey: VAPID_KEY });
-    if (!token) return false;
+  let token: string;
+  try {
+    token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
+  } catch (e) {
+    return { ok: false, step: 'fcm_token', detail: `Ошибка получения FCM токена: ${e}` };
+  }
+  if (!token)
+    return { ok: false, step: 'fcm_token', detail: 'FCM вернул пустой токен' };
 
-    await fetch(PUSH_SUBSCRIBE_URL, {
+  try {
+    const res = await fetch(PUSH_SUBSCRIBE_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Id': String(userId),
-      },
+      headers: { 'Content-Type': 'application/json', 'X-User-Id': String(userId) },
       body: JSON.stringify({ token, device_info: navigator.userAgent }),
     });
-
-    localStorage.setItem('fcm_token', token);
-
-    onMessage(messaging, (payload) => {
-      const { title, body } = payload.notification || {};
-      if (title && Notification.permission === 'granted') {
-        new Notification(title, { body: body || '', icon: '/favicon.ico' });
-      }
-    });
-
-    return true;
-  } catch (err) {
-    console.error('[Push] subscribe error:', err);
-    return false;
+    if (!res.ok) {
+      const txt = await res.text();
+      return { ok: false, step: 'save_token', detail: `Сервер вернул ${res.status}: ${txt}` };
+    }
+  } catch (e) {
+    return { ok: false, step: 'save_token', detail: `Ошибка сохранения токена: ${e}` };
   }
+
+  localStorage.setItem('fcm_token', token);
+
+  onMessage(messaging, (payload) => {
+    const { title, body } = payload.notification || {};
+    if (title) new Notification(title, { body: body || '', icon: '/favicon.ico' });
+  });
+
+  return { ok: true, token };
 }
 
 export function usePushNotifications(userId: number | null) {
@@ -62,7 +100,6 @@ export function usePushNotifications(userId: number | null) {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
     if (Notification.permission !== 'granted') return;
     if (!localStorage.getItem('fcm_token')) return;
-
     subscribedRef.current = true;
     subscribeToPush(userId);
   }, [userId]);

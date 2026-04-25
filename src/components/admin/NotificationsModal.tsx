@@ -37,9 +37,9 @@ export default function NotificationsModal({ onClose }: NotificationsModalProps)
     if (!user) return;
     setEnabling(true);
     setEnableError('');
-    setEnableStep('Запрашиваю разрешение...');
+    setEnableStep('Начинаю...');
 
-    const result = await subscribeToPush(user.id);
+    const result = await subscribeToPush(user.id, (s) => setEnableStep(s));
 
     if (result.ok) {
       setIsSubscribed(true);
@@ -108,7 +108,7 @@ export default function NotificationsModal({ onClose }: NotificationsModalProps)
                   <div className="text-sm font-medium text-gray-800">
                     {isSubscribed ? 'Уведомления включены' : 'Уведомления выключены'}
                   </div>
-                  <div className="text-xs text-gray-500 truncate">
+                  <div className="text-xs text-gray-500 break-words">
                     {isSubscribed
                       ? `Токен: ${fcmToken.slice(0, 20)}...`
                       : enabling ? enableStep : 'Нажмите «Включить»'}

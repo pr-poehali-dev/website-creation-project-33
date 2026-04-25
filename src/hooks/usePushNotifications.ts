@@ -18,12 +18,15 @@ export type PushResult =
   | { ok: true; token: string }
   | { ok: false; step: string; detail: string };
 
-export async function subscribeToPush(userId: number): Promise<PushResult> {
+export async function subscribeToPush(userId: number, onStep?: (s: string) => void): Promise<PushResult> {
+  const step = (s: string) => { console.log('[Push]', s); onStep?.(s); };
+
   if (!('Notification' in window))
     return { ok: false, step: 'browser', detail: 'Браузер не поддерживает уведомления' };
   if (!('serviceWorker' in navigator))
     return { ok: false, step: 'browser', detail: 'Service Worker не поддерживается' };
 
+  step('Запрашиваю разрешение...');
   let permission: NotificationPermission;
   try {
     permission = await Notification.requestPermission();
@@ -38,13 +41,19 @@ export async function subscribeToPush(userId: number): Promise<PushResult> {
     };
   }
 
+  step('Ожидаю Service Worker...');
   let sw: ServiceWorkerRegistration;
   try {
-    sw = await navigator.serviceWorker.ready;
+    const swTimeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Service Worker не готов за 10 сек — попробуй перезагрузить страницу (Ctrl+Shift+R)')), 10000)
+    );
+    sw = await Promise.race([navigator.serviceWorker.ready, swTimeout]);
   } catch (e) {
-    return { ok: false, step: 'sw', detail: `Service Worker не готов: ${e}` };
+    return { ok: false, step: 'sw', detail: `${e}` };
   }
+  step(`SW готов: ${sw.scope}`);
 
+  step('Инициализирую Firebase...');
   let app;
   try {
     app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
@@ -59,18 +68,19 @@ export async function subscribeToPush(userId: number): Promise<PushResult> {
     return { ok: false, step: 'messaging', detail: String(e) };
   }
 
+  step('Получаю FCM токен...');
   let token: string;
   try {
     const tokenPromise = getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout: getToken завис на 15 сек. Вероятно неверный VAPID ключ. Возьми его в Firebase Console → Project Settings → Cloud Messaging → Web Push certificates → Key pair')), 15000)
+      setTimeout(() => reject(new Error('getToken завис на 15 сек. Скорее всего неверный VAPID ключ или SW не зарегистрирован.')), 15000)
     );
     token = await Promise.race([tokenPromise, timeoutPromise]);
   } catch (e) {
     return { ok: false, step: 'fcm_token', detail: `${e}` };
   }
   if (!token)
-    return { ok: false, step: 'fcm_token', detail: 'FCM вернул пустой токен. Проверь VAPID ключ в Firebase Console → Project Settings → Cloud Messaging → Web Push certificates' };
+    return { ok: false, step: 'fcm_token', detail: 'FCM вернул пустой токен' };
 
   try {
     const res = await fetch(PUSH_SUBSCRIBE_URL, {

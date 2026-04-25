@@ -11,7 +11,7 @@ const FIREBASE_CONFIG = {
   appId: '1:71242293605:web:00010f9ccf89330ac0c18c',
 };
 
-const VAPID_KEY = 'BG6Ttkt-fQpV58ujGgbAgbelZZdBnVjelhL5pfMcRBCXNepszkFPcPSgQ20AqVrf8WTYYHR7M_QOw9YrLH5SE';
+const VAPID_KEY = 'BG6Ttkt-fQpV58ujGgbAgbelZZdBnVjelhL5pfMcRBCXNepszkFPcPSgQWb20AqVrf8WTYYHR7M_Q0w9YrLH5SE';
 const PUSH_SUBSCRIBE_URL = 'https://functions.poehali.dev/0742cff3-bd80-4025-9b3e-029d5d82c960';
 
 export type PushResult =

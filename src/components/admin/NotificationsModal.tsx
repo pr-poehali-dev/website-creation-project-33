@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
+import { subscribeToPush } from '@/hooks/usePushNotifications';
 
 const PUSH_SEND_URL = 'https://functions.poehali.dev/180d47b5-051e-4c3c-9861-3025f7d82986';
 
@@ -20,9 +21,30 @@ export default function NotificationsModal({ onClose }: NotificationsModalProps)
 
   useEffect(() => {
     const token = localStorage.getItem('fcm_token');
-    setIsSubscribed(!!token);
-    if (token) setStatus('subscribed');
+    const hasPermission = 'Notification' in window && Notification.permission === 'granted';
+    const subscribed = !!token && hasPermission;
+    setIsSubscribed(subscribed);
+    if (subscribed) setStatus('subscribed');
   }, []);
+
+  const handleEnable = async () => {
+    if (!user) return;
+    setStatus('loading');
+    setError('');
+    const ok = await subscribeToPush(user.id);
+    if (ok) {
+      setIsSubscribed(true);
+      setStatus('subscribed');
+    } else {
+      const perm = 'Notification' in window ? Notification.permission : 'denied';
+      if (perm === 'denied') {
+        setError('Вы заблокировали уведомления. Разрешите их в настройках браузера (иконка замка в адресной строке).');
+      } else {
+        setError('Не удалось подключить уведомления. Попробуйте ещё раз.');
+      }
+      setStatus('error');
+    }
+  };
 
   const sendNotification = async () => {
     if (!title.trim() || !user) return;
@@ -46,10 +68,12 @@ export default function NotificationsModal({ onClose }: NotificationsModalProps)
       } else {
         setError(data.error || 'Ошибка отправки');
         setStatus('error');
+        setTimeout(() => setStatus('subscribed'), 3000);
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Ошибка отправки');
       setStatus('error');
+      setTimeout(() => setStatus('subscribed'), 3000);
     }
   };
 
@@ -84,9 +108,18 @@ export default function NotificationsModal({ onClose }: NotificationsModalProps)
                     {isSubscribed ? 'Уведомления включены' : 'Уведомления выключены'}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {isSubscribed ? 'Этот браузер получит уведомления' : 'Разрешение не выдано или браузер не поддерживает'}
+                    {isSubscribed ? 'Этот браузер получит уведомления' : 'Нажмите «Включить», чтобы разрешить'}
                   </div>
                 </div>
+                {!isSubscribed && (
+                  <button
+                    onClick={handleEnable}
+                    disabled={status === 'loading'}
+                    className="text-xs px-3 py-1.5 rounded-lg font-medium bg-[#001f54] hover:bg-[#002a70] text-white disabled:opacity-50 transition-colors"
+                  >
+                    {status === 'loading' ? '...' : 'Включить'}
+                  </button>
+                )}
               </div>
 
               {isSubscribed && (

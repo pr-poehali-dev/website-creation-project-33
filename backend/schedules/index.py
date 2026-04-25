@@ -9,6 +9,7 @@ import os
 import psycopg2
 from typing import Dict, Any
 from datetime import datetime, timedelta
+from push_utils import notify_admins
 
 def get_db_connection():
     dsn = os.environ.get('DATABASE_URL')
@@ -197,6 +198,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         is_locked = submitted_at is not None
 
         conn.commit()
+
+        # Push только когда промоутер сохраняет (не admin_override)
+        if not admin_override and is_locked:
+            cur2 = conn.cursor()
+            cur2.execute("SELECT name FROM t_p24058207_website_creation_pro.users WHERE id = %s", (int(user_id),))
+            row = cur2.fetchone()
+            cur2.close()
+            promoter_name = row[0] if row else f'ID {user_id}'
+            notify_admins(conn, '📅 Новый график', f'{promoter_name} сохранил график на неделю с {week_start}')
+
         cur.close()
         conn.close()
         

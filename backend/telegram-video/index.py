@@ -4,6 +4,7 @@ import os
 from typing import Dict, Any
 import requests
 import psycopg2
+from push_utils import notify_admins
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -199,7 +200,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 print(f'Created work_shift record for user={user_id}, org={organization_id}')
                             else:
                                 print(f'Work shift already exists for user={user_id}, org={organization_id}')
-                        
+
+                            conn.commit()
+                            notify_admins(conn, '🟢 Открытие смены', f'{user_name} открыл смену в {organization_name}')
+
                         elif photo_type == 'end':
                             cur.execute(
                                 """
@@ -212,8 +216,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 (int(user_id), int(organization_id))
                             )
                             print(f'Updated work_shift end time for user={user_id}, org={organization_id}')
-                        
-                        conn.commit()
+                            conn.commit()
+                            notify_admins(conn, '🔴 Закрытие смены', f'{user_name} закрыл смену в {organization_name}')
+
+                        else:
+                            conn.commit()
+
                         print(f'Saved shift photo record: user={user_id}, org={organization_id}, type={photo_type}')
             except Exception as e:
                 print(f'Error saving shift photo record: {e}')

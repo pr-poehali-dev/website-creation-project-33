@@ -2,6 +2,7 @@ import json
 import os
 import psycopg2
 from typing import Dict, Any
+from push_utils import notify_admins
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -59,7 +60,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     (int(user_id), organization_id)
                 )
                 conn.commit()
-        
+
+                cur.execute("SELECT name FROM t_p24058207_website_creation_pro.users WHERE id = %s", (int(user_id),))
+                row = cur.fetchone()
+                promoter_name = row[0] if row else f'ID {user_id}'
+
+            notify_admins(conn, '📋 Новый контакт', f'{promoter_name} добавил новый контакт')
+
         return {
             'statusCode': 200,
             'headers': {

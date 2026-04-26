@@ -37,6 +37,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'ok': True})}
 
     device_info = body.get('device_info', '')
+    cur.execute(f"DELETE FROM {SCHEMA}.fcm_tokens WHERE user_id = %s AND token != %s", (user_id, token))
     cur.execute(f"""
         INSERT INTO {SCHEMA}.fcm_tokens (user_id, token, device_info, updated_at)
         VALUES (%s, %s, %s, NOW())

@@ -1,0 +1,1 @@
+UPDATE t_p24058207_website_creation_pro.fcm_tokens SET token = token WHERE user_id = 1 AND token = 'cmw4j5sUQ5yk6EbU6pKa7R:APA91bGZ6S_9-48PBfoTtYhPoG1ON_aWoK1VNjhAkaVFQULjzfovA05jNMdzzTU1KaVYYnCHPr5dCmBa3EUUG0mPBZLuRWgXiimf1CgTZ8FVb243Cdg9YSY';

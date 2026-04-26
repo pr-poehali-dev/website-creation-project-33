@@ -13,12 +13,7 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
-  // Для Android: показываем из data если нет системного notification
-  var data = payload.data || {};
-  var title = data.title || 'Империя Промо';
-  var body = data.body || '';
-  self.registration.showNotification(title, {
-    body: body,
-    icon: '/favicon.ico',
-  });
+  // На iOS уведомление показывает APNs автоматически — ничего не делаем.
+  // На Android срабатывает android.notification блок — тоже ничего не делаем.
+  // Без этого колбэка Firebase SDK выдаёт ошибку, поэтому оставляем пустым.
 });

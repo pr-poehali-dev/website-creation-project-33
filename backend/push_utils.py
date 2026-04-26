@@ -58,11 +58,12 @@ def notify_admins(conn, title: str, body: str) -> int:
                     'token': token,
                     'data': {'title': title, 'body': body},
                     'apns': {
-                        'headers': {'apns-priority': '10'},
+                        'headers': {'apns-priority': '10', 'apns-push-type': 'alert'},
                         'payload': {
                             'aps': {
                                 'alert': {'title': title, 'body': body},
-                                'sound': 'default'
+                                'sound': 'default',
+                                'badge': 1
                             }
                         }
                     },

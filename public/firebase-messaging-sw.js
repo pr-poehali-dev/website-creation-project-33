@@ -13,6 +13,8 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
+  // Показываем уведомление только если нет notification-поля (data-only push)
+  if (payload.notification) return;
   var data = payload.data || {};
   var title = data.title || 'Империя Промо';
   var body = data.body || '';

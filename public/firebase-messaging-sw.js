@@ -12,14 +12,5 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(function(payload) {
-  // Показываем уведомление только если нет notification-поля (data-only push)
-  if (payload.notification) return;
-  var data = payload.data || {};
-  var title = data.title || 'Империя Промо';
-  var body = data.body || '';
-  self.registration.showNotification(title, {
-    body: body,
-    icon: '/favicon.ico',
-  });
-});
+// iOS показывает уведомление автоматически из notification-поля FCM payload.
+// onBackgroundMessage намеренно не используется — иначе будет дубль на iPhone.

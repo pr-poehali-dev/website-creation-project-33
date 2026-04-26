@@ -154,17 +154,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if database_url and telegram_message_id:
             try:
                 moscow_time = get_moscow_time()
-                with psycopg2.connect(database_url) as conn:
-                    with conn.cursor() as cur:
-                        cur.execute(
-                            """INSERT INTO t_p24058207_website_creation_pro.leads_analytics 
-                            (user_id, lead_type, lead_result, telegram_message_id, organization_id, created_at) 
-                            VALUES (%s, %s, %s, %s, %s, %s)""",
-                            (int(user_id), 'контакт', '', telegram_message_id, organization_id, moscow_time)
-                        )
-                        conn.commit()
-                    notify_admins(conn, '📋 Новый контакт', f'{user_name} добавил новый контакт')
+                conn = psycopg2.connect(database_url)
+                cur = conn.cursor()
+                cur.execute(
+                    """INSERT INTO t_p24058207_website_creation_pro.leads_analytics 
+                    (user_id, lead_type, lead_result, telegram_message_id, organization_id, created_at) 
+                    VALUES (%s, %s, %s, %s, %s, %s)""",
+                    (int(user_id), 'контакт', '', telegram_message_id, organization_id, moscow_time)
+                )
+                conn.commit()
+                cur.close()
                 print(f'✅ Lead saved to DB')
+                print(f'📲 Sending push to admins...')
+                sent = notify_admins(conn, '📋 Новый контакт', f'{user_name} добавил новый контакт')
+                print(f'📲 Push sent to {sent} admins')
+                conn.close()
             except Exception as db_error:
                 print(f'❌ Failed to save to DB: {db_error}')
         

@@ -106,9 +106,8 @@ export async function subscribeToPush(userId: number, onStep?: (s: string) => vo
 
   localStorage.setItem('fcm_token', token);
 
-  onMessage(messaging, (payload) => {
-    const { title, body } = payload.notification || {};
-    if (title) new Notification(title, { body: body || '', icon: '/favicon.ico' });
+  onMessage(messaging, (_payload) => {
+    // Уведомление показывает Service Worker — здесь ничего не делаем, чтобы не дублировать
   });
 
   return { ok: true, token };

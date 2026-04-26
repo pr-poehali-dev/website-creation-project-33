@@ -11,6 +11,7 @@
   "video-upload": "https://functions.poehali.dev/80ebc7f0-e4d8-4018-b8a8-477db92ac225",
   "send-audio-lead": "https://functions.poehali.dev/347ff9ef-ae96-46fb-87df-2eaae7c2a7bf",
   "video-lead": "https://functions.poehali.dev/3698e100-6084-4fbd-aaca-c2be1dc6e458",
+  "send-media": "https://functions.poehali.dev/711d48f6-ff7d-4de8-895a-eb246dec957f",
   "telegram-setup": "https://functions.poehali.dev/147d0398-6403-42c1-ba20-e559ce30ff28",
   "telegram-bot": "https://functions.poehali.dev/3866e45c-8059-4370-ba27-042c0eac094d",
   "logout-user": "https://functions.poehali.dev/4fd575d9-3eab-46f6-8648-120ba9fb667d",

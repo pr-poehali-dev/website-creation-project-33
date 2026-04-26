@@ -11,6 +11,7 @@ import psycopg2
 from datetime import datetime
 from typing import Dict, Any
 import pytz
+from push_utils import notify_admins
 
 MOSCOW_TZ = pytz.timezone('Europe/Moscow')
 
@@ -162,6 +163,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             (int(user_id), 'контакт', '', telegram_message_id, organization_id, moscow_time)
                         )
                         conn.commit()
+                    notify_admins(conn, '📋 Новый контакт', f'{user_name} добавил новый контакт')
                 print(f'✅ Lead saved to DB')
             except Exception as db_error:
                 print(f'❌ Failed to save to DB: {db_error}')

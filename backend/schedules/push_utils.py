@@ -56,16 +56,18 @@ def notify_admins(conn, title: str, body: str) -> int:
             resp = requests.post(url, headers=headers, json={
                 'message': {
                     'token': token,
-                    'notification': {'title': title, 'body': body},
                     'data': {'title': title, 'body': body},
                     'apns': {
+                        'headers': {'apns-priority': '10'},
                         'payload': {
                             'aps': {
                                 'alert': {'title': title, 'body': body},
-                                'sound': 'default',
-                                'content-available': 1
+                                'sound': 'default'
                             }
                         }
+                    },
+                    'android': {
+                        'notification': {'title': title, 'body': body, 'sound': 'default'}
                     }
                 }
             }, timeout=10)

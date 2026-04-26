@@ -12,5 +12,13 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// iOS показывает уведомление автоматически из notification-поля FCM payload.
-// onBackgroundMessage намеренно не используется — иначе будет дубль на iPhone.
+messaging.onBackgroundMessage(function(payload) {
+  // Для Android: показываем из data если нет системного notification
+  var data = payload.data || {};
+  var title = data.title || 'Империя Промо';
+  var body = data.body || '';
+  self.registration.showNotification(title, {
+    body: body,
+    icon: '/favicon.ico',
+  });
+});

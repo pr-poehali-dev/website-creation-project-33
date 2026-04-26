@@ -10,6 +10,7 @@ import re
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import threading
+from push_utils import notify_admins
 
 MOSCOW_TZ = pytz.timezone('Europe/Moscow')
 
@@ -105,16 +106,21 @@ def send_telegram_async(bot_token: str, chat_id: str, caption: str, audio_data: 
         
         if database_url:
             try:
-                with psycopg2.connect(database_url) as conn:
-                    with conn.cursor() as cur:
-                        cur.execute(
-                            """INSERT INTO t_p24058207_website_creation_pro.leads_analytics 
-                            (user_id, lead_type, lead_result, telegram_message_id, organization_id, created_at) 
-                            VALUES (%s, %s, %s, %s, %s, %s)""",
-                            (int(user_id), lead_type, '', telegram_message_id, organization_id, moscow_time)
-                        )
-                        conn.commit()
+                conn = psycopg2.connect(database_url)
+                cur = conn.cursor()
+                cur.execute(
+                    """INSERT INTO t_p24058207_website_creation_pro.leads_analytics 
+                    (user_id, lead_type, lead_result, telegram_message_id, organization_id, created_at) 
+                    VALUES (%s, %s, %s, %s, %s, %s)""",
+                    (int(user_id), lead_type, '', telegram_message_id, organization_id, moscow_time)
+                )
+                conn.commit()
+                cur.close()
                 print(f'Lead saved to DB: {user_name}, {lead_type}')
+                if lead_type == 'контакт':
+                    sent = notify_admins(conn, '📋 Новый контакт', f'{user_name} добавил новый контакт')
+                    print(f'Push sent to {sent} admins')
+                conn.close()
             except Exception as db_error:
                 print(f'Failed to save to DB: {db_error}')
         

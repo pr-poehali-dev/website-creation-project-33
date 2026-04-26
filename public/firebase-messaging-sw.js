@@ -13,9 +13,11 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
-  const { title, body } = payload.notification || {};
-  self.registration.showNotification(title || 'Империя Промо', {
-    body: body || '',
+  var data = payload.data || {};
+  var title = data.title || 'Империя Промо';
+  var body = data.body || '';
+  self.registration.showNotification(title, {
+    body: body,
     icon: '/favicon.ico',
   });
 });

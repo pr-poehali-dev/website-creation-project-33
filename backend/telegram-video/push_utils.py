@@ -54,7 +54,7 @@ def notify_admins(conn, title: str, body: str) -> int:
         sent = 0
         for token in tokens:
             resp = requests.post(url, headers=headers, json={
-                'message': {'token': token, 'notification': {'title': title, 'body': body}}
+                'message': {'token': token, 'data': {'title': title, 'body': body}}
             }, timeout=10)
             if resp.status_code == 200:
                 sent += 1

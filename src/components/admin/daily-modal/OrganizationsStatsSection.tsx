@@ -71,7 +71,7 @@ export default function OrganizationsStatsSection({ dailyUserStats }: Organizati
                       <span className="text-[10px] font-bold text-cyan-500 w-4 text-center flex-shrink-0">{index + 1}</span>
                       <span className="text-xs text-slate-200 truncate">{p.name}</span>
                     </div>
-                    <div className="flex gap-3 flex-shrink-0">
+                    <div className="flex items-center gap-3 flex-shrink-0">
                       <div className="text-center">
                         <div className="text-xs font-bold text-green-400">{p.orgData?.contacts}</div>
                         <div className="text-[9px] text-slate-400">конт.</div>
@@ -79,6 +79,11 @@ export default function OrganizationsStatsSection({ dailyUserStats }: Organizati
                       <div className="text-center">
                         <div className="text-xs font-bold text-orange-400">{p.orgData?.approaches}</div>
                         <div className="text-[9px] text-slate-400">подх.</div>
+                      </div>
+                      <div className="text-center min-w-[28px]">
+                        <div className="text-xs font-bold text-slate-400">
+                          {(p.orgData?.approaches ?? 0) > 0 ? Math.round(((p.orgData?.contacts ?? 0) / (p.orgData?.approaches ?? 1)) * 100) : 0}%
+                        </div>
                       </div>
                     </div>
                   </div>

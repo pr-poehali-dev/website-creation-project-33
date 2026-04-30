@@ -1755,7 +1755,23 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute("""
-                        SELECT o.id, o.name, o.created_at, o.contact_rate, o.payment_type,
+                        SELECT o.id, o.name, o.created_at,
+                               COALESCE(
+                                   (SELECT rp.contact_rate FROM t_p24058207_website_creation_pro.organization_rate_periods rp
+                                    WHERE rp.organization_id = o.id
+                                      AND rp.start_date <= CURRENT_DATE
+                                      AND (rp.end_date IS NULL OR rp.end_date >= CURRENT_DATE)
+                                    ORDER BY rp.start_date DESC LIMIT 1),
+                                   o.contact_rate, 0
+                               ) as contact_rate,
+                               COALESCE(
+                                   (SELECT rp.payment_type FROM t_p24058207_website_creation_pro.organization_rate_periods rp
+                                    WHERE rp.organization_id = o.id
+                                      AND rp.start_date <= CURRENT_DATE
+                                      AND (rp.end_date IS NULL OR rp.end_date >= CURRENT_DATE)
+                                    ORDER BY rp.start_date DESC LIMIT 1),
+                                   o.payment_type, 'cash'
+                               ) as payment_type,
                                COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as lead_count
                         FROM t_p24058207_website_creation_pro.organizations o
                         LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 

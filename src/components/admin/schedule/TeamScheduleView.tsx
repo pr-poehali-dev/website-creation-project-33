@@ -60,18 +60,20 @@ export default function TeamScheduleView({
     if (!weekDays.length) return;
     const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
     const headers = { 'Content-Type': 'application/json', 'X-Session-Token': localStorage.getItem('session_token') || '' };
-    Promise.all(
-      weekDays.map(day =>
-        fetch(`${TRAINING_API}?action=get_entries&date=${day.date}`, { headers })
-          .then(r => r.json())
-          .then(data => ({ date: day.date, count: (data.entries || []).length }))
-          .catch(() => ({ date: day.date, count: 0 }))
-      )
-    ).then(results => {
-      const counts: Record<string, number> = {};
-      results.forEach(r => { counts[r.date] = r.count; });
-      setTrainingCounts(counts);
-    });
+    const dateFrom = weekDays[0].date;
+    const dateTo = weekDays[weekDays.length - 1].date;
+    fetch(`${TRAINING_API}?action=get_entries&date_from=${dateFrom}&date_to=${dateTo}`, { headers })
+      .then(r => r.json())
+      .then(data => {
+        const counts: Record<string, number> = data.counts || {};
+        weekDays.forEach(day => { if (!(day.date in counts)) counts[day.date] = 0; });
+        setTrainingCounts(counts);
+      })
+      .catch(() => {
+        const counts: Record<string, number> = {};
+        weekDays.forEach(day => { counts[day.date] = 0; });
+        setTrainingCounts(counts);
+      });
   }, [weekDays]);
 
   const {

@@ -83,6 +83,20 @@ def handler(event: dict, context) -> dict:
         # ---- ENTRIES ----
         if action == 'get_entries':
             date = params.get('date') or body.get('date')
+            date_from = params.get('date_from') or body.get('date_from')
+            date_to = params.get('date_to') or body.get('date_to')
+            if date_from and date_to:
+                cur.execute(f'''
+                    SELECT id, date, senior_name, promoter_name, promoter_phone, organization, time, comment
+                    FROM {SCHEMA}.training_entries WHERE date >= %s AND date <= %s ORDER BY date, id
+                ''', (date_from, date_to))
+                rows = cur.fetchall()
+                entries = [{'id': r[0], 'date': str(r[1]), 'seniorName': r[2], 'promoterName': r[3],
+                            'promoterPhone': r[4], 'organization': r[5], 'time': r[6], 'comment': r[7]} for r in rows]
+                counts: dict = {}
+                for e in entries:
+                    counts[e['date']] = counts.get(e['date'], 0) + 1
+                return ok({'entries': entries, 'counts': counts})
             if not date:
                 return err('date required')
             cur.execute(f'''

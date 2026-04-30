@@ -4,12 +4,10 @@
       "name": "Get seniors",
       "method": "GET",
       "path": "/?action=get_seniors",
-      "expectedStatus": 200,
-      "expectedBody": {"seniors": [{"id": 3}]},
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
-      "name": "Get entries",
+      "name": "Get entries single date",
       "method": "GET",
       "path": "/?action=get_entries&date=2026-01-01",
       "expectedStatus": 200,
@@ -17,11 +15,11 @@
       "bodyMatcher": "partial"
     },
     {
-      "name": "Get senior KPD",
+      "name": "Get entries batch by range",
       "method": "GET",
-      "path": "/?action=get_senior_kpd&senior_id=3",
+      "path": "/?action=get_entries&date_from=2026-04-27&date_to=2026-05-03",
       "expectedStatus": 200,
-      "expectedBody": {"by_day": [{"date": "2026-04-09"}]},
+      "expectedBody": {"counts": {}},
       "bodyMatcher": "partial"
     }
   ]

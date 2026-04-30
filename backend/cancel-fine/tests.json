@@ -19,7 +19,7 @@
       "name": "Cancel fine success",
       "method": "POST",
       "path": "/",
-      "body": {"password": "955650-!", "user_id": 1, "fine_date": "2026-04-28", "fine_type": "late", "fine_slot": "slot1", "amount": 500},
+      "body": {"password": "955650", "user_id": 1, "fine_date": "2026-04-28", "fine_type": "late", "fine_slot": "slot1", "amount": 500},
       "expectedStatus": 200,
       "expectedBody": {"ok": true},
       "bodyMatcher": "partial"

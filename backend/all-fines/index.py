@@ -146,6 +146,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     for row in cur.fetchall():
         schedules_map[row[0]] = row[1]
 
+    # Отменённые штрафы
+    cur.execute(f"""
+        SELECT user_id, fine_date, fine_type, fine_slot
+        FROM t_p24058207_website_creation_pro.cancelled_fines
+        WHERE user_id IN ({ids_str})
+          AND fine_date >= '{week_start}'
+          AND fine_date <= '{week_end_date.isoformat()}'
+    """)
+    cancelled_set = set()
+    for row in cur.fetchall():
+        cancelled_set.add((row[0], str(row[1]), row[2], row[3]))
+
     cur.close()
     conn.close()
 
@@ -197,15 +209,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if matching_shift is None:
                     day_end_msk = datetime(current_date.year, current_date.month, current_date.day, 20, 0)
                     if now_msk >= day_end_msk:
-                        fines.append({'type': 'missed', 'amount': FINE_MISSED_SHIFT, 'label': f'Пропуск смены {slot_label}', 'time_info': 'Смена не открыта'})
+                        cancelled = (uid, date_str, 'missed', slot_key) in cancelled_set
+                        fines.append({'type': 'missed', 'amount': 0 if cancelled else FINE_MISSED_SHIFT, 'label': f'Пропуск смены {slot_label}', 'time_info': 'Смена не открыта', 'slot_key': slot_key, 'cancelled': cancelled})
                 else:
                     if not is_second_slot and matching_shift['start'] > slot_start:
                         actual_time = matching_shift['start'].strftime('%H:%M')
-                        fines.append({'type': 'late', 'amount': FINE_LATE_START, 'label': f'Опоздание {slot_label}', 'time_info': f'открыл в {actual_time}'})
+                        cancelled = (uid, date_str, 'late', slot_key) in cancelled_set
+                        fines.append({'type': 'late', 'amount': 0 if cancelled else FINE_LATE_START, 'label': f'Опоздание {slot_label}', 'time_info': f'открыл в {actual_time}', 'slot_key': slot_key, 'cancelled': cancelled})
                     if not is_first_of_two and matching_shift['end'] is not None:
                         if matching_shift['end'] < slot_end and now_msk >= slot_end:
                             actual_time = matching_shift['end'].strftime('%H:%M')
-                            fines.append({'type': 'early', 'amount': FINE_EARLY_END, 'label': f'Ранний уход {slot_label}', 'time_info': f'закрыл в {actual_time}'})
+                            cancelled = (uid, date_str, 'early', slot_key) in cancelled_set
+                            fines.append({'type': 'early', 'amount': 0 if cancelled else FINE_EARLY_END, 'label': f'Ранний уход {slot_label}', 'time_info': f'закрыл в {actual_time}', 'slot_key': slot_key, 'cancelled': cancelled})
 
             day_fines_total = sum(f['amount'] for f in fines)
             total_earnings += earnings

@@ -6,6 +6,8 @@ interface Fine {
   amount: number;
   label: string;
   time_info?: string;
+  slot_key?: string;
+  cancelled?: boolean;
 }
 
 interface DayData {
@@ -26,6 +28,17 @@ interface PromoterData {
   total_fines: number;
   total_net: number;
   days: DayData[];
+}
+
+interface CancelTarget {
+  user_id: number;
+  fine_date: string;
+  fine_type: string;
+  fine_slot: string;
+  amount: number;
+  label: string;
+  name: string;
+  cancelled: boolean;
 }
 
 function getCurrentWeekStart(): string {
@@ -56,11 +69,18 @@ const FINE_COLORS: Record<string, string> = {
   early: 'text-yellow-600 bg-yellow-50 border-yellow-100',
 };
 
+const CANCEL_URL = 'https://functions.poehali.dev/3bf6f7ee-5bdc-4d51-9bb2-769a301f1a1b';
+
 export default function FinesTab() {
   const [data, setData] = useState<PromoterData[]>([]);
   const [loading, setLoading] = useState(true);
   const [weekStart, setWeekStart] = useState(getCurrentWeekStart());
   const [expandedUser, setExpandedUser] = useState<number | null>(null);
+
+  const [cancelTarget, setCancelTarget] = useState<CancelTarget | null>(null);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     fetchFines();
@@ -92,6 +112,57 @@ export default function FinesTab() {
     const d = new Date(weekStart + 'T12:00:00');
     d.setDate(d.getDate() + 7);
     setWeekStart(d.toISOString().split('T')[0]);
+  };
+
+  const openCancelModal = (
+    e: React.MouseEvent,
+    promoter: PromoterData,
+    day: DayData,
+    fine: Fine
+  ) => {
+    e.stopPropagation();
+    setCancelTarget({
+      user_id: promoter.user_id,
+      fine_date: day.date,
+      fine_type: fine.type,
+      fine_slot: fine.slot_key || '',
+      amount: fine.amount,
+      label: fine.label,
+      name: promoter.name,
+      cancelled: fine.cancelled ?? false,
+    });
+    setPassword('');
+    setPasswordError('');
+  };
+
+  const handleConfirm = async () => {
+    if (!cancelTarget) return;
+    setCancelling(true);
+    setPasswordError('');
+    try {
+      const method = cancelTarget.cancelled ? 'DELETE' : 'POST';
+      const res = await fetch(CANCEL_URL, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          password,
+          user_id: cancelTarget.user_id,
+          fine_date: cancelTarget.fine_date,
+          fine_type: cancelTarget.fine_type,
+          fine_slot: cancelTarget.fine_slot,
+          amount: cancelTarget.amount,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setPasswordError(json.error || 'Ошибка');
+      } else {
+        setCancelTarget(null);
+        fetchFines();
+      }
+    } finally {
+      setCancelling(false);
+    }
   };
 
   const isCurrentWeek = weekStart === getCurrentWeekStart();
@@ -155,17 +226,12 @@ export default function FinesTab() {
         <div className="space-y-2">
           {data.map((p) => (
             <div key={p.user_id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-              {/* Строка промоутера */}
               <button
                 onClick={() => setExpandedUser(expandedUser === p.user_id ? null : p.user_id)}
                 className="w-full px-4 py-3.5 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
               >
                 <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${p.total_fines > 0 ? 'bg-red-400' : 'bg-green-400'}`} />
-
-                {/* Имя */}
                 <span className="flex-1 text-sm font-semibold text-gray-800 truncate min-w-0">{p.name}</span>
-
-                {/* Цифры */}
                 <div className="flex items-center gap-2 flex-shrink-0 text-right">
                   <div className="hidden sm:block text-xs text-gray-400">
                     {p.total_earnings.toLocaleString('ru-RU')} ₽
@@ -184,10 +250,8 @@ export default function FinesTab() {
                 </div>
               </button>
 
-              {/* Детализация по дням */}
               {expandedUser === p.user_id && (
                 <div className="border-t border-gray-100 bg-gray-50 px-3 py-3 space-y-2">
-                  {/* Доход на мобиле */}
                   <div className="sm:hidden flex justify-between text-xs text-gray-500 px-1 pb-1">
                     <span>Заработок: {p.total_earnings.toLocaleString('ru-RU')} ₽</span>
                   </div>
@@ -197,7 +261,6 @@ export default function FinesTab() {
                   ) : (
                     p.days.map((day) => (
                       <div key={day.date} className="bg-white rounded-xl p-3 border border-gray-100">
-                        {/* День + итог */}
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-bold text-gray-700">
                             {day.day_name}, {new Date(day.date + 'T12:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
@@ -207,22 +270,31 @@ export default function FinesTab() {
                           </span>
                         </div>
 
-                        {/* Контакты + доход */}
                         <div className="text-[11px] text-gray-400 mb-1.5">
                           {day.contacts} контакт{day.contacts === 1 ? '' : day.contacts < 5 ? 'а' : 'ов'} · заработок {day.earnings.toLocaleString('ru-RU')} ₽
                           {day.fines_total > 0 && <span className="text-red-400"> · штрафы −{day.fines_total.toLocaleString('ru-RU')} ₽</span>}
                         </div>
 
-                        {/* Штрафы */}
                         {day.fines.length > 0 ? (
                           <div className="flex flex-col gap-1">
                             {day.fines.map((fine, i) => (
-                              <div key={i} className={`inline-flex items-start gap-1.5 text-[11px] px-2 py-1.5 rounded-lg font-medium border ${FINE_COLORS[fine.type]}`}>
+                              <div
+                                key={i}
+                                className={`inline-flex items-start gap-1.5 text-[11px] px-2 py-1.5 rounded-lg font-medium border ${fine.cancelled ? 'text-gray-400 bg-gray-50 border-gray-100 line-through' : FINE_COLORS[fine.type]}`}
+                              >
                                 <Icon name={FINE_ICONS[fine.type]} size={11} className="mt-0.5 flex-shrink-0" />
                                 <span className="flex-1">
-                                  {fine.label} · −{fine.amount} ₽
-                                  {fine.time_info && <span className="block font-normal opacity-75 mt-0.5">({fine.time_info})</span>}
+                                  {fine.label}{!fine.cancelled && ` · −${fine.amount} ₽`}
+                                  {fine.cancelled && <span className="ml-1 no-underline" style={{textDecoration:'none'}}> · снят</span>}
+                                  {fine.time_info && <span className="block font-normal opacity-75 mt-0.5" style={{textDecoration:'none'}}>({fine.time_info})</span>}
                                 </span>
+                                <button
+                                  onClick={(e) => openCancelModal(e, p, day, fine)}
+                                  className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-colors ${fine.cancelled ? 'bg-green-100 hover:bg-green-200 text-green-600' : 'bg-red-100 hover:bg-red-200 text-red-500'}`}
+                                  title={fine.cancelled ? 'Восстановить штраф' : 'Снять штраф'}
+                                >
+                                  <Icon name={fine.cancelled ? 'RotateCcw' : 'X'} size={10} />
+                                </button>
                               </div>
                             ))}
                           </div>
@@ -238,6 +310,49 @@ export default function FinesTab() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Модал подтверждения */}
+      {cancelTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={() => setCancelTarget(null)}>
+          <div className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-sm font-bold text-gray-800 mb-1">
+              {cancelTarget.cancelled ? 'Восстановить штраф?' : 'Снять штраф?'}
+            </h3>
+            <p className="text-xs text-gray-500 mb-3">
+              {cancelTarget.name} · {cancelTarget.label}
+              {!cancelTarget.cancelled && ` · ${cancelTarget.amount} ₽`}
+            </p>
+
+            <input
+              type="password"
+              inputMode="numeric"
+              placeholder="Введите пароль"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setPasswordError(''); }}
+              onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
+              className={`w-full border rounded-xl px-3 py-2.5 text-sm outline-none mb-1 ${passwordError ? 'border-red-400' : 'border-gray-200 focus:border-blue-400'}`}
+              autoFocus
+            />
+            {passwordError && <p className="text-xs text-red-500 mb-2">{passwordError}</p>}
+
+            <div className="flex gap-2 mt-3">
+              <button
+                onClick={() => setCancelTarget(null)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={cancelling || !password}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors disabled:opacity-50 ${cancelTarget.cancelled ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+              >
+                {cancelling ? '...' : cancelTarget.cancelled ? 'Восстановить' : 'Снять штраф'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

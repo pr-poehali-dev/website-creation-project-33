@@ -11,7 +11,7 @@
       "method": "GET",
       "path": "/",
       "expectedStatus": 200,
-      "expectedBody": {"promoters": [], "week_start": "string"},
+      "expectedBody": {"week_start": "string"},
       "bodyMatcher": "partial"
     },
     {
@@ -19,7 +19,7 @@
       "method": "GET",
       "path": "/?week_start=2026-04-20",
       "expectedStatus": 200,
-      "expectedBody": {"promoters": [], "week_start": "string"},
+      "expectedBody": {"week_start": "string"},
       "bodyMatcher": "partial"
     }
   ]

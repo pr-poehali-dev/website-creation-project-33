@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Wrong password",
+      "method": "POST",
+      "path": "/",
+      "body": {"password": "wrong", "user_id": 1, "fine_date": "2026-04-28", "fine_type": "late", "fine_slot": "slot1", "amount": 500},
+      "expectedStatus": 403,
+      "expectedBody": {"error": "Неверный пароль"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Cancel fine success",
+      "method": "POST",
+      "path": "/",
+      "body": {"password": "955660", "user_id": 1, "fine_date": "2026-04-28", "fine_type": "late", "fine_slot": "slot1", "amount": 500},
+      "expectedStatus": 200,
+      "expectedBody": {"ok": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

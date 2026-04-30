@@ -26,29 +26,29 @@ export default function WorkTimeDateGroup({
   const totalLeads = shifts.reduce((sum, shift) => sum + shift.leads_count, 0);
 
   return (
-    <div className="border-2 border-slate-600 rounded-xl overflow-hidden bg-slate-800/50">
+    <div className="rounded-xl border border-gray-100 overflow-hidden">
       <div
-        className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 cursor-pointer hover:bg-slate-800/70 transition-colors gap-2"
+        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors bg-white"
         onClick={() => onToggle(date)}
       >
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-2.5">
           <Icon
             name={isExpanded ? 'ChevronDown' : 'ChevronRight'}
-            size={18}
-            className="text-cyan-400 transition-transform md:w-5 md:h-5"
+            size={16}
+            className="text-gray-400 transition-transform"
           />
-          <Icon name="Calendar" size={18} className="text-cyan-400 md:w-5 md:h-5" />
-          <span className="font-bold text-slate-100 text-sm md:text-base">{date}</span>
-          <span className="text-xs md:text-sm text-slate-400">({shifts.length})</span>
+          <Icon name="CalendarDays" size={15} className="text-blue-400" />
+          <span className="font-semibold text-gray-800 text-sm">{date}</span>
+          <span className="text-xs text-gray-400">({shifts.length})</span>
         </div>
-        <div className="flex items-center gap-1.5 text-xs md:text-sm text-slate-300 bg-slate-700 px-2 py-1 md:px-3 rounded-lg ml-7 md:ml-0">
-          <Icon name="MessageSquare" size={12} className="md:w-[14px] md:h-[14px] text-cyan-400" />
+        <div className="flex items-center gap-1.5 bg-blue-50 text-blue-600 text-xs font-medium px-2.5 py-1 rounded-lg">
+          <Icon name="MessageSquare" size={11} className="text-blue-400" />
           <span>{totalLeads} лидов</span>
         </div>
       </div>
 
       {isExpanded && (
-        <div className="space-y-2 p-3 md:p-4 pt-0">
+        <div className="divide-y divide-gray-50 border-t border-gray-100">
           {shifts.map((shift, index) => (
             <WorkTimeShiftCard
               key={index}

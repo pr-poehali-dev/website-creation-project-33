@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { formatMoscowTime } from '@/utils/timeFormat';
@@ -26,16 +25,10 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
     try {
       const response = await fetch(
         'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=pending_users',
-        {
-          headers: {
-            'X-Session-Token': sessionToken,
-          },
-        }
+        { headers: { 'X-Session-Token': sessionToken } }
       );
       const data = await response.json();
-      if (data.pending_users) {
-        setPendingUsers(data.pending_users);
-      }
+      if (data.pending_users) setPendingUsers(data.pending_users);
     } catch (error) {
       console.error('Ошибка загрузки заявок:', error);
     } finally {
@@ -43,185 +36,140 @@ export default function PendingUsers({ sessionToken }: PendingUsersProps) {
     }
   };
 
-  useEffect(() => {
-    loadPendingUsers();
-  }, [sessionToken]);
+  useEffect(() => { loadPendingUsers(); }, [sessionToken]);
 
   const handleApprove = async (userId: number) => {
     setProcessingUserId(userId);
     try {
-      const response = await fetch(
-        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Session-Token': sessionToken,
-          },
-          body: JSON.stringify({
-            action: 'approve_user',
-            user_id: userId,
-          }),
-        }
-      );
-      
-      if (response.ok) {
-        await loadPendingUsers();
-      }
+      const response = await fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Session-Token': sessionToken },
+        body: JSON.stringify({ action: 'approve_user', user_id: userId }),
+      });
+      if (response.ok) await loadPendingUsers();
     } catch (error) {
-      console.error('Ошибка одобрения пользователя:', error);
+      console.error('Ошибка одобрения:', error);
     } finally {
       setProcessingUserId(null);
     }
   };
 
   const handleReject = async (userId: number) => {
-    if (!confirm('Вы уверены? Пользователь будет удалён, а его IP заблокирован.')) {
-      return;
-    }
+    if (!confirm('Вы уверены? Пользователь будет удалён, а его IP заблокирован.')) return;
     setProcessingUserId(userId);
     try {
-      const response = await fetch(
-        'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Session-Token': sessionToken,
-          },
-          body: JSON.stringify({
-            action: 'reject_user',
-            user_id: userId,
-          }),
-        }
-      );
-      
-      if (response.ok) {
-        await loadPendingUsers();
-      }
+      const response = await fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Session-Token': sessionToken },
+        body: JSON.stringify({ action: 'reject_user', user_id: userId }),
+      });
+      if (response.ok) await loadPendingUsers();
     } catch (error) {
-      console.error('Ошибка отклонения заявки:', error);
+      console.error('Ошибка отклонения:', error);
     } finally {
       setProcessingUserId(null);
     }
   };
 
   const formatDate = (dateString: string) => {
-    try {
-      return formatMoscowTime(dateString, 'datetime');
-    } catch {
-      return dateString;
-    }
+    try { return formatMoscowTime(dateString, 'datetime'); } catch { return dateString; }
   };
 
   if (isLoading) {
     return (
-      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
-        <CardHeader>
-          <CardTitle className="text-slate-100 flex items-center gap-2">
-            <Icon name="UserCheck" size={24} className="text-cyan-400" />
-            Заявки на регистрацию
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center gap-2 text-slate-300 py-8">
-            <Icon name="Loader2" size={20} className="animate-spin text-cyan-400" />
-            Загрузка заявок...
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center">
+            <Icon name="UserCheck" size={18} className="text-violet-500" />
           </div>
-        </CardContent>
-      </Card>
+          <h2 className="font-semibold text-gray-800 text-base">Заявки на регистрацию</h2>
+        </div>
+        <div className="flex items-center justify-center gap-2 text-gray-400 py-8">
+          <Icon name="Loader2" size={18} className="animate-spin text-violet-400" />
+          <span className="text-sm">Загрузка...</span>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
-      <CardHeader>
-        <CardTitle className="text-slate-100 flex flex-col sm:flex-row items-start sm:items-center gap-2 text-lg md:text-xl">
-          <div className="flex items-center gap-2">
-            <Icon name="UserCheck" size={20} className="md:w-6 md:h-6 text-cyan-400" />
-            <span>Заявки на регистрацию</span>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center">
+            <Icon name="UserCheck" size={18} className="text-violet-500" />
           </div>
-          {pendingUsers.length > 0 && (
-            <span className="px-2 py-1 bg-red-500 text-white text-xs md:text-sm rounded-full font-bold">
-              {pendingUsers.length}
-            </span>
-          )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+          <h2 className="font-semibold text-gray-800 text-base">Заявки на регистрацию</h2>
+        </div>
+        {pendingUsers.length > 0 && (
+          <span className="px-2.5 py-1 bg-red-500 text-white text-xs rounded-full font-bold">
+            {pendingUsers.length}
+          </span>
+        )}
+      </div>
+
+      <div className="p-5">
         {pendingUsers.length === 0 ? (
-          <div className="text-center py-6 md:py-8 text-slate-400">
-            <Icon name="Check" size={40} className="mx-auto mb-3 md:mb-4 text-emerald-400 md:w-12 md:h-12" />
-            <p className="text-base md:text-lg font-medium text-slate-100">Нет новых заявок</p>
-            <p className="text-xs md:text-sm mt-2">Все заявки обработаны</p>
+          <div className="text-center py-8">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-3">
+              <Icon name="CheckCircle2" size={24} className="text-emerald-500" />
+            </div>
+            <p className="font-semibold text-gray-700 text-sm">Нет новых заявок</p>
+            <p className="text-gray-400 text-xs mt-1">Все заявки обработаны</p>
           </div>
         ) : (
           <div className="space-y-3">
             {pendingUsers.map((user) => (
-              <div
-                key={user.id}
-                className="bg-slate-800/50 border border-amber-400/30 rounded-xl p-3 md:p-4 hover:bg-slate-800/70 hover:border-amber-400/50 transition-all"
-              >
-                <div className="flex flex-col gap-3 md:gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Icon name="User" size={16} className="text-amber-400 md:w-[18px] md:h-[18px]" />
-                      <span className="font-bold text-slate-100 text-base md:text-lg">{user.name}</span>
-                    </div>
-                    <div className="space-y-1 text-xs md:text-sm text-slate-400">
-                      <div className="flex items-center gap-2">
-                        <Icon name="Mail" size={12} className="md:w-[14px] md:h-[14px] text-slate-500" />
+              <div key={user.id} className="rounded-xl border border-amber-100 bg-amber-50/50 p-4 hover:bg-amber-50 transition-colors">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <Icon name="User" size={16} className="text-amber-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-800 text-sm">{user.name}</p>
+                    <div className="mt-1 space-y-0.5">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <Icon name="Mail" size={11} className="text-gray-400" />
                         <span className="truncate">{user.email}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Icon name="MapPin" size={12} className="md:w-[14px] md:h-[14px] text-slate-500" />
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <Icon name="MapPin" size={11} className="text-gray-400" />
                         <span>IP: {user.registration_ip || 'неизвестен'}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Icon name="Clock" size={12} className="md:w-[14px] md:h-[14px] text-slate-500" />
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <Icon name="Clock" size={11} className="text-gray-400" />
                         <span>{formatDate(user.created_at)}</span>
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="flex gap-2 w-full md:w-auto">
-                    <Button
-                      onClick={() => handleApprove(user.id)}
-                      disabled={processingUserId === user.id}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 flex-1 md:flex-none text-sm md:text-base h-9 md:h-10 font-semibold"
-                      size="sm"
-                    >
-                      {processingUserId === user.id ? (
-                        <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
-                      ) : (
-                        <>
-                          <Icon name="Check" size={14} className="md:w-4 md:h-4" />
-                          <span className="ml-1 md:ml-2">Одобрить</span>
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      onClick={() => handleReject(user.id)}
-                      disabled={processingUserId === user.id}
-                      className="bg-red-600 hover:bg-red-700 text-white border-0 flex-1 md:flex-none text-sm md:text-base h-9 md:h-10 font-semibold"
-                      size="sm"
-                    >
-                      {processingUserId === user.id ? (
-                        <Icon name="Loader2" size={14} className="animate-spin md:w-4 md:h-4" />
-                      ) : (
-                        <>
-                          <Icon name="X" size={14} className="md:w-4 md:h-4" />
-                          <span className="ml-1 md:ml-2">Отклонить</span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleApprove(user.id)}
+                    disabled={processingUserId === user.id}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition-colors disabled:opacity-50"
+                  >
+                    {processingUserId === user.id
+                      ? <Icon name="Loader2" size={13} className="animate-spin" />
+                      : <><Icon name="Check" size={13} /><span>Одобрить</span></>
+                    }
+                  </button>
+                  <button
+                    onClick={() => handleReject(user.id)}
+                    disabled={processingUserId === user.id}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold border border-red-100 transition-colors disabled:opacity-50"
+                  >
+                    {processingUserId === user.id
+                      ? <Icon name="Loader2" size={13} className="animate-spin" />
+                      : <><Icon name="X" size={13} /><span>Отклонить</span></>
+                    }
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

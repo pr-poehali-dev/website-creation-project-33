@@ -26,7 +26,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f1b2d] px-0">
+    <div className="min-h-screen bg-gray-50 px-0">
       <div className="w-full">
         <AdminHeader 
           onLogout={logout} 

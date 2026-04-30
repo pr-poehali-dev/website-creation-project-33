@@ -862,7 +862,7 @@ def get_all_users_work_time() -> List[Dict[str, Any]]:
                         2 as priority
                     FROM t_p24058207_website_creation_pro.work_shifts ws
                     JOIN t_p24058207_website_creation_pro.users u ON ws.user_id = u.id
-                    WHERE ws.shift_start IS NOT NULL AND ws.shift_end IS NOT NULL
+                    WHERE ws.shift_start IS NOT NULL
                 ) combined_shifts
                 ORDER BY user_id, work_date, organization_id, priority, work_date DESC, user_name
             """)

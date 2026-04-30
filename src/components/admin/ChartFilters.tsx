@@ -1,6 +1,4 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { UserStats } from './types';
 
@@ -26,246 +24,145 @@ interface ChartFiltersProps {
   onOrganizationsChange: (orgIds: number[]) => void;
 }
 
+const GROUP_TABS = [
+  { key: 'day', icon: 'Calendar', short: 'Дни', long: 'По дням' },
+  { key: 'week', icon: 'CalendarRange', short: 'Нед', long: 'По неделям' },
+  { key: 'month', icon: 'CalendarDays', short: 'Мес', long: 'По месяцам' },
+  { key: 'year', icon: 'CalendarClock', short: 'Годы', long: 'По годам' },
+] as const;
+
+const TIME_RANGES = [
+  { key: '7d', label: '7 дней' },
+  { key: '14d', label: '14 дней' },
+  { key: '30d', label: '30 дней' },
+  { key: '90d', label: '90 дней' },
+  { key: '6m', label: '6 месяцев' },
+  { key: '1y', label: '1 год' },
+  { key: 'all', label: 'Всё время' },
+];
+
 export default function ChartFilters({
-  showTotal,
-  setShowTotal,
-  groupBy,
-  setGroupBy,
-  timeRange,
-  setTimeRange,
-  selectedUsers,
-  userStats,
-  searchQuery,
-  setSearchQuery,
-  isDropdownOpen,
-  setIsDropdownOpen,
-  dropdownRef,
-  toggleUser,
-  toggleAllUsers,
-  userColorMap,
-  onOpenAddShift,
-  selectedOrganizations,
-  onOrganizationsChange
+  showTotal, setShowTotal,
+  groupBy, setGroupBy,
+  timeRange, setTimeRange,
+  selectedUsers, userStats,
+  searchQuery, setSearchQuery,
+  isDropdownOpen, setIsDropdownOpen,
+  dropdownRef, toggleUser, toggleAllUsers,
+  userColorMap, onOpenAddShift,
+  selectedOrganizations, onOrganizationsChange,
 }: ChartFiltersProps) {
-  const [organizations, setOrganizations] = React.useState<Array<{id: number, name: string}>>([]);
+  const [organizations, setOrganizations] = React.useState<Array<{ id: number; name: string }>>([]);
   const [orgSearchQuery, setOrgSearchQuery] = React.useState('');
   const [isOrgDropdownOpen, setIsOrgDropdownOpen] = React.useState(false);
   const orgDropdownRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const loadOrganizations = async () => {
-      try {
-        const response = await fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_organizations', {
-          headers: {
-            'X-Session-Token': localStorage.getItem('session_token') || '',
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setOrganizations(data.organizations || []);
-        }
-      } catch (error) {
-        console.error('Error loading organizations:', error);
-      }
-    };
-    loadOrganizations();
+    fetch('https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214?action=get_organizations', {
+      headers: { 'X-Session-Token': localStorage.getItem('session_token') || '' },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => data && setOrganizations(data.organizations || []))
+      .catch(console.error);
   }, []);
 
   React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (orgDropdownRef.current && !orgDropdownRef.current.contains(event.target as Node)) {
+    const handler = (e: MouseEvent) => {
+      if (orgDropdownRef.current && !orgDropdownRef.current.contains(e.target as Node))
         setIsOrgDropdownOpen(false);
-      }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const filteredUsers = userStats.filter(user =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = userStats.filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredOrgs = organizations.filter(o => o.name.toLowerCase().includes(orgSearchQuery.toLowerCase()));
 
-  const filteredOrganizations = organizations.filter(org =>
-    org.name.toLowerCase().includes(orgSearchQuery.toLowerCase())
-  );
-
-  const handleUserSelect = (userName: string) => {
-    toggleUser(userName);
-    setSearchQuery('');
-    setIsDropdownOpen(false);
+  const toggleOrg = (id: number) => {
+    onOrganizationsChange(
+      selectedOrganizations.includes(id)
+        ? selectedOrganizations.filter(x => x !== id)
+        : [...selectedOrganizations, id]
+    );
   };
 
-  const toggleOrganization = (orgId: number) => {
-    const isSelected = selectedOrganizations.includes(orgId);
-    if (isSelected) {
-      onOrganizationsChange(selectedOrganizations.filter(id => id !== orgId));
-    } else {
-      onOrganizationsChange([...selectedOrganizations, orgId]);
-    }
-  };
-
-  const toggleAllOrganizations = () => {
-    if (selectedOrganizations.length === organizations.length) {
-      onOrganizationsChange([]);
-    } else {
-      onOrganizationsChange(organizations.map(org => org.id));
-    }
-  };
-
-  const handleOrgSelect = (orgId: number) => {
-    toggleOrganization(orgId);
-    setOrgSearchQuery('');
-    setIsOrgDropdownOpen(false);
-  };
+  const btn = (active: boolean) =>
+    `px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+      active ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+    }`;
 
   return (
-    <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
-      <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-        <Button
-          onClick={() => setShowTotal(!showTotal)}
-          variant={showTotal ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${showTotal
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name={showTotal ? "Eye" : "EyeOff"} size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
-          <span className="hidden sm:inline">Общая линия</span>
-          <span className="sm:hidden">Общая</span>
-        </Button>
+    <div className="space-y-4 mb-4">
+      {/* Общая линия */}
+      <button onClick={() => setShowTotal(!showTotal)} className={btn(showTotal)}>
+        <Icon name={showTotal ? 'Eye' : 'EyeOff'} size={12} className="inline mr-1" />
+        Общая
+      </button>
+
+      {/* Группировка */}
+      <div className="flex flex-wrap gap-1.5 items-center">
+        <span className="text-xs text-gray-500 font-medium">Группировка:</span>
+        {GROUP_TABS.map(tab => (
+          <button key={tab.key} onClick={() => setGroupBy(tab.key)} className={btn(groupBy === tab.key)}>
+            <Icon name={tab.icon} size={12} className="inline mr-1" />
+            <span className="hidden sm:inline">{tab.long}</span>
+            <span className="sm:hidden">{tab.short}</span>
+          </button>
+        ))}
       </div>
 
-      <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-        <span className="text-xs md:text-sm text-slate-300 font-medium whitespace-nowrap">Группировка:</span>
-        <Button
-          onClick={() => setGroupBy('day')}
-          variant={groupBy === 'day' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${groupBy === 'day'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name="Calendar" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
-          <span className="hidden sm:inline">По дням</span>
-          <span className="sm:hidden">Дни</span>
-        </Button>
-        <Button
-          onClick={() => setGroupBy('week')}
-          variant={groupBy === 'week' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${groupBy === 'week'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name="CalendarRange" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
-          <span className="hidden sm:inline">По неделям</span>
-          <span className="sm:hidden">Нед</span>
-        </Button>
-        <Button
-          onClick={() => setGroupBy('month')}
-          variant={groupBy === 'month' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${groupBy === 'month'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name="CalendarDays" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
-          <span className="hidden sm:inline">По месяцам</span>
-          <span className="sm:hidden">Мес</span>
-        </Button>
-        <Button
-          onClick={() => setGroupBy('year')}
-          variant={groupBy === 'year' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3 ${groupBy === 'year'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name="CalendarClock" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
-          <span className="hidden sm:inline">По годам</span>
-          <span className="sm:hidden">Годы</span>
-        </Button>
-      </div>
-
+      {/* Организации */}
       <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs md:text-sm text-slate-300 font-medium whitespace-nowrap">Организации:</span>
-          <Button
-            onClick={toggleAllOrganizations}
-            variant="outline"
-            size="sm"
-            className="glass-button bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-gray-500 font-medium">Организации:</span>
+          <button
+            onClick={() => onOrganizationsChange(
+              selectedOrganizations.length === organizations.length ? [] : organizations.map(o => o.id)
+            )}
+            className={btn(false)}
           >
             {selectedOrganizations.length === organizations.length ? 'Снять все' : 'Выбрать все'}
-          </Button>
+          </button>
         </div>
-        
         <div className="relative" ref={orgDropdownRef}>
-          <div className="relative">
-            <Icon name="Building2" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <Input
-              type="text"
-              placeholder="Поиск организации..."
-              value={orgSearchQuery}
-              onChange={(e) => {
-                setOrgSearchQuery(e.target.value);
-                setIsOrgDropdownOpen(true);
-              }}
-              onFocus={() => setIsOrgDropdownOpen(true)}
-              className="pl-9 pr-9 bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-slate-600 focus:ring-slate-600 h-9 text-sm"
-            />
-            {orgSearchQuery && (
-              <button
-                onClick={() => {
-                  setOrgSearchQuery('');
-                  setIsOrgDropdownOpen(false);
-                }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
-              >
-                <Icon name="X" size={14} />
-              </button>
-            )}
-          </div>
-
-          {isOrgDropdownOpen && orgSearchQuery && filteredOrganizations.length > 0 && (
-            <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-              {filteredOrganizations.map(org => (
-                <button
-                  key={org.id}
-                  onClick={() => handleOrgSelect(org.id)}
-                  className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-700 transition-colors flex items-center justify-between ${
-                    selectedOrganizations.includes(org.id) ? 'bg-slate-700' : ''
-                  }`}
-                >
-                  <span className="text-slate-100">{org.name}</span>
-                  {selectedOrganizations.includes(org.id) && (
-                    <Icon name="Check" size={14} className="text-green-400" />
-                  )}
+          <Icon name="Building2" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Поиск организации..."
+            value={orgSearchQuery}
+            onChange={e => { setOrgSearchQuery(e.target.value); setIsOrgDropdownOpen(true); }}
+            onFocus={() => setIsOrgDropdownOpen(true)}
+            className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-blue-300 focus:bg-white transition-colors"
+          />
+          {orgSearchQuery && (
+            <button onClick={() => { setOrgSearchQuery(''); setIsOrgDropdownOpen(false); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <Icon name="X" size={13} />
+            </button>
+          )}
+          {isOrgDropdownOpen && orgSearchQuery && filteredOrgs.length > 0 && (
+            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+              {filteredOrgs.map(org => (
+                <button key={org.id} onClick={() => { toggleOrg(org.id); setOrgSearchQuery(''); setIsOrgDropdownOpen(false); }}
+                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center justify-between ${selectedOrganizations.includes(org.id) ? 'bg-blue-50' : ''}`}>
+                  <span className="text-gray-700">{org.name}</span>
+                  {selectedOrganizations.includes(org.id) && <Icon name="Check" size={13} className="text-blue-500" />}
                 </button>
               ))}
             </div>
           )}
         </div>
-
         {selectedOrganizations.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {selectedOrganizations.map(orgId => {
-              const org = organizations.find(o => o.id === orgId);
+            {selectedOrganizations.map(id => {
+              const org = organizations.find(o => o.id === id);
               if (!org) return null;
               return (
-                <button
-                  key={orgId}
-                  onClick={() => toggleOrganization(orgId)}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs bg-purple-600/20 text-purple-200 hover:bg-purple-600/30 border border-purple-600/40 transition-all duration-200"
-                >
-                  <Icon name="Building2" size={12} />
+                <button key={id} onClick={() => toggleOrg(id)}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-100 transition-colors">
+                  <Icon name="Building2" size={11} />
                   <span>{org.name}</span>
-                  <Icon name="X" size={12} className="hover:text-white" />
+                  <Icon name="X" size={11} />
                 </button>
               );
             })}
@@ -273,179 +170,76 @@ export default function ChartFilters({
         )}
       </div>
 
+      {/* Промоутеры */}
       <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs md:text-sm text-slate-300 font-medium whitespace-nowrap">Промоутеры:</span>
-          <Button
-            onClick={toggleAllUsers}
-            variant="outline"
-            size="sm"
-            className="glass-button bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
-          >
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-gray-500 font-medium">Промоутеры:</span>
+          <button onClick={toggleAllUsers} className={btn(false)}>
             {selectedUsers.length === userStats.length ? 'Снять все' : 'Выбрать все'}
-          </Button>
+          </button>
           {onOpenAddShift && (
-            <Button
-              onClick={onOpenAddShift}
-              variant="outline"
-              size="sm"
-              className="glass-button bg-cyan-600 hover:bg-cyan-700 text-white border-cyan-700 transition-all duration-300 text-xs md:text-sm h-8 md:h-9 px-2 md:px-3"
-            >
-              <Icon name="CalendarPlus" size={14} className="mr-1 md:mr-1.5" />
+            <button onClick={onOpenAddShift} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500 text-white hover:bg-blue-600 transition-colors">
+              <Icon name="CalendarPlus" size={12} />
               <span className="hidden sm:inline">Добавить смену</span>
               <span className="sm:hidden">Смена</span>
-            </Button>
+            </button>
           )}
         </div>
-        
         <div className="relative" ref={dropdownRef}>
-          <div className="relative">
-            <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <Input
-              type="text"
-              placeholder="Поиск промоутера..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setIsDropdownOpen(true);
-              }}
-              onFocus={() => setIsDropdownOpen(true)}
-              className="pl-9 pr-9 bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-slate-600 focus:ring-slate-600 h-9 text-sm"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setIsDropdownOpen(false);
-                }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
-              >
-                <Icon name="X" size={14} />
-              </button>
-            )}
-          </div>
-
+          <Icon name="Search" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Поиск промоутера..."
+            value={searchQuery}
+            onChange={e => { setSearchQuery(e.target.value); setIsDropdownOpen(true); }}
+            onFocus={() => setIsDropdownOpen(true)}
+            className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-blue-300 focus:bg-white transition-colors"
+          />
+          {searchQuery && (
+            <button onClick={() => { setSearchQuery(''); setIsDropdownOpen(false); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <Icon name="X" size={13} />
+            </button>
+          )}
           {isDropdownOpen && searchQuery && filteredUsers.length > 0 && (
-            <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
               {filteredUsers.map(user => (
-                <button
-                  key={user.name}
-                  onClick={() => handleUserSelect(user.name)}
-                  className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-700 transition-colors flex items-center justify-between ${
-                    selectedUsers.includes(user.name) ? 'bg-slate-700' : ''
-                  }`}
-                >
-                  <span className="text-slate-100">{user.name}</span>
-                  {selectedUsers.includes(user.name) && (
-                    <Icon name="Check" size={14} className="text-green-400" />
-                  )}
+                <button key={user.name} onClick={() => { toggleUser(user.name); setSearchQuery(''); setIsDropdownOpen(false); }}
+                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center justify-between ${selectedUsers.includes(user.name) ? 'bg-blue-50' : ''}`}>
+                  <span className="text-gray-700">{user.name}</span>
+                  {selectedUsers.includes(user.name) && <Icon name="Check" size={13} className="text-blue-500" />}
                 </button>
               ))}
             </div>
           )}
         </div>
-
         {selectedUsers.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {selectedUsers.map(userName => {
-              const user = userStats.find(u => u.name === userName);
+            {selectedUsers.map(name => {
+              const user = userStats.find(u => u.name === name);
               if (!user) return null;
               return (
-                <button
-                  key={userName}
-                  onClick={() => toggleUser(userName)}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border"
-                  style={{ borderColor: userColorMap[userName] }}
-                >
-                  <span>{userName}</span>
-                  <Icon name="X" size={12} />
+                <button key={name} onClick={() => toggleUser(name)}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-white border hover:bg-gray-50 transition-colors text-gray-700"
+                  style={{ borderColor: userColorMap[name] }}>
+                  <span>{name}</span>
+                  <Icon name="X" size={11} />
                 </button>
               );
             })}
           </div>
         )}
+      </div>
 
-        <div className="space-y-2 pt-2 border-t border-slate-700">
-          <span className="text-xs md:text-sm text-slate-300 font-medium block">Период отображения:</span>
-          <div className="flex flex-wrap gap-1.5 md:gap-2">
-            <Button
-              onClick={() => setTimeRange('7d')}
-              variant={timeRange === '7d' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs h-8 ${timeRange === '7d'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              7 дней
-            </Button>
-            <Button
-              onClick={() => setTimeRange('14d')}
-              variant={timeRange === '14d' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs h-8 ${timeRange === '14d'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              14 дней
-            </Button>
-            <Button
-              onClick={() => setTimeRange('30d')}
-              variant={timeRange === '30d' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs h-8 ${timeRange === '30d'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              30 дней
-            </Button>
-            <Button
-              onClick={() => setTimeRange('90d')}
-              variant={timeRange === '90d' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs h-8 ${timeRange === '90d'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              90 дней
-            </Button>
-            <Button
-              onClick={() => setTimeRange('6m')}
-              variant={timeRange === '6m' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs h-8 ${timeRange === '6m'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              6 месяцев
-            </Button>
-            <Button
-              onClick={() => setTimeRange('1y')}
-              variant={timeRange === '1y' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs h-8 ${timeRange === '1y'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              1 год
-            </Button>
-            <Button
-              onClick={() => setTimeRange('all')}
-              variant={timeRange === 'all' ? 'default' : 'outline'}
-              size="sm"
-              className={`transition-all duration-300 text-xs h-8 ${timeRange === 'all'
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-              }`}
-            >
-              Всё время
-            </Button>
-          </div>
+      {/* Период */}
+      <div className="space-y-2 pt-3 border-t border-gray-100">
+        <span className="text-xs text-gray-500 font-medium block">Период отображения:</span>
+        <div className="flex flex-wrap gap-1.5">
+          {TIME_RANGES.map(r => (
+            <button key={r.key} onClick={() => setTimeRange(r.key)} className={btn(timeRange === r.key)}>
+              {r.label}
+            </button>
+          ))}
         </div>
       </div>
     </div>

@@ -19,112 +19,79 @@ interface OrganizationStatsListProps {
 }
 
 export default function OrganizationStatsList({
-  sortedOrgs,
-  selectedOrg,
-  setSelectedOrg,
-  setSelectedPromoter,
-  setModalOpen,
+  sortedOrgs, selectedOrg, setSelectedOrg, setSelectedPromoter, setModalOpen,
 }: OrganizationStatsListProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {sortedOrgs.map(org => {
         const isExpanded = selectedOrg === org.name;
         const usersList = Object.entries(org.users)
           .map(([userName, contacts]) => {
             const shifts = org.userShifts[userName] || 1;
-            const average = Math.round(contacts / shifts);
-            return { userName, contacts, average };
+            return { userName, contacts, average: Math.round(contacts / shifts) };
           })
           .sort((a, b) => b.average - a.average);
-        
+
+        const revenue = org.contact_rate > 0
+          ? Math.round(org.total * org.contact_rate * (org.payment_type === 'cashless' ? 0.93 : 1))
+          : null;
+
+        const avgPerPromoter = (() => {
+          const users = Object.entries(org.users);
+          if (!users.length) return 0;
+          return Math.round(
+            users.reduce((sum, [name, contacts]) => sum + contacts / (org.userShifts[name] || 1), 0) / users.length
+          );
+        })();
+
         return (
-          <div key={org.name} className="border border-slate-700 rounded-lg overflow-hidden bg-slate-800">
+          <div key={org.name} className="rounded-xl border border-gray-100 overflow-hidden bg-white">
             <button
               onClick={() => setSelectedOrg(isExpanded ? null : org.name)}
-              className="w-full p-3 md:p-4 flex items-center justify-between hover:bg-slate-700/50 transition-colors"
+              className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
             >
-              <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-                <span className="font-semibold text-xs md:text-base text-slate-100 truncate">
-                  {org.name}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 md:gap-4 flex-shrink-0">
-                {org.contact_rate > 0 && (
-                  <div className="text-right min-w-[60px] md:min-w-[80px]">
-                    <div className="text-sm md:text-lg font-bold text-green-400">
-                      {(() => {
-                        const revenue = org.total * org.contact_rate;
-                        const revenueAfterTax = org.payment_type === 'cashless' ? revenue * 0.93 : revenue;
-                        return Math.round(revenueAfterTax).toLocaleString('ru-RU');
-                      })()}₽
-                    </div>
-                    <div className="text-[10px] md:text-xs text-slate-400">
-                      {org.payment_type === 'cash' ? 'наличка' : 'безнал'}
-                    </div>
+              <span className="font-semibold text-sm text-gray-800 truncate text-left flex-1 mr-2">{org.name}</span>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                {revenue !== null && (
+                  <div className="text-right">
+                    <div className="text-sm font-bold text-emerald-500">{revenue.toLocaleString('ru-RU')}₽</div>
+                    <div className="text-[10px] text-gray-400">{org.payment_type === 'cash' ? 'наличка' : 'безнал'}</div>
                   </div>
                 )}
-                <div className="text-center min-w-[45px] md:min-w-[60px]">
-                  <div className="text-sm md:text-lg font-bold text-cyan-400">
-                    {(() => {
-                      const users = Object.entries(org.users);
-                      const avgPerPromoter = users.length > 0 
-                        ? users.reduce((sum, [userName, contacts]) => {
-                            const shifts = org.userShifts[userName] || 1;
-                            return sum + (contacts / shifts);
-                          }, 0) / users.length
-                        : 0;
-                      return Math.round(avgPerPromoter);
-                    })()}
-                  </div>
-                  <div className="text-[10px] md:text-xs text-slate-400 hidden sm:block">средний</div>
-                  <div className="text-[10px] md:text-xs text-slate-400 sm:hidden">сред</div>
+                <div className="text-center">
+                  <div className="text-sm font-bold text-blue-500">{avgPerPromoter}</div>
+                  <div className="text-[10px] text-gray-400">сред</div>
                 </div>
-                <div className="text-center min-w-[40px] md:min-w-[60px]">
-                  <div className="text-base md:text-xl font-bold text-slate-100">
-                    {org.total}
-                  </div>
-                  <div className="text-[10px] md:text-xs text-slate-400 hidden sm:block">контактов</div>
-                  <div className="text-[10px] md:text-xs text-slate-400 sm:hidden">конт</div>
+                <div className="text-center">
+                  <div className="text-sm font-bold text-gray-700">{org.total}</div>
+                  <div className="text-[10px] text-gray-400">конт</div>
                 </div>
-                <Icon
-                  name={isExpanded ? 'ChevronUp' : 'ChevronDown'}
-                  size={16}
-                  className="text-slate-400 md:w-5 md:h-5"
-                />
+                <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={15} className="text-gray-400" />
               </div>
             </button>
 
             {isExpanded && usersList.length > 0 && (
-              <div className="border-t border-slate-700 bg-slate-700/50 p-4">
-                <div className="space-y-2">
-                  {usersList.map((user) => (
-                    <button
-                      key={user.userName}
-                      onClick={() => {
-                        setSelectedPromoter({ name: user.userName, contacts: user.contacts, orgName: org.name });
-                        setModalOpen(true);
-                      }}
-                      className="w-full flex items-center justify-between py-2 px-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"
-                    >
-                      <span className="text-sm text-slate-200">{user.userName}</span>
-                      <div className="flex items-center gap-3 md:gap-4">
-                        <div className="text-right">
-                          <div className="text-sm font-semibold text-cyan-400">
-                            {user.average}
-                          </div>
-                          <div className="text-xs text-slate-400">средний</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-semibold text-slate-100">
-                            {user.contacts}
-                          </div>
-                          <div className="text-xs text-slate-400">контактов</div>
-                        </div>
-                        <Icon name="ChevronRight" size={16} className="text-slate-400" />
+              <div className="border-t border-gray-100 bg-gray-50 p-3 space-y-1.5">
+                {usersList.map(user => (
+                  <button
+                    key={user.userName}
+                    onClick={() => { setSelectedPromoter({ name: user.userName, contacts: user.contacts, orgName: org.name }); setModalOpen(true); }}
+                    className="w-full flex items-center justify-between px-3 py-2 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all text-left"
+                  >
+                    <span className="text-sm text-gray-700">{user.userName}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-blue-500">{user.average}</div>
+                        <div className="text-[10px] text-gray-400">средний</div>
                       </div>
-                    </button>
-                  ))}
-                </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-gray-700">{user.contacts}</div>
+                        <div className="text-[10px] text-gray-400">контактов</div>
+                      </div>
+                      <Icon name="ChevronRight" size={14} className="text-gray-300" />
+                    </div>
+                  </button>
+                ))}
               </div>
             )}
           </div>

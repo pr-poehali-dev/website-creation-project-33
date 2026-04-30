@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface OrganizationStatsFiltersProps {
@@ -19,203 +18,122 @@ interface OrganizationStatsFiltersProps {
   totalContactsForPeriod: number;
 }
 
+const btn = (active: boolean) =>
+  `px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+    active ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+  }`;
+
+const navBtn = (disabled: boolean) =>
+  `w-8 h-8 flex items-center justify-center rounded-lg border transition-colors ${
+    disabled ? 'border-gray-100 text-gray-300 cursor-not-allowed' : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+  }`;
+
 export default function OrganizationStatsFilters({
-  sortBy,
-  setSortBy,
-  timeRange,
-  setTimeRange,
-  setSelectedWeekIndex,
-  setSelectedMonthIndex,
-  selectedWeekIndex,
-  selectedMonthIndex,
-  selectedYear,
-  setSelectedYear,
-  availableWeeks,
-  availableMonths,
-  availableYears,
+  sortBy, setSortBy,
+  timeRange, setTimeRange,
+  setSelectedWeekIndex, setSelectedMonthIndex,
+  selectedWeekIndex, selectedMonthIndex,
+  selectedYear, setSelectedYear,
+  availableWeeks, availableMonths, availableYears,
   totalContactsForPeriod,
 }: OrganizationStatsFiltersProps) {
   return (
-    <div className="mb-4 md:mb-6 space-y-3 md:space-y-4">
-      <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-        <span className="text-xs md:text-sm text-slate-300 font-medium">Сортировка:</span>
-        <Button
-          onClick={() => setSortBy('revenue')}
-          variant={sortBy === 'revenue' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${sortBy === 'revenue'
-            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          По доходу
-        </Button>
-        <Button
-          onClick={() => setSortBy('contacts')}
-          variant={sortBy === 'contacts' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${sortBy === 'contacts'
-            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          По контактам
-        </Button>
-        <Button
-          onClick={() => setSortBy('average')}
-          variant={sortBy === 'average' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${sortBy === 'average'
-            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          По среднему
-        </Button>
-      </div>
-      
-      <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-        <span className="text-xs md:text-sm text-slate-300 font-medium">Период:</span>
-        <Button
-          onClick={() => {
-            setTimeRange('week');
-            setSelectedWeekIndex(0);
-          }}
-          variant={timeRange === 'week' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'week'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          Неделя
-        </Button>
-        <Button
-          onClick={() => {
-            setTimeRange('month');
-            setSelectedMonthIndex(0);
-          }}
-          variant={timeRange === 'month' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'month'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          Месяц
-        </Button>
-        <Button
-          onClick={() => {
-            setTimeRange('year');
-            setSelectedYear(new Date().getFullYear());
-          }}
-          variant={timeRange === 'year' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 text-xs md:text-sm h-8 md:h-9 ${timeRange === 'year'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          Год
-        </Button>
+    <div className="space-y-3 mb-4">
+      {/* Сортировка */}
+      <div className="flex flex-wrap gap-1.5 items-center">
+        <span className="text-xs text-gray-500 font-medium">Сортировка:</span>
+        <button onClick={() => setSortBy('revenue')} className={btn(sortBy === 'revenue')}>По доходу</button>
+        <button onClick={() => setSortBy('contacts')} className={btn(sortBy === 'contacts')}>По контактам</button>
+        <button onClick={() => setSortBy('average')} className={btn(sortBy === 'average')}>По среднему</button>
       </div>
 
+      {/* Период */}
+      <div className="flex flex-wrap gap-1.5 items-center">
+        <span className="text-xs text-gray-500 font-medium">Период:</span>
+        <button onClick={() => { setTimeRange('week'); setSelectedWeekIndex(0); }} className={btn(timeRange === 'week')}>Неделя</button>
+        <button onClick={() => { setTimeRange('month'); setSelectedMonthIndex(0); }} className={btn(timeRange === 'month')}>Месяц</button>
+        <button onClick={() => { setTimeRange('year'); setSelectedYear(new Date().getFullYear()); }} className={btn(timeRange === 'year')}>Год</button>
+      </div>
+
+      {/* Навигация по неделям */}
       {timeRange === 'week' && (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setSelectedWeekIndex(prev => Math.min(availableWeeks.length - 1, prev + 1))}
+            <button
+              onClick={() => setSelectedWeekIndex(Math.min(availableWeeks.length - 1, selectedWeekIndex + 1))}
               disabled={selectedWeekIndex >= availableWeeks.length - 1}
-              variant="outline"
-              size="sm"
-              className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
+              className={navBtn(selectedWeekIndex >= availableWeeks.length - 1)}
             >
-              <Icon name="ChevronLeft" size={16} />
-            </Button>
-            <span className="text-xs md:text-sm text-slate-200 font-medium min-w-[180px] text-center">
+              <Icon name="ChevronLeft" size={15} />
+            </button>
+            <span className="text-xs text-gray-600 font-medium flex-1 text-center">
               {availableWeeks[selectedWeekIndex]?.label}
             </span>
-            <Button
-              onClick={() => setSelectedWeekIndex(prev => Math.max(0, prev - 1))}
+            <button
+              onClick={() => setSelectedWeekIndex(Math.max(0, selectedWeekIndex - 1))}
               disabled={selectedWeekIndex === 0}
-              variant="outline"
-              size="sm"
-              className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
+              className={navBtn(selectedWeekIndex === 0)}
             >
-              <Icon name="ChevronRight" size={16} />
-            </Button>
+              <Icon name="ChevronRight" size={15} />
+            </button>
           </div>
-          <div className="text-center">
-            <span className="text-sm font-semibold text-slate-100">
-              Всего за неделю: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
-            </span>
-          </div>
+          <p className="text-xs text-gray-400 text-center">
+            Всего за неделю: <span className="font-semibold text-gray-600">{totalContactsForPeriod.toLocaleString('ru-RU')} контактов</span>
+          </p>
         </div>
       )}
 
+      {/* Навигация по месяцам */}
       {timeRange === 'month' && (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setSelectedMonthIndex(prev => Math.min(availableMonths.length - 1, prev + 1))}
+            <button
+              onClick={() => setSelectedMonthIndex(Math.min(availableMonths.length - 1, selectedMonthIndex + 1))}
               disabled={selectedMonthIndex >= availableMonths.length - 1}
-              variant="outline"
-              size="sm"
-              className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
+              className={navBtn(selectedMonthIndex >= availableMonths.length - 1)}
             >
-              <Icon name="ChevronLeft" size={16} />
-            </Button>
-            <span className="text-xs md:text-sm text-slate-200 font-medium min-w-[180px] text-center">
+              <Icon name="ChevronLeft" size={15} />
+            </button>
+            <span className="text-xs text-gray-600 font-medium flex-1 text-center">
               {availableMonths[selectedMonthIndex]?.label}
             </span>
-            <Button
-              onClick={() => setSelectedMonthIndex(prev => Math.max(0, prev - 1))}
+            <button
+              onClick={() => setSelectedMonthIndex(Math.max(0, selectedMonthIndex - 1))}
               disabled={selectedMonthIndex === 0}
-              variant="outline"
-              size="sm"
-              className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
+              className={navBtn(selectedMonthIndex === 0)}
             >
-              <Icon name="ChevronRight" size={16} />
-            </Button>
+              <Icon name="ChevronRight" size={15} />
+            </button>
           </div>
-          <div className="text-center">
-            <span className="text-sm font-semibold text-slate-100">
-              Всего за месяц: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
-            </span>
-          </div>
+          <p className="text-xs text-gray-400 text-center">
+            Всего за месяц: <span className="font-semibold text-gray-600">{totalContactsForPeriod.toLocaleString('ru-RU')} контактов</span>
+          </p>
         </div>
       )}
 
+      {/* Навигация по годам */}
       {timeRange === 'year' && (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setSelectedYear(prev => Math.min(prev + 1, availableYears[0]))}
+            <button
+              onClick={() => setSelectedYear(Math.min(selectedYear + 1, availableYears[0]))}
               disabled={selectedYear >= availableYears[0]}
-              variant="outline"
-              size="sm"
-              className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
+              className={navBtn(selectedYear >= availableYears[0])}
             >
-              <Icon name="ChevronLeft" size={16} />
-            </Button>
-            <span className="text-xs md:text-sm text-slate-200 font-medium min-w-[100px] text-center">
-              {selectedYear}
-            </span>
-            <Button
-              onClick={() => setSelectedYear(prev => Math.max(prev - 1, availableYears[availableYears.length - 1]))}
+              <Icon name="ChevronLeft" size={15} />
+            </button>
+            <span className="text-xs text-gray-600 font-medium flex-1 text-center">{selectedYear}</span>
+            <button
+              onClick={() => setSelectedYear(Math.max(selectedYear - 1, availableYears[availableYears.length - 1]))}
               disabled={selectedYear <= availableYears[availableYears.length - 1]}
-              variant="outline"
-              size="sm"
-              className="h-8 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
+              className={navBtn(selectedYear <= availableYears[availableYears.length - 1])}
             >
-              <Icon name="ChevronRight" size={16} />
-            </Button>
+              <Icon name="ChevronRight" size={15} />
+            </button>
           </div>
-          <div className="text-center">
-            <span className="text-sm font-semibold text-slate-100">
-              Всего за год: {totalContactsForPeriod.toLocaleString('ru-RU')} контактов
-            </span>
-          </div>
+          <p className="text-xs text-gray-400 text-center">
+            Всего за год: <span className="font-semibold text-gray-600">{totalContactsForPeriod.toLocaleString('ru-RU')} контактов</span>
+          </p>
         </div>
       )}
     </div>

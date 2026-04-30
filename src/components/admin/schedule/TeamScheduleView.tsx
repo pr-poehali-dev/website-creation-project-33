@@ -105,12 +105,15 @@ export default function TeamScheduleView({
     setShowAddModal({date, slotTime, slotLabel});
   };
 
-  const daysWithWorkers = weekDays.filter(day => {
-    const hasWorkers = day.slots.some(slot => getUsersWorkingOnSlot(day.date, slot.time).length > 0);
-    if (trainingCounts === null) return hasWorkers;
-    const hasTraining = (trainingCounts[day.date] ?? 0) > 0;
-    return hasWorkers || hasTraining;
-  });
+  const trainingReady = trainingCounts !== null;
+
+  const daysWithWorkers = trainingReady
+    ? weekDays.filter(day => {
+        const hasWorkers = day.slots.some(slot => getUsersWorkingOnSlot(day.date, slot.time).length > 0);
+        const hasTraining = (trainingCounts[day.date] ?? 0) > 0;
+        return hasWorkers || hasTraining;
+      })
+    : [];
 
   const weekTotals = dayStats.reduce(
     (acc, stat) => ({
@@ -122,22 +125,24 @@ export default function TeamScheduleView({
 
   return (
     <div className="space-y-4">
-      {loadingProgress > 0 && loadingProgress < 100 && (
-        <div className="bg-slate-900/60 ring-1 ring-slate-700/40 rounded-2xl p-3 md:p-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-xs text-slate-400">Загрузка статистики...</span>
-            <span className="text-xs font-bold text-cyan-400">{loadingProgress}%</span>
-          </div>
-          <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300 rounded-full"
-              style={{ width: `${loadingProgress}%` }}
-            />
-          </div>
+      {!trainingReady && (
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-slate-900/60 ring-1 ring-slate-700/40 rounded-2xl p-4 animate-pulse">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-700/60" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3 w-24 bg-slate-700/60 rounded" />
+                  <div className="h-2.5 w-16 bg-slate-700/40 rounded" />
+                </div>
+              </div>
+              <div className="h-10 bg-slate-800/60 rounded-xl" />
+            </div>
+          ))}
         </div>
       )}
 
-      {daysWithWorkers.map((day) => {
+      {trainingReady && daysWithWorkers.map((day) => {
         const isExpanded = expandedDays.has(day.date);
         const stats = dayStats.find(s => s.date === day.date);
 
@@ -147,7 +152,7 @@ export default function TeamScheduleView({
             day={day}
             isExpanded={isExpanded}
             stats={stats}
-            trainingCount={(trainingCounts ?? {})[day.date] ?? 0}
+            trainingCount={trainingCounts[day.date] ?? 0}
             promoterSlots={promoterSlots[day.date]}
             getUsersWorkingOnSlot={getUsersWorkingOnSlot}
             workComments={workComments}

@@ -1,6 +1,4 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
 export type RankingType = 'contacts' | 'shifts' | 'avg_per_shift' | 'max_contacts_per_shift' | 'revenue';
@@ -14,6 +12,14 @@ interface RankingFiltersProps {
   onShowOnlyActiveChange: (showOnlyActive: boolean) => void;
 }
 
+const RANKING_TABS: { type: RankingType; icon: string; label: string }[] = [
+  { type: 'contacts', icon: 'UserCheck', label: 'Контакты' },
+  { type: 'shifts', icon: 'Calendar', label: 'Смены' },
+  { type: 'avg_per_shift', icon: 'TrendingUp', label: 'Средний' },
+  { type: 'max_contacts_per_shift', icon: 'Award', label: 'Рекорд' },
+  { type: 'revenue', icon: 'DollarSign', label: 'Доход' },
+];
+
 export default function RankingFilters({
   searchQuery,
   onSearchChange,
@@ -23,109 +29,55 @@ export default function RankingFilters({
   onShowOnlyActiveChange
 }: RankingFiltersProps) {
   return (
-    <>
-      <div className="mb-4">
-        <div className="relative">
-          <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <Input
-            type="text"
-            placeholder="Поиск по имени или email..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-cyan-500 focus:ring-cyan-500"
-          />
-        </div>
+    <div className="space-y-3 mb-4">
+      <div className="relative">
+        <Icon name="Search" size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Поиск по имени или email..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-blue-300 focus:bg-white transition-colors"
+        />
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        <Button
-          onClick={() => onRankingTypeChange('contacts')}
-          variant={rankingType === 'contacts' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 ${rankingType === 'contacts'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name="UserCheck" size={14} className="mr-1.5" />
-          Контакты
-        </Button>
-        <Button
-          onClick={() => onRankingTypeChange('shifts')}
-          variant={rankingType === 'shifts' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 ${rankingType === 'shifts'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name="Calendar" size={14} className="mr-1.5" />
-          Смены
-        </Button>
-        <Button
-          onClick={() => onRankingTypeChange('avg_per_shift')}
-          variant={rankingType === 'avg_per_shift' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 ${rankingType === 'avg_per_shift'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name="TrendingUp" size={14} className="mr-1.5" />
-          Средний
-        </Button>
-        <Button
-          onClick={() => onRankingTypeChange('max_contacts_per_shift')}
-          variant={rankingType === 'max_contacts_per_shift' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 ${rankingType === 'max_contacts_per_shift'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name="Award" size={14} className="mr-1.5" />
-          Рекорд
-        </Button>
-        <Button
-          onClick={() => onRankingTypeChange('revenue')}
-          variant={rankingType === 'revenue' ? 'default' : 'outline'}
-          size="sm"
-          className={`transition-all duration-300 ${rankingType === 'revenue'
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-            : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-          }`}
-        >
-          <Icon name="DollarSign" size={14} className="mr-1.5" />
-          Доход
-        </Button>
+      <div className="flex flex-wrap gap-1.5">
+        {RANKING_TABS.map(tab => (
+          <button
+            key={tab.type}
+            onClick={() => onRankingTypeChange(tab.type)}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              rankingType === tab.type
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            <Icon name={tab.icon} size={12} />
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <div className="flex items-center gap-2 mb-6 px-3 py-2 bg-slate-800 rounded-lg border border-slate-700">
-        <Icon name="Users" size={16} className="text-slate-400" />
-        <span className="text-sm text-slate-300 mr-auto">Показывать:</span>
-        <Button
+      <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-100">
+        <Icon name="Users" size={14} className="text-gray-400" />
+        <span className="text-xs text-gray-500 mr-auto">Показывать:</span>
+        <button
           onClick={() => onShowOnlyActiveChange(true)}
-          variant={showOnlyActive ? 'default' : 'ghost'}
-          size="sm"
-          className={`transition-all duration-300 h-8 ${showOnlyActive
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-md'
-            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'
+          className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+            showOnlyActive ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-200'
           }`}
         >
           Активные
-        </Button>
-        <Button
+        </button>
+        <button
           onClick={() => onShowOnlyActiveChange(false)}
-          variant={!showOnlyActive ? 'default' : 'ghost'}
-          size="sm"
-          className={`transition-all duration-300 h-8 ${!showOnlyActive
-            ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-md'
-            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'
+          className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+            !showOnlyActive ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-200'
           }`}
         >
           Все
-        </Button>
+        </button>
       </div>
-    </>
+    </div>
   );
 }

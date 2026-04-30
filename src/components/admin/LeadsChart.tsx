@@ -147,16 +147,14 @@ export default function LeadsChart({
   };
 
   return (
-    <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
-      <CardHeader className="pb-3 md:pb-4">
-        <CardTitle className="flex items-center gap-2 md:gap-3 text-slate-100 text-lg md:text-xl">
-          <div className="p-1.5 md:p-2 rounded-lg bg-slate-800">
-            <Icon name="TrendingUp" size={18} className="text-cyan-400 md:w-5 md:h-5" />
-          </div>
-          График лидов
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center">
+          <Icon name="TrendingUp" size={18} className="text-purple-500" />
+        </div>
+        <h2 className="font-semibold text-gray-800 text-base">График лидов</h2>
+      </div>
+      <div className="p-5">
         <ChartFilters
           showTotal={showTotal}
           setShowTotal={setShowTotal}
@@ -189,7 +187,7 @@ export default function LeadsChart({
           handleChartClick={handleChartClick}
           CustomDot={CustomDot}
         />
-      </CardContent>
+      </div>
 
       <PeriodDetailModal
         isOpen={!!selectedPeriod}
@@ -205,6 +203,6 @@ export default function LeadsChart({
         onClose={() => setAddShiftModalOpen(false)}
         userStats={userStats.map(u => ({ name: u.name, id: u.id }))}
       />
-    </Card>
+    </div>
   );
 }

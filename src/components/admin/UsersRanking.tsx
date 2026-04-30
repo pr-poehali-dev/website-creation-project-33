@@ -249,16 +249,15 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
   };
 
   return (
-    <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-slate-100 text-xl">
-          <div className="p-2 rounded-lg bg-slate-800">
-            <Icon name="Trophy" size={20} className="text-cyan-400" />
-          </div>
-          Рейтинг промоутеров ({getRankingTitle()})
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
+          <Icon name="Trophy" size={18} className="text-amber-500" />
+        </div>
+        <h2 className="font-semibold text-gray-800 text-base">Рейтинг промоутеров <span className="text-gray-400 font-normal text-sm">({getRankingTitle()})</span></h2>
+      </div>
+
+      <div className="p-5">
         <RankingFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -268,11 +267,11 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
           onShowOnlyActiveChange={setShowOnlyActive}
         />
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           {displayUsers.length === 0 ? (
-            <div className="text-center py-8 text-slate-400">
-              <Icon name="Search" size={32} className="mx-auto mb-2 opacity-50" />
-              <div className="text-sm">Промоутеры не найдены</div>
+            <div className="text-center py-8">
+              <Icon name="Search" size={28} className="mx-auto mb-2 text-gray-300" />
+              <div className="text-sm text-gray-400">Промоутеры не найдены</div>
             </div>
           ) : (
             displayUsers.map((user, index) => (
@@ -288,31 +287,21 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
               />
             ))
           )}
-          
+
           {hasMore && (
-            <Button
+            <button
               onClick={toggleExpand}
-              variant="outline"
-              className="w-full py-3 px-4 text-sm font-medium text-slate-100 bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:border-slate-600 hover:shadow-md"
+              className="w-full py-2.5 px-4 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-100 transition-colors flex items-center justify-center gap-1.5 mt-1"
             >
               <span>
-                {isExpanded 
-                  ? 'Скрыть' 
+                {isExpanded
+                  ? 'Скрыть'
                   : `Показать ещё ${sortedUsers.length - 4} ${
-                      sortedUsers.length - 4 === 1 
-                        ? 'промоутера' 
-                        : sortedUsers.length - 4 < 5 
-                          ? 'промоутера' 
-                          : 'промоутеров'
-                    }`
-                }
+                      sortedUsers.length - 4 < 5 ? 'промоутера' : 'промоутеров'
+                    }`}
               </span>
-              <Icon 
-                name={isExpanded ? "ChevronUp" : "ChevronDown"} 
-                size={16} 
-                className="transition-transform duration-300" 
-              />
-            </Button>
+              <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={14} />
+            </button>
           )}
         </div>
 
@@ -325,7 +314,7 @@ export default function UsersRanking({ userStats }: UsersRankingProps) {
             totalRevenue={selectedUserRevenue.totalRevenue}
           />
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

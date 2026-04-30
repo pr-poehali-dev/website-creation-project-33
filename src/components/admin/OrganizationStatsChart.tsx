@@ -34,14 +34,12 @@ export default function OrganizationStatsChart() {
 
   if (isLoading) {
     return (
-      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
-        <CardContent className="p-4 md:p-8">
-          <div className="text-center text-slate-300 flex items-center justify-center gap-2 text-sm">
-            <Icon name="Loader2" size={20} className="animate-spin" />
-            Загрузка статистики по организациям...
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+          <Icon name="Loader2" size={18} className="animate-spin text-blue-400" />
+          Загрузка статистики по организациям...
+        </div>
+      </div>
     );
   }
 
@@ -156,26 +154,23 @@ export default function OrganizationStatsChart() {
   });
 
   return (
-    <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
-      <CardHeader className="pb-3 md:pb-4">
-        <CardTitle className="flex items-center justify-between gap-2 md:gap-3 text-slate-100 text-lg md:text-xl">
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="p-1.5 md:p-2 rounded-lg bg-slate-800">
-              <Icon name="Building2" size={18} className="text-cyan-400 md:w-5 md:h-5" />
-            </div>
-            Статистика по организациям
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center">
+            <Icon name="Building2" size={18} className="text-teal-500" />
           </div>
-          <Button
-            onClick={() => refetch()}
-            variant="outline"
-            size="sm"
-            className="bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700"
-          >
-            <Icon name="RefreshCw" size={14} className="md:w-4 md:h-4" />
-          </Button>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+          <h2 className="font-semibold text-gray-800 text-base">Статистика по организациям</h2>
+        </div>
+        <button
+          onClick={() => refetch()}
+          className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors"
+          title="Обновить"
+        >
+          <Icon name="RefreshCw" size={14} className="text-gray-400" />
+        </button>
+      </div>
+      <div className="p-5">
         <OrganizationStatsFilters
           sortBy={sortBy}
           setSortBy={setSortBy}
@@ -200,7 +195,7 @@ export default function OrganizationStatsChart() {
           setSelectedPromoter={(promoter) => setSelectedPromoter(promoter)}
           setModalOpen={setModalOpen}
         />
-      </CardContent>
+      </div>
 
       <PromoterShiftsModal
         isOpen={modalOpen}
@@ -213,6 +208,6 @@ export default function OrganizationStatsChart() {
         selectedMonthIndex={selectedMonthIndex}
         selectedYear={selectedYear}
       />
-    </Card>
+    </div>
   );
 }

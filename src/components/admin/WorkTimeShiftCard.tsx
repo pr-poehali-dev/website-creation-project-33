@@ -1,6 +1,5 @@
 import React from 'react';
 import Icon from '@/components/ui/icon';
-import { Button } from '@/components/ui/button';
 
 export interface WorkTimeData {
   user_id: number;
@@ -36,80 +35,66 @@ export default function WorkTimeShiftCard({
   const isClosing = closingShift === `close-${shift.user_id}-${shift.date}`;
 
   return (
-    <div
-      key={index}
-      className="bg-slate-700/50 rounded-lg p-2.5 md:p-3 border border-slate-600"
-    >
-      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-        <div className="flex items-center gap-1.5 md:gap-2">
-          <Icon name="User" size={12} className="text-slate-400 md:w-[14px] md:h-[14px]" />
-          <span className="font-medium text-slate-100 text-xs md:text-sm">{shift.user_name}</span>
+    <div className={`px-4 py-3 bg-white ${shift.is_open ? 'border-l-2 border-l-amber-400' : ''}`}>
+      <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center gap-2">
+          <Icon name="User" size={13} className="text-gray-400" />
+          <span className="font-semibold text-gray-800 text-sm">{shift.user_name}</span>
+          {shift.is_open && (
+            <span className="text-[10px] font-medium text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-md">не закрыта</span>
+          )}
         </div>
-        <div className="flex items-center gap-1.5 md:gap-2">
-          <div className="flex items-center gap-0.5 md:gap-1 text-[10px] md:text-xs text-slate-400">
-            <Icon name="MessageSquare" size={10} className="md:w-3 md:h-3" />
+        <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 text-xs text-gray-400 mr-1">
+            <Icon name="MessageSquare" size={11} />
             <span>{shift.leads_count}</span>
           </div>
           {shift.is_open && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose(shift.user_id, shift.date, shift.organization_id);
-              }}
+            <button
+              onClick={(e) => { e.stopPropagation(); onClose(shift.user_id, shift.date, shift.organization_id); }}
               disabled={isClosing}
               title="Закрыть смену"
-              className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-amber-500/20"
+              className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-amber-50 transition-colors"
             >
-              {isClosing ? (
-                <Icon name="Loader2" size={12} className="animate-spin text-slate-400 md:w-[14px] md:h-[14px]" />
-              ) : (
-                <Icon name="LogOut" size={12} className="text-amber-400 md:w-[14px] md:h-[14px]" />
-              )}
-            </Button>
+              {isClosing
+                ? <Icon name="Loader2" size={13} className="animate-spin text-gray-400" />
+                : <Icon name="LogOut" size={13} className="text-amber-500" />
+              }
+            </button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(shift.user_id, shift.date);
-            }}
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(shift.user_id, shift.date); }}
             disabled={isDeleting}
-            className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-red-500/20"
+            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors"
           >
-            {isDeleting ? (
-              <Icon name="Loader2" size={12} className="animate-spin text-slate-400 md:w-[14px] md:h-[14px]" />
-            ) : (
-              <Icon name="Trash2" size={12} className="text-red-400 md:w-[14px] md:h-[14px]" />
-            )}
-          </Button>
+            {isDeleting
+              ? <Icon name="Loader2" size={13} className="animate-spin text-gray-400" />
+              : <Icon name="Trash2" size={13} className="text-red-400" />
+            }
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 md:gap-3 text-xs md:text-sm">
-        <div className="flex flex-col">
-          <span className="text-slate-400 text-[10px] md:text-xs mb-0.5 md:mb-1">Начало</span>
-          <div className="flex items-center gap-1 md:gap-1.5 text-slate-100 font-medium">
-            <Icon name="LogIn" size={12} className="text-emerald-400 md:w-[14px] md:h-[14px]" />
-            <span className="text-[11px] md:text-sm">{shift.start_time}</span>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <div className="text-[10px] text-gray-400 mb-1">Начало</div>
+          <div className="flex items-center gap-1">
+            <Icon name="LogIn" size={12} className="text-emerald-400" />
+            <span className="text-sm font-semibold text-gray-700">{shift.start_time}</span>
           </div>
         </div>
-
-        <div className="flex flex-col">
-          <span className="text-slate-400 text-[10px] md:text-xs mb-0.5 md:mb-1">Окончание</span>
-          <div className="flex items-center gap-1 md:gap-1.5 text-slate-100 font-medium">
-            <Icon name="LogOut" size={12} className="text-red-400 md:w-[14px] md:h-[14px]" />
-            <span className="text-[11px] md:text-sm">{shift.end_time}</span>
+        <div>
+          <div className="text-[10px] text-gray-400 mb-1">Окончание</div>
+          <div className="flex items-center gap-1">
+            <Icon name="LogOut" size={12} className="text-red-400" />
+            <span className="text-sm font-semibold text-gray-700">{shift.end_time}</span>
           </div>
         </div>
-
-        <div className="flex flex-col">
-          <span className="text-slate-400 text-[10px] md:text-xs mb-0.5 md:mb-1">Отработано</span>
-          <div className="flex items-center gap-1 md:gap-1.5 text-slate-100 font-bold">
-            <Icon name="Timer" size={12} className="text-cyan-400 md:w-[14px] md:h-[14px]" />
-            <span className="text-[10px] md:text-xs">{shift.hours_worked}</span>
+        <div>
+          <div className="text-[10px] text-gray-400 mb-1">Отработано</div>
+          <div className="flex items-center gap-1">
+            <Icon name="Timer" size={12} className="text-blue-400" />
+            <span className="text-xs font-semibold text-gray-700">{shift.hours_worked}</span>
           </div>
         </div>
       </div>

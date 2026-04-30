@@ -97,28 +97,22 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
 
   if (loading) {
     return (
-      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
-        <CardContent className="p-4 md:p-8">
-          <div className="text-center text-slate-300 flex items-center justify-center gap-2 md:gap-3 text-sm md:text-base">
-            <Icon name="Loader2" size={20} className="animate-spin md:w-6 md:h-6" />
-            Загрузка статистики...
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+          <Icon name="Loader2" size={18} className="animate-spin text-blue-400" />
+          Загрузка статистики...
+        </div>
+      </div>
     );
   }
 
   if (!stats) {
     return (
-      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
-        <CardContent className="p-4 md:p-8">
-          <div className="text-center text-slate-300">
-            <Icon name="AlertCircle" size={28} className="mx-auto mb-3 opacity-60 md:w-8 md:h-8" />
-            <div className="text-base md:text-lg font-medium">Ошибка загрузки данных</div>
-            <div className="text-xs md:text-sm">Попробуйте обновить страницу</div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+        <Icon name="AlertCircle" size={28} className="mx-auto mb-3 text-gray-300" />
+        <div className="text-sm font-medium text-gray-700">Ошибка загрузки данных</div>
+        <div className="text-xs text-gray-400 mt-1">Попробуйте обновить страницу</div>
+      </div>
     );
   }
 

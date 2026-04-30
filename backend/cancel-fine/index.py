@@ -4,7 +4,7 @@ import psycopg2
 from typing import Dict, Any
 
 SCHEMA = 't_p24058207_website_creation_pro'
-ADMIN_PASSWORD = '955660'
+ADMIN_PASSWORD = '955650-!'
 
 def get_db():
     return psycopg2.connect(os.environ['DATABASE_URL'])

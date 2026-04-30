@@ -137,7 +137,7 @@ export default function AddShiftModal({
               className="w-full border-2 border-slate-700 bg-slate-800 text-slate-100 rounded-md px-3 py-2 text-sm focus:border-cyan-600 focus:ring-cyan-600"
             >
               <option value="">Выберите организацию</option>
-              {organizations.map((org: any) => (
+              {organizations.map((org: { id: number; name: string }) => (
                 <option key={org.id} value={org.id}>
                   {org.name}
                 </option>
@@ -162,11 +162,9 @@ export default function AddShiftModal({
               onChange={(e) => setTimeSlot(e.target.value)}
               className="w-full border-2 border-slate-700 bg-slate-800 text-slate-100 rounded-md px-3 py-2 text-sm focus:border-cyan-600 focus:ring-cyan-600"
             >
-              <option value="12:00-16:00">12:00-16:00</option>
-              <option value="16:00-20:00">16:00-20:00</option>
-              <option value="09:00-12:00">09:00-12:00</option>
-              <option value="09:00-13:00">09:00-13:00</option>
-              <option value="13:00-17:00">13:00-17:00</option>
+              {['12:00-16:00', '16:00-20:00', '09:00-12:00', '09:00-13:00', '13:00-17:00'].map(slot => (
+                <option key={slot} value={slot}>{slot}</option>
+              ))}
             </select>
           </div>
 

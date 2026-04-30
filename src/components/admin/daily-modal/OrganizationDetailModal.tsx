@@ -73,14 +73,19 @@ export default function OrganizationDetailModal({
                           </div>
                         </div>
                       </div>
-                      <div className="flex gap-3 flex-shrink-0">
+                      <div className="flex items-center gap-3 flex-shrink-0">
                         <div className="text-center">
                           <div className="text-sm font-bold text-green-400">{orgData.contacts}</div>
-                          <div className="text-[10px] text-slate-400">контакты</div>
+                          <div className="text-[10px] text-slate-400">конт.</div>
                         </div>
                         <div className="text-center">
                           <div className="text-sm font-bold text-orange-400">{orgData.approaches}</div>
-                          <div className="text-[10px] text-slate-400">подходы</div>
+                          <div className="text-[10px] text-slate-400">подх.</div>
+                        </div>
+                        <div className="text-center min-w-[32px]">
+                          <div className="text-sm font-bold text-slate-400">
+                            {orgData.approaches > 0 ? Math.round((orgData.contacts / orgData.approaches) * 100) : 0}%
+                          </div>
                         </div>
                       </div>
                     </div>

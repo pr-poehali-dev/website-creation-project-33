@@ -165,6 +165,9 @@ export default function UserCard({
                 <span className="font-medium text-slate-100 text-base md:text-lg truncate">{user.name}</span>
               )}
             </div>
+            {user.email && (
+              <p className="text-slate-400 text-xs">{user.email}</p>
+            )}
             {user.registration_ip && (
               <p className="text-slate-500 text-xs">IP: {user.registration_ip}</p>
             )}

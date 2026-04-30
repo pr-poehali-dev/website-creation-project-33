@@ -26,8 +26,8 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f1b2d] p-4 md:p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#0f1b2d] px-0">
+      <div className="w-full">
         <AdminHeader 
           onLogout={logout} 
           onOpenGoogleSheets={openGoogleSheets}

@@ -27,7 +27,7 @@ export default function TeamScheduleView({
 }: TeamScheduleViewProps) {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showAddModal, setShowAddModal] = useState<{date: string, slotTime: string, slotLabel: string} | null>(null);
-  const [trainingCounts, setTrainingCounts] = useState<Record<string, number>>({});
+  const [trainingCounts, setTrainingCounts] = useState<Record<string, number> | null>(null);
   const [promoterSlots, setPromoterSlots] = useState<Record<string, {total: number, used: number}>>({});
 
   // Загружаем промоутеров на каждый день недели
@@ -107,6 +107,7 @@ export default function TeamScheduleView({
 
   const daysWithWorkers = weekDays.filter(day => {
     const hasWorkers = day.slots.some(slot => getUsersWorkingOnSlot(day.date, slot.time).length > 0);
+    if (trainingCounts === null) return hasWorkers;
     const hasTraining = (trainingCounts[day.date] ?? 0) > 0;
     return hasWorkers || hasTraining;
   });
@@ -146,7 +147,7 @@ export default function TeamScheduleView({
             day={day}
             isExpanded={isExpanded}
             stats={stats}
-            trainingCount={trainingCounts[day.date] ?? 0}
+            trainingCount={(trainingCounts ?? {})[day.date] ?? 0}
             promoterSlots={promoterSlots[day.date]}
             getUsersWorkingOnSlot={getUsersWorkingOnSlot}
             workComments={workComments}

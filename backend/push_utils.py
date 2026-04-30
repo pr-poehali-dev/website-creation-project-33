@@ -56,6 +56,7 @@ def notify_admins(conn, title: str, body: str) -> int:
             resp = requests.post(url, headers=headers, json={
                 'message': {
                     'token': token,
+                    'notification': {'title': title, 'body': body},
                     'data': {'title': title, 'body': body},
                     'apns': {
                         'headers': {'apns-priority': '10', 'apns-push-type': 'alert'},
@@ -63,17 +64,25 @@ def notify_admins(conn, title: str, body: str) -> int:
                             'aps': {
                                 'alert': {'title': title, 'body': body},
                                 'sound': 'default',
-                                'badge': 1
+                                'badge': 1,
+                                'content-available': 1,
                             }
                         }
                     },
                     'android': {
+                        'priority': 'high',
                         'notification': {'title': title, 'body': body, 'sound': 'default'}
+                    },
+                    'webpush': {
+                        'headers': {'Urgency': 'high'},
+                        'notification': {'title': title, 'body': body}
                     }
                 }
             }, timeout=10)
             if resp.status_code == 200:
                 sent += 1
+            else:
+                print(f'[notify_admins] failed token={token[:20]}... status={resp.status_code} resp={resp.text[:200]}')
         return sent
     except Exception as e:
         print(f'[notify_admins] error: {e}')

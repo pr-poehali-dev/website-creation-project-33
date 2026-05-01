@@ -46,12 +46,16 @@ export default function WorkerCard({
   const actualContacts = worker.daily_contacts?.find(d => d.date === dayDate)?.count ?? null;
 
   const userComments = workComments[dayDate]?.[workerName] as Record<string, {organization?: string}> | undefined;
-  const commentData = (userComments?.[slotLabel]) || {};
+  // Реальный ключ смены (может отличаться от slotLabel при нестандартном расписании)
+  const realSlotKey = userComments?.[slotLabel] !== undefined
+    ? slotLabel
+    : (userComments ? Object.keys(userComments).find(k => typeof userComments[k] === 'object' && userComments[k] !== null) : undefined) || slotLabel;
+  const commentData = (userComments?.[realSlotKey]) || {};
   const currentOrganization = commentData.organization || '';
 
   const handleOrgSelect = (org: string) => {
-    onCommentChange(workerName, dayDate, 'organization', org, slotLabel);
-    onSaveComment(workerName, dayDate, 'organization', org, slotLabel);
+    onCommentChange(workerName, dayDate, 'organization', org, realSlotKey);
+    onSaveComment(workerName, dayDate, 'organization', org, realSlotKey);
     setShowOrgSelectionModal(false);
   };
 

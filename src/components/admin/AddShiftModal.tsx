@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/lib/toast';
 import { useOrganizations } from '@/hooks/useAdminData';
@@ -20,12 +13,10 @@ interface AddShiftModalProps {
 
 const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
 
-export default function AddShiftModal({
-  isOpen,
-  onClose,
-  userStats,
-  onShiftAdded
-}: AddShiftModalProps) {
+const selectClass = "w-full border border-gray-200 bg-white text-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors";
+const labelClass = "text-xs font-medium text-gray-500 mb-1.5 block";
+
+export default function AddShiftModal({ isOpen, onClose, userStats, onShiftAdded }: AddShiftModalProps) {
   const { data: organizations = [] } = useOrganizations(isOpen);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
@@ -33,25 +24,18 @@ export default function AddShiftModal({
   const [timeSlot, setTimeSlot] = useState('12:00-16:00');
   const [adding, setAdding] = useState(false);
 
-  const getSessionToken = () => localStorage.getItem('session_token');
-
   const handleSubmit = async () => {
     if (!selectedUserId || !selectedOrgId || !shiftDate || !timeSlot) {
-      toast({
-        title: 'Ошибка',
-        description: 'Заполните все поля',
-        variant: 'destructive',
-      });
+      toast({ title: 'Ошибка', description: 'Заполните все поля', variant: 'destructive' });
       return;
     }
-
     setAdding(true);
     try {
       const response = await fetch(ADMIN_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Session-Token': getSessionToken() || '',
+          'X-Session-Token': localStorage.getItem('session_token') || '',
         },
         body: JSON.stringify({
           action: 'add_schedule_slot',
@@ -61,30 +45,17 @@ export default function AddShiftModal({
           time_slot: timeSlot,
         }),
       });
-
       if (response.ok) {
-        toast({
-          title: 'Успешно',
-          description: 'Смена добавлена',
-        });
+        toast({ title: 'Успешно', description: 'Смена добавлена' });
         resetForm();
         onShiftAdded?.();
         onClose();
       } else {
         const error = await response.json();
-        toast({
-          title: 'Ошибка',
-          description: error.error || 'Не удалось добавить смену',
-          variant: 'destructive',
-        });
+        toast({ title: 'Ошибка', description: error.error || 'Не удалось добавить смену', variant: 'destructive' });
       }
-    } catch (error) {
-      console.error('Error adding shift:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось добавить смену',
-        variant: 'destructive',
-      });
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось добавить смену', variant: 'destructive' });
     } finally {
       setAdding(false);
     }
@@ -97,100 +68,78 @@ export default function AddShiftModal({
     setTimeSlot('12:00-16:00');
   };
 
-  const handleClose = () => {
-    resetForm();
-    onClose();
-  };
+  const handleClose = () => { resetForm(); onClose(); };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-slate-900 border-slate-700 text-slate-100 max-w-md">
+      <DialogContent className="bg-white border-gray-200 text-gray-800 max-w-md rounded-2xl shadow-xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-slate-100">
-            <Icon name="CalendarPlus" size={20} className="text-cyan-400" />
+          <DialogTitle className="flex items-center gap-2 text-gray-800">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+              <Icon name="CalendarPlus" size={16} className="text-blue-500" />
+            </div>
             Добавить смену
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-4">
+        <div className="space-y-4 mt-2">
           <div>
-            <label className="text-sm text-slate-300 mb-2 block">Промоутер</label>
-            <select
-              value={selectedUserId || ''}
-              onChange={(e) => setSelectedUserId(Number(e.target.value))}
-              className="w-full border-2 border-slate-700 bg-slate-800 text-slate-100 rounded-md px-3 py-2 text-sm focus:border-cyan-600 focus:ring-cyan-600"
-            >
+            <label className={labelClass}>Промоутер</label>
+            <select value={selectedUserId || ''} onChange={e => setSelectedUserId(Number(e.target.value))} className={selectClass}>
               <option value="">Выберите промоутера</option>
-              {userStats.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name}
-                </option>
+              {userStats.map(user => (
+                <option key={user.id} value={user.id}>{user.name}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="text-sm text-slate-300 mb-2 block">Организация</label>
-            <select
-              value={selectedOrgId || ''}
-              onChange={(e) => setSelectedOrgId(Number(e.target.value))}
-              className="w-full border-2 border-slate-700 bg-slate-800 text-slate-100 rounded-md px-3 py-2 text-sm focus:border-cyan-600 focus:ring-cyan-600"
-            >
+            <label className={labelClass}>Организация</label>
+            <select value={selectedOrgId || ''} onChange={e => setSelectedOrgId(Number(e.target.value))} className={selectClass}>
               <option value="">Выберите организацию</option>
               {organizations.map((org: { id: number; name: string }) => (
-                <option key={org.id} value={org.id}>
-                  {org.name}
-                </option>
+                <option key={org.id} value={org.id}>{org.name}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="text-sm text-slate-300 mb-2 block">Дата смены</label>
-            <Input
+            <label className={labelClass}>Дата смены</label>
+            <input
               type="date"
               value={shiftDate}
-              onChange={(e) => setShiftDate(e.target.value)}
-              className="border-2 border-slate-700 bg-slate-800 text-slate-100 focus:border-cyan-600 focus:ring-cyan-600"
+              onChange={e => setShiftDate(e.target.value)}
+              className={selectClass}
             />
           </div>
 
           <div>
-            <label className="text-sm text-slate-300 mb-2 block">Время смены</label>
-            <select
-              value={timeSlot}
-              onChange={(e) => setTimeSlot(e.target.value)}
-              className="w-full border-2 border-slate-700 bg-slate-800 text-slate-100 rounded-md px-3 py-2 text-sm focus:border-cyan-600 focus:ring-cyan-600"
-            >
+            <label className={labelClass}>Время смены</label>
+            <select value={timeSlot} onChange={e => setTimeSlot(e.target.value)} className={selectClass}>
               {['12:00-16:00', '16:00-20:00', '09:00-12:00', '09:00-13:00', '13:00-17:00'].map(slot => (
                 <option key={slot} value={slot}>{slot}</option>
               ))}
             </select>
           </div>
 
-          <div className="flex gap-2 pt-2">
-            <Button
+          <div className="flex gap-2 pt-1">
+            <button
               onClick={handleSubmit}
               disabled={adding}
-              className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white"
+              className="flex-1 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors"
             >
-              {adding ? (
-                <Icon name="Loader2" size={16} className="animate-spin" />
-              ) : (
-                <>
-                  <Icon name="Plus" size={16} className="mr-2" />
-                  Добавить
-                </>
-              )}
-            </Button>
-            <Button
+              {adding
+                ? <Icon name="Loader2" size={16} className="animate-spin" />
+                : <><Icon name="Plus" size={16} />Добавить</>
+              }
+            </button>
+            <button
               onClick={handleClose}
               disabled={adding}
-              variant="outline"
-              className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold py-2.5 rounded-xl text-sm transition-colors"
             >
               Отмена
-            </Button>
+            </button>
           </div>
         </div>
       </DialogContent>

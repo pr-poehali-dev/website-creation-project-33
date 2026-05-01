@@ -4,69 +4,45 @@ import Icon from '@/components/ui/icon';
 const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
 
 function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    'X-Session-Token': localStorage.getItem('session_token') || '',
-  };
+  return { 'Content-Type': 'application/json', 'X-Session-Token': localStorage.getItem('session_token') || '' };
 }
 
-interface WeekDay {
-  date: string;
-  dayNameFull: string;
-  dayName: string;
-}
-
-interface TrainingModalProps {
-  weekDays: WeekDay[];
-  organizations?: string[];
-  onClose: () => void;
-}
-
-interface TrainingEntry {
-  id: string;
-  seniorName: string;
-  promoterName: string;
-  promoterPhone: string;
-  organization: string;
-  time: string;
-  comment: string;
-}
+interface WeekDay { date: string; dayNameFull: string; dayName: string; }
+interface TrainingModalProps { weekDays: WeekDay[]; organizations?: string[]; onClose: () => void; }
+interface TrainingEntry { id: string; seniorName: string; promoterName: string; promoterPhone: string; organization: string; time: string; comment: string; }
 
 const DAY_NAMES: Record<string, string> = {
   'Понедельник': 'Пн', 'Вторник': 'Вт', 'Среда': 'Ср',
   'Четверг': 'Чт', 'Пятница': 'Пт', 'Суббота': 'Сб', 'Воскресенье': 'Вс'
 };
 
+const inputCls = "w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors";
+const labelCls = "text-xs font-medium text-gray-500 mb-1.5 block";
+
 export default function TrainingModal({ weekDays, organizations: orgsProp, onClose }: TrainingModalProps) {
   const [selectedDate, setSelectedDate] = useState(weekDays[0]?.date || '');
   const [entries, setEntries] = useState<TrainingEntry[]>([]);
   const [loadingEntries, setLoadingEntries] = useState(false);
-
   const [loadedOrgs, setLoadedOrgs] = useState<string[]>(orgsProp ?? []);
   const [seniors, setSeniors] = useState<string[]>([]);
-
   const emptyForm = { seniorName: '', promoterName: '', promoterPhone: '', organization: '', time: '', comment: '' };
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
   const [showSeniorDropdown, setShowSeniorDropdown] = useState(false);
   const [newSeniorInput, setNewSeniorInput] = useState('');
   const [showAddSenior, setShowAddSenior] = useState(false);
   const seniorRef = useRef<HTMLDivElement>(null);
-
   const [showOrgDropdown, setShowOrgDropdown] = useState(false);
   const [orgSearch, setOrgSearch] = useState('');
   const orgRef = useRef<HTMLDivElement>(null);
 
-  // Загрузка старших с сервера
   const loadSeniors = useCallback(async () => {
     const res = await fetch(`${TRAINING_API}?action=get_seniors`, { headers: authHeaders() });
     const data = await res.json();
     if (data.seniors) setSeniors(data.seniors.map((s: { name: string }) => s.name));
   }, []);
 
-  // Загрузка записей для даты
   const loadEntries = useCallback(async (date: string) => {
     setLoadingEntries(true);
     const res = await fetch(`${TRAINING_API}?action=get_entries&date=${date}`, { headers: authHeaders() });
@@ -98,57 +74,34 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const handleDateChange = (date: string) => {
-    setSelectedDate(date);
-    loadEntries(date);
-    setEditingId(null);
-    setForm(emptyForm);
-  };
+  const handleDateChange = (date: string) => { setSelectedDate(date); loadEntries(date); setEditingId(null); setForm(emptyForm); };
+  const handleChange = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
   const handleAddSenior = async () => {
     const name = newSeniorInput.trim();
     if (!name || seniors.includes(name)) return;
-    await fetch(TRAINING_API, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ action: 'add_senior', name }),
-    });
+    await fetch(TRAINING_API, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ action: 'add_senior', name }) });
     setSeniors(prev => [...prev, name].sort());
     setForm(prev => ({ ...prev, seniorName: name }));
-    setNewSeniorInput('');
-    setShowAddSenior(false);
-    setShowSeniorDropdown(false);
+    setNewSeniorInput(''); setShowAddSenior(false); setShowSeniorDropdown(false);
   };
 
   const handleDeleteSenior = async (name: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    await fetch(TRAINING_API, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ action: 'delete_senior', name }),
-    });
+    await fetch(TRAINING_API, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ action: 'delete_senior', name }) });
     setSeniors(prev => prev.filter(s => s !== name));
   };
 
   const filteredOrgs = loadedOrgs.filter(o => o.toLowerCase().includes(orgSearch.toLowerCase()));
-  const handleChange = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
   const handleSubmit = async () => {
     if (!form.seniorName.trim() || !form.promoterName.trim() || !selectedDate) return;
     setSaving(true);
     if (editingId) {
-      await fetch(TRAINING_API, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ action: 'update_entry', id: parseInt(editingId), ...form }),
-      });
+      await fetch(TRAINING_API, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ action: 'update_entry', id: parseInt(editingId), ...form }) });
       setEditingId(null);
     } else {
-      await fetch(TRAINING_API, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ action: 'add_entry', date: selectedDate, ...form }),
-      });
+      await fetch(TRAINING_API, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ action: 'add_entry', date: selectedDate, ...form }) });
     }
     await loadEntries(selectedDate);
     setForm(emptyForm);
@@ -161,43 +114,38 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(TRAINING_API, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ action: 'delete_entry', id: parseInt(id) }),
-    });
+    await fetch(TRAINING_API, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ action: 'delete_entry', id: parseInt(id) }) });
     await loadEntries(selectedDate);
   };
 
   const cancelEdit = () => { setEditingId(null); setForm(emptyForm); };
-
   const selectedDay = weekDays.find(d => d.date === selectedDate);
-  const inputClass = "w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500";
-  const labelClass = "text-xs text-slate-400 mb-1.5 block";
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50">
-      <div className="bg-slate-900 border border-slate-700 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg h-[92dvh] sm:max-h-[90vh] flex flex-col shadow-2xl">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center z-50">
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg h-[92dvh] sm:max-h-[90vh] flex flex-col shadow-2xl border border-gray-100">
 
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700 flex-shrink-0">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
           <div>
-            <h2 className="text-base font-bold text-slate-100">Добавить обучение</h2>
-            {selectedDay && <p className="text-xs text-slate-400">{selectedDay.dayNameFull}, {selectedDate}</p>}
+            <h2 className="text-base font-bold text-gray-800">Добавить обучение</h2>
+            {selectedDay && <p className="text-xs text-gray-400">{selectedDay.dayNameFull}, {selectedDate}</p>}
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors">
-            <Icon name="X" size={20} />
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+            <Icon name="X" size={18} />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <div className="bg-slate-800/60 rounded-xl p-4 space-y-3 border border-slate-700">
-            <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-wide">
+          {/* Form */}
+          <div className="bg-gray-50 rounded-2xl p-4 space-y-3 border border-gray-100">
+            <h3 className="text-xs font-semibold text-blue-500 uppercase tracking-wide">
               {editingId ? 'Редактировать запись' : 'Новая запись'}
             </h3>
 
             {/* Дата */}
             <div>
-              <label className={labelClass}>Дата *</label>
+              <label className={labelCls}>Дата *</label>
               <div className="grid grid-cols-7 gap-1">
                 {weekDays.map(day => {
                   const isSelected = day.date === selectedDate;
@@ -205,8 +153,10 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
                   const shortName = DAY_NAMES[day.dayNameFull] || day.dayName;
                   return (
                     <button key={day.date} onClick={() => handleDateChange(day.date)}
-                      className={`flex flex-col items-center py-2 px-1 rounded-lg text-center transition-all ${isSelected ? 'bg-violet-600 text-white' : 'bg-slate-900 text-slate-400 hover:bg-slate-700 hover:text-slate-200'}`}>
-                      <span className="text-[10px] font-semibold">{shortName}</span>
+                      className={`flex flex-col items-center py-2 px-1 rounded-xl text-center transition-all ${
+                        isSelected ? 'bg-blue-500 text-white shadow-sm' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'
+                      }`}>
+                      <span className="text-[9px] font-semibold">{shortName}</span>
                       <span className="text-sm font-bold">{dayNum}</span>
                     </button>
                   );
@@ -216,43 +166,43 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
 
             {/* Старший */}
             <div>
-              <label className={labelClass}>Старший *</label>
+              <label className={labelCls}>Старший *</label>
               <div className="relative" ref={seniorRef}>
-                <div className={`${inputClass} flex items-center justify-between cursor-pointer`} onClick={() => setShowSeniorDropdown(p => !p)}>
-                  <span className={form.seniorName ? 'text-slate-100' : 'text-slate-500'}>
+                <div className={`${inputCls} flex items-center justify-between cursor-pointer`} onClick={() => setShowSeniorDropdown(p => !p)}>
+                  <span className={form.seniorName ? 'text-gray-700' : 'text-gray-400'}>
                     {form.seniorName || 'Выбрать старшего'}
                   </span>
-                  <Icon name={showSeniorDropdown ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400 flex-shrink-0" />
+                  <Icon name={showSeniorDropdown ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-gray-400 flex-shrink-0" />
                 </div>
                 {showSeniorDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-xl shadow-xl z-20 overflow-hidden">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
                     {seniors.length > 0 ? (
                       <div className="max-h-48 overflow-y-auto">
                         {seniors.map(name => (
-                          <div key={name} className="flex items-center justify-between px-3 py-2.5 hover:bg-slate-700 active:bg-slate-600 cursor-pointer transition-colors"
+                          <div key={name} className="flex items-center justify-between px-3 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
                             onClick={() => { setForm(prev => ({ ...prev, seniorName: name })); setShowSeniorDropdown(false); setShowAddSenior(false); }}>
-                            <span className="text-sm text-slate-100">{name}</span>
-                            <button onClick={(e) => handleDeleteSenior(name, e)} className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors">
+                            <span className="text-sm text-gray-700">{name}</span>
+                            <button onClick={(e) => handleDeleteSenior(name, e)} className="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-red-400 transition-colors">
                               <Icon name="X" size={12} />
                             </button>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="px-3 py-3 text-sm text-slate-500 text-center">Список пуст</div>
+                      <div className="px-3 py-3 text-sm text-gray-400 text-center">Список пуст</div>
                     )}
-                    <div className="border-t border-slate-700">
+                    <div className="border-t border-gray-100">
                       {showAddSenior ? (
                         <div className="p-2 flex gap-2">
                           <input type="text" value={newSeniorInput} onChange={e => setNewSeniorInput(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && handleAddSenior()} placeholder="Имя старшего" autoFocus
-                            className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500" />
-                          <button onClick={handleAddSenior} className="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm rounded-lg transition-colors">
+                            className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-400" />
+                          <button onClick={handleAddSenior} className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors">
                             <Icon name="Check" size={16} />
                           </button>
                         </div>
                       ) : (
-                        <button onClick={() => setShowAddSenior(true)} className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-cyan-400 hover:bg-slate-700 transition-colors">
+                        <button onClick={() => setShowAddSenior(true)} className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-blue-500 hover:bg-gray-50 transition-colors">
                           <Icon name="Plus" size={15} />
                           Добавить нового старшего
                         </button>
@@ -265,47 +215,47 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
 
             {/* Стажер */}
             <div>
-              <label className={labelClass}>Стажер *</label>
-              <input type="text" value={form.promoterName} onChange={e => handleChange('promoterName', e.target.value)} placeholder="Имя стажера" className={inputClass} />
+              <label className={labelCls}>Стажер *</label>
+              <input type="text" value={form.promoterName} onChange={e => handleChange('promoterName', e.target.value)} placeholder="Имя стажера" className={inputCls} />
             </div>
 
             {/* Телефон */}
             <div>
-              <label className={labelClass}>Телефон стажера</label>
-              <input type="tel" value={form.promoterPhone} onChange={e => handleChange('promoterPhone', e.target.value)} placeholder="+7 999 000-00-00" className={inputClass} />
+              <label className={labelCls}>Телефон стажера</label>
+              <input type="tel" value={form.promoterPhone} onChange={e => handleChange('promoterPhone', e.target.value)} placeholder="+7 999 000-00-00" className={inputCls} />
             </div>
 
             {/* Организация */}
             <div>
-              <label className={labelClass}>Организация</label>
+              <label className={labelCls}>Организация</label>
               <div className="relative" ref={orgRef}>
-                <div className={`${inputClass} flex items-center justify-between cursor-pointer`}
+                <div className={`${inputCls} flex items-center justify-between cursor-pointer`}
                   onClick={() => { setShowOrgDropdown(p => !p); setOrgSearch(''); }}>
-                  <span className={form.organization ? 'text-slate-100' : 'text-slate-500'}>
+                  <span className={form.organization ? 'text-gray-700' : 'text-gray-400'}>
                     {form.organization || 'Выбрать организацию'}
                   </span>
                   <div className="flex items-center gap-1">
                     {form.organization && (
-                      <button onClick={e => { e.stopPropagation(); setForm(prev => ({ ...prev, organization: '' })); }} className="text-slate-500 hover:text-slate-300">
+                      <button onClick={e => { e.stopPropagation(); setForm(prev => ({ ...prev, organization: '' })); }} className="text-gray-300 hover:text-gray-500">
                         <Icon name="X" size={13} />
                       </button>
                     )}
-                    <Icon name={showOrgDropdown ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-slate-400" />
+                    <Icon name={showOrgDropdown ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-gray-400" />
                   </div>
                 </div>
                 {showOrgDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-xl shadow-xl z-20 overflow-hidden">
-                    <div className="p-2 border-b border-slate-700">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                    <div className="p-2 border-b border-gray-100">
                       <input type="text" value={orgSearch} onChange={e => setOrgSearch(e.target.value)} placeholder="Поиск..." autoFocus
-                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500" />
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-400" />
                     </div>
                     <div className="max-h-52 overflow-y-auto">
                       {filteredOrgs.length > 0 ? filteredOrgs.map(org => (
-                        <div key={org} className={`px-3 py-2.5 text-sm cursor-pointer transition-colors ${form.organization === org ? 'bg-cyan-600/20 text-cyan-400' : 'text-slate-100 hover:bg-slate-700'}`}
+                        <div key={org} className={`px-3 py-2.5 text-sm cursor-pointer transition-colors ${form.organization === org ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}`}
                           onClick={() => { setForm(prev => ({ ...prev, organization: org })); setShowOrgDropdown(false); }}>
                           {org}
                         </div>
-                      )) : <div className="px-3 py-3 text-sm text-slate-500 text-center">Ничего не найдено</div>}
+                      )) : <div className="px-3 py-3 text-sm text-gray-400 text-center">Ничего не найдено</div>}
                     </div>
                   </div>
                 )}
@@ -314,17 +264,17 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
 
             {/* Время */}
             <div>
-              <label className={labelClass}>Время стажировки</label>
+              <label className={labelCls}>Время стажировки</label>
               <div className="flex gap-2">
                 <select value={form.time.split(':')[0] || ''}
                   onChange={e => { const mins = form.time.split(':')[1] || '00'; handleChange('time', e.target.value ? `${e.target.value}:${mins}` : ''); }}
-                  className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
+                  className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-blue-400">
                   <option value="">Часы</option>
                   {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
                 <select value={form.time.split(':')[1] || ''}
                   onChange={e => { const hrs = form.time.split(':')[0] || '00'; handleChange('time', e.target.value ? `${hrs}:${e.target.value}` : ''); }}
-                  className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
+                  className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-blue-400">
                   <option value="">Минуты</option>
                   {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
@@ -333,18 +283,19 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
 
             {/* Комментарии */}
             <div>
-              <label className={labelClass}>Комментарии</label>
-              <textarea value={form.comment} onChange={e => handleChange('comment', e.target.value)} placeholder="Дополнительная информация..." rows={3} className={`${inputClass} resize-none`} />
+              <label className={labelCls}>Комментарии</label>
+              <textarea value={form.comment} onChange={e => handleChange('comment', e.target.value)} placeholder="Дополнительная информация..." rows={3}
+                className={`${inputCls} resize-none`} />
             </div>
 
             <div className="flex gap-2 pt-1">
               <button onClick={handleSubmit} disabled={!form.seniorName.trim() || !form.promoterName.trim() || !selectedDate || saving}
-                className="flex-1 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 disabled:bg-slate-700 disabled:text-slate-500 text-white text-sm font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+                className="flex-1 bg-blue-500 hover:bg-blue-600 disabled:opacity-40 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2">
                 {saving && <Icon name="Loader2" size={14} className="animate-spin" />}
                 {editingId ? 'Сохранить' : 'Добавить'}
               </button>
               {editingId && (
-                <button onClick={cancelEdit} className="px-5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-semibold py-3 rounded-xl transition-colors">
+                <button onClick={cancelEdit} className="px-5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-semibold py-2.5 rounded-xl transition-colors">
                   Отмена
                 </button>
               )}
@@ -353,62 +304,62 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
 
           {/* Список записей */}
           {loadingEntries ? (
-            <div className="flex items-center justify-center gap-2 py-8 text-slate-500">
+            <div className="flex items-center justify-center gap-2 py-8 text-gray-400">
               <Icon name="Loader2" size={18} className="animate-spin" />
               <span className="text-sm">Загрузка...</span>
             </div>
           ) : entries.length > 0 ? (
             <div className="space-y-2">
-              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide px-1">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1">
                 Записи на {selectedDay?.dayNameFull} ({entries.length})
               </h3>
               {entries.map((entry, index) => (
-                <div key={entry.id} className="bg-slate-800/60 rounded-xl p-3 border border-slate-700 space-y-1.5">
+                <div key={entry.id} className="bg-white rounded-2xl p-3 border border-gray-100 shadow-sm space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-violet-400 w-4 flex-shrink-0">{index + 1}</span>
-                        <Icon name="UserCheck" size={13} className="text-cyan-400 flex-shrink-0" />
-                        <span className="text-sm font-semibold text-slate-100">{entry.seniorName}</span>
+                        <span className="text-[10px] font-bold text-blue-400 w-4 flex-shrink-0">{index + 1}</span>
+                        <Icon name="UserCheck" size={13} className="text-blue-400 flex-shrink-0" />
+                        <span className="text-sm font-semibold text-gray-700">{entry.seniorName}</span>
                       </div>
                       <div className="flex items-center gap-2 pl-6">
-                        <Icon name="User" size={13} className="text-violet-400 flex-shrink-0" />
-                        <span className="text-sm text-slate-200">{entry.promoterName}</span>
+                        <Icon name="User" size={13} className="text-gray-400 flex-shrink-0" />
+                        <span className="text-sm text-gray-600">{entry.promoterName}</span>
                       </div>
                       {entry.promoterPhone && (
                         <div className="flex items-center gap-2 pl-6">
-                          <Icon name="Phone" size={12} className="text-slate-500 flex-shrink-0" />
-                          <span className="text-xs text-slate-400">{entry.promoterPhone}</span>
+                          <Icon name="Phone" size={12} className="text-gray-300 flex-shrink-0" />
+                          <span className="text-xs text-gray-400">{entry.promoterPhone}</span>
                         </div>
                       )}
                       {(entry.organization || entry.time) && (
                         <div className="flex items-center gap-4 flex-wrap pl-6">
                           {entry.organization && (
                             <div className="flex items-center gap-1.5">
-                              <Icon name="Building2" size={12} className="text-slate-500 flex-shrink-0" />
-                              <span className="text-xs text-slate-400">{entry.organization}</span>
+                              <Icon name="Building2" size={12} className="text-gray-300 flex-shrink-0" />
+                              <span className="text-xs text-gray-400">{entry.organization}</span>
                             </div>
                           )}
                           {entry.time && (
                             <div className="flex items-center gap-1.5">
-                              <Icon name="Clock" size={12} className="text-slate-500 flex-shrink-0" />
-                              <span className="text-xs text-slate-400">{entry.time}</span>
+                              <Icon name="Clock" size={12} className="text-gray-300 flex-shrink-0" />
+                              <span className="text-xs text-gray-400">{entry.time}</span>
                             </div>
                           )}
                         </div>
                       )}
                       {entry.comment && (
                         <div className="flex items-start gap-1.5 pl-6">
-                          <Icon name="MessageSquare" size={12} className="text-slate-500 flex-shrink-0 mt-0.5" />
-                          <span className="text-xs text-slate-400">{entry.comment}</span>
+                          <Icon name="MessageSquare" size={12} className="text-gray-300 flex-shrink-0 mt-0.5" />
+                          <span className="text-xs text-gray-400 italic">{entry.comment}</span>
                         </div>
                       )}
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
-                      <button onClick={() => handleEdit(entry)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-cyan-400 transition-colors">
+                      <button onClick={() => handleEdit(entry)} className="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-blue-400 hover:bg-blue-50 rounded-lg transition-colors">
                         <Icon name="Pencil" size={14} />
                       </button>
-                      <button onClick={() => handleDelete(entry.id)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors">
+                      <button onClick={() => handleDelete(entry.id)} className="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors">
                         <Icon name="Trash2" size={14} />
                       </button>
                     </div>
@@ -417,9 +368,9 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-slate-500">
-              <Icon name="GraduationCap" size={36} className="mx-auto mb-2 opacity-40" />
-              <p className="text-sm">Нет записей на {selectedDay?.dayNameFull}</p>
+            <div className="text-center py-8 text-gray-300">
+              <Icon name="GraduationCap" size={36} className="mx-auto mb-2" />
+              <p className="text-sm text-gray-400">Нет записей на {selectedDay?.dayNameFull}</p>
             </div>
           )}
         </div>

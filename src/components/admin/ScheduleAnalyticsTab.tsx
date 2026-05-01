@@ -132,7 +132,7 @@ export default function ScheduleAnalyticsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-3 py-4 md:px-5 md:py-5">
         <ScheduleHeader
           view={view}
           setView={setView}

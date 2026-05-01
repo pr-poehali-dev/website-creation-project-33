@@ -15,25 +15,17 @@ interface WorkerCardProps {
   allLocations: string[];
   allOrganizations: OrganizationData[];
   recommendedOrgs: string[];
-  orgStats: Array<{organization_name: string, avg_per_shift: number}>;
+  orgStats: Array<{ organization_name: string; avg_per_shift: number }>;
   loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
 }
 
 export default function WorkerCard({
-  worker,
-  dayDate,
-  slotTime,
-  slotLabel,
-  workComments,
-  allLocations,
-  allOrganizations,
-  recommendedOrgs,
-  orgStats,
-  loadingProgress,
-  onCommentChange,
-  onSaveComment,
+  worker, dayDate, slotTime, slotLabel,
+  workComments, allLocations, allOrganizations,
+  recommendedOrgs, orgStats, loadingProgress,
+  onCommentChange, onSaveComment,
 }: WorkerCardProps) {
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
   const [showOrgSelectionModal, setShowOrgSelectionModal] = useState(false);
@@ -45,7 +37,7 @@ export default function WorkerCard({
   const avgContacts = calculateAvgBeforeDate(worker.daily_contacts, dayDate);
   const actualContacts = worker.daily_contacts?.find(d => d.date === dayDate)?.count ?? null;
 
-  const userComments = workComments[dayDate]?.[workerName] as Record<string, {organization?: string}> | undefined;
+  const userComments = workComments[dayDate]?.[workerName] as Record<string, { organization?: string }> | undefined;
   // Реальный ключ смены (может отличаться от slotLabel при нестандартном расписании)
   const realSlotKey = userComments?.[slotLabel] !== undefined
     ? slotLabel
@@ -77,8 +69,7 @@ export default function WorkerCard({
     const workerSalary = shiftDate >= new Date('2025-10-01') && contactsCount >= 10
       ? contactsCount * 300
       : contactsCount * 200;
-    const netProfit = afterTax - workerSalary;
-    return Math.round(netProfit / 2);
+    return Math.round((afterTax - workerSalary) / 2);
   };
 
   const contactsForCalc = selectedOrgAvg > 0 ? selectedOrgAvg : avgContacts;
@@ -93,29 +84,27 @@ export default function WorkerCard({
   const bestRecommendedKMS = recommendedKMSList[0]?.kms || 0;
   const kmsDifference = expectedKMS - bestRecommendedKMS;
   const kmsDifferencePercent = bestRecommendedKMS > 0 ? Math.round((kmsDifference / bestRecommendedKMS) * 100) : 0;
-
   const aboveAvg = actualContacts !== null && avgContacts !== null && actualContacts >= Math.round(avgContacts);
 
   return (
-    <div className="bg-slate-900/60 rounded-xl ring-1 ring-slate-700/30 overflow-hidden">
-      {/* Worker row */}
-      <div className="flex items-center justify-between px-2.5 py-1.5 group gap-1.5">
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+      <div className="flex items-center justify-between px-3 py-2 gap-2">
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
           <button
             onClick={() => setShowDetailsModal(true)}
-            className="text-[10px] md:text-xs text-slate-300 hover:text-cyan-400 transition-colors font-medium truncate"
+            className="text-[11px] text-gray-700 hover:text-blue-500 transition-colors font-medium truncate"
             title="Детальная информация"
           >
             {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
           </button>
 
           {avgContacts !== undefined && avgContacts !== null && (
-            <span className="flex items-center gap-0.5 text-[9px] bg-slate-800/70 px-1.5 py-0.5 rounded-full ring-1 ring-slate-700/40 flex-shrink-0">
-              <span className="text-slate-500">~{avgContacts.toFixed(1)}</span>
+            <span className="flex items-center gap-0.5 text-[9px] bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
+              <span className="text-gray-400">~{avgContacts.toFixed(1)}</span>
               {actualContacts !== null && (
                 <>
-                  <span className="text-slate-400 font-bold">/</span>
-                  <span className={aboveAvg ? 'text-emerald-400 font-bold' : 'text-orange-400 font-bold'}>
+                  <span className="text-gray-300 font-bold">/</span>
+                  <span className={aboveAvg ? 'text-emerald-500 font-bold' : 'text-orange-500 font-bold'}>
                     {actualContacts}
                   </span>
                 </>
@@ -124,17 +113,20 @@ export default function WorkerCard({
           )}
         </div>
 
-        {/* Организация справа */}
+        {/* Организация */}
         <div className="flex items-center gap-1 flex-shrink-0">
           {currentOrganization ? (
-            <span className="text-[9px] md:text-[10px] text-cyan-300 bg-cyan-500/10 ring-1 ring-cyan-500/20 px-1.5 py-0.5 rounded-full truncate max-w-[100px]">
+            <button
+              onClick={() => setShowOrgSelectionModal(true)}
+              className="text-[9px] text-blue-600 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-full truncate max-w-[100px] hover:bg-blue-100 transition-colors"
+            >
               {currentOrganization}
-            </span>
+            </button>
           ) : (
             <button
               type="button"
               onClick={() => setShowOrgSelectionModal(true)}
-              className="text-[9px] text-slate-600 hover:text-slate-400 bg-slate-800/30 ring-1 ring-slate-700/30 hover:ring-slate-600/50 px-1.5 py-0.5 rounded-full transition-all"
+              className="text-[9px] text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 px-1.5 py-0.5 rounded-full transition-all"
             >
               + Орг.
             </button>

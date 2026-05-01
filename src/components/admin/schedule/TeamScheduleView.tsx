@@ -128,15 +128,15 @@ export default function TeamScheduleView({
       {!trainingReady && (
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-slate-900/60 ring-1 ring-slate-700/40 rounded-2xl p-4 animate-pulse">
+            <div key={i} className="bg-white border border-gray-100 rounded-2xl p-4 animate-pulse">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-700/60" />
+                <div className="w-10 h-10 rounded-xl bg-gray-100" />
                 <div className="flex-1 space-y-1.5">
-                  <div className="h-3 w-24 bg-slate-700/60 rounded" />
-                  <div className="h-2.5 w-16 bg-slate-700/40 rounded" />
+                  <div className="h-3 w-24 bg-gray-100 rounded" />
+                  <div className="h-2.5 w-16 bg-gray-100 rounded" />
                 </div>
               </div>
-              <div className="h-10 bg-slate-800/60 rounded-xl" />
+              <div className="h-10 bg-gray-50 rounded-xl" />
             </div>
           ))}
         </div>
@@ -170,25 +170,25 @@ export default function TeamScheduleView({
         );
       })}
 
-      <div className="flex items-center justify-end gap-3 py-4">
-        <div className="flex items-center gap-4 bg-slate-900/60 ring-1 ring-slate-700/40 rounded-2xl px-5 py-3">
+      <div className="flex items-center justify-end gap-3 py-2">
+        <div className="flex items-center gap-4 bg-white border border-gray-100 shadow-sm rounded-2xl px-5 py-3">
           <div className="text-center">
-            <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-0.5">План</div>
-            <div className="text-2xl font-bold text-slate-300">{weekTotals.expected}</div>
+            <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-0.5">План</div>
+            <div className="text-2xl font-bold text-gray-700">{weekTotals.expected}</div>
           </div>
-          <div className="w-px h-8 bg-slate-700/50" />
+          <div className="w-px h-8 bg-gray-100" />
           <div className="text-center">
-            <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-0.5">Факт</div>
-            <div className={`text-2xl font-bold ${weekTotals.actual >= weekTotals.expected && weekTotals.expected > 0 ? 'text-emerald-400' : 'text-cyan-400'}`}>
+            <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-0.5">Факт</div>
+            <div className={`text-2xl font-bold ${weekTotals.actual >= weekTotals.expected && weekTotals.expected > 0 ? 'text-emerald-500' : 'text-blue-500'}`}>
               {weekTotals.actual}
             </div>
           </div>
           {weekTotals.expected > 0 && (
             <>
-              <div className="w-px h-8 bg-slate-700/50" />
+              <div className="w-px h-8 bg-gray-100" />
               <div className="text-center">
-                <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-0.5">%</div>
-                <div className={`text-2xl font-bold ${weekTotals.actual >= weekTotals.expected ? 'text-emerald-400' : 'text-orange-400'}`}>
+                <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-0.5">%</div>
+                <div className={`text-2xl font-bold ${weekTotals.actual >= weekTotals.expected ? 'text-emerald-500' : 'text-orange-400'}`}>
                   {Math.round((weekTotals.actual / weekTotals.expected) * 100)}
                 </div>
               </div>

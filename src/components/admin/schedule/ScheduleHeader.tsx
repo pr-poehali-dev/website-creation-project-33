@@ -14,33 +14,30 @@ interface ScheduleHeaderProps {
 }
 
 export default function ScheduleHeader({
-  view,
-  setView,
-  currentWeekIndex,
-  setCurrentWeekIndex,
-  weeks,
-  loading,
+  view, setView,
+  currentWeekIndex, setCurrentWeekIndex,
+  weeks, loading,
   weekDaysCalendar,
-  onOpenAddShift,
-  onOpenAddTraining,
+  onOpenAddShift, onOpenAddTraining,
 }: ScheduleHeaderProps) {
   return (
-    <div className="flex flex-col gap-3 mb-6">
+    <div className="flex flex-col gap-3 mb-5">
 
-      {/* 1. Заголовок + все кнопки в одну строку */}
+      {/* Заголовок + кнопки */}
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-lg md:text-xl font-bold text-slate-100 tracking-tight flex-shrink-0">
-          График работы
-        </h2>
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+            <Icon name="CalendarDays" size={18} className="text-blue-500" />
+          </div>
+          <h2 className="text-base font-semibold text-gray-800">График работы</h2>
+        </div>
 
-        <div className="flex items-center gap-1 bg-slate-900/60 ring-1 ring-slate-700/40 rounded-xl p-1">
+        <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
           <button
             onClick={() => setView('team')}
             title="Общий"
             className={`flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 ${
-              view === 'team'
-                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              view === 'team' ? 'bg-blue-500 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 hover:bg-white'
             }`}
           >
             <Icon name="Users" size={14} />
@@ -49,21 +46,19 @@ export default function ScheduleHeader({
             onClick={() => setView('individual')}
             title="Индивидуально"
             className={`flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 ${
-              view === 'individual'
-                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/40'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              view === 'individual' ? 'bg-blue-500 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 hover:bg-white'
             }`}
           >
             <Icon name="User" size={14} />
           </button>
 
-          <div className="w-px h-5 bg-slate-700/60 mx-0.5" />
+          <div className="w-px h-5 bg-gray-200 mx-0.5" />
 
           {onOpenAddShift && (
             <button
               onClick={onOpenAddShift}
               title="Добавить смену"
-              className="flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-emerald-400 hover:text-emerald-300 hover:bg-slate-800/50"
+              className="flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-emerald-500 hover:bg-emerald-50"
             >
               <Icon name="CalendarPlus" size={14} />
             </button>
@@ -72,7 +67,7 @@ export default function ScheduleHeader({
             <button
               onClick={onOpenAddTraining}
               title="Добавить обучение"
-              className="flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-violet-400 hover:text-violet-300 hover:bg-slate-800/50"
+              className="flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-violet-500 hover:bg-violet-50"
             >
               <Icon name="GraduationCap" size={14} />
             </button>
@@ -80,40 +75,32 @@ export default function ScheduleHeader({
         </div>
       </div>
 
-      {/* 2. Навигация по неделям */}
+      {/* Навигация по неделям */}
       <div className="flex items-center gap-3">
         <button
           onClick={() => setCurrentWeekIndex(Math.max(0, currentWeekIndex - 1))}
           disabled={currentWeekIndex === 0 || loading}
-          className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-900/60 ring-1 ring-slate-700/40 text-slate-400 hover:text-slate-200 hover:bg-slate-800/70 disabled:opacity-25 transition-all flex-shrink-0"
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 disabled:opacity-30 transition-all flex-shrink-0"
         >
           <Icon name="ChevronLeft" size={16} />
         </button>
 
         <div className="flex-1 text-center">
-          <p className="text-sm font-semibold text-slate-100">
-            {weeks[currentWeekIndex]?.label}
-          </p>
-          <p className="text-[10px] text-slate-600 mt-0.5">
-            Неделя {currentWeekIndex + 1} из {weeks.length}
-          </p>
+          <p className="text-sm font-semibold text-gray-700">{weeks[currentWeekIndex]?.label}</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">Неделя {currentWeekIndex + 1} из {weeks.length}</p>
         </div>
 
         <button
           onClick={() => setCurrentWeekIndex(Math.min(weeks.length - 1, currentWeekIndex + 1))}
           disabled={currentWeekIndex === weeks.length - 1 || loading}
-          className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-900/60 ring-1 ring-slate-700/40 text-slate-400 hover:text-slate-200 hover:bg-slate-800/70 disabled:opacity-25 transition-all flex-shrink-0"
+          className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 disabled:opacity-30 transition-all flex-shrink-0"
         >
           <Icon name="ChevronRight" size={16} />
         </button>
       </div>
 
-      {/* 3. Мини-календарь */}
-      {weekDaysCalendar && (
-        <div>{weekDaysCalendar}</div>
-      )}
-
-
+      {/* Мини-календарь */}
+      {weekDaysCalendar && <div>{weekDaysCalendar}</div>}
     </div>
   );
 }

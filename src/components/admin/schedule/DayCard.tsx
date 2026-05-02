@@ -99,7 +99,6 @@ export default function DayCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-gray-800 text-sm">{day.dayNameFull}</span>
-            <span className="text-[10px] text-gray-400">{day.date}</span>
 
             {stats && (
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
@@ -110,20 +109,18 @@ export default function DayCard({
             )}
 
             {stats && stats.workersCount > 0 && (
-              <span className="flex items-center gap-1 text-[10px] text-blue-500">
+              <span className="flex items-center gap-1 text-[10px] text-gray-500">
                 <Icon name="Users" size={10} />
                 {stats.workersCount}
+                {isSuccessful && <Icon name="Check" size={10} className="text-emerald-500" />}
               </span>
-            )}
-
-            {isSuccessful && (
-              <Icon name="CheckCircle" size={14} className="text-emerald-500 flex-shrink-0" />
             )}
 
             {trainingCount > 0 && (
               <span className="flex items-center gap-1 text-[10px] text-violet-500">
                 <Icon name="GraduationCap" size={10} />
                 {trainingCount}
+                {isSuccessful && <Icon name="Check" size={10} className="text-emerald-500" />}
               </span>
             )}
           </div>

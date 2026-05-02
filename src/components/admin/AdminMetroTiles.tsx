@@ -46,17 +46,17 @@ const NavButton = ({
 }) => (
   <button
     onClick={onClick}
-    className={`relative group flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-2xl transition-all duration-200 flex-shrink-0 ${
+    className={`relative flex items-center gap-3 h-10 px-2.5 rounded-xl transition-all duration-200 flex-shrink-0 w-full ${
       active 
-        ? 'bg-[#001f54] text-white shadow-md' 
-        : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+        ? 'bg-[#001f54] text-white' 
+        : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'
     }`}
     title={label}
   >
-    <Icon name={icon} size={18} />
-    <span className="text-[8px] font-medium leading-none">{label}</span>
+    <Icon name={icon} size={17} className="flex-shrink-0" />
+    <span className="text-[11px] font-medium leading-none whitespace-nowrap transition-all duration-200 overflow-hidden w-0 group-hover/sidebar:w-auto group-hover/sidebar:opacity-100 opacity-0">{label}</span>
     {badge !== undefined && badge > 0 && (
-      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 min-w-[18px] h-4 animate-pulse">
+      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-[16px] h-4 animate-pulse">
         {badge}
       </Badge>
     )}
@@ -87,8 +87,8 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   const renderWithSidebar = (content: React.ReactNode) => (
     <div className="space-y-4">
       {/* Десктоп версия с боковой навигацией */}
-      <div className="hidden md:flex gap-4">
-        <div className="flex flex-col gap-2 sticky top-4 h-fit bg-white rounded-2xl p-2 shadow-sm border border-gray-100">
+      <div className="hidden md:flex gap-3 items-start pt-4">
+        <div className="group/sidebar flex flex-col gap-1 sticky top-4 w-10 hover:w-44 transition-all duration-300 overflow-hidden flex-shrink-0">
           {navigationItems.map((item) => (
             <NavButton
               key={item.view}

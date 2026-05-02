@@ -11,6 +11,7 @@ interface ScheduleHeaderProps {
   weekDaysCalendar?: React.ReactNode;
   onOpenAddShift?: () => void;
   onOpenAddTraining?: () => void;
+  onGoHome?: () => void;
 }
 
 export default function ScheduleHeader({
@@ -18,7 +19,7 @@ export default function ScheduleHeader({
   currentWeekIndex, setCurrentWeekIndex,
   weeks, loading,
   weekDaysCalendar,
-  onOpenAddShift, onOpenAddTraining,
+  onOpenAddShift, onOpenAddTraining, onGoHome,
 }: ScheduleHeaderProps) {
   return (
     <div className="flex flex-col gap-3 mb-5">
@@ -33,6 +34,18 @@ export default function ScheduleHeader({
         </div>
 
         <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+          {onGoHome && (
+            <>
+              <button
+                onClick={onGoHome}
+                title="Домой"
+                className="md:hidden flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-gray-400 hover:text-gray-600 hover:bg-white"
+              >
+                <Icon name="Home" size={14} />
+              </button>
+              <div className="md:hidden w-px h-5 bg-gray-200 mx-0.5" />
+            </>
+          )}
           <button
             onClick={() => setView('team')}
             title="Общий"

@@ -106,7 +106,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
       </div>
       
       {/* Контент на мобильных без навигации */}
-      <div className="md:hidden">
+      <div className="md:hidden pt-4">
         {content}
       </div>
     </div>
@@ -201,7 +201,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
 
   if (currentView === 'analytics') {
     return renderWithSidebar(
-      <ScheduleAnalyticsTab />
+      <ScheduleAnalyticsTab onGoHome={() => handleViewChange('tiles')} />
     );
   }
 

@@ -10,7 +10,7 @@ import DeleteConfirmDialog from './schedule/DeleteConfirmDialog';
 import AddShiftModal from './AddShiftModal';
 import TrainingModal from './schedule/TrainingModal';
 
-export default function ScheduleAnalyticsTab() {
+export default function ScheduleAnalyticsTab({ onGoHome }: { onGoHome?: () => void }) {
   const weeks = getAllWeeksUntilEndOfYear();
   const [currentWeekIndex, setCurrentWeekIndex] = useState(getCurrentWeekIndex());
   const [view, setView] = useState<'team' | 'individual'>('team');
@@ -141,6 +141,7 @@ export default function ScheduleAnalyticsTab() {
           weekDaysCalendar={weekDays.length > 0 ? <WeekCalendarInteractive weekDays={weekDays} weekStartDate={weeks[currentWeekIndex].start} /> : undefined}
           onOpenAddShift={() => setAddShiftModalOpen(true)}
           onOpenAddTraining={() => setTrainingModalOpen(true)}
+          onGoHome={onGoHome}
         />
 
         {view === 'team' && (

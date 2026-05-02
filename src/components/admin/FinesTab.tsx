@@ -167,6 +167,7 @@ export default function FinesTab() {
 
   const isCurrentWeek = weekStart === getCurrentWeekStart();
   const totalFines = data.reduce((sum, p) => sum + p.total_fines, 0);
+  const totalEarnings = data.reduce((sum, p) => sum + p.total_earnings, 0);
   const promotersWithFines = data.filter(p => p.total_fines > 0);
 
   return (
@@ -205,11 +206,11 @@ export default function FinesTab() {
           </div>
           <div className="bg-white rounded-xl border border-red-100 p-3 text-center">
             <div className="text-[11px] text-red-400 mb-1">Со штрафами</div>
-            <div className="text-xl font-bold text-red-500">{promotersWithFines.length}</div>
+            <div className="text-xl font-bold text-red-500">−{totalFines.toLocaleString('ru-RU')} ₽</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-100 p-3 text-center">
             <div className="text-[11px] text-gray-400 mb-1">Сумма</div>
-            <div className="text-xl font-bold text-red-500">−{totalFines.toLocaleString('ru-RU')}</div>
+            <div className="text-xl font-bold text-green-600">{totalEarnings.toLocaleString('ru-RU')} ₽</div>
           </div>
         </div>
       )}

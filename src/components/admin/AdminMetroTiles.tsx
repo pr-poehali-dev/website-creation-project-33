@@ -48,8 +48,8 @@ const NavButton = ({
     onClick={onClick}
     className={`relative group flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-2xl transition-all duration-200 flex-shrink-0 ${
       active 
-        ? 'bg-white text-[#001f54] shadow-md' 
-        : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+        ? 'bg-[#001f54] text-white shadow-md' 
+        : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
     }`}
     title={label}
   >
@@ -88,7 +88,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     <div className="space-y-4">
       {/* Десктоп версия с боковой навигацией */}
       <div className="hidden md:flex gap-4">
-        <div className="flex flex-col gap-2 sticky top-4 h-fit bg-[#001f54] rounded-2xl p-2 shadow-xl">
+        <div className="flex flex-col gap-2 sticky top-4 h-fit bg-white rounded-2xl p-2 shadow-sm border border-gray-100">
           {navigationItems.map((item) => (
             <NavButton
               key={item.view}

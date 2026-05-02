@@ -28,13 +28,14 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="w-full px-4 md:px-6">
-        <AdminHeader 
-          onLogout={logout} 
-          onOpenGoogleSheets={openGoogleSheets}
-          onGoHome={goHome}
-          showHomeButton={currentView !== 'tiles'}
-          hideTitle={currentView === 'analytics'}
-        />
+        {currentView !== 'analytics' && (
+          <AdminHeader 
+            onLogout={logout} 
+            onOpenGoogleSheets={openGoogleSheets}
+            onGoHome={goHome}
+            showHomeButton={currentView !== 'tiles'}
+          />
+        )}
         <AdminMetroTiles 
           unreadCount={unreadCount} 
           sessionToken={localStorage.getItem('session_token') || ''}

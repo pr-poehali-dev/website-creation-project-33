@@ -112,7 +112,6 @@ export default function DayCard({
               <span className="flex items-center gap-1 text-[10px] text-gray-500">
                 <Icon name="Users" size={10} />
                 {stats.workersCount}
-                {isSuccessful && <Icon name="Check" size={10} className="text-emerald-500" />}
               </span>
             )}
 
@@ -120,7 +119,6 @@ export default function DayCard({
               <span className="flex items-center gap-1 text-[10px] text-violet-500">
                 <Icon name="GraduationCap" size={10} />
                 {trainingCount}
-                {isSuccessful && <Icon name="Check" size={10} className="text-emerald-500" />}
               </span>
             )}
           </div>

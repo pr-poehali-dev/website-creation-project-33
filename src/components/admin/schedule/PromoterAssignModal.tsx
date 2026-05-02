@@ -143,10 +143,8 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
   const syncWorkComments = async (promoterName: string, data: Partial<AssignedPromoter>) => {
     let slotLabel: string | null = null;
     if (data.time_slot) {
-      const date = new Date(plan.date);
-      const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-      if (data.time_slot === 'slot1') slotLabel = isWeekend ? '11:00-15:00' : '12:00-16:00';
-      else if (data.time_slot === 'slot2') slotLabel = isWeekend ? '15:00-19:00' : '16:00-20:00';
+      if (data.time_slot === 'slot1') slotLabel = '12:00-16:00';
+      else if (data.time_slot === 'slot2') slotLabel = '16:00-20:00';
     }
     if (!slotLabel) slotLabel = planTimeToSlotLabel(plan.time_from, plan.time_to);
     await fetch(WORK_COMMENTS_API, {

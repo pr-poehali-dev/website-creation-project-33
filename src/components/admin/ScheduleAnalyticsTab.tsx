@@ -121,18 +121,16 @@ export default function ScheduleAnalyticsTab() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-        <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-          <Icon name="Loader2" size={18} className="animate-spin text-blue-400" />
-          Загрузка данных...
-        </div>
+      <div className="flex items-center justify-center gap-2 text-gray-400 text-sm py-16">
+        <Icon name="Loader2" size={18} className="animate-spin text-blue-400" />
+        Загрузка данных...
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-3 py-4 md:px-5 md:py-5">
+      <div>
         <ScheduleHeader
           view={view}
           setView={setView}

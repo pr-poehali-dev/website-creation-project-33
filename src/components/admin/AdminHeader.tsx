@@ -14,7 +14,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
 
   return (
     <>
-      <header className="mb-6 flex items-center justify-between px-1">
+      <header className="pt-4 mb-5 flex items-center justify-between px-1">
         <div>
           <div className="text-base font-bold text-[#001f54] tracking-wide leading-none">ИМПЕРИЯ ПРОМО</div>
           <div className="text-[11px] text-gray-400 leading-none mt-0.5">рекламное агентство</div>

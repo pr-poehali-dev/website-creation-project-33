@@ -30,7 +30,6 @@ export interface PlanEntry {
   time_from: string | null;
   time_to: string | null;
   promoters: PlanPromoter[];
-  // legacy (первый промоутер)
   promoter_id: number | null;
   promoter_name: string | null;
   promoter_org_name: string | null;
@@ -72,7 +71,6 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
   const [saving, setSaving]             = useState(false);
   const [orgSearch, setOrgSearch]       = useState('');
 
-  // Синхронизация при смене editPlan (например при редактировании другой записи)
   useEffect(() => {
     setOrgId(editPlan?.organization_id ?? '');
     setSeniorId(editPlan?.senior_id ?? '');
@@ -92,19 +90,11 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
   }, []);
 
   const filteredOrgs = orgs.filter(o => o.name.toLowerCase().includes(orgSearch.toLowerCase()));
-
-  // Выбранный пресет времени
   const activePreset = TIME_PRESETS.find(p => p.from === timeFrom && p.to === timeTo) ?? null;
 
   const handlePreset = (p: typeof TIME_PRESETS[0]) => {
-    if (activePreset?.from === p.from) {
-      // повторный клик — снять
-      setTimeFrom('');
-      setTimeTo('');
-    } else {
-      setTimeFrom(p.from);
-      setTimeTo(p.to);
-    }
+    if (activePreset?.from === p.from) { setTimeFrom(''); setTimeTo(''); }
+    else { setTimeFrom(p.from); setTimeTo(p.to); }
   };
 
   const handleSave = async () => {
@@ -112,14 +102,9 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
     setSaving(true);
     try {
       const payload = {
-        organization_id: orgId,
-        date,
-        senior_id: seniorId || null,
-        color,
-        contact_limit: contactLimit ? Number(contactLimit) : null,
-        notes: notes.trim() || null,
-        time_from: timeFrom || null,
-        time_to: timeTo || null,
+        organization_id: orgId, date, senior_id: seniorId || null,
+        color, contact_limit: contactLimit ? Number(contactLimit) : null,
+        notes: notes.trim() || null, time_from: timeFrom || null, time_to: timeTo || null,
       };
       const res = editPlan
         ? await fetch(PLANNING_API, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editPlan.id, ...payload }) })
@@ -136,27 +121,28 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
     catch { return d; }
   };
 
+  const labelCls = "text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2 block";
+  const inputCls = "w-full h-10 px-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400 transition-all";
+
   return (
     <div
-      className="fixed inset-0 z-[60] flex flex-col justify-center items-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex flex-col justify-center items-center p-4 bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
+        className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col"
         style={{ maxHeight: 'min(90dvh, 700px)' }}
         onClick={e => e.stopPropagation()}
       >
-
-
         {/* Шапка */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-700/50 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 flex-shrink-0">
           <div>
-            <h3 className="text-sm font-bold text-slate-100">
+            <h3 className="text-sm font-bold text-gray-800">
               {editPlan ? 'Редактировать' : 'Добавить организацию'}
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5 capitalize">{fmtDate(date)}</p>
+            <p className="text-xs text-gray-400 mt-0.5 capitalize">{fmtDate(date)}</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-700/60 transition-all">
+          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
             <Icon name="X" size={16} />
           </button>
         </div>
@@ -165,30 +151,30 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-5">
           {metaLoading ? (
             <div className="flex items-center justify-center py-10">
-              <Icon name="Loader2" size={22} className="animate-spin text-cyan-400" />
+              <Icon name="Loader2" size={22} className="animate-spin text-blue-400" />
             </div>
           ) : (
             <>
               {/* Организация */}
               <div>
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Организация *</label>
+                <label className={labelCls}>Организация *</label>
                 <input
                   value={orgSearch}
                   onChange={e => setOrgSearch(e.target.value)}
                   placeholder="Поиск организации..."
-                  className="w-full h-10 px-3 mb-2 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
+                  className={`${inputCls} mb-2`}
                 />
-                <div className="max-h-44 overflow-y-auto rounded-xl bg-slate-800/40 ring-1 ring-slate-700/40 divide-y divide-slate-700/30">
-                  {filteredOrgs.length === 0 && <p className="text-xs text-slate-600 text-center py-4">Не найдено</p>}
+                <div className="max-h-44 overflow-y-auto rounded-xl bg-white border border-gray-200 divide-y divide-gray-100">
+                  {filteredOrgs.length === 0 && <p className="text-xs text-gray-400 text-center py-4">Не найдено</p>}
                   {filteredOrgs.map(o => (
                     <button
                       key={o.id}
                       onClick={() => setOrgId(o.id)}
                       className={`w-full text-left px-4 py-3 text-sm transition-all ${
-                        orgId === o.id ? 'bg-cyan-500/20 text-cyan-300 font-semibold' : 'text-slate-300 hover:bg-slate-700/50 active:bg-slate-700'
+                        orgId === o.id ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
-                      {orgId === o.id && <Icon name="Check" size={11} className="inline mr-2 text-cyan-400" />}
+                      {orgId === o.id && <Icon name="Check" size={11} className="inline mr-2 text-blue-500" />}
                       {o.name}
                     </button>
                   ))}
@@ -197,52 +183,40 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
 
               {/* Время смены */}
               <div>
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Время смены</label>
-                {/* Пресеты */}
+                <label className={labelCls}>Время смены</label>
                 <div className="grid grid-cols-2 gap-2 mb-2">
                   {TIME_PRESETS.map(p => (
                     <button
                       key={p.from}
                       onClick={() => handlePreset(p)}
-                      className={`h-10 px-3 rounded-xl text-sm font-medium transition-all ring-1 flex items-center justify-center gap-1.5 ${
+                      className={`h-10 px-3 rounded-xl text-sm font-medium transition-all border flex items-center justify-center gap-1.5 ${
                         activePreset?.from === p.from
-                          ? 'bg-cyan-500/20 text-cyan-300 ring-cyan-500/40'
-                          : 'bg-slate-800/40 text-slate-400 ring-slate-700/40 active:bg-slate-700'
+                          ? 'bg-blue-50 text-blue-600 border-blue-300'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
-                      <Icon name="Clock" size={12} className={activePreset?.from === p.from ? 'text-cyan-400' : 'text-slate-600'} />
+                      <Icon name="Clock" size={12} className={activePreset?.from === p.from ? 'text-blue-400' : 'text-gray-400'} />
                       {p.label}
                     </button>
                   ))}
                 </div>
-                {/* Ручной ввод */}
                 <div className="flex items-center gap-2">
-                  <input
-                    type="time"
-                    value={timeFrom}
-                    onChange={e => setTimeFrom(e.target.value)}
-                    className="flex-1 h-10 px-3 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
-                  />
-                  <span className="text-slate-600 text-sm">—</span>
-                  <input
-                    type="time"
-                    value={timeTo}
-                    onChange={e => setTimeTo(e.target.value)}
-                    className="flex-1 h-10 px-3 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
-                  />
+                  <input type="time" value={timeFrom} onChange={e => setTimeFrom(e.target.value)} className={inputCls} />
+                  <span className="text-gray-400 text-sm">—</span>
+                  <input type="time" value={timeTo} onChange={e => setTimeTo(e.target.value)} className={inputCls} />
                 </div>
               </div>
 
               {/* Старший */}
               <div>
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Старший на точке</label>
+                <label className={labelCls}>Старший на точке</label>
                 <div className="grid grid-cols-2 gap-2">
                   {seniors.map(s => (
                     <button
                       key={s.id}
-                      onClick={() => setSeniorId(s.id)}
-                      className={`h-10 px-3 rounded-xl text-sm font-medium transition-all ring-1 truncate ${
-                        seniorId === s.id ? 'bg-cyan-500/20 text-cyan-300 ring-cyan-500/40' : 'bg-slate-800/40 text-slate-400 ring-slate-700/40 active:bg-slate-700'
+                      onClick={() => setSeniorId(seniorId === s.id ? '' : s.id)}
+                      className={`h-10 px-3 rounded-xl text-sm font-medium transition-all border truncate ${
+                        seniorId === s.id ? 'bg-blue-50 text-blue-600 border-blue-300' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
                       {s.name}
@@ -253,34 +227,30 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
 
               {/* Лимит контактов */}
               <div>
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Лимит контактов</label>
+                <label className={labelCls}>Лимит контактов</label>
                 <input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  value={contactLimit}
-                  onChange={e => setContactLimit(e.target.value)}
-                  placeholder="Не задан"
-                  className="w-full h-10 px-3 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
+                  type="number" inputMode="numeric" min={0}
+                  value={contactLimit} onChange={e => setContactLimit(e.target.value)}
+                  placeholder="Не задан" className={inputCls}
                 />
               </div>
 
               {/* Цвет */}
               <div>
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Цвет метки</label>
+                <label className={labelCls}>Цвет метки</label>
                 <div className="flex items-center gap-2.5 flex-wrap">
                   {PRESET_COLORS.map(c => (
                     <button
                       key={c}
                       onClick={() => setColor(c)}
-                      className={`w-8 h-8 rounded-xl transition-all flex-shrink-0 ${color === c ? 'scale-125 ring-2 ring-white/50 shadow-lg' : 'hover:scale-110 active:scale-95'}`}
+                      className={`w-8 h-8 rounded-xl transition-all flex-shrink-0 ${color === c ? 'scale-125 ring-2 ring-offset-1 ring-gray-400 shadow-md' : 'hover:scale-110 active:scale-95'}`}
                       style={{ backgroundColor: c }}
                     />
                   ))}
                   <div className="relative w-8 h-8">
                     <input type="color" value={color} onChange={e => setColor(e.target.value)} className="absolute inset-0 w-full h-full rounded-xl cursor-pointer opacity-0" />
-                    <div className="w-8 h-8 rounded-xl ring-1 ring-white/20 flex items-center justify-center" style={{ backgroundColor: color }}>
-                      <Icon name="Pipette" size={12} className="text-white/70" />
+                    <div className="w-8 h-8 rounded-xl border border-gray-200 flex items-center justify-center" style={{ backgroundColor: color }}>
+                      <Icon name="Pipette" size={12} className="text-white/80" />
                     </div>
                   </div>
                 </div>
@@ -288,13 +258,11 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
 
               {/* Заметки */}
               <div>
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Заметки</label>
+                <label className={labelCls}>Заметки</label>
                 <textarea
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                  placeholder="Дополнительная информация..."
-                  rows={2}
-                  className="w-full px-3 py-2.5 bg-slate-800/60 ring-1 ring-slate-700/60 text-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all resize-none"
+                  value={notes} onChange={e => setNotes(e.target.value)}
+                  placeholder="Дополнительная информация..." rows={2}
+                  className="w-full px-3 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400 transition-all resize-none"
                 />
               </div>
             </>
@@ -302,17 +270,17 @@ export default function PlanOrgModal({ date, editPlan, onSave, onClose }: PlanOr
         </div>
 
         {/* Кнопки */}
-        <div className="flex gap-3 px-5 py-4 border-t border-slate-700/50 flex-shrink-0 bg-slate-900/80">
+        <div className="flex gap-3 px-5 py-4 border-t border-gray-100 flex-shrink-0">
           <button
             onClick={onClose}
-            className="flex-1 h-11 bg-slate-700/50 text-slate-300 ring-1 ring-slate-600/50 rounded-xl text-sm font-semibold hover:bg-slate-700 active:bg-slate-600 transition-all"
+            className="flex-1 h-11 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-sm font-semibold transition-all"
           >
             Отмена
           </button>
           <button
             onClick={handleSave}
             disabled={saving || !orgId}
-            className="flex-1 h-11 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 active:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-cyan-500/20"
+            className="flex-1 h-11 bg-blue-500 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-sm"
           >
             {saving
               ? <><Icon name="Loader2" size={15} className="animate-spin" /> Сохранение...</>

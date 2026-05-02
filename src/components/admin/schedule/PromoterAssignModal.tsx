@@ -41,14 +41,10 @@ interface PromoterAssignModalProps {
   onClose: () => void;
 }
 
-// Форма одного промоутера
+const inputCls = "w-full h-9 px-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400 transition-all";
+
 function PromoterForm({
-  assigned,
-  availablePromoters,
-  onSave,
-  onRemove,
-  isSaving,
-  isNew,
+  assigned, availablePromoters, onSave, onRemove, isSaving, isNew,
 }: {
   assigned: AssignedPromoter;
   availablePromoters: PromoterOption[];
@@ -71,78 +67,56 @@ function PromoterForm({
     leaflets !== (assigned.leaflets ?? '');
 
   const handleSave = () => {
-    onSave({
-      promoter_id: promoterId,
-      org_name: orgName || null,
-      place_type: placeType || null,
-      address: address || null,
-      leaflets: leaflets || null,
-      time_slot: assigned.time_slot,  // сохраняем выбранный слот
-    });
+    onSave({ promoter_id: promoterId, org_name: orgName || null, place_type: placeType || null, address: address || null, leaflets: leaflets || null, time_slot: assigned.time_slot });
   };
 
-  // Доступные для выбора — те у кого есть слоты, плюс текущий
   const choices = availablePromoters.filter(p => p.available || p.id === assigned.promoter_id);
 
   return (
-    <div className="bg-slate-800/50 rounded-xl ring-1 ring-slate-700/50 p-3 space-y-2">
-      {/* Выбор промоутера + кнопка удалить */}
+    <div className="bg-gray-50 rounded-2xl border border-gray-100 p-3 space-y-2">
       <div className="flex items-center gap-2">
         <select
           value={promoterId}
           onChange={e => setPromoterId(Number(e.target.value))}
-          className="flex-1 h-9 pl-2 pr-8 bg-slate-700/60 ring-1 ring-slate-600/60 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none"
+          className="flex-1 h-9 pl-3 pr-8 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-blue-400 appearance-none"
         >
-          {choices.map(p => (
-            <option key={p.id} value={p.id} className="bg-slate-800">{p.name}</option>
-          ))}
-          {/* Текущий если не в списке */}
+          {choices.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           {!choices.find(p => p.id === assigned.promoter_id) && (
-            <option value={assigned.promoter_id} className="bg-slate-800">{assigned.promoter_name}</option>
+            <option value={assigned.promoter_id}>{assigned.promoter_name}</option>
           )}
         </select>
-        <button
-          onClick={onRemove}
-          className="w-9 h-9 rounded-lg bg-red-500/10 hover:bg-red-500/25 flex items-center justify-center flex-shrink-0 transition-all"
-        >
+        <button onClick={onRemove} className="w-9 h-9 rounded-xl bg-red-50 hover:bg-red-100 border border-red-100 flex items-center justify-center flex-shrink-0 transition-all">
           <Icon name="Trash2" size={13} className="text-red-400" />
         </button>
       </div>
 
-      {/* Организация */}
       <div className="relative">
-        <input value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="Организация"
-          className="w-full h-9 pl-3 pr-9 bg-slate-700/40 ring-1 ring-slate-600/40 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all" />
-        <Icon name="Building2" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600" />
+        <input value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="Организация" className={inputCls} />
+        <Icon name="Building2" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
       </div>
 
-      {/* Тип места */}
       <div className="relative">
         <select value={placeType} onChange={e => setPlaceType(e.target.value)}
-          className="w-full h-9 pl-3 pr-9 bg-slate-700/40 ring-1 ring-slate-600/40 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all appearance-none">
-          <option value="" className="bg-slate-800">Тип места</option>
-          {PLACE_TYPES.map(t => <option key={t} value={t} className="bg-slate-800">{t}</option>)}
+          className="w-full h-9 pl-3 pr-9 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-blue-400 appearance-none">
+          <option value="">Тип места</option>
+          {PLACE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
-        <Icon name="MapPin" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" />
+        <Icon name="MapPin" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
       </div>
 
-      {/* Адрес */}
       <div className="relative">
-        <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Адрес / Детали"
-          className="w-full h-9 pl-3 pr-9 bg-slate-700/40 ring-1 ring-slate-600/40 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all" />
-        <Icon name="Navigation" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600" />
+        <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Адрес / Детали" className={inputCls} />
+        <Icon name="Navigation" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
       </div>
 
-      {/* Листовки */}
       <div className="relative">
-        <input value={leaflets} onChange={e => setLeaflets(e.target.value)} placeholder="Листовки"
-          className="w-full h-9 pl-3 pr-9 bg-slate-700/40 ring-1 ring-slate-600/40 text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all" />
-        <Icon name="FileText" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-amber-500/70" />
+        <input value={leaflets} onChange={e => setLeaflets(e.target.value)} placeholder="Листовки" className={inputCls} />
+        <Icon name="FileText" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
       </div>
 
       {(isDirty || isNew) && (
         <button onClick={handleSave} disabled={isSaving}
-          className="w-full h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-1.5 transition-all">
+          className="w-full h-9 rounded-xl bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-1.5 transition-all">
           {isSaving ? <Icon name="Loader2" size={13} className="animate-spin" /> : <Icon name="Check" size={13} />}
           {isNew ? 'Добавить' : 'Сохранить'}
         </button>
@@ -167,33 +141,21 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
   }, [plan.date]);
 
   const syncWorkComments = async (promoterName: string, data: Partial<AssignedPromoter>) => {
-    // Определяем реальный временной промежуток промоутера:
-    // slot1 = 12:00-16:00 (будни) / 11:00-15:00 (выходные)
-    // slot2 = 16:00-20:00 (будни) / 15:00-19:00 (выходные)
     let slotLabel: string | null = null;
     if (data.time_slot) {
       const date = new Date(plan.date);
-      const dayOfWeek = date.getDay(); // 0=вс, 6=сб
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      if (data.time_slot === 'slot1') {
-        slotLabel = isWeekend ? '11:00-15:00' : '12:00-16:00';
-      } else if (data.time_slot === 'slot2') {
-        slotLabel = isWeekend ? '15:00-19:00' : '16:00-20:00';
-      }
+      const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+      if (data.time_slot === 'slot1') slotLabel = isWeekend ? '11:00-15:00' : '12:00-16:00';
+      else if (data.time_slot === 'slot2') slotLabel = isWeekend ? '15:00-19:00' : '16:00-20:00';
     }
-    // Fallback: если слот не задан — используем время плана
     if (!slotLabel) slotLabel = planTimeToSlotLabel(plan.time_from, plan.time_to);
     await fetch(WORK_COMMENTS_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user_name: promoterName,
-        work_date: plan.date,
-        shift_time: slotLabel,
-        organization: data.org_name || '',
-        location_type: data.place_type || '',
-        location_details: data.address || '',
-        flyers_comment: data.leaflets || '',
+        user_name: promoterName, work_date: plan.date, shift_time: slotLabel,
+        organization: data.org_name || '', location_type: data.place_type || '',
+        location_details: data.address || '', flyers_comment: data.leaflets || '',
         location_comment: '',
       }),
     });
@@ -203,21 +165,17 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
     setSavingId(pp_id);
     try {
       const res = await fetch(PLANNING_API + '?action=update_promoter', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pp_id, ...data }),
       });
       const d = await res.json();
       if (d.plan) {
         setAssigned(d.plan.promoters || []);
         onSave(d.plan);
-        // Синхронизируем с расписанием
         const promoter = availablePromoters.find(p => p.id === (data.promoter_id ?? assigned.find(a => a.pp_id === pp_id)?.promoter_id));
         if (promoter) await syncWorkComments(promoter.name, data);
       }
-    } finally {
-      setSavingId(null);
-    }
+    } finally { setSavingId(null); }
   };
 
   const handleAddPromoter = async (data: Partial<AssignedPromoter>) => {
@@ -225,8 +183,7 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
     setSavingId('new');
     try {
       const res = await fetch(PLANNING_API + '?action=add_promoter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan_id: plan.id, ...data }),
       });
       const d = await res.json();
@@ -238,9 +195,7 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
         const promoter = availablePromoters.find(p => p.id === data.promoter_id);
         if (promoter) await syncWorkComments(promoter.name, data);
       }
-    } finally {
-      setSavingId(null);
-    }
+    } finally { setSavingId(null); }
   };
 
   const handleRemovePromoter = async (pp_id: number) => {
@@ -254,35 +209,18 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
         onSave(d.plan);
         if (removedPromoter) {
           await syncWorkComments(removedPromoter.promoter_name, {
-            time_slot: removedPromoter.time_slot,
-            org_name: '',
-            place_type: '',
-            address: '',
-            leaflets: '',
+            time_slot: removedPromoter.time_slot, org_name: '', place_type: '', address: '', leaflets: '',
           });
         }
       }
-    } finally {
-      setSavingId(null);
-    }
-  };
-
-  const handleShowAdd = () => {
-    setShowAddForm(true);
-    setNewPromoter(null); // список выбора, не форма
+    } finally { setSavingId(null); }
   };
 
   const handlePickPromoter = (p: PromoterOption, slotKey?: string) => {
-    // Определяем слот: если передан явно — берём его, иначе первый свободный
     const chosenSlotKey = slotKey ?? p.slots.find(s => !s.used)?.key ?? null;
     setNewPromoter({
-      pp_id: -1,
-      promoter_id: p.id,
-      promoter_name: p.name,
-      org_name: plan.organization_name,
-      place_type: null,
-      address: null,
-      leaflets: null,
+      pp_id: -1, promoter_id: p.id, promoter_name: p.name,
+      org_name: plan.organization_name, place_type: null, address: null, leaflets: null,
       time_slot: chosenSlotKey,
     });
   };
@@ -291,21 +229,21 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex flex-col justify-center items-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex flex-col justify-center items-center p-4 bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
+        className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col"
         style={{ maxHeight: 'min(92dvh, 680px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Шапка */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-700/50 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 flex-shrink-0">
           <div>
-            <h3 className="text-sm font-bold text-slate-100">{openAddMode ? 'Выберите промоутера' : 'Промоутеры на точке'}</h3>
-            <p className="text-xs text-slate-500 mt-0.5">{plan.organization_name} · {plan.time_from}–{plan.time_to}</p>
+            <h3 className="text-sm font-bold text-gray-800">{openAddMode ? 'Выберите промоутера' : 'Промоутеры на точке'}</h3>
+            <p className="text-xs text-gray-400 mt-0.5">{plan.organization_name} · {plan.time_from}–{plan.time_to}</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-700/60 transition-all">
+          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
             <Icon name="X" size={16} />
           </button>
         </div>
@@ -313,17 +251,17 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-3">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Icon name="Loader2" size={20} className="animate-spin text-cyan-400" />
+              <Icon name="Loader2" size={20} className="animate-spin text-blue-400" />
             </div>
           ) : (
             <>
-              {/* Список назначенных — только в режиме редактирования */}
+              {/* Список назначенных */}
               {!openAddMode && (
                 <>
                   {assigned.length === 0 && !showAddForm && (
-                    <div className="text-center py-6 text-slate-500 text-sm">
-                      <Icon name="UserX" size={24} className="mx-auto mb-2 opacity-40" />
-                      Нет назначенных промоутеров
+                    <div className="text-center py-6 text-gray-300 text-sm">
+                      <Icon name="UserX" size={24} className="mx-auto mb-2" />
+                      <span className="text-gray-400">Нет назначенных промоутеров</span>
                     </div>
                   )}
                   {assigned.map(a => (
@@ -341,9 +279,9 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
 
               {/* Выбор промоутера из списка */}
               {showAddForm && !newPromoter && (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {availablePromoters.length === 0 && (
-                    <p className="text-center text-xs text-slate-600 py-4">Нет промоутеров со сменами на этот день</p>
+                    <p className="text-center text-xs text-gray-400 py-4">Нет промоутеров со сменами на этот день</p>
                   )}
                   {availablePromoters.map(p => {
                     const freeSlots = p.slots.filter(s => !s.used);
@@ -352,28 +290,27 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
                       <div
                         key={p.id}
                         onClick={() => !allBusy && handlePickPromoter(p)}
-                        className={`flex items-center gap-3 px-3 py-3 rounded-xl ring-1 transition-all ${
+                        className={`flex items-center gap-3 px-3 py-3 rounded-xl border transition-all ${
                           allBusy
-                            ? 'opacity-40 ring-slate-700/30 bg-slate-800/20 cursor-not-allowed'
-                            : 'ring-slate-700/50 bg-slate-800/50 hover:bg-slate-700/50 cursor-pointer active:scale-[0.99]'
+                            ? 'opacity-40 border-gray-100 bg-gray-50 cursor-not-allowed'
+                            : 'border-gray-100 bg-white hover:bg-gray-50 hover:border-gray-200 cursor-pointer shadow-sm'
                         }`}
                       >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${allBusy ? 'bg-slate-700 text-slate-500' : 'bg-cyan-500/20 text-cyan-300'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${allBusy ? 'bg-gray-100 text-gray-400' : 'bg-blue-100 text-blue-600'}`}>
                           {p.name.charAt(0)}
                         </div>
-                        <span className={`text-sm font-medium flex-1 ${allBusy ? 'text-slate-500' : 'text-slate-200'}`}>{p.name}</span>
-                        {/* Слоты — занятые зачёркнуты */}
+                        <span className={`text-sm font-medium flex-1 ${allBusy ? 'text-gray-400' : 'text-gray-700'}`}>{p.name}</span>
                         <div className="flex gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
                           {p.slots.map(s => (
                             s.used ? (
-                              <span key={s.key} className="text-[10px] text-slate-600 bg-slate-800 px-2 py-1 rounded-lg line-through">
+                              <span key={s.key} className="text-[10px] text-gray-300 bg-gray-100 px-2 py-1 rounded-lg line-through">
                                 {s.label}
                               </span>
                             ) : (
                               <button
                                 key={s.key}
                                 onClick={() => handlePickPromoter(p, s.key)}
-                                className="text-[10px] text-cyan-300 bg-cyan-500/15 active:bg-cyan-500/40 px-2 py-1 rounded-lg transition-all"
+                                className="text-[10px] text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded-lg transition-all font-semibold"
                               >
                                 {s.label}
                               </button>
@@ -386,19 +323,17 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
                 </div>
               )}
 
-              {/* Форма нового промоутера (после выбора из списка) */}
+              {/* Форма нового промоутера */}
               {showAddForm && newPromoter && (
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <button onClick={() => setNewPromoter(null)} className="text-slate-600 hover:text-slate-400">
-                      <Icon name="ChevronLeft" size={14} />
+                  <div className="flex items-center gap-2 mb-3">
+                    <button onClick={() => setNewPromoter(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                      <Icon name="ChevronLeft" size={16} />
                     </button>
                     <div className="flex items-center gap-2">
-                      <p className="text-[11px] font-semibold text-cyan-400/80 uppercase tracking-wider">
-                        {newPromoter.promoter_name}
-                      </p>
+                      <p className="text-sm font-semibold text-gray-700">{newPromoter.promoter_name}</p>
                       {newPromoter.time_slot && (
-                        <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full font-semibold">
                           {newPromoter.time_slot === 'slot1' ? '12:00–16:00' : '16:00–20:00'}
                         </span>
                       )}
@@ -415,11 +350,11 @@ export default function PromoterAssignModal({ plan, openAddMode = false, onSave,
                 </div>
               )}
 
-              {/* Кнопка добавить ещё — только в режиме добавления */}
+              {/* Кнопка добавить ещё */}
               {!showAddForm && hasAvailableToAdd && openAddMode && (
                 <button
-                  onClick={handleShowAdd}
-                  className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-slate-800/40 hover:bg-slate-700/50 ring-1 ring-dashed ring-slate-600/50 text-slate-400 hover:text-slate-300 text-sm transition-all"
+                  onClick={() => { setShowAddForm(true); setNewPromoter(null); }}
+                  className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-gray-50 hover:bg-gray-100 border border-dashed border-gray-200 text-gray-400 hover:text-gray-600 text-sm transition-all"
                 >
                   <Icon name="UserPlus" size={14} />
                   Добавить промоутера

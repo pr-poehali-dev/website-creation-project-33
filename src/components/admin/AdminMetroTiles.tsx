@@ -46,16 +46,17 @@ const NavButton = ({
 }) => (
   <button
     onClick={onClick}
-    className={`relative group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all duration-300 flex-shrink-0 ${
+    className={`relative group flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-2xl transition-all duration-200 flex-shrink-0 ${
       active 
-        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50 scale-110 rotate-0' 
-        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:scale-105 hover:-rotate-3'
+        ? 'bg-white text-[#001f54] shadow-md' 
+        : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
     }`}
     title={label}
   >
-    <Icon name={icon} size={20} className={`md:w-6 md:h-6 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110 group-hover:rotate-12'}`} />
+    <Icon name={icon} size={18} />
+    <span className="text-[8px] font-medium leading-none">{label}</span>
     {badge !== undefined && badge > 0 && (
-      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 min-w-[20px] h-5 animate-pulse">
+      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 min-w-[18px] h-4 animate-pulse">
         {badge}
       </Badge>
     )}
@@ -87,7 +88,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     <div className="space-y-4">
       {/* Десктоп версия с боковой навигацией */}
       <div className="hidden md:flex gap-4">
-        <div className="flex flex-col gap-3 sticky top-4 h-fit">
+        <div className="flex flex-col gap-2 sticky top-4 h-fit bg-[#001f54] rounded-2xl p-2 shadow-xl">
           {navigationItems.map((item) => (
             <NavButton
               key={item.view}

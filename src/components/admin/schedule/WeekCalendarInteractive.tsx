@@ -84,15 +84,15 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                 {/* День недели + число */}
                 <div className="py-2 text-center w-full px-1">
                   <span className={`text-[9px] font-semibold uppercase tracking-widest block mb-0.5 ${
-                    isToday ? 'text-blue-500' : day.isWeekend ? 'text-orange-400' : 'text-gray-400'
+                    isToday ? 'text-blue-500' : day.isWeekend ? 'text-orange-500' : 'text-gray-500'
                   }`}>
                     {day.dayName}
                   </span>
                   <span className="text-sm md:text-lg font-bold leading-none">
-                    <span className={isToday ? 'text-blue-600' : day.isWeekend ? 'text-orange-500' : 'text-gray-700'}>
+                    <span className={isToday ? 'text-blue-600' : day.isWeekend ? 'text-orange-600' : 'text-gray-800'}>
                       {dayNum}
                     </span>
-                    <span className={`text-[9px] font-normal ml-0.5 ${isToday ? 'text-blue-400' : 'text-gray-300'}`}>
+                    <span className={`text-[9px] font-semibold ml-0.5 ${isToday ? 'text-blue-500' : day.isWeekend ? 'text-orange-400' : 'text-gray-500'}`}>
                       .{month}
                     </span>
                   </span>

@@ -7,18 +7,23 @@ interface AdminHeaderProps {
   onOpenGoogleSheets: () => void;
   onGoHome?: () => void;
   showHomeButton?: boolean;
+  hideTitle?: boolean;
 }
 
-export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false }: AdminHeaderProps) {
+export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false, hideTitle = false }: AdminHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
 
   return (
     <>
       <header className="pt-4 mb-5 flex items-center justify-between px-1">
-        <div>
-          <div className="text-base font-bold text-[#001f54] tracking-wide leading-none">ИМПЕРИЯ ПРОМО</div>
-          <div className="text-[11px] text-gray-400 leading-none mt-0.5">рекламное агентство</div>
-        </div>
+        {!hideTitle ? (
+          <div>
+            <div className="text-base font-bold text-[#001f54] tracking-wide leading-none">ИМПЕРИЯ ПРОМО</div>
+            <div className="text-[11px] text-gray-400 leading-none mt-0.5">рекламное агентство</div>
+          </div>
+        ) : (
+          <div />
+        )}
 
         <div className="flex items-center gap-1.5">
           {showHomeButton && onGoHome && (

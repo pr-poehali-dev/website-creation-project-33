@@ -33,6 +33,7 @@ export default function AdminPanel() {
           onOpenGoogleSheets={openGoogleSheets}
           onGoHome={goHome}
           showHomeButton={currentView !== 'tiles'}
+          hideTitle={currentView === 'analytics'}
         />
         <AdminMetroTiles 
           unreadCount={unreadCount} 

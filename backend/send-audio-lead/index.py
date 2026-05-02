@@ -4,7 +4,7 @@ import urllib.request
 import urllib.parse
 
 TELEGRAM_TOKEN = "8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc"
-USER_ID = "5215501225"
+USER_IDS = ["5215501225", "1526249125"]
 
 def handler(event: dict, context) -> dict:
     """Отправляет аудио-лид в Telegram"""
@@ -46,33 +46,26 @@ def handler(event: dict, context) -> dict:
         # Формируем сообщение
         caption = f"🎯 Новый лид!\n\n📍 {organization_name}\n📝 {notes}"
         
-        # Формируем multipart/form-data
-        boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
-        body_parts = []
-        
-        # Добавляем chat_id
-        body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="chat_id"\r\n\r\n{USER_ID}\r\n')
-        
-        # Добавляем caption
-        body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="caption"\r\n\r\n{caption}\r\n')
-        
-        # Добавляем аудио
-        body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="voice"; filename="lead.ogg"\r\nContent-Type: audio/ogg\r\n\r\n')
-        
-        body_bytes = ''.join(body_parts).encode('utf-8') + audio_data + f'\r\n--{boundary}--\r\n'.encode('utf-8')
-        
-        # Отправляем в Telegram
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVoice"
-        req = urllib.request.Request(url, data=body_bytes, method='POST')
-        req.add_header('Content-Type', f'multipart/form-data; boundary={boundary}')
         
-        with urllib.request.urlopen(req, timeout=30) as response:
-            return {
-                'statusCode': 200,
-                'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
-                'body': json.dumps({'success': True}),
-                'isBase64Encoded': False
-            }
+        for user_id in USER_IDS:
+            boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+            body_parts = []
+            body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="chat_id"\r\n\r\n{user_id}\r\n')
+            body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="caption"\r\n\r\n{caption}\r\n')
+            body_parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="voice"; filename="lead.ogg"\r\nContent-Type: audio/ogg\r\n\r\n')
+            body_bytes = ''.join(body_parts).encode('utf-8') + audio_data + f'\r\n--{boundary}--\r\n'.encode('utf-8')
+            req = urllib.request.Request(url, data=body_bytes, method='POST')
+            req.add_header('Content-Type', f'multipart/form-data; boundary={boundary}')
+            with urllib.request.urlopen(req, timeout=30) as response:
+                pass
+
+        return {
+            'statusCode': 200,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'success': True}),
+            'isBase64Encoded': False
+        }
             
     except Exception as e:
         return {

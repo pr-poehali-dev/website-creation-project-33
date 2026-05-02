@@ -21,9 +21,9 @@ export default function DayDetailMobileList({
   return (
     <div className="flex-1 overflow-y-auto overscroll-contain sm:hidden pb-[env(safe-area-inset-bottom,16px)]">
       {plans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-slate-600">
-          <Icon name="CalendarDays" size={28} className="mb-2 opacity-30" />
-          <span className="text-xs">Нет организаций — нажми +</span>
+        <div className="flex flex-col items-center justify-center py-16 text-gray-300">
+          <Icon name="CalendarDays" size={28} className="mb-2" />
+          <span className="text-xs text-gray-400">Нет организаций — нажми +</span>
         </div>
       ) : (
         <div className="p-3 space-y-3">

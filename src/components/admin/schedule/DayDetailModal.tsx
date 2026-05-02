@@ -93,7 +93,7 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
         onClick={onClose}
       >
         <div
-          className="w-full max-w-3xl bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl ring-1 ring-slate-700/60 flex flex-col"
+          className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col"
           style={{ maxHeight: 'min(90dvh, 860px)' }}
           onClick={e => e.stopPropagation()}
         >
@@ -124,10 +124,10 @@ export default function DayDetailModal({ date, plans, onSave, onDelete, onClose 
           />
 
           {/* Кнопка + */}
-          <div className="flex-shrink-0 flex justify-end px-4 py-3 border-t border-slate-700/40 pb-[max(12px,env(safe-area-inset-bottom))]">
+          <div className="flex-shrink-0 flex justify-end px-4 py-3 border-t border-gray-100 pb-[max(12px,env(safe-area-inset-bottom))]">
             <button
               onClick={() => { setEditingPlan(null); setAddModalOpen(true); }}
-              className="w-12 h-12 rounded-full bg-cyan-500 hover:bg-cyan-400 active:scale-95 shadow-lg shadow-cyan-500/30 flex items-center justify-center transition-all"
+              className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600 active:scale-95 shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all"
             >
               <Icon name="Plus" size={22} className="text-white" />
             </button>

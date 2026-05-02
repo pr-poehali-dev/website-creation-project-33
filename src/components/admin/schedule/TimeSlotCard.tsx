@@ -40,18 +40,9 @@ export default function TimeSlotCard({
             {slot.label}
           </span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
-            {workers.length}
-          </span>
-          <button
-            onClick={() => onAddSlot(dayDate, slot.time, slot.label)}
-            className={`w-6 h-6 flex items-center justify-center rounded-lg transition-all ${accentColor} hover:bg-gray-100`}
-            title="Добавить промоутера"
-          >
-            <Icon name="Plus" size={14} />
-          </button>
-        </div>
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+          {workers.length}
+        </span>
       </div>
 
       {/* Workers */}

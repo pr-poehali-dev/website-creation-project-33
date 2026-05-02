@@ -76,7 +76,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         print(f'Photo size: {len(photo_bytes)} bytes, org_id: {organization_id}, type: {photo_type}')
         
         bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
-        chat_id = '5215501225'
+        chat_ids = ['5215501225', '1526249125']
         
         user_name = 'Неизвестный промоутер'
         organization_name = f'ID: {organization_id}'
@@ -108,33 +108,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         caption = f"📸 Фото {photo_type_text}\n👤 Промоутер: {user_name}\n🏢 Организация: {organization_name}"
         
         url = f'https://api.telegram.org/bot{bot_token}/sendPhoto'
-        files = {'photo': ('shift_photo.jpg', photo_bytes, 'image/jpeg')}
-        data = {'chat_id': chat_id, 'caption': caption}
-        
-        print(f'Sending photo to Telegram...')
-        response = requests.post(url, files=files, data=data, timeout=30)
-        print(f'Telegram response status: {response.status_code}')
-        
-        if not response.ok:
-            error_text = response.text
-            print(f'Telegram error: {error_text}')
-            return {
-                'statusCode': 500,
-                'headers': {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                'isBase64Encoded': False,
-                'body': json.dumps({'error': f'Failed to send to Telegram: {error_text}'})
-            }
         
         telegram_message_id = None
-        try:
-            telegram_response = response.json()
-            if 'result' in telegram_response and 'message_id' in telegram_response['result']:
-                telegram_message_id = telegram_response['result']['message_id']
-        except Exception as e:
-            print(f'Error parsing Telegram response: {e}')
+        for chat_id in chat_ids:
+            files = {'photo': ('shift_photo.jpg', photo_bytes, 'image/jpeg')}
+            data = {'chat_id': chat_id, 'caption': caption}
+            print(f'Sending photo to Telegram chat_id={chat_id}...')
+            response = requests.post(url, files=files, data=data, timeout=30)
+            print(f'Telegram response status: {response.status_code}')
+            if not response.ok:
+                print(f'Telegram error for chat_id={chat_id}: {response.text}')
+                continue
+            if telegram_message_id is None:
+                try:
+                    telegram_message_id = response.json().get('result', {}).get('message_id')
+                except Exception as e:
+                    print(f'Error parsing Telegram response: {e}')
         
         if database_url:
             try:

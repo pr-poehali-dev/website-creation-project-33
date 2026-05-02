@@ -26,29 +26,27 @@ export default function TimeSlotCard({
   onCommentChange, onSaveComment, onAddSlot,
 }: TimeSlotCardProps) {
   const hasMaxim = workers.some(w => isMaximKorelsky(w.first_name, w.last_name));
-
-  const color = hasMaxim
-    ? { border: 'border-purple-200', bg: 'bg-purple-50', dot: 'bg-purple-400', text: 'text-purple-600', badge: 'bg-purple-100 text-purple-600', btn: 'text-purple-400 hover:text-purple-600 hover:bg-purple-100' }
-    : { border: 'border-emerald-200', bg: 'bg-emerald-50', dot: 'bg-emerald-400', text: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-600', btn: 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-100' };
+  const accentColor = hasMaxim ? 'text-purple-500' : 'text-gray-400';
+  const dotColor = hasMaxim ? 'bg-purple-400' : 'bg-gray-300';
 
   return (
-    <div className={`rounded-xl border ${color.border} ${color.bg} overflow-hidden`}>
+    <div className="rounded-xl border border-gray-100 bg-white overflow-hidden">
       {/* Slot header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/60">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-50">
         <div className="flex items-center gap-2">
-          <div className={`w-1.5 h-1.5 rounded-full ${color.dot} flex-shrink-0`} />
-          <span className={`text-xs font-semibold ${color.text}`}>
-            <Icon name="Clock" size={11} className={`${color.text} inline mr-1`} />
+          <div className={`w-1.5 h-1.5 rounded-full ${dotColor} flex-shrink-0`} />
+          <span className="text-xs font-semibold text-gray-600">
+            <Icon name="Clock" size={11} className="text-gray-400 inline mr-1" />
             {slot.label}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${color.badge}`}>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
             {workers.length}
           </span>
           <button
             onClick={() => onAddSlot(dayDate, slot.time, slot.label)}
-            className={`w-6 h-6 flex items-center justify-center rounded-lg transition-all ${color.btn}`}
+            className={`w-6 h-6 flex items-center justify-center rounded-lg transition-all ${accentColor} hover:bg-gray-100`}
             title="Добавить промоутера"
           >
             <Icon name="Plus" size={14} />

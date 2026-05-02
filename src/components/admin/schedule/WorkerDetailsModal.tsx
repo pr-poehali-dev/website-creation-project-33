@@ -1,4 +1,3 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { OrganizationData } from './types';
 
@@ -30,21 +29,33 @@ export default function WorkerDetailsModal({
   };
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-gray-100 text-gray-800 max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl shadow-xl">
-        <DialogHeader>
-          <DialogTitle className="text-base font-bold text-gray-800 flex items-center gap-2">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl border border-gray-100 flex flex-col"
+        style={{ maxHeight: 'min(90dvh, 680px)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Шапка */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
               <Icon name="User" size={15} className="text-blue-500" />
             </div>
-            {workerName}
-          </DialogTitle>
-          <p className="text-xs text-gray-400 mt-0.5 ml-10">{formatDate(dayDate)}</p>
-        </DialogHeader>
+            <div>
+              <p className="text-sm font-bold text-gray-800">{workerName}</p>
+              <p className="text-[11px] text-gray-400">{formatDate(dayDate)}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 transition-colors">
+            <Icon name="X" size={16} />
+          </button>
+        </div>
 
-        <div className="space-y-4 mt-2">
+        {/* Контент */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+
           {/* Средний показатель */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
+          <div className="flex items-center justify-between px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-100">
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Icon name="BarChart3" size={14} className="text-gray-400" />
               Средний до этого дня
@@ -57,15 +68,15 @@ export default function WorkerDetailsModal({
             <div>
               <div className="flex items-center gap-1.5 mb-2 px-1">
                 <Icon name="Lightbulb" size={13} className="text-amber-400" />
-                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Рекомендации</span>
+                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Рекомендации</span>
               </div>
               <div className="space-y-2">
                 {recommendedOrgs.map((rec, index) => (
                   <div key={rec.orgName} className={`px-3 py-2.5 rounded-xl border ${
-                    index === 0 ? 'border-blue-200 bg-blue-50' : 'border-gray-100 bg-white'
+                    index === 0 ? 'border-blue-200 bg-blue-50' : 'border-gray-100 bg-white shadow-sm'
                   }`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md flex-shrink-0 ${
                           index === 0 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'
                         }`}>
@@ -73,14 +84,14 @@ export default function WorkerDetailsModal({
                         </span>
                         <span className="text-sm font-semibold text-gray-700 truncate">{rec.orgName}</span>
                       </div>
-                      <span className="text-xs text-gray-500 flex-shrink-0 ml-2">~{rec.orgAvg.toFixed(1)} кон.</span>
+                      <span className="text-xs text-gray-500 flex-shrink-0">~{rec.orgAvg.toFixed(1)} кон.</span>
                     </div>
-                    {rec.kms > 0 && (
-                      <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-gray-100">
-                        <span className="text-[11px] text-gray-400">КМС/КВВ</span>
-                        <span className="text-sm font-semibold text-gray-600">~{rec.kms} ₽</span>
-                      </div>
-                    )}
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                      <span className="text-[11px] text-gray-400">Ожидаемый доход КМС/КВВ:</span>
+                      <span className={`text-sm font-bold ${index === 0 ? 'text-blue-600' : 'text-gray-600'}`}>
+                        ~{rec.kms} ₽
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -92,54 +103,48 @@ export default function WorkerDetailsModal({
             <div className="px-3 py-2.5 rounded-xl border border-amber-200 bg-amber-50">
               <div className="flex items-center gap-1.5 mb-1.5">
                 <Icon name="Building2" size={13} className="text-amber-500" />
-                <span className="text-xs font-semibold text-amber-600 uppercase tracking-wide">Выбрана</span>
+                <span className="text-[11px] font-semibold text-amber-600 uppercase tracking-wide">Выбрана</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-gray-700">{currentOrganization}</span>
-                <span className="text-xs text-gray-500">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-sm font-semibold text-gray-700 truncate flex-1">{currentOrganization}</span>
+                <span className="text-xs text-gray-500 flex-shrink-0">
                   {selectedOrgAvg > 0 ? `~${selectedOrgAvg.toFixed(1)} кон.` : 'нет данных'}
                 </span>
               </div>
-              {expectedKMS > 0 && (
-                <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-amber-100">
-                  <span className="text-[11px] text-amber-600">КМС/КВВ</span>
-                  <span className="text-sm font-semibold text-amber-600">~{expectedKMS} ₽</span>
-                </div>
-              )}
+              <div className="flex justify-between items-center pt-2 border-t border-amber-100">
+                <span className="text-[11px] text-amber-600">Ожидаемый доход КМС/КВВ:</span>
+                <span className="text-sm font-bold text-amber-600">
+                  {expectedKMS > 0 ? `~${expectedKMS} ₽` : '—'}
+                </span>
+              </div>
             </div>
           )}
 
-          {/* Разница */}
+          {/* Разница с лучшей рекомендацией */}
           {recommendedOrgs.length > 0 && expectedKMS > 0 && currentOrganization && (
             <div className={`px-3 py-2.5 rounded-xl border ${
               kmsDifference >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-red-100 bg-red-50'
             }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Icon name={kmsDifference >= 0 ? 'TrendingUp' : 'TrendingDown'} size={13}
-                    className={kmsDifference >= 0 ? 'text-emerald-500' : 'text-red-400'} />
-                  <span className={`text-xs font-semibold ${kmsDifference >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                    {kmsDifference >= 0 ? 'Лучше рекомендации' : 'Рекомендация лучше'}
-                  </span>
-                </div>
-                <span className={`text-sm font-bold ${kmsDifference >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Icon name={kmsDifference >= 0 ? 'TrendingUp' : 'TrendingDown'} size={13}
+                  className={kmsDifference >= 0 ? 'text-emerald-500' : 'text-red-400'} />
+                <span className={`text-[11px] font-semibold uppercase tracking-wide ${kmsDifference >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {kmsDifference >= 0 ? 'Лучше рекомендации' : 'Рекомендация лучше'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-500">Разница с лучшей:</span>
+                <span className={`text-base font-bold ${kmsDifference >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                   {kmsDifference > 0 ? '+' : ''}{kmsDifference} ₽
-                  <span className="text-xs font-normal ml-1">({kmsDifferencePercent > 0 ? '+' : ''}{kmsDifferencePercent}%)</span>
+                  <span className="text-xs font-normal ml-1 opacity-70">
+                    ({kmsDifferencePercent > 0 ? '+' : ''}{kmsDifferencePercent}%)
+                  </span>
                 </span>
               </div>
             </div>
           )}
         </div>
-
-        <div className="flex justify-end mt-4 pt-3 border-t border-gray-100">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-sm font-medium transition-colors"
-          >
-            Закрыть
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }

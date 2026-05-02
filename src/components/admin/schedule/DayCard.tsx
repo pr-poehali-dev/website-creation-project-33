@@ -219,6 +219,9 @@ export default function DayCard({
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-gray-700 truncate">{entry.promoterName}</p>
                       <p className="text-[10px] text-gray-400 mt-0.5">{entry.seniorName} · {entry.time}</p>
+                      {entry.promoterPhone && (
+                        <p className="text-[10px] text-gray-400 mt-0.5">{entry.promoterPhone}</p>
+                      )}
                       {entry.organization && (
                         <p className="text-[10px] text-blue-500 mt-0.5">{entry.organization}</p>
                       )}

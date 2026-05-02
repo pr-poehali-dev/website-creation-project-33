@@ -17,16 +17,10 @@ interface WorkerDetailsModalProps {
 }
 
 export default function WorkerDetailsModal({
-  workerName,
-  dayDate,
-  avgContacts,
-  recommendedOrgs,
-  currentOrganization,
-  selectedOrgAvg,
-  expectedKMS,
-  kmsDifference,
-  kmsDifferencePercent,
-  allOrganizations,
+  workerName, dayDate, avgContacts,
+  recommendedOrgs, currentOrganization,
+  selectedOrgAvg, expectedKMS,
+  kmsDifference, kmsDifferencePercent,
   onClose
 }: WorkerDetailsModalProps) {
   const formatDate = (dateStr: string) => {
@@ -37,59 +31,56 @@ export default function WorkerDetailsModal({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-900 border-slate-700 text-slate-200 max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="bg-white border-gray-100 text-gray-800 max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl shadow-xl">
         <DialogHeader>
-          <DialogTitle className="text-xl text-cyan-400 flex items-center gap-2">
-            <Icon name="User" size={24} />
+          <DialogTitle className="text-base font-bold text-gray-800 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <Icon name="User" size={15} className="text-blue-500" />
+            </div>
             {workerName}
           </DialogTitle>
-          <p className="text-sm text-slate-400 mt-1">{formatDate(dayDate)}</p>
+          <p className="text-xs text-gray-400 mt-0.5 ml-10">{formatDate(dayDate)}</p>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
-          {/* Общая статистика */}
-          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-            <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Icon name="BarChart3" size={16} />
-              Общая статистика
-            </h3>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-400">Средний показатель до этого дня:</span>
-                <span className="text-lg font-bold text-cyan-400">~{avgContacts.toFixed(1)} контактов</span>
-              </div>
+        <div className="space-y-4 mt-2">
+          {/* Средний показатель */}
+          <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Icon name="BarChart3" size={14} className="text-gray-400" />
+              Средний до этого дня
             </div>
+            <span className="text-base font-bold text-blue-500">~{avgContacts.toFixed(1)} кон.</span>
           </div>
 
-          {/* ТОП-3 Рекомендации */}
+          {/* ТОП-3 рекомендации */}
           {recommendedOrgs.length > 0 && (
-            <div className="bg-cyan-900/20 rounded-lg p-4 border border-cyan-700/50">
-              <h3 className="text-sm font-semibold text-cyan-300 mb-3 flex items-center gap-2">
-                <Icon name="Lightbulb" size={16} />
-                ТОП-3 Рекомендуемых организаций
-              </h3>
-              <div className="space-y-3">
+            <div>
+              <div className="flex items-center gap-1.5 mb-2 px-1">
+                <Icon name="Lightbulb" size={13} className="text-amber-400" />
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Рекомендации</span>
+              </div>
+              <div className="space-y-2">
                 {recommendedOrgs.map((rec, index) => (
-                  <div key={rec.orgName} className={`p-3 rounded-lg border ${
-                    index === 0 ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-cyan-700/30 bg-slate-800/30'
+                  <div key={rec.orgName} className={`px-3 py-2.5 rounded-xl border ${
+                    index === 0 ? 'border-blue-200 bg-blue-50' : 'border-gray-100 bg-white'
                   }`}>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-                          index === 0 ? 'bg-cyan-500 text-white' : 'bg-cyan-700/50 text-cyan-300'
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md flex-shrink-0 ${
+                          index === 0 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'
                         }`}>
                           #{index + 1}
                         </span>
-                        <span className="text-base font-semibold text-cyan-200">{rec.orgName}</span>
+                        <span className="text-sm font-semibold text-gray-700 truncate">{rec.orgName}</span>
                       </div>
-                      <span className="text-sm text-cyan-400 bg-cyan-900/30 px-2 py-1 rounded">
-                        ~{rec.orgAvg.toFixed(1)} контактов
-                      </span>
+                      <span className="text-xs text-gray-500 flex-shrink-0 ml-2">~{rec.orgAvg.toFixed(1)} кон.</span>
                     </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-cyan-700/30">
-                      <span className="text-sm text-cyan-300">Ожидаемый доход КМС/КВВ:</span>
-                      <span className="text-lg font-bold text-cyan-400">~{rec.kms} ₽</span>
-                    </div>
+                    {rec.kms > 0 && (
+                      <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-gray-100">
+                        <span className="text-[11px] text-gray-400">КМС/КВВ</span>
+                        <span className="text-sm font-semibold text-gray-600">~{rec.kms} ₽</span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -98,60 +89,53 @@ export default function WorkerDetailsModal({
 
           {/* Выбранная организация */}
           {currentOrganization && (
-            <div className="bg-amber-900/20 rounded-lg p-4 border border-amber-700/50">
-              <h3 className="text-sm font-semibold text-amber-300 mb-3 flex items-center gap-2">
-                <Icon name="Building2" size={16} />
-                Выбранная организация
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-semibold text-amber-200">{currentOrganization}</span>
-                  <span className="text-sm text-amber-400 bg-amber-900/30 px-2 py-1 rounded">
-                    {selectedOrgAvg > 0 ? `~${selectedOrgAvg.toFixed(1)} контактов` : 'не было смен'}
-                  </span>
-                </div>
-                {expectedKMS > 0 && (
-                  <div className="flex justify-between items-center pt-2 border-t border-amber-700/30">
-                    <span className="text-sm text-amber-300">Ожидаемый доход КМС/КВВ:</span>
-                    <span className="text-lg font-bold text-amber-400">~{expectedKMS} ₽</span>
-                  </div>
-                )}
+            <div className="px-3 py-2.5 rounded-xl border border-amber-200 bg-amber-50">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Icon name="Building2" size={13} className="text-amber-500" />
+                <span className="text-xs font-semibold text-amber-600 uppercase tracking-wide">Выбрана</span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-700">{currentOrganization}</span>
+                <span className="text-xs text-gray-500">
+                  {selectedOrgAvg > 0 ? `~${selectedOrgAvg.toFixed(1)} кон.` : 'нет данных'}
+                </span>
+              </div>
+              {expectedKMS > 0 && (
+                <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-amber-100">
+                  <span className="text-[11px] text-amber-600">КМС/КВВ</span>
+                  <span className="text-sm font-semibold text-amber-600">~{expectedKMS} ₽</span>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Разница с лучшей рекомендацией */}
+          {/* Разница */}
           {recommendedOrgs.length > 0 && expectedKMS > 0 && currentOrganization && (
-            <div className={`rounded-lg p-4 border ${kmsDifference >= 0 ? 'bg-green-900/20 border-green-700/50' : 'bg-red-900/20 border-red-700/50'}`}>
-              <h3 className={`text-sm font-semibold mb-3 flex items-center gap-2 ${kmsDifference >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                <Icon name={kmsDifference >= 0 ? 'TrendingUp' : 'TrendingDown'} size={16} />
-                Разница с лучшей рекомендацией
-              </h3>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className={`text-sm ${kmsDifference >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                    {kmsDifference >= 0 ? 'Выбрано лучше на:' : 'Лучшая рекомендация была бы лучше на:'}
+            <div className={`px-3 py-2.5 rounded-xl border ${
+              kmsDifference >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-red-100 bg-red-50'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Icon name={kmsDifference >= 0 ? 'TrendingUp' : 'TrendingDown'} size={13}
+                    className={kmsDifference >= 0 ? 'text-emerald-500' : 'text-red-400'} />
+                  <span className={`text-xs font-semibold ${kmsDifference >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {kmsDifference >= 0 ? 'Лучше рекомендации' : 'Рекомендация лучше'}
                   </span>
-                  <div className="text-right">
-                    <span className={`text-xl font-bold ${kmsDifference >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {kmsDifference > 0 ? '+' : ''}{kmsDifference} ₽
-                    </span>
-                    <span className={`text-sm ml-2 ${kmsDifference >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      ({kmsDifferencePercent > 0 ? '+' : ''}{kmsDifferencePercent}%)
-                    </span>
-                  </div>
                 </div>
+                <span className={`text-sm font-bold ${kmsDifference >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {kmsDifference > 0 ? '+' : ''}{kmsDifference} ₽
+                  <span className="text-xs font-normal ml-1">({kmsDifferencePercent > 0 ? '+' : ''}{kmsDifferencePercent}%)</span>
+                </span>
               </div>
             </div>
           )}
         </div>
 
-        <div className="flex justify-end mt-6 pt-4 border-t border-slate-700">
+        <div className="flex justify-end mt-4 pt-3 border-t border-gray-100">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-sm font-medium transition-colors"
           >
-            <Icon name="X" size={16} />
             Закрыть
           </button>
         </div>

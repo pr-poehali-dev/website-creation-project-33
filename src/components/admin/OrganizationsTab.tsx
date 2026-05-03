@@ -188,10 +188,10 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
 
   if (loading) {
     return (
-      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
+      <Card className="bg-white border-gray-100 rounded-2xl">
         <CardContent className="p-8">
-          <div className="text-center text-slate-300 flex items-center justify-center gap-3">
-            <Icon name="Loader2" size={24} className="animate-spin" />
+          <div className="text-center text-gray-400 flex items-center justify-center gap-3">
+            <Icon name="Loader2" size={24} className="animate-spin text-blue-400" />
             Загрузка организаций...
           </div>
         </CardContent>
@@ -220,11 +220,11 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
         adding={adding}
       />
 
-      <Card className="bg-slate-900 border-slate-700 rounded-2xl slide-up hover:shadow-2xl transition-all duration-300">
+      <Card className="bg-white border-gray-100 rounded-2xl shadow-sm transition-all duration-300">
         <CardHeader className="pb-3 md:pb-4">
-          <CardTitle className="flex items-center gap-2 md:gap-3 text-slate-100 text-lg md:text-xl">
-            <div className="p-1.5 md:p-2 rounded-lg bg-slate-800">
-              <Icon name="Building2" size={18} className="text-cyan-400 md:w-5 md:h-5" />
+          <CardTitle className="flex items-center gap-2 md:gap-3 text-gray-800 text-lg md:text-xl">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Icon name="Building2" size={18} className="text-blue-500" />
             </div>
             Организации ({organizations.length})
           </CardTitle>
@@ -237,8 +237,8 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
           />
 
           {filteredOrganizations.length === 0 ? (
-            <div className="text-center py-8 text-slate-400">
-              <Icon name="Inbox" size={48} className="mx-auto mb-3 opacity-50" />
+            <div className="text-center py-8 text-gray-400">
+              <Icon name="Inbox" size={48} className="mx-auto mb-3 text-gray-300" />
               <p className="text-sm md:text-base">
                 {searchQuery ? 'Организации не найдены' : 'Нет организаций'}
               </p>

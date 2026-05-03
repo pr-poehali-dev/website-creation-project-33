@@ -49,28 +49,28 @@ export default function OrganizationListItem({
   const isEditing = editingId === org.id;
 
   return (
-    <div className="group p-3 md:p-4 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-all duration-200 border border-slate-700 hover:border-slate-600">
+    <div className="group p-3 md:p-4 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 border border-gray-100 hover:border-gray-200 shadow-sm">
       {isEditing ? (
         <div className="space-y-2.5 md:space-y-3">
           <div>
-            <label className="text-[10px] md:text-xs text-slate-400 mb-1 block">Название</label>
+            <label className="text-[10px] md:text-xs text-gray-500 mb-1 block">Название</label>
             <Input
               value={editingName}
               onChange={(e) => setEditingName(e.target.value)}
-              className="border-slate-700 bg-slate-900 text-slate-100 focus:border-slate-600 focus:ring-slate-600 h-8 md:h-9 text-xs md:text-sm"
+              className="border-gray-200 bg-gray-50 text-gray-800 focus:border-blue-300 focus:ring-blue-100 h-8 md:h-9 text-xs md:text-sm"
             />
           </div>
           <div>
-            <label className="text-[10px] md:text-xs text-slate-400 mb-1 block">Ставка за контакт (₽)</label>
+            <label className="text-[10px] md:text-xs text-gray-500 mb-1 block">Ставка за контакт (₽)</label>
             <Input
               type="number"
               value={editingRate}
               onChange={(e) => setEditingRate(e.target.value)}
-              className="border-slate-700 bg-slate-900 text-slate-100 focus:border-slate-600 focus:ring-slate-600 h-8 md:h-9 text-xs md:text-sm"
+              className="border-gray-200 bg-gray-50 text-gray-800 focus:border-blue-300 focus:ring-blue-100 h-8 md:h-9 text-xs md:text-sm"
             />
           </div>
           <div>
-            <label className="text-[10px] md:text-xs text-slate-400 mb-1.5 md:mb-2 block">Тип оплаты</label>
+            <label className="text-[10px] md:text-xs text-gray-500 mb-1.5 md:mb-2 block">Тип оплаты</label>
             <div className="flex gap-1.5 md:gap-2">
               <Button
                 onClick={() => setEditingPaymentType('cash')}
@@ -78,8 +78,8 @@ export default function OrganizationListItem({
                 size="sm"
                 className={`flex-1 h-8 md:h-9 text-[10px] md:text-xs ${
                   editingPaymentType === 'cash'
-                    ? 'bg-green-600 hover:bg-green-700 text-white'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                    : 'bg-white hover:bg-gray-50 text-gray-600 border-gray-200'
                 }`}
               >
                 <Icon name="Banknote" size={12} className="mr-1 md:mr-1.5 md:w-[14px] md:h-[14px]" />
@@ -92,8 +92,8 @@ export default function OrganizationListItem({
                 size="sm"
                 className={`flex-1 h-8 md:h-9 text-[10px] md:text-xs ${
                   editingPaymentType === 'cashless'
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                    : 'bg-white hover:bg-gray-50 text-gray-600 border-gray-200'
                 }`}
               >
                 <Icon name="CreditCard" size={12} className="mr-1 md:mr-1.5 md:w-[14px] md:h-[14px]" />
@@ -105,7 +105,7 @@ export default function OrganizationListItem({
             <Button
               onClick={() => updateOrganization(org.id)}
               disabled={!editingName.trim() || updating}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white h-8 md:h-9 text-[10px] md:text-xs"
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white h-8 md:h-9 text-[10px] md:text-xs"
             >
               {updating ? (
                 <Icon name="Loader2" size={12} className="animate-spin md:w-[14px] md:h-[14px]" />
@@ -121,7 +121,7 @@ export default function OrganizationListItem({
               onClick={cancelEditing}
               disabled={updating}
               variant="outline"
-              className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700 h-8 md:h-9 text-[10px] md:text-xs"
+              className="flex-1 bg-white hover:bg-gray-50 text-gray-500 border-gray-200 h-8 md:h-9 text-[10px] md:text-xs"
             >
               <Icon name="X" size={12} className="mr-1 md:mr-1.5 md:w-[14px] md:h-[14px]" />
               Отмена
@@ -132,23 +132,23 @@ export default function OrganizationListItem({
         <>
           <div className="flex items-start justify-between gap-2 md:gap-3 mb-2.5 md:mb-3">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-slate-100 mb-1.5 text-xs md:text-base leading-tight">
+              <h3 className="font-semibold text-gray-800 mb-1.5 text-xs md:text-base leading-tight">
                 {org.name}
               </h3>
               <div className="flex flex-wrap items-center gap-1.5 md:gap-2 text-xs md:text-sm">
-                <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5">
+                <Badge className="bg-blue-50 text-blue-600 border-blue-100 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5">
                   <Icon name="Users" size={10} className="mr-0.5 md:mr-1 md:w-3 md:h-3" />
                   {org.lead_count}
                 </Badge>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5">
+                <Badge className="bg-green-50 text-green-600 border-green-100 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5">
                   <Icon name="DollarSign" size={10} className="mr-0.5 md:mr-1 md:w-3 md:h-3" />
                   {org.contact_rate || 0}₽
                 </Badge>
                 <Badge
                   className={
                     org.payment_type === 'cashless'
-                      ? 'bg-blue-500/20 text-blue-400 border-blue-500/30 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5'
-                      : 'bg-green-500/20 text-green-400 border-green-500/30 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5'
+                      ? 'bg-blue-50 text-blue-600 border-blue-100 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5'
+                      : 'bg-green-50 text-green-600 border-green-100 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5'
                   }
                 >
                   <Icon
@@ -168,7 +168,7 @@ export default function OrganizationListItem({
                 onClick={() => onOpenPeriods({ id: org.id, name: org.name })}
                 variant="outline"
                 size="sm"
-                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 transition-all duration-200 h-7 md:h-9 text-[10px] md:text-sm"
+                className="flex-1 bg-white hover:bg-gray-50 text-gray-700 border-gray-200 transition-all duration-200 h-7 md:h-9 text-[10px] md:text-sm"
               >
                 <Icon name="Calendar" size={10} className="mr-1 md:mr-1.5 md:w-[14px] md:h-[14px]" />
                 <span className="hidden sm:inline">История ставок</span>
@@ -178,7 +178,7 @@ export default function OrganizationListItem({
                 onClick={() => startEditing(org)}
                 variant="outline"
                 size="sm"
-                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 transition-all duration-200 h-7 md:h-9 text-[10px] md:text-sm"
+                className="flex-1 bg-white hover:bg-gray-50 text-gray-700 border-gray-200 transition-all duration-200 h-7 md:h-9 text-[10px] md:text-sm"
               >
                 <Icon name="Pencil" size={10} className="mr-1 md:mr-1.5 md:w-[14px] md:h-[14px]" />
                 <span className="hidden sm:inline">Изменить</span>
@@ -189,7 +189,7 @@ export default function OrganizationListItem({
               onClick={() => deleteOrganization(org.id, org.name)}
               variant="outline"
               size="sm"
-              className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/30 hover:border-red-500/50 transition-all duration-200 h-7 md:h-9 px-2 md:px-4 xs:w-auto w-full"
+              className="bg-red-50 hover:bg-red-100 text-red-500 border-red-500/30 hover:border-red-500/50 transition-all duration-200 h-7 md:h-9 px-2 md:px-4 xs:w-auto w-full"
             >
               <Icon name="Trash2" size={10} className="md:w-[14px] md:h-[14px] xs:mr-0 mr-1.5" />
               <span className="xs:hidden">Удалить</span>

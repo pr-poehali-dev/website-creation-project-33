@@ -127,7 +127,7 @@ export default function UserCard({
 
   return (
     <div 
-      className="border-2 border-slate-700 rounded-xl p-3 md:p-4 hover:bg-slate-800 transition-all duration-300 cursor-pointer bg-slate-800/50 shadow-md hover:shadow-xl hover:scale-[1.01]"
+      className="border border-gray-100 rounded-xl p-3 md:p-4 hover:bg-gray-50 transition-all duration-200 cursor-pointer bg-white shadow-sm hover:shadow-md"
       onClick={onUserClick}
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -136,10 +136,10 @@ export default function UserCard({
             {user.is_online ? (
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-sm"></div>
             ) : (
-              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+              <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
             )}
             {user.is_admin && (
-              <Badge className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-1.5 py-0.5 text-xs shadow-sm">
+              <Badge className="bg-blue-50 text-blue-600 border border-blue-100 px-1.5 py-0.5 text-xs">
                 <Icon name="Shield" size={10} className="mr-1" />
                 <span className="hidden sm:inline">Админ</span>
                 <span className="sm:hidden">А</span>
@@ -153,7 +153,7 @@ export default function UserCard({
                 <Input
                   value={editName}
                   onChange={(e) => onEditNameChange(e.target.value)}
-                  className="w-full max-w-48 border-2 border-cyan-500 bg-slate-700 text-slate-100 placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-200 text-sm md:text-base"
+                  className="w-full max-w-48 border border-blue-300 bg-white text-gray-800 focus:border-blue-400 focus:ring-blue-100 text-sm md:text-base"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       onUpdateName();
@@ -162,24 +162,24 @@ export default function UserCard({
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
-                <span className="font-medium text-slate-100 text-base md:text-lg truncate">{user.name}</span>
+                <span className="font-medium text-gray-800 text-base md:text-lg truncate">{user.name}</span>
               )}
             </div>
             {user.email && (
-              <p className="text-slate-400 text-xs">{user.email}</p>
+              <p className="text-gray-400 text-xs">{user.email}</p>
             )}
             {user.registration_ip && (
-              <p className="text-slate-500 text-xs">IP: {user.registration_ip}</p>
+              <p className="text-gray-400 text-xs">IP: {user.registration_ip}</p>
             )}
             {user.senior_name && (
-              <p className="text-cyan-400 text-xs mt-0.5">Старший: {user.senior_name}</p>
+              <p className="text-blue-500 text-xs mt-0.5">Старший: {user.senior_name}</p>
             )}
           </div>
         </div>
 
         <div className="flex items-center justify-between md:justify-end gap-2 flex-shrink-0">
           {isSelected && (
-            <Icon name="ChevronDown" size={16} className="text-slate-500 md:mr-2" />
+            <Icon name="ChevronDown" size={16} className="text-gray-400 md:mr-2" />
           )}
           
           <div className="flex gap-1 md:gap-2" onClick={(e) => e.stopPropagation()}>
@@ -189,14 +189,14 @@ export default function UserCard({
                   size="sm" 
                   onClick={onUpdateName}
                   disabled={!editName.trim()}
-                  className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-2 md:px-3 py-1 h-8 shadow-md transition-all duration-300 hover:scale-105"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-2 md:px-3 py-1 h-8 transition-all duration-200"
                 >
                   <Icon name="Check" size={12} className="md:w-[14px] md:h-[14px]" />
                 </Button>
                 <Button 
                   size="sm" 
                   onClick={onCancelEdit}
-                  className="border-2 border-slate-600 text-slate-300 hover:bg-slate-700 px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                  className="border border-gray-200 text-gray-500 hover:bg-gray-100 px-2 md:px-3 py-1 h-8 transition-all duration-200"
                   variant="ghost"
                 >
                   <Icon name="X" size={12} className="md:w-[14px] md:h-[14px]" />
@@ -208,7 +208,7 @@ export default function UserCard({
                   size="sm"
                   onClick={handleBlockUser}
                   disabled={blockingUser || user.is_admin}
-                  className="bg-red-600 hover:bg-red-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                  className="bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 px-2 md:px-3 py-1 h-8 transition-all duration-200"
                   title="Заблокировать промоутера"
                 >
                   {blockingUser ? (
@@ -221,7 +221,7 @@ export default function UserCard({
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingQR}
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                  className="bg-blue-50 hover:bg-blue-100 text-blue-500 border border-blue-100 px-2 md:px-3 py-1 h-8 transition-all duration-200"
                   title="Загрузить QR-код"
                 >
                   {uploadingQR ? (
@@ -247,24 +247,24 @@ export default function UserCard({
                   <Button
                     size="sm"
                     onClick={(e) => { e.stopPropagation(); setShowSeniorDropdown(p => !p); }}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                    className="bg-violet-50 hover:bg-violet-100 text-violet-500 border border-violet-100 px-2 md:px-3 py-1 h-8 transition-all duration-200"
                     title="Назначить старшего"
                   >
                     <Icon name="Star" size={12} className="md:w-[14px] md:h-[14px]" />
                   </Button>
                   {showSeniorDropdown && (
                     <div
-                      className="absolute right-0 top-10 z-50 bg-slate-800 border border-slate-600 rounded-xl shadow-xl min-w-[180px] py-1"
+                      className="absolute right-0 top-10 z-50 bg-white border border-gray-100 rounded-xl shadow-lg min-w-[180px] py-1"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {seniors.length === 0 ? (
-                        <div className="px-3 py-2 text-slate-400 text-xs">Загрузка старших...</div>
+                        <div className="px-3 py-2 text-gray-400 text-xs">Загрузка старших...</div>
                       ) : (
                         seniors.map((s) => (
                           <button
                             key={s.id}
                             onClick={(e) => handleAssignSenior(s.id, s.name, e)}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-700 transition-colors ${user.senior_id === s.id ? 'text-cyan-400 font-medium' : 'text-slate-200'}`}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${user.senior_id === s.id ? 'text-blue-500 font-medium' : 'text-gray-700'}`}
                           >
                             {user.senior_id === s.id && <Icon name="Check" size={12} className="inline mr-1" />}
                             {s.name}
@@ -273,10 +273,10 @@ export default function UserCard({
                       )}
                       {user.senior_id && (
                         <>
-                          <div className="border-t border-slate-700 my-1" />
+                          <div className="border-t border-gray-100 my-1" />
                           <button
                             onClick={(e) => handleAssignSenior(null, '', e)}
-                            className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-slate-700 transition-colors"
+                            className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-gray-50 transition-colors"
                           >
                             Снять старшего
                           </button>
@@ -289,7 +289,7 @@ export default function UserCard({
                   size="sm" 
                   onClick={onStartEdit}
                   disabled={user.is_admin}
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                  className="bg-gray-50 hover:bg-gray-100 text-gray-500 border border-gray-200 px-2 md:px-3 py-1 h-8 transition-all duration-200"
                 >
                   <Icon name="Edit" size={12} className="md:w-[14px] md:h-[14px]" />
                 </Button>
@@ -297,7 +297,7 @@ export default function UserCard({
                   <Button 
                     size="sm" 
                     onClick={onDeleteUser}
-                    className="bg-red-600 hover:bg-red-700 text-white px-2 md:px-3 py-1 h-8 transition-all duration-300"
+                    className="bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 px-2 md:px-3 py-1 h-8 transition-all duration-200"
                   >
                     <Icon name="Trash2" size={12} className="md:w-[14px] md:h-[14px]" />
                   </Button>

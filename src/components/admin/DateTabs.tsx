@@ -36,14 +36,14 @@ export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDu
           <div key={date} className="relative group flex items-center gap-1">
             <button
               onClick={() => onDateSelect(date)}
-              className={`px-3 md:px-4 py-2 rounded-lg border-2 transition-all duration-300 text-sm md:text-base font-medium ${
+              className={`px-3 md:px-4 py-2 rounded-xl border transition-all duration-200 text-sm md:text-base font-medium ${
                 selectedDate === date
                   ? hasDuplicates
-                    ? 'bg-red-600 text-white border-red-600 shadow-lg scale-105'
-                    : 'bg-cyan-600 text-white border-cyan-600 shadow-lg scale-105'
+                    ? 'bg-red-500 text-white border-red-500 shadow-sm'
+                    : 'bg-blue-500 text-white border-blue-500 shadow-sm'
                   : hasDuplicates
-                    ? 'bg-red-900/20 text-red-400 border-red-600 hover:bg-red-900/30'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600 hover:bg-slate-700'
+                    ? 'bg-red-50 text-red-500 border-red-100 hover:bg-red-100'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -53,8 +53,8 @@ export default function DateTabs({ dates, selectedDate, leadsCounts, datesWithDu
                   selectedDate === date
                     ? 'bg-white/20 text-white border-white/30'
                     : hasDuplicates
-                      ? 'bg-red-600 text-white border-red-700'
-                      : 'bg-slate-700 text-slate-300 border-slate-600'
+                      ? 'bg-red-100 text-red-600 border-red-200'
+                      : 'bg-gray-100 text-gray-500 border-gray-200'
                 }`}>
                   {leadsCount}
                 </Badge>

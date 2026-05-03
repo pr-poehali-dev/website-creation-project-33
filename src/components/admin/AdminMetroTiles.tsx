@@ -47,18 +47,21 @@ const NavButton = ({
 }) => (
   <button
     onClick={onClick}
-    className={`relative flex items-center gap-2.5 w-full px-2.5 py-2 rounded-xl transition-all duration-200 ${
-      active ? 'bg-[#001f54] text-white' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'
-    }`}
-    title={label}
+    className="relative flex flex-col items-center gap-1 flex-1 py-2 px-1 transition-all duration-200 group"
   >
-    <Icon name={icon} size={17} className="flex-shrink-0" />
-    <span className="text-sm font-medium whitespace-nowrap overflow-hidden w-0 group-hover/sidebar:w-auto group-hover/sidebar:opacity-100 opacity-0 transition-all duration-200">{label}</span>
-    {badge !== undefined && badge > 0 && (
-      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 animate-pulse">
-        {badge}
-      </span>
-    )}
+    <div className={`relative flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200 ${
+      active ? 'bg-[#001f54] shadow-lg shadow-[#001f54]/30 scale-110' : 'hover:bg-gray-100'
+    }`}>
+      <Icon name={icon} size={18} className={active ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'} />
+      {badge !== undefined && badge > 0 && (
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 animate-pulse">
+          {badge}
+        </span>
+      )}
+    </div>
+    <span className={`text-[10px] font-medium leading-none transition-colors duration-200 ${
+      active ? 'text-[#001f54]' : 'text-gray-400 group-hover:text-gray-600'
+    }`}>{label}</span>
   </button>
 );
 
@@ -82,33 +85,31 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     { view: 'telegram' as TileView, icon: 'Bot', label: 'Телеграм бот' },
   ];
 
-  // Навигация только для десктопа
-  const renderWithSidebar = (content: React.ReactNode) => (
-    <div className="space-y-4">
-      {/* Десктоп версия с боковой навигацией */}
-      <div className="hidden md:flex gap-3 items-start pt-4">
-        <div className="group/sidebar flex flex-col gap-1 sticky top-4 w-10 hover:w-48 transition-all duration-300 overflow-hidden flex-shrink-0">
-          {navigationItems.map((item) => (
-            <NavButton
-              key={item.view}
-              view={item.view}
-              icon={item.icon}
-              label={item.label}
-              active={currentView === item.view}
-              onClick={() => handleViewChange(item.view)}
-              badge={item.badge}
-            />
-          ))}
-        </div>
-        <div className="flex-1 min-w-0">
-          {content}
-        </div>
+  const BottomNav = () => (
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t border-gray-100 shadow-2xl shadow-black/10">
+      <div className="max-w-2xl mx-auto px-2 flex items-center">
+        {navigationItems.map((item) => (
+          <NavButton
+            key={item.view}
+            view={item.view}
+            icon={item.icon}
+            label={item.label}
+            active={currentView === item.view}
+            onClick={() => handleViewChange(item.view)}
+            badge={item.badge}
+          />
+        ))}
       </div>
-      
-      {/* Контент на мобильных без навигации */}
-      <div className="md:hidden pt-4">
+      <div className="h-safe-area-inset-bottom" />
+    </div>
+  );
+
+  const renderWithSidebar = (content: React.ReactNode) => (
+    <div className="pb-24">
+      <div className="pt-4">
         {content}
       </div>
+      <BottomNav />
     </div>
   );
 

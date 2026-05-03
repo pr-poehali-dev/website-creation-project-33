@@ -31,37 +31,55 @@ interface AdminMetroTilesProps {
 type TileView = 'tiles' | 'requests' | 'fines' | 'tasks' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram';
 type StatsSubView = 'users' | 'rating' | 'organizations' | 'seniors';
 
+const NAV_COLORS: Record<string, { bg: string; icon: string; hover: string; active: string }> = {
+  tiles:      { bg: 'bg-gray-50',    icon: 'text-gray-500',   hover: 'hover:bg-gray-50 hover:border-l-gray-400',   active: 'bg-gray-50 border-l-4 border-l-gray-400' },
+  requests:   { bg: 'bg-blue-50',    icon: 'text-blue-500',   hover: 'hover:bg-blue-50 hover:border-l-blue-400',   active: 'bg-blue-50 border-l-4 border-l-blue-500' },
+  fines:      { bg: 'bg-red-50',     icon: 'text-red-500',    hover: 'hover:bg-red-50 hover:border-l-red-400',     active: 'bg-red-50 border-l-4 border-l-red-500' },
+  tasks:      { bg: 'bg-cyan-50',    icon: 'text-cyan-500',   hover: 'hover:bg-cyan-50 hover:border-l-cyan-400',   active: 'bg-cyan-50 border-l-4 border-l-cyan-500' },
+  accounting: { bg: 'bg-blue-50',    icon: 'text-blue-500',   hover: 'hover:bg-blue-50 hover:border-l-blue-400',   active: 'bg-blue-50 border-l-4 border-l-blue-500' },
+  stats:      { bg: 'bg-blue-50',    icon: 'text-blue-500',   hover: 'hover:bg-blue-50 hover:border-l-blue-400',   active: 'bg-blue-50 border-l-4 border-l-blue-500' },
+  chat:       { bg: 'bg-blue-50',    icon: 'text-blue-500',   hover: 'hover:bg-blue-50 hover:border-l-blue-400',   active: 'bg-blue-50 border-l-4 border-l-blue-500' },
+  clients:    { bg: 'bg-blue-50',    icon: 'text-blue-500',   hover: 'hover:bg-blue-50 hover:border-l-blue-400',   active: 'bg-blue-50 border-l-4 border-l-blue-500' },
+  analytics:  { bg: 'bg-blue-50',    icon: 'text-blue-500',   hover: 'hover:bg-blue-50 hover:border-l-blue-400',   active: 'bg-blue-50 border-l-4 border-l-blue-500' },
+  telegram:   { bg: 'bg-blue-50',    icon: 'text-blue-500',   hover: 'hover:bg-blue-50 hover:border-l-blue-400',   active: 'bg-blue-50 border-l-4 border-l-blue-500' },
+};
+
 const NavButton = ({ 
   icon, 
   label, 
   active, 
   onClick, 
-  badge 
+  badge,
+  view,
 }: { 
   icon: string; 
   label: string; 
   active: boolean; 
   onClick: () => void; 
   badge?: number;
-}) => (
-  <button
-    onClick={onClick}
-    className={`relative flex items-center gap-3 h-10 px-2.5 rounded-xl transition-all duration-200 flex-shrink-0 w-full ${
-      active 
-        ? 'bg-[#001f54] text-white' 
-        : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'
-    }`}
-    title={label}
-  >
-    <Icon name={icon} size={17} className="flex-shrink-0" />
-    <span className="text-[11px] font-medium leading-none whitespace-nowrap transition-all duration-200 overflow-hidden w-0 group-hover/sidebar:w-auto group-hover/sidebar:opacity-100 opacity-0">{label}</span>
-    {badge !== undefined && badge > 0 && (
-      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-[16px] h-4 animate-pulse">
-        {badge}
-      </Badge>
-    )}
-  </button>
-);
+  view: string;
+}) => {
+  const colors = NAV_COLORS[view] ?? NAV_COLORS.tiles;
+  return (
+    <button
+      onClick={onClick}
+      className={`relative w-full px-3 py-3 flex items-center gap-3 transition-all duration-200 group ${
+        active ? colors.active : `hover:border-l-4 ${colors.hover}`
+      }`}
+      title={label}
+    >
+      <div className={`w-8 h-8 rounded-xl ${colors.bg} flex items-center justify-center flex-shrink-0`}>
+        <Icon name={icon} size={16} className={colors.icon} />
+        {badge !== undefined && badge > 0 && (
+          <span className="absolute top-2 left-8 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 animate-pulse">
+            {badge}
+          </span>
+        )}
+      </div>
+      <span className="text-sm font-semibold text-gray-800 whitespace-nowrap overflow-hidden w-0 group-hover/sidebar:w-auto group-hover/sidebar:opacity-100 opacity-0 transition-all duration-200">{label}</span>
+    </button>
+  );
+};
 
 export default function AdminMetroTiles({ unreadCount, sessionToken, currentView, onViewChange }: AdminMetroTilesProps) {
   const [statsSubView, setStatsSubView] = useState<StatsSubView>('rating');
@@ -88,10 +106,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     <div className="space-y-4">
       {/* Десктоп версия с боковой навигацией */}
       <div className="hidden md:flex gap-3 items-start pt-4">
-        <div className="group/sidebar flex flex-col gap-1 sticky top-4 w-10 hover:w-44 transition-all duration-300 overflow-hidden flex-shrink-0">
+        <div className="group/sidebar flex flex-col sticky top-4 w-12 hover:w-52 transition-all duration-300 overflow-hidden flex-shrink-0 bg-white rounded-2xl shadow-xl border border-gray-100 divide-y divide-gray-100">
           {navigationItems.map((item) => (
             <NavButton
               key={item.view}
+              view={item.view}
               icon={item.icon}
               label={item.label}
               active={currentView === item.view}

@@ -62,7 +62,7 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
                 onClick={() => setDetailDate(day.date)}
                 className={`relative flex flex-col items-center rounded-xl transition-all group cursor-pointer ${
                   isPast
-                    ? 'bg-gray-50 border border-gray-100 opacity-60'
+                    ? 'bg-gray-50 border border-gray-200 opacity-60'
                     : isToday
                     ? 'bg-blue-50 border-2 border-blue-300 shadow-sm'
                     : 'bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm'

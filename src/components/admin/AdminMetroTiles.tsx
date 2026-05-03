@@ -85,7 +85,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   ];
 
   const BottomNav = () => (
-    <div className="fixed bottom-0 left-0 right-0 z-50 opacity-30 hover:opacity-100 transition-opacity duration-500 ease-in-out">
+    <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50 opacity-30 hover:opacity-100 transition-opacity duration-500 ease-in-out">
       <div className="max-w-2xl mx-auto px-2 flex items-center">
         {navigationItems.map((item) => (
           <NavButton

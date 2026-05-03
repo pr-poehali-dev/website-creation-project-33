@@ -85,7 +85,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   ];
 
   const BottomNav = () => (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t border-gray-100 shadow-2xl shadow-black/10">
+    <div className="fixed bottom-0 left-0 right-0 z-50">
       <div className="max-w-2xl mx-auto px-2 flex items-center">
         {navigationItems.map((item) => (
           <NavButton

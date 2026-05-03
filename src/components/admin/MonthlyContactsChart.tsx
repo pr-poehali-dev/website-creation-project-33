@@ -130,7 +130,9 @@ export default function MonthlyContactsChart() {
                           if (isGreenZone && stat.days_21_plus && stat.days_21_plus.length > 0 && !pinnedMonth) {
                             setHoveredMonth(stat.month);
                             const rect = e.currentTarget.getBoundingClientRect();
-                            setTooltipPosition({ x: rect.left, y: rect.top });
+                            const tooltipH = 280;
+                            const y = rect.top - tooltipH - 8 < 10 ? rect.bottom + 8 : rect.top - tooltipH - 8;
+                            setTooltipPosition({ x: rect.left, y });
                           }
                         }}
                         onMouseLeave={() => {
@@ -138,12 +140,16 @@ export default function MonthlyContactsChart() {
                             setHoveredMonth(null);
                           }
                         }}
-                        onClick={() => {
+                        onClick={(e) => {
                           if (isGreenZone && stat.days_21_plus && stat.days_21_plus.length > 0) {
                             if (pinnedMonth === stat.month) {
                               setPinnedMonth(null);
                               setHoveredMonth(null);
                             } else {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const tooltipH = 280;
+                              const y = rect.top - tooltipH - 8 < 10 ? rect.bottom + 8 : rect.top - tooltipH - 8;
+                              setTooltipPosition({ x: rect.left, y });
                               setPinnedMonth(stat.month);
                               setHoveredMonth(stat.month);
                             }
@@ -163,11 +169,12 @@ export default function MonthlyContactsChart() {
                   const totalContacts = stat.days_21_plus.reduce((sum, day) => sum + day.contacts, 0);
                   const totalPromoters = stat.days_21_plus.reduce((sum, day) => sum + day.promoters, 0);
                   const avgPerPromoter = totalPromoters > 0 ? (totalContacts / totalPromoters).toFixed(1) : '0';
+                  const left = Math.min(tooltipPosition.x, window.innerWidth - 320);
                   
                   return (
                     <div 
-                      className="absolute z-50 bg-white border border-gray-200 rounded-xl shadow-lg p-3 mt-2 max-w-xs md:max-w-md tooltip-container"
-                      style={{ left: '50%', transform: 'translateX(-50%)' }}
+                      className="fixed z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-3 w-72 tooltip-container"
+                      style={{ left: Math.max(8, left), top: tooltipPosition.y }}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">

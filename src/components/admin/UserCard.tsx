@@ -174,6 +174,9 @@ export default function UserCard({
             {user.senior_name && (
               <p className="text-blue-500 text-xs mt-0.5">Старший: {user.senior_name}</p>
             )}
+            {!user.is_online && user.last_seen && (
+              <p className="text-gray-400 text-xs mt-0.5">Был в сети: {formatLastSeen(user.last_seen)}</p>
+            )}
           </div>
         </div>
 

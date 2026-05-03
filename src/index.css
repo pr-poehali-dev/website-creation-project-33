@@ -4,6 +4,25 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes navPop {
+  0% {
+    transform: scale(0.7) translateY(6px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15) translateY(-2px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.nav-active-icon {
+  animation: navPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
 @keyframes waveBar {
   0%,
   100% {

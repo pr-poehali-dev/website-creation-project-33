@@ -50,7 +50,7 @@ const NavButton = ({
     className="relative flex flex-col items-center gap-1 flex-1 py-2 px-1 transition-all duration-200 group"
   >
     <div className="relative flex items-center justify-center w-10 h-10">
-      <Icon name={icon} size={20} className={`transition-all duration-200 ${active ? 'text-[#001f54] scale-110' : 'text-gray-400 group-hover:text-gray-600'}`} />
+      <Icon name={icon} size={20} className={`transition-colors duration-200 ${active ? 'text-[#001f54] nav-active-icon' : 'text-gray-400 group-hover:text-gray-600'}`} />
       {badge !== undefined && badge > 0 && (
         <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 animate-pulse">
           {badge}
@@ -85,7 +85,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   ];
 
   const BottomNav = () => (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed bottom-0 left-0 right-0 z-50 opacity-30 hover:opacity-100 transition-opacity duration-500 ease-in-out">
       <div className="max-w-2xl mx-auto px-2 flex items-center">
         {navigationItems.map((item) => (
           <NavButton

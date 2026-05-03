@@ -49,19 +49,18 @@ const NavButton = ({
     onClick={onClick}
     className="relative flex flex-col items-center gap-1 flex-1 py-2 px-1 transition-all duration-200 group"
   >
-    <div className={`relative flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200 ${
-      active ? 'bg-[#001f54] shadow-lg shadow-[#001f54]/30 scale-110' : 'hover:bg-gray-100'
-    }`}>
-      <Icon name={icon} size={18} className={active ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'} />
+    <div className="relative flex items-center justify-center w-10 h-10">
+      <Icon name={icon} size={20} className={`transition-all duration-200 ${active ? 'text-[#001f54] scale-110' : 'text-gray-400 group-hover:text-gray-600'}`} />
       {badge !== undefined && badge > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 animate-pulse">
+        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 animate-pulse">
           {badge}
         </span>
       )}
     </div>
     <span className={`text-[10px] font-medium leading-none transition-colors duration-200 ${
-      active ? 'text-[#001f54]' : 'text-gray-400 group-hover:text-gray-600'
+      active ? 'text-[#001f54] font-semibold' : 'text-gray-400 group-hover:text-gray-600'
     }`}>{label}</span>
+    {active && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-[#001f54] rounded-full" />}
   </button>
 );
 

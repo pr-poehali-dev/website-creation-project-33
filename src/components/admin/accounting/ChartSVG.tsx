@@ -146,21 +146,21 @@ export default function ChartSVG({
         ))}
 
         {chartData.length > 0 && (
-          <g clipPath="url(#chartArea)">
-            {/* Заливка */}
-            <path d={areaPath} fill="url(#areaFill)" />
+          <>
+            {/* Заливка и линия — внутри clipPath */}
+            <g clipPath="url(#chartArea)">
+              <path d={areaPath} fill="url(#areaFill)" />
+              <path
+                d={linePath}
+                fill="none"
+                stroke="url(#lineColor)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </g>
 
-            {/* Линия */}
-            <path
-              d={linePath}
-              fill="none"
-              stroke="url(#lineColor)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-
-            {/* Точки */}
+            {/* Точки и тултипы — вне clipPath, чтобы не обрезались */}
             {points.map((point, idx) => {
               const isHovered = hoveredPoint?.x === point.x && hoveredPoint?.y === point.y;
               return (
@@ -174,10 +174,12 @@ export default function ChartSVG({
 
                   {isHovered && (() => {
                     const label = `${formatCurrency(point.value)} ₽`;
-                    const boxW = label.length * 8 + 24;
+                    const charWidth = 7.5;
+                    const boxW = Math.ceil(label.length * charWidth) + 28;
                     const boxH = 30;
                     const rawX = point.x - boxW / 2;
-                    const clampedX = Math.max(padL + 2, Math.min(rawX, W - padR - boxW - 2));
+                    // Ограничиваем строго внутри SVG с запасом 4px
+                    const clampedX = Math.max(4, Math.min(rawX, W - boxW - 4));
                     const rawY = point.y - boxH - 14;
                     const clampedY = Math.max(4, rawY);
                     return (
@@ -209,7 +211,7 @@ export default function ChartSVG({
                 </g>
               );
             })}
-          </g>
+          </>
         )}
 
         {/* Ось X */}

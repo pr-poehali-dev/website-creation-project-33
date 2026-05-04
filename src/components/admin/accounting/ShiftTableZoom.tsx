@@ -31,7 +31,7 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
             variant="outline"
             size="sm"
             disabled={scale <= 50}
-            className="h-7 w-7 md:h-8 md:w-8 p-0 bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 disabled:opacity-30"
+            className="h-7 w-7 md:h-8 md:w-8 p-0 bg-white border-gray-300 hover:bg-gray-50 text-gray-600 disabled:opacity-30"
           >
             <Icon name="ZoomOut" size={14} className="md:w-4 md:h-4" />
           </Button>
@@ -40,7 +40,7 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
             variant="outline"
             size="sm"
             disabled={scale >= 200}
-            className="h-7 w-7 md:h-8 md:w-8 p-0 bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 disabled:opacity-30"
+            className="h-7 w-7 md:h-8 md:w-8 p-0 bg-white border-gray-300 hover:bg-gray-50 text-gray-600 disabled:opacity-30"
           >
             <Icon name="ZoomIn" size={14} className="md:w-4 md:h-4" />
           </Button>
@@ -48,7 +48,7 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
             onClick={handleResetZoom}
             variant="outline"
             size="sm"
-            className="h-7 px-2 md:h-8 md:px-3 text-[10px] md:text-xs bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 font-semibold"
+            className="h-7 px-2 md:h-8 md:px-3 text-[10px] md:text-xs bg-white border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold"
           >
             {scale}%
           </Button>
@@ -57,7 +57,7 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
 
       <div 
         ref={parentRef}
-        className="overflow-auto border border-slate-700/50 md:border-2 rounded-lg scrollbar-dark"
+        className="overflow-auto border border-gray-200 md:border-2 rounded-lg"
         style={{
           height: 'calc(100vh - 220px)',
           minHeight: '400px',

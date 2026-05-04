@@ -33,7 +33,6 @@ type StatsSubView = 'users' | 'rating' | 'organizations' | 'seniors';
 
 const NavButton = ({ 
   icon, 
-  label, 
   active, 
   onClick, 
   badge,
@@ -50,34 +49,23 @@ const NavButton = ({
 }) => (
   <button
     onClick={onClick}
-    className={`relative flex flex-col items-center gap-1 transition-all duration-200 group
-      ${home ? 'px-5 py-2.5' : 'px-3.5 py-2.5'}
-    `}
+    className="relative flex items-center justify-center p-2.5 transition-all duration-200"
   >
-    {active && !home && (
-      <span className="absolute top-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#001f54]" />
-    )}
-    <div className="relative flex items-center justify-center">
+    <div className="relative">
       <Icon
         name={icon}
-        size={home ? 22 : 20}
+        size={home ? 24 : 20}
         className={`transition-colors duration-200 ${
-          active
-            ? home ? 'text-white' : 'text-[#001f54]'
-            : home ? 'text-white/80' : 'text-gray-400 group-hover:text-gray-600'
+          active ? 'text-black' : home ? 'text-black/60' : 'text-black/30 hover:text-black/60'
         }`}
       />
       {badge !== undefined && badge > 0 && (
-        <span className="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-0.5 animate-pulse">
+        <span className="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-0.5">
           {badge}
         </span>
       )}
     </div>
-    <span className={`text-[10px] font-medium leading-none transition-colors duration-200 ${
-      active
-        ? home ? 'text-white font-semibold' : 'text-[#001f54] font-semibold'
-        : home ? 'text-white/70' : 'text-gray-400 group-hover:text-gray-600'
-    }`}>{label}</span>
+    {active && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-black" />}
   </button>
 );
 
@@ -105,15 +93,15 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   const homeItem = navigationItems.find(i => i.view === 'tiles')!;
 
   const MobileBottomNav = () => (
-    <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
-      <div className="pointer-events-auto group flex items-center">
+    <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center pointer-events-none">
+      <div className="pointer-events-auto group/nav flex items-center gap-0">
 
-        {/* Левая группа — появляется при наведении */}
-        <div className="flex items-center
-          w-0 overflow-hidden opacity-0 translate-x-4
-          group-hover:w-auto group-hover:opacity-100 group-hover:translate-x-0
-          transition-all duration-300 ease-out">
-          <div className="flex items-center bg-white/90 backdrop-blur-md shadow-xl rounded-2xl border border-gray-100 mr-2">
+        {/* Левая группа */}
+        <div className="flex items-center overflow-hidden
+          max-w-0 opacity-0
+          group-hover/nav:max-w-xs group-hover/nav:opacity-100
+          transition-[max-width,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+          <div className="flex items-center pr-1">
             {otherItems.slice(0, 5).map((item) => (
               <NavButton
                 key={item.view}
@@ -128,24 +116,22 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
           </div>
         </div>
 
-        {/* Кнопка Домой — всегда видна */}
-        <div className="flex-shrink-0 bg-[#001f54] shadow-2xl rounded-2xl">
-          <NavButton
-            view={homeItem.view}
-            icon={homeItem.icon}
-            label={homeItem.label}
-            active={currentView === homeItem.view}
-            onClick={() => handleViewChange(homeItem.view)}
-            home={true}
-          />
-        </div>
+        {/* Кнопка Домой */}
+        <NavButton
+          view={homeItem.view}
+          icon={homeItem.icon}
+          label={homeItem.label}
+          active={currentView === homeItem.view}
+          onClick={() => handleViewChange(homeItem.view)}
+          home={true}
+        />
 
-        {/* Правая группа — появляется при наведении */}
-        <div className="flex items-center
-          w-0 overflow-hidden opacity-0 -translate-x-4
-          group-hover:w-auto group-hover:opacity-100 group-hover:translate-x-0
-          transition-all duration-300 ease-out">
-          <div className="flex items-center bg-white/90 backdrop-blur-md shadow-xl rounded-2xl border border-gray-100 ml-2">
+        {/* Правая группа */}
+        <div className="flex items-center overflow-hidden
+          max-w-0 opacity-0
+          group-hover/nav:max-w-xs group-hover/nav:opacity-100
+          transition-[max-width,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+          <div className="flex items-center pl-1">
             {otherItems.slice(5).map((item) => (
               <NavButton
                 key={item.view}
@@ -278,7 +264,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     );
   }
 
-  return renderWithSidebar(
+  return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
       <div className="divide-y divide-gray-100">
 

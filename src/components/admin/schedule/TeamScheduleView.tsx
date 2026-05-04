@@ -166,6 +166,7 @@ export default function TeamScheduleView({
             onCommentChange={updateComment}
             onSaveComment={saveComment}
             onAddSlot={handleAddSlotClick}
+            onDeleteShift={confirmRemoveSlot}
           />
         );
       })}

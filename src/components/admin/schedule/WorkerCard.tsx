@@ -19,13 +19,14 @@ interface WorkerCardProps {
   loadingProgress?: number;
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
+  onDeleteShift?: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
 }
 
 export default function WorkerCard({
   worker, dayDate, slotTime, slotLabel,
   workComments, allLocations, allOrganizations,
   recommendedOrgs, orgStats, loadingProgress,
-  onCommentChange, onSaveComment,
+  onCommentChange, onSaveComment, onDeleteShift,
 }: WorkerCardProps) {
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
   const [showOrgSelectionModal, setShowOrgSelectionModal] = useState(false);
@@ -49,6 +50,10 @@ export default function WorkerCard({
     onCommentChange(workerName, dayDate, 'organization', org, realSlotKey);
     onSaveComment(workerName, dayDate, 'organization', org, realSlotKey);
     setShowOrgSelectionModal(false);
+  };
+
+  const handleDeleteShift = () => {
+    onDeleteShift?.(worker.user_id, workerName, dayDate, slotTime, slotLabel);
   };
 
   const selectedOrgStats = currentOrganization
@@ -113,7 +118,7 @@ export default function WorkerCard({
           )}
         </div>
 
-        {/* Организация */}
+        {/* Организация + удаление */}
         <div className="flex items-center gap-1 flex-shrink-0">
           {currentOrganization ? (
             <button
@@ -129,6 +134,15 @@ export default function WorkerCard({
               className="text-[9px] text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 px-1.5 py-0.5 rounded-full transition-all"
             >
               + Орг.
+            </button>
+          )}
+          {onDeleteShift && (
+            <button
+              onClick={handleDeleteShift}
+              className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-red-50 transition-colors flex-shrink-0"
+              title="Удалить смену"
+            >
+              <Icon name="X" size={11} className="text-red-400 hover:text-red-600" />
             </button>
           )}
         </div>

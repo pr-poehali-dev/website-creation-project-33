@@ -16,6 +16,7 @@ interface TimeSlotCardProps {
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
+  onDeleteShift?: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
 }
 
 export default function TimeSlotCard({
@@ -23,7 +24,7 @@ export default function TimeSlotCard({
   workComments, allLocations, allOrganizations,
   userOrgStats, recommendedLocations,
   loadingProgress,
-  onCommentChange, onSaveComment, onAddSlot,
+  onCommentChange, onSaveComment, onAddSlot, onDeleteShift,
 }: TimeSlotCardProps) {
   const hasMaxim = workers.some(w => isMaximKorelsky(w.first_name, w.last_name));
   const accentColor = hasMaxim ? 'text-purple-500' : 'text-gray-400';
@@ -69,6 +70,7 @@ export default function TimeSlotCard({
                 loadingProgress={loadingProgress}
                 onCommentChange={onCommentChange}
                 onSaveComment={onSaveComment}
+                onDeleteShift={onDeleteShift}
               />
             );
           })

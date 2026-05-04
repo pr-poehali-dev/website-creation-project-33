@@ -40,6 +40,7 @@ interface DayCardProps {
   onCommentChange: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onSaveComment: (userName: string, date: string, field: string, value: string, shiftTime?: string) => void;
   onAddSlot: (date: string, slotTime: string, slotLabel: string) => void;
+  onDeleteShift?: (userId: number, userName: string, date: string, slotTime: string, slotLabel: string) => void;
 }
 
 export default function DayCard({
@@ -48,7 +49,7 @@ export default function DayCard({
   workComments, allLocations, allOrganizations,
   userOrgStats, recommendedLocations, actualStats,
   loadingProgress, trainingCount = 0, promoterSlots,
-  onToggleDay, onCommentChange, onSaveComment, onAddSlot,
+  onToggleDay, onCommentChange, onSaveComment, onAddSlot, onDeleteShift,
 }: DayCardProps) {
   const [activeTab, setActiveTab] = useState<'department' | 'training'>('department');
   const [trainingEntries, setTrainingEntries] = useState<TrainingEntry[]>([]);
@@ -178,6 +179,7 @@ export default function DayCard({
                 onCommentChange={onCommentChange}
                 onSaveComment={onSaveComment}
                 onAddSlot={onAddSlot}
+                onDeleteShift={onDeleteShift}
               />
             );
           })}

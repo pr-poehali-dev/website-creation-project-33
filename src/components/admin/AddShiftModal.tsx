@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/lib/toast';
-import { useOrganizations } from '@/hooks/useAdminData';
-
 interface AddShiftModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,15 +15,13 @@ const selectClass = "w-full border border-gray-200 bg-white text-gray-700 rounde
 const labelClass = "text-xs font-medium text-gray-500 mb-1.5 block";
 
 export default function AddShiftModal({ isOpen, onClose, userStats, onShiftAdded }: AddShiftModalProps) {
-  const { data: organizations = [] } = useOrganizations(isOpen);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-  const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
   const [shiftDate, setShiftDate] = useState('');
   const [timeSlot, setTimeSlot] = useState('12:00-16:00');
   const [adding, setAdding] = useState(false);
 
   const handleSubmit = async () => {
-    if (!selectedUserId || !selectedOrgId || !shiftDate || !timeSlot) {
+    if (!selectedUserId || !shiftDate || !timeSlot) {
       toast({ title: 'Ошибка', description: 'Заполните все поля', variant: 'destructive' });
       return;
     }
@@ -40,7 +36,6 @@ export default function AddShiftModal({ isOpen, onClose, userStats, onShiftAdded
         body: JSON.stringify({
           action: 'add_schedule_slot',
           user_id: selectedUserId,
-          organization_id: selectedOrgId,
           work_date: shiftDate,
           time_slot: timeSlot,
         }),
@@ -63,7 +58,6 @@ export default function AddShiftModal({ isOpen, onClose, userStats, onShiftAdded
 
   const resetForm = () => {
     setSelectedUserId(null);
-    setSelectedOrgId(null);
     setShiftDate('');
     setTimeSlot('12:00-16:00');
   };
@@ -89,16 +83,6 @@ export default function AddShiftModal({ isOpen, onClose, userStats, onShiftAdded
               <option value="">Выберите промоутера</option>
               {userStats.map(user => (
                 <option key={user.id} value={user.id}>{user.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className={labelClass}>Организация</label>
-            <select value={selectedOrgId || ''} onChange={e => setSelectedOrgId(Number(e.target.value))} className={selectClass}>
-              <option value="">Выберите организацию</option>
-              {organizations.map((org: { id: number; name: string }) => (
-                <option key={org.id} value={org.id}>{org.name}</option>
               ))}
             </select>
           </div>

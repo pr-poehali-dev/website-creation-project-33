@@ -75,10 +75,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
 
-    # Все не-админ пользователи
+    # Все не-админ пользователи (включая удалённых)
     cur.execute("""
         SELECT id, name FROM t_p24058207_website_creation_pro.users
-        WHERE is_admin = false AND is_active = true
+        WHERE is_admin = false
         ORDER BY name
     """)
     users = [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]

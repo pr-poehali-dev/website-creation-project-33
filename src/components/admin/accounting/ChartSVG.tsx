@@ -200,23 +200,43 @@ export default function ChartSVG({
                     r="20"
                     fill="transparent"
                   />
-                  {isHovered && (
-                    <>
-                      <circle
-                        cx={point.x}
-                        cy={point.y}
-                        r="10"
-                        fill="#f1f5f9"
-                      />
-                      <circle
-                        cx={point.x}
-                        cy={point.y}
-                        r="7"
-                        fill="white"
-                        filter="url(#dropShadow)"
-                      />
-                    </>
-                  )}
+                  {isHovered && (() => {
+                    const label = `${formatCurrency(point.value)} ₽`;
+                    const charWidth = 9;
+                    const boxW = label.length * charWidth + 20;
+                    const boxH = 28;
+                    const rawX = point.x - boxW / 2;
+                    const clampedX = Math.max(60, Math.min(rawX, 980 - boxW));
+                    const boxY = Math.max(10, point.y - boxH - 12);
+                    return (
+                      <>
+                        <circle cx={point.x} cy={point.y} r="6" fill="#2563eb" />
+                        <circle cx={point.x} cy={point.y} r="3.5" fill="white" />
+                        <rect
+                          x={clampedX}
+                          y={boxY}
+                          width={boxW}
+                          height={boxH}
+                          rx="6"
+                          ry="6"
+                          fill="white"
+                          stroke="#e2e8f0"
+                          strokeWidth="1"
+                          filter="url(#dropShadow)"
+                        />
+                        <text
+                          x={clampedX + boxW / 2}
+                          y={boxY + 18}
+                          textAnchor="middle"
+                          fontSize="12"
+                          fontWeight="600"
+                          fill="#1e293b"
+                        >
+                          {label}
+                        </text>
+                      </>
+                    );
+                  })()}
                 </g>
               );
             })}
@@ -261,30 +281,7 @@ export default function ChartSVG({
         })}
       </svg>
       
-      {hoveredPoint && (() => {
-        const pct = (hoveredPoint.x / 1000) * 100;
-        let translateX = '-50%';
-        if (pct > 80) translateX = '-90%';
-        else if (pct < 20) translateX = '-10%';
-        return (
-          <div 
-            className="absolute pointer-events-none rounded-lg shadow-lg px-4 py-2.5 text-sm font-semibold"
-            style={{
-              left: `${pct}%`,
-              top: `${(hoveredPoint.y / 420) * 100}%`,
-              transform: `translate(${translateX}, -140%)`,
-              background: '#1e293b',
-              color: 'white',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            <div className="text-lg font-bold">
-              {formatCurrency(hoveredPoint.value)} ₽
-            </div>
-          </div>
-        );
-      })()}
+
     </div>
   );
 }

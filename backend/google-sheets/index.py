@@ -195,7 +195,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         row = [
             shift.get('date', ''),
             shift.get('user_name', ''),
-            shift.get('organization', ''),
+            shift.get('organization_name') or shift.get('organization', ''),
             start_time,
             end_time,
             shift.get('contacts_count', 0),  # Число

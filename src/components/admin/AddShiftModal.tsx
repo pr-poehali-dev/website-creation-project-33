@@ -11,7 +11,7 @@ interface AddShiftModalProps {
 
 const ADMIN_API = 'https://functions.poehali.dev/29e24d51-9c06-45bb-9ddb-2c7fb23e8214';
 
-const selectClass = "w-full border border-gray-200 bg-white text-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors";
+const selectClass = "w-full border border-gray-200 bg-white text-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors appearance-none text-right pr-8";
 const labelClass = "text-xs font-medium text-gray-500 mb-1.5 block";
 
 export default function AddShiftModal({ isOpen, onClose, userStats, onShiftAdded }: AddShiftModalProps) {
@@ -79,31 +79,40 @@ export default function AddShiftModal({ isOpen, onClose, userStats, onShiftAdded
         <div className="space-y-4 mt-2">
           <div>
             <label className={labelClass}>Промоутер</label>
-            <select value={selectedUserId || ''} onChange={e => setSelectedUserId(Number(e.target.value))} className={selectClass}>
-              <option value="">Выберите промоутера</option>
-              {userStats.map(user => (
-                <option key={user.id} value={user.id}>{user.name}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <select value={selectedUserId || ''} onChange={e => setSelectedUserId(Number(e.target.value))} className={selectClass}>
+                <option value="">Выберите промоутера</option>
+                {userStats.map(user => (
+                  <option key={user.id} value={user.id}>{user.name}</option>
+                ))}
+              </select>
+              <Icon name="ChevronDown" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
           </div>
 
           <div>
             <label className={labelClass}>Дата смены</label>
-            <input
-              type="date"
-              value={shiftDate}
-              onChange={e => setShiftDate(e.target.value)}
-              className={selectClass}
-            />
+            <div className="relative">
+              <input
+                type="date"
+                value={shiftDate}
+                onChange={e => setShiftDate(e.target.value)}
+                className={selectClass}
+              />
+              <Icon name="Calendar" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
           </div>
 
           <div>
             <label className={labelClass}>Время смены</label>
-            <select value={timeSlot} onChange={e => setTimeSlot(e.target.value)} className={selectClass}>
-              {['12:00-16:00', '16:00-20:00', '09:00-12:00', '09:00-13:00', '13:00-17:00'].map(slot => (
-                <option key={slot} value={slot}>{slot}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <select value={timeSlot} onChange={e => setTimeSlot(e.target.value)} className={selectClass}>
+                {['12:00-16:00', '16:00-20:00', '09:00-12:00', '09:00-13:00', '13:00-17:00'].map(slot => (
+                  <option key={slot} value={slot}>{slot}</option>
+                ))}
+              </select>
+              <Icon name="ChevronDown" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
           </div>
 
           <div className="flex gap-2 pt-1">

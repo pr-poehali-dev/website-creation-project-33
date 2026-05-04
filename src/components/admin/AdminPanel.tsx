@@ -36,6 +36,8 @@ export default function AdminPanel() {
             showHomeButton={currentView !== 'tiles'}
           />
         )}
+      </div>
+      <div className={`w-full ${currentView === 'accounting' ? '' : 'px-4 md:px-6'}`}>
         <AdminMetroTiles 
           unreadCount={unreadCount} 
           sessionToken={localStorage.getItem('session_token') || ''}

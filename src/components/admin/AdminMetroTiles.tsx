@@ -96,27 +96,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center pointer-events-none">
       <div className="pointer-events-auto group/nav flex items-center gap-0">
 
-        {/* Левая группа */}
-        <div className="flex items-center overflow-hidden
-          max-w-0 opacity-0
-          group-hover/nav:max-w-xs group-hover/nav:opacity-100
-          transition-[max-width,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
-          <div className="flex items-center pr-1">
-            {otherItems.slice(0, 5).map((item) => (
-              <NavButton
-                key={item.view}
-                view={item.view}
-                icon={item.icon}
-                label={item.label}
-                active={currentView === item.view}
-                onClick={() => handleViewChange(item.view)}
-                badge={item.badge}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Кнопка Домой */}
+        {/* Кнопка Домой — всегда первая */}
         <NavButton
           view={homeItem.view}
           icon={homeItem.icon}
@@ -126,13 +106,13 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
           home={true}
         />
 
-        {/* Правая группа */}
+        {/* Остальные — разворачиваются вправо */}
         <div className="flex items-center overflow-hidden
           max-w-0 opacity-0
-          group-hover/nav:max-w-xs group-hover/nav:opacity-100
+          group-hover/nav:max-w-xl group-hover/nav:opacity-100
           transition-[max-width,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
           <div className="flex items-center pl-1">
-            {otherItems.slice(5).map((item) => (
+            {otherItems.map((item) => (
               <NavButton
                 key={item.view}
                 view={item.view}

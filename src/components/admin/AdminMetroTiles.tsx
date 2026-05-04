@@ -49,20 +49,20 @@ const NavButton = ({
 }) => sidebar ? (
   <button
     onClick={onClick}
-    className={`relative flex flex-col items-center gap-1.5 w-full py-3 px-2 transition-all duration-200 group rounded-xl ${active ? 'bg-[#001f54]/10' : 'hover:bg-gray-100'}`}
+    className="relative flex flex-col items-center gap-1 w-14 py-2 px-1 transition-all duration-200 group"
   >
-    <div className="relative flex items-center justify-center w-9 h-9">
-      <Icon name={icon} size={20} className={`transition-colors duration-200 ${active ? 'text-[#001f54]' : 'text-gray-400 group-hover:text-gray-600'}`} />
+    <div className="relative flex items-center justify-center w-8 h-8">
+      <Icon name={icon} size={18} className={`transition-colors duration-200 ${active ? 'text-[#001f54]' : 'text-gray-300 group-hover:text-gray-500'}`} />
       {badge !== undefined && badge > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 animate-pulse">
+        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[14px] h-3.5 flex items-center justify-center px-0.5 animate-pulse">
           {badge}
         </span>
       )}
     </div>
-    <span className={`text-[9px] font-medium leading-none text-center transition-colors duration-200 ${
-      active ? 'text-[#001f54] font-semibold' : 'text-gray-400 group-hover:text-gray-600'
+    <span className={`text-[8px] font-medium leading-none text-center transition-colors duration-200 ${
+      active ? 'text-[#001f54] font-semibold' : 'text-gray-300 group-hover:text-gray-500'
     }`}>{label}</span>
-    {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-[#001f54] rounded-full" />}
+    {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#001f54] rounded-full" />}
   </button>
 ) : (
   <button
@@ -124,7 +124,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   );
 
   const SideNav = () => (
-    <div className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-50 w-16 bg-white border-r border-gray-200 shadow-sm pt-4 pb-4 gap-1 px-1 overflow-y-auto">
+    <div className="hidden md:flex flex-col fixed left-0 top-1/2 -translate-y-1/2 z-50 py-2 gap-0.5">
       {navigationItems.map((item) => (
         <NavButton
           key={item.view}
@@ -141,7 +141,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   );
 
   const renderWithSidebar = (content: React.ReactNode) => (
-    <div className="md:pl-16 pb-20 md:pb-4">
+    <div className="pb-20 md:pb-4">
       <SideNav />
       <div className="pt-4">
         {content}

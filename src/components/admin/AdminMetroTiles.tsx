@@ -105,7 +105,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   ];
 
   const MobileBottomNav = () => (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg opacity-30 hover:opacity-100 transition-opacity duration-500">
       <div className="flex items-center px-1">
         {navigationItems.map((item) => (
           <NavButton
@@ -123,26 +123,8 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     </div>
   );
 
-  const SideNav = () => (
-    <div className="hidden md:flex flex-col fixed left-0 top-1/2 -translate-y-1/2 z-50 py-2 gap-0.5">
-      {navigationItems.map((item) => (
-        <NavButton
-          key={item.view}
-          view={item.view}
-          icon={item.icon}
-          label={item.label}
-          active={currentView === item.view}
-          onClick={() => handleViewChange(item.view)}
-          badge={item.badge}
-          sidebar={true}
-        />
-      ))}
-    </div>
-  );
-
   const renderWithSidebar = (content: React.ReactNode) => (
-    <div className="pb-20 md:pb-4">
-      <SideNav />
+    <div className="pb-24">
       <div className="pt-4">
         {content}
       </div>

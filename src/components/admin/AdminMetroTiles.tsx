@@ -104,22 +104,59 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     { view: 'telegram' as TileView, icon: 'Bot', label: 'Телеграм бот' },
   ];
 
+  const otherItems = navigationItems.filter(i => i.view !== 'tiles');
+  const homeItem = navigationItems.find(i => i.view === 'tiles')!;
+
   const MobileBottomNav = () => (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg opacity-30 hover:opacity-100 transition-opacity duration-500">
-      <div className="flex items-center px-1">
-        {navigationItems.map((item) => (
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-2 pointer-events-none">
+      <div className="pointer-events-auto group flex items-end justify-center">
+        {/* Остальные вкладки — появляются при наведении */}
+        <div className="flex items-center gap-1 bg-white border border-gray-200 shadow-lg rounded-2xl px-2 py-1
+          max-w-0 overflow-hidden opacity-0
+          group-hover:max-w-[600px] group-hover:opacity-100 group-hover:px-2
+          transition-all duration-300 ease-in-out mr-1">
+          {otherItems.slice(0, 5).map((item) => (
+            <NavButton
+              key={item.view}
+              view={item.view}
+              icon={item.icon}
+              label={item.label}
+              active={currentView === item.view}
+              onClick={() => handleViewChange(item.view)}
+              badge={item.badge}
+            />
+          ))}
+        </div>
+
+        {/* Кнопка Домой — всегда видна */}
+        <div className="bg-white border border-gray-200 shadow-lg rounded-2xl px-3 py-1 flex-shrink-0">
           <NavButton
-            key={item.view}
-            view={item.view}
-            icon={item.icon}
-            label={item.label}
-            active={currentView === item.view}
-            onClick={() => handleViewChange(item.view)}
-            badge={item.badge}
+            view={homeItem.view}
+            icon={homeItem.icon}
+            label={homeItem.label}
+            active={currentView === homeItem.view}
+            onClick={() => handleViewChange(homeItem.view)}
           />
-        ))}
+        </div>
+
+        {/* Правая часть — появляется при наведении */}
+        <div className="flex items-center gap-1 bg-white border border-gray-200 shadow-lg rounded-2xl px-2 py-1
+          max-w-0 overflow-hidden opacity-0
+          group-hover:max-w-[600px] group-hover:opacity-100 group-hover:px-2
+          transition-all duration-300 ease-in-out ml-1">
+          {otherItems.slice(5).map((item) => (
+            <NavButton
+              key={item.view}
+              view={item.view}
+              icon={item.icon}
+              label={item.label}
+              active={currentView === item.view}
+              onClick={() => handleViewChange(item.view)}
+              badge={item.badge}
+            />
+          ))}
+        </div>
       </div>
-      <div className="h-safe-area-inset-bottom" />
     </div>
   );
 

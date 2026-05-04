@@ -261,23 +261,30 @@ export default function ChartSVG({
         })}
       </svg>
       
-      {hoveredPoint && (
-        <div 
-          className="absolute pointer-events-none rounded-lg shadow-2xl px-4 py-2.5 text-sm font-semibold"
-          style={{
-            left: `${(hoveredPoint.x / 1000) * 100}%`,
-            top: `${(hoveredPoint.y / 420) * 100}%`,
-            transform: 'translate(-50%, -140%)',
-            background: '#1e293b',
-            color: 'white',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-          }}
-        >
-          <div className="text-lg font-bold">
-            {formatCurrency(hoveredPoint.value)}
+      {hoveredPoint && (() => {
+        const pct = (hoveredPoint.x / 1000) * 100;
+        let translateX = '-50%';
+        if (pct > 80) translateX = '-90%';
+        else if (pct < 20) translateX = '-10%';
+        return (
+          <div 
+            className="absolute pointer-events-none rounded-lg shadow-lg px-4 py-2.5 text-sm font-semibold"
+            style={{
+              left: `${pct}%`,
+              top: `${(hoveredPoint.y / 420) * 100}%`,
+              transform: `translate(${translateX}, -140%)`,
+              background: '#1e293b',
+              color: 'white',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            <div className="text-lg font-bold">
+              {formatCurrency(hoveredPoint.value)} ₽
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

@@ -4,7 +4,6 @@ import { UserSchedule, OrganizationData } from './types';
 import { isMaximKorelsky, calculateAvgBeforeDate } from './utils';
 import OrgStatsModal from './OrgStatsModal';
 import OrgSelectionModal from './OrgSelectionModal';
-import WorkerDetailsModal from './WorkerDetailsModal';
 
 interface WorkerCardProps {
   worker: UserSchedule;
@@ -30,7 +29,6 @@ export default function WorkerCard({
 }: WorkerCardProps) {
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
   const [showOrgSelectionModal, setShowOrgSelectionModal] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const workerName = `${worker.first_name} ${worker.last_name}`;
@@ -95,13 +93,9 @@ export default function WorkerCard({
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
       <div className="flex items-center justify-between px-3 py-2 gap-2">
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          <button
-            onClick={() => setShowDetailsModal(true)}
-            className="text-[11px] text-gray-700 hover:text-blue-500 transition-colors font-medium truncate"
-            title="Детальная информация"
-          >
+          <span className="text-[11px] text-gray-700 font-medium truncate">
             {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
-          </button>
+          </span>
 
           {avgContacts !== undefined && avgContacts !== null && (
             <span className="flex items-center gap-0.5 text-[9px] bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
@@ -171,21 +165,7 @@ export default function WorkerCard({
         />
       )}
 
-      {showDetailsModal && (
-        <WorkerDetailsModal
-          workerName={workerName}
-          dayDate={dayDate}
-          avgContacts={avgContacts}
-          recommendedOrgs={recommendedKMSList}
-          currentOrganization={currentOrganization}
-          selectedOrgAvg={selectedOrgAvg}
-          expectedKMS={expectedKMS}
-          kmsDifference={kmsDifference}
-          kmsDifferencePercent={kmsDifferencePercent}
-          allOrganizations={allOrganizations}
-          onClose={() => setShowDetailsModal(false)}
-        />
-      )}
+
     </div>
   );
 }

@@ -29,208 +29,190 @@ export default function ChartSVG({
   onHoverPoint,
   hoveredPoint,
   formatCurrency,
-  movingAverageData = []
 }: ChartSVGProps) {
   const svgRef = React.useRef<SVGSVGElement>(null);
 
   const points = chartData.map((item, i) => {
     const x = 60 + (i / (chartData.length - 1 || 1)) * 920;
     const normalizedValue = revenueRange > 0 ? (item.revenue - minRevenue) / revenueRange : 0.5;
-    const y = 350 - normalizedValue * 280;
+    const y = 340 - normalizedValue * 270;
     return { x, y, label: item.label, value: item.revenue };
   });
 
-  const createSmoothPath = (pts: typeof points) => {
+  const createSmoothPath = (pts: {x: number; y: number}[], offsetY = 0) => {
     if (pts.length === 0) return '';
-    if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+    if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y + offsetY}`;
     
-    let path = `M ${pts[0].x} ${pts[0].y}`;
+    const shifted = pts.map(p => ({ x: p.x, y: p.y + offsetY }));
+    let path = `M ${shifted[0].x} ${shifted[0].y}`;
     
-    for (let i = 0; i < pts.length - 1; i++) {
-      const current = pts[i];
-      const next = pts[i + 1];
+    for (let i = 0; i < shifted.length - 1; i++) {
+      const current = shifted[i];
+      const next = shifted[i + 1];
       const xMid = (current.x + next.x) / 2;
       const yMid = (current.y + next.y) / 2;
       const cpX1 = (xMid + current.x) / 2;
       const cpX2 = (xMid + next.x) / 2;
-      
       path += ` Q ${cpX1} ${current.y}, ${xMid} ${yMid}`;
       path += ` Q ${cpX2} ${next.y}, ${next.x} ${next.y}`;
     }
-    
     return path;
   };
 
   const smoothPath = createSmoothPath(points);
-  const areaPath = `${smoothPath} L ${points[points.length - 1]?.x || 0} 370 L 60 370 Z`;
-  
-  // Вычисляем координаты для линии среднего
-  const avgPoints = movingAverageData.map((item, i) => {
-    const x = 60 + (i / (movingAverageData.length - 1 || 1)) * 920;
-    const normalizedValue = revenueRange > 0 ? (item.avgRevenue - minRevenue) / revenueRange : 0.5;
-    const y = 350 - normalizedValue * 280;
-    return { x, y };
-  });
-  
-  const avgPath = avgPoints.length > 0 
-    ? `M ${avgPoints.map(p => `${p.x} ${p.y}`).join(' L ')}` 
-    : '';
+  const lastX = points[points.length - 1]?.x || 0;
+  const areaPath = `${smoothPath} L ${lastX} 370 L 60 370 Z`;
 
-  const yAxisValues = [
-    maxRevenue,
-    maxRevenue * 0.75,
-    maxRevenue * 0.5,
-    maxRevenue * 0.25,
-    0
+  const yAxisValues = [maxRevenue, maxRevenue * 0.75, maxRevenue * 0.5, maxRevenue * 0.25, 0];
+
+  const waveOffsets = [-30, -18, -8, 0, 10, 22, 36];
+  const waveStyles = [
+    { stroke: '#22d3ee', opacity: 0.18, width: 1.5 },
+    { stroke: '#38bdf8', opacity: 0.25, width: 1.5 },
+    { stroke: '#60a5fa', opacity: 0.32, width: 2 },
+    { stroke: '#3b82f6', opacity: 0.45, width: 2.5 },
+    { stroke: '#2563eb', opacity: 0.6,  width: 3 },
+    { stroke: '#1d4ed8', opacity: 0.45, width: 2 },
+    { stroke: '#06b6d4', opacity: 0.28, width: 1.5 },
   ];
 
   return (
-    <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '450px', background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)' }}>
+    <div
+      className="relative w-full rounded-2xl overflow-hidden"
+      style={{ height: '420px', background: 'linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%)' }}
+    >
       <svg
         ref={svgRef}
-        viewBox="0 0 1000 420"
+        viewBox="0 0 1000 400"
         className="w-full h-full"
-        style={{ 
+        style={{
           transform: `scale(${zoom})`,
           transformOrigin: 'center center',
           transition: 'transform 0.3s ease-out'
         }}
       >
         <defs>
-          <linearGradient id="modernGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-            <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02" />
-          </linearGradient>
-          
-          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="50%" stopColor="#2563eb" />
-            <stop offset="100%" stopColor="#4f46e5" />
+          <linearGradient id="waveAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stopColor="#3b82f6" stopOpacity="0.12" />
+            <stop offset="60%"  stopColor="#60a5fa" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#bfdbfe" stopOpacity="0.02" />
           </linearGradient>
 
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <linearGradient id="mainLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stopColor="#06b6d4" />
+            <stop offset="40%"  stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#2563eb" />
+          </linearGradient>
+
+          <filter id="waveGlow">
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
 
-          <filter id="dropShadow">
-            <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.3" floodColor="#3b82f6"/>
+          <filter id="tooltipShadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.12" floodColor="#3b82f6" />
           </filter>
+
+          <clipPath id="chartClip">
+            <rect x="60" y="0" width="920" height="370" />
+          </clipPath>
         </defs>
 
         {[0, 1, 2, 3, 4].map(i => (
           <line
             key={i}
-            x1="60"
-            y1={70 + i * 70}
-            x2="980"
-            y2={70 + i * 70}
-            stroke="#e2e8f0"
+            x1="60" y1={50 + i * 65}
+            x2="980" y2={50 + i * 65}
+            stroke="#bfdbfe"
             strokeWidth="1"
-            strokeOpacity="0.8"
-            strokeDasharray="4 4"
+            strokeOpacity="0.5"
+            strokeDasharray="6 6"
           />
         ))}
 
-        {yAxisValues.map((value, idx) => {
-          const yPos = 70 + idx * 70;
-          
-          return (
-            <text
-              key={idx}
-              x="45"
-              y={yPos + 4}
-              textAnchor="end"
-              fontSize="11"
-              fill="#64748b"
-              fontWeight="400"
-            >
-              {formatCurrency(value)}
-            </text>
-          );
-        })}
+        {yAxisValues.map((value, idx) => (
+          <text
+            key={idx}
+            x="50"
+            y={54 + idx * 65}
+            textAnchor="end"
+            fontSize="11"
+            fill="#94a3b8"
+            fontWeight="400"
+          >
+            {formatCurrency(value)}
+          </text>
+        ))}
 
         {chartData.length > 0 && (
-          <>
-            <path
-              d={areaPath}
-              fill="url(#modernGradient)"
-            />
-            
+          <g clipPath="url(#chartClip)">
+            <path d={areaPath} fill="url(#waveAreaGrad)" />
+
+            {waveOffsets.map((offset, i) => (
+              <path
+                key={i}
+                d={createSmoothPath(points, offset)}
+                fill="none"
+                stroke={waveStyles[i].stroke}
+                strokeWidth={waveStyles[i].width}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity={waveStyles[i].opacity}
+                filter={i === 4 ? 'url(#waveGlow)' : undefined}
+              />
+            ))}
+
             <path
               d={smoothPath}
               fill="none"
-              stroke="url(#lineGradient)"
-              strokeWidth="4"
+              stroke="url(#mainLineGrad)"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
-              filter="url(#glow)"
+              filter="url(#waveGlow)"
             />
-            
-            {avgPath && (
-              <path
-                d={avgPath}
-                fill="none"
-                stroke="#ef4444"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray="5 5"
-                opacity="0.8"
-              />
-            )}
-            
+
             {points.map((point, idx) => {
               const isHovered = hoveredPoint?.x === point.x && hoveredPoint?.y === point.y;
-              
               return (
-                <g 
+                <g
                   key={idx}
                   onMouseEnter={() => onHoverPoint(point)}
                   onMouseLeave={() => onHoverPoint(null)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <circle
-                    cx={point.x}
-                    cy={point.y}
-                    r="20"
-                    fill="transparent"
-                  />
+                  <circle cx={point.x} cy={point.y} r="18" fill="transparent" />
                   {isHovered && (() => {
                     const label = `${formatCurrency(point.value)} ₽`;
-                    const charWidth = 9;
-                    const boxW = label.length * charWidth + 20;
-                    const boxH = 28;
+                    const boxW = label.length * 8.5 + 24;
+                    const boxH = 30;
                     const rawX = point.x - boxW / 2;
-                    const clampedX = Math.max(60, Math.min(rawX, 980 - boxW));
-                    const boxY = Math.max(10, point.y - boxH - 12);
+                    const clampedX = Math.max(62, Math.min(rawX, 978 - boxW));
+                    const boxY = Math.max(8, point.y - boxH - 14);
                     return (
                       <>
-                        <circle cx={point.x} cy={point.y} r="6" fill="#2563eb" />
-                        <circle cx={point.x} cy={point.y} r="3.5" fill="white" />
+                        <circle cx={point.x} cy={point.y} r="8" fill="white" opacity="0.7" />
+                        <circle cx={point.x} cy={point.y} r="5" fill="#3b82f6" />
+                        <circle cx={point.x} cy={point.y} r="2.5" fill="white" />
                         <rect
-                          x={clampedX}
-                          y={boxY}
-                          width={boxW}
-                          height={boxH}
-                          rx="6"
-                          ry="6"
+                          x={clampedX} y={boxY}
+                          width={boxW} height={boxH}
+                          rx="8" ry="8"
                           fill="white"
-                          stroke="#e2e8f0"
-                          strokeWidth="1"
-                          filter="url(#dropShadow)"
+                          stroke="#bfdbfe"
+                          strokeWidth="1.5"
+                          filter="url(#tooltipShadow)"
                         />
                         <text
                           x={clampedX + boxW / 2}
-                          y={boxY + 18}
+                          y={boxY + 20}
                           textAnchor="middle"
                           fontSize="12"
                           fontWeight="600"
-                          fill="#1e293b"
+                          fill="#1e40af"
                         >
                           {label}
                         </text>
@@ -240,48 +222,33 @@ export default function ChartSVG({
                 </g>
               );
             })}
-          </>
+          </g>
         )}
 
         {chartData.filter((_, i) => {
           if (chartData.length <= 7) return true;
           if (i === 0) return false;
           const step = Math.ceil(chartData.length / 7);
-          const isStepMatch = i % step === 0;
-          const isLast = i === chartData.length - 1;
-          
-          if (isLast && chartData.length > 7) {
-            const prevStepIndex = Math.floor((chartData.length - 1) / step) * step;
-            if (chartData.length - 1 - prevStepIndex < step / 2) {
-              return false;
-            }
-          }
-          
-          return isStepMatch || isLast;
+          return i % step === 0 || i === chartData.length - 1;
         }).map((item, idx, arr) => {
           const index = chartData.indexOf(item);
           const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
           const isLast = idx === arr.length - 1;
-          const textAnchor = isLast && chartData.length > 7 ? 'end' : 'middle';
-          
           return (
-            <g key={`x-label-${idx}`}>
-              <text
-                x={x}
-                y="405"
-                textAnchor={textAnchor}
-                fontSize="11"
-                fill="#64748b"
-                fontWeight="400"
-              >
-                {item.label}
-              </text>
-            </g>
+            <text
+              key={`xl-${idx}`}
+              x={x}
+              y="392"
+              textAnchor={isLast && chartData.length > 7 ? 'end' : 'middle'}
+              fontSize="11"
+              fill="#94a3b8"
+              fontWeight="400"
+            >
+              {item.label}
+            </text>
           );
         })}
       </svg>
-      
-
     </div>
   );
 }

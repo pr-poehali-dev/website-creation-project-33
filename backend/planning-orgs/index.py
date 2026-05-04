@@ -198,7 +198,8 @@ def handler(event: dict, context) -> dict:
             cur.execute(f"""
                 SELECT ps.user_id, u.name,
                        ps.schedule_data->%s->>'slot1' as slot1,
-                       ps.schedule_data->%s->>'slot2' as slot2
+                       ps.schedule_data->%s->>'slot2' as slot2,
+                       u.nearest_metro
                 FROM {SCHEMA}.promoter_schedules ps
                 JOIN {SCHEMA}.users u ON u.id = ps.user_id
                 WHERE ps.week_start_date = %s
@@ -227,7 +228,7 @@ def handler(event: dict, context) -> dict:
 
             promoters = []
             for row in promoters_raw:
-                user_id, name, slot1_str, slot2_str = row
+                user_id, name, slot1_str, slot2_str, nearest_metro = row
                 slot1_avail = slot1_str == 'true'
                 slot2_avail = slot2_str == 'true'
                 used_keys = used_slots_map.get(user_id, set())
@@ -251,6 +252,7 @@ def handler(event: dict, context) -> dict:
                 promoters.append({
                     'id': user_id,
                     'name': name,
+                    'nearest_metro': nearest_metro,
                     'total_slots': total,
                     'used_slots': used_count,
                     'available': used_count < total,

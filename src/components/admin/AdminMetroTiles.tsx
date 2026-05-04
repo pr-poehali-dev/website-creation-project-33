@@ -37,6 +37,7 @@ const NavButton = ({
   active, 
   onClick, 
   badge,
+  sidebar,
 }: { 
   icon: string; 
   label: string; 
@@ -44,7 +45,26 @@ const NavButton = ({
   onClick: () => void; 
   badge?: number;
   view: string;
-}) => (
+  sidebar?: boolean;
+}) => sidebar ? (
+  <button
+    onClick={onClick}
+    className={`relative flex flex-col items-center gap-1.5 w-full py-3 px-2 transition-all duration-200 group rounded-xl ${active ? 'bg-[#001f54]/10' : 'hover:bg-gray-100'}`}
+  >
+    <div className="relative flex items-center justify-center w-9 h-9">
+      <Icon name={icon} size={20} className={`transition-colors duration-200 ${active ? 'text-[#001f54]' : 'text-gray-400 group-hover:text-gray-600'}`} />
+      {badge !== undefined && badge > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 animate-pulse">
+          {badge}
+        </span>
+      )}
+    </div>
+    <span className={`text-[9px] font-medium leading-none text-center transition-colors duration-200 ${
+      active ? 'text-[#001f54] font-semibold' : 'text-gray-400 group-hover:text-gray-600'
+    }`}>{label}</span>
+    {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-[#001f54] rounded-full" />}
+  </button>
+) : (
   <button
     onClick={onClick}
     className="relative flex flex-col items-center gap-1 flex-1 py-2 px-1 transition-all duration-200 group"
@@ -84,9 +104,9 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     { view: 'telegram' as TileView, icon: 'Bot', label: 'Телеграм бот' },
   ];
 
-  const BottomNav = () => (
-    <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50 opacity-30 hover:opacity-100 transition-opacity duration-500 ease-in-out">
-      <div className="max-w-2xl mx-auto px-2 flex items-center">
+  const MobileBottomNav = () => (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg">
+      <div className="flex items-center px-1">
         {navigationItems.map((item) => (
           <NavButton
             key={item.view}
@@ -103,12 +123,30 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     </div>
   );
 
+  const SideNav = () => (
+    <div className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-50 w-16 bg-white border-r border-gray-200 shadow-sm pt-4 pb-4 gap-1 px-1 overflow-y-auto">
+      {navigationItems.map((item) => (
+        <NavButton
+          key={item.view}
+          view={item.view}
+          icon={item.icon}
+          label={item.label}
+          active={currentView === item.view}
+          onClick={() => handleViewChange(item.view)}
+          badge={item.badge}
+          sidebar={true}
+        />
+      ))}
+    </div>
+  );
+
   const renderWithSidebar = (content: React.ReactNode) => (
-    <div className="pb-24">
+    <div className="md:pl-16 pb-20 md:pb-4">
+      <SideNav />
       <div className="pt-4">
         {content}
       </div>
-      <BottomNav />
+      <MobileBottomNav />
     </div>
   );
 
@@ -217,7 +255,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     );
   }
 
-  return (
+  return renderWithSidebar(
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
       <div className="divide-y divide-gray-100">
 

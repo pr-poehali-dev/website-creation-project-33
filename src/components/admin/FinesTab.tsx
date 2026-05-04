@@ -199,18 +199,22 @@ export default function FinesTab() {
 
       {/* Итоги */}
       {!loading && data.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <div className="bg-white rounded-xl border border-gray-100 p-3 text-center">
             <div className="text-[11px] text-gray-400 mb-1">Работали</div>
             <div className="text-xl font-bold text-gray-800">{data.length}</div>
           </div>
+          <div className="bg-white rounded-xl border border-gray-100 p-3 text-center">
+            <div className="text-[11px] text-gray-400 mb-1">Зарплата</div>
+            <div className="text-xl font-bold text-green-600">{totalEarnings.toLocaleString('ru-RU')} ₽</div>
+          </div>
           <div className="bg-white rounded-xl border border-red-100 p-3 text-center">
-            <div className="text-[11px] text-red-400 mb-1">Со штрафами</div>
+            <div className="text-[11px] text-red-400 mb-1">Штрафы</div>
             <div className="text-xl font-bold text-red-500">−{totalFines.toLocaleString('ru-RU')} ₽</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-100 p-3 text-center">
-            <div className="text-[11px] text-gray-400 mb-1">Сумма</div>
-            <div className="text-xl font-bold text-green-600">{totalEarnings.toLocaleString('ru-RU')} ₽</div>
+            <div className="text-[11px] text-gray-400 mb-1">Итог</div>
+            <div className="text-xl font-bold text-blue-600">{(totalEarnings - totalFines).toLocaleString('ru-RU')} ₽</div>
           </div>
         </div>
       )}

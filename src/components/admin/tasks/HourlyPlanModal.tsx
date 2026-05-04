@@ -25,7 +25,7 @@ export default function HourlyPlanModal({
         }
       }}
     >
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-light">
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
           <div>
             <h3 className="text-lg md:text-xl font-bold text-gray-800">{editingPlan.organization}</h3>

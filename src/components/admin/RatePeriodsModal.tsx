@@ -193,7 +193,7 @@ export default function RatePeriodsModal({ organizationId, organizationName, onC
           </div>
         </CardHeader>
 
-        <CardContent className="overflow-y-auto flex-1 pt-4">
+        <CardContent className="overflow-y-auto scrollbar-light flex-1 pt-4">
           <div className="space-y-4">
             <div className="border-2 border-blue-200 rounded-xl p-4 bg-blue-50">
               <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">

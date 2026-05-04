@@ -51,7 +51,7 @@ export default function NotebookModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-white !border-0 shadow-2xl rounded-2xl p-4 sm:p-6">
+      <DialogContent className="max-w-4xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto scrollbar-light bg-white !border-0 shadow-2xl rounded-2xl p-4 sm:p-6">
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-4 sm:space-y-6">
             <div className="flex items-center justify-between">

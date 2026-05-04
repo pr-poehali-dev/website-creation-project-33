@@ -52,7 +52,7 @@ export default function WorkerDetailsModal({
         </div>
 
         {/* Контент */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+        <div className="flex-1 overflow-y-auto scrollbar-light px-4 py-4 space-y-4 pb-[max(16px,env(safe-area-inset-bottom))]">
 
           {/* Средний показатель */}
           <div className="flex items-center justify-between px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-100">

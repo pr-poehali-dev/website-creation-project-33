@@ -22,7 +22,7 @@ export default function UserShiftDetails({ shifts, rankingType }: UserShiftDetai
     : shifts;
 
   return (
-    <div className="space-y-2 max-h-64 overflow-y-auto">
+    <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-light">
       {displayShifts.map((shift, idx) => (
         <div 
           key={idx}

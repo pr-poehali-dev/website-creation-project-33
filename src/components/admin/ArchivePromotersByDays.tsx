@@ -203,7 +203,7 @@ export default function ArchivePromotersByDays({
           </div>
         </div>
 
-        <div className="space-y-2 md:space-y-3 max-h-[600px] overflow-y-auto">
+        <div className="space-y-2 md:space-y-3 max-h-[600px] overflow-y-auto scrollbar-light">
           {filteredData.map((promoter) => (
             <div
               key={promoter.rank}

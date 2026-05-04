@@ -528,6 +528,36 @@
     scrollbar-color: #475569 #1e293b;
   }
 
+  /* Светлый скроллбар для белых/светлых модальных окон */
+  .scrollbar-light::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+  }
+
+  .scrollbar-light::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 6px;
+  }
+
+  .scrollbar-light::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+    border: 1px solid #f1f5f9;
+  }
+
+  .scrollbar-light::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  .scrollbar-light::-webkit-scrollbar-thumb:active {
+    background: #64748b;
+  }
+
+  .scrollbar-light {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+  }
+
   /* iOS Safe Area Support */
   @supports (padding: max(0px)) {
     body {

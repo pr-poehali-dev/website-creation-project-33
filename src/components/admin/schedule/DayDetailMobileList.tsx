@@ -15,7 +15,7 @@ export default function DayDetailMobileList({
   onEdit, onDelete, onPromoterClick, onPromoterAdd,
 }: DayDetailMobileListProps) {
   return (
-    <div className="flex-1 overflow-y-auto overscroll-contain sm:hidden pb-[env(safe-area-inset-bottom,16px)]">
+    <div className="flex-1 overflow-y-auto overscroll-contain sm:hidden pb-[env(safe-area-inset-bottom,16px)] scrollbar-light">
       {plans.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-gray-300">
           <Icon name="CalendarDays" size={28} className="mb-2" />

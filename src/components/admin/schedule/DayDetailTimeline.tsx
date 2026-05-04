@@ -27,7 +27,7 @@ export default function DayDetailTimeline({
   const totalH = HOUR_H * HOURS.length;
 
   return (
-    <div className="flex-1 overflow-y-auto overscroll-contain hidden sm:block">
+    <div className="flex-1 overflow-y-auto overscroll-contain hidden sm:block scrollbar-light">
       <div className="relative" style={{ height: totalH }}>
 
         {/* Линии часов */}

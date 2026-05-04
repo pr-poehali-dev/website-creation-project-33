@@ -2247,6 +2247,20 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                     conn.commit()
             return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True})}
 
+        elif action == 'set_metro':
+            user_id = body_data.get('user_id')
+            nearest_metro = body_data.get('nearest_metro')
+            if not user_id:
+                return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'user_id обязателен'})}
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "UPDATE t_p24058207_website_creation_pro.users SET nearest_metro = %s WHERE id = %s",
+                        (nearest_metro or None, user_id)
+                    )
+                    conn.commit()
+            return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'success': True})}
+
         elif action == 'approve_user':
             user_id = body_data.get('user_id')
             

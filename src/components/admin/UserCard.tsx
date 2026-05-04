@@ -21,6 +21,7 @@ interface UserCardProps {
   onEditNameChange: (name: string) => void;
   seniors?: { id: number; name: string }[];
   onSetSenior?: (userId: number, seniorId: number | null) => void;
+  onSetMetro?: (userId: number, metro: string | null) => void;
 }
 
 export default function UserCard({
@@ -36,12 +37,78 @@ export default function UserCard({
   onEditNameChange,
   seniors = [],
   onSetSenior,
+  onSetMetro,
 }: UserCardProps) {
   const { user: authUser } = useAuth();
   const [uploadingQR, setUploadingQR] = useState(false);
   const [blockingUser, setBlockingUser] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showSeniorDropdown, setShowSeniorDropdown] = useState(false);
+  const [showMetroDropdown, setShowMetroDropdown] = useState(false);
+  const [metroSearch, setMetroSearch] = useState('');
+  const [savingMetro, setSavingMetro] = useState(false);
+
+const MOSCOW_METRO_STATIONS = [
+  'Авиамоторная','Автозаводская','Академическая','Александровский сад','Алексеевская',
+  'Алма-Атинская','Алтуфьево','Аннино','Арбатская (АПЛ)','Арбатская (ФЛ)',
+  'Аэропорт','Бабушкинская','Багратионовская','Беговая','Беломорская',
+  'Белорусская (КЛ)','Белорусская (ЗЛ)','Беляево','Бибирево','Библиотека им. Ленина',
+  'Битцевский парк','Борисово','Боровицкая','Боровское шоссе','Братиславская',
+  'Бульвар адмирала Ушакова','Бульвар Дмитрия Донского','Бульвар Рокоссовского',
+  'Бунинская аллея','Бутово','Бутырская','Варшавская','ВДНХ','Верхние Котлы',
+  'Верхние Лихоборы','Владыкино','Волгоградский проспект','Волжская','Волоколамская',
+  'Воробьёвы горы','Выставочная','Выхино','Говорово','Давыдково',
+  'Деловой центр (АПЛ)','Деловой центр (БКЛ)','Дмитровская','Добрынинская',
+  'Домодедовская','Донской бульвар','Достоевская','Дубровка','Дунайская',
+  'Жулебино','Зорге','Зябликово','Измайловская','Измайлово','Калужская',
+  'Каховская','Каширская (КЛ)','Каширская (ЗЛ)','Киевская (АПЛ)','Киевская (КЛ)',
+  'Киевская (ФЛ)','Китай-город','Кленовый бульвар','Кожуховская','Коломенская',
+  'Коммунарка','Комсомольская (КЛ)','Комсомольская (СЛ)','Коньково','Коптево',
+  'Косино','Котельники','Красногвардейская','Краснопресненская','Красносельская',
+  'Красные Ворота','Крестьянская застава','Кропоткинская','Крылатское','Крымская',
+  'Кузнецкий мост','Кузьминки','Кунцевская (АПЛ)','Кунцевская (ФЛ)',
+  'Курская (КЛ)','Курская (ЦЛ)','Кутузовская','Ленинский проспект','Лесопарковая',
+  'Лихоборы','Локомотив','Ломоносовский проспект','Лубянка','Лужники',
+  'Лухмановская','Люблино','Марксистская','Марьина роща','Марьино','Маяковская',
+  'Медведково','Менделеевская','Минская','Митино','Мичуринский проспект','Молодёжная',
+  'Нагатинская','Нагатинский затон','Нагорная','Нахимовский проспект','Некрасовка',
+  'Нижегородская','Нижние Мнёвники','Новогиреево','Новокосино','Новокузнецкая',
+  'Новослободская','Новохохловская','Новоясеневская','Новые Черёмушки',
+  'Октябрьская (КЛ)','Октябрьская (ЦЛ)','Октябрьское поле','Орехово','Отрадное',
+  'Охотный ряд','Павелецкая (КЛ)','Павелецкая (ЦЛ)','Парк культуры (КЛ)',
+  'Парк культуры (СЛ)','Парк Победы','Партизанская','Первомайская','Перово',
+  'Петровско-Разумовская','Печатники','Пионерская','Планерная','Площадь Ильича',
+  'Площадь Революции','Полежаевская','Полянка','Пражская','Преображенская площадь',
+  'Прокшино','Проспект Вернадского','Проспект Мира (КЛ)','Проспект Мира (ЦЛ)',
+  'Профсоюзная','Пушкинская','Пятницкое шоссе','Раменки','Речной вокзал',
+  'Рижская','Римская','Ростокино','Румянцево','Рязанский проспект',
+  'Савёловская (СЛ)','Савёловская (БКЛ)','Саларьево','Свиблово','Севастопольская',
+  'Селигерская','Семёновская','Серпуховская','Сколково','Славянский бульвар',
+  'Смоленская (АПЛ)','Смоленская (ФЛ)','Сокол','Сокольники','Спартак',
+  'Спортивная','Сретенский бульвар','Стрешнево','Строгино','Студенческая',
+  'Сухаревская','Сходненская','Таганская (КЛ)','Таганская (ЦЛ)','Тверская',
+  'Текстильщики','Теплый стан','Технопарк','Тимирязевская','Третьяковская (КЛ)',
+  'Третьяковская (ЦЛ)','Тропарёво','Трубная','Тульская','Тургеневская',
+  'Тушинская','Угрешская','Улица 1905 года','Улица академика Янгеля',
+  'Улица Горчакова','Улица Дмитриевского','Улица Скобелевская','Улица Старокачаловская',
+  'Университет','Филатов луг','Филёвский парк','Фили','Фонвизинская',
+  'Фрунзенская','Ховрино','Хорошёво','Хорошёвская','Цветной бульвар',
+  'Черкизовская','Чертановская','Чеховская','Чистые пруды','Чкаловская',
+  'Шаболовская','Шипиловская','Шоссе Энтузиастов','Щёлковская','Щукинская',
+  'Электрозаводская','Юго-Западная','Южная','Ясенево',
+];
+
+  const handleSetMetro = async (metro: string | null, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSavingMetro(true);
+    try {
+      await onSetMetro?.(user.id, metro);
+    } finally {
+      setSavingMetro(false);
+      setShowMetroDropdown(false);
+      setMetroSearch('');
+    }
+  };
 
   const handleAssignSenior = (seniorId: number | null, seniorName: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -252,7 +319,61 @@ export default function UserCard({
                 <div className="relative">
                   <Button
                     size="sm"
-                    onClick={(e) => { e.stopPropagation(); setShowSeniorDropdown(p => !p); }}
+                    onClick={(e) => { e.stopPropagation(); setShowMetroDropdown(p => !p); setShowSeniorDropdown(false); setMetroSearch(''); }}
+                    disabled={savingMetro}
+                    className="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 px-2 md:px-3 py-1 h-8 transition-all duration-200"
+                    title="Ближайшее метро"
+                  >
+                    {savingMetro ? (
+                      <Icon name="Loader2" size={12} className="md:w-[14px] md:h-[14px] animate-spin" />
+                    ) : (
+                      <span className="text-xs leading-none">🚇</span>
+                    )}
+                  </Button>
+                  {showMetroDropdown && (
+                    <div
+                      className="absolute right-0 top-10 z-50 bg-white border border-gray-100 rounded-xl shadow-lg w-56 py-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="px-2 py-1.5 border-b border-gray-100">
+                        <input
+                          autoFocus
+                          value={metroSearch}
+                          onChange={(e) => setMetroSearch(e.target.value)}
+                          placeholder="Поиск станции..."
+                          className="w-full text-xs px-2 py-1 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
+                        />
+                      </div>
+                      <div className="max-h-48 overflow-y-auto scrollbar-light">
+                        {MOSCOW_METRO_STATIONS.filter(s => s.toLowerCase().includes(metroSearch.toLowerCase())).map(s => (
+                          <button
+                            key={s}
+                            onClick={(e) => handleSetMetro(s, e)}
+                            className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 transition-colors ${user.nearest_metro === s ? 'text-emerald-600 font-medium' : 'text-gray-700'}`}
+                          >
+                            {user.nearest_metro === s && <Icon name="Check" size={10} className="inline mr-1" />}
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                      {user.nearest_metro && (
+                        <>
+                          <div className="border-t border-gray-100 my-1" />
+                          <button
+                            onClick={(e) => handleSetMetro(null, e)}
+                            className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-gray-50 transition-colors"
+                          >
+                            Убрать метро
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="relative">
+                  <Button
+                    size="sm"
+                    onClick={(e) => { e.stopPropagation(); setShowSeniorDropdown(p => !p); setShowMetroDropdown(false); }}
                     className="bg-violet-50 hover:bg-violet-100 text-violet-500 border border-violet-100 px-2 md:px-3 py-1 h-8 transition-all duration-200"
                     title="Назначить старшего"
                   >

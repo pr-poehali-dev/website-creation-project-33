@@ -39,6 +39,16 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
     });
     refetchUsers();
   };
+
+  const handleSetMetro = async (userId: number, metro: string | null) => {
+    await fetch(ADMIN_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Session-Token': localStorage.getItem('session_token') || '' },
+      body: JSON.stringify({ action: 'set_metro', user_id: userId, nearest_metro: metro }),
+    });
+    toast({ title: metro ? `Метро: ${metro}` : 'Метро убрано' });
+    refetchUsers();
+  };
   
   console.log('👤 Active users with IP:', activeUsers.map(u => ({ name: u.name, ip: u.registration_ip })));
   const updateUserNameMutation = useUpdateUserName();
@@ -281,6 +291,7 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
                   onEditNameChange={setNewName}
                   seniors={seniors}
                   onSetSenior={handleSetSenior}
+                  onSetMetro={handleSetMetro}
                 />
               ))}
               {hasMoreActiveUsers && !showAllActive && (

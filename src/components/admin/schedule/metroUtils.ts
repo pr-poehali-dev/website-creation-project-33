@@ -405,31 +405,13 @@ function haversineKm(a: [number, number], b: [number, number]): number {
   return R * 2 * Math.asin(Math.sqrt(sin2));
 }
 
-// BFS по графу, считает суммарное расстояние в км по реальным координатам
+// Расстояние по прямой между двумя станциями метро (по координатам)
 export function getMetroDistanceKm(from: string, to: string): number | null {
   if (from === to) return 0;
-  const visited = new Set<string>();
-  // [station, accumulated km]
-  const queue: [string, number][] = [[from, 0]];
-  let best: number | null = null;
-
-  while (queue.length > 0) {
-    queue.sort((a, b) => a[1] - b[1]); // Dijkstra-style
-    const [current, dist] = queue.shift()!;
-    if (visited.has(current)) continue;
-    visited.add(current);
-    if (current === to) { best = dist; break; }
-    const neighbors = METRO_GRAPH[current] || [];
-    const coordA = METRO_COORDS[current];
-    for (const nb of neighbors) {
-      if (!visited.has(nb)) {
-        const coordB = METRO_COORDS[nb];
-        const segKm = (coordA && coordB) ? haversineKm(coordA, coordB) : 1.5;
-        queue.push([nb, dist + segKm]);
-      }
-    }
-  }
-  return best;
+  const a = METRO_COORDS[from];
+  const b = METRO_COORDS[to];
+  if (!a || !b) return null;
+  return haversineKm(a, b);
 }
 
 // Оставляем для обратной совместимости (кол-во станций)

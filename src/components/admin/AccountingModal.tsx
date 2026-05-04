@@ -101,40 +101,40 @@ export default function AccountingModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/80" onClick={onClose} />
       
-      <div className="relative w-full h-full bg-gradient-to-br from-slate-900 to-slate-800 overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-800/80 to-slate-900/80 border-b border-slate-700/50">
-          <h2 className="text-xl font-semibold text-white flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
-              <Icon name="Calculator" size={20} className="text-cyan-400" />
+      <div className="relative w-full h-full bg-white overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-blue-50 border border-blue-100">
+              <Icon name="Calculator" size={20} className="text-blue-600" />
             </div>
             Бухгалтерский учёт
           </h2>
           
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700">
+            <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
               <button
                 onClick={() => setZoom(Math.max(50, zoom - 10))}
-                className="p-1 hover:bg-slate-700 rounded transition-colors"
+                className="p-1 hover:bg-gray-200 rounded transition-colors"
                 title="Уменьшить"
               >
-                <Icon name="ZoomOut" size={18} className="text-slate-300" />
+                <Icon name="ZoomOut" size={18} className="text-gray-600" />
               </button>
-              <span className="text-sm text-slate-300 min-w-[50px] text-center">{zoom}%</span>
+              <span className="text-sm text-gray-700 min-w-[50px] text-center">{zoom}%</span>
               <button
                 onClick={() => setZoom(Math.min(150, zoom + 10))}
-                className="p-1 hover:bg-slate-700 rounded transition-colors"
+                className="p-1 hover:bg-gray-200 rounded transition-colors"
                 title="Увеличить"
               >
-                <Icon name="ZoomIn" size={18} className="text-slate-300" />
+                <Icon name="ZoomIn" size={18} className="text-gray-600" />
               </button>
             </div>
             
             <button
               onClick={onClose}
-              className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               title="Закрыть"
             >
-              <Icon name="X" size={24} className="text-slate-300" />
+              <Icon name="X" size={24} className="text-gray-600" />
             </button>
           </div>
         </div>
@@ -144,15 +144,15 @@ export default function AccountingModal({
           style={{ zoom: `${zoom}%` }}
         >
           {hasUnsavedPayments && (
-            <div className="mb-4 p-4 bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 rounded-xl shadow-lg flex items-center justify-between">
+            <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-xl shadow-sm flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Icon name="AlertTriangle" size={20} className="text-orange-400" />
-                <span className="text-slate-200">Есть несохраненные изменения</span>
+                <Icon name="AlertTriangle" size={20} className="text-orange-500" />
+                <span className="text-orange-700">Есть несохраненные изменения</span>
               </div>
               <button
                 onClick={onSavePayments}
                 disabled={savingPayments}
-                className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {savingPayments ? (
                   <>

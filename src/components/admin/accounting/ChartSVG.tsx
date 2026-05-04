@@ -85,7 +85,7 @@ export default function ChartSVG({
   ];
 
   return (
-    <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '450px', background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' }}>
+    <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '450px', background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)' }}>
       <svg
         ref={svgRef}
         viewBox="0 0 1000 420"
@@ -98,19 +98,19 @@ export default function ChartSVG({
       >
         <defs>
           <linearGradient id="modernGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.6" />
-            <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.05" />
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
+            <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02" />
           </linearGradient>
           
           <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#22d3ee" />
-            <stop offset="50%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#6366f1" />
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="50%" stopColor="#2563eb" />
+            <stop offset="100%" stopColor="#4f46e5" />
           </linearGradient>
 
           <filter id="glow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
@@ -118,7 +118,7 @@ export default function ChartSVG({
           </filter>
 
           <filter id="dropShadow">
-            <feDropShadow dx="0" dy="3" stdDeviation="5" floodOpacity="0.5" floodColor="#22d3ee"/>
+            <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.3" floodColor="#3b82f6"/>
           </filter>
         </defs>
 
@@ -129,9 +129,9 @@ export default function ChartSVG({
             y1={70 + i * 70}
             x2="980"
             y2={70 + i * 70}
-            stroke="#334155"
+            stroke="#e2e8f0"
             strokeWidth="1"
-            strokeOpacity="0.2"
+            strokeOpacity="0.8"
             strokeDasharray="4 4"
           />
         ))}
@@ -146,7 +146,7 @@ export default function ChartSVG({
               y={yPos + 4}
               textAnchor="end"
               fontSize="11"
-              fill="#94a3b8"
+              fill="#64748b"
               fontWeight="400"
             >
               {formatCurrency(value)}
@@ -206,7 +206,7 @@ export default function ChartSVG({
                         cx={point.x}
                         cy={point.y}
                         r="10"
-                        fill="#0f172a"
+                        fill="#f1f5f9"
                       />
                       <circle
                         cx={point.x}
@@ -251,7 +251,7 @@ export default function ChartSVG({
                 y="405"
                 textAnchor={textAnchor}
                 fontSize="11"
-                fill="#94a3b8"
+                fill="#64748b"
                 fontWeight="400"
               >
                 {item.label}
@@ -268,9 +268,9 @@ export default function ChartSVG({
             left: `${(hoveredPoint.x / 1000) * 100}%`,
             top: `${(hoveredPoint.y / 420) * 100}%`,
             transform: 'translate(-50%, -140%)',
-            background: 'linear-gradient(135deg, #ec4899 0%, #a855f7 100%)',
+            background: '#1e293b',
             color: 'white',
-            boxShadow: '0 10px 25px rgba(236, 72, 153, 0.5)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
           }}
         >
           <div className="text-lg font-bold">

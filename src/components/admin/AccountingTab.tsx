@@ -237,10 +237,10 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
 
   if (loading) {
     return (
-      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
+      <Card className="bg-white border-gray-200 rounded-2xl shadow-sm">
         <CardContent className="p-8">
-          <div className="text-center text-slate-300 flex items-center justify-center gap-3">
-            <Icon name="Loader2" size={24} className="animate-spin text-cyan-400" />
+          <div className="text-center text-gray-500 flex items-center justify-center gap-3">
+            <Icon name="Loader2" size={24} className="animate-spin text-blue-500" />
             Загрузка данных...
           </div>
         </CardContent>
@@ -254,7 +254,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         <KmsRevenueChart shifts={filteredShifts} />
       </div>
       
-      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
+      <Card className="bg-white border-gray-200 rounded-2xl shadow-sm">
         <AccountingHeader
           onExport={handleExportToGoogleSheets}
           onAdd={() => setShowAddModal(true)}
@@ -263,17 +263,17 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         />
         <CardContent>
           {hasUnsavedPayments && (
-          <div className="mb-4 p-4 bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/50 rounded-lg flex items-center justify-between backdrop-blur-sm">
+          <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Icon name="AlertCircle" size={20} className="text-orange-400" />
-              <span className="text-sm text-orange-200 font-medium">
+              <Icon name="AlertCircle" size={20} className="text-orange-500" />
+              <span className="text-sm text-orange-700 font-medium">
                 У вас есть несохранённые изменения в оплатах
               </span>
             </div>
             <button
               onClick={handleSavePayments}
               disabled={savingPayments}
-              className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:from-slate-600 disabled:to-slate-700 text-white rounded-lg text-sm font-medium transition-all shadow-lg flex items-center gap-2"
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium transition-all shadow-sm flex items-center gap-2"
             >
               {savingPayments ? (
                 <>

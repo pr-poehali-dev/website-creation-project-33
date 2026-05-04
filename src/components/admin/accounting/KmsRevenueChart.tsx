@@ -168,11 +168,11 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
   const handleResetZoom = () => setZoom(1);
 
   return (
-    <Card className="shadow-2xl border-slate-700 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-slate-800/80 to-slate-900/80 border-b border-slate-700/50 backdrop-blur-sm">
+    <Card className="shadow-sm border-gray-200 bg-white rounded-2xl overflow-hidden">
+      <CardHeader className="bg-white border-b border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <CardTitle className="flex items-center gap-2 text-xl md:text-2xl text-slate-100">
-            <Icon name="TrendingUp" size={24} className="text-cyan-400" />
+          <CardTitle className="flex items-center gap-2 text-xl md:text-2xl text-gray-800">
+            <Icon name="TrendingUp" size={24} className="text-blue-600" />
             Доход
           </CardTitle>
           
@@ -181,7 +181,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               onClick={() => setPeriod('day')}
               variant={period === 'day' ? 'default' : 'outline'}
               size="sm"
-              className={`text-xs transition-all ${period === 'day' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-0 shadow-lg' : 'bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700/50'}`}
+              className={`text-xs transition-all ${period === 'day' ? 'bg-blue-600 text-white border-0 shadow-sm' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
             >
               <Icon name="Calendar" size={14} className="mr-1.5" />
               Дни
@@ -190,7 +190,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               onClick={() => setPeriod('week')}
               variant={period === 'week' ? 'default' : 'outline'}
               size="sm"
-              className={`text-xs transition-all ${period === 'week' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-0 shadow-lg' : 'bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700/50'}`}
+              className={`text-xs transition-all ${period === 'week' ? 'bg-blue-600 text-white border-0 shadow-sm' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
             >
               <Icon name="CalendarDays" size={14} className="mr-1.5" />
               Недели
@@ -199,7 +199,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               onClick={() => setPeriod('month')}
               variant={period === 'month' ? 'default' : 'outline'}
               size="sm"
-              className={`text-xs transition-all ${period === 'month' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-0 shadow-lg' : 'bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700/50'}`}
+              className={`text-xs transition-all ${period === 'month' ? 'bg-blue-600 text-white border-0 shadow-sm' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
             >
               <Icon name="CalendarRange" size={14} className="mr-1.5" />
               Месяцы
@@ -208,7 +208,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               onClick={() => setPeriod('year')}
               variant={period === 'year' ? 'default' : 'outline'}
               size="sm"
-              className={`text-xs transition-all ${period === 'year' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-0 shadow-lg' : 'bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700/50'}`}
+              className={`text-xs transition-all ${period === 'year' ? 'bg-blue-600 text-white border-0 shadow-sm' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
             >
               <Icon name="Calendar" size={14} className="mr-1.5" />
               Годы
@@ -217,11 +217,11 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 md:p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50">
+      <CardContent className="p-4 md:p-6 bg-white">
         <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="text-sm text-slate-300">
+          <div className="text-sm text-gray-600">
             Общий доход {getPeriodLabel()}: 
-            <span className="ml-2 font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
+            <span className="ml-2 font-bold text-lg text-blue-600">
               {formatCurrency(totalRevenue)} ₽
             </span>
           </div>
@@ -232,7 +232,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               variant="outline"
               size="sm"
               disabled={zoom <= 0.5}
-              className="text-xs bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700/50 disabled:opacity-30"
+              className="text-xs bg-white text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-30"
             >
               <Icon name="ZoomOut" size={14} />
             </Button>
@@ -241,7 +241,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               variant="outline"
               size="sm"
               disabled={zoom === 1}
-              className="text-xs bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700/50 disabled:opacity-30"
+              className="text-xs bg-white text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-30"
             >
               <Icon name="Maximize2" size={14} />
             </Button>
@@ -250,7 +250,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               variant="outline"
               size="sm"
               disabled={zoom >= 2}
-              className="text-xs bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700/50 disabled:opacity-30"
+              className="text-xs bg-white text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-30"
             >
               <Icon name="ZoomIn" size={14} />
             </Button>
@@ -258,8 +258,8 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
         </div>
 
         {chartData.length === 0 ? (
-          <div className="text-center py-12 text-slate-400">
-            <Icon name="BarChart3" size={48} className="mx-auto mb-3 text-slate-600" />
+          <div className="text-center py-12 text-gray-400">
+            <Icon name="BarChart3" size={48} className="mx-auto mb-3 text-gray-300" />
             <p>Нет данных для отображения</p>
           </div>
         ) : (
@@ -276,15 +276,15 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
               movingAverageData={movingAverageData}
             />
 
-            <div className="mt-4 pt-4 border-t border-slate-700/50">
+            <div className="mt-4 pt-4 border-t border-gray-100">
               <div className="flex flex-wrap gap-2 md:gap-3 justify-start md:justify-center text-xs">
                 {(showAllPeriods ? chartData : chartData.slice(0, 5)).map((item, index) => {
                   const isNegative = item.revenue < 0;
                   return (
-                    <div key={index} className="flex items-center gap-1.5 md:gap-2 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-lg px-2 md:px-3 py-1.5 md:py-2 border border-slate-700/50 shadow-lg backdrop-blur-sm">
-                      <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${isNegative ? 'bg-red-400 shadow-lg shadow-red-500/50' : 'bg-emerald-400 shadow-lg shadow-emerald-500/50'}`}></div>
-                      <span className="text-slate-400 text-[10px] md:text-xs">{item.label}:</span>
-                      <span className={`font-bold text-[10px] md:text-xs ${isNegative ? 'text-red-400' : 'text-emerald-400'}`}>
+                    <div key={index} className="flex items-center gap-1.5 md:gap-2 bg-gray-50 rounded-lg px-2 md:px-3 py-1.5 md:py-2 border border-gray-200 shadow-sm">
+                      <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${isNegative ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
+                      <span className="text-gray-500 text-[10px] md:text-xs">{item.label}:</span>
+                      <span className={`font-bold text-[10px] md:text-xs ${isNegative ? 'text-red-600' : 'text-emerald-600'}`}>
                         {formatCurrency(item.revenue)} ₽
                       </span>
                     </div>
@@ -298,7 +298,7 @@ export default function KmsRevenueChart({ shifts }: KmsRevenueChartProps) {
                     onClick={() => setShowAllPeriods(!showAllPeriods)}
                     variant="outline"
                     size="sm"
-                    className="text-xs md:text-sm bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700/50"
+                    className="text-xs md:text-sm bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
                   >
                     <Icon 
                       name={showAllPeriods ? "ChevronUp" : "ChevronDown"} 

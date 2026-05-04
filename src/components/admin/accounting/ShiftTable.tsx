@@ -90,7 +90,7 @@ export default function ShiftTable({
 
   if (shifts.length === 0) {
     return (
-      <div className="text-center py-8 text-slate-400">
+      <div className="text-center py-8 text-gray-400">
         <Icon name="FileSpreadsheet" size={32} className="mx-auto mb-3 opacity-30" />
         <p>Данные отсутствуют</p>
       </div>
@@ -101,7 +101,7 @@ export default function ShiftTable({
 
   return (
     <ShiftTableZoom parentRef={parentRef}>
-      <table className="w-full text-xs md:text-sm border-collapse bg-gradient-to-br from-slate-900/90 to-slate-800/90">
+      <table className="w-full text-xs md:text-sm border-collapse bg-white">
         <ShiftTableHeader
           stats={stats}
           filters={filters}

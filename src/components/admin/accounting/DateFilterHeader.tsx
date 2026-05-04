@@ -60,61 +60,61 @@ export default function DateFilterHeader({
       <div className="relative inline-block" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1 hover:bg-slate-700/50 px-1 py-0.5 rounded transition-colors w-full justify-center text-slate-200"
+          className="flex items-center gap-1 hover:bg-gray-100 px-1 py-0.5 rounded transition-colors w-full justify-center text-gray-700"
         >
           <span>{label}</span>
           <Icon 
             name={hasFilter ? "FilterX" : "Filter"} 
             size={14} 
-            className={hasFilter ? "text-cyan-400" : "text-slate-400"}
+            className={hasFilter ? "text-blue-600" : "text-gray-400"}
           />
         </button>
 
         {isOpen && (
-          <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-2 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl md:shadow-xl py-6 pl-6 pr-10 z-[1000] w-[85vw] max-w-[280px] md:w-auto md:min-w-[280px] animate-in zoom-in-95 duration-200 mx-4 scrollbar-dark">
+          <div className="fixed md:absolute top-1/2 left-1/2 md:top-full md:left-0 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl py-6 pl-6 pr-10 z-[1000] w-[85vw] max-w-[280px] md:w-auto md:min-w-[280px] animate-in zoom-in-95 duration-200 mx-4">
             <div className="space-y-5">
               <div className="text-center mb-4 md:hidden">
-                <div className="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-3"></div>
-                <h3 className="text-lg font-semibold text-slate-100">Фильтр по дате</h3>
+                <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
+                <h3 className="text-lg font-semibold text-gray-800">Фильтр по дате</h3>
               </div>
               
               <div>
-                <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                  <Icon name="Calendar" size={16} className="text-cyan-400" />
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                  <Icon name="Calendar" size={16} className="text-blue-600" />
                   От
                 </label>
                 <input
                   type="date"
                   value={tempFrom}
                   onChange={(e) => setTempFrom(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border-2 border-slate-700 rounded-lg bg-slate-900 text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               
               <div>
-                <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 mb-2">
-                  <Icon name="Calendar" size={16} className="text-cyan-400" />
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                  <Icon name="Calendar" size={16} className="text-blue-600" />
                   До
                 </label>
                 <input
                   type="date"
                   value={tempTo}
                   onChange={(e) => setTempTo(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border-2 border-slate-700 rounded-lg bg-slate-900 text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               
               <div className="flex gap-3 pt-3">
                 <button
                   onClick={handleApply}
-                  className="flex-1 px-5 py-3 md:py-2.5 text-sm font-semibold bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl shadow-lg shadow-cyan-500/30 transition-all duration-200 active:scale-95"
+                  className="flex-1 px-5 py-3 md:py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all duration-200 active:scale-95"
                 >
                   Применить
                 </button>
                 {hasFilter && (
                   <button
                     onClick={handleClear}
-                    className="flex-1 px-5 py-3 md:py-2.5 text-sm font-semibold bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl transition-all duration-200 active:scale-95"
+                    className="flex-1 px-5 py-3 md:py-2.5 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-200 active:scale-95"
                   >
                     Сбросить
                   </button>

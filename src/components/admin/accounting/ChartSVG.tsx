@@ -20,11 +20,11 @@ interface ChartSVGProps {
   movingAverageData?: {date: string; avgRevenue: number}[];
 }
 
-export default function ChartSVG({ 
-  chartData, 
-  maxRevenue, 
-  minRevenue, 
-  revenueRange, 
+export default function ChartSVG({
+  chartData,
+  maxRevenue,
+  minRevenue,
+  revenueRange,
   zoom,
   onHoverPoint,
   hoveredPoint,
@@ -32,149 +32,176 @@ export default function ChartSVG({
 }: ChartSVGProps) {
   const svgRef = React.useRef<SVGSVGElement>(null);
 
+  const W = 1000;
+  const H = 400;
+  const padL = 62;
+  const padR = 20;
+  const padT = 30;
+  const padB = 50;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
   const points = chartData.map((item, i) => {
-    const x = 60 + (i / (chartData.length - 1 || 1)) * 920;
-    const normalizedValue = revenueRange > 0 ? (item.revenue - minRevenue) / revenueRange : 0.5;
-    const y = 340 - normalizedValue * 270;
+    const x = padL + (i / Math.max(chartData.length - 1, 1)) * chartW;
+    const norm = revenueRange > 0 ? (item.revenue - minRevenue) / revenueRange : 0.5;
+    const y = padT + chartH - norm * chartH;
     return { x, y, label: item.label, value: item.revenue };
   });
 
-  const createSmoothPath = (pts: {x: number; y: number}[], offsetY = 0) => {
+  const cubicPath = (pts: {x: number; y: number}[]) => {
     if (pts.length === 0) return '';
-    if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y + offsetY}`;
-    
-    const shifted = pts.map(p => ({ x: p.x, y: p.y + offsetY }));
-    let path = `M ${shifted[0].x} ${shifted[0].y}`;
-    
-    for (let i = 0; i < shifted.length - 1; i++) {
-      const current = shifted[i];
-      const next = shifted[i + 1];
-      const xMid = (current.x + next.x) / 2;
-      const yMid = (current.y + next.y) / 2;
-      const cpX1 = (xMid + current.x) / 2;
-      const cpX2 = (xMid + next.x) / 2;
-      path += ` Q ${cpX1} ${current.y}, ${xMid} ${yMid}`;
-      path += ` Q ${cpX2} ${next.y}, ${next.x} ${next.y}`;
+    if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+    let d = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i];
+      const p1 = pts[i + 1];
+      const cp1x = p0.x + (p1.x - p0.x) * 0.45;
+      const cp2x = p1.x - (p1.x - p0.x) * 0.45;
+      d += ` C ${cp1x} ${p0.y} ${cp2x} ${p1.y} ${p1.x} ${p1.y}`;
     }
-    return path;
+    return d;
   };
 
-  const smoothPath = createSmoothPath(points);
-  const lastX = points[points.length - 1]?.x || 0;
-  const areaPath = `${smoothPath} L ${lastX} 370 L 60 370 Z`;
+  const linePath = cubicPath(points);
+  const bottomY = padT + chartH;
+  const areaPath = points.length > 0
+    ? `${linePath} L ${points[points.length - 1].x} ${bottomY} L ${points[0].x} ${bottomY} Z`
+    : '';
 
-  const yAxisValues = [maxRevenue, maxRevenue * 0.75, maxRevenue * 0.5, maxRevenue * 0.25, 0];
+  const yTicks = 5;
+  const yAxisValues = Array.from({ length: yTicks }, (_, i) =>
+    minRevenue + (revenueRange * (yTicks - 1 - i)) / (yTicks - 1)
+  );
 
-  const waveOffsets = [-30, -18, -8, 0, 10, 22, 36];
-  const waveStyles = [
-    { stroke: '#22d3ee', opacity: 0.18, width: 1.5 },
-    { stroke: '#38bdf8', opacity: 0.25, width: 1.5 },
-    { stroke: '#60a5fa', opacity: 0.32, width: 2 },
-    { stroke: '#3b82f6', opacity: 0.45, width: 2.5 },
-    { stroke: '#2563eb', opacity: 0.6,  width: 3 },
-    { stroke: '#1d4ed8', opacity: 0.45, width: 2 },
-    { stroke: '#06b6d4', opacity: 0.28, width: 1.5 },
-  ];
+  const xLabels = chartData.filter((_, i) => {
+    if (chartData.length <= 7) return true;
+    if (i === 0) return false;
+    const step = Math.ceil(chartData.length / 6);
+    return i % step === 0 || i === chartData.length - 1;
+  });
 
   return (
     <div
       className="relative w-full rounded-2xl overflow-hidden"
-      style={{ height: '420px', background: 'linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%)' }}
+      style={{ height: '400px', background: '#ffffff' }}
     >
       <svg
         ref={svgRef}
-        viewBox="0 0 1000 400"
+        viewBox={`0 0 ${W} ${H}`}
         className="w-full h-full"
         style={{
           transform: `scale(${zoom})`,
           transformOrigin: 'center center',
-          transition: 'transform 0.3s ease-out'
+          transition: 'transform 0.3s ease-out',
         }}
       >
         <defs>
-          <linearGradient id="waveAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%"   stopColor="#3b82f6" stopOpacity="0.12" />
-            <stop offset="60%"  stopColor="#60a5fa" stopOpacity="0.06" />
-            <stop offset="100%" stopColor="#bfdbfe" stopOpacity="0.02" />
+          <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#3b82f6" stopOpacity="0.2" />
+            <stop offset="65%"  stopColor="#60a5fa" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0.0" />
           </linearGradient>
 
-          <linearGradient id="mainLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="lineColor" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%"   stopColor="#06b6d4" />
-            <stop offset="40%"  stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#2563eb" />
+            <stop offset="50%"  stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#6366f1" />
           </linearGradient>
 
-          <filter id="waveGlow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
+          <filter id="lineGlow" x="-20%" y="-150%" width="140%" height="400%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur1" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur1" />
+              <feMergeNode in="blur2" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
 
-          <filter id="tooltipShadow">
-            <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.12" floodColor="#3b82f6" />
+          <filter id="tipShadow" x="-10%" y="-30%" width="120%" height="160%">
+            <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor="#93c5fd" floodOpacity="0.4" />
           </filter>
 
-          <clipPath id="chartClip">
-            <rect x="60" y="0" width="920" height="370" />
+          <clipPath id="chartArea">
+            <rect x={padL} y={padT - 10} width={chartW} height={chartH + 10} />
           </clipPath>
         </defs>
 
-        {[0, 1, 2, 3, 4].map(i => (
-          <line
-            key={i}
-            x1="60" y1={50 + i * 65}
-            x2="980" y2={50 + i * 65}
-            stroke="#bfdbfe"
-            strokeWidth="1"
-            strokeOpacity="0.5"
-            strokeDasharray="6 6"
-          />
-        ))}
+        {/* Горизонтальные линии сетки */}
+        {yAxisValues.map((_, idx) => {
+          const y = padT + (idx / (yTicks - 1)) * chartH;
+          return (
+            <line
+              key={idx}
+              x1={padL} y1={y}
+              x2={W - padR} y2={y}
+              stroke="#f1f5f9"
+              strokeWidth="1"
+            />
+          );
+        })}
 
-        {yAxisValues.map((value, idx) => (
+        {/* Подписи оси Y */}
+        {yAxisValues.map((val, idx) => (
           <text
             key={idx}
-            x="50"
-            y={54 + idx * 65}
+            x={padL - 8}
+            y={padT + (idx / (yTicks - 1)) * chartH + 4}
             textAnchor="end"
             fontSize="11"
-            fill="#94a3b8"
-            fontWeight="400"
+            fill="#cbd5e1"
           >
-            {formatCurrency(value)}
+            {formatCurrency(val)}
           </text>
         ))}
 
         {chartData.length > 0 && (
-          <g clipPath="url(#chartClip)">
-            <path d={areaPath} fill="url(#waveAreaGrad)" />
+          <g clipPath="url(#chartArea)">
+            {/* Заливка */}
+            <path d={areaPath} fill="url(#areaFill)" />
 
-            {waveOffsets.map((offset, i) => (
-              <path
-                key={i}
-                d={createSmoothPath(points, offset)}
-                fill="none"
-                stroke={waveStyles[i].stroke}
-                strokeWidth={waveStyles[i].width}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity={waveStyles[i].opacity}
-                filter={i === 4 ? 'url(#waveGlow)' : undefined}
-              />
-            ))}
-
+            {/* Широкий glow-слой линии */}
             <path
-              d={smoothPath}
+              d={linePath}
               fill="none"
-              stroke="url(#mainLineGrad)"
+              stroke="url(#lineColor)"
+              strokeWidth="16"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.12"
+            />
+
+            {/* Средний glow */}
+            <path
+              d={linePath}
+              fill="none"
+              stroke="url(#lineColor)"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.22"
+            />
+
+            {/* Основная линия */}
+            <path
+              d={linePath}
+              fill="none"
+              stroke="url(#lineColor)"
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
-              filter="url(#waveGlow)"
+              filter="url(#lineGlow)"
             />
 
+            {/* Интерактивные точки */}
             {points.map((point, idx) => {
               const isHovered = hoveredPoint?.x === point.x && hoveredPoint?.y === point.y;
               return (
@@ -185,34 +212,37 @@ export default function ChartSVG({
                   style={{ cursor: 'pointer' }}
                 >
                   <circle cx={point.x} cy={point.y} r="18" fill="transparent" />
+
                   {isHovered && (() => {
                     const label = `${formatCurrency(point.value)} ₽`;
-                    const boxW = label.length * 8.5 + 24;
-                    const boxH = 30;
+                    const boxW = label.length * 8.5 + 28;
+                    const boxH = 32;
                     const rawX = point.x - boxW / 2;
-                    const clampedX = Math.max(62, Math.min(rawX, 978 - boxW));
-                    const boxY = Math.max(8, point.y - boxH - 14);
+                    const clampedX = Math.max(padL, Math.min(rawX, W - padR - boxW));
+                    const boxY = Math.max(4, point.y - boxH - 16);
                     return (
                       <>
-                        <circle cx={point.x} cy={point.y} r="8" fill="white" opacity="0.7" />
-                        <circle cx={point.x} cy={point.y} r="5" fill="#3b82f6" />
+                        <circle cx={point.x} cy={point.y} r="14" fill="#3b82f6" opacity="0.1" />
+                        <circle cx={point.x} cy={point.y} r="8"  fill="#3b82f6" opacity="0.2" filter="url(#dotGlow)" />
+                        <circle cx={point.x} cy={point.y} r="5"  fill="#3b82f6" />
                         <circle cx={point.x} cy={point.y} r="2.5" fill="white" />
+
                         <rect
                           x={clampedX} y={boxY}
                           width={boxW} height={boxH}
                           rx="8" ry="8"
                           fill="white"
-                          stroke="#bfdbfe"
+                          stroke="#dbeafe"
                           strokeWidth="1.5"
-                          filter="url(#tooltipShadow)"
+                          filter="url(#tipShadow)"
                         />
                         <text
                           x={clampedX + boxW / 2}
-                          y={boxY + 20}
+                          y={boxY + 21}
                           textAnchor="middle"
                           fontSize="12"
-                          fontWeight="600"
-                          fill="#1e40af"
+                          fontWeight="700"
+                          fill="#1d4ed8"
                         >
                           {label}
                         </text>
@@ -225,24 +255,19 @@ export default function ChartSVG({
           </g>
         )}
 
-        {chartData.filter((_, i) => {
-          if (chartData.length <= 7) return true;
-          if (i === 0) return false;
-          const step = Math.ceil(chartData.length / 7);
-          return i % step === 0 || i === chartData.length - 1;
-        }).map((item, idx, arr) => {
+        {/* Подписи оси X */}
+        {xLabels.map((item, idx, arr) => {
           const index = chartData.indexOf(item);
-          const x = 60 + (index / (chartData.length - 1 || 1)) * 920;
+          const x = padL + (index / Math.max(chartData.length - 1, 1)) * chartW;
           const isLast = idx === arr.length - 1;
           return (
             <text
               key={`xl-${idx}`}
               x={x}
-              y="392"
+              y={H - 10}
               textAnchor={isLast && chartData.length > 7 ? 'end' : 'middle'}
               fontSize="11"
               fill="#94a3b8"
-              fontWeight="400"
             >
               {item.label}
             </text>

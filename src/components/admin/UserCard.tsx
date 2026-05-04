@@ -168,6 +168,9 @@ export default function UserCard({
             {user.email && (
               <p className="text-gray-400 text-xs">{user.email}</p>
             )}
+            {user.nearest_metro && (
+              <p className="text-gray-500 text-xs mt-0.5">🚇 {user.nearest_metro}</p>
+            )}
             {user.registration_ip && (
               <p className="text-gray-400 text-xs">IP: {user.registration_ip}</p>
             )}

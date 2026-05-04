@@ -245,6 +245,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             latitude = body_data.get('latitude')
             longitude = body_data.get('longitude')
             senior_id = body_data.get('senior_id')
+            nearest_metro = body_data.get('nearest_metro')
             
             if not email or not password or not name:
                 return {
@@ -270,8 +271,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
                         cur.execute(
-                            "INSERT INTO t_p24058207_website_creation_pro.users (email, password_hash, name, registration_ip, is_approved, latitude, longitude, location_updated_at, senior_id) VALUES (%s, %s, %s, %s, FALSE, %s, %s, %s, %s) RETURNING id",
-                            (email, password_hash, name, client_ip, latitude, longitude, get_moscow_time(), senior_id)
+                            "INSERT INTO t_p24058207_website_creation_pro.users (email, password_hash, name, registration_ip, is_approved, latitude, longitude, location_updated_at, senior_id, nearest_metro) VALUES (%s, %s, %s, %s, FALSE, %s, %s, %s, %s, %s) RETURNING id",
+                            (email, password_hash, name, client_ip, latitude, longitude, get_moscow_time(), senior_id, nearest_metro)
                         )
                         user_id = cur.fetchone()[0]
                         conn.commit()

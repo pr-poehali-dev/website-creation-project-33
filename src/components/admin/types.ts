@@ -18,6 +18,7 @@ export interface User {
   is_active?: boolean;
   senior_id?: number | null;
   senior_name?: string | null;
+  nearest_metro?: string | null;
 }
 
 export interface Lead {

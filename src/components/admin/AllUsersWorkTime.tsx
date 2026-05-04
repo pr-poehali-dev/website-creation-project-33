@@ -54,6 +54,11 @@ export default function AllUsersWorkTime({ sessionToken }: AllUsersWorkTimeProps
   };
 
   const handleDeleteShift = async (userId: number, workDate: string) => {
+    const password = prompt('Введите пароль для удаления смены:');
+    if (password !== '955650') {
+      alert('Неверный пароль');
+      return;
+    }
     if (!confirm('Вы уверены, что хотите удалить информацию о смене?')) return;
     const shiftKey = `${userId}-${workDate}`;
     setDeletingShift(shiftKey);

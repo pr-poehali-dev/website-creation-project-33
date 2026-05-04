@@ -34,7 +34,7 @@ export default function ChartSVG({
 
   const W = 1000;
   const H = 400;
-  const padL = 62;
+  const padL = 70;
   const padR = 20;
   const padT = 30;
   const padB = 50;
@@ -97,9 +97,9 @@ export default function ChartSVG({
       >
         <defs>
           <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#3b82f6" stopOpacity="0.2" />
-            <stop offset="65%"  stopColor="#60a5fa" stopOpacity="0.06" />
-            <stop offset="100%" stopColor="#ffffff" stopOpacity="0.0" />
+            <stop offset="0%"   stopColor="#3b82f6" stopOpacity="0.15" />
+            <stop offset="70%"  stopColor="#60a5fa" stopOpacity="0.04" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </linearGradient>
 
           <linearGradient id="lineColor" x1="0" y1="0" x2="1" y2="0">
@@ -108,26 +108,8 @@ export default function ChartSVG({
             <stop offset="100%" stopColor="#6366f1" />
           </linearGradient>
 
-          <filter id="lineGlow" x="-20%" y="-150%" width="140%" height="400%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur1" />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur2" />
-            <feMerge>
-              <feMergeNode in="blur1" />
-              <feMergeNode in="blur2" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-
-          <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-
           <filter id="tipShadow" x="-10%" y="-30%" width="120%" height="160%">
-            <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor="#93c5fd" floodOpacity="0.4" />
+            <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#93c5fd" floodOpacity="0.35" />
           </filter>
 
           <clipPath id="chartArea">
@@ -135,7 +117,7 @@ export default function ChartSVG({
           </clipPath>
         </defs>
 
-        {/* Горизонтальные линии сетки */}
+        {/* Сетка */}
         {yAxisValues.map((_, idx) => {
           const y = padT + (idx / (yTicks - 1)) * chartH;
           return (
@@ -149,7 +131,7 @@ export default function ChartSVG({
           );
         })}
 
-        {/* Подписи оси Y */}
+        {/* Ось Y */}
         {yAxisValues.map((val, idx) => (
           <text
             key={idx}
@@ -168,40 +150,17 @@ export default function ChartSVG({
             {/* Заливка */}
             <path d={areaPath} fill="url(#areaFill)" />
 
-            {/* Широкий glow-слой линии */}
+            {/* Линия */}
             <path
               d={linePath}
               fill="none"
               stroke="url(#lineColor)"
-              strokeWidth="16"
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              opacity="0.12"
             />
 
-            {/* Средний glow */}
-            <path
-              d={linePath}
-              fill="none"
-              stroke="url(#lineColor)"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.22"
-            />
-
-            {/* Основная линия */}
-            <path
-              d={linePath}
-              fill="none"
-              stroke="url(#lineColor)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              filter="url(#lineGlow)"
-            />
-
-            {/* Интерактивные точки */}
+            {/* Точки */}
             {points.map((point, idx) => {
               const isHovered = hoveredPoint?.x === point.x && hoveredPoint?.y === point.y;
               return (
@@ -215,22 +174,20 @@ export default function ChartSVG({
 
                   {isHovered && (() => {
                     const label = `${formatCurrency(point.value)} ₽`;
-                    const boxW = label.length * 8.5 + 28;
-                    const boxH = 32;
+                    const boxW = label.length * 8 + 24;
+                    const boxH = 30;
                     const rawX = point.x - boxW / 2;
-                    const clampedX = Math.max(padL, Math.min(rawX, W - padR - boxW));
-                    const boxY = Math.max(4, point.y - boxH - 16);
+                    const clampedX = Math.max(padL + 2, Math.min(rawX, W - padR - boxW - 2));
+                    const rawY = point.y - boxH - 14;
+                    const clampedY = Math.max(4, rawY);
                     return (
                       <>
-                        <circle cx={point.x} cy={point.y} r="14" fill="#3b82f6" opacity="0.1" />
-                        <circle cx={point.x} cy={point.y} r="8"  fill="#3b82f6" opacity="0.2" filter="url(#dotGlow)" />
-                        <circle cx={point.x} cy={point.y} r="5"  fill="#3b82f6" />
+                        <circle cx={point.x} cy={point.y} r="5"   fill="#3b82f6" />
                         <circle cx={point.x} cy={point.y} r="2.5" fill="white" />
-
                         <rect
-                          x={clampedX} y={boxY}
+                          x={clampedX} y={clampedY}
                           width={boxW} height={boxH}
-                          rx="8" ry="8"
+                          rx="7" ry="7"
                           fill="white"
                           stroke="#dbeafe"
                           strokeWidth="1.5"
@@ -238,7 +195,7 @@ export default function ChartSVG({
                         />
                         <text
                           x={clampedX + boxW / 2}
-                          y={boxY + 21}
+                          y={clampedY + 20}
                           textAnchor="middle"
                           fontSize="12"
                           fontWeight="700"
@@ -255,7 +212,7 @@ export default function ChartSVG({
           </g>
         )}
 
-        {/* Подписи оси X */}
+        {/* Ось X */}
         {xLabels.map((item, idx, arr) => {
           const index = chartData.indexOf(item);
           const x = padL + (index / Math.max(chartData.length - 1, 1)) * chartW;

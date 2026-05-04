@@ -109,21 +109,15 @@ export default function ScheduleDayCard({
                       <span className="text-xs text-purple-700 font-semibold">{slotComment.organization}</span>
                     </div>
                   )}
-                  {slotComment.location_type && (
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-xs text-gray-500 flex-shrink-0">Тип места:</span>
-                      <span className="text-xs text-blue-700 font-semibold">{slotComment.location_type}</span>
-                    </div>
-                  )}
                   {slotComment.location_details && (
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-xs text-gray-500 flex-shrink-0">Адрес филиала:</span>
+                      <span className="text-xs text-gray-500 flex-shrink-0">Где собирать контакты:</span>
                       <span className="text-xs text-indigo-700 font-semibold">{slotComment.location_details}</span>
                     </div>
                   )}
                   {slotComment.flyers && (
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-xs text-gray-500 flex-shrink-0">Листовки:</span>
+                      <span className="text-xs text-gray-500 flex-shrink-0">Где взять листовки:</span>
                       <span className="text-xs text-amber-700 font-semibold">{slotComment.flyers}</span>
                     </div>
                   )}

@@ -96,11 +96,11 @@ export default function PromoterCard({
             </div>
             
             <div>
-              <div className="text-xs sm:text-sm font-semibold text-slate-100 mb-2">Листовки</div>
+              <div className="text-xs sm:text-sm font-semibold text-slate-100 mb-2">Где взять листовки</div>
               <div className="flex items-center gap-2">
                 <Input
                   type="text"
-                  placeholder="Листовки"
+                  placeholder="Где взять листовки"
                   value={comments[user.name]?.flyers || ''}
                   onChange={(e) => onCommentChange(user.name, 'flyers', e.target.value)}
                   onBlur={(e) => onCommentBlur(user.name, 'flyers', e.target.value)}

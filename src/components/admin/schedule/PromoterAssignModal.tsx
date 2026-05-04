@@ -96,21 +96,12 @@ function PromoterForm({
       </div>
 
       <div className="relative">
-        <select value={placeType} onChange={e => setPlaceType(e.target.value)}
-          className="w-full h-9 pl-3 pr-9 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm focus:outline-none focus:border-blue-400 appearance-none">
-          <option value="">Тип места</option>
-          {PLACE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-        <Icon name="MapPin" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
-      </div>
-
-      <div className="relative">
-        <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Адрес / Детали" className={inputCls} />
+        <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Где собирать контакты" className={inputCls} />
         <Icon name="Navigation" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
       </div>
 
       <div className="relative">
-        <input value={leaflets} onChange={e => setLeaflets(e.target.value)} placeholder="Листовки" className={inputCls} />
+        <input value={leaflets} onChange={e => setLeaflets(e.target.value)} placeholder="Где взять листовки" className={inputCls} />
         <Icon name="FileText" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
       </div>
 

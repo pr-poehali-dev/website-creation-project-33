@@ -2589,11 +2589,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
         elif action == 'add_schedule_slot':
             print(f'✅ Processing add_schedule_slot')
             user_id = body_data.get('user_id')
-            organization_id = body_data.get('organization_id')
             work_date = body_data.get('work_date')
             time_slot = body_data.get('time_slot')
             
-            if not all([user_id, organization_id, work_date, time_slot]):
+            if not all([user_id, work_date, time_slot]):
                 return {
                     'statusCode': 400,
                     'headers': headers,

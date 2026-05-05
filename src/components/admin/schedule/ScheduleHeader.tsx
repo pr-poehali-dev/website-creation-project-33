@@ -39,11 +39,11 @@ export default function ScheduleHeader({
               <button
                 onClick={onGoHome}
                 title="Домой"
-                className="md:hidden flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-gray-400 hover:text-gray-600 hover:bg-white"
+                className="flex items-center justify-center rounded-lg transition-all duration-200 w-8 h-8 text-gray-400 hover:text-gray-600 hover:bg-white"
               >
                 <Icon name="Home" size={14} />
               </button>
-              <div className="md:hidden w-px h-5 bg-gray-200 mx-0.5" />
+              <div className="w-px h-5 bg-gray-200 mx-0.5" />
             </>
           )}
           <button

@@ -65,7 +65,10 @@ export const initializeWeekDays = (weekStart: string): DaySchedule[] => {
   for (let i = 0; i < 7; i++) {
     const currentDate = new Date(startDate);
     currentDate.setDate(startDate.getDate() + i);
-    const dateStr = currentDate.toISOString().split('T')[0];
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    const day2 = currentDate.getDate().toString().padStart(2, '0');
+    const dateStr = `${year}-${month}-${day2}`;
     const isWeekend = i >= 5;
     
     days.push({

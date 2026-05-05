@@ -92,50 +92,11 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   const otherItems = navigationItems.filter(i => i.view !== 'tiles');
   const homeItem = navigationItems.find(i => i.view === 'tiles')!;
 
-  const MobileBottomNav = () => (
-    <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center pointer-events-none">
-      <div className="pointer-events-auto group/nav flex items-center gap-0">
-
-        {/* Кнопка Домой — всегда первая */}
-        <NavButton
-          view={homeItem.view}
-          icon={homeItem.icon}
-          label={homeItem.label}
-          active={currentView === homeItem.view}
-          onClick={() => handleViewChange(homeItem.view)}
-          home={true}
-        />
-
-        {/* Остальные — разворачиваются вправо */}
-        <div className="flex items-center overflow-hidden
-          max-w-0 opacity-0
-          group-hover/nav:max-w-xl group-hover/nav:opacity-100
-          transition-[max-width,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
-          <div className="flex items-center pl-1">
-            {otherItems.map((item) => (
-              <NavButton
-                key={item.view}
-                view={item.view}
-                icon={item.icon}
-                label={item.label}
-                active={currentView === item.view}
-                onClick={() => handleViewChange(item.view)}
-                badge={item.badge}
-              />
-            ))}
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
-
   const renderWithSidebar = (content: React.ReactNode) => (
-    <div className="pb-24">
+    <div className="pb-4">
       <div className="pt-4">
         {content}
       </div>
-      <MobileBottomNav />
     </div>
   );
 

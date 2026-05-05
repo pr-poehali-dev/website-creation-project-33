@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { AssignedPromoter, PromoterOption, inputCls } from './promoterAssignTypes';
 import { useOrganizations } from '@/hooks/useAdminData';
@@ -21,12 +21,18 @@ export default function PromoterForm({
   const [address, setAddress] = useState(assigned.address ?? '');
   const [leaflets, setLeaflets] = useState(assigned.leaflets ?? '');
 
-  const handleOrgNameChange = (value: string) => {
-    setOrgName(value);
-    if (!leaflets) {
-      const org = allOrganizations.find((o: { name: string; flyer_location?: string }) => o.name === value);
+  // Подставляем flyer_location когда загрузились организации и листовки ещё не заданы
+  useEffect(() => {
+    if (!leaflets && orgName && allOrganizations.length > 0) {
+      const org = allOrganizations.find((o: { name: string; flyer_location?: string }) => o.name === orgName);
       if (org?.flyer_location) setLeaflets(org.flyer_location);
     }
+  }, [allOrganizations]);
+
+  const handleOrgNameChange = (value: string) => {
+    setOrgName(value);
+    const org = allOrganizations.find((o: { name: string; flyer_location?: string }) => o.name === value);
+    setLeaflets(org?.flyer_location ?? '');
   };
 
   const isDirty =

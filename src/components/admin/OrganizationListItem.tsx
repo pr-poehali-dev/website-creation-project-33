@@ -182,28 +182,28 @@ export default function OrganizationListItem({
               )}
             </div>
           </div>
-          <div className="flex gap-2 mt-1">
+          <div className="flex gap-2 mt-1 flex-wrap">
             <Button
               onClick={() => onOpenPeriods({ id: org.id, name: org.name })}
               variant="outline"
-              className="flex-1 bg-white hover:bg-gray-50 text-gray-600 border-gray-200 h-9 text-sm font-medium"
+              className="bg-white hover:bg-gray-50 text-gray-600 border-gray-200 h-8 text-xs px-3"
             >
-              <Icon name="Calendar" size={14} className="mr-2" />
+              <Icon name="Calendar" size={13} className="mr-1.5" />
               История ставок
             </Button>
             <Button
               onClick={() => startEditing(org)}
-              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white border-0 h-9 text-sm font-medium"
+              className="bg-blue-500 hover:bg-blue-600 text-white border-0 h-8 text-xs px-3"
             >
-              <Icon name="Pencil" size={14} className="mr-2" />
+              <Icon name="Pencil" size={13} className="mr-1.5" />
               Изменить
             </Button>
             <Button
               onClick={() => deleteOrganization(org.id, org.name)}
               variant="outline"
-              className="bg-red-50 hover:bg-red-100 text-red-500 border-red-200 h-9 px-3"
+              className="bg-red-50 hover:bg-red-100 text-red-500 border-red-200 h-8 px-2.5"
             >
-              <Icon name="Trash2" size={14} />
+              <Icon name="Trash2" size={13} />
             </Button>
           </div>
         </>

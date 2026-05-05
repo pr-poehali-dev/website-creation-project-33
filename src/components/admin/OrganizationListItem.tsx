@@ -182,37 +182,28 @@ export default function OrganizationListItem({
               )}
             </div>
           </div>
-          <div className="flex flex-col xs:flex-row gap-1.5 md:gap-2">
-            <div className="flex gap-1.5 md:gap-2 flex-1">
-              <Button
-                onClick={() => onOpenPeriods({ id: org.id, name: org.name })}
-                variant="outline"
-                size="sm"
-                className="flex-1 bg-white hover:bg-gray-50 text-gray-700 border-gray-200 transition-all duration-200 h-7 md:h-9 text-[10px] md:text-sm"
-              >
-                <Icon name="Calendar" size={10} className="mr-1 md:mr-1.5 md:w-[14px] md:h-[14px]" />
-                <span className="hidden sm:inline">История ставок</span>
-                <span className="sm:hidden">Ставки</span>
-              </Button>
-              <Button
-                onClick={() => startEditing(org)}
-                variant="outline"
-                size="sm"
-                className="flex-1 bg-white hover:bg-gray-50 text-gray-700 border-gray-200 transition-all duration-200 h-7 md:h-9 text-[10px] md:text-sm"
-              >
-                <Icon name="Pencil" size={10} className="mr-1 md:mr-1.5 md:w-[14px] md:h-[14px]" />
-                <span className="hidden sm:inline">Изменить</span>
-                <span className="sm:hidden">Ред.</span>
-              </Button>
-            </div>
+          <div className="flex gap-2 mt-1">
+            <Button
+              onClick={() => onOpenPeriods({ id: org.id, name: org.name })}
+              variant="outline"
+              className="flex-1 bg-white hover:bg-gray-50 text-gray-600 border-gray-200 h-9 text-sm font-medium"
+            >
+              <Icon name="Calendar" size={14} className="mr-2" />
+              История ставок
+            </Button>
+            <Button
+              onClick={() => startEditing(org)}
+              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white border-0 h-9 text-sm font-medium"
+            >
+              <Icon name="Pencil" size={14} className="mr-2" />
+              Изменить
+            </Button>
             <Button
               onClick={() => deleteOrganization(org.id, org.name)}
               variant="outline"
-              size="sm"
-              className="bg-red-50 hover:bg-red-100 text-red-500 border-red-500/30 hover:border-red-500/50 transition-all duration-200 h-7 md:h-9 px-2 md:px-4 xs:w-auto w-full"
+              className="bg-red-50 hover:bg-red-100 text-red-500 border-red-200 h-9 px-3"
             >
-              <Icon name="Trash2" size={10} className="md:w-[14px] md:h-[14px] xs:mr-0 mr-1.5" />
-              <span className="xs:hidden">Удалить</span>
+              <Icon name="Trash2" size={14} />
             </Button>
           </div>
         </>

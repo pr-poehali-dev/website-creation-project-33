@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { AssignedPromoter, PromoterOption, inputCls } from './promoterAssignTypes';
+import { useOrganizations } from '@/hooks/useAdminData';
 
 interface PromoterFormProps {
   assigned: AssignedPromoter;
@@ -14,10 +15,19 @@ interface PromoterFormProps {
 export default function PromoterForm({
   assigned, availablePromoters, onSave, onRemove, isSaving, isNew,
 }: PromoterFormProps) {
+  const { data: allOrganizations = [] } = useOrganizations();
   const [promoterId, setPromoterId] = useState(assigned.promoter_id);
   const [orgName, setOrgName] = useState(assigned.org_name ?? '');
   const [address, setAddress] = useState(assigned.address ?? '');
   const [leaflets, setLeaflets] = useState(assigned.leaflets ?? '');
+
+  const handleOrgNameChange = (value: string) => {
+    setOrgName(value);
+    if (!leaflets) {
+      const org = allOrganizations.find((o: { name: string; flyer_location?: string }) => o.name === value);
+      if (org?.flyer_location) setLeaflets(org.flyer_location);
+    }
+  };
 
   const isDirty =
     promoterId !== assigned.promoter_id ||
@@ -57,7 +67,12 @@ export default function PromoterForm({
       </div>
 
       <div className="relative">
-        <input value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="Организация" className={inputCls} />
+        <input value={orgName} onChange={e => handleOrgNameChange(e.target.value)} placeholder="Организация" className={inputCls} list="org-suggestions" />
+        <datalist id="org-suggestions">
+          {allOrganizations.map((o: { id: number; name: string }) => (
+            <option key={o.id} value={o.name} />
+          ))}
+        </datalist>
         <Icon name="Building2" size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
       </div>
 

@@ -19,6 +19,7 @@ interface Organization {
   lead_count: number;
   contact_rate: number;
   payment_type: 'cash' | 'cashless';
+  flyer_location: string;
 }
 
 interface OrganizationsTabProps {
@@ -35,6 +36,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
   const [editingName, setEditingName] = useState('');
   const [editingRate, setEditingRate] = useState('');
   const [editingPaymentType, setEditingPaymentType] = useState<'cash' | 'cashless'>('cash');
+  const [editingFlyerLocation, setEditingFlyerLocation] = useState('');
   const [updating, setUpdating] = useState(false);
   const [periodsModalOrg, setPeriodsModalOrg] = useState<{ id: number; name: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -90,6 +92,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
     setEditingName(org.name);
     setEditingRate(org.contact_rate?.toString() || '0');
     setEditingPaymentType(org.payment_type || 'cash');
+    setEditingFlyerLocation(org.flyer_location || '');
   };
 
   const cancelEditing = () => {
@@ -97,6 +100,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
     setEditingName('');
     setEditingRate('');
     setEditingPaymentType('cash');
+    setEditingFlyerLocation('');
   };
 
   const updateOrganization = async (id: number) => {
@@ -116,6 +120,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
           name: editingName.trim(),
           contact_rate: parseInt(editingRate) || 0,
           payment_type: editingPaymentType,
+          flyer_location: editingFlyerLocation.trim() || null,
         }),
       });
 
@@ -254,6 +259,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                     editingName={editingName}
                     editingRate={editingRate}
                     editingPaymentType={editingPaymentType}
+                    editingFlyerLocation={editingFlyerLocation}
                     updating={updating}
                     startEditing={startEditing}
                     cancelEditing={cancelEditing}
@@ -262,6 +268,7 @@ export default function OrganizationsTab({ enabled = true }: OrganizationsTabPro
                     setEditingName={setEditingName}
                     setEditingRate={setEditingRate}
                     setEditingPaymentType={setEditingPaymentType}
+                    setEditingFlyerLocation={setEditingFlyerLocation}
                     onOpenPeriods={setPeriodsModalOrg}
                   />
                 ))}

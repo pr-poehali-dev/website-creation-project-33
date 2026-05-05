@@ -1,0 +1,1 @@
+ALTER TABLE t_p24058207_website_creation_pro.organizations ADD COLUMN IF NOT EXISTS flyer_location text NULL DEFAULT NULL;

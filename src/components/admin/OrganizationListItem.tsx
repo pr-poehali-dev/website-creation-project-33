@@ -11,6 +11,7 @@ interface Organization {
   lead_count: number;
   contact_rate: number;
   payment_type: 'cash' | 'cashless';
+  flyer_location: string;
 }
 
 interface OrganizationListItemProps {
@@ -19,6 +20,7 @@ interface OrganizationListItemProps {
   editingName: string;
   editingRate: string;
   editingPaymentType: 'cash' | 'cashless';
+  editingFlyerLocation: string;
   updating: boolean;
   startEditing: (org: Organization) => void;
   cancelEditing: () => void;
@@ -27,6 +29,7 @@ interface OrganizationListItemProps {
   setEditingName: (name: string) => void;
   setEditingRate: (rate: string) => void;
   setEditingPaymentType: (type: 'cash' | 'cashless') => void;
+  setEditingFlyerLocation: (value: string) => void;
   onOpenPeriods: (org: { id: number; name: string }) => void;
 }
 
@@ -36,6 +39,7 @@ export default function OrganizationListItem({
   editingName,
   editingRate,
   editingPaymentType,
+  editingFlyerLocation,
   updating,
   startEditing,
   cancelEditing,
@@ -44,6 +48,7 @@ export default function OrganizationListItem({
   setEditingName,
   setEditingRate,
   setEditingPaymentType,
+  setEditingFlyerLocation,
   onOpenPeriods
 }: OrganizationListItemProps) {
   const isEditing = editingId === org.id;
@@ -100,6 +105,15 @@ export default function OrganizationListItem({
                 Безнал
               </Button>
             </div>
+          </div>
+          <div>
+            <label className="text-[10px] md:text-xs text-gray-500 mb-1 block">Где взять листовки</label>
+            <Input
+              value={editingFlyerLocation}
+              onChange={(e) => setEditingFlyerLocation(e.target.value)}
+              placeholder="Например: у старшего в офисе на 3 этаже"
+              className="border-gray-200 bg-gray-50 text-gray-800 focus:border-blue-300 focus:ring-blue-100 h-8 md:h-9 text-xs md:text-sm"
+            />
           </div>
           <div className="flex gap-1.5 md:gap-2 pt-1 md:pt-2">
             <Button
@@ -160,6 +174,12 @@ export default function OrganizationListItem({
                   <span className="xs:hidden">{org.payment_type === 'cashless' ? 'Б' : 'Н'}</span>
                 </Badge>
               </div>
+              {org.flyer_location && (
+                <div className="flex items-start gap-1.5 mt-2 text-[10px] md:text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-2 py-1.5">
+                  <Icon name="FileText" size={11} className="text-amber-500 flex-shrink-0 mt-0.5" />
+                  <span><span className="font-semibold">Листовки:</span> {org.flyer_location}</span>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex flex-col xs:flex-row gap-1.5 md:gap-2">

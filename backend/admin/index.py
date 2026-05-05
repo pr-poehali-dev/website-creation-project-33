@@ -1773,13 +1773,14 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                     ORDER BY rp.start_date DESC LIMIT 1),
                                    o.payment_type, 'cash'
                                ) as payment_type,
-                               COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as lead_count
+                               COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as lead_count,
+                               o.flyer_location
                         FROM t_p24058207_website_creation_pro.organizations o
                         LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l 
                             ON o.id = l.organization_id 
                             AND l.is_active = true
                         WHERE o.is_active = true
-                        GROUP BY o.id, o.name, o.created_at, o.contact_rate, o.payment_type
+                        GROUP BY o.id, o.name, o.created_at, o.contact_rate, o.payment_type, o.flyer_location
                         ORDER BY o.name
                     """)
                     organizations = []
@@ -1790,7 +1791,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'created_at': row[2].isoformat() if row[2] else None,
                             'contact_rate': int(row[3]) if row[3] else 0,
                             'payment_type': row[4] if row[4] else 'cash',
-                            'lead_count': int(row[5])
+                            'lead_count': int(row[5]),
+                            'flyer_location': row[6] or ''
                         })
             return {
                 'statusCode': 200,
@@ -2559,6 +2561,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             name = body_data.get('name', '').strip()
             contact_rate = body_data.get('contact_rate', 0)
             payment_type = body_data.get('payment_type', 'cash')
+            flyer_location = body_data.get('flyer_location', None)
             
             if not org_id:
                 return {
@@ -2578,8 +2581,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
                         cur.execute(
-                            "UPDATE t_p24058207_website_creation_pro.organizations SET name = %s, contact_rate = %s, payment_type = %s WHERE id = %s",
-                            (name, contact_rate, payment_type, org_id)
+                            "UPDATE t_p24058207_website_creation_pro.organizations SET name = %s, contact_rate = %s, payment_type = %s, flyer_location = %s WHERE id = %s",
+                            (name, contact_rate, payment_type, flyer_location, org_id)
                         )
                         conn.commit()
                         if cur.rowcount > 0:

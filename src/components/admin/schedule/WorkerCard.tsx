@@ -3,7 +3,6 @@ import Icon from '@/components/ui/icon';
 import { UserSchedule, OrganizationData } from './types';
 import { isMaximKorelsky, calculateAvgBeforeDate } from './utils';
 import OrgStatsModal from './OrgStatsModal';
-import OrgSelectionModal from './OrgSelectionModal';
 
 interface WorkerCardProps {
   worker: UserSchedule;
@@ -28,7 +27,7 @@ export default function WorkerCard({
   onCommentChange, onSaveComment, onDeleteShift,
 }: WorkerCardProps) {
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
-  const [showOrgSelectionModal, setShowOrgSelectionModal] = useState(false);
+  const [showOrgDropdown, setShowOrgDropdown] = useState(false);
 
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const workerName = `${worker.first_name} ${worker.last_name}`;
@@ -47,7 +46,7 @@ export default function WorkerCard({
   const handleOrgSelect = (org: string) => {
     onCommentChange(workerName, dayDate, 'organization', org, realSlotKey);
     onSaveComment(workerName, dayDate, 'organization', org, realSlotKey);
-    setShowOrgSelectionModal(false);
+    setShowOrgDropdown(false);
   };
 
   const handleDeleteShift = () => {
@@ -113,10 +112,23 @@ export default function WorkerCard({
         </div>
 
         {/* Организация + удаление */}
-        <div className="flex items-center gap-1 flex-shrink-0">
-          {currentOrganization ? (
+        <div className="flex items-center gap-1 flex-shrink-0 relative">
+          {showOrgDropdown ? (
+            <select
+              autoFocus
+              value={currentOrganization}
+              onChange={e => handleOrgSelect(e.target.value)}
+              onBlur={() => setShowOrgDropdown(false)}
+              className="text-[9px] text-gray-700 bg-white border border-blue-300 rounded-full px-1.5 py-0.5 max-w-[120px] outline-none"
+            >
+              <option value="">— не выбрано —</option>
+              {allOrganizations.map(org => (
+                <option key={org.name} value={org.name}>{org.name}</option>
+              ))}
+            </select>
+          ) : currentOrganization ? (
             <button
-              onClick={() => setShowOrgSelectionModal(true)}
+              onClick={() => setShowOrgDropdown(true)}
               className="text-[9px] text-blue-600 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-full truncate max-w-[100px] hover:bg-blue-100 transition-colors"
             >
               {currentOrganization}
@@ -124,7 +136,7 @@ export default function WorkerCard({
           ) : (
             <button
               type="button"
-              onClick={() => setShowOrgSelectionModal(true)}
+              onClick={() => setShowOrgDropdown(true)}
               className="text-[9px] text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 px-1.5 py-0.5 rounded-full transition-all"
             >
               + Орг.
@@ -150,18 +162,6 @@ export default function WorkerCard({
           allOrganizations={allOrganizations}
           loadingProgress={loadingProgress}
           onClose={() => setShowOrgStatsModal(false)}
-        />
-      )}
-
-      {showOrgSelectionModal && (
-        <OrgSelectionModal
-          workerName={workerName}
-          workerEmail={worker.email}
-          orgStats={orgStats}
-          allOrganizations={allOrganizations}
-          loadingProgress={loadingProgress}
-          onSelect={handleOrgSelect}
-          onClose={() => setShowOrgSelectionModal(false)}
         />
       )}
 

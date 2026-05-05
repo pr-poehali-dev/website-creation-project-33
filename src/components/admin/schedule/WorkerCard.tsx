@@ -27,7 +27,6 @@ export default function WorkerCard({
   onCommentChange, onSaveComment, onDeleteShift,
 }: WorkerCardProps) {
   const [showOrgStatsModal, setShowOrgStatsModal] = useState(false);
-  const [showOrgDropdown, setShowOrgDropdown] = useState(false);
 
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const workerName = `${worker.first_name} ${worker.last_name}`;
@@ -42,12 +41,6 @@ export default function WorkerCard({
     : (userComments ? Object.keys(userComments).find(k => typeof userComments[k] === 'object' && userComments[k] !== null) : undefined) || slotLabel;
   const commentData = (userComments?.[realSlotKey]) || {};
   const currentOrganization = commentData.organization || '';
-
-  const handleOrgSelect = (org: string) => {
-    onCommentChange(workerName, dayDate, 'organization', org, realSlotKey);
-    onSaveComment(workerName, dayDate, 'organization', org, realSlotKey);
-    setShowOrgDropdown(false);
-  };
 
   const handleDeleteShift = () => {
     onDeleteShift?.(worker.user_id, workerName, dayDate, slotTime, slotLabel);
@@ -112,35 +105,11 @@ export default function WorkerCard({
         </div>
 
         {/* Организация + удаление */}
-        <div className="flex items-center gap-1 flex-shrink-0 relative">
-          {showOrgDropdown ? (
-            <select
-              autoFocus
-              value={currentOrganization}
-              onChange={e => handleOrgSelect(e.target.value)}
-              onBlur={() => setShowOrgDropdown(false)}
-              className="text-[9px] text-gray-700 bg-white border border-blue-300 rounded-full px-1.5 py-0.5 max-w-[120px] outline-none"
-            >
-              <option value="">— не выбрано —</option>
-              {allOrganizations.map(org => (
-                <option key={org.name} value={org.name}>{org.name}</option>
-              ))}
-            </select>
-          ) : currentOrganization ? (
-            <button
-              onClick={() => setShowOrgDropdown(true)}
-              className="text-[9px] text-blue-600 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-full truncate max-w-[100px] hover:bg-blue-100 transition-colors"
-            >
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {currentOrganization && (
+            <span className="text-[9px] text-blue-600 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-full truncate max-w-[100px]">
               {currentOrganization}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowOrgDropdown(true)}
-              className="text-[9px] text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 px-1.5 py-0.5 rounded-full transition-all"
-            >
-              + Орг.
-            </button>
+            </span>
           )}
           {onDeleteShift && (
             <button

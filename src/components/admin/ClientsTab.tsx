@@ -361,13 +361,13 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
                       : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                   }`}
                 >
-                  {filter === 'KIBERONE' ? <><span className="hidden xs:inline">KIBERONE</span><span className="xs:hidden">KIB</span></> : filter}
+                  {filter === 'ALL' ? 'Все' : filter === 'KIBERONE' ? <><span className="hidden xs:inline">KIBERONE</span><span className="xs:hidden">KIB</span></> : filter}
                 </button>
               ))}
             </div>
           </div>
           
-          <div className="space-y-2 md:space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto">
+          <div className="space-y-2 md:space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
             {organizationsWithoutShifts.map((org) => (
               <div 
                 key={org.id}

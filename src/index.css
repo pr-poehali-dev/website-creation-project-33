@@ -4,6 +4,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Светлый скроллбар */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
 @keyframes navPop {
   0% {
     transform: scale(0.7) translateY(6px);

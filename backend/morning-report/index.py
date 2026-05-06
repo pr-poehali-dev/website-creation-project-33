@@ -4,6 +4,7 @@ import psycopg2
 import requests
 from datetime import date, timedelta
 from typing import Dict, Any
+from push_utils import notify_admins
 
 SCHEMA = 't_p24058207_website_creation_pro'
 BOT_TOKEN = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
@@ -45,6 +46,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     with psycopg2.connect(database_url) as conn:
         with conn.cursor() as cur:
+
+            # === Push-уведомление ===
+            notify_admins(conn, '☀️ Утренний отчёт', f'Доброе утро! Отчёт за {today.strftime("%d.%m.%Y")} готов')
 
             # === 1. Промоутеры на точках сегодня ===
             cur.execute(f"""

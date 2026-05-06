@@ -45,7 +45,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if not database_url:
         return {'statusCode': 500, 'headers': {'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'No DATABASE_URL'})}
 
-    today = date.today()
+    # Поддержка тестового режима: ?test_date=2026-05-05
+    params = event.get('queryStringParameters') or {}
+    test_date_str = params.get('test_date')
+    if test_date_str:
+        today = date.fromisoformat(test_date_str)
+    else:
+        today = date.today()
     tomorrow = today + timedelta(days=1)
 
     with psycopg2.connect(database_url) as conn:

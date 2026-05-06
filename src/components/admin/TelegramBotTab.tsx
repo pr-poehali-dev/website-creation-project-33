@@ -5,10 +5,10 @@ import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 
 export default function TelegramBotTab() {
-  const [botInfo, setBotInfo] = useState<any>(null);
-  const [webhookInfo, setWebhookInfo] = useState<any>(null);
+  const [botInfo, setBotInfo] = useState<Record<string, string> | null>(null);
+  const [webhookInfo, setWebhookInfo] = useState<Record<string, string> | null>(null);
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<Record<string, string>[]>([]);
 
   useEffect(() => {
     loadBotInfo();
@@ -20,9 +20,7 @@ export default function TelegramBotTab() {
     try {
       const response = await fetch('https://functions.poehali.dev/147d0398-6403-42c1-ba20-e559ce30ff28?action=get_me');
       const data = await response.json();
-      if (data.ok) {
-        setBotInfo(data.result);
-      }
+      if (data.ok) setBotInfo(data.result);
     } catch (error) {
       console.error('Error loading bot info:', error);
     }
@@ -32,9 +30,7 @@ export default function TelegramBotTab() {
     try {
       const response = await fetch('https://functions.poehali.dev/147d0398-6403-42c1-ba20-e559ce30ff28?action=get_webhook');
       const data = await response.json();
-      if (data.ok) {
-        setWebhookInfo(data.result);
-      }
+      if (data.ok) setWebhookInfo(data.result);
     } catch (error) {
       console.error('Error loading webhook info:', error);
     }
@@ -54,14 +50,11 @@ export default function TelegramBotTab() {
 
   const deleteUser = async (userId: number) => {
     if (!confirm('Удалить этого подписчика?')) return;
-    
     try {
       const response = await fetch(`https://functions.poehali.dev/3866e45c-8059-4370-ba27-042c0eac094d?action=delete_user&user_id=${userId}`, {
         method: 'DELETE'
       });
-      if (response.ok) {
-        loadUsers();
-      }
+      if (response.ok) loadUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
     }
@@ -71,11 +64,8 @@ export default function TelegramBotTab() {
     const date = new Date(dateString);
     return date.toLocaleString('ru-RU', {
       timeZone: 'Europe/Moscow',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
     });
   };
 
@@ -98,87 +88,85 @@ export default function TelegramBotTab() {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-slate-100">
-            <div className="p-2 rounded-lg bg-slate-800">
-              <Icon name="Bot" size={20} className="text-blue-400" />
+    <div className="space-y-4 md:space-y-6">
+      {/* Информация о боте */}
+      <Card className="bg-white border-gray-200 rounded-2xl shadow-sm">
+        <CardHeader className="pb-3 border-b border-gray-100">
+          <CardTitle className="flex items-center gap-3 text-gray-800 text-lg">
+            <div className="p-2 rounded-lg bg-blue-50 border border-blue-100">
+              <Icon name="Bot" size={18} className="text-blue-600" />
             </div>
             Информация о боте
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="pt-4 space-y-3">
           {botInfo ? (
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <span className="text-slate-400">Имя:</span>
-                <span className="text-slate-100 font-medium">{botInfo.first_name}</span>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                <span className="text-gray-500 text-sm">Имя:</span>
+                <span className="text-gray-800 font-medium">{botInfo.first_name}</span>
+                <Badge className="bg-green-50 text-green-600 border border-green-200">
                   Активен
                 </Badge>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-slate-400">Username:</span>
-                <a 
+                <span className="text-gray-500 text-sm">Username:</span>
+                <a
                   href={`https://t.me/${botInfo.username}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:underline"
+                  className="text-blue-600 hover:underline"
                 >
                   @{botInfo.username}
                 </a>
               </div>
             </div>
           ) : (
-            <div className="text-slate-400">Загрузка...</div>
+            <div className="text-gray-400 text-sm">Загрузка...</div>
           )}
         </CardContent>
       </Card>
 
-      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-slate-100">
-            <div className="p-2 rounded-lg bg-slate-800">
-              <Icon name="Webhook" size={20} className="text-cyan-400" />
+      {/* Webhook */}
+      <Card className="bg-white border-gray-200 rounded-2xl shadow-sm">
+        <CardHeader className="pb-3 border-b border-gray-100">
+          <CardTitle className="flex items-center gap-3 text-gray-800 text-lg">
+            <div className="p-2 rounded-lg bg-blue-50 border border-blue-100">
+              <Icon name="Webhook" size={18} className="text-blue-600" />
             </div>
             Статус Webhook
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="pt-4 space-y-4">
           {webhookInfo ? (
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <span className="text-slate-400">URL:</span>
+                <span className="text-gray-500 text-sm">URL:</span>
                 {webhookInfo.url ? (
-                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                    Настроен
-                  </Badge>
+                  <Badge className="bg-green-50 text-green-600 border border-green-200">Настроен</Badge>
                 ) : (
-                  <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
-                    Не настроен
-                  </Badge>
+                  <Badge className="bg-red-50 text-red-500 border border-red-200">Не настроен</Badge>
                 )}
               </div>
               {webhookInfo.url && (
-                <div className="text-xs text-slate-500 break-all">
+                <div className="text-xs text-gray-400 break-all bg-gray-50 rounded-lg p-2 border border-gray-100">
                   {webhookInfo.url}
                 </div>
               )}
               {webhookInfo.last_error_message && (
-                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                  <div className="text-red-400 text-sm">{webhookInfo.last_error_message}</div>
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="text-red-600 text-sm">{webhookInfo.last_error_message}</div>
                 </div>
               )}
             </div>
           ) : (
-            <div className="text-slate-400">Загрузка...</div>
+            <div className="text-gray-400 text-sm">Загрузка...</div>
           )}
-          
+
           <Button
             onClick={setupWebhook}
             disabled={loading}
-            className="bg-blue-500 hover:bg-blue-600 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
           >
             {loading ? (
               <>
@@ -195,37 +183,38 @@ export default function TelegramBotTab() {
         </CardContent>
       </Card>
 
-      <Card className="bg-slate-900 border-slate-700 rounded-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-slate-100">
-            <div className="p-2 rounded-lg bg-slate-800">
-              <Icon name="Users" size={20} className="text-purple-400" />
+      {/* Подписчики */}
+      <Card className="bg-white border-gray-200 rounded-2xl shadow-sm">
+        <CardHeader className="pb-3 border-b border-gray-100">
+          <CardTitle className="flex items-center gap-3 text-gray-800 text-lg">
+            <div className="p-2 rounded-lg bg-blue-50 border border-blue-100">
+              <Icon name="Users" size={18} className="text-blue-600" />
             </div>
             Подписчики ({users.length})
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           {users.length > 0 ? (
             <div className="space-y-2">
               {users.map((user) => (
                 <div
                   key={user.id}
-                  className="p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-slate-600 transition-colors"
+                  className="p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors"
                 >
                   <div className="flex justify-between items-start gap-3">
                     <div className="flex-1">
-                      <div className="text-slate-100 font-medium">
+                      <div className="text-gray-800 font-medium">
                         {user.first_name} {user.last_name || ''}
                       </div>
                       {user.username && (
-                        <div className="text-slate-400 text-sm">@{user.username}</div>
+                        <div className="text-gray-500 text-sm">@{user.username}</div>
                       )}
                       {user.phone_number && (
-                        <div className="text-slate-300 text-sm mt-1">
+                        <div className="text-gray-600 text-sm mt-1">
                           📱 {user.phone_number}
                         </div>
                       )}
-                      <div className="text-xs text-slate-500 mt-2">
+                      <div className="text-xs text-gray-400 mt-2">
                         {formatMoscowTime(user.created_at)}
                       </div>
                     </div>
@@ -233,7 +222,7 @@ export default function TelegramBotTab() {
                       onClick={() => deleteUser(user.id)}
                       variant="ghost"
                       size="sm"
-                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      className="text-red-400 hover:text-red-600 hover:bg-red-50"
                     >
                       <Icon name="Trash2" size={16} />
                     </Button>
@@ -242,9 +231,9 @@ export default function TelegramBotTab() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-slate-400">
-              <Icon name="Users" size={48} className="mx-auto mb-3 opacity-50" />
-              <div>Пока нет подписчиков</div>
+            <div className="text-center py-10 text-gray-400">
+              <Icon name="Users" size={48} className="mx-auto mb-3 opacity-20" />
+              <div className="font-medium text-gray-500">Пока нет подписчиков</div>
               <div className="text-sm mt-1">Поделитесь ссылкой на бота</div>
             </div>
           )}

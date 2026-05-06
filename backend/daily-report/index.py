@@ -2,7 +2,7 @@ import json
 import os
 import psycopg2
 import requests
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from typing import Dict, Any
 
 SCHEMA = 't_p24058207_website_creation_pro'
@@ -19,18 +19,6 @@ def send_telegram_message(text: str):
             'parse_mode': 'HTML'
         }, timeout=15)
 
-
-def calculate_salary(contacts: int, user_id: int, org_name: str, shift_date: date) -> int:
-    if user_id in (3, 9):
-        return 0
-    if org_name == 'Администратор':
-        return 600
-    cutoff = date(2025, 10, 1)
-    if shift_date < cutoff:
-        return contacts * 200
-    if contacts >= 10:
-        return contacts * 300
-    return contacts * 200
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -71,10 +59,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             contacts_rows = cur.fetchall()
             total_contacts = sum(r[1] for r in contacts_rows)
 
-            # === 2. Заработок за сегодня ===
+            # === 2. КМС за сегодня ===
             cur.execute(f"""
                 SELECT ws.user_id, u.name, o.name as org_name,
-                       COALESCE(ws.compensation_amount, 0) as compensation
+                       COALESCE(o.contact_rate, 0) as rate,
+                       COALESCE(o.payment_type, 'cash') as payment_type,
+                       COALESCE(ws.compensation_amount, 0) as compensation,
+                       (SELECT COUNT(*) FROM {SCHEMA}.leads_analytics la
+                        WHERE la.user_id = ws.user_id
+                          AND la.is_active = true
+                          AND la.lead_type = 'контакт'
+                          AND DATE(la.created_at + interval '3 hours') = ws.shift_date) as contacts_count
                 FROM {SCHEMA}.work_shifts ws
                 JOIN {SCHEMA}.users u ON u.id = ws.user_id
                 JOIN {SCHEMA}.organizations o ON o.id = ws.organization_id
@@ -82,25 +77,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             """, (today,))
             shifts_today = cur.fetchall()
 
-            cur.execute(f"""
-                SELECT la.user_id, COUNT(*) as cnt
-                FROM {SCHEMA}.leads_analytics la
-                WHERE la.is_active = true
-                  AND la.lead_type = 'контакт'
-                  AND DATE(la.created_at + interval '3 hours') = %s
-                GROUP BY la.user_id
-            """, (today,))
-            contacts_by_user = {r[0]: r[1] for r in cur.fetchall()}
-
-            earnings_by_user: Dict[str, int] = {}
-            for user_id, user_name, org_name, compensation in shifts_today:
-                contacts = contacts_by_user.get(user_id, 0)
-                salary = calculate_salary(contacts, user_id, org_name, today)
-                total = salary + compensation
-                if total > 0:
-                    earnings_by_user[user_name] = earnings_by_user.get(user_name, 0) + total
-
-            total_earnings = sum(earnings_by_user.values())
+            total_kms = 0
+            for user_id, user_name, org_name, rate, payment_type, compensation, contacts in shifts_today:
+                contacts = contacts or 0
+                revenue = contacts * rate + compensation
+                tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
+                after_tax = revenue - tax
+                if contacts >= 10:
+                    worker_salary = contacts * 300
+                else:
+                    worker_salary = contacts * 200
+                if user_id in (3, 9):
+                    worker_salary = 0
+                net_profit = after_tax - worker_salary
+                kms = round(net_profit / 2)
+                if user_id == 3:
+                    kms = after_tax
+                elif user_id == 9:
+                    kms = 0
+                total_kms += kms
 
             # === 3. Незаполненные слоты на завтра ===
             # Ищем planned_organizations на завтра
@@ -155,12 +150,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         lines.append('  — нет контактов')
     lines.append('')
 
-    # Заработок
-    lines.append(f'💰 <b>Заработок за день: {total_earnings:,} ₽</b>'.replace(',', ' '))
-    for name, amount in sorted(earnings_by_user.items(), key=lambda x: -x[1])[:8]:
-        lines.append(f'  • {name}: {amount:,} ₽'.replace(',', ' '))
-    if not earnings_by_user:
-        lines.append('  — данных нет')
+    # КМС
+    kms_str = f'{total_kms:,} ₽'.replace(',', ' ')
+    lines.append(f'💰 <b>Доход (КМС) за день: {kms_str}</b>')
     lines.append('')
 
     # Незаполненные слоты
@@ -182,7 +174,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'ok': True,
             'date': str(today),
             'total_contacts': total_contacts,
-            'total_earnings': total_earnings,
+            'total_kms': total_kms,
             'empty_slots_tomorrow': len(empty_slots)
         })
     }

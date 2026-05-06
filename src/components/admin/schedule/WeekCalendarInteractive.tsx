@@ -50,7 +50,13 @@ export default function WeekCalendarInteractive({ weekDays, weekStartDate }: Wee
             const isPast = day.date < TODAY;
             const dayNum = new Date(day.date).getDate();
             const month = (new Date(day.date).getMonth() + 1).toString().padStart(2, '0');
-            const dayPlans = plans.filter(p => p.date === day.date);
+            const dayPlansAll = plans.filter(p => p.date === day.date);
+            const seenOrgs = new Set<string>();
+            const dayPlans = dayPlansAll.filter(p => {
+              if (seenOrgs.has(p.organization_name)) return false;
+              seenOrgs.add(p.organization_name);
+              return true;
+            });
             const daySlots = slotsByDate[day.date];
             const totalSlots = daySlots?.total ?? null;
             const usedSlots = daySlots?.used ?? 0;

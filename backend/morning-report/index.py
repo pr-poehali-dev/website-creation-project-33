@@ -3,7 +3,7 @@ import os
 import psycopg2
 import requests
 from datetime import date, timedelta
-from typing import Dict, Any
+from typing import Dict, Any, List
 from push_utils import notify_admins
 
 SCHEMA = 't_p24058207_website_creation_pro'
@@ -15,7 +15,8 @@ SLOT_LABELS = {
     'slot2': '16:00–20:00',
 }
 
-WEEKDAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+WEEKDAYS_SHORT = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+WEEKDAYS_FULL = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
 
 
 def send_telegram_message(text: str):
@@ -28,9 +29,16 @@ def send_telegram_message(text: str):
         }, timeout=15)
 
 
+def get_week_start(d: date) -> date:
+    return d - timedelta(days=d.weekday())
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    Утренний отчёт в 08:00 МСК: промоутеры на точках сегодня + обучения.
+    Утренний отчёт в 08:00 МСК:
+    - промоутеры на точках сегодня (организация, листовки, контакты)
+    - обучения сегодня
+    - статистика по нехватке промоутеров на текущей неделе (с сегодня до воскресенья)
     Поддерживает ?test_date=YYYY-MM-DD для тестирования.
     """
     if event.get('httpMethod') == 'OPTIONS':
@@ -43,6 +51,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     params = event.get('queryStringParameters') or {}
     test_date_str = params.get('test_date')
     today = date.fromisoformat(test_date_str) if test_date_str else date.today()
+
+    week_start = get_week_start(today)
+    week_end = week_start + timedelta(days=6)
 
     with psycopg2.connect(database_url) as conn:
         with conn.cursor() as cur:
@@ -77,20 +88,48 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             """, (today,))
             trainings = cur.fetchall()
 
+            # === 3. Статистика по неделе (с сегодня до воскресенья) ===
+            # Промоутеры в графике по дням (из promoter_schedules.schedule_data)
+            cur.execute(f"""
+                SELECT
+                    d.date_val::text AS day,
+                    COUNT(DISTINCT ps.user_id) AS promoters_in_schedule
+                FROM (
+                    SELECT generate_series(%s::date, %s::date, '1 day'::interval)::date AS date_val
+                ) d
+                LEFT JOIN {SCHEMA}.promoter_schedules ps
+                    ON ps.week_start_date = %s
+                    AND (
+                        ps.schedule_data->(d.date_val::text)->>'slot1' = 'true'
+                        OR ps.schedule_data->(d.date_val::text)->>'slot2' = 'true'
+                    )
+                GROUP BY d.date_val
+                ORDER BY d.date_val
+            """, (today, week_end, week_start))
+            schedule_rows = {row[0]: int(row[1] or 0) for row in cur.fetchall()}
+
+            # Назначенные организации по дням
+            cur.execute(f"""
+                SELECT date::text, COUNT(DISTINCT id) AS org_count
+                FROM {SCHEMA}.planned_organizations
+                WHERE date >= %s AND date <= %s
+                GROUP BY date
+                ORDER BY date
+            """, (today, week_end))
+            org_rows = {row[0]: int(row[1] or 0) for row in cur.fetchall()}
+
     # === Формируем сообщение ===
     day_ru = today.strftime('%d.%m.%Y')
-    day_name = WEEKDAYS[today.weekday()]
-
+    day_name = WEEKDAYS_FULL[today.weekday()]
     NA = '❗ Информация не заполнена!'
 
-    lines = [f'☀️ <b>Доброе утро!</b>\n']
+    lines = ['☀️ <b>Доброе утро!</b>\n']
     lines.append(f'📅 <b>{day_name}, {day_ru}</b>\n')
 
-    # --- Промоутеры ---
+    # --- Промоутеры сегодня ---
     lines.append(f'👥 <b>Работают сегодня: {len(promoters)} чел.</b>')
 
     if promoters:
-        # Группируем по слоту
         by_slot: Dict[str, list] = {}
         for row in promoters:
             slot = row[4] or 'slot1'
@@ -119,8 +158,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     lines.append(f'🎓 <b>Обучений сегодня: {len(trainings)}</b>')
 
     if trainings:
-        for promoter_name, promoter_phone, organization, time, senior_name, comment in trainings:
-            time_str = f' в {time}' if time else ''
+        for promoter_name, promoter_phone, organization, time_val, senior_name, comment in trainings:
+            time_str = f' в {time_val}' if time_val else ''
             lines.append(f'\n• <b>{promoter_name}</b>{time_str}')
             lines.append(f'  📱 {promoter_phone if promoter_phone else NA}')
             if organization:
@@ -131,6 +170,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 lines.append(f'  💬 {comment}')
     else:
         lines.append('  — обучений нет')
+
+    lines.append('')
+
+    # --- Статистика по неделе ---
+    lines.append('📆 <b>Обеспеченность до конца недели:</b>')
+
+    all_days_ok = True
+    d = today
+    while d <= week_end:
+        day_str = d.strftime('%Y-%m-%d')
+        in_schedule = schedule_rows.get(day_str, 0)
+        planned = org_rows.get(day_str, 0)
+        short = planned - in_schedule
+        label = f'{WEEKDAYS_SHORT[d.weekday()]} {d.strftime("%d.%m")}'
+
+        if planned == 0 and in_schedule == 0:
+            lines.append(f'  {label}: — нет данных')
+        elif short > 0:
+            all_days_ok = False
+            lines.append(f'  ⚠️ {label}: промоутеров {in_schedule} / точек {planned} (не хватает {short})')
+        else:
+            lines.append(f'  ✅ {label}: промоутеров {in_schedule} / точек {planned}')
+
+        d += timedelta(days=1)
+
+    if all_days_ok:
+        lines.append('\n✅ На всю неделю промоутеров достаточно!')
 
     message = '\n'.join(lines)
     send_telegram_message(message)

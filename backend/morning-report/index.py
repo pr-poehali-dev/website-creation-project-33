@@ -185,11 +185,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         short = planned - in_schedule
         label = f'{WEEKDAYS_SHORT[d.weekday()]} {d.strftime("%d.%m")}'
 
+        warnings = []
+        if short > 0:
+            warnings.append(f'не хватает промоутеров: {short}')
+        if planned < 2:
+            warnings.append(f'мало организаций: {planned}')
+
         if planned == 0 and in_schedule == 0:
-            lines.append(f'  {label}: — нет данных')
-        elif short > 0:
             all_days_ok = False
-            lines.append(f'  ⚠️ {label}: промоутеров {in_schedule} / точек {planned} (не хватает {short})')
+            lines.append(f'  ⚠️ {label}: нет данных — организации не назначены!')
+        elif warnings:
+            all_days_ok = False
+            warn_str = ', '.join(warnings)
+            lines.append(f'  ⚠️ {label}: промоутеров {in_schedule} / точек {planned} ({warn_str})')
         else:
             lines.append(f'  ✅ {label}: промоутеров {in_schedule} / точек {planned}')
 

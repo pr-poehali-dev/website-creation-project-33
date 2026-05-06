@@ -114,9 +114,9 @@ export default function TasksTab() {
 
   if (loading) {
     return (
-      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
-        <CardContent className="p-8 flex items-center justify-center gap-3 text-slate-300">
-          <Icon name="Loader2" size={24} className="animate-spin text-cyan-400" />
+      <Card className="bg-white border-gray-200 rounded-2xl shadow-sm">
+        <CardContent className="p-8 flex items-center justify-center gap-3 text-gray-500">
+          <Icon name="Loader2" size={24} className="animate-spin text-blue-600" />
           Загрузка задач...
         </CardContent>
       </Card>
@@ -124,18 +124,18 @@ export default function TasksTab() {
   }
 
   return (
-    <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 rounded-2xl shadow-2xl">
+    <Card className="bg-white border-gray-200 rounded-2xl shadow-sm">
       <CardContent className="p-6 space-y-6">
 
         {/* ── Шапка ── */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/15 flex items-center justify-center">
-              <Icon name="ClipboardList" size={18} className="text-cyan-400" />
+            <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
+              <Icon name="ClipboardList" size={18} className="text-blue-600" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-100">Задачи</h2>
-              <p className="text-xs text-slate-500">
+              <h2 className="text-base font-bold text-gray-800">Задачи</h2>
+              <p className="text-xs text-gray-500">
                 {filtered.length !== tasks.length ? `${filtered.length} из ${tasks.length}` : `${tasks.length} задач`}
               </p>
             </div>
@@ -146,8 +146,8 @@ export default function TasksTab() {
                 <button
                   key={s}
                   onClick={() => setFStatus(fStatus === s ? '' : s)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ring-1 transition-all ${
-                    fStatus === s ? STATUS_CONFIG[s].badge + ' ring-1 scale-105' : 'bg-slate-800/50 text-slate-500 ring-slate-700/50 hover:text-slate-300'
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${
+                    fStatus === s ? STATUS_CONFIG[s].badge + ' scale-105' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                   }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${STATUS_CONFIG[s].dot}`} />
@@ -161,8 +161,8 @@ export default function TasksTab() {
             onClick={() => setShowForm(v => !v)}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
               showForm
-                ? 'bg-slate-700/60 text-slate-300 hover:bg-slate-700 ring-1 ring-slate-600/50'
-                : 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105'
+                ? 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                : 'bg-blue-600 text-white shadow-sm hover:bg-blue-700'
             }`}
           >
             <Icon name={showForm ? 'X' : 'Plus'} size={15} className={`transition-transform duration-200 ${showForm ? 'rotate-90' : ''}`} />
@@ -194,8 +194,8 @@ export default function TasksTab() {
         {/* ── Список задач ── */}
         {filtered.length === 0 ? (
           <div className="text-center py-12">
-            <Icon name="ClipboardList" size={32} className="mx-auto mb-3 text-slate-700" />
-            <p className="text-sm text-slate-600">Задач не найдено</p>
+            <Icon name="ClipboardList" size={32} className="mx-auto mb-3 opacity-20" />
+            <p className="text-sm text-gray-400">Задач не найдено</p>
           </div>
         ) : (
           <div className="space-y-2">

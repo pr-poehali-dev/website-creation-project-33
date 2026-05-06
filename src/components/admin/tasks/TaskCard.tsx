@@ -36,36 +36,36 @@ export default function TaskCard({
 
   return (
     <div
-      className="bg-slate-800/40 ring-1 ring-slate-700/40 rounded-xl overflow-hidden transition-all duration-200 hover:ring-slate-600/60"
+      className="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden transition-all duration-200 hover:border-gray-200 hover:shadow-sm"
       style={{ animationName: 'fsi', animationDuration: '250ms', animationDelay: `${index * 30}ms`, animationFillMode: 'both' }}
     >
-      {/* ── Шапка карточки (кликабельная) ── */}
+      {/* ── Шапка карточки ── */}
       <div className="group flex items-start gap-3 p-4 cursor-pointer select-none" onClick={onToggleExpand}>
         <div className={`w-0.5 self-stretch rounded-full flex-shrink-0 ${cfg.bar}`} />
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold ring-1 ${cfg.badge}`}>
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border ${cfg.badge}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
               {cfg.label}
             </span>
             {task.category_name && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 text-blue-600 border border-blue-100">
                 <Icon name="Tag" size={9} />{task.category_name}
               </span>
             )}
-            <span className="text-[11px] text-slate-600 flex items-center gap-1">
+            <span className="text-[11px] text-gray-400 flex items-center gap-1">
               <Icon name="User" size={10} />{task.responsible}
             </span>
             {taskActions.length > 0 && (
-              <span className="text-[10px] text-slate-500 flex items-center gap-1 ml-1">
+              <span className="text-[10px] text-gray-400 flex items-center gap-1 ml-1">
                 <Icon name="CheckSquare" size={9} />{doneCount}/{taskActions.length}
               </span>
             )}
             <div className="ml-auto flex items-center gap-1" onClick={e => e.stopPropagation()}>
               <button
                 onClick={onOpenActionForm}
-                className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-slate-600 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all"
+                className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
                 title="Добавить действие"
               >
                 <Icon name="ListPlus" size={12} />
@@ -73,33 +73,33 @@ export default function TaskCard({
               <button
                 onClick={onDelete}
                 disabled={isDel}
-                className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all"
+                className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
                 title="Удалить задачу"
               >
                 {isDel ? <Icon name="Loader2" size={12} className="animate-spin text-red-400" /> : <Icon name="Trash2" size={12} />}
               </button>
-              <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={13} className="text-slate-600 ml-1" />
+              <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={13} className="text-gray-400 ml-1" />
             </div>
           </div>
 
-          <p className={`text-sm leading-relaxed mb-2.5 ${task.status === 'done' ? 'line-through text-slate-600' : 'text-slate-200'}`}>
+          <p className={`text-sm leading-relaxed mb-2.5 ${task.status === 'done' ? 'line-through text-gray-400' : 'text-gray-700'}`}>
             {task.text}
           </p>
 
           <div className="flex items-center justify-between gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
-            <span className="text-[10px] text-slate-700 flex items-center gap-1">
+            <span className="text-[10px] text-gray-400 flex items-center gap-1">
               <Icon name="Clock" size={9} />{fmt(task.created_at)}
             </span>
             <div className="flex items-center gap-1">
               {isUpdating ? (
-                <Icon name="Loader2" size={13} className="animate-spin text-slate-500" />
+                <Icon name="Loader2" size={13} className="animate-spin text-gray-400" />
               ) : (
                 (['pending', 'in_progress', 'done'] as const).map(s => (
                   <button key={s} onClick={() => onChangeStatus(s)} disabled={task.status === s}
-                    className={`h-6 px-2 rounded-md text-[10px] font-semibold transition-all duration-150 ${
+                    className={`h-6 px-2 rounded-md text-[10px] font-semibold transition-all duration-150 border ${
                       task.status === s
-                        ? STATUS_CONFIG[s].badge + ' ring-1 cursor-default'
-                        : 'bg-slate-700/50 text-slate-500 ring-1 ring-slate-700/30 hover:bg-slate-700 hover:text-slate-300'
+                        ? STATUS_CONFIG[s].badge + ' cursor-default'
+                        : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-100 hover:text-gray-700'
                     }`}>
                     {STATUS_CONFIG[s].label}
                   </button>
@@ -113,7 +113,7 @@ export default function TaskCard({
       {/* ── Раскрывающийся блок действий ── */}
       <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
         <div className="overflow-hidden">
-          <div className="border-t border-slate-700/50 mx-4" />
+          <div className="border-t border-gray-100 mx-4" />
           <div className="p-4 pt-3 space-y-2">
 
             {/* Форма добавления действия */}
@@ -125,16 +125,16 @@ export default function TaskCard({
                   onKeyDown={e => e.key === 'Enter' && onAddAction()}
                   placeholder="Описание действия..."
                   autoFocus
-                  className="flex-1 h-8 px-3 bg-slate-900/60 ring-1 ring-slate-700/60 text-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 placeholder:text-slate-600 transition-all"
+                  className="flex-1 h-8 px-3 bg-white border border-gray-200 text-gray-700 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 placeholder:text-gray-400 transition-all"
                 />
                 <button
                   onClick={onAddAction}
                   disabled={savingAction || !actionText.trim()}
-                  className="h-8 px-3 bg-cyan-500/20 text-cyan-400 ring-1 ring-cyan-500/30 rounded-lg text-xs font-semibold hover:bg-cyan-500/30 disabled:opacity-40 transition-all"
+                  className="h-8 px-3 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 disabled:opacity-40 transition-all"
                 >
                   {savingAction ? <Icon name="Loader2" size={12} className="animate-spin" /> : 'Добавить'}
                 </button>
-                <button onClick={onCloseActionForm} className="h-8 px-2 text-slate-600 hover:text-slate-400 transition-colors">
+                <button onClick={onCloseActionForm} className="h-8 px-2 text-gray-400 hover:text-gray-600 transition-colors">
                   <Icon name="X" size={13} />
                 </button>
               </div>
@@ -143,42 +143,37 @@ export default function TaskCard({
             {/* Список действий */}
             {isLoadingActions ? (
               <div className="flex items-center justify-center py-4">
-                <Icon name="Loader2" size={16} className="animate-spin text-slate-500" />
+                <Icon name="Loader2" size={16} className="animate-spin text-gray-400" />
               </div>
             ) : taskActions.length === 0 ? (
-              <p className="text-xs text-slate-600 text-center py-3">
+              <p className="text-xs text-gray-400 text-center py-3">
                 Нет действий. Нажмите <Icon name="ListPlus" size={11} className="inline mx-1" /> чтобы добавить.
               </p>
             ) : (
               taskActions.map(action => (
-                <div key={action.id} className="flex items-start gap-2.5 p-2.5 bg-slate-900/40 rounded-lg ring-1 ring-slate-700/30">
+                <div key={action.id} className="flex items-start gap-2.5 p-2.5 bg-white rounded-lg border border-gray-100">
                   <button
                     onClick={() => onToggleActionDone(action.id, !action.is_done)}
                     disabled={togglingActionId === action.id}
                     className="mt-0.5 flex-shrink-0 w-4 h-4 rounded flex items-center justify-center transition-all"
                   >
                     {togglingActionId === action.id ? (
-                      <Icon name="Loader2" size={12} className="animate-spin text-slate-500" />
+                      <Icon name="Loader2" size={12} className="animate-spin text-gray-400" />
                     ) : action.is_done ? (
-                      <div className="w-4 h-4 rounded bg-emerald-500/20 ring-1 ring-emerald-500/40 flex items-center justify-center">
-                        <Icon name="Check" size={10} className="text-emerald-400" />
+                      <div className="w-4 h-4 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                        <Icon name="Check" size={10} className="text-emerald-600" />
                       </div>
                     ) : (
-                      <div className="w-4 h-4 rounded ring-1 ring-slate-600 bg-slate-800 hover:ring-slate-500 transition-all" />
+                      <div className="w-4 h-4 rounded border border-gray-300 bg-white hover:border-gray-400 transition-all" />
                     )}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-xs leading-relaxed ${action.is_done ? 'line-through text-slate-600' : 'text-slate-300'}`}>
+                    <p className={`text-xs leading-relaxed ${action.is_done ? 'line-through text-gray-400' : 'text-gray-600'}`}>
                       {action.comment}
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] text-slate-700">добавлено {fmt(action.created_at)}</span>
-                      {action.is_done && action.done_at && (
-                        <span className="text-[10px] text-emerald-700 flex items-center gap-0.5">
-                          <Icon name="CheckCircle" size={9} /> выполнено {fmt(action.done_at)}
-                        </span>
-                      )}
-                    </div>
+                    {action.done_at && (
+                      <p className="text-[10px] text-gray-400 mt-0.5">{fmt(action.done_at)}</p>
+                    )}
                   </div>
                 </div>
               ))

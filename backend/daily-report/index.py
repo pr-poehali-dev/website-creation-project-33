@@ -152,7 +152,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     # КМС
     kms_str = f'{total_kms:,} ₽'.replace(',', ' ')
-    lines.append(f'💰 <b>Доход (КМС) за день: {kms_str}</b>')
+    lines.append(f'💰 <b>Доход за день: {kms_str}</b>')
     lines.append('')
 
     # Незаполненные слоты

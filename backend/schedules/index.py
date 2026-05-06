@@ -234,12 +234,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Получаем графики промоутеров
         cur.execute("""
-            SELECT u.id, COALESCE(ps.schedule_data, '{}'::jsonb), %s, u.name, u.email, ps.submitted_at
+            SELECT u.id, COALESCE(ps.schedule_data, '{}'::jsonb), %s, u.name, u.email, ps.submitted_at, u.is_active
             FROM t_p24058207_website_creation_pro.users u
             LEFT JOIN t_p24058207_website_creation_pro.promoter_schedules ps 
                 ON u.id = ps.user_id AND ps.week_start_date = %s
-            WHERE u.is_active = true AND u.is_approved = true
-            ORDER BY u.name
+            WHERE u.is_approved = true
+            ORDER BY u.is_active DESC, u.name
         """, (week_start, week_start))
         
         rows = cur.fetchall()
@@ -305,6 +305,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         for row in rows:
             user_id = row[0]
             submitted_at = row[5].isoformat() if row[5] else None
+            is_active = row[6]
             schedules.append({
                 'user_id': user_id,
                 'schedule': row[1],
@@ -314,7 +315,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'email': row[4],
                 'avg_per_shift': stats_map.get(user_id, 0),
                 'daily_contacts': user_daily_stats.get(user_id, []),
-                'submitted_at': submitted_at
+                'submitted_at': submitted_at,
+                'is_active': is_active
             })
         
         return {

@@ -82,12 +82,15 @@ export default function WorkerCard({
   const aboveAvg = actualContacts !== null && avgContacts !== null && actualContacts >= Math.round(avgContacts);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+    <div className={`rounded-xl border overflow-hidden shadow-sm ${worker.is_active === false ? 'bg-gray-50 border-gray-200 opacity-75' : 'bg-white border-gray-100'}`}>
       <div className="flex items-center justify-between px-3 py-2 gap-2">
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          <span className="text-[11px] text-gray-700 font-medium truncate">
+          <span className={`text-[11px] font-medium truncate ${worker.is_active === false ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
             {worker.first_name} {worker.last_name}{isMaxim && ' 👑'}
           </span>
+          {worker.is_active === false && (
+            <span className="text-[9px] bg-red-100 text-red-400 px-1.5 py-0.5 rounded-full flex-shrink-0">удалён</span>
+          )}
 
           {avgContacts !== undefined && avgContacts !== null && (
             <span className="flex items-center gap-0.5 text-[9px] bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">

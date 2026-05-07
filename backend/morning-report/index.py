@@ -2,7 +2,7 @@ import json
 import os
 import psycopg2
 import requests
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime, timezone
 from typing import Dict, Any, List
 from push_utils import notify_admins
 
@@ -50,7 +50,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     params = event.get('queryStringParameters') or {}
     test_date_str = params.get('test_date')
-    today = date.fromisoformat(test_date_str) if test_date_str else date.today()
+    MSK = timezone(timedelta(hours=3))
+    today = date.fromisoformat(test_date_str) if test_date_str else datetime.now(MSK).date()
 
     week_start = get_week_start(today)
     week_end = week_start + timedelta(days=6)

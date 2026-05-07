@@ -2,7 +2,7 @@ import json
 import os
 import psycopg2
 import requests
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime, timezone
 from typing import Dict, Any
 from push_utils import notify_admins
 
@@ -37,10 +37,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # Поддержка тестового режима: ?test_date=2026-05-05
     params = event.get('queryStringParameters') or {}
     test_date_str = params.get('test_date')
+    MSK = timezone(timedelta(hours=3))
     if test_date_str:
         today = date.fromisoformat(test_date_str)
     else:
-        today = date.today()
+        today = datetime.now(MSK).date()
     tomorrow = today + timedelta(days=1)
 
     with psycopg2.connect(database_url) as conn:

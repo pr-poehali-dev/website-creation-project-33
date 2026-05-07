@@ -2,6 +2,11 @@ import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import NotificationsModal from './NotificationsModal';
 
+const REPORT_URLS = {
+  morning: 'https://functions.poehali.dev/5d514447-0fd5-409b-a255-3b0800e93eaf',
+  daily: 'https://functions.poehali.dev/109690f5-6a72-42e2-b8ba-3eb705cba518',
+};
+
 interface AdminHeaderProps {
   onLogout: () => void;
   onOpenGoogleSheets: () => void;
@@ -12,6 +17,16 @@ interface AdminHeaderProps {
 
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false, hideTitle = false }: AdminHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [loadingReport, setLoadingReport] = useState<'morning' | 'daily' | null>(null);
+
+  const sendReport = async (type: 'morning' | 'daily') => {
+    setLoadingReport(type);
+    try {
+      await fetch(REPORT_URLS[type]);
+    } finally {
+      setLoadingReport(null);
+    }
+  };
 
   return (
     <>
@@ -34,6 +49,22 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
               <Icon name="Home" size={16} className="text-gray-600" />
             </button>
           )}
+          <button
+            onClick={() => sendReport('morning')}
+            disabled={loadingReport !== null}
+            className="w-9 h-9 rounded-xl bg-amber-100 hover:bg-amber-200 flex items-center justify-center transition-colors disabled:opacity-50"
+            title="Утренний отчёт"
+          >
+            {loadingReport === 'morning' ? <Icon name="Loader2" size={16} className="text-amber-600 animate-spin" /> : <Icon name="Sunrise" size={16} className="text-amber-600" />}
+          </button>
+          <button
+            onClick={() => sendReport('daily')}
+            disabled={loadingReport !== null}
+            className="w-9 h-9 rounded-xl bg-blue-100 hover:bg-blue-200 flex items-center justify-center transition-colors disabled:opacity-50"
+            title="Вечерний отчёт"
+          >
+            {loadingReport === 'daily' ? <Icon name="Loader2" size={16} className="text-blue-600 animate-spin" /> : <Icon name="Sunset" size={16} className="text-blue-600" />}
+          </button>
           <button
             onClick={() => setShowNotifications(true)}
             className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"

@@ -55,7 +55,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
             className="w-9 h-9 rounded-xl bg-amber-100 hover:bg-amber-200 flex items-center justify-center transition-colors disabled:opacity-50"
             title="Утренний отчёт"
           >
-            {loadingReport === 'morning' ? <Icon name="Loader2" size={16} className="text-amber-600 animate-spin" /> : <Icon name="Sunrise" size={16} className="text-amber-600" />}
+            {loadingReport === 'morning' ? <Icon name="Loader2" size={16} className="text-amber-600 animate-spin" /> : <Icon name="Sun" size={16} className="text-amber-600" />}
           </button>
           <button
             onClick={() => sendReport('daily')}
@@ -63,7 +63,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
             className="w-9 h-9 rounded-xl bg-blue-100 hover:bg-blue-200 flex items-center justify-center transition-colors disabled:opacity-50"
             title="Вечерний отчёт"
           >
-            {loadingReport === 'daily' ? <Icon name="Loader2" size={16} className="text-blue-600 animate-spin" /> : <Icon name="Sunset" size={16} className="text-blue-600" />}
+            {loadingReport === 'daily' ? <Icon name="Loader2" size={16} className="text-blue-600 animate-spin" /> : <Icon name="Moon" size={16} className="text-blue-600" />}
           </button>
           <button
             onClick={() => setShowNotifications(true)}

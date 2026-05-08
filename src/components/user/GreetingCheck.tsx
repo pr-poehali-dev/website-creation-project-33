@@ -68,9 +68,7 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
         const matched = texts.some((t) => TARGET_WORDS.some((w) => t.includes(w)));
         if (matched) {
           recognition.stop();
-          setTranscript(texts[0] || '');
-          setStatus('success');
-          setTimeout(() => onSuccess(), 750);
+          onSuccess();
           return;
         }
       }

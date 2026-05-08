@@ -27,13 +27,16 @@ FINE_LATE_START = 500
 FINE_EARLY_END = 500
 
 
-def calculate_salary(contacts: int, shift_date_str: str, user_id: int, org_name: str) -> int:
+def calculate_salary(contacts: int, shift_date_str: str, user_id: int, org_name: str, employee_status: str = 'employee') -> int:
     if user_id in (3, 9):
         return 0
     if org_name == 'Администратор':
         return 600
-    cutoff = date(2025, 10, 1)
     d = date.fromisoformat(shift_date_str)
+    intern_cutoff = date(2026, 5, 8)
+    if employee_status == 'intern' and d >= intern_cutoff:
+        return contacts * 260
+    cutoff = date(2025, 10, 1)
     if d < cutoff:
         return contacts * 200
     if contacts >= 10:
@@ -86,6 +89,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     dsn = os.environ.get('DATABASE_URL')
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
+
+    # Получаем статус сотрудника
+    cur.execute("SELECT employee_status FROM t_p24058207_website_creation_pro.users WHERE id = %s", (user_id,))
+    status_row = cur.fetchone()
+    employee_status = status_row[0] if status_row and status_row[0] else 'employee'
 
     # Получаем контакты по дням за неделю
     cur.execute("""
@@ -171,7 +179,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         org_name = day_shifts[0]['org_name'] if day_shifts else 'Неизвестно'
         compensation = sum(s['compensation'] for s in day_shifts)
 
-        earnings = calculate_salary(contacts, date_str, user_id, org_name) + compensation
+        earnings = calculate_salary(contacts, date_str, user_id, org_name, employee_status) + compensation
         fines = []
 
         # Запланированные слоты на этот день

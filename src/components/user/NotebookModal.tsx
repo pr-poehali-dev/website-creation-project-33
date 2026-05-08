@@ -7,6 +7,7 @@ interface NotebookModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isRecording: boolean;
+  recordingSeconds?: number;
   isLoading: boolean;
   parentName: string;
   setParentName: (value: string) => void;
@@ -25,6 +26,7 @@ export default function NotebookModal({
   open,
   onOpenChange,
   isRecording,
+  recordingSeconds = 0,
   isLoading,
   parentName,
   setParentName,
@@ -70,12 +72,17 @@ export default function NotebookModal({
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
                 {isRecording && (
-                  <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-full">
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
-                    <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+                  <div className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 rounded-full">
+                    <div className="flex items-center gap-1 sm:gap-1.5">
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '14px', animationDelay: '0ms', animationDuration: '800ms' }}></div>
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '22px', animationDelay: '150ms', animationDuration: '800ms' }}></div>
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '18px', animationDelay: '300ms', animationDuration: '800ms' }}></div>
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
+                      <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
+                    </div>
+                    <span className={`text-xs font-mono font-bold tabular-nums ${recordingSeconds >= 50 ? 'text-red-500' : 'text-blue-500'}`}>
+                      {Math.floor(recordingSeconds / 60)}:{String(recordingSeconds % 60).padStart(2, '0')}&nbsp;/&nbsp;1:00
+                    </span>
                   </div>
                 )}
                 <button

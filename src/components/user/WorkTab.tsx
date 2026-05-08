@@ -36,6 +36,9 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     localStorage.setItem('parent_name_draft', parentName);
@@ -83,6 +86,20 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       mediaRecorder.start();
       setIsRecording(true);
       setNotebookModalOpen(true);
+      setRecordingSeconds(0);
+
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingSeconds(s => s + 1);
+      }, 1000);
+
+      recordingTimerRef.current = setTimeout(() => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+          mediaRecorderRef.current.stop();
+          setIsRecording(false);
+          toast({ title: 'Запись остановлена', description: 'Достигнут лимит 60 секунд' });
+        }
+        if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
+      }, 60000);
     } catch (error) {
       toast({ 
         title: 'Ошибка доступа к микрофону',
@@ -93,6 +110,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   };
 
   const stopRecording = () => {
+    if (recordingTimerRef.current) clearTimeout(recordingTimerRef.current);
+    if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
@@ -345,6 +364,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           }
         }}
         isRecording={isRecording}
+        recordingSeconds={recordingSeconds}
         isLoading={isLoading}
         parentName={parentName}
         setParentName={setParentName}

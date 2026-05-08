@@ -75,14 +75,18 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      if (event.error === 'no-speech') setErrorMsg('Ничего не услышали. Попробуйте ещё раз.');
-      else if (event.error === 'not-allowed') setErrorMsg('Нет доступа к микрофону.');
-      else setErrorMsg(`Ошибка: ${event.error}`);
-      setStatus('fail');
+      if (event.error === 'not-allowed') {
+        setErrorMsg('Нет доступа к микрофону.');
+        setStatus('fail');
+      }
+      // no-speech и прочие — перезапускаем автоматически
     };
 
     recognition.onend = () => {
-      if (statusRef.current === 'listening') setStatus('fail');
+      // Если ещё слушаем (не успех, не ошибка доступа) — перезапускаем новый экземпляр
+      if (statusRef.current === 'listening') {
+        setTimeout(() => start(), 100);
+      }
     };
 
     recognition.start();
@@ -92,7 +96,7 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     recognitionRef.current?.stop();
     setTranscript(''); setErrorMsg('');
     setStatus('idle');
-    setTimeout(() => start(), 50);
+    setTimeout(() => start(), 100);
   };
 
   return (

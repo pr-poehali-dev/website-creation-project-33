@@ -102,8 +102,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if audio_data and media_type != 'video':
             try:
                 groq_api_key = os.environ.get('GROQ_API_KEY')
+                print(f'🔑 GROQ_API_KEY present: {bool(groq_api_key)}, prefix: {groq_api_key[:8] if groq_api_key else "None"}')
                 if groq_api_key:
                     media_bytes_for_whisper = base64.b64decode(audio_data)
+                    print(f'🎤 Whisper input size: {len(media_bytes_for_whisper)} bytes')
                     whisper_response = requests.post(
                         'https://api.groq.com/openai/v1/audio/transcriptions',
                         headers={'Authorization': f'Bearer {groq_api_key}'},

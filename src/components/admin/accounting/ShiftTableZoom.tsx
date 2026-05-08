@@ -23,8 +23,8 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-center mb-1">
+    <div className="flex flex-col" style={{ height: 'calc(100vh - 40px)' }}>
+      <div className="flex justify-between items-center py-1 px-0 flex-shrink-0">
         <div className="flex gap-1.5 md:gap-2 items-center">
           <Button
             onClick={handleZoomOut}
@@ -57,10 +57,9 @@ export default function ShiftTableZoom({ children, parentRef }: ShiftTableZoomPr
 
       <div 
         ref={parentRef}
-        className="overflow-auto border border-gray-200 md:border-2 rounded-lg"
+        className="overflow-auto border border-gray-200 md:border-2 rounded-lg flex-1"
         style={{
-          height: 'calc(100vh - 60px)',
-          minHeight: '400px',
+          minHeight: 0,
           width: '100%'
         }}
       >

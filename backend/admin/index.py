@@ -2136,7 +2136,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(ae.personal_funds_by_kvv, false) as personal_funds_by_kvv,
                             COALESCE(ae.compensation_amount, 0) as compensation_amount,
                             u.employee_status,
-                            u.created_at as user_registered_at
+                            u.created_at as user_registered_at,
+                            u.is_active as user_is_active
                         FROM t_p24058207_website_creation_pro.work_shifts s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
@@ -2222,7 +2223,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'personal_funds_by_kvv': bool(row[22]),
                             'compensation_amount': int(row[23]) if row[23] else 0,
                             'employee_status': row[24] if row[24] else 'employee',
-                            'user_registered_at': row[25].isoformat() if row[25] else None
+                            'user_registered_at': row[25].isoformat() if row[25] else None,
+                            'is_active': bool(row[26]) if row[26] is not None else True
                         })
             
             return {

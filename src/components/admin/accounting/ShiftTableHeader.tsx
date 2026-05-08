@@ -99,6 +99,9 @@ export default function ShiftTableHeader({
             onSelectionChange={onPromoterFilterChange}
           />
         </th>
+        <th className="border border-gray-200 p-1 md:p-2 text-center whitespace-nowrap text-[9px] md:text-xs text-gray-500">
+          Статус
+        </th>
         <th className="border border-gray-200 p-1 md:p-2 text-right whitespace-nowrap">
           <div>Контакты</div>
           <div className="text-gray-800 font-bold mt-0.5 md:mt-1 text-[9px] md:text-xs">{stats.totalContacts}</div>

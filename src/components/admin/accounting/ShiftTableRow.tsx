@@ -196,6 +196,15 @@ function ShiftTableRow({
       <td className="border border-gray-200 p-1 md:p-2 text-right text-gray-700">{tax > 0 ? `${tax.toLocaleString()} ₽` : '—'}</td>
       <td className="border border-gray-200 p-1 md:p-2 text-right font-medium text-gray-800">{afterTax.toLocaleString()} ₽</td>
       <td className="border border-gray-200 p-1 md:p-2 text-gray-700">{shift.user_name}</td>
+      <td className="border border-gray-200 p-1 md:p-2 text-center whitespace-nowrap">
+        {!shift.is_active ? (
+          <span className="text-[9px] md:text-[10px] font-medium text-red-500">Уволен</span>
+        ) : shift.employee_status === 'intern' ? (
+          <span className="text-[9px] md:text-[10px] font-medium text-amber-600">Стажёр</span>
+        ) : (
+          <span className="text-[9px] md:text-[10px] font-medium text-green-600">Сотрудник</span>
+        )}
+      </td>
       <td className="border border-gray-200 p-1 md:p-2 text-right text-gray-700">{shift.contacts_count}</td>
       <td className="border border-gray-200 p-1 md:p-2 text-right font-medium text-gray-800">{workerSalary.toLocaleString()} ₽</td>
       <td className="border border-gray-200 p-1 md:p-2">

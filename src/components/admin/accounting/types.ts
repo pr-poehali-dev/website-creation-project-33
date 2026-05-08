@@ -27,6 +27,7 @@ export interface ShiftRecord {
   compensation_amount: number;
   employee_status?: 'intern' | 'employee';
   user_registered_at?: string;
+  is_active?: boolean;
 }
 
 export interface User {

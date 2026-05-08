@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 
-const TARGET_WORD = 'здравствуйте';
+const TARGET_WORDS = ['здравствуйте', 'дети'];
 
 type Status = 'idle' | 'listening' | 'processing' | 'success' | 'fail';
 

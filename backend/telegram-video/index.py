@@ -179,6 +179,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             )
                             print(f'Updated work_shift end time for user={user_id}, org={organization_id}')
 
+                            # Сохраняем статус сотрудника на момент смены в accounting_expenses
+                            cur.execute(
+                                "SELECT employee_status FROM t_p24058207_website_creation_pro.users WHERE id = %s",
+                                (int(user_id),)
+                            )
+                            status_now_row = cur.fetchone()
+                            status_now = status_now_row[0] if status_now_row and status_now_row[0] else 'employee'
+                            cur.execute(
+                                """
+                                INSERT INTO t_p24058207_website_creation_pro.accounting_expenses
+                                    (user_id, work_date, organization_id, employee_status_at_shift)
+                                VALUES (%s, (CURRENT_TIMESTAMP + INTERVAL '3 hours')::date, %s, %s)
+                                ON CONFLICT (user_id, work_date, organization_id) DO UPDATE
+                                    SET employee_status_at_shift = EXCLUDED.employee_status_at_shift
+                                """,
+                                (int(user_id), int(organization_id), status_now)
+                            )
+                            print(f'Saved employee_status_at_shift={status_now} for user={user_id}')
+
                             # Обновляем счётчик стажировки для стажёров
                             cur.execute(
                                 "SELECT employee_status, internship_shifts_completed FROM t_p24058207_website_creation_pro.users WHERE id = %s",

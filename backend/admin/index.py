@@ -2135,7 +2135,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(ae.personal_funds_by_kms, false) as personal_funds_by_kms,
                             COALESCE(ae.personal_funds_by_kvv, false) as personal_funds_by_kvv,
                             COALESCE(ae.compensation_amount, 0) as compensation_amount,
-                            u.employee_status,
+                            COALESCE(ae.employee_status_at_shift, u.employee_status, 'employee') as employee_status,
                             u.created_at as user_registered_at,
                             u.is_active as user_is_active
                         FROM t_p24058207_website_creation_pro.work_shifts s

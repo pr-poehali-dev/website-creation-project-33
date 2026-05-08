@@ -102,20 +102,22 @@ export default function AccountingModal({
       <div className="absolute inset-0 bg-black/80" onClick={onClose} />
       
       <div className="relative w-full h-full bg-white overflow-hidden flex flex-col">
-        <div className="flex items-center justify-end px-2 py-1 bg-white border-b border-gray-100">
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Закрыть"
-          >
+        <div className="flex items-center justify-between px-2 py-1 bg-white border-b border-gray-100">
+          <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg border border-gray-200">
+            <button onClick={() => setZoom(z => Math.max(50, z - 10))} className="p-1 hover:bg-gray-200 rounded transition-colors" title="Уменьшить">
+              <Icon name="ZoomOut" size={16} className="text-gray-600" />
+            </button>
+            <span className="text-xs text-gray-700 min-w-[36px] text-center">{zoom}%</span>
+            <button onClick={() => setZoom(z => Math.min(150, z + 10))} className="p-1 hover:bg-gray-200 rounded transition-colors" title="Увеличить">
+              <Icon name="ZoomIn" size={16} className="text-gray-600" />
+            </button>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg transition-colors" title="Закрыть">
             <Icon name="X" size={20} className="text-gray-600" />
           </button>
         </div>
 
-        <div 
-          className="flex-1 overflow-hidden p-1"
-          style={{ zoom: `${zoom}%` }}
-        >
+        <div className="flex-1 overflow-hidden p-1">
           {hasUnsavedPayments && (
             <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-xl shadow-sm flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -143,6 +145,7 @@ export default function AccountingModal({
           )}
 
           <ShiftTable
+            scale={zoom}
             shifts={shifts}
             users={users}
             organizations={organizations}

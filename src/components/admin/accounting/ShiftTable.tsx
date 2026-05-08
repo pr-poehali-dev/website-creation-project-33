@@ -55,6 +55,7 @@ interface ShiftTableProps {
   onDateFilterChange: (from: string, to: string) => void;
   onDelete: (shift: ShiftRecord) => void;
   onEdit: (shift: ShiftRecord) => void;
+  scale?: number;
 }
 
 export default function ShiftTable({
@@ -84,7 +85,8 @@ export default function ShiftTable({
   onPaymentTypeFilterChange,
   onDateFilterChange,
   onDelete,
-  onEdit
+  onEdit,
+  scale = 100
 }: ShiftTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -100,7 +102,7 @@ export default function ShiftTable({
   const stats = useMemo(() => calculateTableStatistics(shifts), [shifts]);
 
   return (
-    <ShiftTableZoom parentRef={parentRef}>
+    <ShiftTableZoom parentRef={parentRef} scale={scale}>
       <table className="w-full text-xs md:text-sm border-collapse bg-white">
         <ShiftTableHeader
           stats={stats}

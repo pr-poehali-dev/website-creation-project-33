@@ -18,7 +18,9 @@ interface SpeechRecognitionInstance {
   onend: (() => void) | null;
 }
 
-const isMobile = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isAndroid = () => /Android/i.test(navigator.userAgent);
+const isMobile = () => isIOS() || isAndroid();
 
 export default function SpeechTab() {
   const { user } = useAuth();
@@ -178,8 +180,18 @@ export default function SpeechTab() {
     finally { if (success) setStatus('sent'); }
   };
 
-  const handleStart = () => { if (isMobile()) { startMobile(); } else { startDesktop(); } };
-  const handleStop = () => { if (isMobile()) { stopMobile(); } else { recognitionRef.current?.stop(); } };
+  const hasSpeechRecognition = () => !!(
+    (window as Window & { SpeechRecognition?: unknown }).SpeechRecognition ||
+    (window as Window & { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition
+  );
+
+  // Android → MediaRecorder+Whisper; iOS/ПК → Web Speech API; если недоступен → MediaRecorder
+  const handleStart = () => {
+    if (isAndroid() || !hasSpeechRecognition()) { startMobile(); } else { startDesktop(); }
+  };
+  const handleStop = () => {
+    if (isAndroid() || !hasSpeechRecognition()) { stopMobile(); } else { recognitionRef.current?.stop(); }
+  };
 
   const reset = () => {
     recognitionRef.current?.stop();

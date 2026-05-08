@@ -156,6 +156,8 @@ def handler(event: dict, context) -> dict:
     audio_b64 = body_data.get('audio')
     mime_type = body_data.get('mime_type', 'audio/webm')
 
+    print(f'Request: user_id={user_id}, mime_type={mime_type}, audio_len={len(audio_b64) if audio_b64 else 0}')
+
     if not audio_b64:
         return {
             'statusCode': 400,

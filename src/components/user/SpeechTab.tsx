@@ -129,10 +129,20 @@ export default function SpeechTab() {
     }
   };
 
+  const toBase64 = (buffer: ArrayBuffer): string => {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+    }
+    return btoa(binary);
+  };
+
   const sendToWhisper = async (blob: Blob, mimeType: string) => {
     try {
       const arrayBuffer = await blob.arrayBuffer();
-      const b64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const b64 = toBase64(arrayBuffer);
 
       const res = await fetch(SPEECH_RECOGNIZE_URL, {
         method: 'POST',

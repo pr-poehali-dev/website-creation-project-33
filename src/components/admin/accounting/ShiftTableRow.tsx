@@ -103,7 +103,7 @@ function ShiftTableRow({
   const tax = calculateTax(shift);
   const afterTax = calculateAfterTax(shift);
   const orgName = shift.organization_name || shift.organization;
-  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
+  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id, shift.employee_status, shift.user_registered_at);
   const netProfit = calculateNetProfit(shift);
   
   // Личные средства для отображения в UI

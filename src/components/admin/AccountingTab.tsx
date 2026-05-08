@@ -111,7 +111,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
           revenue: calculateRevenue(mergedShift),
           tax: calculateTax(mergedShift),
           after_tax: calculateAfterTax(mergedShift),
-          worker_salary: calculateWorkerSalary(mergedShift.contacts_count, mergedShift.date, mergedShift.organization_name || mergedShift.organization, mergedShift.user_id)
+          worker_salary: calculateWorkerSalary(mergedShift.contacts_count, mergedShift.date, mergedShift.organization_name || mergedShift.organization, mergedShift.user_id, mergedShift.employee_status, mergedShift.user_registered_at)
         };
       });
       

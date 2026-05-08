@@ -106,20 +106,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if groq_api_key:
                     media_bytes_for_whisper = base64.b64decode(audio_data)
                     print(f'🎤 Whisper input size: {len(media_bytes_for_whisper)} bytes')
-                    whisper_response = requests.post(
-                        'https://api.groq.com/openai/v1/audio/transcriptions',
-                        headers={'Authorization': f'Bearer {groq_api_key}'},
-                        files={'file': ('audio.webm', media_bytes_for_whisper, 'audio/webm')},
-                        data={'model': 'whisper-large-v3-turbo', 'language': 'ru'},
-                        timeout=30
-                    )
-                    if whisper_response.ok:
-                        transcript = whisper_response.json().get('text', '').lower()
-                        print(f'🎙️ Transcript: {transcript}')
-                        greeted = any(w in transcript for w in ['здравствуйте', 'здравствуй', 'привет', 'добрый день', 'добрый вечер', 'доброе утро'])
-                        greeting_mark = '✅ Поздоровался' if greeted else '❌ Не поздоровался'
-                    else:
-                        print(f'❌ Whisper error: {whisper_response.status_code} {whisper_response.text}')
+                    if len(media_bytes_for_whisper) >= 1000:
+                        whisper_response = requests.post(
+                            'https://api.groq.com/openai/v1/audio/transcriptions',
+                            headers={'Authorization': f'Bearer {groq_api_key}'},
+                            files={'file': ('audio.webm', media_bytes_for_whisper, 'audio/webm')},
+                            data={'model': 'whisper-large-v3-turbo', 'language': 'ru'},
+                            timeout=30
+                        )
+                        if whisper_response.ok:
+                            transcript = whisper_response.json().get('text', '').lower()
+                            print(f'🎙️ Transcript: {transcript}')
+                            greeted = any(w in transcript for w in ['здравствуйте', 'здравствуй', 'привет', 'добрый день', 'добрый вечер', 'доброе утро'])
+                            greeting_mark = '✅ Поздоровался' if greeted else '❌ Не поздоровался'
+                        else:
+                            print(f'❌ Whisper error: {whisper_response.status_code} {whisper_response.text}')
             except Exception as whisper_error:
                 print(f'❌ Whisper processing error: {whisper_error}')
 

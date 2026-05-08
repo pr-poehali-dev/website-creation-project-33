@@ -30,6 +30,7 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
 
   useEffect(() => { statusRef.current = status; }, [status]);
   useEffect(() => {
+    start();
     return () => { recognitionRef.current?.stop(); };
   }, []);
 
@@ -87,7 +88,9 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
 
   const reset = () => {
     recognitionRef.current?.stop();
-    setStatus('idle'); setTranscript(''); setErrorMsg('');
+    setTranscript(''); setErrorMsg('');
+    setStatus('idle');
+    setTimeout(() => start(), 50);
   };
 
   return (
@@ -110,18 +113,8 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
           </div>
         )}
 
-        {/* idle */}
-        {status === 'idle' && (
-          <button
-            onClick={start}
-            className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200 active:scale-95 transition-transform"
-          >
-            <Icon name="Mic" size={40} className="text-white" />
-          </button>
-        )}
-
-        {/* listening */}
-        {status === 'listening' && (
+        {/* idle / listening — одинаковый вид, сразу слушаем */}
+        {(status === 'idle' || status === 'listening') && (
           <div className="flex flex-col items-center gap-3">
             <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center shadow-xl shadow-blue-300 animate-ping-slow">
               <Icon name="Mic" size={40} className="text-white" />

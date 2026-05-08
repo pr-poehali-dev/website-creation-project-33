@@ -289,7 +289,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             </button>
           </div>
         )}
-        <div className="min-h-[70vh]">
+        <div className="h-[70vh]">
           <ShiftTable
             shifts={filteredShifts}
             editingExpense={editingExpense}

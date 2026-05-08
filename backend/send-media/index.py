@@ -97,11 +97,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             except Exception as db_error:
                 print(f"Failed to get user name: {db_error}")
         
+        # Распознавание речи через Whisper (только для аудио)
+        greeting_mark = ''
+        if audio_data and media_type != 'video':
+            try:
+                openai_api_key = os.environ.get('OPENAI_API_KEY')
+                if openai_api_key:
+                    media_bytes_for_whisper = base64.b64decode(audio_data)
+                    whisper_response = requests.post(
+                        'https://api.openai.com/v1/audio/transcriptions',
+                        headers={'Authorization': f'Bearer {openai_api_key}'},
+                        files={'file': ('audio.webm', media_bytes_for_whisper, 'audio/webm')},
+                        data={'model': 'whisper-1', 'language': 'ru'},
+                        timeout=30
+                    )
+                    if whisper_response.ok:
+                        transcript = whisper_response.json().get('text', '').lower()
+                        print(f'🎙️ Transcript: {transcript}')
+                        greeted = any(w in transcript for w in ['здравствуйте', 'здравствуй', 'привет', 'добрый день', 'добрый вечер', 'доброе утро'])
+                        greeting_mark = '✅ Поздоровался' if greeted else '❌ Не поздоровался'
+                    else:
+                        print(f'❌ Whisper error: {whisper_response.status_code} {whisper_response.text}')
+            except Exception as whisper_error:
+                print(f'❌ Whisper processing error: {whisper_error}')
+
         # Формирование сообщения
         org_info = f"\n🏢 Организация: {organization_name}" if organization_name else ""
+        greeting_line = f"\n{greeting_mark}" if greeting_mark else ""
         caption = f"""📞 КОНТАКТ
 🎙️ IMPERIA PROMO
-Промоутер: {user_name}{org_info}
+Промоутер: {user_name}{org_info}{greeting_line}
 
 📝 Отчёт:
 {notes}"""

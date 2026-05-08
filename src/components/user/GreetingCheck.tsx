@@ -65,7 +65,7 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
         const result = event.results[i];
         const alts = Array.from(result);
         const texts = alts.map((r) => (r as SpeechRecognitionAlternative).transcript.toLowerCase().trim());
-        const matched = texts.some((t) => t.includes(TARGET_WORD));
+        const matched = texts.some((t) => TARGET_WORDS.some((w) => t.includes(w)));
         if (matched) {
           recognition.stop();
           setTranscript(texts[0] || '');

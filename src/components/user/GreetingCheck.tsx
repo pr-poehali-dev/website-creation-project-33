@@ -28,7 +28,7 @@ interface SpeechRecognitionInstance {
 interface SpeechRecognitionAlternative { transcript: string; }
 
 interface GreetingCheckProps {
-  onSuccess: () => void;
+  onSuccess: (heardText?: string) => void;
   onCancel: () => void;
 }
 
@@ -77,7 +77,7 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
         recognitionRef.current?.stop();
         const allHeard = heardTextsRef.current.join(' | ') || '(тишина)';
         sendFailReport(allHeard);
-        onSuccess();
+        onSuccess(allHeard);
       }
     }, TIMEOUT_SEC * 1000);
   };

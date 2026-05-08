@@ -80,9 +80,7 @@ export default function NotebookModal({
                       <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '26px', animationDelay: '450ms', animationDuration: '800ms' }}></div>
                       <div className="w-1 bg-blue-500 rounded-full animate-pulse" style={{ height: '16px', animationDelay: '600ms', animationDuration: '800ms' }}></div>
                     </div>
-                    <span className={`text-xs font-mono font-bold tabular-nums ${recordingSeconds >= 50 ? 'text-red-500' : 'text-blue-500'}`}>
-                      {Math.floor(recordingSeconds / 60)}:{String(recordingSeconds % 60).padStart(2, '0')}&nbsp;/&nbsp;1:00
-                    </span>
+
                   </div>
                 )}
                 <button

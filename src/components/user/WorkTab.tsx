@@ -96,7 +96,6 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
           mediaRecorderRef.current.stop();
           setIsRecording(false);
-          toast({ title: 'Запись остановлена', description: 'Достигнут лимит 60 секунд' });
         }
         if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
       }, 60000);

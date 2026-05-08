@@ -1,7 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 
-const TARGET_WORDS = ['здравствуйте', 'добрый день', 'добрый вечер', 'дети', 'детям', 'дарим', 'дарит'];
+const TARGET_WORDS = [
+  'здравствуйте', 'добрый день', 'добрый вечер',
+  'дети', 'детям', 'дарим', 'дарит',
+  'компьютер', 'компьютерная',
+  'академия', 'школа',
+  'бесплатное', 'бесплатный',
+  'занятие', 'урок', 'мастер-класс',
+  'айти', 'воркаут',
+];
 
 type Status = 'idle' | 'listening' | 'processing' | 'success' | 'fail';
 

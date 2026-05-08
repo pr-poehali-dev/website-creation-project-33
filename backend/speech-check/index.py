@@ -54,7 +54,8 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({'error': 'X-User-Id header required'})
         }
 
-    bot_token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+    bot_token = '8081347931:AAGTto62t8bmIIzdDZu5wYip0QP95JJxvIc'
+    chat_ids = ['5215501225', '1526249125']
     database_url = os.environ.get('DATABASE_URL', '')
 
     user_name = get_user_name(int(user_id), database_url) if database_url else 'Промоутер'
@@ -68,23 +69,20 @@ def handler(event: dict, context) -> dict:
         f'🕐 Время: {moscow_time}'
     )
 
-    try:
-        tg_user_id = int(user_id)
-        response = requests.post(
-            f'https://api.telegram.org/bot{bot_token}/sendMessage',
-            json={
-                'chat_id': tg_user_id,
-                'text': text,
-                'parse_mode': 'HTML'
-            },
-            timeout=10
-        )
-        tg_ok = response.ok
-        if not tg_ok:
-            print(f'Telegram error: {response.text}')
-    except Exception as e:
-        print(f'Telegram send error: {e}')
-        tg_ok = False
+    tg_ok = False
+    for chat_id in chat_ids:
+        try:
+            response = requests.post(
+                f'https://api.telegram.org/bot{bot_token}/sendMessage',
+                json={'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'},
+                timeout=10
+            )
+            if response.ok:
+                tg_ok = True
+            else:
+                print(f'Telegram error chat_id={chat_id}: {response.text}')
+        except Exception as e:
+            print(f'Telegram send error chat_id={chat_id}: {e}')
 
     return {
         'statusCode': 200,

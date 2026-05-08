@@ -5,7 +5,7 @@ const TARGET_WORD = 'здравствуйте';
 
 type Status = 'idle' | 'listening' | 'processing' | 'success' | 'fail';
 
-interface SpeechRecognitionEvent { results: SpeechRecognitionResultList; }
+interface SpeechRecognitionEvent { results: SpeechRecognitionResultList; resultIndex?: number; }
 interface SpeechRecognitionErrorEvent { error: string; }
 interface SpeechRecognitionInstance {
   lang: string; interimResults: boolean; maxAlternatives: number; continuous: boolean;
@@ -55,20 +55,24 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     const recognition = new SpeechRecognitionCtor!();
     recognitionRef.current = recognition;
     recognition.lang = 'ru-RU';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 5;
-    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 3;
+    recognition.continuous = true;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const alts = Array.from(event.results[0]);
-      const results = alts.map((r) => (r as SpeechRecognitionAlternative).transcript.toLowerCase().trim());
-      setTranscript(results[0] || '');
-      const matched = results.some((r) => r.includes(TARGET_WORD));
-      if (matched) {
-        setStatus('success');
-        setTimeout(() => onSuccess(), 750);
-      } else {
-        setStatus('fail');
+      // Проверяем все результаты — и промежуточные, и финальные
+      for (let i = event.resultIndex ?? 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        const alts = Array.from(result);
+        const texts = alts.map((r) => (r as SpeechRecognitionAlternative).transcript.toLowerCase().trim());
+        const matched = texts.some((t) => t.includes(TARGET_WORD));
+        if (matched) {
+          recognition.stop();
+          setTranscript(texts[0] || '');
+          setStatus('success');
+          setTimeout(() => onSuccess(), 750);
+          return;
+        }
       }
     };
 

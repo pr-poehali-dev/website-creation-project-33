@@ -58,16 +58,29 @@ def handler(event: dict, context) -> dict:
     chat_ids = ['5215501225', '1526249125']
     database_url = os.environ.get('DATABASE_URL', '')
 
+    body_data = json.loads(event.get('body', '{}'))
+    success = body_data.get('success', True)
+    heard = body_data.get('heard', '').strip()
+
     user_name = get_user_name(int(user_id), database_url) if database_url else 'Промоутер'
 
     moscow_time = datetime.now(MOSCOW_TZ).strftime('%d.%m.%Y %H:%M:%S')
 
-    text = (
-        f'🗣 <b>Промоутер поздоровался!</b>\n\n'
-        f'👤 <b>{user_name}</b>\n'
-        f'📝 Произнёс слово: <b>«Здравствуйте»</b>\n'
-        f'🕐 Время: {moscow_time}'
-    )
+    if success:
+        text = (
+            f'🗣 <b>Промоутер поздоровался!</b>\n\n'
+            f'👤 <b>{user_name}</b>\n'
+            f'📝 Произнёс: <b>«Здравствуйте»</b>\n'
+            f'🕐 Время: {moscow_time}'
+        )
+    else:
+        heard_text = f'«{heard}»' if heard else '(не распознано)'
+        text = (
+            f'❌ <b>Промоутер не поздоровался!</b>\n\n'
+            f'👤 <b>{user_name}</b>\n'
+            f'📝 Сказал: <b>{heard_text}</b>\n'
+            f'🕐 Время: {moscow_time}'
+        )
 
     tg_ok = False
     for chat_id in chat_ids:

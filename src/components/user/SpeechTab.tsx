@@ -75,9 +75,10 @@ export default function SpeechTab() {
       const matched = results.some((r) => r.includes(TARGET_WORD));
       if (matched) {
         setStatus('sending');
-        sendToTelegram();
+        sendToTelegram(true, results[0] || '');
       } else {
         setStatus('fail');
+        sendToTelegram(false, results[0] || '');
       }
     };
 
@@ -101,7 +102,7 @@ export default function SpeechTab() {
     recognition.start();
   };
 
-  const sendToTelegram = async () => {
+  const sendToTelegram = async (success: boolean, heard: string) => {
     try {
       await fetch(SPEECH_CHECK_URL, {
         method: 'POST',
@@ -109,12 +110,12 @@ export default function SpeechTab() {
           'Content-Type': 'application/json',
           'X-User-Id': user?.id?.toString() || '',
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ success, heard }),
       });
     } catch (e) {
       console.error('Speech check send error:', e);
     } finally {
-      setStatus('sent');
+      if (success) setStatus('sent');
     }
   };
 

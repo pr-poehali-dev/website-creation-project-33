@@ -105,7 +105,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if openai_api_key:
                     media_bytes_for_whisper = base64.b64decode(audio_data)
                     whisper_response = requests.post(
-                        'https://api.openai.com/v1/audio/transcriptions',
+                        'https://api.proxyapi.ru/openai/v1/audio/transcriptions',
                         headers={'Authorization': f'Bearer {openai_api_key}'},
                         files={'file': ('audio.webm', media_bytes_for_whisper, 'audio/webm')},
                         data={'model': 'whisper-1', 'language': 'ru'},

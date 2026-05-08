@@ -27,11 +27,17 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
   const [errorMsg, setErrorMsg] = useState('');
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const statusRef = useRef<Status>('idle');
+  const activeRef = useRef(true);
 
   useEffect(() => { statusRef.current = status; }, [status]);
   useEffect(() => {
+    activeRef.current = true;
     start();
-    return () => { recognitionRef.current?.stop(); };
+    return () => {
+      activeRef.current = false;
+      recognitionRef.current?.stop();
+      recognitionRef.current = null;
+    };
   }, []);
 
   const hasSpeechRecognition = () => !!(
@@ -68,7 +74,7 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
         const matched = texts.some((t) => TARGET_WORDS.some((w) => t.includes(w)));
         if (matched) {
           recognition.stop();
-          onSuccess();
+          if (activeRef.current) onSuccess();
           return;
         }
       }
@@ -83,8 +89,8 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     };
 
     recognition.onend = () => {
-      // Если ещё слушаем (не успех, не ошибка доступа) — перезапускаем новый экземпляр
-      if (statusRef.current === 'listening') {
+      // Перезапускаем только если компонент ещё активен и статус listening
+      if (activeRef.current && statusRef.current === 'listening') {
         setTimeout(() => start(), 100);
       }
     };
@@ -147,7 +153,7 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
 
         {/* Отмена */}
         {status !== 'success' && (
-          <button onClick={onCancel} className="text-gray-400 text-sm hover:text-gray-600 transition-colors">
+          <button onClick={() => { activeRef.current = false; recognitionRef.current?.stop(); onCancel(); }} className="text-gray-400 text-sm hover:text-gray-600 transition-colors">
             Отмена
           </button>
         )}

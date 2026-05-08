@@ -101,14 +101,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         greeting_mark = ''
         if audio_data and media_type != 'video':
             try:
-                openai_api_key = os.environ.get('OPENAI_API_KEY')
-                if openai_api_key:
+                groq_api_key = os.environ.get('GROQ_API_KEY')
+                if groq_api_key:
                     media_bytes_for_whisper = base64.b64decode(audio_data)
                     whisper_response = requests.post(
-                        'https://api.proxyapi.ru/openai/v1/audio/transcriptions',
-                        headers={'Authorization': f'Bearer {openai_api_key}'},
+                        'https://api.groq.com/openai/v1/audio/transcriptions',
+                        headers={'Authorization': f'Bearer {groq_api_key}'},
                         files={'file': ('audio.webm', media_bytes_for_whisper, 'audio/webm')},
-                        data={'model': 'whisper-1', 'language': 'ru'},
+                        data={'model': 'whisper-large-v3', 'language': 'ru'},
                         timeout=30
                     )
                     if whisper_response.ok:

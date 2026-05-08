@@ -102,45 +102,35 @@ export default function AccountingModal({
       <div className="absolute inset-0 bg-black/80" onClick={onClose} />
       
       <div className="relative w-full h-full bg-white overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-50 border border-blue-100">
-              <Icon name="Calculator" size={20} className="text-blue-600" />
-            </div>
-            Бухгалтерский учёт
-          </h2>
-          
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
-              <button
-                onClick={() => setZoom(Math.max(50, zoom - 10))}
-                className="p-1 hover:bg-gray-200 rounded transition-colors"
-                title="Уменьшить"
-              >
-                <Icon name="ZoomOut" size={18} className="text-gray-600" />
-              </button>
-              <span className="text-sm text-gray-700 min-w-[50px] text-center">{zoom}%</span>
-              <button
-                onClick={() => setZoom(Math.min(150, zoom + 10))}
-                className="p-1 hover:bg-gray-200 rounded transition-colors"
-                title="Увеличить"
-              >
-                <Icon name="ZoomIn" size={18} className="text-gray-600" />
-              </button>
-            </div>
-            
+        <div className="flex items-center justify-between px-2 py-1 bg-white border-b border-gray-100">
+          <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg border border-gray-200">
             <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Закрыть"
+              onClick={() => setZoom(Math.max(50, zoom - 10))}
+              className="p-1 hover:bg-gray-200 rounded transition-colors"
+              title="Уменьшить"
             >
-              <Icon name="X" size={24} className="text-gray-600" />
+              <Icon name="ZoomOut" size={16} className="text-gray-600" />
+            </button>
+            <span className="text-xs text-gray-700 min-w-[40px] text-center">{zoom}%</span>
+            <button
+              onClick={() => setZoom(Math.min(150, zoom + 10))}
+              className="p-1 hover:bg-gray-200 rounded transition-colors"
+              title="Увеличить"
+            >
+              <Icon name="ZoomIn" size={16} className="text-gray-600" />
             </button>
           </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Закрыть"
+          >
+            <Icon name="X" size={20} className="text-gray-600" />
+          </button>
         </div>
 
         <div 
-          className="flex-1 overflow-auto p-6"
+          className="flex-1 overflow-auto p-1"
           style={{ zoom: `${zoom}%` }}
         >
           {hasUnsavedPayments && (

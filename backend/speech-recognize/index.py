@@ -47,12 +47,13 @@ def transcribe_via_groq(audio_bytes: bytes, mime_type: str) -> str:
     groq_key = os.environ.get('GROQ_API_KEY', '')
     if not groq_key:
         raise ValueError('GROQ_API_KEY not set')
+    print(f'Groq key prefix: {groq_key[:8]}... len={len(groq_key)}')
     filename = get_filename(mime_type)
     response = requests.post(
         'https://api.groq.com/openai/v1/audio/transcriptions',
         headers={'Authorization': f'Bearer {groq_key}'},
         files={'file': (filename, audio_bytes, mime_type)},
-        data={'model': 'whisper-large-v3', 'language': 'ru', 'response_format': 'json'},
+        data={'model': 'whisper-large-v3-turbo', 'language': 'ru', 'response_format': 'json'},
         timeout=30
     )
     if not response.ok:

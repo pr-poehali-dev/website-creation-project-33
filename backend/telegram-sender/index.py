@@ -168,6 +168,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         organization_id = body_data.get('organization_id')
         organization_name = body_data.get('organization_name', '')
         greeting_heard = body_data.get('greeting_heard', '').strip()
+        greeting_triggered = body_data.get('greeting_triggered', '').strip()
         user_id = event.get('headers', {}).get('X-User-Id')
         
         if not user_id:
@@ -215,7 +216,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         type_emoji = {'подход': '👋', 'контакт': '📞'}
         emoji_type = type_emoji.get(lead_type, '❓')
         org_info = f"\n🏢 Организация: {organization_name}" if organization_name else ""
-        greeting_info = f"\n⚠️ Триггер не сработал, было сказано: «{greeting_heard}»" if greeting_heard else ""
+        if greeting_triggered:
+            greeting_info = f"\n✅ Триггер: «{greeting_triggered}»"
+        elif greeting_heard:
+            greeting_info = f"\n⚠️ Триггер не сработал, было сказано: «{greeting_heard}»"
+        else:
+            greeting_info = ""
 
         caption = f"""{emoji_type} {lead_type.upper()}
 🎙️ IMPERIA PROMO

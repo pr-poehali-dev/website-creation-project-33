@@ -28,7 +28,7 @@ interface SpeechRecognitionInstance {
 interface SpeechRecognitionAlternative { transcript: string; }
 
 interface GreetingCheckProps {
-  onSuccess: (heardText?: string) => void;
+  onSuccess: (heardText?: string, triggeredWord?: string) => void;
   onCancel: () => void;
 }
 
@@ -123,12 +123,12 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
         if (event.results[i].isFinal && texts[0]) {
           heardTextsRef.current.push(texts[0]);
         }
-        const matched = texts.some((t) => TARGET_WORDS.some((w) => t.includes(w)));
-        if (matched) {
+        const matchedWord = texts.flatMap(t => TARGET_WORDS.filter(w => t.includes(w)))[0];
+        if (matchedWord) {
           recognition.stop();
           if (timerRef.current) clearInterval(timerRef.current);
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
-          if (activeRef.current) onSuccess();
+          if (activeRef.current) onSuccess(undefined, matchedWord);
           return;
         }
       }

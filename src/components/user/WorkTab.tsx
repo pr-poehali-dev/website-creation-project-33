@@ -35,6 +35,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [notebookModalOpen, setNotebookModalOpen] = useState(false);
   const [greetingCheckOpen, setGreetingCheckOpen] = useState(false);
   const [greetingHeard, setGreetingHeard] = useState<string | null>(null);
+  const [greetingTriggered, setGreetingTriggered] = useState<string | null>(null);
   const [blockedUserModalOpen, setBlockedUserModalOpen] = useState(false);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -66,9 +67,10 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     setGreetingCheckOpen(true);
   };
 
-  const startRecording = async (heardText?: string) => {
+  const startRecording = async (heardText?: string, triggeredWord?: string) => {
     setGreetingCheckOpen(false);
     if (heardText) setGreetingHeard(heardText);
+    if (triggeredWord) setGreetingTriggered(triggeredWord);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -220,7 +222,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           audio_data: audioData,
           organization_id: selectedOrganizationId,
           organization_name: organizationName,
-          ...(greetingHeard ? { greeting_heard: greetingHeard } : {})
+          ...(greetingHeard ? { greeting_heard: greetingHeard } : {}),
+          ...(greetingTriggered ? { greeting_triggered: greetingTriggered } : {})
         })
       });
 

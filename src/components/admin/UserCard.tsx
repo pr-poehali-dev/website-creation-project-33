@@ -244,6 +244,11 @@ const MOSCOW_METRO_STATIONS = [
             {user.senior_name && (
               <p className="text-blue-500 text-xs mt-0.5">Старший: {user.senior_name}</p>
             )}
+            {user.employee_status === 'intern' && (
+              <p className="text-amber-600 text-xs mt-0.5 font-medium">
+                🎓 Стажёр · {user.internship_shifts_completed ?? 0}/3 смены
+              </p>
+            )}
             {!user.is_online && user.last_seen && (
               <p className="text-gray-400 text-xs mt-0.5">Был в сети: {formatLastSeen(user.last_seen)}</p>
             )}

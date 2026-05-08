@@ -25,6 +25,8 @@ export interface ShiftRecord {
   personal_funds_by_kms: boolean;
   personal_funds_by_kvv: boolean;
   compensation_amount: number;
+  employee_status?: 'intern' | 'employee';
+  user_registered_at?: string;
 }
 
 export interface User {

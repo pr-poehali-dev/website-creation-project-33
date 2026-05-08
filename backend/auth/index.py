@@ -270,9 +270,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 with get_db_connection() as conn:
                     with conn.cursor() as cur:
+                        # Пользователи с 08.05.2026 начинают как стажёры
+                        moscow_now = get_moscow_time()
+                        intern_cutoff = datetime(2026, 5, 8, tzinfo=MOSCOW_TZ)
+                        emp_status = 'intern' if moscow_now >= intern_cutoff else 'employee'
                         cur.execute(
-                            "INSERT INTO t_p24058207_website_creation_pro.users (email, password_hash, name, registration_ip, is_approved, latitude, longitude, location_updated_at, senior_id, nearest_metro) VALUES (%s, %s, %s, %s, FALSE, %s, %s, %s, %s, %s) RETURNING id",
-                            (email, password_hash, name, client_ip, latitude, longitude, get_moscow_time(), senior_id, nearest_metro)
+                            "INSERT INTO t_p24058207_website_creation_pro.users (email, password_hash, name, registration_ip, is_approved, latitude, longitude, location_updated_at, senior_id, nearest_metro, employee_status, internship_shifts_completed) VALUES (%s, %s, %s, %s, FALSE, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+                            (email, password_hash, name, client_ip, latitude, longitude, moscow_now, senior_id, nearest_metro, emp_status, 0)
                         )
                         user_id = cur.fetchone()[0]
                         conn.commit()

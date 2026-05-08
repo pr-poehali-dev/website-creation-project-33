@@ -19,6 +19,8 @@ export interface User {
   senior_id?: number | null;
   senior_name?: string | null;
   nearest_metro?: string | null;
+  employee_status?: 'intern' | 'employee';
+  internship_shifts_completed?: number;
 }
 
 export interface Lead {

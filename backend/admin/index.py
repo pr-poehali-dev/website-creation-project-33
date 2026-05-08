@@ -58,12 +58,13 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                        CASE WHEN u.last_seen > %s THEN true ELSE false END as is_online,
                        COUNT(l.id) as lead_count,
                        u.latitude, u.longitude, u.location_city, u.location_country,
-                       u.registration_ip, u.is_active, u.senior_id, s.name as senior_name, u.nearest_metro
+                       u.registration_ip, u.is_active, u.senior_id, s.name as senior_name, u.nearest_metro,
+                       u.employee_status, u.internship_shifts_completed
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
                 LEFT JOIN t_p24058207_website_creation_pro.training_seniors s ON u.senior_id = s.id
                 WHERE u.is_active = %s
-                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country, u.registration_ip, u.is_active, u.senior_id, s.name, u.nearest_metro
+                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country, u.registration_ip, u.is_active, u.senior_id, s.name, u.nearest_metro, u.employee_status, u.internship_shifts_completed
                 ORDER BY u.created_at DESC
             """, (online_threshold, is_active))
             
@@ -86,7 +87,9 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                     'is_active': row[13],
                     'senior_id': row[14],
                     'senior_name': row[15],
-                    'nearest_metro': row[16]
+                    'nearest_metro': row[16],
+                    'employee_status': row[17] if row[17] else 'employee',
+                    'internship_shifts_completed': row[18] if row[18] is not None else 0
                 })
             
             # Получаем ВСЕ лиды для активных пользователей одним запросом
@@ -2131,7 +2134,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(ae.personal_funds_amount, 0) as personal_funds_amount,
                             COALESCE(ae.personal_funds_by_kms, false) as personal_funds_by_kms,
                             COALESCE(ae.personal_funds_by_kvv, false) as personal_funds_by_kvv,
-                            COALESCE(ae.compensation_amount, 0) as compensation_amount
+                            COALESCE(ae.compensation_amount, 0) as compensation_amount,
+                            u.employee_status,
+                            u.created_at as user_registered_at
                         FROM t_p24058207_website_creation_pro.work_shifts s
                         JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
                         JOIN t_p24058207_website_creation_pro.organizations o ON s.organization_id = o.id
@@ -2215,7 +2220,9 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'personal_funds_amount': int(row[20]) if row[20] else 0,
                             'personal_funds_by_kms': bool(row[21]),
                             'personal_funds_by_kvv': bool(row[22]),
-                            'compensation_amount': int(row[23]) if row[23] else 0
+                            'compensation_amount': int(row[23]) if row[23] else 0,
+                            'employee_status': row[24] if row[24] else 'employee',
+                            'user_registered_at': row[25].isoformat() if row[25] else None
                         })
             
             return {

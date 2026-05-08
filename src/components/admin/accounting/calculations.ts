@@ -35,7 +35,14 @@ export const calculateAfterTax = (shift: ShiftRecord) => {
   return revenue - tax;
 };
 
-export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string, organizationName?: string, userId?: number) => {
+export const calculateWorkerSalary = (
+  contactsCount: number,
+  shiftDate?: string,
+  organizationName?: string,
+  userId?: number,
+  employeeStatus?: 'intern' | 'employee',
+  userRegisteredAt?: string
+) => {
   // Для Корельского Максима (ID 3) и Кобыляцкого Виктора (ID 9) зарплата всегда 0
   if (userId === 3 || userId === 9) {
     return 0;
@@ -44,6 +51,15 @@ export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string,
   // Для организации "Администратор" фиксированная зарплата 600₽ за смену
   if (organizationName === 'Администратор') {
     return 600;
+  }
+
+  // Стажёры (зарегистрированные с 08.05.2026): 260₽ за контакт
+  // Применяется только к сменам с 08.05.2026
+  const internCutoff = new Date('2026-05-08');
+  const isIntern = employeeStatus === 'intern' ||
+    (userRegisteredAt && new Date(userRegisteredAt) >= internCutoff);
+  if (isIntern && shiftDate && new Date(shiftDate) >= internCutoff) {
+    return contactsCount * 260;
   }
   
   // До 01.10.2025 все контакты по 200₽
@@ -61,7 +77,14 @@ export const calculateWorkerSalary = (contactsCount: number, shiftDate?: string,
 export const calculateNetProfit = (shift: ShiftRecord) => {
   const afterTax = calculateAfterTax(shift);
   const orgName = shift.organization_name || shift.organization;
-  const workerSalary = calculateWorkerSalary(shift.contacts_count, shift.date, orgName, shift.user_id);
+  const workerSalary = calculateWorkerSalary(
+    shift.contacts_count,
+    shift.date,
+    orgName,
+    shift.user_id,
+    shift.employee_status,
+    shift.user_registered_at
+  );
   const expense = shift.expense_amount || 0;
   return afterTax - workerSalary - expense;
 };

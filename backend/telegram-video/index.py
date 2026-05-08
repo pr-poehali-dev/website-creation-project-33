@@ -178,6 +178,37 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 (int(user_id), int(organization_id))
                             )
                             print(f'Updated work_shift end time for user={user_id}, org={organization_id}')
+
+                            # Обновляем счётчик стажировки для стажёров
+                            cur.execute(
+                                "SELECT employee_status, internship_shifts_completed FROM t_p24058207_website_creation_pro.users WHERE id = %s",
+                                (int(user_id),)
+                            )
+                            user_status_row = cur.fetchone()
+                            if user_status_row and user_status_row[0] == 'intern':
+                                # Считаем уникальные дни со смены (shift_videos — разные дни, не сегодняшнюю)
+                                cur.execute(
+                                    """
+                                    SELECT COUNT(DISTINCT work_date)
+                                    FROM t_p24058207_website_creation_pro.shift_videos
+                                    WHERE user_id = %s AND video_type = 'end'
+                                    """,
+                                    (int(user_id),)
+                                )
+                                completed_count_row = cur.fetchone()
+                                completed_count = completed_count_row[0] if completed_count_row else 0
+                                # +1 за текущую только что закрытую смену (shift_video ещё не вставлен, вставился выше)
+                                new_status = 'employee' if completed_count >= 3 else 'intern'
+                                cur.execute(
+                                    """
+                                    UPDATE t_p24058207_website_creation_pro.users
+                                    SET internship_shifts_completed = %s, employee_status = %s
+                                    WHERE id = %s
+                                    """,
+                                    (completed_count, new_status, int(user_id))
+                                )
+                                print(f'Intern progress: user={user_id}, completed={completed_count}, status={new_status}')
+
                             conn.commit()
                             notify_admins(conn, '🔴 Закрытие смены', f'{user_name} закрыл смену в {organization_name}')
 

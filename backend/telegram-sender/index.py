@@ -211,55 +211,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             except Exception as db_error:
                 print(f"Failed to get user name: {db_error}")
         
-        # Распознавание приветствия через Google Speech-to-Text
-        greeting_line = ''
-        if audio_data:
-            try:
-                credentials_json = os.environ.get('GOOGLE_SHEETS_CREDENTIALS_NEW')
-                if credentials_json:
-                    audio_bytes_for_stt = base64.b64decode(audio_data)
-                    print(f'🎤 STT input size: {len(audio_bytes_for_stt)} bytes')
-                    if len(audio_bytes_for_stt) >= 1000:
-                        creds_dict = json.loads(credentials_json)
-                        from google.oauth2 import service_account as sa
-                        import google.auth.transport.requests as ga_transport
-                        stt_creds = sa.Credentials.from_service_account_info(
-                            creds_dict,
-                            scopes=['https://www.googleapis.com/auth/cloud-platform']
-                        )
-                        stt_creds.refresh(ga_transport.Request())
-                        audio_b64 = base64.b64encode(audio_bytes_for_stt).decode('utf-8')
-                        stt_resp = requests.post(
-                            'https://speech.googleapis.com/v1/speech:recognize',
-                            headers={'Authorization': f'Bearer {stt_creds.token}', 'Content-Type': 'application/json'},
-                            json={
-                                'config': {'encoding': 'WEBM_OPUS', 'languageCode': 'ru-RU'},
-                                'audio': {'content': audio_b64}
-                            },
-                            timeout=30
-                        )
-                        print(f'🔊 STT response: {stt_resp.status_code} {stt_resp.text[:200]}')
-                        if stt_resp.ok:
-                            results = stt_resp.json().get('results', [])
-                            transcript = ' '.join(
-                                r.get('alternatives', [{}])[0].get('transcript', '')
-                                for r in results
-                            ).lower()
-                            print(f'🎙️ Transcript: {transcript}')
-                            greeted = any(w in transcript for w in ['здравствуйте', 'здравствуй', 'привет', 'добрый день', 'добрый вечер', 'доброе утро'])
-                            greeting_line = '\n✅ Поздоровался' if greeted else '\n❌ Не поздоровался'
-                        else:
-                            print(f'❌ STT error: {stt_resp.status_code} {stt_resp.text}')
-            except Exception as we:
-                print(f'❌ STT exception: {we}')
-
         type_emoji = {'подход': '👋', 'контакт': '📞'}
         emoji_type = type_emoji.get(lead_type, '❓')
         org_info = f"\n🏢 Организация: {organization_name}" if organization_name else ""
         
+        
         caption = f"""{emoji_type} {lead_type.upper()}
 🎙️ IMPERIA PROMO
-Промоутер: {user_name}{org_info}{greeting_line}
+Промоутер: {user_name}{org_info}
 
 📝 Отчёт:
 {notes}"""

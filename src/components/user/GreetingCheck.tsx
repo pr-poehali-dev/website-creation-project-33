@@ -101,30 +101,9 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-white rounded-3xl mx-4 p-8 flex flex-col items-center gap-6 max-w-sm w-full shadow-2xl">
 
-        {/* Заголовок — скрываем при успехе */}
+        {/* Заголовок */}
         {status !== 'success' && (
-          <div className="text-center">
-            <p className="text-gray-500 text-sm">Шаг 1 из 2</p>
-            <h2 className="text-xl font-bold text-gray-800 mt-1">Поздоровайтесь с клиентом</h2>
-            <p className="text-gray-400 text-sm mt-1">Произнесите громко и чётко</p>
-          </div>
-        )}
-
-        {/* Слово — скрываем при успехе */}
-        {status !== 'success' && (
-          <div className={`text-4xl font-bold tracking-wide transition-colors ${status === 'listening' ? 'text-blue-600' : 'text-gray-800'}`}>
-            Здравствуйте
-          </div>
-        )}
-
-        {/* idle / listening — одинаковый вид, сразу слушаем */}
-        {(status === 'idle' || status === 'listening') && (
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center shadow-xl shadow-blue-300 animate-ping-slow">
-              <Icon name="Mic" size={40} className="text-white" />
-            </div>
-            <p className="text-blue-600 font-medium animate-pulse text-sm">Слушаю...</p>
-          </div>
+          <h2 className="text-xl font-bold text-gray-800 text-center">Поздоровайтесь с клиентом</h2>
         )}
 
         {/* processing */}

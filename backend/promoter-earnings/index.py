@@ -90,10 +90,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
 
-    # Получаем статус сотрудника
+    # Получаем статус сотрудника на момент каждой смены из accounting_expenses
+    cur.execute("""
+        SELECT work_date, employee_status_at_shift
+        FROM t_p24058207_website_creation_pro.accounting_expenses
+        WHERE user_id = %s
+          AND work_date >= %s
+          AND work_date <= %s
+          AND employee_status_at_shift IS NOT NULL
+    """, (user_id, week_start, (date.fromisoformat(week_start) + timedelta(days=6)).isoformat()))
+    status_by_day = {str(row[0]): row[1] for row in cur.fetchall()}
+
+    # Текущий статус как fallback если нет записи в accounting_expenses
     cur.execute("SELECT employee_status FROM t_p24058207_website_creation_pro.users WHERE id = %s", (user_id,))
     status_row = cur.fetchone()
-    employee_status = status_row[0] if status_row and status_row[0] else 'employee'
+    current_employee_status = status_row[0] if status_row and status_row[0] else 'employee'
 
     # Получаем контакты по дням за неделю
     cur.execute("""
@@ -179,7 +190,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         org_name = day_shifts[0]['org_name'] if day_shifts else 'Неизвестно'
         compensation = sum(s['compensation'] for s in day_shifts)
 
-        earnings = calculate_salary(contacts, date_str, user_id, org_name, employee_status) + compensation
+        # Статус на момент этой конкретной смены (или текущий если смены ещё нет)
+        day_status = status_by_day.get(date_str, current_employee_status)
+        earnings = calculate_salary(contacts, date_str, user_id, org_name, day_status) + compensation
         fines = []
 
         # Запланированные слоты на этот день

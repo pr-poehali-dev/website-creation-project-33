@@ -3,7 +3,7 @@ import Icon from '@/components/ui/icon';
 
 const TARGET_WORD = 'здравствуйте';
 
-type Status = 'idle' | 'listening' | 'processing' | 'fail';
+type Status = 'idle' | 'listening' | 'processing' | 'success' | 'fail';
 
 interface SpeechRecognitionEvent { results: SpeechRecognitionResultList; }
 interface SpeechRecognitionErrorEvent { error: string; }
@@ -29,7 +29,6 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
   const statusRef = useRef<Status>('idle');
 
   useEffect(() => { statusRef.current = status; }, [status]);
-
   useEffect(() => {
     return () => { recognitionRef.current?.stop(); };
   }, []);
@@ -65,7 +64,8 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
       setTranscript(results[0] || '');
       const matched = results.some((r) => r.includes(TARGET_WORD));
       if (matched) {
-        onSuccess();
+        setStatus('success');
+        setTimeout(() => onSuccess(), 750);
       } else {
         setStatus('fail');
       }
@@ -94,19 +94,23 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-white rounded-3xl mx-4 p-8 flex flex-col items-center gap-6 max-w-sm w-full shadow-2xl">
 
-        {/* Заголовок */}
-        <div className="text-center">
-          <p className="text-gray-500 text-sm">Шаг 1 из 2</p>
-          <h2 className="text-xl font-bold text-gray-800 mt-1">Поздоровайтесь с клиентом</h2>
-          <p className="text-gray-400 text-sm mt-1">Произнесите громко и чётко</p>
-        </div>
+        {/* Заголовок — скрываем при успехе */}
+        {status !== 'success' && (
+          <div className="text-center">
+            <p className="text-gray-500 text-sm">Шаг 1 из 2</p>
+            <h2 className="text-xl font-bold text-gray-800 mt-1">Поздоровайтесь с клиентом</h2>
+            <p className="text-gray-400 text-sm mt-1">Произнесите громко и чётко</p>
+          </div>
+        )}
 
-        {/* Слово */}
-        <div className="text-4xl font-bold tracking-wide text-blue-600">
-          Здравствуйте
-        </div>
+        {/* Слово — скрываем при успехе */}
+        {status !== 'success' && (
+          <div className={`text-4xl font-bold tracking-wide transition-colors ${status === 'listening' ? 'text-blue-600' : 'text-gray-800'}`}>
+            Здравствуйте
+          </div>
+        )}
 
-        {/* Кнопка / состояние */}
+        {/* idle */}
         {status === 'idle' && (
           <button
             onClick={start}
@@ -116,23 +120,34 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
           </button>
         )}
 
+        {/* listening */}
         {status === 'listening' && (
           <div className="flex flex-col items-center gap-3">
-            <div
-              className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center shadow-xl shadow-blue-300 animate-ping-slow"
-            >
+            <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center shadow-xl shadow-blue-300 animate-ping-slow">
               <Icon name="Mic" size={40} className="text-white" />
             </div>
             <p className="text-blue-600 font-medium animate-pulse text-sm">Слушаю...</p>
           </div>
         )}
 
+        {/* processing */}
         {status === 'processing' && (
           <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center">
             <Icon name="Loader2" size={40} className="text-blue-500 animate-spin" />
           </div>
         )}
 
+        {/* success — зелёная галочка с анимацией */}
+        {status === 'success' && (
+          <div className="flex flex-col items-center gap-4 py-4 animate-success-pop">
+            <div className="w-28 h-28 rounded-full bg-green-500 flex items-center justify-center shadow-xl shadow-green-200">
+              <Icon name="Check" size={56} className="text-white" />
+            </div>
+            <p className="text-2xl font-bold text-green-600">Отлично!</p>
+          </div>
+        )}
+
+        {/* fail */}
         {status === 'fail' && (
           <div className="flex flex-col items-center gap-4 w-full">
             <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
@@ -152,21 +167,9 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
           </div>
         )}
 
-        {/* Кнопка отмены */}
-        {status !== 'fail' && (
-          <button
-            onClick={onCancel}
-            className="text-gray-400 text-sm hover:text-gray-600 transition-colors"
-          >
-            Отмена
-          </button>
-        )}
-
-        {status === 'fail' && (
-          <button
-            onClick={onCancel}
-            className="text-gray-400 text-sm hover:text-gray-600 transition-colors"
-          >
+        {/* Отмена */}
+        {status !== 'success' && (
+          <button onClick={onCancel} className="text-gray-400 text-sm hover:text-gray-600 transition-colors">
             Отмена
           </button>
         )}
@@ -178,6 +181,13 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
           50% { box-shadow: 0 0 0 20px rgba(59,130,246,0); }
         }
         .animate-ping-slow { animation: ping-slow 1.2s ease-in-out infinite; }
+
+        @keyframes success-pop {
+          0% { transform: scale(0.5); opacity: 0; }
+          60% { transform: scale(1.1); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-success-pop { animation: success-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
       `}</style>
     </div>
   );

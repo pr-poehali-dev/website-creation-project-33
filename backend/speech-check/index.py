@@ -68,7 +68,7 @@ def handler(event: dict, context) -> dict:
 
     if success:
         text = (
-            f'🗣 <b>Промоутер поздоровался!</b>\n\n'
+            f'✅ <b>Промоутер поздоровался!</b>\n\n'
             f'👤 <b>{user_name}</b>\n'
             f'📝 Произнёс: <b>«Здравствуйте»</b>\n'
             f'🕐 Время: {moscow_time}'

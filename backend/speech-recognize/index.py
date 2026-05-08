@@ -93,7 +93,7 @@ def send_telegram_notification(user_name: str, success: bool, heard: str, moscow
     """Отправить уведомление администраторам"""
     if success:
         text = (
-            f'🗣 <b>Промоутер поздоровался!</b>\n\n'
+            f'✅ <b>Промоутер поздоровался!</b>\n\n'
             f'👤 <b>{user_name}</b>\n'
             f'📝 Произнёс: <b>«Здравствуйте»</b>\n'
             f'🕐 Время: {moscow_time}'

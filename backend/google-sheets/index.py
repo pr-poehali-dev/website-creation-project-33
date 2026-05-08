@@ -251,30 +251,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     }]
 
-    # Цветовая подсветка строк по статусу
+    # Цвет текста в ячейке "Статус" (колонка C = индекс 2)
+    STATUS_COL = 2
     for i, item in enumerate(data_rows):
-        row_index = i + 1  # +1 т.к. строка 0 — заголовок
+        row_index = i + 1
         status = item['status']
-        if status == 'Стажёр':
-            bg = {'red': 1.0, 'green': 0.95, 'blue': 0.8}   # жёлтый
+        if status == 'Сотрудник':
+            color = {'red': 0.13, 'green': 0.55, 'blue': 0.13}  # зелёный
         elif status == 'Уволен':
-            bg = {'red': 0.95, 'green': 0.9, 'blue': 0.9}   # красноватый
+            color = {'red': 0.8, 'green': 0.0, 'blue': 0.0}     # красный
         else:
-            continue  # Сотрудники — без заливки
+            color = {'red': 0.0, 'green': 0.0, 'blue': 0.0}     # чёрный (Стажёр)
 
         format_requests.append({
             'repeatCell': {
                 'range': {
                     'sheetId': sheet_id_gid,
                     'startRowIndex': row_index,
-                    'endRowIndex': row_index + 1
+                    'endRowIndex': row_index + 1,
+                    'startColumnIndex': STATUS_COL,
+                    'endColumnIndex': STATUS_COL + 1
                 },
                 'cell': {
                     'userEnteredFormat': {
-                        'backgroundColor': bg
+                        'textFormat': {'foregroundColor': color, 'bold': True}
                     }
                 },
-                'fields': 'userEnteredFormat(backgroundColor)'
+                'fields': 'userEnteredFormat(textFormat)'
             }
         })
 

@@ -12,6 +12,7 @@ import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
 import NewWorkTab from '@/components/user/NewWorkTab';
 import TrainingTab from '@/components/user/TrainingTab';
+import SpeechTab from '@/components/user/SpeechTab';
 import ScheduleTab from '@/components/user/ScheduleTab';
 import ContactsCounter, { ContactsStats, ContactsCounterRef } from '@/components/user/ContactsCounter';
 import EarningsChart from '@/components/user/EarningsChart';
@@ -32,7 +33,7 @@ export default function UserDashboard() {
   const [todayContacts, setTodayContacts] = useState<number>(0);
   const [totalContacts, setTotalContacts] = useState<number>(0);
   const contactsCounterRef = useRef<ContactsCounterRef>(null);
-  const [currentView, setCurrentView] = useState<'tiles' | 'start' | 'work' | 'work-new' | 'schedule' | 'training'>('tiles');
+  const [currentView, setCurrentView] = useState<'tiles' | 'start' | 'work' | 'work-new' | 'speech' | 'schedule' | 'training'>('tiles');
 
   useEffect(() => {
     if (selectedOrganization) {
@@ -182,6 +183,7 @@ export default function UserDashboard() {
                 {[
                   { label: 'Работа', icon: 'Briefcase', action: () => setCurrentView('work'), iconAnim: 'icon-bounce' },
                   { label: 'Работа NEW', icon: 'Video', action: () => setCurrentView('work-new'), iconAnim: 'icon-pulse' },
+                  { label: 'Речь', icon: 'Mic', action: () => setCurrentView('speech'), iconAnim: 'icon-wave' },
                   { label: 'График', icon: 'Calendar', action: () => setCurrentView('schedule'), iconAnim: 'icon-swing' },
                   { label: 'Обучение', icon: 'GraduationCap', action: () => setCurrentView('training'), iconAnim: 'icon-nod' },
                   { label: 'Чат', icon: 'MessageCircle', action: () => setChatOpen(true), iconAnim: 'icon-shake', badge: unreadCount > 0 ? unreadCount : null },
@@ -257,6 +259,14 @@ export default function UserDashboard() {
                   80% { transform: translateX(2px); }
                 }
                 .group:hover .icon-shake { animation: shake 0.4s ease; }
+
+                /* Mic — волна */
+                @keyframes wave {
+                  0%,100% { transform: scale(1) rotate(0deg); }
+                  30% { transform: scale(1.2) rotate(-10deg); }
+                  60% { transform: scale(1.1) rotate(10deg); }
+                }
+                .group:hover .icon-wave { animation: wave 0.5s ease; }
               `}</style>
 
           </>
@@ -307,6 +317,19 @@ export default function UserDashboard() {
               </button>
             </div>
             <NewWorkTab />
+          </div>
+        )}
+
+        {currentView === 'speech' && (
+          <div className="space-y-4">
+            <button
+              onClick={() => setCurrentView('tiles')}
+              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors mb-4"
+            >
+              <Icon name="ArrowLeft" size={20} />
+              <span className="text-lg">Назад</span>
+            </button>
+            <SpeechTab />
           </div>
         )}
 

@@ -72,9 +72,19 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     if (heardText) setGreetingHeard(heardText);
     if (triggeredWord) setGreetingTriggered(triggeredWord);
 
+    // На iOS Speech API держит микрофон — даём время освободить
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+
+      // iOS не поддерживает webm — выбираем подходящий формат
+      const mimeType = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg']
+        .find(t => MediaRecorder.isTypeSupported(t)) || '';
+
+      const mediaRecorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -85,8 +95,8 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        console.log('🎤 Audio recorded, blob size:', blob.size);
+        const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' });
+        console.log('🎤 Audio recorded, blob size:', blob.size, 'type:', mimeType);
         setAudioBlob(blob);
         stream.getTracks().forEach(track => track.stop());
       };

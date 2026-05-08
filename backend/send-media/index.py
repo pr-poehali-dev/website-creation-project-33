@@ -110,7 +110,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'https://api.groq.com/openai/v1/audio/transcriptions',
                         headers={'Authorization': f'Bearer {groq_api_key}'},
                         files={'file': ('audio.webm', media_bytes_for_whisper, 'audio/webm')},
-                        data={'model': 'whisper-large-v3', 'language': 'ru'},
+                        data={'model': 'whisper-large-v3-turbo', 'language': 'ru'},
                         timeout=30
                     )
                     if whisper_response.ok:

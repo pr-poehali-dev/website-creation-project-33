@@ -11,6 +11,8 @@ const TARGET_WORDS = [
   'айти', 'воркаут',
 ];
 
+const TIMEOUT_SEC = 10;
+
 type Status = 'idle' | 'listening' | 'processing' | 'success' | 'fail';
 
 interface SpeechRecognitionEvent { results: SpeechRecognitionResultList; resultIndex?: number; }
@@ -33,20 +35,47 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
   const [status, setStatus] = useState<Status>('idle');
   const [transcript, setTranscript] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [timeLeft, setTimeLeft] = useState(TIMEOUT_SEC);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const statusRef = useRef<Status>('idle');
   const activeRef = useRef(true);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { statusRef.current = status; }, [status]);
+
   useEffect(() => {
     activeRef.current = true;
     start();
+    startCountdown();
     return () => {
       activeRef.current = false;
       recognitionRef.current?.stop();
       recognitionRef.current = null;
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
+
+  const startCountdown = () => {
+    setTimeLeft(TIMEOUT_SEC);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    timeoutRef.current = setTimeout(() => {
+      if (activeRef.current) {
+        recognitionRef.current?.stop();
+        onSuccess();
+      }
+    }, TIMEOUT_SEC * 1000);
+  };
 
   const hasSpeechRecognition = () => !!(
     (window as Window & { SpeechRecognition?: unknown }).SpeechRecognition ||
@@ -74,14 +103,14 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     recognition.continuous = true;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      // Проверяем все результаты — и промежуточные, и финальные
       for (let i = event.resultIndex ?? 0; i < event.results.length; i++) {
-        const result = event.results[i];
-        const alts = Array.from(result);
+        const alts = Array.from(event.results[i]);
         const texts = alts.map((r) => (r as SpeechRecognitionAlternative).transcript.toLowerCase().trim());
         const matched = texts.some((t) => TARGET_WORDS.some((w) => t.includes(w)));
         if (matched) {
           recognition.stop();
+          if (timerRef.current) clearInterval(timerRef.current);
+          if (timeoutRef.current) clearTimeout(timeoutRef.current);
           if (activeRef.current) onSuccess();
           return;
         }
@@ -93,11 +122,9 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
         setErrorMsg('Нет доступа к микрофону.');
         setStatus('fail');
       }
-      // no-speech и прочие — перезапускаем автоматически
     };
 
     recognition.onend = () => {
-      // Перезапускаем только если компонент ещё активен и статус listening
       if (activeRef.current && statusRef.current === 'listening') {
         setTimeout(() => start(), 100);
       }
@@ -113,9 +140,35 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     setTimeout(() => start(), 100);
   };
 
+  // Круговой таймер: 0..1 прогресс убывает
+  const radius = 20;
+  const circumference = 2 * Math.PI * radius;
+  const progress = timeLeft / TIMEOUT_SEC;
+  const dashOffset = circumference * (1 - progress);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl mx-4 p-8 flex flex-col items-center gap-6 max-w-sm w-full shadow-2xl">
+      <div className="relative bg-white rounded-3xl mx-4 p-8 flex flex-col items-center gap-6 max-w-sm w-full shadow-2xl">
+
+        {/* Круговой таймер — правый верхний угол */}
+        {status !== 'success' && (
+          <div className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center">
+            <svg width="48" height="48" viewBox="0 0 48 48" className="-rotate-90">
+              <circle cx="24" cy="24" r={radius} fill="none" stroke="#fee2e2" strokeWidth="4" />
+              <circle
+                cx="24" cy="24" r={radius}
+                fill="none"
+                stroke="#ef4444"
+                strokeWidth="4"
+                strokeDasharray={circumference}
+                strokeDashoffset={dashOffset}
+                strokeLinecap="round"
+                style={{ transition: 'stroke-dashoffset 1s linear' }}
+              />
+            </svg>
+            <span className="absolute text-sm font-bold text-red-500">{timeLeft}</span>
+          </div>
+        )}
 
         {/* Заголовок */}
         {status !== 'success' && (
@@ -129,9 +182,9 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
           </div>
         )}
 
-        {/* success — зелёная галочка с анимацией */}
+        {/* success */}
         {status === 'success' && (
-          <div className="flex flex-col items-center gap-4 py-4 animate-success-pop">
+          <div className="flex flex-col items-center gap-4 py-4">
             <div className="w-28 h-28 rounded-full bg-green-500 flex items-center justify-center shadow-xl shadow-green-200">
               <Icon name="Check" size={56} className="text-white" />
             </div>
@@ -161,26 +214,14 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
 
         {/* Отмена */}
         {status !== 'success' && (
-          <button onClick={() => { activeRef.current = false; recognitionRef.current?.stop(); onCancel(); }} className="text-gray-400 text-sm hover:text-gray-600 transition-colors">
+          <button
+            onClick={() => { activeRef.current = false; recognitionRef.current?.stop(); if (timerRef.current) clearInterval(timerRef.current); if (timeoutRef.current) clearTimeout(timeoutRef.current); onCancel(); }}
+            className="text-gray-400 text-sm hover:text-gray-600 transition-colors"
+          >
             Отмена
           </button>
         )}
       </div>
-
-      <style>{`
-        @keyframes ping-slow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
-          50% { box-shadow: 0 0 0 20px rgba(59,130,246,0); }
-        }
-        .animate-ping-slow { animation: ping-slow 1.2s ease-in-out infinite; }
-
-        @keyframes success-pop {
-          0% { transform: scale(0.5); opacity: 0; }
-          60% { transform: scale(1.1); opacity: 1; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-success-pop { animation: success-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-      `}</style>
     </div>
   );
 }

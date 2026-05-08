@@ -113,7 +113,7 @@ export default function AccountingModal({
         </div>
 
         <div 
-          className="flex-1 overflow-auto p-1"
+          className="flex-1 overflow-hidden p-1"
           style={{ zoom: `${zoom}%` }}
         >
           {hasUnsavedPayments && (

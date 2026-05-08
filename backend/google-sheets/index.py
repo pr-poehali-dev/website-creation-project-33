@@ -225,26 +225,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'Да' if shift.get('paid_kvv') else 'Нет',
             'Да' if shift.get('paid_kms') else 'Нет'
         ]
-        data_rows.append(row)
+        data_rows.append({'row': row, 'status': status_label})
     
     # Записываем данные
-    all_data = [headers_row] + data_rows
+    all_data = [headers_row] + [r['row'] for r in data_rows]
     
     service.spreadsheets().values().update(
         spreadsheetId=sheet_id,
         range=f"'{sheet_title}'!A1",
-        valueInputOption='USER_ENTERED',  # Автоматическое определение типов данных
+        valueInputOption='USER_ENTERED',
         body={'values': all_data}
     ).execute()
     
-    # Форматирование: жирный шрифт для заголовков
+    # Форматирование: жирный заголовок + цветовая маркировка строк
     format_requests = [{
         'repeatCell': {
-            'range': {
-                'sheetId': sheet_id_gid,
-                'startRowIndex': 0,
-                'endRowIndex': 1
-            },
+            'range': {'sheetId': sheet_id_gid, 'startRowIndex': 0, 'endRowIndex': 1},
             'cell': {
                 'userEnteredFormat': {
                     'textFormat': {'bold': True},
@@ -254,7 +250,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'fields': 'userEnteredFormat(textFormat,backgroundColor)'
         }
     }]
-    
+
+    # Цветовая подсветка строк по статусу
+    for i, item in enumerate(data_rows):
+        row_index = i + 1  # +1 т.к. строка 0 — заголовок
+        status = item['status']
+        if status == 'Стажёр':
+            bg = {'red': 1.0, 'green': 0.95, 'blue': 0.8}   # жёлтый
+        elif status == 'Уволен':
+            bg = {'red': 0.95, 'green': 0.9, 'blue': 0.9}   # красноватый
+        else:
+            continue  # Сотрудники — без заливки
+
+        format_requests.append({
+            'repeatCell': {
+                'range': {
+                    'sheetId': sheet_id_gid,
+                    'startRowIndex': row_index,
+                    'endRowIndex': row_index + 1
+                },
+                'cell': {
+                    'userEnteredFormat': {
+                        'backgroundColor': bg
+                    }
+                },
+                'fields': 'userEnteredFormat(backgroundColor)'
+            }
+        })
+
     service.spreadsheets().batchUpdate(
         spreadsheetId=sheet_id,
         body={'requests': format_requests}

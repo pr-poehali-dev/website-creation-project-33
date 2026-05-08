@@ -28,14 +28,7 @@ def get_user_name(user_id: int, database_url: str) -> str:
         return 'Неизвестный промоутер'
 
 
-def transcribe_audio(audio_b64: str, mime_type: str) -> str:
-    """Отправить аудио в Groq Whisper и получить текст"""
-    groq_key = os.environ.get('GROQ_API_KEY', '')
-    if not groq_key:
-        raise ValueError('GROQ_API_KEY not set')
-
-    audio_bytes = base64.b64decode(audio_b64)
-
+def get_filename(mime_type: str) -> str:
     ext_map = {
         'audio/webm': 'audio.webm',
         'audio/webm;codecs=opus': 'audio.webm',
@@ -45,8 +38,15 @@ def transcribe_audio(audio_b64: str, mime_type: str) -> str:
         'audio/mpeg': 'audio.mp3',
         'audio/wav': 'audio.wav',
     }
-    filename = ext_map.get(mime_type.lower(), 'audio.webm')
+    return ext_map.get(mime_type.lower(), 'audio.webm')
 
+
+def transcribe_via_groq(audio_bytes: bytes, mime_type: str) -> str:
+    """Распознать через Groq Whisper"""
+    groq_key = os.environ.get('GROQ_API_KEY', '')
+    if not groq_key:
+        raise ValueError('GROQ_API_KEY not set')
+    filename = get_filename(mime_type)
     response = requests.post(
         'https://api.groq.com/openai/v1/audio/transcriptions',
         headers={'Authorization': f'Bearer {groq_key}'},
@@ -54,11 +54,37 @@ def transcribe_audio(audio_b64: str, mime_type: str) -> str:
         data={'model': 'whisper-large-v3', 'language': 'ru', 'response_format': 'json'},
         timeout=30
     )
-
     if not response.ok:
         raise ValueError(f'Groq error: {response.text}')
-
     return response.json().get('text', '').strip()
+
+
+def transcribe_via_openai(audio_bytes: bytes, mime_type: str) -> str:
+    """Распознать через OpenAI Whisper (fallback)"""
+    openai_key = os.environ.get('OPENAI_API_KEY', '')
+    if not openai_key:
+        raise ValueError('OPENAI_API_KEY not set')
+    filename = get_filename(mime_type)
+    response = requests.post(
+        'https://api.openai.com/v1/audio/transcriptions',
+        headers={'Authorization': f'Bearer {openai_key}'},
+        files={'file': (filename, audio_bytes, mime_type)},
+        data={'model': 'whisper-1', 'language': 'ru', 'response_format': 'json'},
+        timeout=30
+    )
+    if not response.ok:
+        raise ValueError(f'OpenAI error: {response.text}')
+    return response.json().get('text', '').strip()
+
+
+def transcribe_audio(audio_b64: str, mime_type: str) -> str:
+    """Распознать аудио: сначала Groq, при ошибке — OpenAI"""
+    audio_bytes = base64.b64decode(audio_b64)
+    try:
+        return transcribe_via_groq(audio_bytes, mime_type)
+    except Exception as e:
+        print(f'Groq failed, trying OpenAI: {e}')
+        return transcribe_via_openai(audio_bytes, mime_type)
 
 
 def send_telegram_notification(user_name: str, success: bool, heard: str, moscow_time: str):

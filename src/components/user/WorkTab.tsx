@@ -8,6 +8,7 @@ import NotebookModal from './NotebookModal';
 import QRCodeModal from './QRCodeModal';
 import EndShiftSection from './EndShiftSection';
 import BlockedUserModal from './BlockedUserModal';
+import GreetingCheck from './GreetingCheck';
 
 interface WorkTabProps {
   selectedOrganizationId: number | null;
@@ -32,6 +33,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [isLoading, setIsLoading] = useState(false);
   const [endShiftPhotoOpen, setEndShiftPhotoOpen] = useState(false);
   const [notebookModalOpen, setNotebookModalOpen] = useState(false);
+  const [greetingCheckOpen, setGreetingCheckOpen] = useState(false);
   const [blockedUserModalOpen, setBlockedUserModalOpen] = useState(false);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -55,14 +57,16 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     console.log('🔴 endShiftPhotoOpen changed:', endShiftPhotoOpen);
   }, [endShiftPhotoOpen]);
 
-  const startRecording = async () => {
-    console.log('🎤 startRecording called, user.id:', user?.id);
-    
+  const handleWorkButtonClick = () => {
     if (user?.id === 6853) {
-      console.log('🚫 User blocked, showing modal');
       setBlockedUserModalOpen(true);
       return;
     }
+    setGreetingCheckOpen(true);
+  };
+
+  const startRecording = async () => {
+    setGreetingCheckOpen(false);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -325,7 +329,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
       {/* Record button */}
       <div className="flex flex-col items-center gap-3 py-6">
         <button
-          onClick={startRecording}
+          onClick={handleWorkButtonClick}
           disabled={isRecording}
           className="relative w-36 h-36 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' }}
@@ -397,6 +401,13 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         open={blockedUserModalOpen}
         onOpenChange={setBlockedUserModalOpen}
       />
+
+      {greetingCheckOpen && (
+        <GreetingCheck
+          onSuccess={startRecording}
+          onCancel={() => setGreetingCheckOpen(false)}
+        />
+      )}
     </div>
   );
 }

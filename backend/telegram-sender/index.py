@@ -1,6 +1,7 @@
 import json
 import requests
 import base64
+
 import os
 import psycopg2
 from datetime import datetime

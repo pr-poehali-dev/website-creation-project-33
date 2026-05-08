@@ -210,13 +210,39 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             except Exception as db_error:
                 print(f"Failed to get user name: {db_error}")
         
+        # Распознавание приветствия через Whisper (Groq)
+        greeting_line = ''
+        if audio_data:
+            try:
+                groq_api_key = os.environ.get('GROQ_API_KEY')
+                if groq_api_key:
+                    audio_bytes_for_whisper = base64.b64decode(audio_data)
+                    print(f'🎤 Whisper input size: {len(audio_bytes_for_whisper)} bytes')
+                    if len(audio_bytes_for_whisper) >= 1000:
+                        whisper_resp = requests.post(
+                            'https://api.groq.com/openai/v1/audio/transcriptions',
+                            headers={'Authorization': f'Bearer {groq_api_key}'},
+                            files={'file': ('audio.webm', audio_bytes_for_whisper, 'audio/webm')},
+                            data={'model': 'whisper-large-v3-turbo', 'language': 'ru'},
+                            timeout=30
+                        )
+                        if whisper_resp.ok:
+                            transcript = whisper_resp.json().get('text', '').lower()
+                            print(f'🎙️ Transcript: {transcript}')
+                            greeted = any(w in transcript for w in ['здравствуйте', 'здравствуй', 'привет', 'добрый день', 'добрый вечер', 'доброе утро'])
+                            greeting_line = '\n✅ Поздоровался' if greeted else '\n❌ Не поздоровался'
+                        else:
+                            print(f'❌ Whisper error: {whisper_resp.status_code} {whisper_resp.text}')
+            except Exception as we:
+                print(f'❌ Whisper exception: {we}')
+
         type_emoji = {'подход': '👋', 'контакт': '📞'}
         emoji_type = type_emoji.get(lead_type, '❓')
         org_info = f"\n🏢 Организация: {organization_name}" if organization_name else ""
         
         caption = f"""{emoji_type} {lead_type.upper()}
 🎙️ IMPERIA PROMO
-Промоутер: {user_name}{org_info}
+Промоутер: {user_name}{org_info}{greeting_line}
 
 📝 Отчёт:
 {notes}"""

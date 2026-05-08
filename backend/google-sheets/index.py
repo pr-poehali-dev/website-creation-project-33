@@ -237,19 +237,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body={'values': all_data}
     ).execute()
     
-    # Форматирование: жирный заголовок + цветовая маркировка строк
-    format_requests = [{
-        'repeatCell': {
-            'range': {'sheetId': sheet_id_gid, 'startRowIndex': 0, 'endRowIndex': 1},
-            'cell': {
-                'userEnteredFormat': {
-                    'textFormat': {'bold': True},
-                    'backgroundColor': {'red': 0.9, 'green': 0.9, 'blue': 0.9}
-                }
-            },
-            'fields': 'userEnteredFormat(textFormat,backgroundColor)'
+    total_rows = len(data_rows) + 1
+
+    # Форматирование: сначала сбрасываем весь фон данных (белый), затем красим заголовок
+    format_requests = [
+        # Сброс фона всех строк данных до белого
+        {
+            'repeatCell': {
+                'range': {'sheetId': sheet_id_gid, 'startRowIndex': 1, 'endRowIndex': total_rows},
+                'cell': {
+                    'userEnteredFormat': {
+                        'backgroundColor': {'red': 1.0, 'green': 1.0, 'blue': 1.0}
+                    }
+                },
+                'fields': 'userEnteredFormat(backgroundColor)'
+            }
+        },
+        # Жирный заголовок с серым фоном
+        {
+            'repeatCell': {
+                'range': {'sheetId': sheet_id_gid, 'startRowIndex': 0, 'endRowIndex': 1},
+                'cell': {
+                    'userEnteredFormat': {
+                        'textFormat': {'bold': True},
+                        'backgroundColor': {'red': 0.9, 'green': 0.9, 'blue': 0.9}
+                    }
+                },
+                'fields': 'userEnteredFormat(textFormat,backgroundColor)'
+            }
         }
-    }]
+    ]
 
     # Цвет текста в ячейке "Статус" (колонка C = индекс 2)
     STATUS_COL = 2

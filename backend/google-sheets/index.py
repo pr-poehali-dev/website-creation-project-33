@@ -166,7 +166,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     # Заголовки таблицы
     headers_row = [
-        'Дата', 'Сотрудник', 'Организация', 'Начало смены', 'Конец смены', 
+        'Дата', 'Сотрудник', 'Статус', 'Организация', 'Начало смены', 'Конец смены', 
         'Контакты', 'Ставка', 'Тип оплаты', 'Приход', 'Налог 7%', 'После налога',
         'Зарплата', 'Расход', 'Чистый остаток', 'КВВ', 'КМС',
         'Оплачено орг.', 'Оплачено работнику', 'Оплачено КВВ', 'Оплачено КМС'
@@ -192,9 +192,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if end_time and len(end_time) > 5:
             end_time = end_time[:5]
         
+        # Определяем статус сотрудника
+        emp_status = shift.get('employee_status', 'employee')
+        is_active = shift.get('is_active', True)
+        if not is_active:
+            status_label = 'Уволен'
+        elif emp_status == 'intern':
+            status_label = 'Стажёр'
+        else:
+            status_label = 'Сотрудник'
+
         row = [
             shift.get('date', ''),
             shift.get('user_name', ''),
+            status_label,
             shift.get('organization_name') or shift.get('organization', ''),
             start_time,
             end_time,

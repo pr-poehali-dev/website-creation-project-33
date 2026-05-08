@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
+import { useAuth } from '@/contexts/AuthContext';
 
 const TARGET_WORDS = [
   'здравствуйте', 'добрый день', 'добрый вечер',
@@ -32,6 +33,7 @@ interface GreetingCheckProps {
 }
 
 export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProps) {
+  const { user } = useAuth();
   const [status, setStatus] = useState<Status>('idle');
   const [transcript, setTranscript] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -41,6 +43,7 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
   const activeRef = useRef(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const heardTextsRef = useRef<string[]>([]);
 
   useEffect(() => { statusRef.current = status; }, [status]);
 
@@ -72,9 +75,19 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     timeoutRef.current = setTimeout(() => {
       if (activeRef.current) {
         recognitionRef.current?.stop();
+        const allHeard = heardTextsRef.current.join(' | ') || '(тишина)';
+        sendFailReport(allHeard);
         onSuccess();
       }
     }, TIMEOUT_SEC * 1000);
+  };
+
+  const sendFailReport = (heard: string) => {
+    fetch('https://functions.poehali.dev/c38d89b3-5417-4e4a-83c4-1fd0cb7455cd', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-User-Id': user?.id?.toString() || '' },
+      body: JSON.stringify({ success: false, heard, timeout: true }),
+    }).catch(() => {});
   };
 
   const hasSpeechRecognition = () => !!(
@@ -106,6 +119,10 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
       for (let i = event.resultIndex ?? 0; i < event.results.length; i++) {
         const alts = Array.from(event.results[i]);
         const texts = alts.map((r) => (r as SpeechRecognitionAlternative).transcript.toLowerCase().trim());
+        // Накапливаем финальные результаты для отчёта
+        if (event.results[i].isFinal && texts[0]) {
+          heardTextsRef.current.push(texts[0]);
+        }
         const matched = texts.some((t) => TARGET_WORDS.some((w) => t.includes(w)));
         if (matched) {
           recognition.stop();

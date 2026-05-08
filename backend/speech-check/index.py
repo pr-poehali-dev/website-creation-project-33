@@ -61,16 +61,25 @@ def handler(event: dict, context) -> dict:
     body_data = json.loads(event.get('body', '{}'))
     success = body_data.get('success', True)
     heard = body_data.get('heard', '').strip()
+    timeout = body_data.get('timeout', False)
 
     user_name = get_user_name(int(user_id), database_url) if database_url else 'Промоутер'
 
     moscow_time = datetime.now(MOSCOW_TZ).strftime('%d.%m.%Y %H:%M:%S')
 
-    if success:
+    if success and not timeout:
         text = (
             f'✅ <b>Промоутер поздоровался!</b>\n\n'
             f'👤 <b>{user_name}</b>\n'
             f'📝 Произнёс: <b>«Здравствуйте»</b>\n'
+            f'🕐 Время: {moscow_time}'
+        )
+    elif timeout:
+        heard_text = f'«{heard}»' if heard else '(тишина)'
+        text = (
+            f'⏱ <b>Триггер не сработал — переход по таймеру</b>\n\n'
+            f'👤 <b>{user_name}</b>\n'
+            f'📝 Было сказано: <b>{heard_text}</b>\n'
             f'🕐 Время: {moscow_time}'
         )
     else:

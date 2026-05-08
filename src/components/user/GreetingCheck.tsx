@@ -167,23 +167,23 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="relative bg-white rounded-3xl mx-4 p-8 flex flex-col items-center gap-6 max-w-sm w-full shadow-2xl">
 
-        {/* Круговой таймер — правый верхний угол */}
+        {/* Круговой таймер — правый нижний угол */}
         {status !== 'success' && (
-          <div className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center">
-            <svg width="48" height="48" viewBox="0 0 48 48" className="-rotate-90">
-              <circle cx="24" cy="24" r={radius} fill="none" stroke="#fee2e2" strokeWidth="4" />
+          <div className="absolute bottom-4 right-4 w-10 h-10 flex items-center justify-center opacity-30">
+            <svg width="40" height="40" viewBox="0 0 48 48" className="-rotate-90">
+              <circle cx="24" cy="24" r={radius} fill="none" stroke="#9ca3af" strokeWidth="3" />
               <circle
                 cx="24" cy="24" r={radius}
                 fill="none"
-                stroke="#ef4444"
-                strokeWidth="4"
+                stroke="#6b7280"
+                strokeWidth="3"
                 strokeDasharray={circumference}
                 strokeDashoffset={dashOffset}
                 strokeLinecap="round"
                 style={{ transition: 'stroke-dashoffset 1s linear' }}
               />
             </svg>
-            <span className="absolute text-sm font-bold text-red-500">{timeLeft}</span>
+            <span className="absolute text-xs font-medium text-gray-500">{timeLeft}</span>
           </div>
         )}
 

@@ -5,6 +5,10 @@
 @tailwind utilities;
 
 /* Светлый скроллбар */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;
 }
@@ -12,11 +16,11 @@
   background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
+  background: #d1d5db !important;
   border-radius: 999px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
+  background: #9ca3af !important;
 }
 
 @keyframes navPop {

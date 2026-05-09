@@ -310,7 +310,7 @@ export default function ClientsTab({ sessionToken }: ClientsTabProps) {
             </div>
           </div>
           
-          <div className="space-y-2 md:space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto">
+          <div className="space-y-2 md:space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto scrollbar-thin">
             {organizationsWithShifts.map((org) => (
               <div key={org.id} className="border border-gray-100 rounded-xl p-2.5 md:p-4 hover:border-green-200 hover:bg-green-50/50 transition-colors bg-gray-50">
                 <div className="font-medium text-gray-800 mb-1.5 md:mb-2 text-xs md:text-base leading-tight">{org.name}</div>

@@ -174,13 +174,19 @@ export default function ScheduleAnalyticsTab({ onGoHome }: { onGoHome?: () => vo
       <AddShiftModal
         isOpen={addShiftModalOpen}
         onClose={() => setAddShiftModalOpen(false)}
-        userStats={schedules.map(s => ({ name: s.first_name + ' ' + s.last_name, id: s.user_id }))}
+        userStats={schedules
+          .filter(s => s.is_active !== false && !s.email?.toLowerCase().includes('admin'))
+          .map(s => ({ name: s.first_name + ' ' + s.last_name, id: s.user_id }))}
         onShiftAdded={() => loadAllSchedules(weekDays)}
       />
 
       {trainingModalOpen && (
         <TrainingModal
           weekDays={weekDays.map(d => ({ date: d.date, dayNameFull: d.dayNameFull, dayName: d.dayName }))}
+          promoters={schedules
+            .filter(s => s.is_active !== false && !s.email?.toLowerCase().includes('admin'))
+            .map(s => s.first_name + ' ' + s.last_name)
+            .sort()}
           onClose={() => setTrainingModalOpen(false)}
         />
       )}

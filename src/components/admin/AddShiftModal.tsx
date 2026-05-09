@@ -107,7 +107,7 @@ export default function AddShiftModal({ isOpen, onClose, userStats, onShiftAdded
             <label className={labelClass}>Время смены</label>
             <div className="relative">
               <select value={timeSlot} onChange={e => setTimeSlot(e.target.value)} className={selectClass}>
-                {['12:00-16:00', '16:00-20:00', '09:00-12:00', '09:00-13:00', '13:00-17:00'].map(slot => (
+                {['12:00-16:00', '16:00-20:00'].map(slot => (
                   <option key={slot} value={slot}>{slot}</option>
                 ))}
               </select>

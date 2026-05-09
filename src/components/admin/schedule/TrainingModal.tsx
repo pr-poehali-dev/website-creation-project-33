@@ -8,7 +8,7 @@ function authHeaders() {
 }
 
 interface WeekDay { date: string; dayNameFull: string; dayName: string; }
-interface TrainingModalProps { weekDays: WeekDay[]; organizations?: string[]; onClose: () => void; }
+interface TrainingModalProps { weekDays: WeekDay[]; organizations?: string[]; promoters?: string[]; onClose: () => void; }
 interface TrainingEntry { id: string; seniorName: string; promoterName: string; promoterPhone: string; organization: string; time: string; comment: string; }
 
 const DAY_NAMES: Record<string, string> = {
@@ -19,7 +19,7 @@ const DAY_NAMES: Record<string, string> = {
 const inputCls = "w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors";
 const labelCls = "text-xs font-medium text-gray-500 mb-1.5 block";
 
-export default function TrainingModal({ weekDays, organizations: orgsProp, onClose }: TrainingModalProps) {
+export default function TrainingModal({ weekDays, organizations: orgsProp, promoters = [], onClose }: TrainingModalProps) {
   const [selectedDate, setSelectedDate] = useState(weekDays[0]?.date || '');
   const [entries, setEntries] = useState<TrainingEntry[]>([]);
   const [loadingEntries, setLoadingEntries] = useState(false);
@@ -216,7 +216,15 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
             {/* Стажер */}
             <div>
               <label className={labelCls}>Стажер *</label>
-              <input type="text" value={form.promoterName} onChange={e => handleChange('promoterName', e.target.value)} placeholder="Имя стажера" className={inputCls} />
+              {promoters.length > 0 ? (
+                <select value={form.promoterName} onChange={e => handleChange('promoterName', e.target.value)}
+                  className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors appearance-none">
+                  <option value="">Выберите промоутера</option>
+                  {promoters.map(name => <option key={name} value={name}>{name}</option>)}
+                </select>
+              ) : (
+                <input type="text" value={form.promoterName} onChange={e => handleChange('promoterName', e.target.value)} placeholder="Имя стажера" className={inputCls} />
+              )}
             </div>
 
             {/* Телефон */}

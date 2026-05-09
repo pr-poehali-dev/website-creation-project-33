@@ -74,26 +74,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         WHERE la.user_id = ws.user_id
                           AND la.is_active = true
                           AND la.lead_type = 'контакт'
-                          AND DATE(la.created_at + interval '3 hours') = ws.shift_date) as contacts_count
+                          AND DATE(la.created_at + interval '3 hours') = ws.shift_date) as contacts_count,
+                       COALESCE(ae.employee_status_at_shift, u.employee_status, 'employee') as emp_status
                 FROM {SCHEMA}.work_shifts ws
                 JOIN {SCHEMA}.users u ON u.id = ws.user_id
                 JOIN {SCHEMA}.organizations o ON o.id = ws.organization_id
+                LEFT JOIN {SCHEMA}.accounting_expenses ae ON ae.user_id = ws.user_id AND ae.work_date = ws.shift_date
                 WHERE ws.shift_date = %s
             """, (today,))
             shifts_today = cur.fetchall()
 
+            intern_cutoff = date(2026, 5, 8)
+
             total_kms = 0
-            for user_id, user_name, org_name, rate, payment_type, compensation, contacts in shifts_today:
+            for user_id, user_name, org_name, rate, payment_type, compensation, contacts, emp_status in shifts_today:
                 contacts = contacts or 0
                 revenue = contacts * rate + compensation
                 tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
                 after_tax = revenue - tax
-                if contacts >= 10:
+                # Зарплата с учётом статуса (стажёр / сотрудник)
+                if user_id in (3, 9):
+                    worker_salary = 0
+                elif emp_status == 'intern' and today >= intern_cutoff:
+                    worker_salary = contacts * 260
+                elif contacts >= 10:
                     worker_salary = contacts * 300
                 else:
                     worker_salary = contacts * 200
-                if user_id in (3, 9):
-                    worker_salary = 0
                 net_profit = after_tax - worker_salary
                 kms = round(net_profit / 2)
                 if user_id == 3:

@@ -12,6 +12,7 @@ export interface UserSchedule {
   avg_per_shift?: number;
   daily_contacts?: Array<{date: string, count: number}>;
   submitted_at?: string | null;
+  updated_at?: string | null;
   is_active?: boolean;
 }
 

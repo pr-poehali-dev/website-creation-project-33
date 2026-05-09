@@ -62,13 +62,29 @@ export default function IndividualScheduleView({
               {totalShifts} {totalShifts === 1 ? 'смена' : totalShifts < 5 ? 'смены' : 'смен'}
             </div>
             {selectedUserData.submitted_at ? (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 flex-shrink-0">
-                <Icon name="CheckCircle" size={13} />
-                {new Date(selectedUserData.submitted_at).toLocaleString('ru-RU', {
-                  day: '2-digit', month: '2-digit',
-                  hour: '2-digit', minute: '2-digit',
-                  timeZone: 'Europe/Moscow'
-                })}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 flex-shrink-0">
+                  <Icon name="CheckCircle" size={13} />
+                  <span>Сохранён{' '}
+                    {new Date(selectedUserData.submitted_at).toLocaleString('ru-RU', {
+                      day: '2-digit', month: '2-digit',
+                      hour: '2-digit', minute: '2-digit',
+                      timeZone: 'Europe/Moscow'
+                    })}
+                  </span>
+                </div>
+                {selectedUserData.updated_at && selectedUserData.updated_at !== selectedUserData.submitted_at && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-blue-600 bg-blue-50 border border-blue-200 flex-shrink-0">
+                    <Icon name="PencilLine" size={13} />
+                    <span>Изменён{' '}
+                      {new Date(selectedUserData.updated_at).toLocaleString('ru-RU', {
+                        day: '2-digit', month: '2-digit',
+                        hour: '2-digit', minute: '2-digit',
+                        timeZone: 'Europe/Moscow'
+                      })}
+                    </span>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-gray-400 bg-gray-50 border border-gray-200 flex-shrink-0">

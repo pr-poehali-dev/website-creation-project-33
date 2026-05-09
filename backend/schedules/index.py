@@ -87,12 +87,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if week_start:
             cur.execute(
-                "SELECT schedule_data, week_start_date, submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
+                "SELECT schedule_data, week_start_date, submitted_at, updated_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
                 (int(user_id), week_start)
             )
         else:
             cur.execute(
-                "SELECT schedule_data, week_start_date, submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s ORDER BY week_start_date DESC LIMIT 1",
+                "SELECT schedule_data, week_start_date, submitted_at, updated_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s ORDER BY week_start_date DESC LIMIT 1",
                 (int(user_id),)
             )
         
@@ -102,6 +102,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if row:
             submitted_at = row[2].isoformat() if row[2] else None
+            updated_at = row[3].isoformat() if row[3] else None
             return {
                 'statusCode': 200,
                 'headers': headers,
@@ -109,6 +110,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'schedule': row[0],
                     'week_start_date': row[1].isoformat(),
                     'submitted_at': submitted_at,
+                    'updated_at': updated_at,
                     'is_locked': submitted_at is not None,
                     'work_shifts': work_shifts
                 })
@@ -117,7 +119,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 200,
                 'headers': headers,
-                'body': json.dumps({'schedule': None, 'submitted_at': None, 'is_locked': False, 'work_shifts': work_shifts})
+                'body': json.dumps({'schedule': None, 'submitted_at': None, 'updated_at': None, 'is_locked': False, 'work_shifts': work_shifts})
             }
     
     # POST - save/update schedule
@@ -138,22 +140,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Проверяем блокировку — только для промоутера (не для admin_override)
-        if not admin_override:
-            cur.execute(
-                "SELECT submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
-                (int(user_id), week_start)
-            )
-            existing = cur.fetchone()
-            if existing and existing[0] is not None:
-                cur.close()
-                conn.close()
-                return {
-                    'statusCode': 403,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'График уже сохранён и заблокирован для редактирования', 'is_locked': True})
-                }
-        
+        # Получаем текущее состояние графика
+        cur.execute(
+            "SELECT submitted_at, schedule_data FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
+            (int(user_id), week_start)
+        )
+        existing = cur.fetchone()
+        is_already_locked = existing and existing[0] is not None
+
         # Если admin_override — проверяем, остались ли выбранные слоты
         # Если все слоты false — сбрасываем submitted_at (разблокируем промоутера)
         has_any_slot = any(
@@ -179,8 +173,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     ON CONFLICT (user_id, week_start_date)
                     DO UPDATE SET schedule_data = EXCLUDED.schedule_data, updated_at = NOW(), submitted_at = NULL
                 """, (int(user_id), week_start, json.dumps(schedule_data)))
+        elif is_already_locked:
+            # График уже сохранён — промоутер может только ДОБАВЛЯТЬ слоты, не удалять
+            existing_schedule = existing[1] if existing[1] else {}
+            # Проверяем что промоутер не снял уже выбранные слоты
+            for date_key, day_data in existing_schedule.items():
+                if isinstance(day_data, dict):
+                    for slot_key, slot_val in day_data.items():
+                        if slot_val and not schedule_data.get(date_key, {}).get(slot_key, False):
+                            cur.close()
+                            conn.close()
+                            return {
+                                'statusCode': 403,
+                                'headers': headers,
+                                'body': json.dumps({'error': 'Нельзя удалять уже сохранённые смены', 'is_locked': True})
+                            }
+            # Сохраняем с обновлением updated_at (дата последнего изменения)
+            cur.execute("""
+                UPDATE t_p24058207_website_creation_pro.promoter_schedules
+                SET schedule_data = %s, updated_at = NOW()
+                WHERE user_id = %s AND week_start_date = %s
+            """, (json.dumps(schedule_data), int(user_id), week_start))
         else:
-            # Промоутер сохраняет — проставляем submitted_at (UTC, фронт конвертирует в МСК)
+            # Первое сохранение промоутером — проставляем submitted_at
             cur.execute("""
                 INSERT INTO t_p24058207_website_creation_pro.promoter_schedules (user_id, week_start_date, schedule_data, updated_at, submitted_at)
                 VALUES (%s, %s, %s, NOW(), NOW())
@@ -190,11 +205,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             """, (int(user_id), week_start, json.dumps(schedule_data)))
 
         cur.execute(
-            "SELECT submitted_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
+            "SELECT submitted_at, updated_at FROM t_p24058207_website_creation_pro.promoter_schedules WHERE user_id = %s AND week_start_date = %s",
             (int(user_id), week_start)
         )
         saved_row = cur.fetchone()
         submitted_at = saved_row[0].isoformat() if saved_row and saved_row[0] else None
+        updated_at = saved_row[1].isoformat() if saved_row and saved_row[1] else None
         is_locked = submitted_at is not None
 
         conn.commit()
@@ -214,7 +230,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 200,
             'headers': headers,
-            'body': json.dumps({'success': True, 'submitted_at': submitted_at, 'is_locked': is_locked})
+            'body': json.dumps({'success': True, 'submitted_at': submitted_at, 'updated_at': updated_at, 'is_locked': is_locked})
         }
     
     # GET all schedules for a week (admin view)
@@ -234,7 +250,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Получаем графики промоутеров
         cur.execute("""
-            SELECT u.id, COALESCE(ps.schedule_data, '{}'::jsonb), %s, u.name, u.email, ps.submitted_at, u.is_active
+            SELECT u.id, COALESCE(ps.schedule_data, '{}'::jsonb), %s, u.name, u.email, ps.submitted_at, u.is_active, ps.updated_at
             FROM t_p24058207_website_creation_pro.users u
             LEFT JOIN t_p24058207_website_creation_pro.promoter_schedules ps 
                 ON u.id = ps.user_id AND ps.week_start_date = %s
@@ -306,6 +322,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             user_id = row[0]
             submitted_at = row[5].isoformat() if row[5] else None
             is_active = row[6]
+            updated_at = row[7].isoformat() if row[7] else None
             schedules.append({
                 'user_id': user_id,
                 'schedule': row[1],
@@ -316,6 +333,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'avg_per_shift': stats_map.get(user_id, 0),
                 'daily_contacts': user_daily_stats.get(user_id, []),
                 'submitted_at': submitted_at,
+                'updated_at': updated_at,
                 'is_active': is_active
             })
         

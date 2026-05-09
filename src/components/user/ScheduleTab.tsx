@@ -39,6 +39,8 @@ export default function ScheduleTab() {
   const [saved, setSaved] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const [submittedAt, setSubmittedAt] = useState<string | null>(null);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [savedSchedule, setSavedSchedule] = useState<Record<string, Record<string, boolean>>>({});
   const isUkrainian = user?.name === 'Виктор Кобыляцкий';
   // Комментарии: { date: { shiftTime: { organization, location_type, ... } } }
   const [workComments, setWorkComments] = useState<Record<string, Record<string, {
@@ -106,12 +108,14 @@ export default function ScheduleTab() {
         const data = await response.json();
         if (data.schedule) {
           updateScheduleFromData(data.schedule);
+          setSavedSchedule(data.schedule);
         }
         if (data.work_shifts) {
           setWorkShifts(data.work_shifts);
         }
         setIsLocked(data.is_locked || false);
         setSubmittedAt(data.submitted_at || null);
+        setUpdatedAt(data.updated_at || null);
       }
     } catch (error) {
       console.error('Error loading schedule:', error);
@@ -168,24 +172,33 @@ export default function ScheduleTab() {
   };
 
   const toggleSlot = (dayIndex: number, slotIndex: number) => {
-    if (isLocked) return;
-    setSchedule(prev => prev.map((day, dIdx) => {
+    const day = schedule[dayIndex];
+    const slot = day?.slots[slotIndex];
+    if (!day || !slot) return;
+
+    if (isLocked) {
+      const slotKey = slot.time;
+      const isSaved = savedSchedule[day.date]?.[slotKey] === true;
+      if (isSaved) return;
+    }
+
+    setSchedule(prev => prev.map((d, dIdx) => {
       if (dIdx === dayIndex) {
         return {
-          ...day,
-          slots: day.slots.map((slot, sIdx) => 
-            sIdx === slotIndex ? { ...slot, selected: !slot.selected } : slot
+          ...d,
+          slots: d.slots.map((s, sIdx) =>
+            sIdx === slotIndex ? { ...s, selected: !s.selected } : s
           )
         };
       }
-      return day;
+      return d;
     }));
     setSaved(false);
   };
 
   const saveSchedule = async () => {
-    if (!user?.id || isLocked) return;
-    
+    if (!user?.id) return;
+
     setSaving(true);
     try {
       const scheduleData: Record<string, Record<string, boolean>> = {};
@@ -211,8 +224,10 @@ export default function ScheduleTab() {
 
       if (response.ok) {
         const data = await response.json();
-        setIsLocked(true);
+        setIsLocked(data.is_locked || true);
         setSubmittedAt(data.submitted_at || null);
+        setUpdatedAt(data.updated_at || null);
+        setSavedSchedule(scheduleData);
         setSaved(true);
       }
     } catch (error) {
@@ -270,35 +285,46 @@ export default function ScheduleTab() {
       </div>
 
       <div className="pt-1 space-y-2">
-        {isLocked && submittedAt ? (
-          <div className="w-full h-12 bg-green-50 border border-green-200 rounded-xl flex items-center justify-center gap-2">
-            <Icon name="LockKeyhole" size={15} className="text-green-600" />
-            <span className="text-sm font-medium text-green-700">
-              График сохранён{' '}
+        {isLocked && submittedAt && (
+          <div className="w-full px-4 py-2.5 bg-green-50 border border-green-200 rounded-xl flex items-center gap-2">
+            <Icon name="CheckCircle" size={14} className="text-green-600 flex-shrink-0" />
+            <div className="text-xs text-green-700 leading-tight">
+              <span className="font-semibold">График сохранён </span>
               {new Date(submittedAt).toLocaleString('ru-RU', {
                 day: '2-digit', month: '2-digit', year: 'numeric',
                 hour: '2-digit', minute: '2-digit',
                 timeZone: 'Europe/Moscow'
               })}
-            </span>
+              {updatedAt && updatedAt !== submittedAt && (
+                <span className="block text-green-600 mt-0.5">
+                  Изменён{' '}
+                  {new Date(updatedAt).toLocaleString('ru-RU', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit',
+                    timeZone: 'Europe/Moscow'
+                  })}
+                </span>
+              )}
+            </div>
           </div>
-        ) : (
-          <Button
-            onClick={saveSchedule}
-            disabled={saving || getSelectedCount() === 0}
-            className="w-full h-12 bg-[#001f54] hover:bg-[#002b6b] text-white rounded-xl font-semibold text-base transition-all duration-200 touch-manipulation"
-          >
-            {saving ? (
-              <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />{isUkrainian ? 'Збереження...' : 'Сохранение...'}</>
-            ) : saved ? (
-              <><Icon name="Check" size={16} className="mr-2" />{isUkrainian ? 'Збережено!' : 'Сохранено!'}</>
-            ) : (
-              <><Icon name="Save" size={16} className="mr-2" />{isUkrainian ? 'Зберегти графік' : 'Сохранить график'}</>
-            )}
-          </Button>
         )}
-        {!isLocked && !saved && getSelectedCount() === 0 && (
-          <p className="text-center text-xs text-gray-400">Выберите хотя бы одну смену</p>
+        <Button
+          onClick={saveSchedule}
+          disabled={saving || getSelectedCount() === 0}
+          className="w-full h-12 bg-[#001f54] hover:bg-[#002b6b] text-white rounded-xl font-semibold text-base transition-all duration-200 touch-manipulation"
+        >
+          {saving ? (
+            <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />{isUkrainian ? 'Збереження...' : 'Сохранение...'}</>
+          ) : saved ? (
+            <><Icon name="Check" size={16} className="mr-2" />{isUkrainian ? 'Збережено!' : 'Сохранено!'}</>
+          ) : isLocked ? (
+            <><Icon name="Plus" size={16} className="mr-2" />{isUkrainian ? 'Додати зміни' : 'Добавить смены'}</>
+          ) : (
+            <><Icon name="Save" size={16} className="mr-2" />{isUkrainian ? 'Зберегти графік' : 'Сохранить график'}</>
+          )}
+        </Button>
+        {getSelectedCount() === 0 && (
+          <p className="text-center text-xs text-gray-400">{isUkrainian ? 'Виберіть хоча б одну зміну' : 'Выберите хотя бы одну смену'}</p>
         )}
       </div>
 

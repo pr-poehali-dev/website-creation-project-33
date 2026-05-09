@@ -9,6 +9,7 @@ import json
 import os
 import psycopg2
 from datetime import datetime
+from push_utils import notify_admins
 
 SCHEMA = 't_p24058207_website_creation_pro'
 
@@ -117,6 +118,12 @@ def handler(event: dict, context) -> dict:
                   d.get('promoterPhone', ''), d.get('organization', ''), d.get('time', ''), d.get('comment', '')))
             new_id = cur.fetchone()[0]
             conn.commit()
+            promoter = d.get('promoterName', '—')
+            senior = d.get('seniorName', '—')
+            org = d.get('organization', '—')
+            time_str = d.get('time', '')
+            date_str = d.get('date', '')
+            notify_admins(conn, '🎓 Новое обучение', f'{promoter} — {date_str}{" " + time_str if time_str else ""}\nСтарший: {senior}, Орг: {org}')
             return ok({'id': new_id})
 
         if action == 'update_entry':

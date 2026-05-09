@@ -21,13 +21,16 @@ FINE_LATE_START = 500
 FINE_EARLY_END = 500
 
 
-def calculate_salary(contacts: int, shift_date_str: str, user_id: int, org_name: str) -> int:
+def calculate_salary(contacts: int, shift_date_str: str, user_id: int, org_name: str, employee_status: str = 'employee') -> int:
     if user_id in (3, 9):
         return 0
     if org_name == 'Администратор':
         return 600
-    cutoff = date(2025, 10, 1)
     d = date.fromisoformat(shift_date_str)
+    intern_cutoff = date(2026, 5, 8)
+    if employee_status == 'intern' and d >= intern_cutoff:
+        return contacts * 260
+    cutoff = date(2025, 10, 1)
     if d < cutoff:
         return contacts * 200
     if contacts >= 10:
@@ -77,11 +80,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     # Все не-админ пользователи (включая удалённых)
     cur.execute("""
-        SELECT id, name FROM t_p24058207_website_creation_pro.users
+        SELECT id, name, employee_status FROM t_p24058207_website_creation_pro.users
         WHERE is_admin = false
         ORDER BY name
     """)
-    users = [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]
+    users = [{'id': row[0], 'name': row[1], 'employee_status': row[2] or 'employee'} for row in cur.fetchall()]
     user_ids = [u['id'] for u in users]
 
     if not user_ids:
@@ -166,6 +169,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     for user in users:
         uid = user['id']
+        emp_status = user['employee_status']
         user_contacts = contacts_map.get(uid, {})
         user_shifts = shifts_map.get(uid, {})
         schedule_data = schedules_map.get(uid, {})
@@ -183,7 +187,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             org_name = day_shifts[0]['org_name'] if day_shifts else 'Неизвестно'
             compensation = sum(s['compensation'] for s in day_shifts)
 
-            earnings = calculate_salary(contacts, date_str, uid, org_name) + compensation
+            earnings = calculate_salary(contacts, date_str, uid, org_name, emp_status) + compensation
             fines = []
 
             day_schedule = schedule_data.get(date_str, {}) if isinstance(schedule_data, dict) else {}

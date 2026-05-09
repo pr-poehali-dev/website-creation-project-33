@@ -14,6 +14,7 @@ import json
 import os
 import psycopg2
 from datetime import datetime, timedelta
+from push_utils import notify_admins
 
 
 def get_conn():
@@ -279,7 +280,16 @@ def handler(event: dict, context) -> dict:
             promoters = get_plan_promoters(cur, plan_id)
             cur.execute(SELECT_PLAN + ' WHERE po.id = %s', (plan_id,))
             row = cur.fetchone()
-            return ok({'plan': row_to_plan(row, promoters), 'pp_id': pp_id})
+            plan = row_to_plan(row, promoters)
+            # Уведомление администраторам
+            cur.execute(f"SELECT name FROM {SCHEMA}.users WHERE id = %s", (promoter_id,))
+            prow = cur.fetchone()
+            promoter_name = prow[0] if prow else f'ID {promoter_id}'
+            slot_label = {'slot1': '12:00–16:00', 'slot2': '16:00–20:00'}.get(body.get('time_slot') or '', '')
+            date_str = plan.get('date', '')
+            org_name = plan.get('organization_name', '')
+            notify_admins(conn, '📋 Назначен промоутер', f'{promoter_name} → {org_name}\n{date_str}{" " + slot_label if slot_label else ""}')
+            return ok({'plan': plan, 'pp_id': pp_id})
 
         # PUT update_promoter — обновить данные промоутера на точке
         if method == 'PUT' and params.get('action') == 'update_promoter':

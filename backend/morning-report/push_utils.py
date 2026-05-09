@@ -52,6 +52,7 @@ def notify_admins(conn, title: str, body: str) -> int:
         headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
 
         sent = 0
+        stale_tokens = []
         for token in tokens:
             resp = requests.post(url, headers=headers, json={
                 'message': {
@@ -81,8 +82,17 @@ def notify_admins(conn, title: str, body: str) -> int:
             }, timeout=10)
             if resp.status_code == 200:
                 sent += 1
+            elif resp.status_code == 404:
+                stale_tokens.append(token)
+                print(f'[notify_admins] stale token removed: {token[:20]}...')
             else:
                 print(f'[notify_admins] failed token={token[:20]}... status={resp.status_code} resp={resp.text[:200]}')
+        if stale_tokens:
+            cur2 = conn.cursor()
+            for t in stale_tokens:
+                cur2.execute(f"DELETE FROM {SCHEMA}.fcm_tokens WHERE token = %s", (t,))
+            conn.commit()
+            cur2.close()
         return sent
     except Exception as e:
         print(f'[notify_admins] error: {e}')

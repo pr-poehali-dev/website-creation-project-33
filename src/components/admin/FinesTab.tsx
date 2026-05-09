@@ -210,7 +210,7 @@ export default function FinesTab() {
           </div>
           <div className="bg-white rounded-xl border border-red-100 p-2 text-center">
             <div className="text-[10px] text-red-400 mb-0.5">Штрафы</div>
-            <div className="text-[13px] font-bold text-red-500">−{totalFines.toLocaleString('ru-RU')} ₽</div>
+            <div className="text-[13px] font-bold text-red-500">{totalFines > 0 ? `−${totalFines.toLocaleString('ru-RU')}` : '0'} ₽</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-100 p-2 text-center">
             <div className="text-[10px] text-gray-400 mb-0.5">Итог</div>

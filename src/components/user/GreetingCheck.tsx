@@ -27,8 +27,15 @@ interface SpeechRecognitionInstance {
 }
 interface SpeechRecognitionAlternative { transcript: string; }
 
+interface RecordingHandle {
+  mediaRecorder: MediaRecorder;
+  stream: MediaStream;
+  chunks: Blob[];
+  mimeType: string;
+}
+
 interface GreetingCheckProps {
-  onSuccess: (heardText?: string, triggeredWord?: string) => void;
+  onSuccess: (heardText?: string, triggeredWord?: string, recordingHandle?: RecordingHandle) => void;
   onCancel: () => void;
 }
 
@@ -44,6 +51,23 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heardTextsRef = useRef<string[]>([]);
+
+  const startAudioRecording = async (): Promise<RecordingHandle | undefined> => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg']
+        .find(t => MediaRecorder.isTypeSupported(t)) || '';
+      const chunks: Blob[] = [];
+      const mediaRecorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+      mediaRecorder.start();
+      return { mediaRecorder, stream, chunks, mimeType };
+    } catch {
+      return undefined;
+    }
+  };
 
   useEffect(() => { statusRef.current = status; }, [status]);
 
@@ -72,12 +96,13 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
       });
     }, 1000);
 
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(async () => {
       if (activeRef.current) {
         recognitionRef.current?.stop();
         const allHeard = heardTextsRef.current.join(' | ') || '(тишина)';
         sendFailReport(allHeard);
-        onSuccess(allHeard);
+        const handle = await startAudioRecording();
+        onSuccess(allHeard, undefined, handle);
       }
     }, TIMEOUT_SEC * 1000);
   };
@@ -128,7 +153,9 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
           recognition.stop();
           if (timerRef.current) clearInterval(timerRef.current);
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
-          if (activeRef.current) onSuccess(undefined, matchedWord);
+          if (activeRef.current) {
+            startAudioRecording().then(handle => onSuccess(undefined, matchedWord, handle));
+          }
           return;
         }
       }

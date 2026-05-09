@@ -40,6 +40,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const mimeTypeRef = useRef<string>('audio/webm');
   const recordingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -67,63 +68,47 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
     setGreetingCheckOpen(true);
   };
 
-  const startRecording = async (heardText?: string, triggeredWord?: string) => {
+  const startRecording = (heardText?: string, triggeredWord?: string, recordingHandle?: { mediaRecorder: MediaRecorder; stream: MediaStream; chunks: Blob[]; mimeType: string }) => {
     setGreetingCheckOpen(false);
     if (heardText) setGreetingHeard(heardText);
     if (triggeredWord) setGreetingTriggered(triggeredWord);
 
-    // На iOS Speech API держит микрофон — даём время освободить
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      // iOS не поддерживает webm — выбираем подходящий формат
-      const mimeType = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg']
-        .find(t => MediaRecorder.isTypeSupported(t)) || '';
-
-      const mediaRecorder = mimeType
-        ? new MediaRecorder(stream, { mimeType })
-        : new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      chunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' });
-        console.log('🎤 Audio recorded, blob size:', blob.size, 'type:', mimeType);
-        setAudioBlob(blob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      setNotebookModalOpen(true);
-      setRecordingSeconds(0);
-
-      recordingIntervalRef.current = setInterval(() => {
-        setRecordingSeconds(s => s + 1);
-      }, 1000);
-
-      recordingTimerRef.current = setTimeout(() => {
-        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-          mediaRecorderRef.current.stop();
-          setIsRecording(false);
-        }
-        if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
-      }, 60000);
-    } catch (error) {
-      toast({ 
+    if (!recordingHandle) {
+      toast({
         title: 'Ошибка доступа к микрофону',
         description: 'Разрешите доступ к микрофону для записи аудио',
         variant: 'destructive'
       });
+      return;
     }
+
+    const { mediaRecorder, stream, chunks, mimeType } = recordingHandle;
+    mediaRecorderRef.current = mediaRecorder;
+    chunksRef.current = chunks;
+    mimeTypeRef.current = mimeType || 'audio/webm';
+
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunksRef.current, { type: mimeTypeRef.current });
+      console.log('🎤 Audio recorded, blob size:', blob.size, 'type:', mimeType);
+      setAudioBlob(blob);
+      stream.getTracks().forEach(track => track.stop());
+    };
+
+    setIsRecording(true);
+    setNotebookModalOpen(true);
+    setRecordingSeconds(0);
+
+    recordingIntervalRef.current = setInterval(() => {
+      setRecordingSeconds(s => s + 1);
+    }, 1000);
+
+    recordingTimerRef.current = setTimeout(() => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+        setIsRecording(false);
+      }
+      if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
+    }, 60000);
   };
 
   const stopRecording = () => {
@@ -179,7 +164,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
           const originalOnstop = mediaRecorderRef.current!.onstop;
           
           mediaRecorderRef.current!.onstop = () => {
-            const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+            const blob = new Blob(chunksRef.current, { type: mimeTypeRef.current });
             console.log('🎤 Audio recorded in handleSend, blob size:', blob.size);
             
             const stream = mediaRecorderRef.current?.stream;

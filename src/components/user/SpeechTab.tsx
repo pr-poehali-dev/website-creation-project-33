@@ -97,11 +97,9 @@ export default function SpeechTab() {
       return;
     }
 
-    // iOS Safari поддерживает только audio/mp4, ставим его первым
-    const preferredTypes = isIOS()
-      ? ['audio/mp4', 'audio/aac']
-      : ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
-    const mimeType = preferredTypes.find((t) => MediaRecorder.isTypeSupported(t)) || '';
+    // Подбираем поддерживаемый формат
+    const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4', 'audio/mpeg']
+      .find((t) => MediaRecorder.isTypeSupported(t)) || '';
 
     const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
     mediaRecorderRef.current = recorder;
@@ -112,9 +110,8 @@ export default function SpeechTab() {
     recorder.onstop = async () => {
       stream.getTracks().forEach((t) => t.stop());
       setStatus('processing');
-      const actualMime = mimeType || (isIOS() ? 'audio/mp4' : 'audio/webm');
-      const blob = new Blob(audioChunksRef.current, { type: actualMime });
-      await sendToWhisper(blob, actualMime);
+      const blob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/webm' });
+      await sendToWhisper(blob, mimeType || 'audio/webm');
     };
 
     setStatus('recording');

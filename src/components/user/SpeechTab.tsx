@@ -188,14 +188,12 @@ export default function SpeechTab() {
     (window as Window & { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition
   );
 
-  // iOS Safari → всегда MediaRecorder+Whisper (нет Web Speech API)
-  // Android/ПК → Web Speech API, если недоступен → MediaRecorder+Whisper
-  const shouldUseWhisper = isIOS() || !hasSpeechRecognition();
+  // Все платформы → Web Speech API; если недоступен (редкий браузер) → MediaRecorder+Whisper
   const handleStart = () => {
-    if (shouldUseWhisper) { startMobile(); } else { startDesktop(); }
+    if (!hasSpeechRecognition()) { startMobile(); } else { startDesktop(); }
   };
   const handleStop = () => {
-    if (shouldUseWhisper) { stopMobile(); } else { recognitionRef.current?.stop(); }
+    if (!hasSpeechRecognition()) { stopMobile(); } else { recognitionRef.current?.stop(); }
   };
 
   const reset = () => {

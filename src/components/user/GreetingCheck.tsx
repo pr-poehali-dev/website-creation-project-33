@@ -12,7 +12,7 @@ const TARGET_WORDS = [
   'айти', 'воркаут',
 ];
 
-const TIMEOUT_SEC = 10;
+const TIMEOUT_SEC = 3;
 
 type Status = 'idle' | 'listening' | 'processing' | 'success' | 'fail';
 

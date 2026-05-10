@@ -97,9 +97,11 @@ export default function SpeechTab() {
       return;
     }
 
-    // Подбираем поддерживаемый формат
-    const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4', 'audio/mpeg']
-      .find((t) => MediaRecorder.isTypeSupported(t)) || '';
+    // iOS Safari поддерживает только audio/mp4, ставим его первым
+    const preferredTypes = isIOS()
+      ? ['audio/mp4', 'audio/aac']
+      : ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
+    const mimeType = preferredTypes.find((t) => MediaRecorder.isTypeSupported(t)) || '';
 
     const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
     mediaRecorderRef.current = recorder;
@@ -110,8 +112,9 @@ export default function SpeechTab() {
     recorder.onstop = async () => {
       stream.getTracks().forEach((t) => t.stop());
       setStatus('processing');
-      const blob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/webm' });
-      await sendToWhisper(blob, mimeType || 'audio/webm');
+      const actualMime = mimeType || (isIOS() ? 'audio/mp4' : 'audio/webm');
+      const blob = new Blob(audioChunksRef.current, { type: actualMime });
+      await sendToWhisper(blob, actualMime);
     };
 
     setStatus('recording');
@@ -185,9 +188,9 @@ export default function SpeechTab() {
     (window as Window & { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition
   );
 
-  // Android → всегда MediaRecorder+Whisper (Web Speech API ненадёжен на Android)
-  // iOS/ПК → Web Speech API, если недоступен → MediaRecorder+Whisper
-  const shouldUseWhisper = isAndroid() || !hasSpeechRecognition();
+  // iOS Safari → всегда MediaRecorder+Whisper (нет Web Speech API)
+  // Android/ПК → Web Speech API, если недоступен → MediaRecorder+Whisper
+  const shouldUseWhisper = isIOS() || !hasSpeechRecognition();
   const handleStart = () => {
     if (shouldUseWhisper) { startMobile(); } else { startDesktop(); }
   };

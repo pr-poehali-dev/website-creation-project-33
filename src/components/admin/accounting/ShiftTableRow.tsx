@@ -133,25 +133,27 @@ function ShiftTableRow({
         {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
       </td>
       <td className="border border-gray-200 p-1 md:p-2 text-gray-700">{shift.organization}</td>
-      <td className="border border-gray-200 p-0">
-        {(() => {
-          const party = key in editingInvoiceParty ? editingInvoiceParty[key] : shift.invoice_party;
-          return (
-            <select
-              value={party ?? ''}
-              onChange={(e) => onInvoicePartyChange(shift, (e.target.value as 'kms' | 'kvv') || null)}
-              className={`w-full h-full min-h-[36px] text-[10px] md:text-xs border-0 font-semibold cursor-pointer text-center ${
-                party === 'kms' ? 'bg-emerald-100 text-emerald-700'
-                : party === 'kvv' ? 'bg-red-100 text-red-700'
-                : 'bg-white text-gray-400'
-              }`}
-            >
-              <option value=""></option>
-              <option value="kms">КМС</option>
-              <option value="kvv">КВВ</option>
-            </select>
-          );
-        })()}
+      <td className="border border-gray-200 p-1 md:p-2">
+        <div className="flex items-center justify-center">
+          {(() => {
+            const party = key in editingInvoiceParty ? editingInvoiceParty[key] : shift.invoice_party;
+            return (
+              <select
+                value={party ?? ''}
+                onChange={(e) => onInvoicePartyChange(shift, (e.target.value as 'kms' | 'kvv') || null)}
+                className={`w-14 md:w-16 h-6 md:h-7 text-[9px] md:text-xs border rounded px-0.5 font-medium cursor-pointer ${
+                  party === 'kms' ? 'bg-purple-100 text-purple-700 border-purple-300'
+                  : party === 'kvv' ? 'bg-blue-100 text-blue-700 border-blue-300'
+                  : 'bg-gray-100 text-gray-500 border-gray-300'
+                }`}
+              >
+                <option value="">—</option>
+                <option value="kms">КМС</option>
+                <option value="kvv">КВВ</option>
+              </select>
+            );
+          })()}
+        </div>
       </td>
       <td className="border border-gray-200 p-1 md:p-2 text-right">
         <div className="flex flex-col gap-0.5 md:gap-1 items-end">

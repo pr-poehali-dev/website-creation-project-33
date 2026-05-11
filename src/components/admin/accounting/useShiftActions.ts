@@ -202,42 +202,10 @@ export function useShiftActions(
     });
   }, []);
 
-  const handleInvoicePartyChange = useCallback(async (shift: ShiftRecord, party: 'kms' | 'kvv' | null) => {
+  const handleInvoicePartyChange = useCallback((shift: ShiftRecord, party: 'kms' | 'kvv' | null) => {
     const key = getShiftKey(shift);
     setEditingInvoiceParty(prev => ({ ...prev, [key]: party }));
-    try {
-      await fetch(ADMIN_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Session-Token': getSessionToken() || '' },
-        body: JSON.stringify({
-          action: 'update_accounting_expense',
-          user_id: shift.user_id,
-          work_date: shift.date,
-          organization_id: shift.organization_id,
-          expense_amount: shift.expense_amount || 0,
-          expense_comment: shift.expense_comment || '',
-          paid_by_organization: shift.paid_by_organization,
-          paid_to_worker: shift.paid_to_worker,
-          salary_at_kvv: shift.salary_at_kvv,
-          paid_kvv: shift.paid_kvv,
-          paid_kms: shift.paid_kms,
-          invoice_issued: shift.invoice_issued,
-          invoice_issued_date: shift.invoice_issued_date ?? null,
-          invoice_paid: shift.invoice_paid,
-          invoice_paid_date: shift.invoice_paid_date ?? null,
-          personal_funds_amount: shift.personal_funds_amount || 0,
-          personal_funds_by_kms: shift.personal_funds_by_kms || false,
-          personal_funds_by_kvv: shift.personal_funds_by_kvv || false,
-          compensation_amount: shift.compensation_amount || 0,
-          invoice_party: party,
-        }),
-      });
-      setEditingInvoiceParty(prev => { const next = { ...prev }; delete next[key]; return next; });
-      loadAccountingData();
-    } catch (e) {
-      console.error('invoice_party save error', e);
-    }
-  }, [getSessionToken, loadAccountingData]);
+  }, []);
 
   const saveAllPayments = async (shifts: ShiftRecord[]) => {
     // Извлекаем базовые ключи из ключей компенсации (убираем суффикс _compensation)

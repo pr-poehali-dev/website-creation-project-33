@@ -142,8 +142,8 @@ function ShiftTableRow({
                 value={party ?? ''}
                 onChange={(e) => onInvoicePartyChange(shift, (e.target.value as 'kms' | 'kvv') || null)}
                 className={`w-14 md:w-16 h-6 md:h-7 text-[9px] md:text-xs border rounded px-0.5 font-medium cursor-pointer ${
-                  party === 'kms' ? 'bg-purple-100 text-purple-700 border-purple-300'
-                  : party === 'kvv' ? 'bg-blue-100 text-blue-700 border-blue-300'
+                  party === 'kms' ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                  : party === 'kvv' ? 'bg-red-100 text-red-700 border-red-300'
                   : 'bg-gray-100 text-gray-500 border-gray-300'
                 }`}
               >

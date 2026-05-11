@@ -66,8 +66,20 @@ export default function ShiftTableHeader({
           <div className="flex flex-col">
             <div className="border-b border-gray-200 pb-1 mb-1">Счёт</div>
             <div className="flex gap-2 text-[9px] md:text-[10px] font-normal text-gray-500">
-              <div className="flex-1 text-center">Выставлен</div>
-              <div className="flex-1 text-center">Оплачен</div>
+              <div className="flex-1 text-center">
+                <FilterableHeader
+                  label="КМС"
+                  filterValue={filters.paid_kms}
+                  onFilterChange={() => onFilterChange('paid_kms')}
+                />
+              </div>
+              <div className="flex-1 text-center">
+                <FilterableHeader
+                  label="КВВ"
+                  filterValue={filters.paid_kvv}
+                  onFilterChange={() => onFilterChange('paid_kvv')}
+                />
+              </div>
             </div>
           </div>
         </th>

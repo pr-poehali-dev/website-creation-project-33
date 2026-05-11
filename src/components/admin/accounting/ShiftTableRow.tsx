@@ -129,37 +129,37 @@ function ShiftTableRow({
         {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
       </td>
       <td className="border border-gray-200 p-1 md:p-2 text-gray-700">{shift.organization}</td>
-      <td className="border border-gray-200 p-1 md:p-2 min-w-[180px] md:min-w-[260px]">
+      <td className="border border-gray-200 p-1 md:p-2 min-w-[120px] md:min-w-[160px]">
         <div className="grid grid-cols-2 gap-1.5 md:gap-3">
-          <div className="flex flex-col gap-1 md:gap-2 items-center">
-            <input
-              type="checkbox"
-              checked={editingPayments[key]?.invoice_issued ?? shift.invoice_issued}
-              onChange={() => handlePaymentToggleCallback('invoice_issued')}
-              className="w-4 h-4 md:w-5 md:h-5 cursor-pointer accent-emerald-500 flex-shrink-0"
-            />
-            <input
-              type="date"
-              value={invoiceDates.invoice_issued_date || ''}
-              onChange={handleInvoiceIssuedChange}
-              className="w-full h-6 md:h-8 text-[9px] md:text-xs border border-gray-300 rounded px-1 md:px-2 bg-white text-gray-700 disabled:bg-gray-100 disabled:text-gray-400"
-              disabled={!(editingPayments[key]?.invoice_issued ?? shift.invoice_issued)}
-            />
+          <div className="flex flex-col gap-1 items-center">
+            <span className="text-[9px] text-purple-600 font-medium">{kms.toLocaleString()} ₽</span>
+            <select
+              value={(editingPayments[key]?.paid_kms ?? shift.paid_kms) ? 'yes' : 'no'}
+              onChange={() => handlePaymentToggleCallback('paid_kms')}
+              className={`w-full h-6 md:h-7 text-[9px] md:text-xs border rounded px-0.5 font-medium ${
+                (editingPayments[key]?.paid_kms ?? shift.paid_kms)
+                  ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                  : 'bg-red-100 text-red-700 border-red-300'
+              }`}
+            >
+              <option value="no" className="bg-white text-gray-700">Нет</option>
+              <option value="yes" className="bg-white text-gray-700">Да</option>
+            </select>
           </div>
-          <div className="flex flex-col gap-1 md:gap-2 items-center border-l border-gray-200 pl-1.5 md:pl-3">
-            <input
-              type="checkbox"
-              checked={editingPayments[key]?.invoice_paid ?? shift.invoice_paid}
-              onChange={() => handlePaymentToggleCallback('invoice_paid')}
-              className="w-4 h-4 md:w-5 md:h-5 cursor-pointer accent-emerald-500 flex-shrink-0"
-            />
-            <input
-              type="date"
-              value={invoiceDates.invoice_paid_date || ''}
-              onChange={handleInvoicePaidChange}
-              className="w-full h-6 md:h-8 text-[9px] md:text-xs border border-gray-300 rounded px-1 md:px-2 bg-white text-gray-700 disabled:bg-gray-100 disabled:text-gray-400"
-              disabled={!(editingPayments[key]?.invoice_paid ?? shift.invoice_paid)}
-            />
+          <div className="flex flex-col gap-1 items-center border-l border-gray-200 pl-1.5 md:pl-3">
+            <span className="text-[9px] text-blue-600 font-medium">{kvv.toLocaleString()} ₽</span>
+            <select
+              value={(editingPayments[key]?.paid_kvv ?? shift.paid_kvv) ? 'yes' : 'no'}
+              onChange={() => handlePaymentToggleCallback('paid_kvv')}
+              className={`w-full h-6 md:h-7 text-[9px] md:text-xs border rounded px-0.5 font-medium ${
+                (editingPayments[key]?.paid_kvv ?? shift.paid_kvv)
+                  ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                  : 'bg-red-100 text-red-700 border-red-300'
+              }`}
+            >
+              <option value="no" className="bg-white text-gray-700">Нет</option>
+              <option value="yes" className="bg-white text-gray-700">Да</option>
+            </select>
           </div>
         </div>
       </td>

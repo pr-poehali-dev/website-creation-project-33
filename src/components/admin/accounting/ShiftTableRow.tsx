@@ -207,50 +207,7 @@ function ShiftTableRow({
       </td>
       <td className="border border-gray-200 p-1 md:p-2 text-right text-gray-700">{shift.contacts_count}</td>
       <td className="border border-gray-200 p-1 md:p-2 text-right font-medium text-gray-800">{workerSalary.toLocaleString()} ₽</td>
-      <td className="border border-gray-200 p-1 md:p-2">
-        <div className="flex flex-col gap-0.5 md:gap-1">
-          <Input
-            type="number"
-            value={personalFunds.amount === 0 ? '' : personalFunds.amount}
-            onChange={(e) => {
-              const newAmount = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
-              onPersonalFundsChange(key, newAmount, personalFunds.by_kms, personalFunds.by_kvv);
-            }}
-            placeholder="Сумма"
-            className="w-16 md:w-20 h-6 md:h-7 text-[10px] md:text-xs border-gray-300 bg-white text-gray-700"
-          />
-          <div className="flex gap-0.5 md:gap-1">
-            <button
-              onClick={() => {
-                const newByKms = !personalFunds.by_kms;
-                onPersonalFundsChange(key, personalFunds.amount, newByKms, newByKms ? false : personalFunds.by_kvv);
-              }}
-              className={`flex-1 h-5 md:h-6 text-[9px] md:text-[10px] border rounded px-0.5 md:px-1 font-medium transition-colors ${
-                personalFunds.by_kms
-                  ? 'bg-purple-100 text-purple-700 border-purple-300'
-                  : 'bg-gray-100 text-gray-500 border-gray-300 hover:bg-gray-200'
-              }`}
-              title="КМС"
-            >
-              КМС
-            </button>
-            <button
-              onClick={() => {
-                const newByKvv = !personalFunds.by_kvv;
-                onPersonalFundsChange(key, personalFunds.amount, newByKvv ? false : personalFunds.by_kms, newByKvv);
-              }}
-              className={`flex-1 h-5 md:h-6 text-[9px] md:text-[10px] border rounded px-0.5 md:px-1 font-medium transition-colors ${
-                personalFunds.by_kvv
-                  ? 'bg-blue-100 text-blue-700 border-blue-300'
-                  : 'bg-gray-100 text-gray-500 border-gray-300 hover:bg-gray-200'
-              }`}
-              title="КВВ"
-            >
-              КВВ
-            </button>
-          </div>
-        </div>
-      </td>
+
       <td className="border border-gray-200 p-1 md:p-2">
         <Input
           type="number"

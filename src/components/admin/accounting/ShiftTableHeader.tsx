@@ -111,10 +111,7 @@ export default function ShiftTableHeader({
           <div className="text-gray-800 font-bold mt-0.5 md:mt-1 text-[9px] md:text-xs">{stats.totalSalary.toLocaleString('ru-RU')} ₽</div>
           <div className="text-gray-800 font-bold mt-0.5 md:mt-1 text-[9px] md:text-[10px]">Долг: {stats.unpaidSalary.toLocaleString('ru-RU')} ₽</div>
         </th>
-        <th className="border border-gray-200 p-1 md:p-2 text-center whitespace-nowrap">
-          <div>Внесение</div>
-          <div>личных средств</div>
-        </th>
+
         <th className="border border-gray-200 p-1 md:p-2 text-right whitespace-nowrap">Расход</th>
         <th className="border border-gray-200 p-1 md:p-2 text-left whitespace-nowrap">Комментарий</th>
         <th className="border border-gray-200 p-1 md:p-2 text-right whitespace-nowrap bg-emerald-50">

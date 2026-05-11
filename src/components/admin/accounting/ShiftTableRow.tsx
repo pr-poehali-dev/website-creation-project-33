@@ -334,6 +334,7 @@ export default React.memo(ShiftTableRow, (prevProps, nextProps) => {
     JSON.stringify(prevProps.editingPersonalFunds[prevKey]) === JSON.stringify(nextProps.editingPersonalFunds[nextKey]) &&
     JSON.stringify(prevProps.editingPayments[prevKey]) === JSON.stringify(nextProps.editingPayments[nextKey]) &&
     JSON.stringify(prevProps.editingInvoiceDates[prevKey]) === JSON.stringify(nextProps.editingInvoiceDates[nextKey]) &&
+    prevProps.editingInvoiceParty[prevKey] === nextProps.editingInvoiceParty[nextKey] &&
     prevProps.shift === nextProps.shift
   );
 });

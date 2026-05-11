@@ -202,6 +202,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
   const hasUnsavedPayments = 
     Object.keys(editingPayments).length > 0 || 
     Object.keys(editingInvoiceDates).length > 0 ||
+    Object.keys(editingInvoiceParty).length > 0 ||
     Object.keys(editingExpense).length > 0 ||
     Object.keys(editingComment).length > 0 ||
     Object.keys(editingPersonalFunds).length > 0;

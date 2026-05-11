@@ -1,9 +1,62 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import Icon from '@/components/ui/icon';
 import FilterableHeader from './FilterableHeader';
 import MultiSelectHeader from './MultiSelectHeader';
 import PaymentTypeHeader from './PaymentTypeHeader';
 import DateFilterHeader from './DateFilterHeader';
 import { TableStatistics } from './ShiftTableCalculations';
+
+function InvoicePartyFilterHeader({
+  filterValue,
+  onFilterChange
+}: {
+  filterValue: 'kms' | 'kvv' | null;
+  onFilterChange: (v: 'kms' | 'kvv' | null) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
+    };
+    if (isOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isOpen]);
+
+  const iconName = filterValue === null ? 'Filter' : 'FilterX';
+  const iconColor = filterValue !== null ? 'text-blue-600' : 'text-gray-400';
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1 hover:bg-gray-100 px-1 py-0.5 rounded transition-colors w-full justify-center text-gray-700"
+      >
+        <span>Счёт</span>
+        <Icon name={iconName} size={14} className={iconColor} />
+      </button>
+      {isOpen && (
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[1000] min-w-[100px]">
+          {([null, 'kms', 'kvv'] as const).map((val) => (
+            <button
+              key={String(val)}
+              onClick={() => { onFilterChange(val); setIsOpen(false); }}
+              className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-xs text-gray-700 border-t border-gray-100 first:border-0"
+            >
+              <Icon
+                name={filterValue === val ? 'CheckCircle2' : 'Circle'}
+                size={16}
+                className={filterValue === val ? 'text-blue-600' : 'text-gray-400'}
+              />
+              {val === null ? 'Все' : val === 'kms' ? 'КМС' : 'КВВ'}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface ShiftTableHeaderProps {
   stats: TableStatistics;
@@ -67,20 +120,10 @@ export default function ShiftTableHeader({
           />
         </th>
         <th className="border border-gray-200 p-1 md:p-2 text-center whitespace-nowrap">
-          <div className="text-[9px] md:text-[10px] font-semibold text-gray-700 mb-1">Счёт</div>
-          <select
-            value={invoicePartyFilter ?? ''}
-            onChange={(e) => onInvoicePartyFilterChange((e.target.value as 'kms' | 'kvv') || null)}
-            className={`w-14 md:w-16 h-6 text-[9px] md:text-xs border rounded px-0.5 font-medium ${
-              invoicePartyFilter === 'kms' ? 'bg-purple-100 text-purple-700 border-purple-300'
-              : invoicePartyFilter === 'kvv' ? 'bg-blue-100 text-blue-700 border-blue-300'
-              : 'bg-gray-100 text-gray-500 border-gray-300'
-            }`}
-          >
-            <option value="">Все</option>
-            <option value="kms">КМС</option>
-            <option value="kvv">КВВ</option>
-          </select>
+          <InvoicePartyFilterHeader
+            filterValue={invoicePartyFilter}
+            onFilterChange={onInvoicePartyFilterChange}
+          />
         </th>
         <th className="border border-gray-200 p-1 md:p-2 text-right whitespace-nowrap">
           <div>Сумма прихода</div>

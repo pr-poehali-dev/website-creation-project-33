@@ -31,9 +31,6 @@ export default function WorkerCard({
   const isMaxim = isMaximKorelsky(worker.first_name, worker.last_name);
   const workerName = `${worker.first_name} ${worker.last_name}`;
 
-  const avgContacts = calculateAvgBeforeDate(worker.daily_contacts, dayDate);
-  const actualContacts = worker.daily_contacts?.find(d => d.date === dayDate)?.count ?? null;
-
   const userComments = workComments[dayDate]?.[workerName] as Record<string, { organization?: string }> | undefined;
   // Реальный ключ смены (может отличаться от slotLabel при нестандартном расписании)
   const realSlotKey = userComments?.[slotLabel] !== undefined
@@ -41,6 +38,11 @@ export default function WorkerCard({
     : (userComments ? Object.keys(userComments).find(k => typeof userComments[k] === 'object' && userComments[k] !== null) : undefined) || slotLabel;
   const commentData = (userComments?.[realSlotKey]) || {};
   const currentOrganization = commentData.organization || '';
+
+  const avgContacts = calculateAvgBeforeDate(worker.daily_contacts, dayDate, currentOrganization || undefined);
+  const actualContacts = worker.daily_contacts
+    ?.filter(d => d.date === dayDate && (!currentOrganization || d.org_name === currentOrganization))
+    ?.reduce((sum, d) => sum + d.count, 0) ?? null;
 
   const handleDeleteShift = () => {
     onDeleteShift?.(worker.user_id, workerName, dayDate, slotTime, slotLabel);

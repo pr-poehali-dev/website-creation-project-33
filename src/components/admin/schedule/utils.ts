@@ -106,12 +106,14 @@ export const isMaximKorelsky = (firstName: string, lastName: string): boolean =>
 };
 
 export const calculateAvgBeforeDate = (
-  dailyContacts: Array<{date: string, count: number}> | undefined,
-  beforeDate: string
+  dailyContacts: Array<{date: string, count: number, org_name?: string}> | undefined,
+  beforeDate: string,
+  orgName?: string
 ): number => {
   if (!dailyContacts || dailyContacts.length === 0) return 0;
   
-  const filteredDays = dailyContacts.filter(item => item.date < beforeDate);
+  let filteredDays = dailyContacts.filter(item => item.date < beforeDate);
+  if (orgName) filteredDays = filteredDays.filter(item => item.org_name === orgName);
   
   if (filteredDays.length === 0) return 0;
   

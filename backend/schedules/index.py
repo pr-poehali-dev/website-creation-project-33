@@ -260,31 +260,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         rows = cur.fetchall()
         
-        # Получаем детальную статистику контактов по дням и сменам для всех промоутеров
+        # Получаем детальную статистику контактов по дням и организациям для всех промоутеров
         cur.execute("""
             SELECT 
                 la.user_id,
                 DATE(la.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as contact_date,
-                CASE 
-                    WHEN EXTRACT(HOUR FROM la.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') < 16 THEN '12:00-16:00'
-                    ELSE '16:00-20:00'
-                END as shift_time,
+                o.name as org_name,
                 COUNT(la.id) as contacts_count
             FROM t_p24058207_website_creation_pro.leads_analytics la
+            LEFT JOIN t_p24058207_website_creation_pro.organizations o ON la.organization_id = o.id
             WHERE la.lead_type = 'контакт' 
                 AND la.is_active = true
-            GROUP BY la.user_id, contact_date, shift_time
-            ORDER BY la.user_id, contact_date, shift_time
+            GROUP BY la.user_id, contact_date, o.name
+            ORDER BY la.user_id, contact_date, o.name
         """)
         
         daily_stats_rows = cur.fetchall()
         
-        # Группируем статистику по пользователям: {user_id: [{date, shift_time, count}, ...]}
+        # Группируем статистику по пользователям: {user_id: [{date, org_name, count}, ...]}
         user_daily_stats = {}
         for row in daily_stats_rows:
             user_id = row[0]
             contact_date = row[1].isoformat() if row[1] else None
-            shift_time = row[2]
+            org_name = row[2]
             contacts_count = row[3]
             
             if user_id not in user_daily_stats:
@@ -292,7 +290,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             user_daily_stats[user_id].append({
                 'date': contact_date,
-                'shift_time': shift_time,
+                'org_name': org_name,
                 'count': contacts_count
             })
         

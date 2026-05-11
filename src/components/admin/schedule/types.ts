@@ -10,7 +10,7 @@ export interface UserSchedule {
   email: string;
   schedule: Record<string, Record<string, boolean>>;
   avg_per_shift?: number;
-  daily_contacts?: Array<{date: string, count: number}>;
+  daily_contacts?: Array<{date: string, count: number, org_name?: string}>;
   submitted_at?: string | null;
   updated_at?: string | null;
   is_active?: boolean;

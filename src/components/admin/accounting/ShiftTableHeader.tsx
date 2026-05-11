@@ -14,6 +14,8 @@ interface ShiftTableHeaderProps {
     paid_kms: boolean | null;
     invoice_issued: boolean | null;
   };
+  invoicePartyFilter: 'kms' | 'kvv' | null;
+  onInvoicePartyFilterChange: (value: 'kms' | 'kvv' | null) => void;
   organizationFilter: string[];
   promoterFilter: string[];
   paymentTypeFilter: ('cash' | 'cashless')[];
@@ -30,6 +32,8 @@ interface ShiftTableHeaderProps {
 export default function ShiftTableHeader({
   stats,
   filters,
+  invoicePartyFilter,
+  onInvoicePartyFilterChange,
   organizationFilter,
   promoterFilter,
   paymentTypeFilter,
@@ -63,25 +67,20 @@ export default function ShiftTableHeader({
           />
         </th>
         <th className="border border-gray-200 p-1 md:p-2 text-center whitespace-nowrap">
-          <div className="flex flex-col">
-            <div className="border-b border-gray-200 pb-1 mb-1">Счёт</div>
-            <div className="flex gap-2 text-[9px] md:text-[10px] font-normal text-gray-500">
-              <div className="flex-1 text-center">
-                <FilterableHeader
-                  label="КМС"
-                  filterValue={filters.paid_kms}
-                  onFilterChange={() => onFilterChange('paid_kms')}
-                />
-              </div>
-              <div className="flex-1 text-center">
-                <FilterableHeader
-                  label="КВВ"
-                  filterValue={filters.paid_kvv}
-                  onFilterChange={() => onFilterChange('paid_kvv')}
-                />
-              </div>
-            </div>
-          </div>
+          <div className="text-[9px] md:text-[10px] font-semibold text-gray-700 mb-1">Счёт</div>
+          <select
+            value={invoicePartyFilter ?? ''}
+            onChange={(e) => onInvoicePartyFilterChange((e.target.value as 'kms' | 'kvv') || null)}
+            className={`w-14 md:w-16 h-6 text-[9px] md:text-xs border rounded px-0.5 font-medium ${
+              invoicePartyFilter === 'kms' ? 'bg-purple-100 text-purple-700 border-purple-300'
+              : invoicePartyFilter === 'kvv' ? 'bg-blue-100 text-blue-700 border-blue-300'
+              : 'bg-gray-100 text-gray-500 border-gray-300'
+            }`}
+          >
+            <option value="">Все</option>
+            <option value="kms">КМС</option>
+            <option value="kvv">КВВ</option>
+          </select>
         </th>
         <th className="border border-gray-200 p-1 md:p-2 text-right whitespace-nowrap">
           <div>Сумма прихода</div>

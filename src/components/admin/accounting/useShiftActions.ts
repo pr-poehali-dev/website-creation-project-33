@@ -27,6 +27,7 @@ export function useShiftActions(
     invoice_issued_date?: string | null;
     invoice_paid_date?: string | null;
   }}>({});
+  const [editingInvoiceParty, setEditingInvoiceParty] = useState<{[key: string]: 'kms' | 'kvv' | null}>({});
 
   const updateExpense = async (shift: ShiftRecord, expenseAmount: number, expenseComment: string, payments?: {
     paid_by_organization: boolean;
@@ -201,6 +202,11 @@ export function useShiftActions(
     });
   }, []);
 
+  const handleInvoicePartyChange = useCallback((shift: ShiftRecord, party: 'kms' | 'kvv' | null) => {
+    const key = getShiftKey(shift);
+    setEditingInvoiceParty(prev => ({ ...prev, [key]: party }));
+  }, []);
+
   const saveAllPayments = async (shifts: ShiftRecord[]) => {
     // Извлекаем базовые ключи из ключей компенсации (убираем суффикс _compensation)
     const compensationBaseKeys = Object.keys(editingExpense)
@@ -210,6 +216,7 @@ export function useShiftActions(
     const allKeys = new Set([
       ...Object.keys(editingPayments), 
       ...Object.keys(editingInvoiceDates),
+      ...Object.keys(editingInvoiceParty),
       ...Object.keys(editingExpense).filter(k => !k.endsWith('_compensation')),
       ...compensationBaseKeys,
       ...Object.keys(editingComment),
@@ -222,6 +229,7 @@ export function useShiftActions(
       
       const payments = editingPayments[key];
       const dates = editingInvoiceDates[key];
+      const invoiceParty = key in editingInvoiceParty ? editingInvoiceParty[key] : shift.invoice_party;
       const personalFunds = editingPersonalFunds[key];
       const expenseAmount = editingExpense[key] ?? shift.expense_amount ?? 0;
       const expenseComment = editingComment[key] ?? shift.expense_comment ?? '';
@@ -253,6 +261,7 @@ export function useShiftActions(
           personal_funds_by_kms: personalFunds?.by_kms ?? shift.personal_funds_by_kms ?? false,
           personal_funds_by_kvv: personalFunds?.by_kvv ?? shift.personal_funds_by_kvv ?? false,
           compensation_amount: compensationAmount,
+          invoice_party: invoiceParty ?? null,
         }),
       });
     });
@@ -265,6 +274,7 @@ export function useShiftActions(
       });
       setEditingPayments({});
       setEditingInvoiceDates({});
+      setEditingInvoiceParty({});
       setEditingExpense({});
       setEditingComment({});
       setEditingPersonalFunds({});
@@ -393,6 +403,7 @@ export function useShiftActions(
     editingPersonalFunds,
     editingPayments,
     editingInvoiceDates,
+    editingInvoiceParty,
     setEditingExpense,
     setEditingComment,
     setEditingPersonalFunds,
@@ -403,6 +414,7 @@ export function useShiftActions(
     handlePaymentToggle,
     handleInvoiceIssuedDateChange,
     handleInvoicePaidDateChange,
+    handleInvoicePartyChange,
     saveAllPayments,
     saveEditedShift,
     addManualShift

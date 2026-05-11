@@ -2135,6 +2135,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(ae.personal_funds_by_kms, false) as personal_funds_by_kms,
                             COALESCE(ae.personal_funds_by_kvv, false) as personal_funds_by_kvv,
                             COALESCE(ae.compensation_amount, 0) as compensation_amount,
+                            ae.invoice_party,
                             COALESCE(ae.employee_status_at_shift, u.employee_status, 'employee') as employee_status,
                             u.created_at as user_registered_at,
                             u.is_active as user_is_active
@@ -2222,9 +2223,10 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             'personal_funds_by_kms': bool(row[21]),
                             'personal_funds_by_kvv': bool(row[22]),
                             'compensation_amount': int(row[23]) if row[23] else 0,
-                            'employee_status': row[24] if row[24] else 'employee',
-                            'user_registered_at': row[25].isoformat() if row[25] else None,
-                            'is_active': bool(row[26]) if row[26] is not None else True
+                            'invoice_party': row[24] if row[24] else None,
+                            'employee_status': row[25] if row[25] else 'employee',
+                            'user_registered_at': row[26].isoformat() if row[26] else None,
+                            'is_active': bool(row[27]) if row[27] is not None else True
                         })
             
             return {
@@ -2699,6 +2701,7 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
             personal_funds_by_kms = body_data.get('personal_funds_by_kms', False)
             personal_funds_by_kvv = body_data.get('personal_funds_by_kvv', False)
             compensation_amount = body_data.get('compensation_amount', 0)
+            invoice_party = body_data.get('invoice_party', None)
             
             if not user_id or not work_date or not organization_id:
                 return {
@@ -2714,8 +2717,8 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             INSERT INTO t_p24058207_website_creation_pro.accounting_expenses 
                             (user_id, work_date, organization_id, expense_amount, expense_comment, 
                              paid_by_organization, paid_to_worker, salary_at_kvv, paid_kvv, paid_kms, invoice_issued, invoice_issued_date, 
-                             invoice_paid, invoice_paid_date, personal_funds_amount, personal_funds_by_kms, personal_funds_by_kvv, compensation_amount, updated_at)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                             invoice_paid, invoice_paid_date, personal_funds_amount, personal_funds_by_kms, personal_funds_by_kvv, compensation_amount, invoice_party, updated_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
                             ON CONFLICT (user_id, work_date, organization_id) 
                             DO UPDATE SET 
                                 expense_amount = EXCLUDED.expense_amount,
@@ -2733,10 +2736,11 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                                 personal_funds_by_kms = EXCLUDED.personal_funds_by_kms,
                                 personal_funds_by_kvv = EXCLUDED.personal_funds_by_kvv,
                                 compensation_amount = EXCLUDED.compensation_amount,
+                                invoice_party = EXCLUDED.invoice_party,
                                 updated_at = CURRENT_TIMESTAMP
                         """, (user_id, work_date, organization_id, expense_amount, expense_comment,
                               paid_by_organization, paid_to_worker, salary_at_kvv, paid_kvv, paid_kms, invoice_issued, invoice_issued_date,
-                              invoice_paid, invoice_paid_date, personal_funds_amount, personal_funds_by_kms, personal_funds_by_kvv, compensation_amount))
+                              invoice_paid, invoice_paid_date, personal_funds_amount, personal_funds_by_kms, personal_funds_by_kvv, compensation_amount, invoice_party))
                         conn.commit()
                         
                         return {

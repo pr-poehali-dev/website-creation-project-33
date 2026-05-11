@@ -28,6 +28,8 @@ interface ShiftTableProps {
     invoice_issued_date: string | null;
     invoice_paid_date: string | null;
   }};
+  editingInvoiceParty: {[key: string]: 'kms' | 'kvv' | null};
+  invoicePartyFilter: 'kms' | 'kvv' | null;
   filters: {
     paid_by_organization: boolean | null;
     paid_to_worker: boolean | null;
@@ -48,6 +50,8 @@ interface ShiftTableProps {
   onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
   onInvoiceIssuedDateChange: (shift: ShiftRecord, date: string | null) => void;
   onInvoicePaidDateChange: (shift: ShiftRecord, date: string | null) => void;
+  onInvoicePartyChange: (shift: ShiftRecord, party: 'kms' | 'kvv' | null) => void;
+  onInvoicePartyFilterChange: (value: 'kms' | 'kvv' | null) => void;
   onFilterChange: (key: 'paid_by_organization' | 'paid_to_worker' | 'paid_kvv' | 'paid_kms' | 'invoice_issued') => void;
   onOrganizationFilterChange: (values: string[]) => void;
   onPromoterFilterChange: (values: string[]) => void;
@@ -65,6 +69,8 @@ export default function ShiftTable({
   editingPersonalFunds,
   editingPayments,
   editingInvoiceDates,
+  editingInvoiceParty,
+  invoicePartyFilter,
   filters,
   organizationFilter,
   promoterFilter,
@@ -79,6 +85,8 @@ export default function ShiftTable({
   onPaymentToggle,
   onInvoiceIssuedDateChange,
   onInvoicePaidDateChange,
+  onInvoicePartyChange,
+  onInvoicePartyFilterChange,
   onFilterChange,
   onOrganizationFilterChange,
   onPromoterFilterChange,
@@ -89,6 +97,7 @@ export default function ShiftTable({
   scale = 100
 }: ShiftTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
+  const stats = useMemo(() => calculateTableStatistics(shifts), [shifts]);
 
   if (shifts.length === 0) {
     return (
@@ -99,14 +108,14 @@ export default function ShiftTable({
     );
   }
 
-  const stats = useMemo(() => calculateTableStatistics(shifts), [shifts]);
-
   return (
     <ShiftTableZoom parentRef={parentRef} scale={scale}>
       <table className="w-full text-xs md:text-sm border-collapse bg-white">
         <ShiftTableHeader
           stats={stats}
           filters={filters}
+          invoicePartyFilter={invoicePartyFilter}
+          onInvoicePartyFilterChange={onInvoicePartyFilterChange}
           organizationFilter={organizationFilter}
           promoterFilter={promoterFilter}
           paymentTypeFilter={paymentTypeFilter}
@@ -129,6 +138,7 @@ export default function ShiftTable({
               editingPersonalFunds={editingPersonalFunds}
               editingPayments={editingPayments}
               editingInvoiceDates={editingInvoiceDates}
+              editingInvoiceParty={editingInvoiceParty}
               onExpenseChange={onExpenseChange}
               onCommentChange={onCommentChange}
               onPersonalFundsChange={onPersonalFundsChange}
@@ -136,6 +146,7 @@ export default function ShiftTable({
               onPaymentToggle={onPaymentToggle}
               onInvoiceIssuedDateChange={onInvoiceIssuedDateChange}
               onInvoicePaidDateChange={onInvoicePaidDateChange}
+              onInvoicePartyChange={onInvoicePartyChange}
               onDelete={onDelete}
               onEdit={onEdit}
             />

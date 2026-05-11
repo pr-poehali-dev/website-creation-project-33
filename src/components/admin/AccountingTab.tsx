@@ -33,6 +33,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     editingPersonalFunds,
     editingPayments,
     editingInvoiceDates,
+    editingInvoiceParty,
     setEditingExpense,
     setEditingComment,
     setEditingPersonalFunds,
@@ -41,6 +42,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     handlePaymentToggle,
     handleInvoiceIssuedDateChange,
     handleInvoicePaidDateChange,
+    handleInvoicePartyChange,
     saveAllPayments,
     saveEditedShift,
     addManualShift
@@ -59,6 +61,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     paid_kms: null as boolean | null,
     invoice_issued: null as boolean | null
   });
+  const [invoicePartyFilter, setInvoicePartyFilter] = useState<'kms' | 'kvv' | null>(null);
   const [organizationFilter, setOrganizationFilter] = useState<string[]>([]);
   const [promoterFilter, setPromoterFilter] = useState<string[]>([]);
   const [paymentTypeFilter, setPaymentTypeFilter] = useState<('cash' | 'cashless')[]>([]);
@@ -219,6 +222,7 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
     if (filters.paid_kms !== null && shift.paid_kms !== filters.paid_kms) return false;
     if (filters.invoice_issued !== null && shift.invoice_issued !== filters.invoice_issued) return false;
     
+    if (invoicePartyFilter !== null && shift.invoice_party !== invoicePartyFilter) return false;
     if (organizationFilter.length > 0 && !organizationFilter.includes(shift.organization)) return false;
     if (promoterFilter.length > 0 && !promoterFilter.includes(shift.user_name)) return false;
     if (paymentTypeFilter.length > 0 && !paymentTypeFilter.includes(shift.payment_type)) return false;
@@ -297,6 +301,8 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             editingPersonalFunds={editingPersonalFunds}
             editingPayments={editingPayments}
             editingInvoiceDates={editingInvoiceDates}
+            editingInvoiceParty={editingInvoiceParty}
+            invoicePartyFilter={invoicePartyFilter}
             filters={filters}
             organizationFilter={organizationFilter}
             promoterFilter={promoterFilter}
@@ -311,6 +317,8 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
             onPaymentToggle={handlePaymentToggle}
             onInvoiceIssuedDateChange={handleInvoiceIssuedDateChange}
             onInvoicePaidDateChange={handleInvoicePaidDateChange}
+            onInvoicePartyChange={handleInvoicePartyChange}
+            onInvoicePartyFilterChange={setInvoicePartyFilter}
             onFilterChange={handleFilterChange}
             onOrganizationFilterChange={setOrganizationFilter}
             onPromoterFilterChange={setPromoterFilter}
@@ -365,6 +373,8 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         editingPersonalFunds={editingPersonalFunds}
         editingPayments={editingPayments}
         editingInvoiceDates={editingInvoiceDates}
+        editingInvoiceParty={editingInvoiceParty}
+        invoicePartyFilter={invoicePartyFilter}
         onFilterChange={handleFilterChange}
         onOrganizationFilterChange={setOrganizationFilter}
         onPromoterFilterChange={setPromoterFilter}
@@ -380,6 +390,8 @@ export default function AccountingTab({ enabled = true }: AccountingTabProps) {
         onPaymentToggle={handlePaymentToggle}
         onInvoiceIssuedDateChange={handleInvoiceIssuedDateChange}
         onInvoicePaidDateChange={handleInvoicePaidDateChange}
+        onInvoicePartyChange={handleInvoicePartyChange}
+        onInvoicePartyFilterChange={setInvoicePartyFilter}
       />
     </Card>
     </>

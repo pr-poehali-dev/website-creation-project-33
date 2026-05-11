@@ -25,6 +25,8 @@ interface AccountingModalProps {
   editingPersonalFunds: Record<string, string>;
   editingPayments: Record<string, any>;
   editingInvoiceDates: Record<string, any>;
+  editingInvoiceParty: Record<string, 'kms' | 'kvv' | null>;
+  invoicePartyFilter: 'kms' | 'kvv' | null;
   onFilterChange: (key: string) => void;
   onOrganizationFilterChange: (value: string[]) => void;
   onPromoterFilterChange: (value: string[]) => void;
@@ -41,6 +43,8 @@ interface AccountingModalProps {
   onPaymentToggle: (id: number, field: string) => void;
   onInvoiceIssuedDateChange: (id: number, date: string) => void;
   onInvoicePaidDateChange: (id: number, date: string) => void;
+  onInvoicePartyChange: (shift: ShiftRecord, party: 'kms' | 'kvv' | null) => void;
+  onInvoicePartyFilterChange: (value: 'kms' | 'kvv' | null) => void;
 }
 
 export default function AccountingModal({
@@ -80,7 +84,11 @@ export default function AccountingModal({
   onPersonalFundsChange,
   onPaymentToggle,
   onInvoiceIssuedDateChange,
-  onInvoicePaidDateChange
+  onInvoicePaidDateChange,
+  onInvoicePartyChange,
+  onInvoicePartyFilterChange,
+  editingInvoiceParty,
+  invoicePartyFilter
 }: AccountingModalProps) {
   const [zoom, setZoom] = useState(100);
 
@@ -162,6 +170,8 @@ export default function AccountingModal({
             editingPersonalFunds={editingPersonalFunds}
             editingPayments={editingPayments}
             editingInvoiceDates={editingInvoiceDates}
+            editingInvoiceParty={editingInvoiceParty}
+            invoicePartyFilter={invoicePartyFilter}
             onFilterChange={onFilterChange}
             onOrganizationFilterChange={onOrganizationFilterChange}
             onPromoterFilterChange={onPromoterFilterChange}
@@ -176,6 +186,8 @@ export default function AccountingModal({
             onPaymentToggle={onPaymentToggle}
             onInvoiceIssuedDateChange={onInvoiceIssuedDateChange}
             onInvoicePaidDateChange={onInvoicePaidDateChange}
+            onInvoicePartyChange={onInvoicePartyChange}
+            onInvoicePartyFilterChange={onInvoicePartyFilterChange}
           />
         </div>
       </div>

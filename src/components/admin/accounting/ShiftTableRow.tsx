@@ -44,6 +44,8 @@ interface ShiftTableRowProps {
   onPaymentToggle: (shift: ShiftRecord, field: 'paid_by_organization' | 'paid_to_worker' | 'salary_at_kvv' | 'paid_kvv' | 'paid_kms' | 'invoice_issued' | 'invoice_paid') => void;
   onInvoiceIssuedDateChange: (shift: ShiftRecord, date: string | null) => void;
   onInvoicePaidDateChange: (shift: ShiftRecord, date: string | null) => void;
+  onInvoicePartyChange: (shift: ShiftRecord, party: 'kms' | 'kvv' | null) => void;
+  editingInvoiceParty: {[key: string]: 'kms' | 'kvv' | null};
   onDelete: (shift: ShiftRecord) => void;
   onEdit: (shift: ShiftRecord) => void;
 }
@@ -55,6 +57,7 @@ function ShiftTableRow({
   editingPersonalFunds,
   editingPayments,
   editingInvoiceDates,
+  editingInvoiceParty,
   onExpenseChange,
   onCommentChange,
   onPersonalFundsChange,
@@ -62,6 +65,7 @@ function ShiftTableRow({
   onPaymentToggle,
   onInvoiceIssuedDateChange,
   onInvoicePaidDateChange,
+  onInvoicePartyChange,
   onDelete,
   onEdit
 }: ShiftTableRowProps) {
@@ -129,39 +133,25 @@ function ShiftTableRow({
         {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
       </td>
       <td className="border border-gray-200 p-1 md:p-2 text-gray-700">{shift.organization}</td>
-      <td className="border border-gray-200 p-1 md:p-2 min-w-[120px] md:min-w-[160px]">
-        <div className="grid grid-cols-2 gap-1.5 md:gap-3">
-          <div className="flex flex-col gap-1 items-center">
-            <span className="text-[9px] text-purple-600 font-medium">{kms.toLocaleString()} ₽</span>
+      <td className="border border-gray-200 p-1 md:p-2 text-center">
+        {(() => {
+          const party = key in editingInvoiceParty ? editingInvoiceParty[key] : shift.invoice_party;
+          return (
             <select
-              value={(editingPayments[key]?.paid_kms ?? shift.paid_kms) ? 'yes' : 'no'}
-              onChange={() => handlePaymentToggleCallback('paid_kms')}
-              className={`w-full h-6 md:h-7 text-[9px] md:text-xs border rounded px-0.5 font-medium ${
-                (editingPayments[key]?.paid_kms ?? shift.paid_kms)
-                  ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
-                  : 'bg-red-100 text-red-700 border-red-300'
+              value={party ?? ''}
+              onChange={(e) => onInvoicePartyChange(shift, (e.target.value as 'kms' | 'kvv') || null)}
+              className={`w-14 md:w-16 h-6 md:h-7 text-[9px] md:text-xs border rounded px-0.5 font-medium ${
+                party === 'kms' ? 'bg-purple-100 text-purple-700 border-purple-300'
+                : party === 'kvv' ? 'bg-blue-100 text-blue-700 border-blue-300'
+                : 'bg-gray-100 text-gray-500 border-gray-300'
               }`}
             >
-              <option value="no" className="bg-white text-gray-700">Нет</option>
-              <option value="yes" className="bg-white text-gray-700">Да</option>
+              <option value="">—</option>
+              <option value="kms">КМС</option>
+              <option value="kvv">КВВ</option>
             </select>
-          </div>
-          <div className="flex flex-col gap-1 items-center border-l border-gray-200 pl-1.5 md:pl-3">
-            <span className="text-[9px] text-blue-600 font-medium">{kvv.toLocaleString()} ₽</span>
-            <select
-              value={(editingPayments[key]?.paid_kvv ?? shift.paid_kvv) ? 'yes' : 'no'}
-              onChange={() => handlePaymentToggleCallback('paid_kvv')}
-              className={`w-full h-6 md:h-7 text-[9px] md:text-xs border rounded px-0.5 font-medium ${
-                (editingPayments[key]?.paid_kvv ?? shift.paid_kvv)
-                  ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
-                  : 'bg-red-100 text-red-700 border-red-300'
-              }`}
-            >
-              <option value="no" className="bg-white text-gray-700">Нет</option>
-              <option value="yes" className="bg-white text-gray-700">Да</option>
-            </select>
-          </div>
-        </div>
+          );
+        })()}
       </td>
       <td className="border border-gray-200 p-1 md:p-2 text-right">
         <div className="flex flex-col gap-0.5 md:gap-1 items-end">

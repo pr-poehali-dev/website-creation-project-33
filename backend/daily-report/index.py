@@ -72,10 +72,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        COALESCE(ws.compensation_amount, 0) as compensation,
                        (SELECT COUNT(*) FROM {SCHEMA}.leads_analytics la
                         WHERE la.user_id = ws.user_id
+                          AND la.organization_id = ws.organization_id
                           AND la.is_active = true
                           AND la.lead_type = 'контакт'
                           AND DATE(la.created_at + interval '3 hours') = ws.shift_date) as contacts_count,
-                       COALESCE(ae.employee_status_at_shift, u.employee_status, 'employee') as emp_status
+                       COALESCE(ae.employee_status_at_shift, u.employee_status, 'employee') as emp_status,
+                       COALESCE(ae.expense_amount, 0) as expense_amount
                 FROM {SCHEMA}.work_shifts ws
                 JOIN {SCHEMA}.users u ON u.id = ws.user_id
                 JOIN {SCHEMA}.organizations o ON o.id = ws.organization_id
@@ -87,7 +89,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             intern_cutoff = date(2026, 5, 8)
 
             total_kms = 0
-            for user_id, user_name, org_name, rate, payment_type, compensation, contacts, emp_status in shifts_today:
+            for user_id, user_name, org_name, rate, payment_type, compensation, contacts, emp_status, expense_amount in shifts_today:
                 contacts = contacts or 0
                 revenue = contacts * rate + compensation
                 tax = round(revenue * 0.07) if payment_type == 'cashless' else 0

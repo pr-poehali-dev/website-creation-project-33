@@ -39,7 +39,7 @@ export default function WorkerCard({
   const commentData = (userComments?.[realSlotKey]) || {};
   const currentOrganization = commentData.organization || '';
 
-  const avgContacts = calculateAvgBeforeDate(worker.daily_contacts, dayDate, currentOrganization || undefined);
+  const avgContacts = calculateAvgBeforeDate(worker.daily_contacts, dayDate);
   const actualContacts = worker.daily_contacts
     ?.filter(d => d.date === dayDate && (!currentOrganization || d.org_name === currentOrganization))
     ?.reduce((sum, d) => sum + d.count, 0) ?? null;

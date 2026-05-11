@@ -7,6 +7,8 @@ const REPORT_URLS = {
   daily: 'https://functions.poehali.dev/109690f5-6a72-42e2-b8ba-3eb705cba518',
 };
 
+const BALANCE_URL = 'https://functions.poehali.dev/945a47ed-f216-41cf-876b-d73b6f52586e';
+
 interface AdminHeaderProps {
   onLogout: () => void;
   onOpenGoogleSheets: () => void;
@@ -18,6 +20,9 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false, hideTitle = false }: AdminHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [loadingReport, setLoadingReport] = useState<'morning' | 'daily' | null>(null);
+  const [loadingBalance, setLoadingBalance] = useState(false);
+  const [balanceData, setBalanceData] = useState<{x: number; y: number; balance: number} | null>(null);
+  const [showBalance, setShowBalance] = useState(false);
 
   const sendReport = async (type: 'morning' | 'daily') => {
     setLoadingReport(type);
@@ -25,6 +30,19 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
       await fetch(REPORT_URLS[type]);
     } finally {
       setLoadingReport(null);
+    }
+  };
+
+  const fetchBalance = async () => {
+    if (showBalance) { setShowBalance(false); return; }
+    setLoadingBalance(true);
+    try {
+      const res = await fetch(BALANCE_URL);
+      const data = await res.json();
+      setBalanceData(data);
+      setShowBalance(true);
+    } finally {
+      setLoadingBalance(false);
     }
   };
 
@@ -49,6 +67,33 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
               <Icon name="Home" size={16} className="text-gray-600" />
             </button>
           )}
+          <div className="relative">
+            <button
+              onClick={fetchBalance}
+              disabled={loadingBalance}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 ${showBalance ? 'bg-emerald-100 hover:bg-emerald-200' : 'bg-gray-100 hover:bg-gray-200'}`}
+              title="Баланс X-Y"
+            >
+              {loadingBalance
+                ? <Icon name="Loader2" size={16} className="text-emerald-600 animate-spin" />
+                : <Icon name="Scale" size={16} className={showBalance ? 'text-emerald-600' : 'text-gray-600'} />
+              }
+            </button>
+            {showBalance && balanceData && (
+              <div className="absolute top-11 right-0 bg-white border border-gray-200 rounded-xl shadow-lg p-3 z-50 min-w-[200px] text-xs">
+                <div className="text-gray-500 mb-1">X (долг КВВ → КМС)</div>
+                <div className="font-bold text-gray-800 mb-2">{balanceData.x.toLocaleString('ru-RU')} ₽</div>
+                <div className="text-gray-500 mb-1">Y (долг КМС → КВВ + исполн.)</div>
+                <div className="font-bold text-gray-800 mb-2">{balanceData.y.toLocaleString('ru-RU')} ₽</div>
+                <div className="border-t border-gray-100 pt-2 mt-1">
+                  <div className="text-gray-500 mb-1">X − Y</div>
+                  <div className={`font-bold text-base ${balanceData.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    {balanceData.balance >= 0 ? '+' : ''}{balanceData.balance.toLocaleString('ru-RU')} ₽
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           <button
             onClick={() => sendReport('morning')}
             disabled={loadingReport !== null}

@@ -1,4 +1,5 @@
 {
+  "balance-report": "https://functions.poehali.dev/945a47ed-f216-41cf-876b-d73b6f52586e",
   "speech-recognize": "https://functions.poehali.dev/003ad766-94cf-41d7-9e8f-a5543ebf3537",
   "speech-check": "https://functions.poehali.dev/c38d89b3-5417-4e4a-83c4-1fd0cb7455cd",
   "morning-report": "https://functions.poehali.dev/5d514447-0fd5-409b-a255-3b0800e93eaf",

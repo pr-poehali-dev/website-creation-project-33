@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Balance report",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"balance": "number"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -264,7 +264,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur.execute("""
             SELECT 
                 la.user_id,
-                DATE(la.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Moscow') as contact_date,
+                DATE(la.created_at + interval '3 hours') as contact_date,
                 o.name as org_name,
                 COUNT(la.id) as contacts_count
             FROM t_p24058207_website_creation_pro.leads_analytics la

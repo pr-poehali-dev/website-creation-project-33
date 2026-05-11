@@ -112,13 +112,20 @@ export const calculateAvgBeforeDate = (
 ): number => {
   if (!dailyContacts || dailyContacts.length === 0) return 0;
   
-  let filteredDays = dailyContacts.filter(item => item.date < beforeDate);
-  if (orgName) filteredDays = filteredDays.filter(item => item.org_name === orgName);
+  let filtered = dailyContacts.filter(item => item.date < beforeDate);
+  if (orgName) filtered = filtered.filter(item => item.org_name === orgName);
   
-  if (filteredDays.length === 0) return 0;
-  
-  const totalContacts = filteredDays.reduce((sum, item) => sum + item.count, 0);
-  const avgContacts = totalContacts / filteredDays.length;
+  if (filtered.length === 0) return 0;
+
+  // Группируем по дате — суммируем контакты за каждый уникальный день (смена)
+  const byDate: Record<string, number> = {};
+  filtered.forEach(item => {
+    byDate[item.date] = (byDate[item.date] || 0) + item.count;
+  });
+
+  const dates = Object.keys(byDate);
+  const totalContacts = dates.reduce((sum, d) => sum + byDate[d], 0);
+  const avgContacts = totalContacts / dates.length;
   
   return Math.round(avgContacts * 10) / 10;
 };

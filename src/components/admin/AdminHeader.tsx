@@ -21,7 +21,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
   const [showNotifications, setShowNotifications] = useState(false);
   const [loadingReport, setLoadingReport] = useState<'morning' | 'daily' | null>(null);
   const [loadingBalance, setLoadingBalance] = useState(false);
-  const [balanceData, setBalanceData] = useState<{x: number; y: number; balance: number} | null>(null);
+  const [balanceData, setBalanceData] = useState<{x: number; y: number; y_kms: number; y_salary: number; balance: number} | null>(null);
   const [showBalance, setShowBalance] = useState(false);
 
   const sendReport = async (type: 'morning' | 'daily') => {
@@ -84,7 +84,8 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
                 <div className="text-gray-500 mb-1">X (долг КВВ → КМС)</div>
                 <div className="font-bold text-gray-800 mb-2">{balanceData.x.toLocaleString('ru-RU')} ₽</div>
                 <div className="text-gray-500 mb-1">Y (долг КМС → КВВ + исполн.)</div>
-                <div className="font-bold text-gray-800 mb-2">{balanceData.y.toLocaleString('ru-RU')} ₽</div>
+                <div className="font-bold text-gray-800">{balanceData.y.toLocaleString('ru-RU')} ₽</div>
+                <div className="text-gray-400 mb-2">КВВ {balanceData.y_kms.toLocaleString('ru-RU')} ₽ + исполн. {balanceData.y_salary.toLocaleString('ru-RU')} ₽</div>
                 <div className="border-t border-gray-100 pt-2 mt-1">
                   <div className="text-gray-500 mb-1">X − Y</div>
                   <div className={`font-bold text-base ${balanceData.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>

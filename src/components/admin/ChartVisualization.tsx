@@ -63,6 +63,9 @@ export default function ChartVisualization({
             stroke="#e5e7eb"
             axisLine={{ stroke: '#e5e7eb' }}
             tickLine={false}
+            tickCount={Math.ceil((Math.max(...filteredChartData.map(d => (d.contacts as number) || 0)) || 25) / 5) + 1}
+            domain={[0, (dataMax: number) => Math.ceil(dataMax / 5) * 5]}
+            allowDecimals={false}
           />
           <Tooltip
             contentStyle={{

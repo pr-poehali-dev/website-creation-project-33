@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import psycopg2
 import requests
@@ -105,7 +106,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 else:
                     worker_salary = contacts * 200
                 net_profit = after_tax - worker_salary - expense_amount
-                kms = round(net_profit / 2)
+                kms = math.ceil(net_profit / 2)
                 total_kms += kms
 
             # === 3. Незаполненные слоты на завтра ===

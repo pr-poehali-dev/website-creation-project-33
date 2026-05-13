@@ -67,8 +67,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # === 2. КМС за сегодня (по accounting_expenses — тот же источник что бух учёт) ===
             cur.execute(f"""
                 SELECT ae.user_id, o.name as org_name,
-                       COALESCE(o.contact_rate, 0) as rate,
-                       COALESCE(o.payment_type, 'cash') as payment_type,
+                       COALESCE(rp.contact_rate, o.contact_rate, 0) as rate,
+                       COALESCE(rp.payment_type, o.payment_type, 'cash') as payment_type,
                        COALESCE(ae.compensation_amount, 0) as compensation,
                        (SELECT COUNT(*) FROM {SCHEMA}.leads_analytics la
                         WHERE la.user_id = ae.user_id
@@ -81,6 +81,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 FROM {SCHEMA}.accounting_expenses ae
                 JOIN {SCHEMA}.users u ON u.id = ae.user_id
                 JOIN {SCHEMA}.organizations o ON o.id = ae.organization_id
+                LEFT JOIN {SCHEMA}.organization_rate_periods rp
+                    ON rp.organization_id = ae.organization_id
+                    AND rp.start_date <= ae.work_date
+                    AND (rp.end_date IS NULL OR rp.end_date >= ae.work_date)
                 WHERE ae.work_date = %s
             """, (today,))
             shifts_today = cur.fetchall()

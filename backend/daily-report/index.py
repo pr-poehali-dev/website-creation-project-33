@@ -64,37 +64,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             contacts_rows = cur.fetchall()
             total_contacts = sum(r[1] for r in contacts_rows)
 
-            # === 2. КМС за сегодня ===
+            # === 2. КМС за сегодня (по accounting_expenses — тот же источник что бух учёт) ===
             cur.execute(f"""
-                SELECT ws.user_id, u.name, o.name as org_name,
+                SELECT ae.user_id, o.name as org_name,
                        COALESCE(o.contact_rate, 0) as rate,
                        COALESCE(o.payment_type, 'cash') as payment_type,
-                       COALESCE(ws.compensation_amount, 0) as compensation,
+                       COALESCE(ae.compensation_amount, 0) as compensation,
                        (SELECT COUNT(*) FROM {SCHEMA}.leads_analytics la
-                        WHERE la.user_id = ws.user_id
-                          AND la.organization_id = ws.organization_id
+                        WHERE la.user_id = ae.user_id
+                          AND la.organization_id = ae.organization_id
                           AND la.is_active = true
                           AND la.lead_type = 'контакт'
-                          AND DATE(la.created_at + interval '3 hours') = ws.shift_date) as contacts_count,
+                          AND DATE(la.created_at + interval '3 hours') = ae.work_date) as contacts_count,
                        COALESCE(ae.employee_status_at_shift, u.employee_status, 'employee') as emp_status,
                        COALESCE(ae.expense_amount, 0) as expense_amount
-                FROM {SCHEMA}.work_shifts ws
-                JOIN {SCHEMA}.users u ON u.id = ws.user_id
-                JOIN {SCHEMA}.organizations o ON o.id = ws.organization_id
-                LEFT JOIN (
-                    SELECT DISTINCT ON (user_id) user_id, employee_status_at_shift, expense_amount
-                    FROM {SCHEMA}.accounting_expenses
-                    WHERE work_date = %s
-                    ORDER BY user_id, id DESC
-                ) ae ON ae.user_id = ws.user_id
-                WHERE ws.shift_date = %s
-            """, (today, today))
+                FROM {SCHEMA}.accounting_expenses ae
+                JOIN {SCHEMA}.users u ON u.id = ae.user_id
+                JOIN {SCHEMA}.organizations o ON o.id = ae.organization_id
+                WHERE ae.work_date = %s
+            """, (today,))
             shifts_today = cur.fetchall()
 
             intern_cutoff = date(2026, 5, 8)
 
             total_kms = 0
-            for user_id, user_name, org_name, rate, payment_type, compensation, contacts, emp_status, expense_amount in shifts_today:
+            for user_id, org_name, rate, payment_type, compensation, contacts, emp_status, expense_amount in shifts_today:
                 contacts = contacts or 0
                 revenue = contacts * rate + compensation
                 tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
@@ -106,7 +100,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     worker_salary = contacts * 300
                 else:
                     worker_salary = contacts * 200
-                net_profit = after_tax - worker_salary
+                net_profit = after_tax - worker_salary - expense_amount
                 kms = round(net_profit / 2)
                 total_kms += kms
 

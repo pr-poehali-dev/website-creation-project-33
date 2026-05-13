@@ -95,9 +95,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
                 after_tax = revenue - tax
                 # Зарплата с учётом статуса (стажёр / сотрудник)
-                if user_id in (3, 9):
-                    worker_salary = 0
-                elif emp_status == 'intern' and today >= intern_cutoff:
+                if emp_status == 'intern' and today >= intern_cutoff:
                     worker_salary = contacts * 260
                 elif contacts >= 10:
                     worker_salary = contacts * 300
@@ -105,10 +103,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     worker_salary = contacts * 200
                 net_profit = after_tax - worker_salary
                 kms = round(net_profit / 2)
-                if user_id == 3:
-                    kms = after_tax
-                elif user_id == 9:
-                    kms = 0
                 total_kms += kms
 
             # === 3. Незаполненные слоты на завтра ===

@@ -38,18 +38,14 @@ def calc_kms_query(extra_where: str) -> str:
     ) s,
     LATERAL (
         SELECT
-            CASE WHEN s.user_id = 3 THEN
-                (s.contacts * s.eff_rate + s.comp) - CASE WHEN s.eff_pt = 'cashless' THEN ROUND((s.contacts * s.eff_rate + s.comp) * 0.07) ELSE 0 END
-            WHEN s.user_id = 9 THEN 0
-            ELSE ROUND((
+            ROUND((
                 (s.contacts * s.eff_rate + s.comp)
                 - CASE WHEN s.eff_pt = 'cashless' THEN ROUND((s.contacts * s.eff_rate + s.comp) * 0.07) ELSE 0 END
                 - CASE WHEN s.emp_status = 'intern' AND s.work_date >= '2026-05-08' THEN s.contacts * 260
                        WHEN s.contacts >= 10 THEN s.contacts * 300
                        ELSE s.contacts * 200 END
                 - s.expense
-            ) / 2.0)
-            END AS kms
+            ) / 2.0) AS kms
     ) k
     """
 
@@ -71,8 +67,7 @@ def calc_salary_query(extra_where: str) -> str:
     ) s,
     LATERAL (
         SELECT
-            CASE WHEN s.user_id IN (3,9) THEN 0
-                 WHEN s.emp_status = 'intern' AND s.work_date >= '2026-05-08' THEN s.contacts * 260
+            CASE WHEN s.emp_status = 'intern' AND s.work_date >= '2026-05-08' THEN s.contacts * 260
                  WHEN s.contacts >= 10 THEN s.contacts * 300
                  ELSE s.contacts * 200
             END AS salary
@@ -92,22 +87,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': headers, 'body': ''}
 
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            # X: счёт КВВ, КМС не оплачен
-            cur.execute(calc_kms_query("ae.paid_kms = false AND ae.invoice_party = 'kvv'"))
-            x = cur.fetchone()[0] or 0
+    conn = get_db_connection()
+    cur = conn.cursor()
 
-            # Y часть 1: счёт КМС, КВВ не оплачен → сумма КМС
-            cur.execute(calc_kms_query("ae.invoice_party = 'kms' AND ae.paid_kvv = false"))
-            y_kms = cur.fetchone()[0] or 0
+    cur.execute(calc_kms_query("ae.paid_kms = false AND ae.invoice_party = 'kvv'"))
+    x = cur.fetchone()[0] or 0
 
-            # Y часть 2: счёт КМС, исполнитель не оплачен → сумма зарплат
-            cur.execute(calc_salary_query("ae.invoice_party = 'kms' AND ae.paid_to_worker = false"))
-            y_salary = cur.fetchone()[0] or 0
+    cur.execute(calc_kms_query("ae.invoice_party = 'kms' AND ae.paid_kvv = false"))
+    y_kms = cur.fetchone()[0] or 0
 
-            y = y_kms + y_salary
-            balance = x - y
+    cur.execute(calc_salary_query("ae.invoice_party = 'kms' AND ae.paid_to_worker = false"))
+    y_salary = cur.fetchone()[0] or 0
+
+    cur.close()
+    conn.close()
+
+    y = y_kms + y_salary
+    balance = x - y
 
     return {
         'statusCode': 200,

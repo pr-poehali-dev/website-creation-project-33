@@ -23,7 +23,7 @@ export default function ChartVisualization({
   CustomDot
 }: ChartVisualizationProps) {
   return (
-    <div className="h-64 md:h-80 rounded-2xl overflow-hidden p-4 bg-gray-50 border border-gray-100">
+    <div className="h-[32rem] md:h-[40rem] rounded-2xl overflow-hidden p-4 bg-gray-50 border border-gray-100">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={filteredChartData}

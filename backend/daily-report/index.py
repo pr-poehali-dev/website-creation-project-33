@@ -81,9 +81,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 FROM {SCHEMA}.work_shifts ws
                 JOIN {SCHEMA}.users u ON u.id = ws.user_id
                 JOIN {SCHEMA}.organizations o ON o.id = ws.organization_id
-                LEFT JOIN {SCHEMA}.accounting_expenses ae ON ae.user_id = ws.user_id AND ae.work_date = ws.shift_date
+                LEFT JOIN (
+                    SELECT DISTINCT ON (user_id) user_id, employee_status_at_shift, expense_amount
+                    FROM {SCHEMA}.accounting_expenses
+                    WHERE work_date = %s
+                    ORDER BY user_id, id DESC
+                ) ae ON ae.user_id = ws.user_id
                 WHERE ws.shift_date = %s
-            """, (today,))
+            """, (today, today))
             shifts_today = cur.fetchall()
 
             intern_cutoff = date(2026, 5, 8)

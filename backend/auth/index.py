@@ -73,6 +73,28 @@ def is_ip_blocked(ip_address: str) -> bool:
             count = cur.fetchone()[0]
             return count > 0
 
+def record_login_attempt(ip_address: str, email: str, success: bool):
+    """Записать попытку входа"""
+    if not ip_address or ip_address == 'unknown':
+        return
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO t_p24058207_website_creation_pro.login_attempts (ip_address, email, success) VALUES (%s, %s, %s)",
+                (ip_address, email, success)
+            )
+            conn.commit()
+
+def get_recent_failed_attempts(ip_address: str, minutes: int = 30) -> int:
+    """Получить количество неудачных попыток входа за последние N минут"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT COUNT(*) FROM t_p24058207_website_creation_pro.login_attempts WHERE ip_address = %s AND success = FALSE AND attempted_at > NOW() - INTERVAL '%s minutes'",
+                (ip_address, minutes)
+            )
+            return cur.fetchone()[0]
+
 def block_ip(ip_address: str, reason: str = 'User deleted by admin'):
     """Заблокировать IP адрес"""
     if not ip_address or ip_address == 'unknown':
@@ -311,6 +333,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Email и пароль обязательны'})
                 }
             
+            client_ip = get_client_ip(event)
+
+            # Проверка блокировки IP
+            if is_ip_blocked(client_ip):
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Доступ с вашего IP заблокирован. Обратитесь к администратору.'})
+                }
+
+            # Проверка количества неудачных попыток (блокируем после 2)
+            failed_attempts = get_recent_failed_attempts(client_ip, minutes=30)
+            if failed_attempts >= 2:
+                block_ip(client_ip, f'Автоблокировка: {failed_attempts} неудачных попыток входа')
+                print(f'🚫 IP {client_ip} автоматически заблокирован после {failed_attempts} неудачных попыток')
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Слишком много неудачных попыток входа. Ваш IP заблокирован.'})
+                }
+            
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(
@@ -320,6 +363,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     row = cur.fetchone()
             
             if not row:
+                record_login_attempt(client_ip, email, False)
                 return {
                     'statusCode': 401,
                     'headers': headers,
@@ -336,13 +380,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Ваш аккаунт деактивирован. Обратитесь к администратору.'})
                 }
             
-            # Special case for admin with simple password
-            if email == 'admin@gmail.com' and password == 'admin':
-                password_valid = True
-            else:
-                password_valid = verify_password(password, password_hash)
+            password_valid = verify_password(password, password_hash)
             
             if not password_valid:
+                record_login_attempt(client_ip, email, False)
                 return {
                     'statusCode': 401,
                     'headers': headers,
@@ -356,9 +397,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': headers,
                     'body': json.dumps({'error': 'Ваша заявка ожидает одобрения администратора'})
                 }
-            
-            # Обновляем IP адрес при каждом логине (для исправления старых записей)
-            client_ip = get_client_ip(event)
             
             # Для админов требуется 2FA
             if is_admin:
@@ -396,6 +434,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if send_telegram_message(telegram_chat_id, message):
                     print(f'✅ 2FA code sent to admin {user_id}')
+                    record_login_attempt(client_ip, email, True)
                     return {
                         'statusCode': 200,
                         'headers': headers,

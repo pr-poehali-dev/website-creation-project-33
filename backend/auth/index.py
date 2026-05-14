@@ -335,25 +335,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             client_ip = get_client_ip(event)
 
-            # Проверка блокировки IP
-            if is_ip_blocked(client_ip):
-                return {
-                    'statusCode': 403,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Доступ с вашего IP заблокирован. Обратитесь к администратору.'})
-                }
-
-            # Проверка количества неудачных попыток (блокируем после 2)
-            failed_attempts = get_recent_failed_attempts(client_ip, minutes=30)
-            if failed_attempts >= 2:
-                block_ip(client_ip, f'Автоблокировка: {failed_attempts} неудачных попыток входа')
-                print(f'🚫 IP {client_ip} автоматически заблокирован после {failed_attempts} неудачных попыток')
-                return {
-                    'statusCode': 403,
-                    'headers': headers,
-                    'body': json.dumps({'error': 'Слишком много неудачных попыток входа. Ваш IP заблокирован.'})
-                }
-            
             with get_db_connection() as conn:
                 with conn.cursor() as cur:
                     cur.execute(

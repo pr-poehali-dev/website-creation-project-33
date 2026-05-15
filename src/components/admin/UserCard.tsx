@@ -253,9 +253,22 @@ const MOSCOW_METRO_STATIONS = [
                   {user.internship_shifts_data && user.internship_shifts_data.length > 0 && (
                     <div className="mt-1 space-y-0.5">
                       {user.internship_shifts_data.map((s, i) => (
-                        <p key={i} className="text-gray-400 text-xs">
-                          {new Date(s.work_date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })} · {s.org_name} · {s.contacts} контактов
-                        </p>
+                        <div key={i} className="flex items-center gap-1">
+                          {s.is_employee_shift ? (
+                            <p className="text-green-600 text-xs">
+                              {new Date(s.work_date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })} · {s.org_name} · {s.contacts} контактов · получен статус сотрудника
+                            </p>
+                          ) : (
+                            <>
+                              <p className="text-gray-400 text-xs">
+                                {new Date(s.work_date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })} · {s.org_name} · {s.contacts} контактов
+                              </p>
+                              {s.is_closed && (
+                                <span className="text-green-500 text-xs">✓</span>
+                              )}
+                            </>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}

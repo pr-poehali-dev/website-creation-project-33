@@ -1,7 +1,7 @@
 import json
 import os
 import psycopg2
-from groq import Groq
+from openai import OpenAI
 
 SCHEMA = 't_p24058207_website_creation_pro'
 
@@ -103,7 +103,7 @@ def handler(event: dict, context) -> dict:
     if not question:
         return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'Вопрос не указан'})}
 
-    client = Groq(api_key=os.environ['GROQ_API_KEY'])
+    client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
 
     messages = [{'role': 'system', 'content': SYSTEM_PROMPT}]
     for h in history[-6:]:
@@ -111,7 +111,7 @@ def handler(event: dict, context) -> dict:
     messages.append({'role': 'user', 'content': question})
 
     resp = client.chat.completions.create(
-        model='llama-3.3-70b-versatile',
+        model='gpt-4o-mini',
         messages=messages,
         temperature=0.1,
         max_tokens=1000,
@@ -149,7 +149,7 @@ def handler(event: dict, context) -> dict:
         {'role': 'user', 'content': f'Вопрос: {question}\nРезультат из БД:\n{text_result}\n\nДай краткий человеческий ответ.'}
     ]
     summary_resp = client.chat.completions.create(
-        model='llama-3.3-70b-versatile',
+        model='gpt-4o-mini',
         messages=summary_messages,
         temperature=0.3,
         max_tokens=400,

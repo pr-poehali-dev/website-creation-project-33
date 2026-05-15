@@ -59,12 +59,15 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                        COUNT(l.id) as lead_count,
                        u.latitude, u.longitude, u.location_city, u.location_country,
                        u.registration_ip, u.is_active, u.senior_id, s.name as senior_name, u.nearest_metro,
-                       u.employee_status, u.internship_shifts_completed
+                       u.employee_status,
+                       (SELECT COUNT(DISTINCT sv.work_date)
+                        FROM t_p24058207_website_creation_pro.shift_videos sv
+                        WHERE sv.user_id = u.id AND sv.video_type = 'end') as closed_shifts_count
                 FROM t_p24058207_website_creation_pro.users u 
                 LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l ON u.id = l.user_id AND l.is_active = true
                 LEFT JOIN t_p24058207_website_creation_pro.training_seniors s ON u.senior_id = s.id
                 WHERE u.is_active = %s
-                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country, u.registration_ip, u.is_active, u.senior_id, s.name, u.nearest_metro, u.employee_status, u.internship_shifts_completed
+                GROUP BY u.id, u.email, u.name, u.is_admin, u.last_seen, u.created_at, u.latitude, u.longitude, u.location_city, u.location_country, u.registration_ip, u.is_active, u.senior_id, s.name, u.nearest_metro, u.employee_status
                 ORDER BY u.created_at DESC
             """, (online_threshold, is_active))
             
@@ -88,7 +91,7 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                     'senior_id': row[14],
                     'senior_name': row[15],
                     'nearest_metro': row[16],
-                    'employee_status': row[17] if row[17] else 'employee',
+                    'employee_status': 'employee' if (row[18] or 0) >= 3 else 'intern',
                     'internship_shifts_completed': row[18] if row[18] is not None else 0
                 })
             

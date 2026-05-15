@@ -2136,7 +2136,17 @@ def _handle_request(event: Dict[str, Any], context: Any, method: str, headers: D
                             COALESCE(ae.personal_funds_by_kvv, false) as personal_funds_by_kvv,
                             COALESCE(ae.compensation_amount, 0) as compensation_amount,
                             ae.invoice_party,
-                            COALESCE(ae.employee_status_at_shift, u.employee_status, 'employee') as employee_status,
+                            CASE
+                                WHEN ae.employee_status_at_shift IS NOT NULL THEN ae.employee_status_at_shift
+                                WHEN (
+                                    SELECT COUNT(DISTINCT sv.work_date)
+                                    FROM t_p24058207_website_creation_pro.shift_videos sv
+                                    WHERE sv.user_id = s.user_id
+                                      AND sv.video_type = 'end'
+                                      AND sv.work_date < s.shift_date
+                                ) >= 3 THEN 'employee'
+                                ELSE 'intern'
+                            END as employee_status,
                             u.created_at as user_registered_at,
                             u.is_active as user_is_active
                         FROM t_p24058207_website_creation_pro.work_shifts s

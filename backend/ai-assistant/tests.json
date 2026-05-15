@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Empty question",
+      "method": "POST",
+      "path": "/",
+      "body": {"question": ""},
+      "expectedStatus": 400
+    }
+  ]
+}

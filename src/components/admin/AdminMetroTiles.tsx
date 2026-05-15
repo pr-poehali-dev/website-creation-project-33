@@ -19,6 +19,7 @@ import TelegramBotTab from './TelegramBotTab';
 import SeniorsTab from './SeniorsTab';
 import TasksTab from './TasksTab';
 import FinesTab from './FinesTab';
+import AssistantTab from './AssistantTab';
 
 
 interface AdminMetroTilesProps {
@@ -28,7 +29,7 @@ interface AdminMetroTilesProps {
   onViewChange: (view: TileView) => void;
 }
 
-type TileView = 'tiles' | 'requests' | 'fines' | 'tasks' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram';
+type TileView = 'tiles' | 'requests' | 'fines' | 'tasks' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram' | 'assistant';
 type StatsSubView = 'users' | 'rating' | 'organizations' | 'seniors';
 
 const NavButton = ({ 
@@ -87,6 +88,7 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     { view: 'clients' as TileView, icon: 'Building2', label: 'Заказчики' },
     { view: 'analytics' as TileView, icon: 'TrendingUp', label: 'График' },
     { view: 'telegram' as TileView, icon: 'Bot', label: 'Телеграм бот' },
+    { view: 'assistant' as TileView, icon: 'Sparkles', label: 'Помощник' },
   ];
 
   const otherItems = navigationItems.filter(i => i.view !== 'tiles');
@@ -202,6 +204,12 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
   if (currentView === 'telegram') {
     return renderWithSidebar(
       <TelegramBotTab />
+    );
+  }
+
+  if (currentView === 'assistant') {
+    return renderWithSidebar(
+      <AssistantTab />
     );
   }
 
@@ -326,6 +334,20 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
             <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Телеграм бот</div>
           </div>
           <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+        </button>
+
+        {/* Умный помощник */}
+        <button onClick={() => handleViewChange('assistant')} className="w-full px-6 py-4 flex items-center justify-between hover:bg-violet-50 transition-all duration-200 group">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-violet-50 group-hover:bg-violet-100 flex items-center justify-center transition-colors flex-shrink-0">
+              <Icon name="Sparkles" size={20} className="text-violet-500" />
+            </div>
+            <div>
+              <div className="font-semibold text-gray-800 group-hover:text-violet-700 transition-colors">Помощник</div>
+              <div className="text-xs text-gray-400">Вопросы о данных на русском</div>
+            </div>
+          </div>
+          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-violet-400 transition-colors" />
         </button>
 
       </div>

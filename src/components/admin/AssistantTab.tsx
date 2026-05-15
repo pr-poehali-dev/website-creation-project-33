@@ -18,8 +18,9 @@ const CHART_COLORS = ['#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8
 function ChartBlock({ data, chartType }: { data: Record<string, unknown>[]; chartType: string }) {
   if (!data || data.length === 0) return null;
   const keys = Object.keys(data[0]);
-  const labelKey = keys[0];
-  const valueKey = keys[1] || keys[0];
+  // labelKey — первая строковая колонка, valueKey — первая числовая
+  const labelKey = keys.find(k => typeof data[0][k] === 'string') || keys[0];
+  const valueKey = keys.find(k => typeof data[0][k] === 'number') || keys[1] || keys[0];
 
   if (chartType === 'bar') {
     return (
@@ -175,15 +176,15 @@ export default function AssistantTab() {
                 <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm space-y-3">
                   <p className="text-sm text-gray-800 whitespace-pre-wrap">{msg.content}</p>
 
-                  {/* График */}
+                  {/* График (только если явно запрошен) */}
                   {msg.data && msg.data.length > 0 && msg.chartType && (
                     <div className="pt-1">
                       <ChartBlock data={msg.data} chartType={msg.chartType} />
                     </div>
                   )}
 
-                  {/* Таблица данных (если нет графика или данных много) */}
-                  {msg.data && msg.data.length > 0 && !msg.chartType && (
+                  {/* Таблица — всегда показываем при наличии данных */}
+                  {msg.data && msg.data.length > 0 && (
                     <div className="overflow-x-auto rounded-lg border border-gray-100">
                       <table className="text-xs w-full">
                         <thead>

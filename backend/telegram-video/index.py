@@ -192,7 +192,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                     (user_id, work_date, organization_id, employee_status_at_shift)
                                 VALUES (%s, (CURRENT_TIMESTAMP + INTERVAL '3 hours')::date, %s, %s)
                                 ON CONFLICT (user_id, work_date, organization_id) DO UPDATE
-                                    SET employee_status_at_shift = EXCLUDED.employee_status_at_shift
+                                    SET employee_status_at_shift = CASE
+                                        WHEN t_p24058207_website_creation_pro.accounting_expenses.employee_status_at_shift IS NULL
+                                        THEN EXCLUDED.employee_status_at_shift
+                                        ELSE t_p24058207_website_creation_pro.accounting_expenses.employee_status_at_shift
+                                    END
                                 """,
                                 (int(user_id), int(organization_id), status_now)
                             )

@@ -44,9 +44,13 @@ def get_system_prompt(today: str) -> str:
 
 ПРИМЕРЫ:
 - Контакты Ивановой сегодня: SELECT COUNT(*) FROM {SCHEMA}.leads_analytics l JOIN {SCHEMA}.users u ON u.id=l.user_id WHERE u.name ILIKE '%Иванова%' AND l.lead_type='контакт' AND l.is_active=true AND (l.created_at + interval '3 hours')::date='{today}'
+- Контакты по организациям сегодня у промоутера: SELECT o.name, COUNT(*) as contacts FROM {SCHEMA}.leads_analytics l JOIN {SCHEMA}.users u ON u.id=l.user_id JOIN {SCHEMA}.organizations o ON o.id=l.organization_id WHERE u.name ILIKE '%Иванова%' AND l.lead_type='контакт' AND l.is_active=true AND (l.created_at + interval '3 hours')::date='{today}' GROUP BY o.name
 - Все смены промоутера: SELECT COUNT(*) FROM {SCHEMA}.work_shifts WHERE user_id=(SELECT id FROM {SCHEMA}.users WHERE name ILIKE '%Иванова%' LIMIT 1)
+- Топ по контактам сегодня: SELECT u.name, COUNT(*) as contacts FROM {SCHEMA}.leads_analytics l JOIN {SCHEMA}.users u ON u.id=l.user_id WHERE l.lead_type='контакт' AND l.is_active=true AND (l.created_at + interval '3 hours')::date='{today}' GROUP BY u.name ORDER BY contacts DESC LIMIT 10
 
 ИНСТРУКЦИЯ:
+- Если вопрос содержит "в какой организации" или "где" — ОБЯЗАТЕЛЬНО включи o.name в SELECT через JOIN organizations
+- Всегда давай конкретный ответ на основе данных
 Верни ответ строго в JSON без markdown-блоков:
 {{"sql": "SELECT ...", "answer": "Краткий ответ на русском"}}
 

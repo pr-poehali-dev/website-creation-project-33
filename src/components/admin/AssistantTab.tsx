@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const AI_URL = 'https://functions.poehali.dev/1613cc32-756b-445e-94f1-0ab1fe0278f4';
 
@@ -12,11 +13,65 @@ const EXAMPLES = [
   'Среднее количество контактов за смену по всем промоутерам',
 ];
 
+const CHART_COLORS = ['#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6', '#ec4899'];
+
+function ChartBlock({ data, chartType }: { data: Record<string, unknown>[]; chartType: string }) {
+  if (!data || data.length === 0) return null;
+  const keys = Object.keys(data[0]);
+  const labelKey = keys[0];
+  const valueKey = keys[1] || keys[0];
+
+  if (chartType === 'bar') {
+    return (
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 40 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis dataKey={labelKey} tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
+          <YAxis tick={{ fontSize: 11 }} />
+          <Tooltip />
+          <Bar dataKey={valueKey} fill="#7c3aed" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  }
+
+  if (chartType === 'line') {
+    return (
+      <ResponsiveContainer width="100%" height={220}>
+        <LineChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 40 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis dataKey={labelKey} tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
+          <YAxis tick={{ fontSize: 11 }} />
+          <Tooltip />
+          <Line type="monotone" dataKey={valueKey} stroke="#7c3aed" strokeWidth={2} dot={{ r: 4 }} />
+        </LineChart>
+      </ResponsiveContainer>
+    );
+  }
+
+  if (chartType === 'pie') {
+    return (
+      <ResponsiveContainer width="100%" height={220}>
+        <PieChart>
+          <Pie data={data} dataKey={valueKey} nameKey={labelKey} cx="50%" cy="50%" outerRadius={80} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+            {data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    );
+  }
+
+  return null;
+}
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   sql?: string;
   data?: Record<string, unknown>[];
+  chartType?: string | null;
   loading?: boolean;
 }
 
@@ -65,6 +120,7 @@ export default function AssistantTab() {
           content: data.answer || 'Не удалось получить ответ.',
           sql: data.sql,
           data: data.data,
+          chartType: data.chart_type,
         },
       ]);
     } catch {
@@ -119,8 +175,15 @@ export default function AssistantTab() {
                 <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm space-y-3">
                   <p className="text-sm text-gray-800 whitespace-pre-wrap">{msg.content}</p>
 
-                  {/* Таблица данных */}
-                  {msg.data && msg.data.length > 0 && (
+                  {/* График */}
+                  {msg.data && msg.data.length > 0 && msg.chartType && (
+                    <div className="pt-1">
+                      <ChartBlock data={msg.data} chartType={msg.chartType} />
+                    </div>
+                  )}
+
+                  {/* Таблица данных (если нет графика или данных много) */}
+                  {msg.data && msg.data.length > 0 && !msg.chartType && (
                     <div className="overflow-x-auto rounded-lg border border-gray-100">
                       <table className="text-xs w-full">
                         <thead>

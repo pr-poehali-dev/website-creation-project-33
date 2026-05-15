@@ -75,8 +75,14 @@ SELECT ws.shift_date, o.name as org, COUNT(l.id) as contacts, ae.employee_status
 - "зарплата" — считай контакты * ставку через work_shifts + leads_analytics + accounting_expenses
 - Всегда давай конкретный ответ на русском
 
+ВИЗУАЛИЗАЦИЯ (поле chart_type):
+- Если данные — рейтинг промоутеров (имя + число) → chart_type="bar"
+- Если данные по датам/дням (дата + число) → chart_type="line"
+- Если данные — доли/сравнение нескольких категорий → chart_type="pie"
+- Если одно число или список без графика → chart_type=null
+
 Верни строго JSON без markdown:
-{{"sql": "SELECT ...", "answer": "Краткий ответ на русском"}}
+{{"sql": "SELECT ...", "answer": "Краткий ответ на русском", "chart_type": "bar"|"line"|"pie"|null}}
 
 Только JSON."""
 
@@ -179,19 +185,22 @@ def handler(event: dict, context) -> dict:
     clean = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip())
     sql = ''
     ai_answer = ''
+    chart_type = None
     try:
         parsed = json.loads(clean)
         sql = parsed.get('sql', '')
         ai_answer = parsed.get('answer', '')
+        chart_type = parsed.get('chart_type', None)
     except Exception:
         m = re.search(r'\{.*\}', clean, re.DOTALL)
         if m:
             parsed = json.loads(m.group())
             sql = parsed.get('sql', '')
             ai_answer = parsed.get('answer', '')
+            chart_type = parsed.get('chart_type', None)
         else:
             return {'statusCode': 200, 'headers': headers, 'body': json.dumps({
-                'answer': raw, 'sql': None, 'data': None
+                'answer': raw, 'sql': None, 'data': None, 'chart_type': None
             }, ensure_ascii=False)}
 
     if not sql.lower().strip().startswith('select'):
@@ -214,5 +223,6 @@ def handler(event: dict, context) -> dict:
         'answer': answer,
         'sql': sql,
         'explanation': '',
-        'data': rows[:20]
+        'data': rows[:50],
+        'chart_type': chart_type
     }, ensure_ascii=False)}

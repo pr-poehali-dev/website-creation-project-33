@@ -70,8 +70,12 @@ def gemini(api_key: str, messages: list, temperature: float = 0.1) -> str:
 
     data = json.dumps(body).encode('utf-8')
     req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'}, method='POST')
-    with urllib.request.urlopen(req, timeout=25) as resp:
-        result = json.loads(resp.read())
+    try:
+        with urllib.request.urlopen(req, timeout=25) as resp:
+            result = json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode('utf-8', errors='ignore')
+        raise Exception(f"Gemini HTTP {e.code}: {err_body}")
     return result['candidates'][0]['content']['parts'][0]['text'].strip()
 
 

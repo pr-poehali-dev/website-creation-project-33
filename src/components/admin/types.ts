@@ -21,6 +21,7 @@ export interface User {
   nearest_metro?: string | null;
   employee_status?: 'intern' | 'employee';
   internship_shifts_completed?: number;
+  internship_shifts_data?: { work_date: string; org_name: string; contacts: number }[];
 }
 
 export interface Lead {

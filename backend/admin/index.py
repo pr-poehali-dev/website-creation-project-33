@@ -145,6 +145,41 @@ def get_all_users(is_active: bool = True) -> List[Dict[str, Any]]:
                         user['shifts_count'] = 0
                         user['avg_per_shift'] = 0
                         user['last_shift_date'] = None
+
+            # Получаем первые 3 стажёрские смены (для стажёров) одним запросом
+            intern_user_ids = [u['id'] for u in users if u['employee_status'] == 'intern']
+            if intern_user_ids:
+                placeholders = ','.join(['%s'] * len(intern_user_ids))
+                cur.execute(f"""
+                    SELECT ws.user_id, ws.shift_date, o.name as org_name,
+                           COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts
+                    FROM t_p24058207_website_creation_pro.work_shifts ws
+                    JOIN t_p24058207_website_creation_pro.organizations o ON o.id = ws.organization_id
+                    LEFT JOIN t_p24058207_website_creation_pro.leads_analytics l
+                        ON l.user_id = ws.user_id
+                        AND l.created_at::date = ws.shift_date
+                        AND l.organization_id = ws.organization_id
+                        AND l.is_active = true
+                    WHERE ws.user_id IN ({placeholders})
+                    GROUP BY ws.user_id, ws.shift_date, o.name
+                    ORDER BY ws.user_id, ws.shift_date ASC
+                """, tuple(intern_user_ids))
+                intern_shifts_map = {}
+                for sr in cur.fetchall():
+                    uid = sr[0]
+                    if uid not in intern_shifts_map:
+                        intern_shifts_map[uid] = []
+                    if len(intern_shifts_map[uid]) < 3:
+                        intern_shifts_map[uid].append({
+                            'work_date': sr[1].isoformat() if sr[1] else None,
+                            'org_name': sr[2],
+                            'contacts': sr[3] or 0
+                        })
+                for user in users:
+                    user['internship_shifts_data'] = intern_shifts_map.get(user['id'], [])
+            else:
+                for user in users:
+                    user['internship_shifts_data'] = []
     return users
 
 def get_moscow_time_from_utc(utc_time):

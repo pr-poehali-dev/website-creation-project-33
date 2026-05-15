@@ -236,22 +236,33 @@ const MOSCOW_METRO_STATIONS = [
               <p className="text-gray-400 text-xs">{user.email}</p>
             )}
             {user.nearest_metro && (
-              <p className="text-gray-500 text-xs mt-0.5">🚇 {user.nearest_metro}</p>
+              <p className="text-gray-400 text-xs mt-0.5">{user.nearest_metro}</p>
             )}
             {user.registration_ip && (
               <p className="text-gray-400 text-xs">IP: {user.registration_ip}</p>
             )}
             {user.senior_name && (
-              <p className="text-blue-500 text-xs mt-0.5">Старший: {user.senior_name}</p>
+              <p className="text-gray-400 text-xs mt-0.5">Старший: {user.senior_name}</p>
             )}
             {user.employee_status && (
               user.employee_status === 'intern' ? (
-                <p className="text-amber-600 text-xs mt-0.5 font-medium">
-                  🎓 Стажёр · {user.internship_shifts_completed ?? 0}/3 смены
-                </p>
+                <>
+                  <p className="text-amber-600 text-xs mt-0.5 font-medium">
+                    Стажёр · {user.internship_shifts_completed ?? 0}/3 смены
+                  </p>
+                  {user.internship_shifts_data && user.internship_shifts_data.length > 0 && (
+                    <div className="mt-1 space-y-0.5">
+                      {user.internship_shifts_data.map((s, i) => (
+                        <p key={i} className="text-gray-400 text-xs">
+                          {new Date(s.work_date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })} · {s.org_name} · {s.contacts} контактов
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </>
               ) : (
                 <p className="text-green-600 text-xs mt-0.5 font-medium">
-                  ✅ Сотрудник
+                  Сотрудник
                 </p>
               )
             )}

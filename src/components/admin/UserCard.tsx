@@ -244,7 +244,7 @@ const MOSCOW_METRO_STATIONS = [
             {user.senior_name && (
               <p className="text-gray-400 text-xs mt-0.5">Старший: {user.senior_name}</p>
             )}
-            {user.employee_status && (
+            {user.employee_status && !user.is_admin && (
               user.employee_status === 'intern' ? (
                 <>
                   <p className="text-amber-600 text-xs mt-0.5 font-medium">

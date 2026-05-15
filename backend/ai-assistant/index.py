@@ -11,50 +11,74 @@ def get_system_prompt(today: str) -> str:
 У тебя есть доступ к PostgreSQL базе данных. Схема: {SCHEMA}
 
 СЕГОДНЯШНЯЯ ДАТА (Москва): {today}
+ВАЖНО: Все даты и время — московское (UTC+3). Для timestamp полей всегда прибавляй interval '3 hours'.
 
 ТАБЛИЦЫ:
 
 1. users — промоутеры
-   - id, name, email, is_admin, is_active, employee_status ('intern'|'employee'), internship_shifts_completed, last_seen, created_at
+   - id, name, email, is_admin, is_active, employee_status ('intern'|'employee'), internship_shifts_completed
 
-2. work_shifts — смены промоутеров
-   - id, user_id, organization_id, shift_date (date), shift_start (timestamp), shift_end (timestamp)
+2. work_shifts — смены (shift_start/shift_end в UTC, shift_date — московская дата)
+   - id, user_id, organization_id, shift_date (date по Москве), shift_start (UTC), shift_end (UTC)
 
-3. leads_analytics — контакты и подходы
-   - id, user_id, organization_id, lead_type ('контакт'|'подход'), is_active (bool), created_at
-   - ВАЖНО: created_at хранится в UTC. Для московской даты используй: (created_at + interval '3 hours')::date
-   - Контакты за сегодня ({today}): WHERE lead_type='контакт' AND is_active=true AND (created_at + interval '3 hours')::date = '{today}'
+3. leads_analytics — контакты (created_at в UTC)
+   - id, user_id, organization_id, lead_type ('контакт'), is_active (bool), created_at (UTC)
+   - Московская дата: (created_at + interval '3 hours')::date
 
-4. organizations — площадки/организации
-   - id, name
+4. organizations — площадки: id, name
 
 5. accounting_expenses — бухгалтерия
-   - id, user_id, work_date, organization_id, expense_amount, employee_status_at_shift, paid_to_worker
+   - id, user_id, work_date (московская дата), organization_id, expense_amount (расходы в руб), employee_status_at_shift ('intern'|'employee'), paid_to_worker (bool)
 
-6. training_seniors — старшие промоутеры
-   - id, name
+6. cancelled_fines — штрафы промоутеров
+   - id, user_id, fine_date (московская дата), fine_type ('missed'=пропуск 1000р, 'late'=опоздание 500р, 'early'=ранний уход 500р), fine_slot ('slot1'|'slot2'), amount (сумма в руб), cancelled_at (UTC)
+
+СТАВКИ ЗА КОНТАКТ (для расчёта зарплаты):
+- Стажёр (employee_status_at_shift='intern', смены с 08.05.2026): 260 руб/контакт
+- Сотрудник (employee_status_at_shift='employee'), >=10 контактов за смену: 300 руб/контакт
+- Сотрудник, <10 контактов: 200 руб/контакт
+- Смены до 01.10.2025: 200 руб/контакт для всех
+- Зарплата = контакты * ставка. Используй work_shifts + leads_analytics для подсчёта.
 
 ПРАВИЛА:
-- Всегда используй схему {SCHEMA} перед именем таблицы
-- Время в UTC, московское = UTC+3: (created_at + interval '3 hours')::date
-- Для подсчёта контактов ВСЕГДА: lead_type='контакт' AND is_active=true
-- Для фильтра "сегодня" ВСЕГДА используй дату '{today}' явно, не CURRENT_DATE
-- Активные промоутеры: is_active=true AND is_admin=false
-- При поиске по имени используй ILIKE '%имя%'
+- Всегда используй схему {SCHEMA} перед таблицей
+- Фильтр "сегодня" = дата '{today}', НЕ CURRENT_DATE
+- Контакты: lead_type='контакт' AND is_active=true
+- Активные промоутеры: u.is_active=true AND u.is_admin=false
+- Поиск по имени: ILIKE '%имя%'
+- Кто работает в день X = у кого есть запись в work_shifts со shift_date = 'X'
 
-ПРИМЕРЫ:
-- Контакты Ивановой сегодня: SELECT COUNT(*) FROM {SCHEMA}.leads_analytics l JOIN {SCHEMA}.users u ON u.id=l.user_id WHERE u.name ILIKE '%Иванова%' AND l.lead_type='контакт' AND l.is_active=true AND (l.created_at + interval '3 hours')::date='{today}'
-- Контакты по организациям сегодня у промоутера: SELECT o.name, COUNT(*) as contacts FROM {SCHEMA}.leads_analytics l JOIN {SCHEMA}.users u ON u.id=l.user_id JOIN {SCHEMA}.organizations o ON o.id=l.organization_id WHERE u.name ILIKE '%Иванова%' AND l.lead_type='контакт' AND l.is_active=true AND (l.created_at + interval '3 hours')::date='{today}' GROUP BY o.name
-- Все смены промоутера: SELECT COUNT(*) FROM {SCHEMA}.work_shifts WHERE user_id=(SELECT id FROM {SCHEMA}.users WHERE name ILIKE '%Иванова%' LIMIT 1)
-- Топ по контактам сегодня: SELECT u.name, COUNT(*) as contacts FROM {SCHEMA}.leads_analytics l JOIN {SCHEMA}.users u ON u.id=l.user_id WHERE l.lead_type='контакт' AND l.is_active=true AND (l.created_at + interval '3 hours')::date='{today}' GROUP BY u.name ORDER BY contacts DESC LIMIT 10
+ПРИМЕРЫ SQL:
+
+Контакты промоутера сегодня:
+SELECT o.name, COUNT(*) as contacts FROM {SCHEMA}.leads_analytics l JOIN {SCHEMA}.users u ON u.id=l.user_id JOIN {SCHEMA}.organizations o ON o.id=l.organization_id WHERE u.name ILIKE '%Иванова%' AND l.lead_type='контакт' AND l.is_active=true AND (l.created_at + interval '3 hours')::date='{today}' GROUP BY o.name
+
+Кто работает сегодня:
+SELECT u.name, o.name as org, (ws.shift_start + interval '3 hours')::time as start, ws.shift_end IS NOT NULL as closed FROM {SCHEMA}.work_shifts ws JOIN {SCHEMA}.users u ON u.id=ws.user_id JOIN {SCHEMA}.organizations o ON o.id=ws.organization_id WHERE ws.shift_date='{today}' ORDER BY o.name
+
+Кто работал в конкретный день (например 14.05.2026):
+SELECT u.name, o.name as org, COUNT(l.id) as contacts FROM {SCHEMA}.work_shifts ws JOIN {SCHEMA}.users u ON u.id=ws.user_id JOIN {SCHEMA}.organizations o ON o.id=ws.organization_id LEFT JOIN {SCHEMA}.leads_analytics l ON l.user_id=ws.user_id AND l.organization_id=ws.organization_id AND (l.created_at+interval '3 hours')::date=ws.shift_date AND l.lead_type='контакт' AND l.is_active=true WHERE ws.shift_date='2026-05-14' GROUP BY u.name, o.name ORDER BY o.name
+
+Штрафы промоутера:
+SELECT cf.fine_date, cf.fine_type, cf.fine_slot, cf.amount FROM {SCHEMA}.cancelled_fines cf JOIN {SCHEMA}.users u ON u.id=cf.user_id WHERE u.name ILIKE '%Иванова%' ORDER BY cf.fine_date DESC
+
+Все штрафы за неделю:
+SELECT u.name, cf.fine_date, cf.fine_type, cf.amount FROM {SCHEMA}.cancelled_fines cf JOIN {SCHEMA}.users u ON u.id=cf.user_id WHERE cf.fine_date BETWEEN '{today}'::date - interval '7 days' AND '{today}'::date ORDER BY cf.fine_date DESC
+
+Зарплата промоутера за неделю (примерная, по контактам и ставке):
+SELECT ws.shift_date, o.name as org, COUNT(l.id) as contacts, ae.employee_status_at_shift, CASE WHEN ae.employee_status_at_shift='intern' THEN COUNT(l.id)*260 WHEN COUNT(l.id)>=10 THEN COUNT(l.id)*300 ELSE COUNT(l.id)*200 END as salary FROM {SCHEMA}.work_shifts ws JOIN {SCHEMA}.users u ON u.id=ws.user_id JOIN {SCHEMA}.organizations o ON o.id=ws.organization_id LEFT JOIN {SCHEMA}.leads_analytics l ON l.user_id=ws.user_id AND (l.created_at+interval '3 hours')::date=ws.shift_date AND l.lead_type='контакт' AND l.is_active=true LEFT JOIN {SCHEMA}.accounting_expenses ae ON ae.user_id=ws.user_id AND ae.work_date=ws.shift_date AND ae.organization_id=ws.organization_id WHERE u.name ILIKE '%Иванова%' AND ws.shift_date BETWEEN '{today}'::date - interval '7 days' AND '{today}'::date GROUP BY ws.shift_date, o.name, ae.employee_status_at_shift ORDER BY ws.shift_date
 
 ИНСТРУКЦИЯ:
-- Если вопрос содержит "в какой организации" или "где" — ОБЯЗАТЕЛЬНО включи o.name в SELECT через JOIN organizations
-- Всегда давай конкретный ответ на основе данных
-Верни ответ строго в JSON без markdown-блоков:
+- "в какой организации" / "где" — включай o.name через JOIN organizations
+- "кто работает" — используй work_shifts по shift_date
+- "штрафы" — используй cancelled_fines
+- "зарплата" — считай контакты * ставку через work_shifts + leads_analytics + accounting_expenses
+- Всегда давай конкретный ответ на русском
+
+Верни строго JSON без markdown:
 {{"sql": "SELECT ...", "answer": "Краткий ответ на русском"}}
 
-Только JSON, никаких лишних слов."""
+Только JSON."""
 
 
 def ask_cf(messages: list) -> str:

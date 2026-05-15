@@ -1,0 +1,1 @@
+UPDATE t_p24058207_website_creation_pro.accounting_expenses SET employee_status_at_shift = 'intern' WHERE user_id = 6929 AND employee_status_at_shift IS NULL;

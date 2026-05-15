@@ -1,7 +1,8 @@
 import json
 import os
 import psycopg2
-from openai import OpenAI
+import urllib.request
+import re
 
 SCHEMA = 't_p24058207_website_creation_pro'
 
@@ -35,13 +36,40 @@ SYSTEM_PROMPT = f"""Ты — умный помощник для анализа �
 - Для подсчёта контактов: COUNT(*) FROM leads_analytics WHERE lead_type='контакт' AND is_active=true
 - Для смен: используй work_shifts, shift_date — дата смены по Москве
 - Активные промоутеры: is_active=true AND is_admin=false
+- "Сегодня" = (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Moscow')::date
 
 ИНСТРУКЦИЯ:
 Когда пользователь задаёт вопрос — сгенерируй ТОЛЬКО SQL-запрос (только SELECT, никаких INSERT/UPDATE/DELETE).
-Верни ответ строго в JSON:
+Верни ответ строго в JSON без markdown-блоков:
 {{"sql": "SELECT ...", "explanation": "Что этот запрос делает"}}
 
 Никаких лишних слов, только JSON."""
+
+
+def gemini(api_key: str, messages: list, temperature: float = 0.1) -> str:
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    contents = []
+    system_text = None
+    for m in messages:
+        if m['role'] == 'system':
+            system_text = m['content']
+        elif m['role'] == 'user':
+            contents.append({'role': 'user', 'parts': [{'text': m['content']}]})
+        elif m['role'] == 'assistant':
+            contents.append({'role': 'model', 'parts': [{'text': m['content']}]})
+
+    body = {
+        'contents': contents,
+        'generationConfig': {'temperature': temperature, 'maxOutputTokens': 1000}
+    }
+    if system_text:
+        body['systemInstruction'] = {'parts': [{'text': system_text}]}
+
+    data = json.dumps(body).encode('utf-8')
+    req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'}, method='POST')
+    with urllib.request.urlopen(req, timeout=25) as resp:
+        result = json.loads(resp.read())
+    return result['candidates'][0]['content']['parts'][0]['text'].strip()
 
 
 def get_db():
@@ -82,7 +110,7 @@ def rows_to_text(rows: list) -> str:
 
 
 def handler(event: dict, context) -> dict:
-    """Умный ИИ-помощник: отвечает на вопросы о промоутерах через SQL"""
+    """Умный ИИ-помощник: отвечает на вопросы о промоутерах через SQL + Gemini"""
     headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -103,29 +131,22 @@ def handler(event: dict, context) -> dict:
     if not question:
         return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'Вопрос не указан'})}
 
-    client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+    api_key = os.environ['GEMINI_API_KEY']
 
     messages = [{'role': 'system', 'content': SYSTEM_PROMPT}]
     for h in history[-6:]:
         messages.append({'role': h['role'], 'content': h['content']})
     messages.append({'role': 'user', 'content': question})
 
-    resp = client.chat.completions.create(
-        model='gpt-4o-mini',
-        messages=messages,
-        temperature=0.1,
-        max_tokens=1000,
-    )
+    raw = gemini(api_key, messages, temperature=0.1)
 
-    raw = resp.choices[0].message.content.strip()
-
+    clean = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip())
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(clean)
         sql = parsed.get('sql', '')
         explanation = parsed.get('explanation', '')
     except Exception:
-        import re
-        m = re.search(r'\{.*\}', raw, re.DOTALL)
+        m = re.search(r'\{.*\}', clean, re.DOTALL)
         if m:
             parsed = json.loads(m.group())
             sql = parsed.get('sql', '')
@@ -133,13 +154,12 @@ def handler(event: dict, context) -> dict:
         else:
             return {'statusCode': 200, 'headers': headers, 'body': json.dumps({
                 'answer': raw, 'sql': None, 'data': None
-            })}
+            }, ensure_ascii=False)}
 
-    sql_lower = sql.lower().strip()
-    if not sql_lower.startswith('select'):
+    if not sql.lower().strip().startswith('select'):
         return {'statusCode': 200, 'headers': headers, 'body': json.dumps({
             'answer': 'Могу выполнять только SELECT-запросы.', 'sql': sql, 'data': None
-        })}
+        }, ensure_ascii=False)}
 
     rows = run_sql(sql)
     text_result = rows_to_text(rows)
@@ -148,13 +168,7 @@ def handler(event: dict, context) -> dict:
         {'role': 'system', 'content': 'Ты помощник. Отвечай кратко и по-русски на основе данных. Без лишних слов.'},
         {'role': 'user', 'content': f'Вопрос: {question}\nРезультат из БД:\n{text_result}\n\nДай краткий человеческий ответ.'}
     ]
-    summary_resp = client.chat.completions.create(
-        model='gpt-4o-mini',
-        messages=summary_messages,
-        temperature=0.3,
-        max_tokens=400,
-    )
-    answer = summary_resp.choices[0].message.content.strip()
+    answer = gemini(api_key, summary_messages, temperature=0.3)
 
     for row in rows:
         for k, v in row.items():

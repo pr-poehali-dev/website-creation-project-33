@@ -314,47 +314,50 @@ export default function TrainingModal({ weekDays, organizations: orgsProp, onClo
                 Записи на {selectedDay?.dayNameFull} ({entries.length})
               </h3>
               {entries.map((entry, index) => (
-                <div key={entry.id} className="bg-white rounded-2xl p-3 border border-gray-100 shadow-sm space-y-1.5">
+                <div key={entry.id} className="bg-white rounded-2xl px-4 py-3 border border-gray-100 shadow-sm">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+
+                      {/* Строка 1: номер + имя старшего */}
+                      <div className="flex items-center gap-1.5 mb-0.5">
                         <span className="text-[10px] font-bold text-blue-400 w-4 flex-shrink-0">{index + 1}</span>
-                        <Icon name="UserCheck" size={13} className="text-blue-400 flex-shrink-0" />
-                        <span className="text-sm font-semibold text-gray-700">{entry.seniorName}</span>
+                        <span className="text-sm font-bold text-gray-800">{entry.seniorName}</span>
                       </div>
-                      <div className="flex items-center gap-2 pl-6">
-                        <Icon name="User" size={13} className="text-gray-400 flex-shrink-0" />
-                        <span className="text-sm text-gray-600">{entry.promoterName}</span>
+
+                      {/* Строка 2: имя стажёра + телефон */}
+                      <div className="flex items-center gap-2 pl-5">
+                        <span className="text-sm text-gray-700">{entry.promoterName}</span>
+                        {entry.promoterPhone && (
+                          <>
+                            <span className="text-gray-300 text-xs">·</span>
+                            <span className="text-sm text-gray-500">{entry.promoterPhone}</span>
+                          </>
+                        )}
                       </div>
-                      {entry.promoterPhone && (
-                        <div className="flex items-center gap-2 pl-6">
-                          <Icon name="Phone" size={12} className="text-gray-300 flex-shrink-0" />
-                          <span className="text-xs text-gray-400">{entry.promoterPhone}</span>
-                        </div>
-                      )}
+
+                      {/* Строка 3: организация + время */}
                       {(entry.organization || entry.time) && (
-                        <div className="flex items-center gap-4 flex-wrap pl-6">
+                        <div className="flex items-center gap-2 flex-wrap pl-5 mt-0.5">
                           {entry.organization && (
-                            <div className="flex items-center gap-1.5">
-                              <Icon name="Building2" size={12} className="text-gray-300 flex-shrink-0" />
-                              <span className="text-xs text-gray-400">{entry.organization}</span>
-                            </div>
+                            <span className="text-xs text-gray-400">{entry.organization}</span>
+                          )}
+                          {entry.organization && entry.time && (
+                            <span className="text-gray-300 text-xs">·</span>
                           )}
                           {entry.time && (
-                            <div className="flex items-center gap-1.5">
-                              <Icon name="Clock" size={12} className="text-gray-300 flex-shrink-0" />
-                              <span className="text-xs text-gray-400">{entry.time}</span>
-                            </div>
+                            <span className="text-xs text-gray-400">{entry.time}</span>
                           )}
                         </div>
                       )}
+
+                      {/* Комментарий */}
                       {entry.comment && (
-                        <div className="flex items-start gap-1.5 pl-6">
-                          <Icon name="MessageSquare" size={12} className="text-gray-300 flex-shrink-0 mt-0.5" />
+                        <div className="pl-5 mt-1">
                           <span className="text-xs text-gray-400 italic">{entry.comment}</span>
                         </div>
                       )}
                     </div>
+
                     <div className="flex gap-1 flex-shrink-0">
                       <button onClick={() => handleEdit(entry)} className="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-blue-400 hover:bg-blue-50 rounded-lg transition-colors">
                         <Icon name="Pencil" size={14} />

@@ -14,7 +14,7 @@ function PhoneMenu({ phone, onClose }: { phone: string; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40" />
-      <div className="relative w-full max-w-sm bg-white rounded-t-2xl pb-safe shadow-xl" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-sm bg-white rounded-t-2xl shadow-xl" style={{ paddingBottom: 'env(safe-area-inset-bottom, 20px)' }} onClick={e => e.stopPropagation()}>
         <div className="pt-3 pb-1 px-4 border-b border-gray-100">
           <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3" />
           <p className="text-xs text-gray-400 text-center pb-2">{phone}</p>
@@ -29,7 +29,7 @@ function PhoneMenu({ phone, onClose }: { phone: string; onClose: () => void }) {
             </a>
           ))}
         </div>
-        <button onClick={onClose} className="w-full py-3 text-sm text-gray-400 font-medium border-t border-gray-100">
+        <button onClick={onClose} className="w-full py-4 text-sm text-gray-400 font-medium border-t border-gray-100">
           Отмена
         </button>
       </div>

@@ -100,7 +100,6 @@ export default function GreetingCheck({ onSuccess, onCancel }: GreetingCheckProp
       if (activeRef.current) {
         recognitionRef.current?.stop();
         const allHeard = heardTextsRef.current.join(' | ') || '(тишина)';
-        sendFailReport(allHeard);
         const handle = await startAudioRecording();
         onSuccess(allHeard, undefined, handle);
       }

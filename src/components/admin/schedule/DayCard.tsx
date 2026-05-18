@@ -205,11 +205,11 @@ export default function DayCard({
                   {/* Строка 2: имя стажёра + телефон */}
                   <p className="text-sm text-gray-600">
                     {entry.promoterName}
-                    {entry.promoterPhone && <span className="text-gray-400"> {entry.promoterPhone}</span>}
+                    {entry.promoterPhone && <span> {entry.promoterPhone}</span>}
                   </p>
                   {/* Строка 3: организация + время */}
                   {(entry.organization || entry.time) && (
-                    <p className="text-xs text-blue-500 mt-0.5">
+                    <p className="text-sm text-blue-500 mt-0.5">
                       {[entry.organization, entry.time].filter(Boolean).join(' · ')}
                     </p>
                   )}

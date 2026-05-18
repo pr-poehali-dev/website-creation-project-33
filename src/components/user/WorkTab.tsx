@@ -215,6 +215,7 @@ export default function WorkTab({ selectedOrganizationId, organizationName, onCh
         body: JSON.stringify({
           notes: `${parentName.trim()} ${childName.trim()} ${childAge.trim()} +7${phone.trim()}`,
           audio_data: audioData,
+          audio_duration: recordingSeconds,
           organization_id: selectedOrganizationId,
           organization_name: organizationName,
           ...(greetingHeard ? { greeting_heard: greetingHeard } : {}),

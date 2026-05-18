@@ -165,6 +165,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(event.get('body', '{}'))
         notes = body_data.get('notes', '').strip()
         audio_data = body_data.get('audio_data')
+        audio_duration = body_data.get('audio_duration', 0)
         organization_id = body_data.get('organization_id')
         organization_name = body_data.get('organization_name', '')
         greeting_heard = body_data.get('greeting_heard', '').strip()
@@ -223,7 +224,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         else:
             greeting_info = ""
 
-        caption = f"""{emoji_type} {lead_type.upper()}
+        short_audio_warning = f"  ⚠️ короткая презентация ❗" if audio_data and int(audio_duration) < 40 else ""
+
+        caption = f"""{emoji_type} {lead_type.upper()}{short_audio_warning}
 🎙️ IMPERIA PROMO
 Промоутер: {user_name}{org_info}{greeting_info}
 

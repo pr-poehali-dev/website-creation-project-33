@@ -3,6 +3,40 @@ import Icon from '@/components/ui/icon';
 import { DaySchedule, UserSchedule, DayStats, OrganizationData } from './types';
 import TimeSlotCard from './TimeSlotCard';
 
+function PhoneMenu({ phone, onClose }: { phone: string; onClose: () => void }) {
+  const clean = phone.replace(/\D/g, '');
+  const actions = [
+    { label: 'Позвонить', icon: 'Phone', href: `tel:+${clean}`, color: 'text-green-600' },
+    { label: 'SMS', icon: 'MessageSquare', href: `sms:+${clean}`, color: 'text-blue-600' },
+    { label: 'WhatsApp', icon: 'MessageCircle', href: `https://wa.me/${clean}`, color: 'text-emerald-500' },
+    { label: 'Telegram', icon: 'Send', href: `https://t.me/+${clean}`, color: 'text-sky-500' },
+  ];
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/40" />
+      <div className="relative w-full max-w-sm bg-white rounded-t-2xl pb-safe shadow-xl" onClick={e => e.stopPropagation()}>
+        <div className="pt-3 pb-1 px-4 border-b border-gray-100">
+          <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3" />
+          <p className="text-xs text-gray-400 text-center pb-2">{phone}</p>
+        </div>
+        <div className="p-3 space-y-1">
+          {actions.map(a => (
+            <a key={a.label} href={a.href} target="_blank" rel="noreferrer"
+              onClick={onClose}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors">
+              <Icon name={a.icon as 'Phone'} size={20} className={a.color} />
+              <span className="text-sm font-medium text-gray-800">{a.label}</span>
+            </a>
+          ))}
+        </div>
+        <button onClick={onClose} className="w-full py-3 text-sm text-gray-400 font-medium border-t border-gray-100">
+          Отмена
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
 
 function authHeaders() {
@@ -54,6 +88,7 @@ export default function DayCard({
   const [activeTab, setActiveTab] = useState<'department' | 'training'>('department');
   const [trainingEntries, setTrainingEntries] = useState<TrainingEntry[]>([]);
   const [loadingTraining, setLoadingTraining] = useState(false);
+  const [phoneMenu, setPhoneMenu] = useState<string | null>(null);
 
   const loadTrainingEntries = useCallback(async () => {
     setLoadingTraining(true);
@@ -205,7 +240,12 @@ export default function DayCard({
                   {/* Строка 2: имя стажёра + телефон */}
                   <p className="text-sm text-gray-600">
                     {entry.promoterName}
-                    {entry.promoterPhone && <span> {entry.promoterPhone}</span>}
+                    {entry.promoterPhone && (
+                      <span
+                        className="cursor-pointer active:opacity-70"
+                        onClick={() => setPhoneMenu(entry.promoterPhone)}
+                      > {entry.promoterPhone}</span>
+                    )}
                   </p>
                   {/* Строка 3: организация + время */}
                   {(entry.organization || entry.time) && (
@@ -231,6 +271,8 @@ export default function DayCard({
 
       {/* Разделитель между днями */}
       <div className="border-b border-gray-100 mt-1" />
+
+      {phoneMenu && <PhoneMenu phone={phoneMenu} onClose={() => setPhoneMenu(null)} />}
     </div>
   );
 }

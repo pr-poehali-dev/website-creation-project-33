@@ -209,7 +209,7 @@ export default function DayCard({
                   </p>
                   {/* Строка 3: организация + время */}
                   {(entry.organization || entry.time) && (
-                    <p className="text-sm text-gray-600 mt-0.5">
+                    <p className="text-sm text-blue-500 mt-0.5">
                       {[entry.organization, entry.time].filter(Boolean).join(' · ')}
                     </p>
                   )}

@@ -214,7 +214,7 @@ export default function DayCard({
                     </p>
                   )}
                   {entry.comment && (
-                    <p className="text-[10px] text-gray-400 italic mt-0.5">{entry.comment}</p>
+                    <p className="text-sm text-gray-600 mt-0.5">{entry.comment}</p>
                   )}
                 </div>
                 <button

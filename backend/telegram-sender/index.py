@@ -224,7 +224,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         else:
             greeting_info = ""
 
-        short_audio_warning = f"  ⚠️ короткая презентация ❗" if audio_data and int(audio_duration) < 40 else ""
+        short_audio_warning = f"  КОРОТКАЯ ПРЕЗЕНТАЦИЯ ❗" if audio_data and int(audio_duration) < 40 else ""
 
         caption = f"""{emoji_type} {lead_type.upper()}{short_audio_warning}
 🎙️ IMPERIA PROMO

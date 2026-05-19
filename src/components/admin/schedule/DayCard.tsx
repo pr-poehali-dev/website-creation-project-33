@@ -89,6 +89,9 @@ export default function DayCard({
   const [trainingEntries, setTrainingEntries] = useState<TrainingEntry[]>([]);
   const [loadingTraining, setLoadingTraining] = useState(false);
   const [phoneMenu, setPhoneMenu] = useState<string | null>(null);
+  const [editingEntry, setEditingEntry] = useState<TrainingEntry | null>(null);
+  const [editForm, setEditForm] = useState({ seniorName: '', promoterName: '', promoterPhone: '', organization: '', time: '', comment: '' });
+  const [saving, setSaving] = useState(false);
 
   const loadTrainingEntries = useCallback(async () => {
     setLoadingTraining(true);
@@ -112,6 +115,24 @@ export default function DayCard({
       body: JSON.stringify({ action: 'delete_entry', id: parseInt(id) }),
     });
     setTrainingEntries(prev => prev.filter(e => e.id !== id));
+  };
+
+  const handleStartEdit = (entry: TrainingEntry) => {
+    setEditingEntry(entry);
+    setEditForm({ seniorName: entry.seniorName, promoterName: entry.promoterName, promoterPhone: entry.promoterPhone, organization: entry.organization, time: entry.time, comment: entry.comment });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingEntry) return;
+    setSaving(true);
+    await fetch(TRAINING_API, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ action: 'update_entry', id: parseInt(editingEntry.id), ...editForm }),
+    });
+    setTrainingEntries(prev => prev.map(e => e.id === editingEntry.id ? { ...e, ...editForm } : e));
+    setEditingEntry(null);
+    setSaving(false);
   };
 
   const isSuccessful = stats && stats.actual > 0 && (stats.expected === 0 || stats.actual >= stats.expected);
@@ -235,34 +256,32 @@ export default function DayCard({
             trainingEntries.map(entry => (
               <div key={entry.id} className="flex items-start justify-between gap-2 px-1 py-2 border-b border-gray-50">
                 <div className="min-w-0 flex-1">
-                  {/* Строка 1: имя старшего жирным */}
                   <p className="text-sm font-bold text-gray-800">{entry.seniorName}</p>
-                  {/* Строка 2: имя стажёра + телефон */}
                   <p className="text-sm text-gray-600">
                     {entry.promoterName}
                     {entry.promoterPhone && (
-                      <span
-                        className="cursor-pointer active:opacity-70"
-                        onClick={() => setPhoneMenu(entry.promoterPhone)}
-                      > {entry.promoterPhone}</span>
+                      <span className="cursor-pointer active:opacity-70" onClick={() => setPhoneMenu(entry.promoterPhone)}> {entry.promoterPhone}</span>
                     )}
                   </p>
-                  {/* Строка 3: организация + время */}
                   {(entry.organization || entry.time) && (
-                    <p className="text-sm text-blue-500 mt-0.5">
-                      {[entry.organization, entry.time].filter(Boolean).join(' · ')}
-                    </p>
+                    <p className="text-sm text-blue-500 mt-0.5">{[entry.organization, entry.time].filter(Boolean).join(' · ')}</p>
                   )}
-                  {entry.comment && (
-                    <p className="text-sm text-gray-600 mt-0.5">{entry.comment}</p>
-                  )}
+                  {entry.comment && <p className="text-sm text-gray-600 mt-0.5">{entry.comment}</p>}
                 </div>
-                <button
-                  onClick={() => handleDeleteEntry(entry.id)}
-                  className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors flex-shrink-0"
-                >
-                  <Icon name="X" size={11} />
-                </button>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    onClick={() => handleStartEdit(entry)}
+                    className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-300 hover:text-blue-400 hover:bg-blue-50 transition-colors"
+                  >
+                    <Icon name="Pencil" size={11} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEntry(entry.id)}
+                    className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                  >
+                    <Icon name="X" size={11} />
+                  </button>
+                </div>
               </div>
             ))
           )}
@@ -273,6 +292,47 @@ export default function DayCard({
       <div className="border-b border-gray-100 mt-1" />
 
       {phoneMenu && <PhoneMenu phone={phoneMenu} onClose={() => setPhoneMenu(null)} />}
+
+      {editingEntry && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setEditingEntry(null)}>
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md shadow-2xl border border-gray-100" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <h3 className="text-sm font-bold text-gray-800">Редактировать запись</h3>
+              <button onClick={() => setEditingEntry(null)} className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                <Icon name="X" size={15} />
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              {[
+                { field: 'seniorName', label: 'Старший' },
+                { field: 'promoterName', label: 'Стажёр' },
+                { field: 'promoterPhone', label: 'Телефон' },
+                { field: 'organization', label: 'Организация' },
+                { field: 'time', label: 'Время' },
+                { field: 'comment', label: 'Комментарий' },
+              ].map(({ field, label }) => (
+                <div key={field}>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">{label}</label>
+                  <input
+                    className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors"
+                    value={editForm[field as keyof typeof editForm]}
+                    onChange={e => setEditForm(prev => ({ ...prev, [field]: e.target.value }))}
+                    placeholder={label}
+                  />
+                </div>
+              ))}
+              <div className="flex gap-2 pt-1">
+                <button onClick={() => setEditingEntry(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-500 font-medium hover:bg-gray-50 transition-colors">
+                  Отмена
+                </button>
+                <button onClick={handleSaveEdit} disabled={saving} className="flex-1 py-2.5 rounded-xl bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50">
+                  {saving ? 'Сохранение...' : 'Сохранить'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

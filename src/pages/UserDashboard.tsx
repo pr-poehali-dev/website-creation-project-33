@@ -183,7 +183,6 @@ export default function UserDashboard() {
                 {[
                   { label: 'Работа', icon: 'Briefcase', action: () => setCurrentView('work'), iconAnim: 'icon-bounce' },
                   { label: 'Работа NEW', icon: 'Video', action: () => setCurrentView('work-new'), iconAnim: 'icon-pulse' },
-                  { label: 'Речь', icon: 'Mic', action: () => setCurrentView('speech'), iconAnim: 'icon-wave' },
                   { label: 'График', icon: 'Calendar', action: () => setCurrentView('schedule'), iconAnim: 'icon-swing' },
                   { label: 'Обучение', icon: 'GraduationCap', action: () => setCurrentView('training'), iconAnim: 'icon-nod' },
                   { label: 'Чат', icon: 'MessageCircle', action: () => setChatOpen(true), iconAnim: 'icon-shake', badge: unreadCount > 0 ? unreadCount : null },

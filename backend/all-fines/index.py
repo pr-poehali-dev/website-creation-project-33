@@ -22,8 +22,6 @@ FINE_EARLY_END = 500
 
 
 def calculate_salary(contacts: int, shift_date_str: str, user_id: int, org_name: str, employee_status: str = 'employee') -> int:
-    if user_id in (3,):
-        return 0
     if org_name == 'Администратор':
         return 600
     d = date.fromisoformat(shift_date_str)

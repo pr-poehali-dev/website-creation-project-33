@@ -69,10 +69,10 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
           )}
           <a
             href="#"
-            className="w-9 h-9 rounded-xl bg-green-100 hover:bg-green-200 flex items-center justify-center transition-colors"
             title="Скачать приложение Android v1.0"
+            className="h-9 rounded-xl overflow-hidden flex items-center hover:opacity-90 transition-opacity"
           >
-            <Icon name="Smartphone" size={16} className="text-green-600" />
+            <img src="https://cdn.poehali.dev/files/ef684050-e178-4f04-abe8-8b8cd6948973.jpg" alt="Download for Android" className="h-full w-auto object-contain" />
           </a>
           <div className="relative">
             <button

@@ -67,6 +67,13 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
               <Icon name="Home" size={16} className="text-gray-600" />
             </button>
           )}
+          <a
+            href="#"
+            className="w-9 h-9 rounded-xl bg-green-100 hover:bg-green-200 flex items-center justify-center transition-colors"
+            title="Скачать приложение Android v1.0"
+          >
+            <Icon name="Smartphone" size={16} className="text-green-600" />
+          </a>
           <div className="relative">
             <button
               onClick={fetchBalance}

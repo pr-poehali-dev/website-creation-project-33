@@ -19,6 +19,7 @@ interface AdminHeaderProps {
 
 export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, showHomeButton = false, hideTitle = false }: AdminHeaderProps) {
   const [showAndroidBanner, setShowAndroidBanner] = useState(false);
+  const [showIosBanner, setShowIosBanner] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [loadingReport, setLoadingReport] = useState<'morning' | 'daily' | null>(null);
   const [loadingBalance, setLoadingBalance] = useState(false);
@@ -85,6 +86,28 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
                 <h2 className="text-xl font-bold text-gray-800 mb-2">Приложение для Android</h2>
                 <p className="text-gray-500 mb-6">Приложение будет доступно для скачивания <span className="font-semibold text-gray-700">01.06.2026</span></p>
                 <button onClick={() => setShowAndroidBanner(false)} className="w-full py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-medium transition-colors">
+                  Понятно
+                </button>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={() => setShowIosBanner(true)}
+            title="Скачать приложение iOS"
+            className="h-9 rounded-xl overflow-hidden flex items-center hover:opacity-90 transition-opacity"
+          >
+            <img src="https://cdn.poehali.dev/files/8b1a0faa-a0e6-4f3c-b1cd-e29cdb42d670.png" alt="Download for iOS" className="h-full w-auto object-contain" />
+          </button>
+
+          {showIosBanner && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setShowIosBanner(false)}>
+              <div className="bg-white rounded-2xl p-8 mx-4 max-w-sm w-full text-center shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Icon name="Apple" size={32} className="text-gray-700" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">Приложение для iOS</h2>
+                <p className="text-gray-500 mb-6">Приложение будет доступно для скачивания <span className="font-semibold text-gray-700">01.06.2026</span></p>
+                <button onClick={() => setShowIosBanner(false)} className="w-full py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-medium transition-colors">
                   Понятно
                 </button>
               </div>

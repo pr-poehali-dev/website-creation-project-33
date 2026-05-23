@@ -69,7 +69,7 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
               <Icon name="Home" size={16} className="text-gray-600" />
             </button>
           )}
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-row gap-1">
             <button
               onClick={() => setShowAndroidBanner(true)}
               title="Скачать приложение Android v1.0"

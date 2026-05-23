@@ -73,16 +73,16 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
             <button
               onClick={() => setShowAndroidBanner(true)}
               title="Скачать приложение Android v1.0"
-              className="h-[1.125rem] rounded-md overflow-hidden flex items-center hover:opacity-90 transition-opacity"
+              className="h-9 w-32 rounded-full overflow-hidden flex items-center hover:opacity-90 transition-opacity"
             >
-              <img src="https://cdn.poehali.dev/files/ef684050-e178-4f04-abe8-8b8cd6948973.jpg" alt="Download for Android" className="h-full w-auto object-contain" />
+              <img src="https://cdn.poehali.dev/files/ef684050-e178-4f04-abe8-8b8cd6948973.jpg" alt="Download for Android" className="h-full w-full object-cover" />
             </button>
             <button
               onClick={() => setShowIosBanner(true)}
               title="Скачать приложение iOS"
-              className="h-[1.125rem] rounded-md overflow-hidden flex items-center hover:opacity-90 transition-opacity"
+              className="h-9 w-32 rounded-full overflow-hidden flex items-center hover:opacity-90 transition-opacity"
             >
-              <img src="https://cdn.poehali.dev/files/8b1a0faa-a0e6-4f3c-b1cd-e29cdb42d670.png" alt="Download for iOS" className="h-full w-auto object-contain" />
+              <img src="https://cdn.poehali.dev/files/8b1a0faa-a0e6-4f3c-b1cd-e29cdb42d670.png" alt="Download for iOS" className="h-full w-full object-cover" />
             </button>
           </div>
 

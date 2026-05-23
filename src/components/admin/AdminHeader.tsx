@@ -69,13 +69,22 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
               <Icon name="Home" size={16} className="text-gray-600" />
             </button>
           )}
-          <button
-            onClick={() => setShowAndroidBanner(true)}
-            title="Скачать приложение Android v1.0"
-            className="h-9 rounded-xl overflow-hidden flex items-center hover:opacity-90 transition-opacity"
-          >
-            <img src="https://cdn.poehali.dev/files/ef684050-e178-4f04-abe8-8b8cd6948973.jpg" alt="Download for Android" className="h-full w-auto object-contain" />
-          </button>
+          <div className="flex flex-col gap-1">
+            <button
+              onClick={() => setShowAndroidBanner(true)}
+              title="Скачать приложение Android v1.0"
+              className="h-[1.125rem] rounded-md overflow-hidden flex items-center hover:opacity-90 transition-opacity"
+            >
+              <img src="https://cdn.poehali.dev/files/ef684050-e178-4f04-abe8-8b8cd6948973.jpg" alt="Download for Android" className="h-full w-auto object-contain" />
+            </button>
+            <button
+              onClick={() => setShowIosBanner(true)}
+              title="Скачать приложение iOS"
+              className="h-[1.125rem] rounded-md overflow-hidden flex items-center hover:opacity-90 transition-opacity"
+            >
+              <img src="https://cdn.poehali.dev/files/8b1a0faa-a0e6-4f3c-b1cd-e29cdb42d670.png" alt="Download for iOS" className="h-full w-auto object-contain" />
+            </button>
+          </div>
 
           {showAndroidBanner && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setShowAndroidBanner(false)}>
@@ -91,14 +100,6 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
               </div>
             </div>
           )}
-          <button
-            onClick={() => setShowIosBanner(true)}
-            title="Скачать приложение iOS"
-            className="h-9 rounded-xl overflow-hidden flex items-center hover:opacity-90 transition-opacity"
-          >
-            <img src="https://cdn.poehali.dev/files/8b1a0faa-a0e6-4f3c-b1cd-e29cdb42d670.png" alt="Download for iOS" className="h-full w-auto object-contain" />
-          </button>
-
           {showIosBanner && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setShowIosBanner(false)}>
               <div className="bg-white rounded-2xl p-8 mx-4 max-w-sm w-full text-center shadow-2xl" onClick={e => e.stopPropagation()}>

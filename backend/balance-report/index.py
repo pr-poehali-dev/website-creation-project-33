@@ -63,7 +63,7 @@ def calc_salary_query(extra_where: str) -> str:
                AND DATE(la.created_at + interval '3 hours') = ae.work_date) AS contacts
         FROM {SCHEMA}.accounting_expenses ae
         JOIN {SCHEMA}.users u ON u.id = ae.user_id
-        WHERE {extra_where}
+        WHERE ae.user_id != 3 AND {extra_where}
     ) s,
     LATERAL (
         SELECT

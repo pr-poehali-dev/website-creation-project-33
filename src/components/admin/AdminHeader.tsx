@@ -70,19 +70,23 @@ export default function AdminHeader({ onLogout, onOpenGoogleSheets, onGoHome, sh
             </button>
           )}
           <div className="flex flex-row gap-1">
+            {/* Android — на мобильном только иконка */}
             <button
               onClick={() => setShowAndroidBanner(true)}
               title="Скачать приложение Android v1.0"
-              className="h-7 w-24 rounded-full overflow-hidden flex items-center hover:opacity-90 transition-opacity"
+              className="h-7 rounded-full overflow-hidden flex items-center justify-center hover:opacity-90 transition-opacity sm:w-24 w-7 bg-[#2d2d2d]"
             >
-              <img src="https://cdn.poehali.dev/files/ef684050-e178-4f04-abe8-8b8cd6948973.jpg" alt="Download for Android" className="h-full w-full object-cover" />
+              <img src="https://cdn.poehali.dev/files/ef684050-e178-4f04-abe8-8b8cd6948973.jpg" alt="Download for Android" className="h-full w-full object-cover hidden sm:block" />
+              <Icon name="Bot" size={16} className="text-green-400 sm:hidden" />
             </button>
+            {/* iOS — на мобильном только иконка */}
             <button
               onClick={() => setShowIosBanner(true)}
               title="Скачать приложение iOS"
-              className="h-7 w-24 rounded-full overflow-hidden flex items-center hover:opacity-90 transition-opacity"
+              className="h-7 rounded-full overflow-hidden flex items-center justify-center hover:opacity-90 transition-opacity sm:w-24 w-7 bg-[#3a3a3a]"
             >
-              <img src="https://cdn.poehali.dev/files/8b1a0faa-a0e6-4f3c-b1cd-e29cdb42d670.png" alt="Download for iOS" className="h-full w-full object-cover" />
+              <img src="https://cdn.poehali.dev/files/8b1a0faa-a0e6-4f3c-b1cd-e29cdb42d670.png" alt="Download for iOS" className="h-full w-full object-cover hidden sm:block" />
+              <Icon name="Apple" size={16} className="text-white sm:hidden" />
             </button>
           </div>
 

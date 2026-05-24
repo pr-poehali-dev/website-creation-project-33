@@ -275,21 +275,6 @@ export default function AdminMetroTiles({ sessionToken, currentView, onViewChang
           <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors flex-shrink-0" />
         </button>
 
-        {/* Чат */}
-        <button onClick={() => handleViewChange('chat')} className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 transition-all duration-200 group">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0 relative">
-              <Icon name="MessageCircle" size={20} className="text-blue-500" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 animate-pulse">
-                  {unreadCount}
-                </span>
-              )}
-            </div>
-            <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">Чат</div>
-          </div>
-          <Icon name="ChevronRight" size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
-        </button>
 
         {/* Заказчики */}
         <button onClick={() => handleViewChange('clients')} className="w-full px-6 py-4 flex items-center justify-between hover:bg-blue-50 transition-all duration-200 group">

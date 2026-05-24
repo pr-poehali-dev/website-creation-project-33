@@ -6,7 +6,6 @@ import AllUsersWorkTime from './AllUsersWorkTime';
 import UsersTab from './UsersTab';
 import StatsTab from './StatsTab';
 import OrganizationsTab from './OrganizationsTab';
-import AdminChatTab from './AdminChatTab';
 import ScheduleAnalyticsTab from './ScheduleAnalyticsTab';
 import TodayContactsCounter from './TodayContactsCounter';
 import TodayApproachesCounter from './TodayApproachesCounter';
@@ -23,13 +22,12 @@ import AssistantTab from './AssistantTab';
 
 
 interface AdminMetroTilesProps {
-  unreadCount: number;
   sessionToken: string;
   currentView: TileView;
   onViewChange: (view: TileView) => void;
 }
 
-type TileView = 'tiles' | 'requests' | 'fines' | 'tasks' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram' | 'assistant';
+type TileView = 'tiles' | 'requests' | 'fines' | 'tasks' | 'accounting' | 'stats' | 'analytics' | 'clients' | 'telegram' | 'assistant';
 type StatsSubView = 'users' | 'rating' | 'organizations' | 'seniors';
 
 const NavButton = ({ 
@@ -70,7 +68,7 @@ const NavButton = ({
   </button>
 );
 
-export default function AdminMetroTiles({ unreadCount, sessionToken, currentView, onViewChange }: AdminMetroTilesProps) {
+export default function AdminMetroTiles({ sessionToken, currentView, onViewChange }: AdminMetroTilesProps) {
   const [statsSubView, setStatsSubView] = useState<StatsSubView>('rating');
 
   const handleViewChange = (view: TileView) => {
@@ -84,7 +82,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
     { view: 'tasks' as TileView, icon: 'ClipboardList', label: 'Задачи' },
     { view: 'accounting' as TileView, icon: 'Calculator', label: 'Бух.учет' },
     { view: 'stats' as TileView, icon: 'BarChart3', label: 'Статистика' },
-    { view: 'chat' as TileView, icon: 'MessageCircle', label: 'Чат', badge: unreadCount },
     { view: 'clients' as TileView, icon: 'Building2', label: 'Заказчики' },
     { view: 'analytics' as TileView, icon: 'TrendingUp', label: 'График' },
     { view: 'telegram' as TileView, icon: 'Bot', label: 'Телеграм бот' },
@@ -180,12 +177,6 @@ export default function AdminMetroTiles({ unreadCount, sessionToken, currentView
         {statsSubView === 'organizations' && <OrganizationsTab enabled={true} />}
         {statsSubView === 'seniors' && <SeniorsTab />}
       </div>
-    );
-  }
-
-  if (currentView === 'chat') {
-    return renderWithSidebar(
-      <AdminChatTab />
     );
   }
 

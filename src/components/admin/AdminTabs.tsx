@@ -6,18 +6,16 @@ import UsersTab from './UsersTab';
 import StatsTab from './StatsTab';
 import PendingUsers from './PendingUsers';
 import AllUsersWorkTime from './AllUsersWorkTime';
-import AdminChatTab from './AdminChatTab';
 import OrganizationsTab from './OrganizationsTab';
 import ArchiveTab from './ArchiveTab';
 import AccountingTab from './AccountingTab';
 import SeniorsTab from './SeniorsTab';
 
 interface AdminTabsProps {
-  unreadCount: number;
   sessionToken: string;
 }
 
-export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps) {
+export default function AdminTabs({ sessionToken }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState('pending');
 
   return (
@@ -79,19 +77,6 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
           <Icon name="Archive" size={16} />
           <span className="hidden lg:inline">Архив</span>
         </TabsTrigger>
-        <TabsTrigger 
-          value="chat" 
-          className="flex items-center gap-2 text-slate-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all text-xs md:text-sm relative rounded-lg font-medium flex-1 whitespace-nowrap justify-center"
-          title="Чат"
-        >
-          <Icon name="MessageCircle" size={16} />
-          <span className="hidden lg:inline">Чат</span>
-          {unreadCount > 0 && (
-            <Badge className="ml-1 h-5 min-w-[20px] flex items-center justify-center bg-red-500 hover:bg-red-500 text-white text-xs px-1 rounded-full">
-              {unreadCount}
-            </Badge>
-          )}
-        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="pending">
@@ -125,9 +110,6 @@ export default function AdminTabs({ unreadCount, sessionToken }: AdminTabsProps)
         <ArchiveTab enabled={activeTab === 'archive'} sessionToken={sessionToken} />
       </TabsContent>
 
-      <TabsContent value="chat">
-        <AdminChatTab />
-      </TabsContent>
     </Tabs>
   );
 }

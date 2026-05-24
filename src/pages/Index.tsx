@@ -6,13 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/lib/toast';
 import { useAuth } from '@/contexts/AuthContext';
-import ChatDialog from '@/components/chat/ChatDialog';
-import { useChatUnread } from '@/hooks/useChatUnread';
 import ProfileModal from '@/components/user/ProfileModal';
 
 export default function Index() {
   const { user, logout } = useAuth();
-  const unreadCount = useChatUnread();
   const [notes, setNotes] = useState(() => {
     const saved = localStorage.getItem('notepad_draft');
     return saved || '';
@@ -20,7 +17,6 @@ export default function Index() {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -225,18 +221,6 @@ export default function Index() {
                 <Icon name="User" size={16} />
               </Button>
               <Button 
-                onClick={() => setChatOpen(true)} 
-                className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105 relative"
-                size="sm"
-              >
-                <Icon name="MessageCircle" size={16} />
-                {unreadCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 min-w-[20px] flex items-center justify-center bg-red-500 hover:bg-red-500 text-white text-xs px-1">
-                    {unreadCount}
-                  </Badge>
-                )}
-              </Button>
-              <Button 
                 onClick={logout} 
                 className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 px-3 py-2 shadow-lg hover:scale-105"
                 size="sm"
@@ -272,18 +256,6 @@ export default function Index() {
             >
               <Icon name="User" size={16} className="mr-2" />
               Профиль
-            </Button>
-            <Button 
-              onClick={() => setChatOpen(true)} 
-              className="bg-[#001f54] hover:bg-[#002b6b] text-white transition-all duration-300 shadow-lg hover:scale-105 relative"
-            >
-              <Icon name="MessageCircle" size={16} className="mr-2" />
-              Чат
-              {unreadCount > 0 && (
-                <Badge className="ml-2 bg-red-500 hover:bg-red-500 text-white">
-                  {unreadCount}
-                </Badge>
-              )}
             </Button>
             <Button 
               onClick={logout} 
@@ -419,7 +391,6 @@ export default function Index() {
         </div>
       </div>
 
-      <ChatDialog open={chatOpen} onOpenChange={setChatOpen} />
       <ProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );

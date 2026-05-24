@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useChatUnread } from '@/hooks/useChatUnread';
 import AdminAccessDenied from './AdminAccessDenied';
 import AdminHeader from './AdminHeader';
 import AdminMetroTiles from './AdminMetroTiles';
 
-type TileView = 'tiles' | 'requests' | 'fines' | 'tasks' | 'accounting' | 'stats' | 'chat' | 'analytics' | 'clients' | 'telegram' | 'assistant';
+type TileView = 'tiles' | 'requests' | 'fines' | 'tasks' | 'accounting' | 'stats' | 'analytics' | 'clients' | 'telegram' | 'assistant';
 
 export default function AdminPanel() {
   const { logout, user } = useAuth();
-  const unreadCount = useChatUnread();
   const [currentView, setCurrentView] = useState<TileView>('tiles');
   
   const openGoogleSheets = () => {
@@ -39,7 +37,6 @@ export default function AdminPanel() {
       </div>
       <div className={`w-full ${currentView === 'accounting' ? '' : 'px-4 md:px-6'}`}>
         <AdminMetroTiles 
-          unreadCount={unreadCount} 
           sessionToken={localStorage.getItem('session_token') || ''}
           currentView={currentView}
           onViewChange={setCurrentView}

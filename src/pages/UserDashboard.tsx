@@ -4,9 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
-import { useChatUnread } from '@/hooks/useChatUnread';
-import ChatTabs from '@/components/chat/ChatTabs';
-import AIHelper from '@/components/chat/AIHelper';
 import UserHeader from '@/components/user/UserHeader';
 import StartTab from '@/components/user/StartTab';
 import WorkTab from '@/components/user/WorkTab';
@@ -19,9 +16,6 @@ import EarningsChart from '@/components/user/EarningsChart';
 
 export default function UserDashboard() {
   const { user, logout } = useAuth();
-  const unreadCount = useChatUnread();
-  const [groupUnreadCount, setGroupUnreadCount] = useState(0);
-  const [chatOpen, setChatOpen] = useState(false);
   const [aiHelperOpen, setAiHelperOpen] = useState(false);
   const [organizationName, setOrganizationName] = useState<string>('');
   const [selectedOrganization, setSelectedOrganization] = useState<number | null>(() => {
@@ -45,31 +39,6 @@ export default function UserDashboard() {
     }
   }, [selectedOrganization]);
 
-  // Загрузка счетчика непрочитанных групповых сообщений
-  const fetchGroupUnread = async () => {
-    if (!user) return;
-    try {
-      const response = await fetch('https://functions.poehali.dev/cad0f9c1-a7f9-476f-b300-29e671bbaa2c?is_group=true', {
-        headers: {
-          'X-User-Id': user.id.toString(),
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setGroupUnreadCount(data.unread_count || 0);
-      }
-    } catch (error) {
-      console.error('Error fetching group unread count:', error);
-    }
-  };
-
-  useEffect(() => {
-    if (!user || !selectedOrganization) return;
-
-    fetchGroupUnread();
-    const interval = setInterval(fetchGroupUnread, 5000);
-    return () => clearInterval(interval);
-  }, [user, selectedOrganization]);
 
   const fetchOrganizationName = async () => {
     try {
@@ -151,24 +120,18 @@ export default function UserDashboard() {
         {!(currentView === 'work') && (
           <UserHeader 
             onLogout={logout}
-            onOpenChat={() => setChatOpen(true)}
+            onOpenChat={() => {}}
             onOpenAI={() => setAiHelperOpen(true)}
             onOpenSchedule={() => setCurrentView('schedule')}
             onChangeOrganization={handleChangeOrganization}
-            unreadCount={unreadCount}
-            groupUnreadCount={groupUnreadCount}
+            unreadCount={0}
+            groupUnreadCount={0}
             selectedOrganization={selectedOrganization}
             organizationName={organizationName}
             todayContacts={todayContacts}
             totalContacts={totalContacts}
           />
         )}
-
-        <ChatTabs 
-          open={chatOpen} 
-          onOpenChange={setChatOpen}
-          organizationId={selectedOrganization}
-        />
 
         <AIHelper 
           open={aiHelperOpen}
@@ -185,7 +148,6 @@ export default function UserDashboard() {
                   { label: 'Работа NEW', icon: 'Video', action: () => setCurrentView('work-new'), iconAnim: 'icon-pulse' },
                   { label: 'График', icon: 'Calendar', action: () => setCurrentView('schedule'), iconAnim: 'icon-swing' },
                   { label: 'Обучение', icon: 'GraduationCap', action: () => setCurrentView('training'), iconAnim: 'icon-nod' },
-                  { label: 'Чат', icon: 'MessageCircle', action: () => setChatOpen(true), iconAnim: 'icon-shake', badge: unreadCount > 0 ? unreadCount : null },
                 ].map((item, i) => (
                   <button
                     key={item.label}

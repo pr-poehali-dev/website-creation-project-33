@@ -16,7 +16,7 @@ import EarningsChart from '@/components/user/EarningsChart';
 
 export default function UserDashboard() {
   const { user, logout } = useAuth();
-  const [aiHelperOpen, setAiHelperOpen] = useState(false);
+
   const [organizationName, setOrganizationName] = useState<string>('');
   const [selectedOrganization, setSelectedOrganization] = useState<number | null>(() => {
     const saved = localStorage.getItem('selected_organization_id');
@@ -121,7 +121,7 @@ export default function UserDashboard() {
           <UserHeader 
             onLogout={logout}
             onOpenChat={() => {}}
-            onOpenAI={() => setAiHelperOpen(true)}
+            onOpenAI={() => {}}
             onOpenSchedule={() => setCurrentView('schedule')}
             onChangeOrganization={handleChangeOrganization}
             unreadCount={0}
@@ -133,10 +133,7 @@ export default function UserDashboard() {
           />
         )}
 
-        <AIHelper 
-          open={aiHelperOpen}
-          onOpenChange={setAiHelperOpen}
-        />
+
 
         {currentView === 'tiles' && (
           <>

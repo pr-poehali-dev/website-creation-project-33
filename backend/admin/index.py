@@ -196,10 +196,8 @@ def get_leads_stats() -> Dict[str, Any]:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             # Контакты из подтверждённых смен (как в бухучёте)
-            # Подходы теперь = количество 'подход' + количество 'контакт'
             cur.execute("""
                 SELECT COUNT(CASE WHEN l.lead_type = 'контакт' THEN 1 END) as contacts,
-                       COUNT(CASE WHEN l.lead_type IN ('подход', 'контакт') THEN 1 END) as approaches,
                        COUNT(*) as total
                 FROM t_p24058207_website_creation_pro.work_shifts s
                 JOIN t_p24058207_website_creation_pro.users u ON s.user_id = u.id
@@ -212,8 +210,7 @@ def get_leads_stats() -> Dict[str, Any]:
             """)
             row = cur.fetchone()
             contacts = row[0] if row[0] else 0
-            approaches = row[1] if row[1] else 0
-            total_leads = row[2] if row[2] else 0
+            total_leads = row[1] if row[1] else 0
             
             # Получаем все смены
             cur.execute("""
@@ -282,7 +279,7 @@ def get_leads_stats() -> Dict[str, Any]:
                 if shift_contacts_count > user_data_map[user_id]['max_contacts']:
                     user_data_map[user_id]['max_contacts'] = shift_contacts_count
             
-            # Получаем дополнительные данные: имена, email, подходы, зарплата
+            # Получаем дополнительные данные: имена, email, зарплата
             cur.execute("""
                 WITH user_salary AS (
                     SELECT 
@@ -307,10 +304,6 @@ def get_leads_stats() -> Dict[str, Any]:
                 )
                 SELECT 
                     u.id, u.name, u.email,
-                    (
-                        (SELECT COALESCE(SUM(approaches), 0) FROM t_p24058207_website_creation_pro.leads WHERE user_id = u.id) +
-                        (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la WHERE la.user_id = u.id AND la.lead_type = 'контакт' AND la.is_active = true)
-                    ) as approaches,
                     (SELECT COUNT(*) FROM t_p24058207_website_creation_pro.leads_analytics la
                      WHERE la.user_id = u.id AND la.is_active = true) as total_leads,
                     COALESCE(us.total_salary, 0) as revenue,
@@ -334,10 +327,9 @@ def get_leads_stats() -> Dict[str, Any]:
                 if shifts_count == 0:
                     continue
                 
-                approaches_count = int(row[3]) if row[3] else 0
-                lead_count = int(row[4]) if row[4] else 0
-                revenue = int(row[5]) if row[5] else 0
-                is_active = bool(row[6])
+                lead_count = int(row[3]) if row[3] else 0
+                revenue = int(row[4]) if row[4] else 0
+                is_active = bool(row[5])
                 
                 avg_per_shift = round(lead_count / shifts_count) if shifts_count > 0 else 0
                 
@@ -347,7 +339,6 @@ def get_leads_stats() -> Dict[str, Any]:
                     'email': row[2], 
                     'lead_count': lead_count,
                     'contacts': contacts_count,
-                    'approaches': approaches_count,
                     'shifts_count': shifts_count,
                     'avg_per_shift': avg_per_shift,
                     'max_contacts_per_shift': user_data['max_contacts'],
@@ -372,28 +363,11 @@ def get_leads_stats() -> Dict[str, Any]:
                 date_key = moscow_dt.date().isoformat()
                 
                 if date_key not in daily_groups:
-                    daily_groups[date_key] = {'contacts': 0, 'approaches': 0, 'total': 0}
+                    daily_groups[date_key] = {'contacts': 0, 'total': 0}
                 
                 daily_groups[date_key]['total'] += 1
                 if row[1] == 'контакт':
                     daily_groups[date_key]['contacts'] += 1
-            
-            # Добавляем подходы из таблицы leads (нажатия кнопки Отменить)
-            cur.execute("""
-                SELECT created_at, approaches
-                FROM t_p24058207_website_creation_pro.leads
-                WHERE created_at >= '2025-01-01' AND approaches > 0
-                ORDER BY created_at DESC
-            """)
-            
-            for row in cur.fetchall():
-                moscow_dt = get_moscow_time_from_utc(row[0])
-                date_key = moscow_dt.date().isoformat()
-                
-                if date_key not in daily_groups:
-                    daily_groups[date_key] = {'contacts': 0, 'approaches': 0, 'total': 0}
-                
-                daily_groups[date_key]['approaches'] += row[1]
             
             # Преобразуем в список и сортируем
             daily_stats = []
@@ -401,7 +375,6 @@ def get_leads_stats() -> Dict[str, Any]:
                 daily_stats.append({
                     'date': date_key,
                     'contacts': stats['contacts'],
-                    'approaches': stats['approaches'] + stats['contacts'],  # подходы = отмены + контакты
                     'count': stats['total']
                 })
             
@@ -410,7 +383,6 @@ def get_leads_stats() -> Dict[str, Any]:
     return {
         'total_leads': total_leads,
         'contacts': contacts,
-        'approaches': approaches,
         'user_stats': user_stats,
         'daily_stats': daily_stats
     }
@@ -448,71 +420,23 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                         'email': row[2],
                         'lead_count': 0,
                         'contacts': 0,
-                        'approaches': 0,
                         'organizations': {}
                     }
                 
                 user_groups[user_id]['lead_count'] += 1
                 if lead_type == 'контакт':
                     user_groups[user_id]['contacts'] += 1
-                elif lead_type == 'подход':
-                    user_groups[user_id]['approaches'] += 1
                 
                 # Группируем по организациям
                 if org_name not in user_groups[user_id]['organizations']:
                     user_groups[user_id]['organizations'][org_name] = {
                         'contacts': 0,
-                        'approaches': 0,
                         'total': 0
                     }
                 
                 user_groups[user_id]['organizations'][org_name]['total'] += 1
                 if lead_type == 'контакт':
                     user_groups[user_id]['organizations'][org_name]['contacts'] += 1
-                elif lead_type == 'подход':
-                    user_groups[user_id]['organizations'][org_name]['approaches'] += 1
-            
-            # Добавляем подходы из таблицы leads (нажатия кнопки Отменить)
-            cur.execute("""
-                SELECT u.id, u.name, u.email, l.created_at, l.approaches, l.organization_id, o.name as org_name
-                FROM t_p24058207_website_creation_pro.users u 
-                LEFT JOIN t_p24058207_website_creation_pro.leads l ON u.id = l.user_id 
-                LEFT JOIN t_p24058207_website_creation_pro.organizations o ON l.organization_id = o.id
-                WHERE l.created_at IS NOT NULL AND l.approaches > 0
-            """)
-            
-            for row in cur.fetchall():
-                moscow_dt = get_moscow_time_from_utc(row[3])
-                date_key = moscow_dt.date().isoformat()
-                
-                if date_key != date:
-                    continue
-                
-                user_id = row[0]
-                org_name = row[6] if row[6] else 'Не указана'
-                approaches_count = row[4]
-                
-                if user_id not in user_groups:
-                    user_groups[user_id] = {
-                        'name': row[1],
-                        'email': row[2],
-                        'lead_count': 0,
-                        'contacts': 0,
-                        'approaches': 0,
-                        'organizations': {}
-                    }
-                
-                user_groups[user_id]['approaches'] += approaches_count
-                
-                # Группируем по организациям
-                if org_name not in user_groups[user_id]['organizations']:
-                    user_groups[user_id]['organizations'][org_name] = {
-                        'contacts': 0,
-                        'approaches': 0,
-                        'total': 0
-                    }
-                
-                user_groups[user_id]['organizations'][org_name]['approaches'] += approaches_count
             
             # Преобразуем в список и сортируем
             user_stats = []
@@ -522,7 +446,6 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                     {
                         'name': org_name,
                         'contacts': stats['contacts'],
-                        'approaches': stats['approaches'] + stats['contacts'],  # подходы = отмены + контакты
                         'total': stats['total']
                     }
                     for org_name, stats in user_data['organizations'].items()
@@ -535,7 +458,6 @@ def get_daily_user_stats(date: str) -> List[Dict[str, Any]]:
                     'email': user_data['email'],
                     'lead_count': user_data['lead_count'],
                     'contacts': user_data['contacts'],
-                    'approaches': user_data['approaches'] + user_data['contacts'],  # подходы = отмены + контакты
                     'organizations': org_list
                 })
             
@@ -601,13 +523,11 @@ def get_chart_data() -> List[Dict[str, Any]]:
                 
                 key = (date_key, user_name)
                 if key not in groups:
-                    groups[key] = {'total_leads': 0, 'contacts': 0, 'approaches': 0, 'organizations': set()}
+                    groups[key] = {'total_leads': 0, 'contacts': 0, 'organizations': set()}
                 
                 groups[key]['total_leads'] += 1
                 if lead_type == 'контакт':
                     groups[key]['contacts'] += 1
-                elif lead_type == 'подход':
-                    groups[key]['approaches'] += 1
                 
                 if org_id:
                     groups[key]['organizations'].add(org_id)
@@ -620,7 +540,6 @@ def get_chart_data() -> List[Dict[str, Any]]:
                     'user_name': user_name,
                     'total_leads': stats['total_leads'],
                     'contacts': stats['contacts'],
-                    'approaches': stats['approaches'],
                     'organization_ids': list(stats['organizations'])
                 })
             
@@ -1590,15 +1509,12 @@ def get_user_shifts(email: str) -> List[Dict[str, Any]]:
                 if key not in shift_data:
                     shift_data[key] = {
                         'total_leads': 0,
-                        'contacts': 0,
-                        'approaches': 0
+                        'contacts': 0
                     }
                 
                 shift_data[key]['total_leads'] += 1
                 if lead_type == 'контакт':
                     shift_data[key]['contacts'] += 1
-                elif lead_type == 'подход':
-                    shift_data[key]['approaches'] += 1
             
             shifts = []
             for (date, org_id, org_name), data in shift_data.items():
@@ -1607,8 +1523,7 @@ def get_user_shifts(email: str) -> List[Dict[str, Any]]:
                     'organization_id': org_id,
                     'organization_name': org_name,
                     'total_leads': data['total_leads'],
-                    'contacts': data['contacts'],
-                    'approaches': data['approaches']
+                    'contacts': data['contacts']
                 })
             
             shifts.sort(key=lambda x: x['date'], reverse=True)

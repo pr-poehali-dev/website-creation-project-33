@@ -11,9 +11,7 @@ import AddShiftModal from './AddShiftModal';
 interface LeadsChartProps {
   chartData: ChartDataPoint[];
   selectedUsers: string[];
-  filterType: 'contacts' | 'approaches';
   userStats: UserStats[];
-  onFilterTypeChange: (type: 'contacts' | 'approaches') => void;
   onUsersChange: (users: string[]) => void;
   selectedOrganizations: number[];
   onOrganizationsChange: (orgIds: number[]) => void;
@@ -22,9 +20,7 @@ interface LeadsChartProps {
 export default function LeadsChart({ 
   chartData, 
   selectedUsers, 
-  filterType, 
   userStats,
-  onFilterTypeChange, 
   onUsersChange,
   selectedOrganizations,
   onOrganizationsChange
@@ -181,7 +177,6 @@ export default function LeadsChart({
           filteredChartData={filteredChartData}
           groupBy={groupBy}
           showTotal={showTotal}
-          filterType={filterType}
           selectedUsers={selectedUsers}
           userColorMap={userColorMap}
           handleChartClick={handleChartClick}

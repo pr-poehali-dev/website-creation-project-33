@@ -8,7 +8,6 @@ import StatsTab from './StatsTab';
 import OrganizationsTab from './OrganizationsTab';
 import ScheduleAnalyticsTab from './ScheduleAnalyticsTab';
 import TodayContactsCounter from './TodayContactsCounter';
-import TodayApproachesCounter from './TodayApproachesCounter';
 import MonthComparisonBadge from './MonthComparisonBadge';
 import AccountingTab from './AccountingTab';
 import AccountingStats from './AccountingStats';
@@ -267,7 +266,6 @@ export default function AdminMetroTiles({ sessionToken, currentView, onViewChang
               <div className="hidden md:flex flex-nowrap gap-1.5 min-w-0">
                 <MonthComparisonBadge sessionToken={sessionToken} />
                 <TodayContactsCounter sessionToken={sessionToken} />
-                <TodayApproachesCounter sessionToken={sessionToken} />
               </div>
               <div className="flex md:hidden flex-nowrap gap-1.5 min-w-0"><TodayContactsCounter sessionToken={sessionToken} /></div>
             </div>

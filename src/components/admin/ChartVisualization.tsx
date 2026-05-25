@@ -5,7 +5,6 @@ interface ChartVisualizationProps {
   filteredChartData: Record<string, unknown>[];
   groupBy: 'day' | 'week' | 'month' | 'year';
   showTotal: boolean;
-  filterType: 'contacts' | 'approaches';
   selectedUsers: string[];
   userColorMap: Record<string, string>;
   handleChartClick: (data: Record<string, unknown>) => void;
@@ -16,7 +15,6 @@ export default function ChartVisualization({
   filteredChartData,
   groupBy,
   showTotal,
-  filterType,
   selectedUsers,
   userColorMap,
   handleChartClick,
@@ -86,7 +84,7 @@ export default function ChartVisualization({
               return (item?.displayDate as string) || (value as string);
             }}
             formatter={(value, name) => {
-              if (name === 'contacts' || name === 'approaches') return null;
+              if (name === 'contacts') return null;
               return [value, name];
             }}
           />
@@ -96,13 +94,10 @@ export default function ChartVisualization({
             formatter={(value) => <span style={{ color: '#6b7280', fontWeight: 500 }}>{value}</span>}
           />
 
-          {showTotal && filterType === 'contacts' && (
+          {showTotal && (
             <Area type="monotone" dataKey="contacts" fill="url(#areaGrad)" strokeWidth={0} legendType="none" />
           )}
-          {showTotal && filterType === 'approaches' && (
-            <Area type="monotone" dataKey="approaches" fill="url(#areaGrad)" strokeWidth={0} legendType="none" />
-          )}
-          {showTotal && filterType === 'contacts' && (
+          {showTotal && (
             <Line
               type="monotone" dataKey="contacts"
               stroke="#3b82f6" strokeWidth={2.5}
@@ -111,18 +106,9 @@ export default function ChartVisualization({
               name="Все контакты" connectNulls strokeLinecap="round"
             />
           )}
-          {showTotal && filterType === 'approaches' && (
-            <Line
-              type="monotone" dataKey="approaches"
-              stroke="#f59e0b" strokeWidth={2.5}
-              dot={<CustomDot fill="#f59e0b" r={4} />}
-              activeDot={{ r: 6, fill: '#f59e0b', stroke: '#fff', strokeWidth: 2 }}
-              name="Все подходы" connectNulls strokeLinecap="round"
-            />
-          )}
 
           {selectedUsers.map(userName => {
-            const dataKey = filterType === 'contacts' ? `${userName}_contacts` : `${userName}_approaches`;
+            const dataKey = `${userName}_contacts`;
             return (
               <Line
                 key={dataKey} type="monotone" dataKey={dataKey}

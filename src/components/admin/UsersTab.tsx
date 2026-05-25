@@ -8,7 +8,7 @@ import UserLeadsModal from './UserLeadsModal';
 import AddContactModal from './AddContactModal';
 import { User, Lead, ADMIN_API } from './types';
 import { formatMoscowTime } from '@/utils/timeFormat';
-import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useUserApproaches, useDeleteLead, useDeleteLeadsByDate, useDeleteApproach, useDeleteApproachesByDate, useAddContact, useOrganizations } from '@/hooks/useAdminData';
+import { useUsers, useUpdateUserName, useDeleteUser, useActivateUser, useUserLeads, useDeleteLead, useDeleteLeadsByDate, useAddContact, useOrganizations } from '@/hooks/useAdminData';
 import { useToast } from '@/lib/toast';
 
 const TRAINING_API = 'https://functions.poehali.dev/1401561e-4d80-430c-87e9-7e8252e0a9b9';
@@ -56,8 +56,6 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const activateUserMutation = useActivateUser();
   const deleteLeadMutation = useDeleteLead();
   const deleteLeadsByDateMutation = useDeleteLeadsByDate();
-  const deleteApproachMutation = useDeleteApproach();
-  const deleteApproachesByDateMutation = useDeleteApproachesByDate();
   const addContactMutation = useAddContact();
   const { data: organizations = [] } = useOrganizations(enabled);
 
@@ -65,7 +63,6 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
   const [newName, setNewName] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { data: userLeads = [], isLoading: leadsLoading } = useUserLeads(selectedUser?.id || null);
-  const { data: userApproaches = [] } = useUserApproaches(selectedUser?.id || null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showAllActive, setShowAllActive] = useState(false);
   const [showAllInactive, setShowAllInactive] = useState(false);
@@ -116,17 +113,6 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
     setSelectedDate(null);
   };
 
-  const deleteApproach = async (id: number, leadType: string) => {
-    if (!confirm('Удалить этот подход?')) return;
-    await deleteApproachMutation.mutateAsync({ id, leadType });
-  };
-
-  const deleteApproachesByDate = async (date: string) => {
-    if (!selectedUser) return;
-    if (!confirm(`Удалить все подходы за ${date}? Это действие нельзя отменить.`)) return;
-    await deleteApproachesByDateMutation.mutateAsync({ userId: selectedUser.id, date });
-    setSelectedDate(null);
-  };
 
   const addContactByDate = (date: string) => {
     if (!selectedUser) return;
@@ -320,15 +306,12 @@ export default function UsersTab({ enabled = true }: UsersTabProps) {
       <UserLeadsModal
         userName={selectedUser?.name || null}
         leads={userLeads}
-        approaches={userApproaches}
         isLoading={leadsLoading}
         selectedDate={selectedDate}
         groupedLeads={groupedLeads}
         onDateSelect={setSelectedDate}
         onDeleteLead={deleteLead}
         onDeleteDate={deleteLeadsByDate}
-        onDeleteApproach={deleteApproach}
-        onDeleteApproachesByDate={deleteApproachesByDate}
         onAddContact={addContactByDate}
         onClose={() => {
           setSelectedUser(null);

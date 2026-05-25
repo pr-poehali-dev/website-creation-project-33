@@ -36,7 +36,6 @@ export interface Lead {
 export interface OrganizationStats {
   name: string;
   contacts: number;
-  approaches: number;
   total: number;
 }
 
@@ -46,7 +45,6 @@ export interface UserStats {
   email: string;
   lead_count: number;
   contacts: number;
-  approaches: number;
   duplicates: number;
   shifts_count?: number;
   avg_per_shift?: number;
@@ -60,7 +58,6 @@ export interface DailyStats {
   date: string;
   count: number;
   contacts: number;
-  approaches: number;
 }
 
 export interface ChartDataPoint {
@@ -77,7 +74,6 @@ export interface DailyUserStats {
 export interface Stats {
   total_leads: number;
   contacts: number;
-  approaches: number;
   user_stats: UserStats[];
   daily_stats: DailyStats[];
 }

@@ -95,24 +95,6 @@ export function useUserLeads(userId: number | null) {
   });
 }
 
-export function useUserApproaches(userId: number | null) {
-  return useQuery({
-    queryKey: ['userApproaches', userId],
-    queryFn: async () => {
-      if (!userId) return [];
-      const response = await fetch(`${ADMIN_API}?action=user_approaches&user_id=${userId}`, {
-        headers: {
-          'X-Session-Token': getSessionToken(),
-        },
-      });
-      if (!response.ok) throw new Error('Failed to fetch user approaches');
-      const data = await response.json();
-      return data.approaches || [];
-    },
-    enabled: !!userId,
-    staleTime: 30000,
-  });
-}
 
 export function useDailyUserStats(date: string | null) {
   return useQuery({
@@ -229,47 +211,6 @@ export function useDeleteLeadsByDate() {
   });
 }
 
-export function useDeleteApproach() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, leadType }: { id: number; leadType: string }) => {
-      const action = leadType === 'контакт' ? 'delete_approach_lead' : 'delete_approach';
-      const param = leadType === 'контакт' ? 'lead_id' : 'approach_id';
-      const response = await fetch(ADMIN_API, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'X-Session-Token': getSessionToken() },
-        body: JSON.stringify({ action, [param]: id }),
-      });
-      if (!response.ok) throw new Error('Failed to delete approach');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userApproaches'] });
-      queryClient.invalidateQueries({ queryKey: ['userLeads'] });
-      queryClient.invalidateQueries({ queryKey: ['stats'] });
-    },
-  });
-}
-
-export function useDeleteApproachesByDate() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ userId, date }: { userId: number; date: string }) => {
-      const response = await fetch(ADMIN_API, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'X-Session-Token': getSessionToken() },
-        body: JSON.stringify({ action: 'delete_approaches_by_date', user_id: userId, date }),
-      });
-      if (!response.ok) throw new Error('Failed to delete approaches by date');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userApproaches'] });
-      queryClient.invalidateQueries({ queryKey: ['userLeads'] });
-      queryClient.invalidateQueries({ queryKey: ['stats'] });
-    },
-  });
-}
 
 export function useDeleteUser() {
   const queryClient = useQueryClient();

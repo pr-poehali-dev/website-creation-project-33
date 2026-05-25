@@ -43,7 +43,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     total_leads = body_data.get('total_leads', 0)
     contacts = body_data.get('contacts', 0)
-    approaches = body_data.get('approaches', 0)
     user_stats: List[Dict[str, Any]] = body_data.get('user_stats', [])
     daily_stats: List[Dict[str, Any]] = body_data.get('daily_stats', [])
     chart_data: List[Dict[str, Any]] = body_data.get('chart_data', [])
@@ -83,7 +82,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         sheets_to_create = []
         existing_sheet_titles = [s['properties']['title'] for s in sheets]
         
-        for sheet_name in ['Общая статистика', 'Рейтинг по контактам', 'Рейтинг по подходам', 'Статистика по дням']:
+        for sheet_name in ['Общая статистика', 'Рейтинг по контактам', 'Статистика по дням']:
             if sheet_name not in existing_sheet_titles:
                 sheets_to_create.append({
                     'addSheet': {
@@ -104,8 +103,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         overview_data = [
             ['Метрика', 'Значение'],
             ['Всего лидов', total_leads],
-            ['Контакты', contacts],
-            ['Подходы', approaches]
+            ['Контакты', contacts]
         ]
         service.spreadsheets().values().clear(
             spreadsheetId=sheet_id, range='Общая статистика!A:B'
@@ -119,18 +117,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # 2. Рейтинг по контактам
         sorted_by_contacts = sorted(user_stats, key=lambda x: x.get('contacts', 0), reverse=True)
-        contacts_data = [['Место', 'Имя', 'Email', 'Контакты', 'Подходы', 'Дубли']]
+        contacts_data = [['Место', 'Имя', 'Email', 'Контакты', 'Дубли']]
         for index, user in enumerate(sorted_by_contacts, start=1):
             contacts_data.append([
                 index,
                 user.get('name', ''),
                 user.get('email', ''),
                 user.get('contacts', 0),
-                user.get('approaches', 0),
                 user.get('duplicates', 0)
             ])
         service.spreadsheets().values().clear(
-            spreadsheetId=sheet_id, range='Рейтинг по контактам!A:F'
+            spreadsheetId=sheet_id, range='Рейтинг по контактам!A:E'
         ).execute()
         service.spreadsheets().values().update(
             spreadsheetId=sheet_id,
@@ -139,39 +136,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body={'values': contacts_data}
         ).execute()
         
-        # 3. Рейтинг по подходам
-        sorted_by_approaches = sorted(user_stats, key=lambda x: x.get('approaches', 0), reverse=True)
-        approaches_data = [['Место', 'Имя', 'Email', 'Контакты', 'Подходы', 'Дубли']]
-        for index, user in enumerate(sorted_by_approaches, start=1):
-            approaches_data.append([
-                index,
-                user.get('name', ''),
-                user.get('email', ''),
-                user.get('contacts', 0),
-                user.get('approaches', 0),
-                user.get('duplicates', 0)
-            ])
-        service.spreadsheets().values().clear(
-            spreadsheetId=sheet_id, range='Рейтинг по подходам!A:F'
-        ).execute()
-        service.spreadsheets().values().update(
-            spreadsheetId=sheet_id,
-            range='Рейтинг по подходам!A1',
-            valueInputOption='RAW',
-            body={'values': approaches_data}
-        ).execute()
-        
-        # 4. Статистика по дням
-        daily_data = [['Дата', 'Всего лидов', 'Контакты', 'Подходы']]
+        # 3. Статистика по дням
+        daily_data = [['Дата', 'Всего лидов', 'Контакты']]
         for day in daily_stats:
             daily_data.append([
                 day.get('date', ''),
                 day.get('count', 0),
-                day.get('contacts', 0),
-                day.get('approaches', 0)
+                day.get('contacts', 0)
             ])
         service.spreadsheets().values().clear(
-            spreadsheetId=sheet_id, range='Статистика по дням!A:D'
+            spreadsheetId=sheet_id, range='Статистика по дням!A:C'
         ).execute()
         service.spreadsheets().values().update(
             spreadsheetId=sheet_id,
@@ -191,7 +165,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({
                 'success': True,
                 'message': 'Full statistics exported to Google Sheets',
-                'sheets_created': 4,
+                'sheets_created': 3,
                 'users_exported': len(user_stats)
             })
         }

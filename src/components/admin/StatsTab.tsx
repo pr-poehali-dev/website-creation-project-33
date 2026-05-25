@@ -27,7 +27,6 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
   
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [filterType, setFilterType] = useState<'contacts' | 'approaches'>('contacts');
   const [selectedOrganizations, setSelectedOrganizations] = useState<number[]>([]);
 
   const getSessionToken = () => localStorage.getItem('session_token');
@@ -39,15 +38,13 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
     const dateGroups = rawData.reduce((acc, item) => {
       const date = item.date;
       if (!acc[date]) {
-        acc[date] = { date, total: 0, contacts: 0, approaches: 0, organization_ids: [], user_orgs: {} };
+        acc[date] = { date, total: 0, contacts: 0, organization_ids: [], user_orgs: {} };
       }
       
       acc[date].total += item.total_leads;
       acc[date].contacts += item.contacts;
-      acc[date].approaches += item.approaches;
       acc[date][`${item.user_name}_total`] = item.total_leads;
       acc[date][`${item.user_name}_contacts`] = item.contacts;
-      acc[date][`${item.user_name}_approaches`] = item.approaches;
       
       // Сохраняем привязку организаций к пользователю
       if (item.organization_ids && Array.isArray(item.organization_ids) && item.organization_ids.length > 0) {
@@ -127,7 +124,6 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
         body: JSON.stringify({
           total_leads: stats.total_leads,
           contacts: stats.contacts,
-          approaches: stats.approaches,
           user_stats: stats.user_stats,
           daily_stats: stats.daily_stats,
           chart_data: chartData
@@ -187,9 +183,7 @@ export default function StatsTab({ enabled = true }: StatsTabProps) {
       <LeadsChart
         chartData={chartData}
         selectedUsers={selectedUsers}
-        filterType={filterType}
         userStats={stats.user_stats}
-        onFilterTypeChange={setFilterType}
         onUsersChange={setSelectedUsers}
         selectedOrganizations={selectedOrganizations}
         onOrganizationsChange={setSelectedOrganizations}

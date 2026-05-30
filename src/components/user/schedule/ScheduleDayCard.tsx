@@ -38,6 +38,7 @@ interface ScheduleDayCardProps {
   workComments: Record<string, ShiftData>;
   onToggleSlot: (dayIndex: number, slotIndex: number) => void;
   isUkrainian: boolean;
+  isPast?: boolean;
 }
 
 export default function ScheduleDayCard({
@@ -46,11 +47,12 @@ export default function ScheduleDayCard({
   workShifts,
   workComments,
   onToggleSlot,
-  isUkrainian
+  isUkrainian,
+  isPast = false
 }: ScheduleDayCardProps) {
   const dayShifts = workShifts.filter(shift => shift.date === day.date);
   const hasSelectedSlots = day.slots.some(slot => slot.selected);
-  const accentColor = day.isWeekend ? 'bg-orange-500' : 'bg-[#001f54]';
+  const accentColor = isPast ? 'bg-gray-300' : day.isWeekend ? 'bg-orange-500' : 'bg-[#001f54]';
 
   // Получить данные о месте работы для конкретного слота
   const getSlotComment = (slotLabel: string): ShiftData | null => {
@@ -87,16 +89,21 @@ export default function ScheduleDayCard({
           return (
             <div key={slot.time}>
               <button
-                onClick={() => onToggleSlot(dayIndex, slotIndex)}
-                className={`w-full flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 touch-manipulation active:scale-95 ${
-                  slot.selected
-                    ? day.isWeekend
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-[#001f54] text-white'
-                    : 'bg-gray-50 text-gray-500 border border-gray-200 active:bg-gray-100'
+                onClick={() => !isPast && onToggleSlot(dayIndex, slotIndex)}
+                disabled={isPast}
+                className={`w-full flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 touch-manipulation ${
+                  isPast
+                    ? slot.selected
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-50 text-gray-300 border border-gray-100 cursor-not-allowed'
+                    : slot.selected
+                      ? day.isWeekend
+                        ? 'bg-orange-500 text-white active:scale-95'
+                        : 'bg-[#001f54] text-white active:scale-95'
+                      : 'bg-gray-50 text-gray-500 border border-gray-200 active:bg-gray-100 active:scale-95'
                 }`}
               >
-                <Icon name="Clock" size={13} className="opacity-70 flex-shrink-0" />
+                <Icon name={isPast ? 'Lock' : 'Clock'} size={13} className="opacity-70 flex-shrink-0" />
                 <span>{slot.label}</span>
               </button>
 

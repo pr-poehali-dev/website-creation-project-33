@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useAuth } from '@/contexts/AuthContext';
-import { getAllWeeksUntilEndOfYear, getCurrentWeekIndex } from './schedule/scheduleUtils';
+import { getAllWeeksUntilEndOfYear, getCurrentWeekIndex, getMoscowDate, formatDateLocal } from './schedule/scheduleUtils';
 import ScheduleWeekNavigation from './schedule/ScheduleWeekNavigation';
 import ScheduleDayCard from './schedule/ScheduleDayCard';
 
@@ -271,17 +271,22 @@ export default function ScheduleTab() {
       </div>
 
       <div className="space-y-2">
-        {schedule.map((day, dayIndex) => (
-          <ScheduleDayCard
-            key={day.date}
-            day={day}
-            dayIndex={dayIndex}
-            workShifts={workShifts}
-            workComments={workComments[day.date] || {}}
-            onToggleSlot={toggleSlot}
-            isUkrainian={isUkrainian}
-          />
-        ))}
+        {schedule.map((day, dayIndex) => {
+          const todayStr = formatDateLocal(getMoscowDate());
+          const isPast = day.date < todayStr;
+          return (
+            <ScheduleDayCard
+              key={day.date}
+              day={day}
+              dayIndex={dayIndex}
+              workShifts={workShifts}
+              workComments={workComments[day.date] || {}}
+              onToggleSlot={toggleSlot}
+              isUkrainian={isUkrainian}
+              isPast={isPast}
+            />
+          );
+        })}
       </div>
 
       <div className="pt-1 space-y-2">

@@ -37,7 +37,6 @@ interface ScheduleDayCardProps {
   // workComments: { shiftTime: ShiftData } — данные по каждой смене отдельно
   workComments: Record<string, ShiftData>;
   onToggleSlot: (dayIndex: number, slotIndex: number) => void;
-  isUkrainian: boolean;
   isPast?: boolean;
 }
 
@@ -47,7 +46,6 @@ export default function ScheduleDayCard({
   workShifts,
   workComments,
   onToggleSlot,
-  isUkrainian,
   isPast = false
 }: ScheduleDayCardProps) {
   const dayShifts = workShifts.filter(shift => shift.date === day.date);
@@ -149,7 +147,7 @@ export default function ScheduleDayCard({
                 </p>
               </div>
               <span className="text-[10px] bg-green-600 text-white px-2 py-0.5 rounded-full flex-shrink-0">
-                {isUkrainian ? 'Адмін' : 'Админ'}
+                Админ
               </span>
             </div>
           ))}

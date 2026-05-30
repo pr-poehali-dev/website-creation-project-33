@@ -41,7 +41,6 @@ export default function ScheduleTab() {
   const [submittedAt, setSubmittedAt] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [savedSchedule, setSavedSchedule] = useState<Record<string, Record<string, boolean>>>({});
-  const isUkrainian = user?.name === 'Виктор Кобыляцкий';
   // Комментарии: { date: { shiftTime: { organization, location_type, ... } } }
   const [workComments, setWorkComments] = useState<Record<string, Record<string, {
     location?: string;
@@ -66,8 +65,8 @@ export default function ScheduleTab() {
   const initializeSchedule = () => {
     const days: DaySchedule[] = [];
     const startDate = new Date(weeks[currentWeekIndex].start);
-    const dayNames = isUkrainian ? ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'] : ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-    const dayNamesFull = isUkrainian ? ['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П\'ятниця', 'Субота', 'Неділя'] : ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+    const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const dayNamesFull = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
     
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(startDate);
@@ -261,12 +260,11 @@ export default function ScheduleTab() {
             onPrevious={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
             onNext={() => setCurrentWeekIndex(prev => Math.min(weeks.length - 1, prev + 1))}
             loading={loading}
-            isUkrainian={isUkrainian}
           />
         </div>
         <div className="bg-[#001f54] text-white px-3 py-2 rounded-xl text-xs font-semibold flex-shrink-0 text-center leading-tight">
           <span className="text-base font-bold block">{getSelectedCount()}</span>
-          <span className="opacity-70">{isUkrainian ? 'змін' : 'смен'}</span>
+          <span className="opacity-70">смен</span>
         </div>
       </div>
 
@@ -282,7 +280,6 @@ export default function ScheduleTab() {
               workShifts={workShifts}
               workComments={workComments[day.date] || {}}
               onToggleSlot={toggleSlot}
-              isUkrainian={isUkrainian}
               isPast={isPast}
             />
           );

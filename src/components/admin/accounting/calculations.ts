@@ -48,11 +48,9 @@ export const calculateWorkerSalary = (
     return 600;
   }
 
-  // Стажёры (зарегистрированные с 08.05.2026): 260₽ за контакт
-  // Применяется только к сменам с 08.05.2026
+  // Стажёры: 260₽ за контакт. Статус employee всегда приоритетнее.
   const internCutoff = new Date('2026-05-08');
-  const isIntern = employeeStatus === 'intern' ||
-    (userRegisteredAt && new Date(userRegisteredAt) >= internCutoff);
+  const isIntern = employeeStatus === 'intern';
   if (isIntern && shiftDate && new Date(shiftDate) >= internCutoff) {
     return contactsCount * 260;
   }

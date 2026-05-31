@@ -1,6 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Component, ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Icon from '@/components/ui/icon';
+
+class ChartErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 interface DayData {
   date: string;
@@ -33,7 +45,7 @@ function getCurrentWeekStart(): string {
   return msk.toISOString().split('T')[0];
 }
 
-export default function EarningsChart() {
+function EarningsChartInner() {
   const { user } = useAuth();
   const [data, setData] = useState<EarningsData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -153,10 +165,10 @@ export default function EarningsChart() {
 
       {/* Detail panel */}
       {selectedDay && (
-        <div className="mt-3 pt-3 border-t border-gray-100 animate-in fade-in duration-200">
+        <div className="mt-3 pt-3 border-t border-gray-100">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-gray-700">
-              {selectedDay.day_name}, {new Date(selectedDay.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+              {selectedDay.day_name}, {new Date(selectedDay.date.replace(/-/g, '/')).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
             </span>
             <span className={`text-sm font-bold ${selectedDay.net < 0 ? 'text-red-500' : 'text-[#001f54]'}`}>
               {selectedDay.net.toLocaleString('ru-RU')} ₽
@@ -229,5 +241,13 @@ export default function EarningsChart() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function EarningsChart() {
+  return (
+    <ChartErrorBoundary>
+      <EarningsChartInner />
+    </ChartErrorBoundary>
   );
 }

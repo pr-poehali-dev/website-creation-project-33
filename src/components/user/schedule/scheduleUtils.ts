@@ -1,7 +1,10 @@
 export const getMoscowDate = (): Date => {
-  // Получаем текущую дату и время в московской таймзоне
-  const moscowTimeStr = new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' });
-  return new Date(moscowTimeStr);
+  // UTC+3 (Москва) — надёжный способ без парсинга локализованных строк
+  const now = new Date();
+  const mskOffset = 3 * 60; // минуты
+  const utcMinutes = now.getTime() / 60000 + now.getTimezoneOffset();
+  const mskMs = (utcMinutes + mskOffset) * 60000;
+  return new Date(mskMs);
 };
 
 export const getMondayOfWeek = (date: Date): Date => {

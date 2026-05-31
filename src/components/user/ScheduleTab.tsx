@@ -316,17 +316,17 @@ export default function ScheduleTab() {
           className="w-full h-12 bg-[#001f54] hover:bg-[#002b6b] text-white rounded-xl font-semibold text-base transition-all duration-200 touch-manipulation"
         >
           {saving ? (
-            <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />{isUkrainian ? 'Збереження...' : 'Сохранение...'}</>
+            <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Сохранение...</>
           ) : saved ? (
-            <><Icon name="Check" size={16} className="mr-2" />{isUkrainian ? 'Збережено!' : 'Сохранено!'}</>
+            <><Icon name="Check" size={16} className="mr-2" />Сохранено!</>
           ) : isLocked ? (
-            <><Icon name="Plus" size={16} className="mr-2" />{isUkrainian ? 'Додати зміни' : 'Добавить смены'}</>
+            <><Icon name="Plus" size={16} className="mr-2" />Добавить смены</>
           ) : (
-            <><Icon name="Save" size={16} className="mr-2" />{isUkrainian ? 'Зберегти графік' : 'Сохранить график'}</>
+            <><Icon name="Save" size={16} className="mr-2" />Сохранить график</>
           )}
         </Button>
         {getSelectedCount() === 0 && (
-          <p className="text-center text-xs text-gray-400">{isUkrainian ? 'Виберіть хоча б одну зміну' : 'Выберите хотя бы одну смену'}</p>
+          <p className="text-center text-xs text-gray-400">Выберите хотя бы одну смену</p>
         )}
       </div>
 

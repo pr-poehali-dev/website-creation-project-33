@@ -19,6 +19,15 @@ interface UserLeadsModalProps {
   onClose: () => void;
 }
 
+function getTodayMoscow(): string {
+  const now = new Date();
+  const moscow = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
+  const d = String(moscow.getDate()).padStart(2, '0');
+  const m = String(moscow.getMonth() + 1).padStart(2, '0');
+  const y = moscow.getFullYear();
+  return `${d}.${m}.${y}`;
+}
+
 export default function UserLeadsModal({
   userName,
   leads,
@@ -78,14 +87,26 @@ export default function UserLeadsModal({
                 Контактов: {leads.length}
               </p>
             </div>
-            <Button
-              onClick={onClose}
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-gray-100 text-gray-400 flex-shrink-0"
-            >
-              <Icon name="X" size={16} />
-            </Button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {onAddContact && (
+                <button
+                  onClick={() => onAddContact(getTodayMoscow())}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-500 transition-colors"
+                  title="Добавить контакты за сегодня"
+                >
+                  <Icon name="Plus" size={13} />
+                  Сегодня
+                </button>
+              )}
+              <Button
+                onClick={onClose}
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-gray-100 text-gray-400"
+              >
+                <Icon name="X" size={16} />
+              </Button>
+            </div>
           </div>
         </div>
         
@@ -101,7 +122,16 @@ export default function UserLeadsModal({
             <div className="border border-gray-100 rounded-xl p-4 bg-white">
               <div className="text-center text-gray-400">
                 <Icon name="Phone" size={20} className="mx-auto mb-2 text-gray-300" />
-                <div className="text-sm font-medium">Нет контактов</div>
+                <div className="text-sm font-medium mb-3">Нет контактов</div>
+                {onAddContact && (
+                  <button
+                    onClick={() => onAddContact(getTodayMoscow())}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-500 transition-colors"
+                  >
+                    <Icon name="Plus" size={14} />
+                    Добавить контакты за сегодня
+                  </button>
+                )}
               </div>
             </div>
           ) : (

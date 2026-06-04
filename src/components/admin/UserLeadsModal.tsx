@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import DateTabs from './DateTabs';
@@ -28,6 +28,16 @@ function getTodayMoscow(): string {
   return `${d}.${m}.${y}`;
 }
 
+function isoToDot(iso: string): string {
+  const [y, m, d] = iso.split('-');
+  return `${d}.${m}.${y}`;
+}
+
+function dotToIso(dot: string): string {
+  const [d, m, y] = dot.split('.');
+  return `${y}-${m}-${d}`;
+}
+
 export default function UserLeadsModal({
   userName,
   leads,
@@ -40,9 +50,10 @@ export default function UserLeadsModal({
   onAddContact,
   onClose,
 }: UserLeadsModalProps) {
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
   if (!userName) return null;
 
-  // Для контактов используем groupedLeads (все лиды — контакты)
   const contactsGrouped = Object.keys(groupedLeads).reduce((acc, date) => {
     const filtered = groupedLeads[date];
     if (filtered.length > 0) acc[date] = filtered;
@@ -70,6 +81,12 @@ export default function UserLeadsModal({
     onDateSelect(selectedDate === date ? '' : date);
   };
 
+  const handleDatePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.value || !onAddContact) return;
+    onAddContact(isoToDot(e.target.value));
+    e.target.value = '';
+  };
+
   const currentDateLeads = selectedDate && contactsGrouped[selectedDate]
     ? contactsGrouped[selectedDate]
     : null;
@@ -89,14 +106,24 @@ export default function UserLeadsModal({
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {onAddContact && (
-                <button
-                  onClick={() => onAddContact(getTodayMoscow())}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-500 transition-colors"
-                  title="Добавить контакты за сегодня"
-                >
-                  <Icon name="Plus" size={13} />
-                  Сегодня
-                </button>
+                <>
+                  <input
+                    ref={dateInputRef}
+                    type="date"
+                    max={dotToIso(getTodayMoscow())}
+                    onChange={handleDatePick}
+                    className="sr-only"
+                    tabIndex={-1}
+                  />
+                  <button
+                    onClick={() => dateInputRef.current?.showPicker()}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-500 transition-colors"
+                    title="Добавить контакты за выбранную дату"
+                  >
+                    <Icon name="Plus" size={13} />
+                    Добавить за дату
+                  </button>
+                </>
               )}
               <Button
                 onClick={onClose}
@@ -125,11 +152,11 @@ export default function UserLeadsModal({
                 <div className="text-sm font-medium mb-3">Нет контактов</div>
                 {onAddContact && (
                   <button
-                    onClick={() => onAddContact(getTodayMoscow())}
+                    onClick={() => dateInputRef.current?.showPicker()}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-500 transition-colors"
                   >
                     <Icon name="Plus" size={14} />
-                    Добавить контакты за сегодня
+                    Добавить контакты
                   </button>
                 )}
               </div>
@@ -146,7 +173,6 @@ export default function UserLeadsModal({
                 onAddContact={onAddContact}
               />
 
-              {/* Контакты */}
               {selectedDate && currentDateLeads && (
                 <div className="space-y-3">
                   {(() => {

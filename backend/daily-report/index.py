@@ -100,8 +100,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
                 after_tax = revenue - tax
                 # Зарплата с учётом статуса (стажёр / сотрудник)
-                if emp_status == 'intern' and intern_rate_start <= today < intern_rate_end:
-                    worker_salary = contacts * 260
+                if emp_status == 'intern':
+                    if intern_rate_start <= today < intern_rate_end:
+                        worker_salary = contacts * 260
+                    else:
+                        worker_salary = contacts * 200
                 elif contacts >= 10:
                     worker_salary = contacts * 300
                 else:

@@ -48,13 +48,16 @@ export const calculateWorkerSalary = (
     return 600;
   }
 
-  // Стажёры: 260₽ за контакт. Статус employee всегда приоритетнее.
-  const internCutoff = new Date('2026-05-08');
   const isIntern = employeeStatus === 'intern';
-  if (isIntern && shiftDate && new Date(shiftDate) >= internCutoff) {
-    return contactsCount * 260;
+  if (isIntern) {
+    const internRateStart = new Date('2026-05-08');
+    const internRateEnd = new Date('2026-06-04');
+    if (shiftDate && new Date(shiftDate) >= internRateStart && new Date(shiftDate) < internRateEnd) {
+      return contactsCount * 260;
+    }
+    return contactsCount * 200;
   }
-  
+
   // До 01.10.2025 все контакты по 200₽
   if (shiftDate && new Date(shiftDate) < new Date('2025-10-01')) {
     return contactsCount * 200;

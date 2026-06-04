@@ -105,7 +105,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
             after_tax = revenue - tax
             
-            worker_salary = contacts * 300 if contacts >= 10 else contacts * 200
+            emp_status = shift.get('employee_status', 'employee')
+            shift_date_str = shift.get('date', '')
+            if emp_status == 'intern':
+                from datetime import date as _date
+                d = _date.fromisoformat(shift_date_str) if shift_date_str else _date.today()
+                if _date(2026, 5, 8) <= d < _date(2026, 6, 4):
+                    worker_salary = contacts * 260
+                else:
+                    worker_salary = contacts * 200
+            else:
+                worker_salary = contacts * 300 if contacts >= 10 else contacts * 200
             expense = shift.get('expense_amount', 0)
             net_profit = after_tax - worker_salary - expense
             

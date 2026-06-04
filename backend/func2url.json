@@ -25,6 +25,7 @@
   "clients-data": "https://functions.poehali.dev/ea6877bc-65c9-4dc3-bafd-dfa003d3948e",
   "month-comparison": "https://functions.poehali.dev/fb8b60e8-9d84-4e3b-87c6-d5c3fafea739",
   "monthly-contacts": "https://functions.poehali.dev/d0ce132d-5700-4f2a-850e-e49d41bd8969",
+  "export-accounting": "https://functions.poehali.dev/e7ea8b8a-c7f4-4c24-84f4-436f40f76963",
   "week-org-filters": "https://functions.poehali.dev/c2ddb9ba-a3c4-442a-a859-fc8cd5043101",
   "work-comments": "https://functions.poehali.dev/1b7f0423-384e-417f-8aea-767e5a1c32b2",
   "schedule-stats": "https://functions.poehali.dev/1bee9f5e-8c1a-4353-aa1b-726199b50b62",

@@ -90,7 +90,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             """, (today,))
             shifts_today = cur.fetchall()
 
-            intern_cutoff = date(2026, 5, 8)
+            intern_rate_start = date(2026, 5, 8)
+            intern_rate_end = date(2026, 6, 4)
 
             total_kms = 0
             for user_id, org_name, rate, payment_type, compensation, contacts, emp_status, expense_amount in shifts_today:
@@ -99,7 +100,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 tax = round(revenue * 0.07) if payment_type == 'cashless' else 0
                 after_tax = revenue - tax
                 # Зарплата с учётом статуса (стажёр / сотрудник)
-                if emp_status == 'intern' and today >= intern_cutoff:
+                if emp_status == 'intern' and intern_rate_start <= today < intern_rate_end:
                     worker_salary = contacts * 260
                 elif contacts >= 10:
                     worker_salary = contacts * 300

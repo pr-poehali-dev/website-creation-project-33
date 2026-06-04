@@ -41,7 +41,7 @@ def calc_kms_query(extra_where: str) -> str:
             ROUND((
                 (s.contacts * s.eff_rate + s.comp)
                 - CASE WHEN s.eff_pt = 'cashless' THEN ROUND((s.contacts * s.eff_rate + s.comp) * 0.07) ELSE 0 END
-                - CASE WHEN s.emp_status = 'intern' AND s.work_date >= '2026-05-08' THEN s.contacts * 260
+                - CASE WHEN s.emp_status = 'intern' AND s.work_date >= '2026-05-08' AND s.work_date < '2026-06-04' THEN s.contacts * 260
                        WHEN s.contacts >= 10 THEN s.contacts * 300
                        ELSE s.contacts * 200 END
                 - s.expense
@@ -67,7 +67,7 @@ def calc_salary_query(extra_where: str) -> str:
     ) s,
     LATERAL (
         SELECT
-            CASE WHEN s.emp_status = 'intern' AND s.work_date >= '2026-05-08' THEN s.contacts * 260
+            CASE WHEN s.emp_status = 'intern' AND s.work_date >= '2026-05-08' AND s.work_date < '2026-06-04' THEN s.contacts * 260
                  WHEN s.contacts >= 10 THEN s.contacts * 300
                  ELSE s.contacts * 200
             END AS salary

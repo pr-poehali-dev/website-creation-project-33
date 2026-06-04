@@ -31,8 +31,9 @@ def calculate_salary(contacts: int, shift_date_str: str, user_id: int, org_name:
     if org_name == 'Администратор':
         return 600
     d = date.fromisoformat(shift_date_str)
-    intern_cutoff = date(2026, 5, 8)
-    if employee_status == 'intern' and d >= intern_cutoff:
+    intern_rate_start = date(2026, 5, 8)
+    intern_rate_end = date(2026, 6, 4)
+    if employee_status == 'intern' and intern_rate_start <= d < intern_rate_end:
         return contacts * 260
     cutoff = date(2025, 10, 1)
     if d < cutoff:
